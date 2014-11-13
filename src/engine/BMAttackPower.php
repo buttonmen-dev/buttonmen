@@ -67,9 +67,9 @@ class BMAttackPower extends BMAttack {
                 $validationArray['isIncreasedValueValid'] = TRUE;
             }
             $validationArray['isValidAttacker'] =
-                $att->is_valid_attacker($this->type, $attackers);
+                $att->is_valid_attacker($attackers);
             $validationArray['isValidTarget'] =
-                $def->is_valid_target($this->type, $defenders);
+                $def->is_valid_target($defenders);
 
             $this->validationMessage =
                 $this->get_validation_message($validationArray, $helpValue);

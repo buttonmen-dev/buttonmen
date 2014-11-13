@@ -718,7 +718,7 @@ class BMInterface {
                 'Caught exception in BMInterface::load_game: ' .
                 $e->getMessage()
             );
-            $this->message = "Game load failed: $e";
+            $this->message = "Internal error while loading game.";
             return NULL;
         }
     }

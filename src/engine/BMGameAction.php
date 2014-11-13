@@ -255,6 +255,16 @@ class BMGameAction {
 
     protected function messageAttacker($preAttackDice, $postAttackDice) {
         $messageAttackerArray = array();
+
+        // deal with the possibility of an attacker that splits
+        if (count($preAttackDice['attacker']) <
+            count($postAttackDice['attacker'])) {
+            return $this->message_split(
+                $preAttackDice['attacker'],
+                $postAttackDice['attacker']
+            );
+        }
+
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
@@ -282,6 +292,21 @@ class BMGameAction {
         $messageAttacker = implode('; ', $messageAttackerArray);
 
         return $messageAttacker;
+    }
+
+    protected function message_split(array $preAttackAttackers, array $postAttackAttackers) {
+        assert(count($preAttackAttackers) < count($postAttackAttackers));
+
+        // james: currently, the logic only handles one die splitting into two
+        assert(1 == count($preAttackAttackers));
+        assert(2 == count($postAttackAttackers));
+
+        $message = 'Attacker ' .
+                   $preAttackAttackers[0]['recipe'] . ' showing ' . $preAttackAttackers[0]['value'] . ' split into ' .
+                   $postAttackAttackers[0]['recipe'] . ' showing ' . $postAttackAttackers[0]['value'] . ' and ' .
+                   $postAttackAttackers[1]['recipe'] . ' showing ' . $postAttackAttackers[1]['value'];
+
+        return $message;
     }
 
     protected function message_append(array &$messageArray, $messageIncrement) {

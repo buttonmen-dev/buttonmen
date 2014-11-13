@@ -164,6 +164,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Trip' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                 ),
             ),
+            'Radioactive' => array(
+                'code' => '%',
+                'description' => 'These dice split, or "decay", when attacking another single die. A radioactive die will then decay into two as-close-to-equal-sized-as-possible dice that add up to its original size. If a radioactive die is attacked by a single die, then the die that attacked it decays in the same way. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), [and, not yet implemented: Jolt(J), and Time and Space(^)]. For example, a sX! (Shadow Turbo X Swing) with 15 sides that shadow attacked a radioactive die would decay into a s7 and a s8 sided die losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6) losing the radioactive skill.',
+                'interacts' => array(),
+            ),
             'Reserve' => array(
                 'code' => 'r',
                 'description' => 'These are extra dice which may be brought into play part way through a game. Each time you lose a round you may choose another of your Reserve Dice; it will then be in play for all future rounds.',
@@ -6529,5 +6534,102 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 0), array(0, 1), array(0, 3), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
 
+    }
+
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test reproduced an internal error bug affecting Anti-Llama
+     * 0. Start a game with responder003 playing Anti-Llama and responder004 playing Anti-Llama
+     *    c2 won initiative for round 1. Initial die values: c1 rolled [%Ho(1,2):2, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):7], c2 rolled [%Ho(1,2):3, %Ho(1,4):2, %Ho(1,6):3, %Ho(1,8):2].
+     * 1. responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2].
+     */
+    public function test_interface_game_016() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 16;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        // Each button rolls 4 twin dice (8 rolls/button = 16 rolls total)
+        $gameId = $this->verify_api_createGame(
+            array(1, 1, 1, 3, 1, 4, 1, 6, 1, 2, 1, 1, 1, 2, 1, 1),
+            'responder003', 'responder004', 'Anti-Llama', 'Anti-Llama', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerWithInitiativeIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 12.0;
+        $expData['playerDataArray'][1]['roundScore'] = 12.0;
+        $expData['playerDataArray'][0]['sideScore'] = 0.0;
+        $expData['playerDataArray'][1]['sideScore'] = 0.0;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 2, 'sides' => 3, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,2)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 2 sides)'),
+            array('value' => 4, 'sides' => 5, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,4)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 4 sides)'),
+            array('value' => 5, 'sides' => 7, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 6 sides)'),
+            array('value' => 7, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 3, 'sides' => 3, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,2)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 2 sides)'),
+            array('value' => 2, 'sides' => 5, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,4)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 4 sides)'),
+            array('value' => 3, 'sides' => 7, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 6 sides)'),
+            array('value' => 2, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [%Ho(1,2):2, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):7], responder004 rolled [%Ho(1,2):3, %Ho(1,4):2, %Ho(1,6):3, %Ho(1,8):2].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2]
+        // [%Ho(1,2):2, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):7] <= [%Ho(1,2):3, %Ho(1,4):2, %Ho(1,6):3, %Ho(1,8):2]
+
+        // this should require 10 dice to be rolled
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+            'responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2]; Defender %Ho(1,2) was captured; Attacker %Ho(1,2) showing 3 split into Ho(2,2) showing 2 and Ho(1,2) showing 2. responder004\'s idle ornery dice rerolled at end of turn: %Ho(1,4) changed size from 5 to 8 sides, recipe changed from %Ho(1,4) to %Ho(2,6), rerolled 2 => 2; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 3 => 2; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 2 => 2. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power',);
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 10.5;
+        $expData['playerDataArray'][1]['roundScore'] = 21.5;
+        $expData['playerDataArray'][0]['sideScore'] = -7.3;
+        $expData['playerDataArray'][1]['sideScore'] = 7.3;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 4, 'sides' => 5, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,4)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 4 sides)'),
+            array('value' => 5, 'sides' => 7, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 6 sides)'),
+            array('value' => 7, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 2, 'sides' => 4, 'skills' => array('Mighty', 'Ornery'), 'properties' => array(), 'recipe' => 'Ho(2,2)', 'description' => 'Mighty Ornery Twin Die (both with 2 sides)'),
+            array('value' => 2, 'sides' => 3, 'skills' => array('Mighty', 'Ornery'), 'properties' => array(), 'recipe' => 'Ho(1,2)', 'description' => 'Mighty Ornery Twin Die (with 1 and 2 sides)'),
+            array('value' => 2, 'sides' => 8, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustRerolledOrnery'), 'recipe' => '%Ho(2,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 6 sides)'),
+            array('value' => 2, 'sides' => 10, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustRerolledOrnery'), 'recipe' => '%Ho(2,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 8 sides)'),
+            array('value' => 2, 'sides' => 12, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustRerolledOrnery'), 'recipe' => '%Ho(2,10)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 10 sides)'),
+        );
+        $expData['playerDataArray'][1]['capturedDieArray'] = array(
+            array('value' => 2, 'sides' => 3, 'properties' => array('WasJustCaptured'), 'recipe' => '%Ho(1,2)'),
+        );
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2]; Defender %Ho(1,2) was captured; Attacker %Ho(1,2) showing 3 split into Ho(2,2) showing 2 and Ho(1,2) showing 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: %Ho(1,4) changed size from 5 to 8 sides, recipe changed from %Ho(1,4) to %Ho(2,6), rerolled 2 => 2; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 3 => 2; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 2 => 2'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 }
