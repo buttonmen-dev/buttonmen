@@ -225,19 +225,8 @@ abstract class BMAttack {
 
         // allow attack type to modify default behaviour
         $activeDiceNew = array();
-        foreach ($attackers as $attIdx => &$att) {
-            $playerIdx = $att->playerIdx;
-            $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx], TRUE);
-
-            $newDie = $att->capture($this->type, $attackers, $defenders);
-
-            if (isset($newDie)) {
-                // change $attackers so that attack log is correct
-                $attackers[$attIdx] = $newDie;
-
-                // prepare to change active dice
-                $activeDiceNew[$playerIdx][$dieIdx] = $newDie;
-            }
+        foreach ($attackers as &$att) {
+            $att->capture($this->type, $attackers, $defenders);
         }
 
         foreach ($defenders as &$def) {

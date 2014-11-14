@@ -27,18 +27,27 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
      * @covers BMSkillDoppelganger::capture
      */
     public function testCapture_power_normal() {
-        // normal morphing die capturing normal die
         $att = BMDie::create(6);
         $att->add_skill('Doppelganger');
         $att->add_skill('Trip');
         $def = BMDie::create(17);
         $def->add_skill('Konstant');
 
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att), array($def));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $att->ownerObject = $game;
+        $att->playerIdx = 0;
+        $def->ownerObject = $game;
+
         $parArray = array('type' => 'Power',
                           'attackers' => array($att),
                           'defenders' => array($def),
                           'caller' => $att);
-        $newDie = BMSkillDoppelganger::capture($parArray);
+        BMSkillDoppelganger::capture($parArray);
+
+        $newDie = $parArray['attackers'][0];
 
         $this->assertEquals(17, $newDie->max);
         $this->assertFalse($newDie->has_skill('Doppelganger'));
@@ -50,7 +59,6 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
      * @covers BMSkillDoppelganger::capture
      */
     public function testCapture_skill_normal() {
-        // normal morphing die capturing normal die
         $att = BMDie::create(6);
         $att->add_skill('Doppelganger');
         $att->add_skill('Trip');
@@ -77,11 +85,21 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def1 = BMDieTwin::create(array(5,13));
         $def1->add_skill('Konstant');
 
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att1), array($def1));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $att1->ownerObject = $game;
+        $att1->playerIdx = 0;
+        $def1->ownerObject = $game;
+
         $parArray = array('type' => 'Power',
                           'attackers' => array($att1),
                           'defenders' => array($def1),
                           'caller' => $att1);
-        $newDie1 = BMSkillDoppelganger::capture($parArray);
+        BMSkillDoppelganger::capture($parArray);
+
+        $newDie1 = $parArray['attackers'][0];
 
         $this->assertInstanceOf('BMDieTwin', $newDie1);
         $this->assertEquals(2, $newDie1->min);
@@ -99,11 +117,21 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def2 = BMDie::create(15);
         $def2->add_skill('Konstant');
 
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att2), array($def2));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $att2->ownerObject = $game;
+        $att2->playerIdx = 0;
+        $def2->ownerObject = $game;
+
         $parArray = array('type' => 'Power',
                           'attackers' => array($att2),
                           'defenders' => array($def2),
                           'caller' => $att2);
-        $newDie2 = BMSkillDoppelganger::capture($parArray);
+        BMSkillDoppelganger::capture($parArray);
+
+        $newDie2 = $parArray['attackers'][0];
 
         $this->assertNotInstanceOf('BMDieTwin', $newDie2);
         $this->assertEquals(1, $newDie2->min);
@@ -125,11 +153,21 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def1->add_skill('Konstant');
         $def1->set_swingValue(array('X' => 5));
 
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att1), array($def1));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $att1->ownerObject = $game;
+        $att1->playerIdx = 0;
+        $def1->ownerObject = $game;
+
         $parArray = array('type' => 'Power',
                           'attackers' => array($att1),
                           'defenders' => array($def1),
                           'caller' => $att1);
-        $newDie1 = BMSkillDoppelganger::capture($parArray);
+        BMSkillDoppelganger::capture($parArray);
+
+        $newDie1 = $parArray['attackers'][0];
 
         $this->assertEquals(5, $newDie1->max);
         $this->assertInstanceOf('BMDieSwing', $newDie1);
@@ -146,11 +184,21 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def2 = BMDie::create(11);
         $def2->add_skill('Konstant');
 
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att2), array($def2));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $att2->ownerObject = $game;
+        $att2->playerIdx = 0;
+        $def2->ownerObject = $game;
+
         $parArray = array('type' => 'Power',
                           'attackers' => array($att2),
                           'defenders' => array($def2),
                           'caller' => $att2);
-        $newDie2 = BMSkillDoppelganger::capture($parArray);
+        BMSkillDoppelganger::capture($parArray);
+
+        $newDie2 = $parArray['attackers'][0];
 
         $this->assertEquals(11, $newDie2->max);
         $this->assertNotInstanceOf('BMDieSwing', $newDie2);
@@ -166,11 +214,21 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def3->add_skill('Konstant');
         $def3->set_swingValue(array('X' => 5));
 
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att3), array($def3));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $att3->ownerObject = $game;
+        $att3->playerIdx = 0;
+        $def3->ownerObject = $game;
+
         $parArray = array('type' => 'Power',
                           'attackers' => array($att3),
                           'defenders' => array($def3),
                           'caller' => $att3);
-        $newDie3 = BMSkillDoppelganger::capture($parArray);
+        BMSkillDoppelganger::capture($parArray);
+
+        $newDie3 = $parArray['attackers'][0];
 
         $this->assertEquals(10, $newDie3->max);
         $this->assertInstanceOf('BMDieTwin', $newDie3);
