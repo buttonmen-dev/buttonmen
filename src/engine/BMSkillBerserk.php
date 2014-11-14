@@ -31,7 +31,7 @@ class BMSkillBerserk extends BMSkill {
         return array('Skill');
     }
 
-    public static function capture($args) {
+    public static function capture(&$args) {
         if (!is_array($args)) {
             return;
         }
@@ -48,27 +48,20 @@ class BMSkillBerserk extends BMSkill {
             return;
         }
 
-        assert(1 == count($args['attackers']));
+        if (1 != count($args['attackers'])) {
+            throw new LogicException('There should only be one attacker when applying Berserk.');
+        }
 
         $attacker = $args['attackers'][0];
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $attackerPlayerIdx = $game->attack['attackerPlayerIdx'];
 
-        $dieIdx = array_search(
-            $attacker,
-            $activeDieArrayArray[$attackerPlayerIdx],
-            TRUE
-        );
-        assert(FALSE !== $dieIdx);
-
-        // james: which other skills need to be lost after a Berserk attack?
         $attacker->remove_skill('Berserk');
 
-        // force removal of swing, twin die, and option status
+        // halve number of sides
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
-        $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
+        $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
@@ -88,6 +81,9 @@ class BMSkillBerserk extends BMSkill {
         return array(
             'Mighty' => 'Dice with both Berserk and Mighty skills will first ' .
                          'halve in size, and then grow',
+            'Radioactive' => 'Dice with both Radioactive and Berserk skills making a berserk attack ' .
+                             'targeting a SINGLE die are first replaced with non-berserk dice with half ' .
+                             'their previous number of sides, rounding up, and then decay',
             'Speed' => 'Dice with both Berserk and Speed skills may ' .
                        'choose to make either kind of attack',
             'Weak' => 'Dice with both Berserk and Weak skills will first ' .

@@ -13,9 +13,19 @@ class BMSkillWeak extends BMSkill {
 
     public static function pre_roll($args) {
         $die = $args['die'];
-        if (isset($die->value)) {
-            $die->shrink();
+
+        // don't trigger skill when initially rolling the die into the button
+        if (!($die->ownerObject instanceof BMGame)) {
+            return;
         }
+
+        // don't trigger skill when rolling the die into the beginning of the round
+        if (!isset($die->value) &&
+            ($die->ownerObject->turnNumberInRound <= 1)) {
+            return;
+        }
+
+        $die->shrink();
     }
 
     protected static function get_description() {

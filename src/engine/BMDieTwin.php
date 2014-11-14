@@ -58,8 +58,6 @@ class BMDieTwin extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         foreach ($this->dice as $die) {
             if ($die instanceof BMDieSwing) {
                 $this->ownerObject->request_swing_values(
@@ -170,12 +168,13 @@ class BMDieTwin extends BMDie {
     }
 
     public function split() {
+        unset($this->value);
         $newdie = clone $this;
 
         foreach ($this->dice as $dieIdx => &$die) {
             $splitDieArray = $die->split();
-            $this->dice[$dieIdx] = $splitDieArray[0];
-            $newdie->dice[$dieIdx] = $splitDieArray[1];
+            $this->dice[$dieIdx] = $splitDieArray[$dieIdx % 2];
+            $newdie->dice[$dieIdx] = $splitDieArray[($dieIdx + 1) % 2];
         }
 
         $this->recalc_max_min();
