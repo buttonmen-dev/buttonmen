@@ -621,7 +621,7 @@ class BMDie extends BMCanHaveSkill {
         return ($this->has_skill('Mood') || $this->has_skill('Mad'));
     }
 
-    public function doesSkipSwingRequest() {
+    public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
 
         $doesSkipSwingRequest = is_array($hookResult) &&
