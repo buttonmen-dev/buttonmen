@@ -6166,7 +6166,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // initial game setup
         // 4 of The Tick's dice (5 rolls, since 1 is twin), and 4 of Famine's (5 rolls, since 1 is twin), are initially rolled
         $gameId = $this->verify_api_createGame(
-            array(2, 7, 5, 18, 13, 5, 5, 4, 12, 1),
+            array(1, 8, 5, 18, 13, 5, 5, 4, 12, 1),
             'responder003', 'responder004', 'The Tick', 'Famine', 3);
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
