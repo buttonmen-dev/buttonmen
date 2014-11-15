@@ -320,8 +320,10 @@ class BMGameAction {
 
         if ($preInfo['max'] != $postInfo['max']) {
             $message = 'changed size from ' . $preInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
-        } elseif (array_key_exists('forceReportDieSize', $preInfo) &&
-                  $preInfo['forceReportDieSize']) {
+        } elseif ((array_key_exists('forceReportDieSize', $preInfo) &&
+                   $preInfo['forceReportDieSize']) ||
+                  (array_key_exists('forceReportDieSize', $postInfo) &&
+                   $postInfo['forceReportDieSize'])) {
             $message = 'remained the same size';
         }
 
