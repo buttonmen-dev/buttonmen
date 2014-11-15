@@ -1793,7 +1793,7 @@ class BMGame {
                 array_fill(0, $this->nPlayers, array());
         }
 
-        if (!$die->doesSkipSwingRequest()) {
+        if (!$die->does_skip_swing_request()) {
             $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
         }
     }
@@ -1907,7 +1907,7 @@ class BMGame {
 
     protected static function is_button_slow($button) {
         $hookResult = $button->run_hooks(
-            'is_button_slow',
+            __FUNCTION__,
             array('name' => $button->name)
         );
 

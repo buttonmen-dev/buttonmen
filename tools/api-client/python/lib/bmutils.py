@@ -21,6 +21,7 @@ SkillName = {
   'o': 'Ornery',
   'p': 'Poison',
   'q': 'Queer',
+  '%': 'Radioactive',
   'r': 'Reserve',
   's': 'Shadow',
   'w': 'Slow',

@@ -26,7 +26,7 @@ class BMSkillMaximumTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMSkillMaximum::post_roll
      */
-    public function testPre_roll_bad_args() {
+    public function testPost_roll_bad_args() {
         $args = NULL;
         $this->assertFalse(BMSkillMaximum::post_roll($args));
     }
