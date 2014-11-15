@@ -230,16 +230,17 @@ class BMGameAction {
             $postInfo = $postAttackDice['defender'][$idx];
             $postEventsDefender = array();
 
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_recipe_change($defenderInfo, $postInfo, FALSE)
+            );
+
             if ($defenderRerollsEarly) {
                 $this->message_append(
                     $postEventsDefender,
                     $this->message_value_change($defenderInfo, $postInfo)
                 );
             }
-            $this->message_append(
-                $postEventsDefender,
-                $this->message_recipe_change($defenderInfo, $postInfo)
-            );
             $this->message_append(
                 $postEventsDefender,
                 $this->message_capture($postInfo)
@@ -330,11 +331,17 @@ class BMGameAction {
         return $message;
     }
 
-    protected function message_recipe_change($preInfo, $postInfo) {
+    protected function message_recipe_change($preInfo, $postInfo, $showFrom = TRUE) {
         $message = '';
 
         if ($preInfo['recipe'] != $postInfo['recipe']) {
-            $message = 'recipe changed from ' . $preInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            $message = 'recipe changed';
+
+            if ($showFrom) {
+                $message .= ' from ' . $preInfo['recipe'];
+            }
+
+            $message .= ' to ' . $postInfo['recipe'];
         }
 
         return $message;
