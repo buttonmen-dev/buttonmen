@@ -6754,7 +6754,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Konstant', 'Mood', 'Morphing', 'Slow'));
-        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;  
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array('3' => array(10, 20));
         $expData['playerDataArray'][0]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
@@ -7007,7 +7007,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameState'] = 'SPECIFY_DICE';
         $expData['activePlayerIdx'] = NULL;
         $expData['validAttackTypeArray'] = array();
-        // BUG: player 0 should have waitingOnAction = FALSE
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][0]['gameScoreArray']['W'] = 1;
         $expData['playerDataArray'][1]['gameScoreArray']['L'] = 1;
