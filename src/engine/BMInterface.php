@@ -2638,7 +2638,7 @@ class BMInterface {
 
     protected function get_player_name_from_id($playerId) {
         try {
-            if (is_null($playerId)) {
+            if (empty($playerId)) {
                 return('');
             }
 
@@ -2648,7 +2648,6 @@ class BMInterface {
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetch();
             if (!$result) {
-                $this->message = 'Player ID does not exist.';
                 return('');
             } else {
                 return($result[0]);
