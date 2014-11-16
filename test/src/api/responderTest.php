@@ -569,8 +569,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'logEntryLimit' => $logEntryLimit,
         );
         $retval = $this->verify_api_success($args);
-// FIXME: uncomment this when #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $retval['message']);
+        $this->assertEquals('Loaded data for game ' . $gameId . '.', $retval['message']);
         if ($check) {
             $cleanedData = $this->squash_game_data_timestamps($retval['data']);
             $this->assertEquals($expData, $cleanedData);
