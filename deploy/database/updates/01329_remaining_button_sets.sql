@@ -1,7 +1,8 @@
-# KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y), (K) 
+# KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y) 
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (572, 'Space Kubla',       '(6) (8) O(12) X(12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con")),
-(573, 'Pirate Kubla',      '(6) (8) (20) H(12) (K)',     0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con"));
+# Pirate Kubla's X is actually a Kubla die. Every time you reroll it, shout "Kubla!" 
+(573, 'Pirate Kubla',      '(6) (8) (20) Y(12) (X)',     0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con"));
 
 # ZOECon (ZOECon.net)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -37,7 +38,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (593, 'Delaware',        '(1) (4) h(6) f(8) (T)',                          1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (594, 'Florida',       'g(6) F(10) p(12) (U) r(4) r(6) hr(12) @whr(20)',   1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (595, 'Georgia(US)',     'oz(10) (4/20) B(X) B(X) q(X)',                   1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(596, 'Hawaii',          'n(4) m(5) k(8)F(13) d(Y)',                       1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(596, 'Hawaii',          'n(4) m(5) k(8) F(13) d(Y)',                      1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (597, 'Idaho',           'B(4) s(6) (8) (Y) (Y)',                          1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (598, 'Illinois',        '(10/20) G(12) (8,8) (R) rsd(4) rsd(6)',          1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (599, 'Indiana',         '(4) (8) (12) z(20) (W)',                         1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
@@ -117,9 +118,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (662, 'Montgomery',   '(6) n(8) n(12) (20) (X)',          0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack")),
 (663, 'Jean-Paul',    '(4) I(8) z(12) Iz(W)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack")),
 (664, 'Montague(u)',  '(2,2) (4) (10,10) (20) (X) +(V)',  0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack")),
-(665, 'Chantal',      'pI(4) pI(8) (20) (20) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack")),
-# Silly Self Promo (yes, that's a fudge die)  INTRODUCES Sustaind Fire Die (SFD)
-(666, 'Bayani',       '(F) (SFD) (16) (16) (12/20)',      1, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
+(665, 'Chantal',      'pI(4) pI(8) (20) (20) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
 
 # MEGATOKYO (Dreamshade - MegaTokyo forums)  INTRODUCES Full Auto Dice(P); Turbo, Speed, Mood Swing, Poison, Shadow, Option
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -127,7 +126,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (667, 'Largo',            '(12) (20) (20) (X)',              1, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (668, 'Ping',             '(4) (8) (X)! (X)!',               0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (669, 'Piro',             '(4) (8) (8) z(X)? z(X)?',         0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
-(670, '\"Darkly Cute\"',  '(4) p(8) s(10) p(12) s(X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
+(670, 'Darkly Cute',      '(4) p(8) s(10) p(12) s(X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (671, 'Dom',              '(10) (10) P(20) P(20) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (672, 'Erika',            'z(10) z(12) z(12) z(4/20)!',      0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo"));
 
