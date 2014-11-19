@@ -58,7 +58,7 @@ class TestBMClient(unittest.TestCase):
     self.assertEqual(testButton['hasUnimplementedSkill'], False)
     self.assertEqual(testButton['isTournamentLegal'], False)
     self.assertEqual(testButton['recipe'], 'z(8/12) (4/16) s(6/10) z(X) s(U)')
-    self.assertEqual(testButton['artFilename'], 'BMdefaultRound.png')
+    self.assertEqual(testButton['artFilename'], 'cactusjack.png')
     self.assertEqual(testButton['tags'], [ ])
 
   def test_load_player_names(self):
