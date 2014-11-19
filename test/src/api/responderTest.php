@@ -802,7 +802,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'chat' => $chat,
         );
         $retval = $this->verify_api_success($args);
-
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
         return $retval;
@@ -6848,7 +6847,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // [wm(2):1, wm(4):4, m(8):4, m(10):2] => [(4):2, k(6):4, (8):8, (10/20=10):3, (X=12)?:8]
         $this->verify_api_submitTurn(
             array(6, 2),
-            'responder003 performed Skill attack using [wm(2):1,m(10):2] against [(10/20=10):3]; Defender (10/20=10) was captured; Attacker wm(2) changed size from 2 to 10 sides, recipe changed from wm(2) to wm(10/20=10), rerolled 1 => 6; Attacker m(10) recipe changed from m(10) to m(10/20=10), rerolled 2 => 2. ',
+            'responder003 performed Skill attack using [wm(2):1,m(10):2] against [(10/20=10):3]; Defender (10/20=10) was captured; Attacker wm(2) changed size from 2 to 10 sides, recipe changed from wm(2) to wm(10/20=10), rerolled 1 => 6; Attacker m(10) remained the same size, recipe changed from m(10) to m(10/20=10), rerolled 2 => 2. ',
             $retval, array(array(0, 0), array(0, 3), array(1, 3)),
             $gameId, 1, 'Skill', 0, 1, '');
 
@@ -6863,7 +6862,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][0]['optRequestArray'] = array(0 => array(10, 20), 3 => array(10, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array();
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [wm(2):1,m(10):2] against [(10/20=10):3]; Defender (10/20=10) was captured; Attacker wm(2) changed size from 2 to 10 sides, recipe changed from wm(2) to wm(10/20=10), rerolled 1 => 6; Attacker m(10) recipe changed from m(10) to m(10/20=10), rerolled 2 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [wm(2):1,m(10):2] against [(10/20=10):3]; Defender (10/20=10) was captured; Attacker wm(2) changed size from 2 to 10 sides, recipe changed from wm(2) to wm(10/20=10), rerolled 1 => 6; Attacker m(10) remained the same size, recipe changed from m(10) to m(10/20=10), rerolled 2 => 2'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -7043,7 +7042,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_request_savePlayerInfo
+     * depends test_request_savePlayerInfo
      *
      * This test reproduces a bug in which a Skomp vs. Envy game leads to an internal error
      * 0. Start a game with responder003 playing Skomp and responder004 playing Envy
@@ -7051,7 +7050,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      *    responder004 won initiative for round 1. Initial die values: responder003 rolled [wm(1):1, wm(2):2, wm(4):2, m(8):4, m(10):6], responder004 rolled [D(4):2, D(6):2, D(10):10, D(12):4, D(X=4):2]. responder003 has dice which are not counted for initiative due to die skills: [wm(1), wm(2), wm(4)].
      * 2. responder004 performed Power attack using [D(12):4] against [m(8):4]; Defender m(8) was captured; Attacker D(12) changed size from 12 to 8 sides, recipe changed from D(12) to m(8), rerolled 4 => 8
      * 3. responder003 performed Power attack using [wm(4):2] against [D(X=4):2]; Defender D(X=4) was captured; Attacker wm(4) recipe changed from wm(4) to wm(X=4), rerolled 2 => 1
-     * 4. responder004 performed Power attack using [D(6):2] against [wm(X=4):1]; Defender wm(X=4) was captured; Attacker D(6) changed size from 6 to 4 sides, recipe changed from D(6) to wm(X=4), rerolled 2 => 
+     * 4. responder004 performed Power attack using [D(6):2] against [wm(X=4):1]; Defender wm(X=4) was captured; Attacker D(6) changed size from 6 to 4 sides, recipe changed from D(6) to wm(X=4), rerolled 2 =>
      */
     public function test_interface_game_018() {
 
@@ -7074,7 +7073,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][0]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png'); 
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array('Slow', 'Morphing'), 'properties' => array(), 'recipe' => 'wm(1)', 'description' => 'Slow Morphing 1-sided die'),
             array('value' => NULL, 'sides' => 2, 'skills' => array('Slow', 'Morphing'), 'properties' => array(), 'recipe' => 'wm(2)', 'description' => 'Slow Morphing 2-sided die'),
@@ -7144,7 +7143,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
-        // BUG? is it correct for Envy's new morphing die to have HasJustMorphed?  technically, it hasn't.
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill'),
             array(8.5, 24, -10.3, 10.3),
@@ -7163,7 +7161,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // [wm(1):1, wm(2):2, wm(4):2, m(10):6] <= [D(4):2, D(6):2, D(10):10, m(8):8, D(X=4):2]
         $this->verify_api_submitTurn(
             array(1),
-            'responder003 performed Power attack using [wm(4):2] against [D(X=4):2]; Defender D(X=4) was captured; Attacker wm(4) recipe changed from wm(4) to wm(X=4), rerolled 2 => 1. ',
+            'responder003 performed Power attack using [wm(4):2] against [D(X=4):2]; Defender D(X=4) was captured; Attacker wm(4) remained the same size, recipe changed from wm(4) to wm(X=4), rerolled 2 => 1. ',
             $retval, array(array(0, 2), array(1, 4)),
             $gameId, 1, 'Power', 0, 1, '');
 
@@ -7177,7 +7175,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, array('value' => 2, 'sides' => 4, 'recipe' => 'D(X)')))
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [wm(4):2] against [D(X=4):2]; Defender D(X=4) was captured; Attacker wm(4) recipe changed from wm(4) to wm(X=4), rerolled 2 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [wm(4):2] against [D(X=4):2]; Defender D(X=4) was captured; Attacker wm(4) remained the same size, recipe changed from wm(4) to wm(X=4), rerolled 2 => 1'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -7195,13 +7193,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill'),
-            array(12.5, 22, -6.3, 6.3), // FIXME: these are wrong, i'm lazy
-            array(array(1, 1, array('value' => 3, 'recipe' => 'wm(X)', 'skills' => array('Slow', 'Morphing'), 'description' => 'Slow Morphing X Swing Die (with 4 sides)', 'properties' => array('HasJustMorphed')))),
+            array(10.5, 25, -9.7, 9.7),
+            array(array(1, 1, array('value' => 3, 'sides' => 4, 'recipe' => 'wm(X)', 'skills' => array('Slow', 'Morphing'), 'description' => 'Slow Morphing X Swing Die (with 4 sides)', 'properties' => array('HasJustMorphed')))),
             array(array(0, 2)),
             array(array(0, 0)),
             array(array(1, array('value' => 1, 'sides' => 4, 'recipe' => 'wm(X)')))
         );
-        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [D(6):2] against [wm(X=4):1]; Defender wm(X=4) was captured; Attacker D(6) changed size from 6 to 4 sides, recipe changed from D(6) to wm(X=4), rerolled 2 => 3'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);

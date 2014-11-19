@@ -1025,7 +1025,7 @@ class BMInterface {
             $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
             if (isset($row['actual_max'])) {
-                $die->max = $row['actual_max'];
+                $die->max = (int)$row['actual_max'];
             }
         }
     }
@@ -1053,7 +1053,7 @@ class BMInterface {
     protected function set_option_max($die, $row) {
         if ($die instanceof BMDieOption) {
             if (isset($row['actual_max'])) {
-                $die->max = $row['actual_max'];
+                $die->max = (int)$row['actual_max'];
                 $die->needsOptionValue = FALSE;
             } else {
                 $die->needsOptionValue = TRUE;
