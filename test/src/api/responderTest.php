@@ -7042,7 +7042,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * depends test_request_savePlayerInfo
+     * @depends test_request_savePlayerInfo
      *
      * This test reproduces a bug in which a Skomp vs. Envy game leads to an internal error
      * 0. Start a game with responder003 playing Skomp and responder004 playing Envy
