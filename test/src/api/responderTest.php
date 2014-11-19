@@ -642,8 +642,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'logEntryLimit' => $logEntryLimit,
         );
         $retval = $this->verify_api_success($args);
-// FIXME: uncomment this when #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $retval['message']);
+        $this->assertEquals('Loaded data for game ' . $gameId . '.', $retval['message']);
         if ($check) {
             $cleanedData = $this->squash_game_data_timestamps($retval['data']);
             $this->assertEquals($expData, $cleanedData);
@@ -3199,8 +3198,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mood', 'Ornery'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Y' => array(1, 20), 'Z' => array(4, 30));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Y' => array(1, 20), 'Z' => array(4, 30));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'skeeve.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'skeeve.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(V)?', 'description' => 'Ornery V Mood Swing Die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(W)?', 'description' => 'Ornery W Mood Swing Die'),
@@ -3633,7 +3632,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         //   [(6):6, (8):4, m(20):8] => [(20):12, (20):6]
         $this->verify_api_submitTurn(
             array(3, 11),
-            'responder003 performed Skill attack using [(8):4,m(20):8] against [(20):12]; Defender (20) was captured; Attacker (8) rerolled 4 => 3; Attacker m(20) rerolled 8 => 11. ',
+            'responder003 performed Skill attack using [(8):4,m(20):8] against [(20):12]; Defender (20) was captured; Attacker (8) rerolled 4 => 3; Attacker m(20) remained the same size, rerolled 8 => 11. ',
             $retval, array(array(0, 1), array(0, 2), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
 
@@ -3653,7 +3652,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['capturedDieArray'][] = array( 'value' => 12, 'sides' => 20, 'recipe' => '(20)', 'properties' => array('WasJustCaptured') );
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][] = array( 'value' => 3, 'sides' => 6, 'recipe' => '(6)', 'properties' => array() );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [(8):4,m(20):8] against [(20):12]; Defender (20) was captured; Attacker (8) rerolled 4 => 3; Attacker m(20) rerolled 8 => 11'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [(8):4,m(20):8] against [(20):12]; Defender (20) was captured; Attacker (8) rerolled 4 => 3; Attacker m(20) remained the same size, rerolled 8 => 11'));
 
         // check here to verify that HasJustMorphed gets set on the die, even though it stayed the same size
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -4171,7 +4170,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 26;
         $expData['playerDataArray'][0]['sideScore'] = 0.7;
         $expData['playerDataArray'][1]['sideScore'] = -0.7;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Tamiya', 'recipe' => '(4) (8) (8) (12) z(20)', 'artFilename' => 'tamiya.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 5, 'sides' => 6, 'skills' => array('Trip', 'Morphing'), 'properties' => array(), 'recipe' => 'tm(6)', 'description' => 'Trip Morphing 6-sided die'),
@@ -6399,7 +6398,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['activePlayerIdx'] = 0;
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Berserk', 'Trip');
-        $expData['playerDataArray'][0]['button'] = array('name' => 'wranklepig', 'recipe' => 'pB(17) Fo(13) q(11) gc(7) nt(5)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'wranklepig', 'recipe' => 'pB(17) Fo(13) q(11) gc(7) nt(5)', 'artFilename' => 'wranklepig.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['roundScore'] = -1.5;
