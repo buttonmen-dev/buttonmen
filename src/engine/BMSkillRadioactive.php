@@ -71,7 +71,7 @@ class BMSkillRadioactive extends BMSkill {
     }
 
     protected static function get_description() {
-        return 'If a radioactive die is either the attacking die or target die in an attack with a ' .
+        return 'If a radioactive die is either the attacking die or the target die in an attack with a ' .
                'single attacking die and a single target die, the attacking die splits, or "decays", ' .
                'into two as-close-to-equal-sized-as-possible dice that add up to its original size. All ' .
                'dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood ' .
