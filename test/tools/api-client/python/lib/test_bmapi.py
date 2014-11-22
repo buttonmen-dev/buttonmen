@@ -125,9 +125,10 @@ class TestBMClient(unittest.TestCase):
   def test_load_game_data(self):
     known_keys = [
       'activePlayerIdx', 'currentPlayerIdx', 'description', 'gameActionLog',
-      'gameChatEditable', 'gameChatLog', 'gameId', 'gameSkillsInfo',
-      'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
-      'previousGameId', 'roundNumber', 'timestamp', 'validAttackTypeArray'
+      'gameActionLogCount', 'gameChatEditable', 'gameChatLog',
+      'gameChatLogCount', 'gameId', 'gameSkillsInfo', 'gameState', 'maxWins',
+      'playerDataArray', 'playerWithInitiativeIdx', 'previousGameId',
+      'roundNumber', 'timestamp', 'validAttackTypeArray'
     ]
     self.obj.username = 'responder001'
     r = self.obj.load_game_data(101)
