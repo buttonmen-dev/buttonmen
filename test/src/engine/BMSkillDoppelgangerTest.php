@@ -170,7 +170,8 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $newDie1 = $parArray['attackers'][0];
 
         $this->assertEquals(5, $newDie1->max);
-        $this->assertNotInstanceOf('BMDieSwing', $newDie1);
+        $this->assertInstanceOf('BMDieSwing', $newDie1);
+        $this->assertEquals('X', $newDie1->swingType);
         $this->assertFalse($newDie1->has_skill('Doppelganger'));
         $this->assertFalse($newDie1->has_skill('Trip'));
         $this->assertTrue($newDie1->has_skill('Konstant'));
@@ -231,8 +232,10 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(10, $newDie3->max);
         $this->assertInstanceOf('BMDieTwin', $newDie3);
-        $this->assertNotInstanceOf('BMDieSwing', $newDie3->dice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $newDie3->dice[1]);
+        $this->assertInstanceOf('BMDieSwing', $newDie3->dice[0]);
+        $this->assertEquals('X', $newDie3->dice[0]->swingType);
+        $this->assertInstanceOf('BMDieSwing', $newDie3->dice[1]);
+        $this->assertEquals('X', $newDie3->dice[1]->swingType);
         $this->assertFalse($newDie3->has_skill('Morphing'));
         $this->assertFalse($newDie3->has_skill('Trip'));
         $this->assertTrue($newDie3->has_skill('Konstant'));

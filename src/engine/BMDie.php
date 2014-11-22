@@ -622,19 +622,6 @@ class BMDie extends BMCanHaveSkill {
                 $this->has_flag('HasJustMorphed'));
     }
 
-    public function cast_as_BMDie() {
-        if (!($this instanceof BMDie)) {
-            return NULL;
-        }
-
-        $newDie = new BMDie;
-
-        foreach (get_object_vars($this) as $key => $value) {
-            $newDie->$key = $value;
-        }
-        return $newDie;
-    }
-
     public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
 
