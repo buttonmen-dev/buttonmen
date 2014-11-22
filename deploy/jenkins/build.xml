@@ -43,7 +43,7 @@
     <arg line="--bootstrap ./deploy/jenkins/phpunit_bootstrap.php
                --log-junit build/logs/junit.xml
                --coverage-clover build/logs/clover.xml
-               --verbose
+               --debug
                test/" />
   </exec>
  </target>
