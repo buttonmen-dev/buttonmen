@@ -33,6 +33,9 @@ module("UserPrefs", {
     $('#userprefs_page').empty();
     // Controls added to the page by the color picker library we use
     $('.sp-container').remove();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

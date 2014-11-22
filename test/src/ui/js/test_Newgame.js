@@ -33,6 +33,9 @@ module("Newgame", {
     // Page elements
     $('#newgame_page').remove();
     $('#newgame_page').empty();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

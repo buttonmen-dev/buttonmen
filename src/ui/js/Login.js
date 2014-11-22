@@ -16,6 +16,54 @@ Login.nextGameRefreshCallback = false;
 // Which module is responsible for loading the main part of the page
 Login.pageModule = null;
 
+////////////////////////////////////////////////////////////////////////
+//
+// Action flow through every page:
+// * Login.showLoginHeader() is the landing function. Always call this first. It
+//   sets which module this page will be using (Overview, Game, History, etc.),
+//   then calls Login.getLoginHeader()
+// * Login.getLoginHeader() calls the API to see if the user is logged in and
+//   constructs an appropriate header based on that. It then calls
+//   Login.getFooter().
+// * Login.getFooter() constructs the footer. Then it calls Login.getBody().
+// * Login.getBody(), depending on A) whether or not the user is logged in and
+//   B) whether or not the page module provides its own logged-out page,
+//   either calls showLoggedInPage() or showLoggedOutPage() on the module
+//   (each of which is expected to finish by calling Login.arrangePage())
+//   *or* sets up a message that the user needs to log in and then calls
+//   Login.arragePage() itself.
+// * Login.arragePage() calls Login.arrangeHeader(), Login.arrangeBody() and
+//   Login.arrangeFooter() to display everything that was constructed in the
+//   previous three steps.
+//
+////////////////////////////////////////////////////////////////////////
+
+// pageModule is the module that's responsible for loading the main part of the
+// page, such as Overview or Game. It needs to have a bodyDivId property and
+// a showLoggedInPage() method, and if it should be viewable when logged out,
+// a showLoggedOutPage() method as well.
+Login.showLoginHeader = function(pageModule) {
+  // Note which module we're using for this page
+  Login.pageModule = pageModule;
+
+  // Check if this was an automatic redirect from the Monitor
+  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
+  // Perform appendectomy (so a reload won't still register as automated)
+  if (Api.automatedApiCall) {
+    Env.removeParameterByName('auto');
+  }
+
+  // Make sure div elements that we will need exist in the page body
+  if ($('#login_header').length === 0) {
+    $('body').append($('<div>', {'id': 'login_header', }));
+    $('body').append($('<hr>', { 'id': 'header_separator', }));
+  }
+
+  // Find the current login header contents and display them followed by
+  // the main body of the page (via the current page module)
+  Login.getLoginHeader();
+};
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -50,35 +98,74 @@ Login.getLoginHeader = function() {
       } else {
         Login.stateLoggedIn(welcomeText);
       }
-      return Login.arrangeHeader();
+
+      Login.getFooter();
     }
   );
 };
 
-// pageModule is the module that's responsible for loading the main part of the
-// page, such as Overview or Game. It needs to have a bodyDivId property and
-// a showLoggedInPage() method, and if it should be viewable when logged out,
-// a showLoggedOutPage() method as well.
-Login.showLoginHeader = function(pageModule) {
-  // Note which module we're using for this page
-  Login.pageModule = pageModule;
+Login.getFooter = function() {
+  Login.footer = $('<div>');
 
-  // Check if this was an automatic redirect from the Monitor
-  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
-  // Perform appendectomy (so a reload won't still register as automated)
-  if (Api.automatedApiCall) {
-    Env.removeParameterByName('auto');
+  var copyright = $('<div>');
+  Login.footer.append(copyright);
+  copyright.append(
+    'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games: ');
+  copyright.append($('<a>', {
+    'href': 'http://www.cheapass.com',
+    'text': 'www.cheapass.com',
+  }));
+  copyright.append(' and ');
+  copyright.append($('<a>', {
+    'href': 'http://www.beatpeopleup.com',
+    'text': 'www.beatpeopleup.com',
+  }));
+  copyright.append(', and is used with permission.');
+
+  var contact = $('<div>');
+  Login.footer.append(contact);
+  contact.append(
+    'If you find anything broken or hard to use, or if you have any ' +
+    'questions, please get in touch, either by opening a ticket at ');
+  contact.append($('<a>', {
+    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
+    'text': 'the buttonweavers issue tracker',
+  }));
+  contact.append(' or by e-mailing us at help@buttonweavers.com.');
+
+  Login.getBody();
+};
+
+Login.getBody = function() {
+  if (Login.logged_in) {
+    return Login.pageModule.showLoggedInPage();
+  } else if (Login.pageModule.showLoggedOutPage) {
+    Login.pageModule.showLoggedOutPage();
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must be logged in in order to view this page.',
+    };
+    Login.arrangePage();
   }
+};
 
-  // Make sure div elements that we will need exist in the page body
-  if ($('#login_header').length === 0) {
-    $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>', { 'id': 'header_separator', }));
-  }
+Login.arrangePage = function(page, form, submitSelector) {
+  // Now that the player is being given control, we're no longer automated
+  Api.automatedApiCall = false;
 
-  // Find the current login header contents and display them followed by
-  // the main body of the page (via the current page module)
-  Login.getLoginHeader();
+  Login.arrangeHeader();
+
+  // Set up necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  Login.arrangeBody(page, form, submitSelector);
+
+  Login.arrangeFooter();
+
+  // If there is a message from a current or previous invocation of this
+  // page, display it now
+  Env.showStatusMessage();
 };
 
 Login.arrangeHeader = function() {
@@ -89,16 +176,11 @@ Login.arrangeHeader = function() {
     $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
+};
 
-  // Set up necessary elements for displaying status messages
-  Env.setupEnvStub();
-
+Login.arrangeBody = function(page, form, submitSelector) {
   // Make sure the div element that we will need exists in the page body
-  if (Login.pageModule && Login.pageModule.bodyDivId) {
-    if ($('#' + Login.pageModule.bodyDivId).length === 0) {
-      $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
-    }
-  } else {
+  if (!Login.pageModule || !Login.pageModule.bodyDivId) {
     Env.message = {
       'type': 'error',
       'text':
@@ -107,41 +189,31 @@ Login.arrangeHeader = function() {
         'please drop us a line at help@buttonweavers.com or file a bug ' +
         'report. Sorry for the inconvenience.',
     };
-    // If we can't create the main section of the page, then jump straight to
-    // rendering what little we have and then bail out
-    Login.arrangePage();
     return;
   }
 
-  if (Login.logged_in) {
-    return Login.pageModule.showLoggedInPage();
-  } else if (Login.pageModule.showLoggedOutPage) {
-    Login.pageModule.showLoggedOutPage();
-  } else {
-    Env.message = {
-      'type': 'error',
-      'text': 'You must be logged in in order to view this page.',
-    };
-    Env.showStatusMessage();
+  if ($('#' + Login.pageModule.bodyDivId).length === 0) {
+    $('body').append($('<div>', {
+      'id': Login.pageModule.bodyDivId,
+      'class': 'mainBody',
+    }));
   }
-};
 
-Login.arrangePage = function(page, form, submitSelector) {
-  // Now that the player is being given control, we're no longer automated
-  Api.automatedApiCall = false;
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  if (Login.pageModule && Login.pageModule.bodyDivId) {
-    $('#' + Login.pageModule.bodyDivId).empty();
-    $('#' + Login.pageModule.bodyDivId).append(page);
-  }
+  $('#' + Login.pageModule.bodyDivId).empty();
+  $('#' + Login.pageModule.bodyDivId).append(page);
 
   if (form && submitSelector) {
     $(submitSelector).click(form);
   }
+};
+
+Login.arrangeFooter = function() {
+  if ($('#footer').length === 0) {
+    $('body').append($('<hr>', { 'id': 'footer_separator', }));
+    $('body').append($('<div>', {'id': 'footer', }));
+  }
+  $('#footer').empty();
+  $('#footer').append(Login.footer);
 };
 
 // Get an empty form of the Login type
@@ -155,7 +227,7 @@ Login.getLoginForm = function() {
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible logged in state
-// The function should setup a header and a form
+// The function should set up a header and a form
 
 Login.stateLoggedIn = function(welcomeText) {
   Login.message = $('<p>');
