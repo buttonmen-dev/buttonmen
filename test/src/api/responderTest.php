@@ -616,15 +616,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * reactToAuxiliary method using provided fake die rolls, and makes
      * standard assertions about its return value
      */
-    protected function verify_api_reactToAuxiliary($postSubmitDieRolls, $expMessage, $gameId, $action, $dieIdx) {
+    protected function verify_api_reactToAuxiliary($postSubmitDieRolls, $expMessage, $gameId, $action, $dieIdx=NULL) {
         global $BM_RAND_VALS;
         $BM_RAND_VALS = $postSubmitDieRolls;
         $args = array(
             'type' => 'reactToAuxiliary',
             'game' => $gameId,
             'action' => $action,
-            'dieIdx' => $dieIdx,
         );
+        if (!is_null($dieIdx)) {
+            $args['dieIdx'] = $dieIdx;
+        }
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
@@ -635,15 +637,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * reactToReserve method using provided fake die rolls, and makes
      * standard assertions about its return value
      */
-    protected function verify_api_reactToReserve($postSubmitDieRolls, $expMessage, $gameId, $action, $dieIdx) {
+    protected function verify_api_reactToReserve($postSubmitDieRolls, $expMessage, $gameId, $action, $dieIdx=NULL) {
         global $BM_RAND_VALS;
         $BM_RAND_VALS = $postSubmitDieRolls;
         $args = array(
             'type' => 'reactToReserve',
             'game' => $gameId,
             'action' => $action,
-            'dieIdx' => $dieIdx,
         );
+        if (!is_null($dieIdx)) {
+            $args['dieIdx'] = $dieIdx;
+        }
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
@@ -676,6 +680,34 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals($expData, $retval['data']);
+    }
+
+    /**
+     * verify_api_adjustFire() - helper routine which calls the API
+     * adjustFire method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_adjustFire(
+	$postSubmitDieRolls, $expMessage, $prevData, $gameId,
+	$roundNum, $action, $dieIdxArray=NULL, $dieValueArray=NULL
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $postSubmitDieRolls;
+        $args = array(
+            'type' => 'adjustFire',
+            'game' => $gameId,
+            'roundNumber' => $roundNum,
+            'timestamp' => $prevData['timestamp'],
+            'action' => $action,
+        );
+        if ($dieIdxArray) {
+            $args['dieIdxArray'] = $dieIdxArray;
+        }
+        if ($dieValueArray) {
+            $args['dieValueArray'] = $dieValueArray;
+        }
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($expMessage, $retval['message']);
     }
 
     /**
