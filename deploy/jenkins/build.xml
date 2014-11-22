@@ -44,7 +44,7 @@
                --bootstrap ./deploy/jenkins/phpunit_bootstrap.php
                --log-junit build/logs/junit.xml
                --coverage-clover build/logs/clover.xml
-               --debug
+               --verbose
                test/" />
   </exec>
  </target>
