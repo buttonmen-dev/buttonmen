@@ -431,10 +431,10 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # The Japanese Beetle: Skill attacks do not work on Japanese Beetle
 (144, 'The Japanese Beetle', '(6) (8) (12) (X)',                   1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle"));
 
-# KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y) 
+# KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (572, 'Space Kubla',       '(6) (8) O(12) X(12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con")),
-# Pirate Kubla's X is actually a Kubla die. Every time you reroll it, shout "Kubla!" 
+# Pirate Kubla's X is actually a Kubla die. Every time you reroll it, shout "Kubla!"
 (573, 'Pirate Kubla',      '(6) (8) (20) Y(12) (X)',     0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con"));
 
 # LAS VEGAS                                INTRODUCES Wildcard(C) AND Pai Gow(:); Option; Twin; Turbo
@@ -758,9 +758,9 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (371, 'Wolfman',                  '(6) p(10) (12) z(16) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror"));
 
 #50 States   (Kaufman)
-#NOTE: CA, PA, are meant to have Select Dice. I've given them the unused code 'U' until we figure what to do about that.  
-#NOTE: These had button specials set so they are not available to play on the live site. Change all these back after players are 
-#      given the option to accept only TL games and/or random challenges can be made which avoid this set. 
+#NOTE: CA, PA, are meant to have Select Dice. I've given them the unused code 'U' until we figure what to do about that.
+#NOTE: These had button specials set so they are not available to play on the live site. Change all these back after players are
+#      given the option to accept only TL games and/or random challenges can be made which avoid this set.
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (586, 'Alabama',         'D(6) ^(10) o(14) (S) (X)',                       1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (587, 'Alaska',          'd(6) s(20) s(30) w(30) (T)',                     1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
@@ -821,20 +821,20 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # BLADE MASTERS (Bayani Caes)            INTRODUCES Parry (I); Focus, Poison, Speed, Trip
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(636, 'Arashi',    '(4) (6)  I(10)  f(12) (20)',          0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(637, 'Michie',    '(4) (8) (12)  z(12) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(636, 'Arashi',    '(4) (6) I(10) f(12) (20)',            0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(637, 'Michie',    '(4) (8) (12) z(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (638, 'Johnny',    '(6) t(6) I(8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(639, 'Renee',     '(2) (2) (6)  I(10) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(639, 'Renee',     '(2) (2) (6) I(10) (X)',               0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (640, 'Danny',     '(6) t(8) t(8) (20) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(641, 'Danielle',  '(6) (12)  I(12) (20) (X)',            0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(641, 'Danielle',  '(6) (12) I(12) (20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (642, 'Scott',     '(8) I(8) (10) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (643, 'Macky',     '(4) (6) (10) (X) (Y)',                0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(644, 'Magistra',  'I(6)  I(10)  I(10) I(X)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(645, 'Horace',    '(8) (10)  p(20) (20) (Z)',            0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(646, 'Kainar',    '(4) (4)  z(10) z(V) (V)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(644, 'Magistra',  'I(6) I(10) I(10) I(X)',               0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(645, 'Horace',    '(8) (10) p(20) (20) (Z)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(646, 'Kainar',    '(4) (4) z(10) z(V) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (647, 'Inez',      '(6) (6) I(6) (20) (X)',               0, 0, (SELECT id FROM buttonset WHERE name="Blademasters"));
 
-#BLADE MASTERS 2                             INTRODUCES Attacker(-), Defender(|), Cross(x); 
+#BLADE MASTERS 2                             INTRODUCES Attacker(-), Defender(|), Cross(x);
 #                                                       Option, Reserve, Turbo, Twin, Fire, Poison, Shadow, Speed, Trip
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (648, 'Paris',    '(4/8)! (6) (10) (10) (12/20)!',           0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: The Second Shot")),
@@ -859,7 +859,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (664, 'Montague(u)',  '(2,2) (4) (10,10) (20) (X) +(V)',  0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack")),
 (665, 'Chantal',      'pI(4) pI(8) (20) (20) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
 # Silly Self Promo (yes, that's a fudge die)  INTRODUCES Sustaind Fire Die (SFD)
-# The Sustained Fire Die rolls 0, 1, 1, 2, 2, 3 in linear distribution.  If a zero is rolled, the only attack Bayani 
+# The Sustained Fire Die rolls 0, 1, 1, 2, 2, 3 in linear distribution.  If a zero is rolled, the only attack Bayani
 # can make afterwards is a skill attack.  Alternatively, he can just reroll it without making an attack.  It's worth 3 points.
 #(666, 'Bayani',       '(F) (SFD) (16) (16) (12/20)',      1, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
 
