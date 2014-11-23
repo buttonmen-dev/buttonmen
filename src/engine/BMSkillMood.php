@@ -59,10 +59,6 @@ class BMSkillMood extends BMSkill {
             !($args['die'] instanceof BMDie)) {
             return;
         }
-
-        if (!static::can_have_mood($args['die'])) {
-            $args['die']->remove_skill('Mood');
-        }
     }
 
     public static function can_have_mood($obj) {

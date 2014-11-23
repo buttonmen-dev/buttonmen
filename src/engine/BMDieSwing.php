@@ -100,7 +100,7 @@ class BMDieSwing extends BMDie {
     }
 
     public function roll($isTriggeredByAttack = FALSE) {
-        if ($this->needsSwingValue) {
+        if ($this->needsSwingValue && !isset($this->max)) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values(
                     $this,

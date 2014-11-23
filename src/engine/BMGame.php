@@ -1984,6 +1984,7 @@ class BMGame {
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+        $this->swingRequestArrayArray = array_fill(0, $nPlayers, array());
         $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
         unset($this->forceRoundResult);
     }

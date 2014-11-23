@@ -302,12 +302,32 @@ class BMGameAction {
         assert(1 == count($preAttackAttackers));
         assert(2 == count($postAttackAttackers));
 
-        $message = 'Attacker ' .
-                   $preAttackAttackers[0]['recipe'] . ' showing ' . $preAttackAttackers[0]['value'] . ' split into ' .
-                   $postAttackAttackers[0]['recipe'] . ' showing ' . $postAttackAttackers[0]['value'] . ' and ' .
-                   $postAttackAttackers[1]['recipe'] . ' showing ' . $postAttackAttackers[1]['value'];
+        $messagePreSplit = 'Attacker ' . $preAttackAttackers[0]['recipe'] . ' showing ' .
+                           $preAttackAttackers[0]['value'] . ' split into ';
+
+        $messagePostSplit0 = $this->message_grow_shrink($postAttackAttackers[0]) .
+                             $postAttackAttackers[0]['recipe'] . ' showing ' .
+                             $postAttackAttackers[0]['value'];
+
+        $messagePostSplit1 = $this->message_grow_shrink($postAttackAttackers[1]) .
+                             $postAttackAttackers[1]['recipe'] . ' showing ' .
+                             $postAttackAttackers[1]['value'];
+
+        $message = $messagePreSplit . $messagePostSplit0 . ' and ' . $messagePostSplit1;
 
         return $message;
+    }
+
+    protected function message_grow_shrink(array $diePropertyArray) {
+        if (array_key_exists('recipeBeforeGrowing', $diePropertyArray) &&
+            $diePropertyArray['recipeBeforeGrowing']) {
+            return $diePropertyArray['recipeBeforeGrowing'] . ' which grew into ';
+        } elseif (array_key_exists('recipeBeforeShrinking', $diePropertyArray) &&
+                  $diePropertyArray['recipeBeforeShrinking']) {
+            return $diePropertyArray['recipeBeforeShrinking'] . ' which shrunk into ';
+        } else {
+            return '';
+        }
     }
 
     protected function message_append(array &$messageArray, $messageIncrement) {

@@ -55,18 +55,6 @@ class BMSkillMorphing extends BMSkill {
         unset($newDie->value);
         $newDie->remove_all_flags();
 
-        // convert swing and option dice back to normal dice
-        if ($newDie instanceof BMDieSwing ||
-            $newDie instanceof BMDieOption) {
-            $newDie = $newDie->cast_as_BMDie();
-        } elseif ($newDie instanceof BMDieTwin) {
-            foreach ($newDie->dice as &$subDie) {
-                if ($subDie instanceof BMDieSwing) {
-                    $subDie = $subDie->cast_as_BMDie();
-                }
-            }
-        }
-
         $newDie->captured = FALSE;
         $newDie->ownerObject = $att->ownerObject;
         $newDie->playerIdx = $att->playerIdx;
