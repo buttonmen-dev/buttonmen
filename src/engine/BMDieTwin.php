@@ -189,20 +189,32 @@ class BMDieTwin extends BMDie {
 
     // shrink() is intended to be used for weak dice
     public function shrink() {
+        $oldRecipe = $this->get_recipe();
+
         foreach ($this->dice as &$die) {
             $die->shrink();
         }
 
         $this->recalc_max_min();
+
+        if ($this->get_recipe() != $oldRecipe) {
+            $this->add_flag('HasJustShrunk', $oldRecipe);
+        }
     }
 
     // grow() is intended to be used for mighty dice
     public function grow() {
+        $oldRecipe = $this->get_recipe();
+
         foreach ($this->dice as &$die) {
             $die->grow();
         }
 
         $this->recalc_max_min();
+
+        if ($this->get_recipe() != $oldRecipe) {
+            $this->add_flag('HasJustGrown', $oldRecipe);
+        }
     }
 
     public function set_swingValue($swingList) {
