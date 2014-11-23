@@ -530,6 +530,37 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_radioactive_split_shrink() {
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '%h(5)', 'min' => 1, 'max' => 2, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '%h(5):3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):3'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 'h(2)', 'min' => 1, 'max' => 4, 'value' => 2, 'recipeBeforeShrinking' => 'h(3)', 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'h(2):2'),
+                    array('recipe' => 'h(1)', 'min' => 1, 'max' => 4, 'value' => 1, 'recipeBeforeShrinking' => 'h(2)', 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'h(1):1'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(4):1'),
+                ),
+            )
+        ));
+
+        $this->assertEquals(
+            "gameaction01 performed Power attack using [%h(5):3] against [(4):3]; Defender (4) was captured; Attacker %h(5) showing 3 split into h(3) which shrunk into h(2) showing 2 and h(2) which shrunk into h(1) showing 1",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_choose_die_values()
      */
     public function test_friendly_message_choose_die_values() {
