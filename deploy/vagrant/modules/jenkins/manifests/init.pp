@@ -83,6 +83,7 @@ class jenkins::server {
     "dry": ;
     "htmlpublisher": ;
     "jdepend": ;
+    "monitoring": ;
     "plot": ;
     "pmd": ;
     "timestamper": ;
