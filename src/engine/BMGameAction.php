@@ -302,12 +302,30 @@ class BMGameAction {
         assert(1 == count($preAttackAttackers));
         assert(2 == count($postAttackAttackers));
 
-        $message = 'Attacker ' .
-                   $preAttackAttackers[0]['recipe'] . ' showing ' . $preAttackAttackers[0]['value'] . ' split into ' .
-                   $postAttackAttackers[0]['recipe'] . ' showing ' . $postAttackAttackers[0]['value'] . ' and ' .
-                   $postAttackAttackers[1]['recipe'] . ' showing ' . $postAttackAttackers[1]['value'];
+        $messagePreSplit = 'Attacker ' . $preAttackAttackers[0]['recipe'] . ' showing ' .
+                           $preAttackAttackers[0]['value'] . ' split into ';
+
+        $messagePostSplit0 = $this->message_grow_shrink($postAttackAttackers[0]) .
+                             $postAttackAttackers[0]['recipe'] . ' showing ' .
+                             $postAttackAttackers[0]['value'];
+
+        $messagePostSplit1 = $this->message_grow_shrink($postAttackAttackers[1]) .
+                             $postAttackAttackers[1]['recipe'] . ' showing ' .
+                             $postAttackAttackers[1]['value'];
+
+        $message = $messagePreSplit . $messagePostSplit0 . ' and ' . $messagePostSplit1;
 
         return $message;
+    }
+
+    protected function message_grow_shrink($die) {
+        if (!($die instanceof BMDie)) {
+            return '';
+        } elseif ($die->has_flag('BMFlagHasJustGrown')) {
+            return $die->flagList['BMFlagHasJustGrown']->value . ' which grew into ';
+        } elseif ($die->has_flag('BMFlagHasJustShrunk')) {
+            return $die->flagList['BMFlagHasJustShrunk']->value . ' which shrunk into ';
+        }
     }
 
     protected function message_append(array &$messageArray, $messageIncrement) {

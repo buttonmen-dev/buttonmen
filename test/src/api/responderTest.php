@@ -866,8 +866,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         return $retval;
     }
 
-
-
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
         $retval = $this->verify_api_failure($args, 'Specified API function does not exist');
@@ -6367,7 +6365,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 6;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = 'Weak X Swing Die (with 6 sides)';
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [h(X=7):5] against [H(12):5]; Defender H(12) was captured; Attacker h(X=7) changed size from 7 to 6 sides, recipe changed from h(X=7) to h(X=6), rerolled 5 => 1')); // BUG C: defender should be H(12)
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array('HasJustShrunk');
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [h(X=7):5] against [H(12):5]; Defender H(12) was captured; Attacker h(X=7) changed size from 7 to 6 sides, recipe changed from h(X=7) to h(X=6), rerolled 5 => 1'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -6395,6 +6394,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 14;
         $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = 'H(2,12)';
         $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = 'Mighty Twin Die (with 2 and 12 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustGrown');
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [H(1,10):9] against [(10):4]; Defender (10) was captured; Attacker H(1,10) changed size from 11 to 14 sides, recipe changed from H(1,10) to H(2,12), rerolled 9 => 14'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -6730,11 +6731,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => 7, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)'),
         );
         $expData['playerDataArray'][1]['activeDieArray'] = array(
-            array('value' => 2, 'sides' => 4, 'skills' => array('Mighty', 'Ornery'), 'properties' => array(), 'recipe' => 'Ho(2,2)', 'description' => 'Mighty Ornery Twin Die (both with 2 sides)'),
-            array('value' => 2, 'sides' => 3, 'skills' => array('Mighty', 'Ornery'), 'properties' => array(), 'recipe' => 'Ho(1,2)', 'description' => 'Mighty Ornery Twin Die (with 1 and 2 sides)'),
-            array('value' => 2, 'sides' => 8, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustRerolledOrnery'), 'recipe' => '%Ho(2,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 6 sides)'),
-            array('value' => 2, 'sides' => 10, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustRerolledOrnery'), 'recipe' => '%Ho(2,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 8 sides)'),
-            array('value' => 2, 'sides' => 12, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustRerolledOrnery'), 'recipe' => '%Ho(2,10)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 10 sides)'),
+            array('value' => 2, 'sides' => 4, 'skills' => array('Mighty', 'Ornery'), 'properties' => array('HasJustGrown'), 'recipe' => 'Ho(2,2)', 'description' => 'Mighty Ornery Twin Die (both with 2 sides)'),
+            array('value' => 2, 'sides' => 3, 'skills' => array('Mighty', 'Ornery'), 'properties' => array('HasJustGrown'), 'recipe' => 'Ho(1,2)', 'description' => 'Mighty Ornery Twin Die (with 1 and 2 sides)'),
+            array('value' => 2, 'sides' => 8, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustGrown', 'HasJustRerolledOrnery'), 'recipe' => '%Ho(2,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 6 sides)'),
+            array('value' => 2, 'sides' => 10, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustGrown', 'HasJustRerolledOrnery'), 'recipe' => '%Ho(2,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 8 sides)'),
+            array('value' => 2, 'sides' => 12, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('HasJustGrown', 'HasJustRerolledOrnery'), 'recipe' => '%Ho(2,10)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 2 and 10 sides)'),
         );
         $expData['playerDataArray'][1]['capturedDieArray'] = array(
             array('value' => 2, 'sides' => 3, 'properties' => array('WasJustCaptured'), 'recipe' => '%Ho(1,2)'),
