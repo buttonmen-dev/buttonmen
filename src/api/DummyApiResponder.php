@@ -919,7 +919,7 @@ class DummyApiResponder {
             'dieTypes' => array('Option', 'X Swing', 'U Swing'),
             'dieSkills' => array("Shadow", "Speed"),
             'isTournamentLegal' => FALSE,
-            'artFilename' => 'BMdefaultRound.png',
+            'artFilename' => 'cactusjack.png',
             'tags' => array(),
         );
     }

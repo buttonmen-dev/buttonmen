@@ -131,8 +131,8 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
      */
     public function testPre_add_skill_with_mood_no_swing() {
         $die = BMDie::create_from_recipe('(6)?');
-        $this->assertFalse($die->has_skill('Mood'));
-        $this->assertEquals('(6)', $die->recipe);
+        $this->assertTrue($die->has_skill('Mood'));
+        $this->assertEquals('(6)?', $die->recipe);
     }
 
     /**

@@ -463,23 +463,23 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
 
-            $this->assertFalse($this->object->is_valid_attacker($att, array($attDie)));
-            $this->assertTrue($this->object->is_valid_attacker($att, array($this->object)));
-            $this->assertTrue($this->object->is_valid_attacker($att, array($this->object, $attDie)));
+            $this->assertFalse($this->object->is_valid_attacker(array($attDie)));
+            $this->assertTrue($this->object->is_valid_attacker(array($this->object)));
+            $this->assertTrue($this->object->is_valid_attacker(array($this->object, $attDie)));
         }
 
         // Inactive is a string also used to descrbe why the die cannot attack
         $this->object->inactive = "Yes";
-        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
 
         $this->object->inactive = "";
         $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
 
 
         $this->object->inactive = "Yes";
         $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
     }
 
     /**
@@ -492,13 +492,13 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
 
-            $this->assertFalse($this->object->is_valid_target($att, array($defDie)));
-            $this->assertTrue($this->object->is_valid_target($att, array($this->object)));
-            $this->assertTrue($this->object->is_valid_target($att, array($this->object, $defDie)));
+            $this->assertFalse($this->object->is_valid_target(array($defDie)));
+            $this->assertTrue($this->object->is_valid_target(array($this->object)));
+            $this->assertTrue($this->object->is_valid_target(array($this->object, $defDie)));
         }
 
         $this->object->unavailable = TRUE;
-        $this->assertFalse($this->object->is_valid_target($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_target(array($this->object)));
     }
 
     /**
@@ -527,10 +527,21 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $attDie = BMDie::create(8);
         $attDie->add_skill('Morphing');
         $defDie = BMDie::create_from_recipe('(6,6)');
+
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($attDie), array($defDie));
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+
+        $attDie->ownerObject = $game;
+        $attDie->playerIdx = 0;
+        $defDie->ownerObject = $game;
+
         $attackers = array($attDie);
         $defenders = array($defDie);
 
-        $newDie = $attDie->capture('Power', $attackers, $defenders);
+        $attDie->capture('Power', $attackers, $defenders);
+
+        $newDie = $attackers[0];
 
         $this->assertInstanceOf('BMDieTwin', $newDie);
         $this->assertEquals(2, $newDie->min);
@@ -583,7 +594,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testRoll
      */
     public function testSplit() {
-        // 1-siders split into two 1-siders
+        // 1-siders split into a 1-sider and a 0-sider
         $this->object->init(1, array());
         $this->object->roll(FALSE);
 
@@ -591,8 +602,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($dice[0] === $dice[1]);
         $this->assertTrue($this->object === $dice[0]);
-        $this->assertEquals($dice[0]->max, $dice[1]->max);
+        $this->assertNotEquals($dice[0]->max, $dice[1]->max);
         $this->assertEquals(1, $dice[0]->max);
+        $this->assertEquals(0, $dice[1]->max);
 
         // even-sided split
         $this->object->init(12, array());

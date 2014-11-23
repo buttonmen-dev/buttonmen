@@ -46,8 +46,6 @@ class BMDieOption extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         $this->ownerObject->add_die($newDie);
 
         // The clone is the one going into the game, so it's the one
@@ -61,7 +59,7 @@ class BMDieOption extends BMDie {
     }
 
     public function roll($isTriggeredByAttack = FALSE) {
-        if ($this->needsOptionValue) {
+        if ($this->needsOptionValue && !isset($this->max)) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_option_values(
                     $this,

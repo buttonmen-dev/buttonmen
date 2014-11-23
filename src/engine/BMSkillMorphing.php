@@ -16,15 +16,27 @@ class BMSkillMorphing extends BMSkill {
             return;
         }
 
-        $oldAtt = $args['caller'];
-        if ($oldAtt->has_flag('JustPerformedUnsuccessfulAttack')) {
+        $attacker = $args['caller'];
+        if ($attacker->has_flag('JustPerformedUnsuccessfulAttack')) {
             return;
         }
 
-        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
-        $att->copy_skills_from_die($args['caller']);
+        $game = $attacker->ownerObject;
+        $activeDieArrayArray = $game->activeDieArrayArray;
 
-        return $att;
+        $attackerDieIdx = array_search(
+            $attacker,
+            $args['attackers'],
+            TRUE
+        );
+        assert(FALSE !== $attackerDieIdx);
+
+        $newAttackDie = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
+        $newAttackDie->copy_skills_from_die($args['caller']);
+
+        $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
+        $args['attackers'][$attackerDieIdx] = $newAttackDie;
+        $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
     protected static function are_dice_in_attack_valid($args) {
@@ -42,18 +54,6 @@ class BMSkillMorphing extends BMSkill {
         $newDie = clone $def;
         unset($newDie->value);
         $newDie->remove_all_flags();
-
-        // convert swing and option dice back to normal dice
-        if ($newDie instanceof BMDieSwing ||
-            $newDie instanceof BMDieOption) {
-            $newDie = $newDie->cast_as_BMDie();
-        } elseif ($newDie instanceof BMDieTwin) {
-            foreach ($newDie->dice as &$subDie) {
-                if ($subDie instanceof BMDieSwing) {
-                    $subDie = $subDie->cast_as_BMDie();
-                }
-            }
-        }
 
         $newDie->captured = FALSE;
         $newDie->ownerObject = $att->ownerObject;
@@ -84,7 +84,10 @@ class BMSkillMorphing extends BMSkill {
     }
 
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Radioactive' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
+                             'size of the captured die, and then decay',
+        );
     }
 
     public static function prevents_win_determination() {

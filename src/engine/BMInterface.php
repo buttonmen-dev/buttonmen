@@ -718,7 +718,7 @@ class BMInterface {
                 'Caught exception in BMInterface::load_game: ' .
                 $e->getMessage()
             );
-            $this->message = "Game load failed: $e";
+            $this->message = "Internal error while loading game.";
             return NULL;
         }
     }
@@ -1025,7 +1025,7 @@ class BMInterface {
             $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
             if (isset($row['actual_max'])) {
-                $die->max = $row['actual_max'];
+                $die->max = (int)$row['actual_max'];
             }
         }
     }
@@ -1053,7 +1053,7 @@ class BMInterface {
     protected function set_option_max($die, $row) {
         if ($die instanceof BMDieOption) {
             if (isset($row['actual_max'])) {
-                $die->max = $row['actual_max'];
+                $die->max = (int)$row['actual_max'];
                 $die->needsOptionValue = FALSE;
             } else {
                 $die->needsOptionValue = TRUE;
@@ -2638,7 +2638,7 @@ class BMInterface {
 
     protected function get_player_name_from_id($playerId) {
         try {
-            if (is_null($playerId)) {
+            if (empty($playerId)) {
                 return('');
             }
 
@@ -2648,7 +2648,6 @@ class BMInterface {
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetch();
             if (!$result) {
-                $this->message = 'Player ID does not exist.';
                 return('');
             } else {
                 return($result[0]);

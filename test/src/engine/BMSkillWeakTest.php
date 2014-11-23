@@ -25,8 +25,11 @@ class BMSkillWeakTest extends PHPUnit_Framework_TestCase {
 
     public function testPre_roll()
     {
+        $game = new BMGame;
+        $game->turnNumberInRound = 1;
         $die = new BMDie;
         $die->init(7);
+        $die->ownerObject = $game;
         $args = array('die' => $die);
         $this->object->pre_roll($args);
         $this->assertEquals(7, $die->max);

@@ -58,8 +58,6 @@ class BMDieTwin extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         foreach ($this->dice as $die) {
             if ($die instanceof BMDieSwing) {
                 $this->ownerObject->request_swing_values(
@@ -170,12 +168,13 @@ class BMDieTwin extends BMDie {
     }
 
     public function split() {
+        unset($this->value);
         $newdie = clone $this;
 
         foreach ($this->dice as $dieIdx => &$die) {
             $splitDieArray = $die->split();
-            $this->dice[$dieIdx] = $splitDieArray[0];
-            $newdie->dice[$dieIdx] = $splitDieArray[1];
+            $this->dice[$dieIdx] = $splitDieArray[$dieIdx % 2];
+            $newdie->dice[$dieIdx] = $splitDieArray[($dieIdx + 1) % 2];
         }
 
         $this->recalc_max_min();
@@ -190,20 +189,32 @@ class BMDieTwin extends BMDie {
 
     // shrink() is intended to be used for weak dice
     public function shrink() {
+        $oldRecipe = $this->get_recipe();
+
         foreach ($this->dice as &$die) {
             $die->shrink();
         }
 
         $this->recalc_max_min();
+
+        if ($this->get_recipe() != $oldRecipe) {
+            $this->add_flag('HasJustShrunk', $oldRecipe);
+        }
     }
 
     // grow() is intended to be used for mighty dice
     public function grow() {
+        $oldRecipe = $this->get_recipe();
+
         foreach ($this->dice as &$die) {
             $die->grow();
         }
 
         $this->recalc_max_min();
+
+        if ($this->get_recipe() != $oldRecipe) {
+            $this->add_flag('HasJustGrown', $oldRecipe);
+        }
     }
 
     public function set_swingValue($swingList) {
