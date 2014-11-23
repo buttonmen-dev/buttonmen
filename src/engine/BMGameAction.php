@@ -318,13 +318,15 @@ class BMGameAction {
         return $message;
     }
 
-    protected function message_grow_shrink($die) {
-        if (!($die instanceof BMDie)) {
+    protected function message_grow_shrink(array $diePropertyArray) {
+        if (array_key_exists('recipeBeforeGrowing', $diePropertyArray) &&
+            $diePropertyArray['recipeBeforeGrowing']) {
+            return $diePropertyArray['recipeBeforeGrowing'] . ' which grew into ';
+        } elseif (array_key_exists('recipeBeforeShrinking', $diePropertyArray) &&
+                  $diePropertyArray['recipeBeforeShrinking']) {
+            return $diePropertyArray['recipeBeforeShrinking'] . ' which shrunk into ';
+        } else {
             return '';
-        } elseif ($die->has_flag('BMFlagHasJustGrown')) {
-            return $die->flagList['BMFlagHasJustGrown']->value . ' which grew into ';
-        } elseif ($die->has_flag('BMFlagHasJustShrunk')) {
-            return $die->flagList['BMFlagHasJustShrunk']->value . ' which shrunk into ';
         }
     }
 
