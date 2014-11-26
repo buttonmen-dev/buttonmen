@@ -302,8 +302,6 @@ class BMGameAction {
         assert(1 == count($preAttackAttackers));
         assert(2 == count($postAttackAttackers));
 
-        var_dump($postAttackAttackers);
-
         $messageChangePreSplit = '';
         if (array_key_exists('recipeBeforeSplitting', $postAttackAttackers[0]) &&
             ($preAttackAttackers[0]['recipe'] != $postAttackAttackers[0]['recipeBeforeSplitting'])) {
