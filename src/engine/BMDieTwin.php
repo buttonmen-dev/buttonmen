@@ -168,6 +168,7 @@ class BMDieTwin extends BMDie {
     }
 
     public function split() {
+        $oldRecipe = $this->get_recipe();
         unset($this->value);
         $newdie = clone $this;
 
@@ -180,8 +181,8 @@ class BMDieTwin extends BMDie {
         $this->recalc_max_min();
         $newdie->recalc_max_min();
 
-        $this->add_flag('HasJustSplit');
-        $newdie->add_flag('HasJustSplit');
+        $this->add_flag('HasJustSplit', $oldRecipe);
+        $newdie->add_flag('HasJustSplit', $oldRecipe);
 
         $splitDice = array($this, $newdie);
 
