@@ -565,7 +565,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_friendly_message_attack_berserk_shrink_split() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
-            'attackType' => 'Power',
+            'attackType' => 'Berserk',
             'preAttackDice' => array(
                 'attacker' => array(
                     array('recipe' => 'B(6)', 'min' => 1, 'max' => 8, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'B(6):3'),
