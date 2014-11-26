@@ -586,7 +586,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         ));
 
         $this->assertEquals(
-            "gameaction01 performed Power attack using [B(6):3] against [%(4):3]; Defender %(4) was captured; Attacker B(6) showing 3 changed to (3), which then split into: (2) showing 2, and (1) showing 1",
+            "gameaction01 performed Berserk attack using [B(6):3] against [%(4):3]; Defender %(4) was captured; Attacker B(6) showing 3 changed to (3), which then split into: (2) showing 2, and (1) showing 1",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }
