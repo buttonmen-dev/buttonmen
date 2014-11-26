@@ -7319,7 +7319,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 rerolled a chance die, but did not gain initiative: c(6) rerolled 3 => 4
         $this->verify_api_reactToInitiative(
             array(4),
-            'Successfully gained initiative', array('gainedInitiative' => FALSE), // #1416: API response shouldn't say "Successfully"
+            'Failed to gain initiative', array('gainedInitiative' => FALSE),
             $retval, $gameId, 1, 'chance', array(1), NULL);
 
         $expData['gameState'] = 'START_TURN';
@@ -7623,10 +7623,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 rerolled a chance die, but did not gain initiative: c(6) rerolled 4 => 3
         $this->verify_api_reactToInitiative(
             array(3),
-            'Successfully gained initiative', array('gainedInitiative' => FALSE), // #1416: API response shouldn't say "Successfully"
+            'Failed to gain initiative', array('gainedInitiative' => FALSE),
             $retval, $gameId, 2, 'chance', array(1), NULL);
 
-        // BUG: at this point, the game should move into state START_TURN, not stay in REACT_TO_INITIATIVE
+//        $expData['gameState'] = 'REACT_TO_INITIATIVE';
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 3;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 rerolled a chance die, but did not gain initiative: c(6) rerolled 4 => 3'));
         array_pop($expData['gameActionLog']);

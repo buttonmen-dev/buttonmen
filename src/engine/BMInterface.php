@@ -3676,7 +3676,12 @@ class BMInterface {
             $isSuccessful = $game->react_to_initiative($argArray);
             if ($isSuccessful) {
                 $this->save_game($game);
-                $this->message = 'Successfully gained initiative';
+
+                if ($isSuccessful['gainedInitiative']) {
+                    $this->message = 'Successfully gained initiative';
+                } else {
+                    $this->message = 'Failed to gain initiative';
+                }
             } else {
                 $this->message = $game->message;
             }
