@@ -451,6 +451,9 @@ class BMDie extends BMCanHaveSkill {
             $newdie->min = 0;
         }
 
+        $this->add_flag('HasJustSplit');
+        $newdie->add_flag('HasJustSplit');
+
         $dice = array($this, $newdie);
 
         $this->run_hooks(__FUNCTION__, array('dice' => &$dice));
@@ -603,6 +606,7 @@ class BMDie extends BMCanHaveSkill {
         $valueAfterTripAttack = NULL;
         $recipeBeforeGrowing = NULL;
         $recipeBeforeShrinking = NULL;
+        $recipeBeforeSplitting = NULL;
         if ($this->has_flag('JustPerformedTripAttack')) {
             $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
         }
@@ -611,6 +615,9 @@ class BMDie extends BMCanHaveSkill {
         }
         if ($this->has_flag('HasJustShrunk')) {
             $recipeBeforeShrinking = $this->flagList['HasJustShrunk']->value();
+        }
+        if ($this->has_flag('HasJustSplit')) {
+            $recipeBeforeSplitting = $this->flagList['HasJustSplit']->value();
         }
         return(array(
             'recipe' => $recipe,
@@ -626,6 +633,7 @@ class BMDie extends BMCanHaveSkill {
             'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
             'recipeBeforeGrowing' => $recipeBeforeGrowing,
             'recipeBeforeShrinking' => $recipeBeforeShrinking,
+            'recipeBeforeSplitting' => $recipeBeforeSplitting,
         ));
     }
 

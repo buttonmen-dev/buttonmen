@@ -180,6 +180,9 @@ class BMDieTwin extends BMDie {
         $this->recalc_max_min();
         $newdie->recalc_max_min();
 
+        $this->add_flag('HasJustSplit');
+        $newdie->add_flag('HasJustSplit');
+
         $splitDice = array($this, $newdie);
 
         $this->run_hooks(__FUNCTION__, array('dice' => &$splitDice));

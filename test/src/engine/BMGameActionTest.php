@@ -560,36 +560,36 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         );
     }
 
-//    /**
-//     * @covers BMGameAction::friendly_message_attack()
-//     */
-//    public function test_friendly_message_attack_berserk_split_shrink() {
-//        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
-//            'attackType' => 'Power',
-//            'preAttackDice' => array(
-//                'attacker' => array(
-//                    array('recipe' => 'B(6)', 'min' => 1, 'max' => 8, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'B(8):3'),
-//                ),
-//                'defender' => array(
-//                    array('recipe' => '%(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '%(4):3'),
-//                ),
-//            ),
-//            'postAttackDice' => array(
-//                'attacker' => array(
-//                    array('recipe' => '(2)', 'min' => 1, 'max' => 2, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(2):2'),
-//                    array('recipe' => '(1)', 'min' => 1, 'max' => 1, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(1):1'),
-//                ),
-//                'defender' => array(
-//                    array('recipe' => '%(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '%(4):3'),
-//                ),
-//            )
-//        ));
-//
-//        $this->assertEquals(
-//            "gameaction01 performed Power attack using [B(6):3] against [%(4):3]; Defender %(4) was captured; Attacker B(6) showing 3 changed to (3), which split into: (2) showing 2, and (1) showing 1",
-//            $this->object->friendly_message($this->playerIdNames, 0, 0)
-//        );
-//    }
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_berserk_split_shrink() {
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 'B(6)', 'min' => 1, 'max' => 8, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'B(6):3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '%(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '%(4):3'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(2)', 'min' => 1, 'max' => 2, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(2):2', 'recipeBeforeSplitting' => '(3)'),
+                    array('recipe' => '(1)', 'min' => 1, 'max' => 1, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(1):1', 'recipeBeforeSplitting' => '(3)'),
+                ),
+                'defender' => array(
+                    array('recipe' => '%(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '%(4):3'),
+                ),
+            )
+        ));
+
+        $this->assertEquals(
+            "gameaction01 performed Power attack using [B(6):3] against [%(4):3]; Defender %(4) was captured; Attacker B(6) showing 3 changed to (3), which then split into: (2) showing 2, and (1) showing 1",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
 
     /**
      * @covers BMGameAction::friendly_message_choose_die_values()
