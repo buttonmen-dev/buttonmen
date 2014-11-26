@@ -303,7 +303,7 @@ class BMGameAction {
         assert(2 == count($postAttackAttackers));
 
         $messagePreSplit = 'Attacker ' . $preAttackAttackers[0]['recipe'] . ' showing ' .
-                           $preAttackAttackers[0]['value'] . ' split into ';
+                           $preAttackAttackers[0]['value'] . ' split into: ';
 
         $messagePostSplit0 = $this->message_grow_shrink($postAttackAttackers[0]) .
                              $postAttackAttackers[0]['recipe'] . ' showing ' .
@@ -313,7 +313,7 @@ class BMGameAction {
                              $postAttackAttackers[1]['recipe'] . ' showing ' .
                              $postAttackAttackers[1]['value'];
 
-        $message = $messagePreSplit . $messagePostSplit0 . ' and ' . $messagePostSplit1;
+        $message = $messagePreSplit . $messagePostSplit0 . ', and ' . $messagePostSplit1;
 
         return $message;
     }
