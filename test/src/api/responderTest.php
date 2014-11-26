@@ -7626,8 +7626,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'Failed to gain initiative', array('gainedInitiative' => FALSE),
             $retval, $gameId, 2, 'chance', array(1), NULL);
 
-//        $expData['gameState'] = 'REACT_TO_INITIATIVE';
+        $expData['gameState'] = 'START_TURN';
+        $expData['activePlayerIdx'] = 1;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 3;
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 rerolled a chance die, but did not gain initiative: c(6) rerolled 4 => 3'));
         array_pop($expData['gameActionLog']);
 
