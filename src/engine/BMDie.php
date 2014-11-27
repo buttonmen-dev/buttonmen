@@ -431,6 +431,7 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
     public function split() {
+        $oldRecipe = $this->get_recipe();
         unset($this->value);
         $newdie = clone $this;
 
@@ -450,6 +451,9 @@ class BMDie extends BMCanHaveSkill {
         if (0 == $newdie->max) {
             $newdie->min = 0;
         }
+
+        $this->add_flag('HasJustSplit', $oldRecipe);
+        $newdie->add_flag('HasJustSplit', $oldRecipe);
 
         $dice = array($this, $newdie);
 
@@ -603,6 +607,7 @@ class BMDie extends BMCanHaveSkill {
         $valueAfterTripAttack = NULL;
         $recipeBeforeGrowing = NULL;
         $recipeBeforeShrinking = NULL;
+        $recipeBeforeSplitting = NULL;
         if ($this->has_flag('JustPerformedTripAttack')) {
             $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
         }
@@ -611,6 +616,9 @@ class BMDie extends BMCanHaveSkill {
         }
         if ($this->has_flag('HasJustShrunk')) {
             $recipeBeforeShrinking = $this->flagList['HasJustShrunk']->value();
+        }
+        if ($this->has_flag('HasJustSplit')) {
+            $recipeBeforeSplitting = $this->flagList['HasJustSplit']->value();
         }
         return(array(
             'recipe' => $recipe,
@@ -626,6 +634,7 @@ class BMDie extends BMCanHaveSkill {
             'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
             'recipeBeforeGrowing' => $recipeBeforeGrowing,
             'recipeBeforeShrinking' => $recipeBeforeShrinking,
+            'recipeBeforeSplitting' => $recipeBeforeSplitting,
         ));
     }
 
