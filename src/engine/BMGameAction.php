@@ -302,8 +302,18 @@ class BMGameAction {
         assert(1 == count($preAttackAttackers));
         assert(2 == count($postAttackAttackers));
 
+        $messageChangePreSplit = '';
+        if (array_key_exists('recipeBeforeSplitting', $postAttackAttackers[0]) &&
+            ($preAttackAttackers[0]['recipe'] != $postAttackAttackers[0]['recipeBeforeSplitting'])) {
+            $messageChangePreSplit = ' changed to ' .
+                                     $postAttackAttackers[0]['recipeBeforeSplitting'] .
+                                     ', which then';
+        }
+
         $messagePreSplit = 'Attacker ' . $preAttackAttackers[0]['recipe'] . ' showing ' .
-                           $preAttackAttackers[0]['value'] . ' split into ';
+                           $preAttackAttackers[0]['value'] .
+                           $messageChangePreSplit .
+                           ' split into: ';
 
         $messagePostSplit0 = $this->message_grow_shrink($postAttackAttackers[0]) .
                              $postAttackAttackers[0]['recipe'] . ' showing ' .
@@ -313,7 +323,7 @@ class BMGameAction {
                              $postAttackAttackers[1]['recipe'] . ' showing ' .
                              $postAttackAttackers[1]['value'];
 
-        $message = $messagePreSplit . $messagePostSplit0 . ' and ' . $messagePostSplit1;
+        $message = $messagePreSplit . $messagePostSplit0 . ', and ' . $messagePostSplit1;
 
         return $message;
     }
