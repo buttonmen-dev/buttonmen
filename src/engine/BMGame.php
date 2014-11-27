@@ -1551,7 +1551,7 @@ class BMGame {
             $this->activeDieArrayArray
         );
 
-        if ($newInitiativeArray[$playerIdx]) {
+        if ($newInitiativeArray[$playerIdx] && (1 == array_sum($newInitiativeArray))) {
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         } else {
             // only need to disable chance dice if the reroll fails to gain initiative
