@@ -111,7 +111,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::CHOOSE_JOIN_GAME;
 
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS, $this->object->gameState);
+        $this->assertEquals(BMGameState::SPECIFY_RECIPES, $this->object->gameState);
     }
 
     /**
@@ -122,7 +122,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
 
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS, $this->object->gameState);
+        $this->assertEquals(BMGameState::SPECIFY_RECIPES, $this->object->gameState);
     }
 
     /**

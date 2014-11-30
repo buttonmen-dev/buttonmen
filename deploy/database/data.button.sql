@@ -86,7 +86,10 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (75, 'MegaTokyo',                     7400),
 
 # Fanatics
-(65, 'Classic Fanatics', 100000);
+(65, 'Classic Fanatics', 100000),
+
+# Special
+(10000, 'Special', 1);
 
 
 DELETE FROM button;
