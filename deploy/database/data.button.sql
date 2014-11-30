@@ -1084,3 +1084,9 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (547, 'Zomulgustar', 't(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?', 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 (548, 'Zophiel',         'k(1) (6) z(8,8) H(12) (Y)?',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 (549, 'Zotmeister',      'd(1) d(1) d(2,2) d(8,8) rd(1) rd(26,26)',    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics"));
+
+#############################################
+#####   S P E C I A L   B U T T O N S   #####
+#############################################
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(10001, 'RandomBMVanilla', '', 1, 0, NULL);
