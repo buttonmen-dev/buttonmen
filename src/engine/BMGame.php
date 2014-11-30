@@ -229,6 +229,14 @@ class BMGame {
             return;
         }
 
+        $this->gameState = BMGameState::SPECIFY_RECIPES;
+    }
+
+    protected function do_next_step_specify_recipes() {
+
+    }
+
+    protected function update_game_state_specify_recipes() {
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 

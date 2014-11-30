@@ -15,6 +15,7 @@ class BMGameState {
     const CHOOSE_JOIN_GAME = 13;
 
     // pre-round
+    const SPECIFY_RECIPES = 14;
     const LOAD_DICE_INTO_BUTTONS = 15;
     const ADD_AVAILABLE_DICE_TO_GAME = 17;
     const CHOOSE_AUXILIARY_DICE = 20;
@@ -45,6 +46,7 @@ class BMGameState {
         return array('START_GAME',
                      'APPLY_HANDICAPS',
                      'CHOOSE_JOIN_GAME',
+                     'SPECIFY_RECIPES',
                      'CHOOSE_AUXILIARY_DICE',
                      'CHOOSE_RESERVE_DICE',
                      'LOAD_DICE_INTO_BUTTONS',
