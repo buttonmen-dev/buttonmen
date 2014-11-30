@@ -35,12 +35,16 @@ class BMBtnSkillEcho extends BMBtnSkill {
 
         // copy opponent's recipe only if Echo hasn't yet got a recipe
         if ('' == $args['recipe']) {
-            if ('' == $args['opprecipe']) {
-                // opponent's button recipe is empty, which only occurs with Echo and Zero
-                // thus choose a default recipe
+            $newRecipe = $args['opprecipe'];
+
+            if ('' == $newRecipe &&
+                (
+                    ('Echo' == $args['oppname']) ||
+                    ('Zero' == $args['oppname'])
+                )
+               ) {
+                // choose a default recipe for Echo/Zero vs Echo/Zero games
                 $newRecipe = '(4) (4) (10) (12) (X)';
-            } else {
-                $newRecipe = $args['opprecipe'];
             }
         }
 

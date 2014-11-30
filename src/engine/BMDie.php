@@ -6,7 +6,7 @@
  */
 
 /**
- * This class contains all the logic to do with dice, including instantiating, activating,
+ * This class contains all the logic to zdo with dice, including instantiating, activating,
  * rolling, capturing, describing, as well as die flags
  *
  * @property-read int    $min                   Minimum die value

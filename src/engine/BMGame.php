@@ -233,7 +233,14 @@ class BMGame {
     }
 
     protected function do_next_step_specify_recipes() {
-
+        if (isset($this->buttonArray)) {
+            foreach ($this->buttonArray as $button) {
+                $hookResult = $button->run_hooks(
+                    'specify_recipes',
+                    array('button' => $button)
+                );
+            }
+        }
     }
 
     protected function update_game_state_specify_recipes() {
