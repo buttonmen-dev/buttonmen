@@ -7820,7 +7820,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * depends test_request_savePlayerInfo
+     * @depends test_request_savePlayerInfo
      *
      * This test reproduces an internal error bug caused by zero-sided swing dice
      * 0. Start a game with responder003 playing slamkrypare and responder004 playing gman97216
