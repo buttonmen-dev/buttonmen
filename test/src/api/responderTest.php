@@ -7913,13 +7913,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill'),
-            array(21, 6, 9.0, -9.0),
+            array(21, 6, 10.0, -10.0),
             array(array(0, 4, array())), // not sure any aspect of this die actually changes in this attack
             array(array(1, 2)),
             array(),
             array(array(0, array('value' => 1, 'sides' => 4, 'recipe' => 'Hog%(4)')))
         );
-        $expData['playerDataArray'][0]['activeDieArray'][]= array('value' => 0, 'sides' => 0, 'recipe' => '(Y)', 'description' => 'Y Swing Die (with 0 sides)', 'properties' => array(), 'skills' => array());
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('HasJustSplit');
+        $expData['playerDataArray'][0]['activeDieArray'][]= array('value' => 0, 'sides' => 0, 'recipe' => '(Y)', 'description' => 'Y Swing Die (with 0 sides)', 'properties' => array('HasJustSplit'), 'skills' => array());
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(Y=1):1] against [Hog%(4):1]; Defender Hog%(4) was captured; Attacker (Y=1) showing 1 changed to (Y), which then split into: (Y=1) showing 1, and (Y) showing 0'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
