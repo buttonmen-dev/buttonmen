@@ -26,8 +26,7 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMAttackTrip::validate_attack
      */
-    public function testValidate_attack()
-    {
+    public function testValidate_attack_one_on_one() {
         $game = new BMGame;
 
         $die1 = new BMDie;
@@ -49,6 +48,24 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
 
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_too_many() {
+        $game = new BMGame;
+
+        $die1 = new BMDie;
+        $die1->add_skill('Trip');
+        $die1->init(6);
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->add_skill('Trip');
+        $die2->init(6);
+        $die2->value = 1;
+
         $die3 = new BMDie;
         $die3->add_skill('Trip');
         $die3->init(6);
@@ -57,9 +74,93 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
         // No many-on-one or one-on-many attacks
         $this->assertFalse($this->object->validate_attack($game, array($die1, $die2), array($die3)));
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2, $die3)));
+    }
 
-        // james: still need a test targeting a non-valid target: a stealth die
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_stealth() {
+        $game = new BMGame;
 
-        // james: still need a test targeting a non-valid target: a twin die
+        $die1 = new BMDie;
+        $die1->add_skill('Trip');
+        $die1->add_skill('Stealth');
+        $die1->init(6);
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->add_skill('Trip');
+        $die2->init(6);
+        $die2->value = 1;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_twin() {
+        $game = new BMGame;
+
+        $die1 = new BMDie;
+        $die1->add_skill('Trip');
+        $die1->init(1);
+        $die1->value = 1;
+
+        $die2 = BMDie::create_from_recipe('(1,1)');
+        $die2->value = 2;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+
+        $die3 = BMDie::create_from_recipe('(0,1)');
+        $die3->value = 1;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die3)));
+
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_konstant_targeting_twin() {
+        $game = new BMGame;
+
+        $die1 = new BMDie;
+        $die1->add_skill('Trip');
+        $die1->add_skill('Konstant');
+        $die1->init(4);
+        $die1->value = 1;
+
+        $die2 = BMDie::create_from_recipe('(1,1)');
+        $die2->value = 2;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+
+        $die1->value = 3;
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_normal_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = new BMDie;
+        $die1->add_skill('Trip');
+        $die1->init(4);
+        $die1->value = 1;
+
+        $die2 = new BMDie;
+        $die2->add_skill('Konstant');
+        $die2->init(8);
+        $die2->value = 4;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+
+        $die2->value = 5;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
     }
 }
