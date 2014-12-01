@@ -489,6 +489,44 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Hack warning: there is no clean interface to BMInterface's
+     * random button selection, so we basically have to duplicate it
+     * here.  The logic for excluding unimplemented buttons has to
+     * match assemble_button_data() and the logic for picking a
+     * random button from the array has to match resolve_random_button_selection()
+     */
+    protected function find_button_random_indices($lookForButtons) {
+
+        // Start with the output of loadButtonData
+        $retval = $this->verify_api_success(array('type' => 'loadButtonData'));
+
+        // Now exclude unimplemented buttons the way assemble_button_data() does
+        $implementedButtons = array();
+        foreach ($retval['data'] as $buttonData) {
+            if (!$buttonData['hasUnimplementedSkill']) {
+                $implementedButtons[]= $buttonData;
+            }
+        }
+
+	// Now that our indices should match the ones the real
+	// randomization code uses, actually look for the buttons we want,
+        // producing indices which resolve_random_button_selection() should accept
+        $buttonIds = array();
+        foreach ($implementedButtons as $buttonIdx => $buttonData) {
+            if (in_array($buttonData['buttonName'], $lookForButtons)) {
+                $buttonIds[$buttonData['buttonName']] = $buttonIdx;
+            }
+        }
+
+        // Now make sure we found everything we were looking for
+        foreach ($lookForButtons as $lookForButton) {
+            $this->assertTrue(array_key_exists($lookForButton, $buttonIds), "Could not find random choice button ID for " . $lookForButton);
+        }
+        return $buttonIds;
+    }
+
+
+    /**
      * Helper method used by object_structures_match() to provide debugging
      * feedback if the check fails.
      */
@@ -2848,6 +2886,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * *   game 2: p2 power attacks and wins
      * * Create haruspex mirror battle game 3, continuing game 2 (double-continuation).
      * *   game 3: p1 passes while chatting (verify chat is editable)
+     * *   game 3: p2 power attacks and wins
+     * * Create random game 4, continuing game 3 (verify that chat is only continued from
+     * * one previous game, and reproduce bug #1285, in which continuation text is lost
+     * * during random game creation)
      */
     public function test_interface_game_003() {
 
@@ -3214,6 +3256,84 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'));
 
         // now load the game and check its state
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 02 (game 3) - player 2 wins game without chatting
+
+        // (99)  vs  (99)
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(76),
+            'responder004' . ' performed Power attack using [(99):64] against [(99):13]; Defender (99) was captured; Attacker (99) rerolled 64 => 76. End of round: ' . 'responder004' . ' won round 1 (148.5 vs. 0). ',
+            $retval, array(array(1, 0), array(0, 0)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        // expected changes as a result of the attack
+        $expData['gameState'] = 'END_GAME';
+        $expData['activePlayerIdx'] = NULL;
+        $expData['validAttackTypeArray'] = array();
+        $expData['gameChatEditable'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 0;
+        $expData['playerDataArray'][1]['roundScore'] = 0;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['gameScoreArray']['L'] = 1;
+        $expData['playerDataArray'][1]['gameScoreArray']['W'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'] = array();
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' performed Power attack using [(99):64] against [(99):13]; Defender (99) was captured; Attacker (99) rerolled 64 => 76'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: ' . 'responder004' . ' won round 1 (148.5 vs. 0)'));
+        // chat from previous game is no longer included in a closed continuation game
+        array_pop($expData['gameChatLog']);
+
+        // now load the game and check its state
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Creation of game 4
+        $buttonIds = $this->find_button_random_indices(array('haruspex'));
+
+        // Two random values to pick the buttons (see, they said they were tired of playing haruspex, that's why it's funny)
+        // and two for the initial rolls
+        $thirdGameId = $gameId;
+        $gameId = $this->verify_api_createGame(
+            array($buttonIds['haruspex'], $buttonIds['haruspex'], 12, 24),
+            'responder003', 'responder004', '__random', '__random', 1, 'maybe we should try some different buttons', $thirdGameId);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 1, 'START_TURN');
+        $expData['description'] = 'maybe we should try some different buttons';
+        $expData['previousGameId'] = $thirdGameId;
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Pass');
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 49.5;
+        $expData['playerDataArray'][1]['roundScore'] = 49.5;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][1]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 12, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 24, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003' . ' won initiative for round 1. Initial die values: ' . 'responder003' . ' rolled [(99):12], ' . 'responder004' . ' rolled [(99):24].'));
+        // This behavior may change depending on the resolution of #1170
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $secondGameId . '][i]'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'));
+        // BUG: once #1285 is resolved, uncomment this
+//        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $thirdGameId . '][i]'));
+
+        // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
