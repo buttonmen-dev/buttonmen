@@ -431,7 +431,7 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
     public function split() {
-        $oldRecipe = $this->get_recipe();
+        $oldRecipe = $this->get_recipe(TRUE);
         unset($this->value);
         $newdie = clone $this;
 
@@ -757,6 +757,11 @@ class BMDie extends BMCanHaveSkill {
     }
 
     protected function set__max($value) {
+        if ($value === 0) {
+            $this->min = 0;
+            $this->max = 0;
+        }
+
         if (!is_null($value) &&
             (FALSE ===
              filter_var(
