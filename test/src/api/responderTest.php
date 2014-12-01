@@ -3330,8 +3330,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // This behavior may change depending on the resolution of #1170
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $secondGameId . '][i]'));
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'));
-        // BUG: once #1285 is resolved, uncomment this
-//        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $thirdGameId . '][i]'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $thirdGameId . '][i]'));
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -7773,7 +7772,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This test guards against regressions in the behavior (including action logging) of Berserk and Doppelganger dice which target Radioactive dice.
