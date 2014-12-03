@@ -100,15 +100,6 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (3, 'Wu Lan',      '(4) (10) (20) (20) (X)',          0, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # BUZZING WEASEL's recipe stands for(Fudge) (Regular) (Prestige) (Gamer) (Screw), which are all dice particular to this button
 # rather than any standard coding for swing sizes or die skills.  IMO these dice should not be made avialable for other buttons.
-# F: "Fudge" die. Rolls -1, 0, and 1 in a linear distribution. Is worth either 0, 1, or 3 points depending on who you talk to. 
-#    Zero, because that's twice its average roll; One, because that's its highest value; Three because it can vary between 
-#    3 different values. 
-# R: "Regular" die. Equivalent to an "X" Swing Die. 
-# P: "Prestige" die. A variable die which can be any size between 30 and 100 sides, the Prestige Die cannot make any Attacks 
-#     and is not worth any points. 
-# G: "Gamer" die. A variable die which can be any size between 3 and 21, except for the common die sizes of 4, 6, 8, 10, 12, and 20. 
-# S: "Screw" or "Suck" die. A 7-sided die. If the S die makes an attack and rolls odd, its owner gets another turn. If it rolls even,
-#     its owner loses. 
 # ('Buzzing Weasel','F R P G S',                   1, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # JAMES ERNEST is mathematically impossible to implement (though it might be fun to try to work around this, changing sizes to die skills)
 # ('James Ernest','(pi) (inf) (sqrt(-2)) (X)',     1, 0, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
@@ -145,33 +136,33 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # 2004 ORIGINS (Flying Buffalo)
 #    INTRODUCES Sleep(Z) dice AND Game(#) dice; Fire(F); Poison(p); Shadow(s); Slow(w); Speed(z); Value(v); Option
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(13, 'Amara Wintersword',      '(4) (8) (12) (12) (X)?',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(14, 'Beatnik Turtle',         'wHF(4) (8) (10) vz(20) vz(20)',                   0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(15, 'Captain Bingo',          '(8) (6/12) (6/12) (12/20) (X)',                   0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(16, 'Oni',                    '(4) (10) f(12) f(12) (V)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(17, 'Spite',                  'p(6) (6) (6) s(X) (X)',                           0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(18, 'Super Germ',             'p(10) p(12) p(16) p(20) p(24) p(30) p(30) p(X)',  0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(19, 'Cheese Weasel',          '(6) (8) (12) (16) (20)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(13, 'Amara Wintersword',     '(4) (8) (12) (12) (X)?',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(14, 'Beatnik Turtle',        'wHF(4) (8) (10) vz(20) vz(20)',                   0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(15, 'Captain Bingo',         '(8) (6/12) (6/12) (12/20) (X)',                   0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(16, 'Oni',                   '(4) (10) f(12) f(12) (V)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(17, 'Spite',                 'p(6) (6) (6) s(X) (X)',                           0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(18, 'Super Germ',            'p(10) p(12) p(16) p(20) p(24) p(30) p(30) p(X)',  0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(19, 'Cheese Weasel',         '(6) (8) (12) (16) (20)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # The old site used raGe dice instead of Game dice in the following recipes.
-(20, 'Delt',                    'R(4) R(4) (10) (12) R(X)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(21, 'Reggie',                  '(8) (10) R(12) (20) R(20)',                       0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(22, 'Rold',                    '(6) (6) R(6) R(6) R(6)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(20, 'Delt',                  'R(4) R(4) (10) (12) R(X)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(21, 'Reggie',                '(8) (10) R(12) (20) R(20)',                       0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(22, 'Rold',                  '(6) (6) R(6) R(6) R(6)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # since old site users are used to playing these with Rage . . .
-(23, 'Delt Rage',               'G(4) G(4) (10) (12) G(X)',                       0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(24, 'Reggie Rage',             '(8) (10) G(12) (20) G(20)',                      0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(25, 'Rold Rage',               '(6) (6) G(6) G(6) G(6)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-# not included on the old site - assumed not TL
+(23, 'Delt Rage',              'G(4) G(4) (10) (12) G(X)',                       0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(24, 'Reggie Rage',            '(8) (10) G(12) (20) G(20)',                      0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(25, 'Rold Rage',              '(6) (6) G(6) G(6) G(6)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+# not included in the original site - assumed not TL
 (679, 'Killer Christmas Tree',  '(6) Z(6) (10) Z(12) (X)',                        0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(26, 'Billy Shakespeare',       '(15) (64) (16) (16)',                            0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(27, 'Drew\'s Truck',           '(5) (10) (15) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(28, 'Igor(p)',                 '(8) (8) z(12) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(29, 'Mike Young',              '(X) (X) (Y) (Y)',                                0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins"));
+(26, 'Billy Shakespeare',      '(15) (64) (16) (16)',                            0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(27, 'Drew\'s Truck',          '(5) (10) (15) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(28, 'Igor(p)',                '(8) (8) z(12) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(29, 'Mike Young',             '(X) (X) (Y) (Y)',                                0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins"));
 
-# ('2005 Rare Promo')                         NO SPECIAL SKILLS
+#('2005 Rare Promo')                         NO SPECIAL SKILLS
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(30, 'Kitty Cat Seven',               '(4) (6) (8) (10) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo")),
-(31, 'Sylvia Branham',                '(6) (6) (6) (X) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo")),
-(680, 'Magical Witch Critical Miss',  '(6) (10) (10) (20) (X)?',    0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo"));
+(680, 'Magical Witch Critical Miss',  '(6) (10) (10) (20) (X)?',    0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo")),
+(30, 'Kitty Cat Seven',     '(4) (6) (8) (10) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo")),
+(31, 'Sylvia Branham',      '(6) (6) (6) (X) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo"));
 
 # BALTICON 34 (Balticon)                             INTRODUCES Option(/)       (2000 Rare / Promo on old site)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -187,7 +178,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (35, 'Bunnies',     '(1) (1) (1) (1) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese")),
 (36, 'Lab Rat',     '(2) (2) (2) (2) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese"));
 
-#BIGTOP (APE games - Cassandra) 
+#BIGTOP (APE games - Cassandra)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (568, 'Firebreather',       '(4) F(6) F(6) (12) (S)',          0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
 (569, 'Monkeys',            'z(6) z(6) z(6) z(10) z(T)',       0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
@@ -232,18 +223,18 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # BRIDGE AND TUNNEL (Bridge and Tunnel Software)  INTRODUCES Reboud(=) dice (not implemented); poison(p); shadow(s); option
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(63,  'Agent Orange',     '(6) p(6) =(10) (4/12) (4/20)',        0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(64,  'Huitzilopochtli',  '(6) (8) =(10) (12) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(65,  'Lisa',             '(4) (4) (30) (30)',                   0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(66,  'Nethershadow',     '(6) (10) s(10) (10/20) (6/30)',       0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(67,  'Phuong',           '(4) (10) (10) (20) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(68,  'Uncle Scratchy',   '(2) (4) (6) (10) (X)',                0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(681, 'Phantom Zero',     'g(8) s(10) (12) (2/12) (X)',          0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(682, 'Pinball Wizard',   '=(6) =(6) (20) (20)',                 0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(683, 'The Gratch',       'z(4) =(20) (V) (V) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(684, 'Steve',            '=(4) =(4) =(8) =(20) =(X)',           0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(685, 'The Fog',          's(4) s(4) (30) (30)',                 0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(686, 'G',                'g(6) =(6) z(8) (16) (10/20)',         0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel"));
+(63, 'Agent Orange',     '(6) p(6) =(10) (4/12) (4/20)',         0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(64, 'Huitzilopochtli',  '(6) (8) =(10) (12) (X)',               0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(65, 'Lisa',             '(4) (4) (30) (30)',                    0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(66, 'Nethershadow',     '(6) (10) s(10) (10/20) (6/30)',        0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(67, 'Phuong',           '(4) (10) (10) (20) (X)',               0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(68, 'Uncle Scratchy',   '(2) (4) (6) (10) (X)',                 0, 1, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(681, 'Phantom Zero',      'g(8) s(10) (12) (2/12) (X)',          0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(682, 'Pinball Wizard',    '=(6) =(6) (20) (20)',                 0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(683, 'The Gratch',        'z(4) =(20) (V) (V) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(684, 'Steve',             '=(4) =(4) =(8) =(20) =(X)',           0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(685, 'The Fog',           's(4) s(4) (30) (30)',                 0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(686, 'G',                 'g(6) =(6) z(8) (16) (10/20)',         0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel"));
 
 # BRUNO (Hunter Johnson)             INTRODUCES Berserk(B) dice; *requires special rules
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -447,43 +438,43 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # The Japanese Beetle: Skill attacks do not work on Japanese Beetle
 (144, 'The Japanese Beetle', '(6) (8) (12) (X)',                   1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle"));
 
-# KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y) 
+# KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (572, 'Space Kubla',       '(6) (8) O(12) X(12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con")),
-# Pirate Kubla's X is actually a Kubla die. Every time you reroll it, shout "Kubla!" 
+# Pirate Kubla's X is actually a Kubla die. Every time you reroll it, shout "Kubla!"
 (573, 'Pirate Kubla',      '(6) (8) (20) Y(12) (X)',     0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con"));
 
 # LAS VEGAS                                INTRODUCES Wildcard(C) AND Pai Gow(:); Option; Twin; Turbo
 # Frankie aka Professor, Lola aka Showgirl, Sly aka Pit Boss, Crypto aka Magician
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(183, 'Frankie',        '(2,3) (3,4) (4,5) (10) (T)!',      0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(184, 'Lola',           '(6) (6) (8) (T) (U)',              0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(185, 'Sly',            '(12) (12) (20) (20) (U)',          0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(186, 'Wildcard',       '(C) (C) (C) (C) (C)',              0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(183, 'Frankie',       '(2,3) (3,4) (4,5) (10) (T)!',      0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(184, 'Lola',          '(6) (6) (8) (T) (U)',              0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(185, 'Sly',           '(12) (12) (20) (20) (U)',          0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(186, 'Wildcard',      '(C) (C) (C) (C) (C)',              0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 # Black Jack's T swing cannot be a d12.
-# Black Jack, Craps, Shamrock, and Crypto have copies sans button specials so they can be played like on old site
-# Black Jack, Shamrock, and Pai Gow have alternate recipes
-(187, 'Black Jack',     '(1,1) (11) (8,8) (10,11) (T)',     1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(688, 'Black Jack II',  '(1,1) (11) (8,8) (10,10,1) (T)',   1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(689, 'Twenty-One',     '(1,1) (11) (8,8) (10,11) (T)',     0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(187, 'Black Jack',    '(1,1) (11) (8,8) (10,11) (T)',     1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 #CRAPS: Any twin die that rolls a 7 may be reset by the player to any value between 2 and 12 (includes after a Trip attack.)
 #At the start of a round, this decision must be made before seeing the opponent's starting roll.
-(188, 'Craps',          '(6,6) (6,6) (6,6) (6,6) (6,6)',    1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(690, 'Them Bones',     '(6,6) (6,6) (6,6) (6,6) (6,6)',    0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(188, 'Craps',         '(6,6) (6,6) (6,6) (6,6) (6,6)',    1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 # SHAMROCK: The d13s score as normal d13s, but are represented by a d12 for which a 7 counts as a 13
-(189, 'Shamrock',       '(2) (7/13) (7/13) (7/13) (7/13)',  1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(691, 'Shamrock II',    '(2) (9) (7/13) (7/13) (7/13)',     1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(692, 'Lady Luck',      '(2) (7/13) (7/13) (7/13) (7/13)',  0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(190, 'Pai Gow',        '(6) :(8) :(8) (10) (12)',          0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(693, 'Pai Gow II',     '(4) :(10) :(10) (12) (12)',        0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(189, 'Shamrock',      '(2) (7/13) (7/13) (7/13) (7/13)',  1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(190, 'Pai Gow',       '(6) :(8) :(8) (10) (12)',          0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 # Crypto can use one of the following once per round, and cannot use any of them twice until he has used all four:
 # * Rabbit from hat: Extra d1.
 # * Prestidigitation: Change any die to a Trip die.
 # * Bisect with Saw: Change any die (own or opponent's) to half of its originally-rolled value on the opening roll.
 # * Vanishing Act: First die captured by opponent is scored as zero points.
 # * Mind Reading: Opponent must state all sizes of all option and/or swing dice.
-(191, 'Crypto',         '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-(694, 'Magician',       '(6) (8) (10) (12) (T)',            0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas"));
+(191, 'Crypto',        '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+# Clones of Black Jack, Craps, Shamrock, and Crypto - sans button specials
+# Black Jack, Shamrock, and Pai Gow have alternate recipes
+(688, 'Black Jack II',     '(1,1) (11) (8,8) (10,10,1) (T)',      1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(689, 'Twenty-One',        '(1,1) (11) (8,8) (10,11) (T)',        0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(690, 'Them Bones',        '(6,6) (6,6) (6,6) (6,6) (6,6)',       0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(691, 'Shamrock II',       '(2) (9) (7/13) (7/13) (7/13)',        1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(692, 'Lady Luck',         '(2) (7/13) (7/13) (7/13) (7/13)',     0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(693, 'Pai Gow II',        '(4) :(10) :(10) (12) (12)',           0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+(694, 'Magician',          '(6) (8) (10) (12) (T)',               0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas"));
 
 # LEGEND OF THE FIVE RINGS (Wizards of the Coast)  INTRODUCES Focus(f) dice
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -677,9 +668,9 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (307, 'John Kovalic',  '(6) c(6) (10) (12) c(20)',    0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 (308, 'Pikathulhu',    '(6) c(6) (10) (12) c(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 (309, 'Ulthar',        '(4) (8) (10) c(10) c(T)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
-# WT??? 
-# Seriously!  I have no idea what this recipe is meant to be
-# (695, 'Bob',    '(pX+Y+Z) (t0]) (sA!) (zA!) (cA!) (X+Y+Z)',     1, 0, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
+# WT???  
+# Seriously!  I have no idea what this recipe is meant to be 
+# (695, 'Bob',    '(pX+Y+Z) (t0]) (sA!) (zA!) (cA!) (X+Y+Z)',     1, 0, (SELECT id FROM buttonset WHERE name="Yoyodyne")); 
 
 # ZOECon (ZOECon.net)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -786,9 +777,9 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (371, 'Wolfman',                  '(6) p(10) (12) z(16) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror"));
 
 #50 States   (Kaufman)
-#NOTE: CA, PA, are meant to have Select Dice. I've given them the unused code 'U' until we figure what to do about that.  
-#NOTE: These had button specials set so they are not available to play on the live site. Change all these back after players are 
-#      given the option to accept only TL games and/or random challenges can be made which avoid this set. 
+#NOTE: CA, PA, are meant to have Select Dice. I've given them the unused code 'U' until we figure what to do about that.
+#NOTE: These had button specials set so they are not available to play on the live site. Change all these back after players are
+#      given the option to accept only TL games and/or random challenges can be made which avoid this set.
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (586, 'Alabama',         'D(6) ^(10) o(14) (S) (X)',                       1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (587, 'Alaska',          'd(6) s(20) s(30) w(30) (T)',                     1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
@@ -862,7 +853,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (646, 'Kainar',    '(4) (4) z(10) z(V) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (647, 'Inez',      '(6) (6) I(6) (20) (X)',               0, 0, (SELECT id FROM buttonset WHERE name="Blademasters"));
 
-#BLADE MASTERS 2                             INTRODUCES Attacker(-), Defender(|), Cross(x); 
+#BLADE MASTERS 2                             INTRODUCES Attacker(-), Defender(|), Cross(x);
 #                                                       Option, Reserve, Turbo, Twin, Fire, Poison, Shadow, Speed, Trip
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (648, 'Paris',    '(4/8)! (6) (10) (10) (12/20)!',           0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: The Second Shot")),
@@ -887,9 +878,9 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (664, 'Montague(u)',  '(2,2) (4) (10,10) (20) (X) +(V)',  0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack")),
 (665, 'Chantal',      'pI(4) pI(8) (20) (20) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
 # Silly Self Promo (yes, that's a fudge die)  INTRODUCES Sustaind Fire Die (SFD)
-# The Sustained Fire Die rolls 0, 1, 1, 2, 2, 3 in linear distribution.  If a zero is rolled, the only attack Bayani 
+# The Sustained Fire Die rolls 0, 1, 1, 2, 2, 3 in linear distribution.  If a zero is rolled, the only attack Bayani
 # can make afterwards is a skill attack.  Alternatively, he can just reroll it without making an attack.  It's worth 3 points.
-# (666, 'Bayani',       '(F) (SFD) (16) (16) (12/20)',      1, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
+#(666, 'Bayani',       '(F) (SFD) (16) (16) (12/20)',      1, 0, (SELECT id FROM buttonset WHERE name="Blademasters: Third Attack"));
 
 # GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded (M), Evil(E)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -898,7 +889,6 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (129, 'Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 (130, 'Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 (131, 'Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-
 (132, 'Randarch',        'M(6) M(6) (10) (10) (X)',                    0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 (133, 'Scarlet Jester',  'n(4) E(10) n(12) E(20) E(20)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 (134, 'Shane Hensley',   'E(6) E(6) E(6) E(6) E(6) E(6)',              0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians"));
