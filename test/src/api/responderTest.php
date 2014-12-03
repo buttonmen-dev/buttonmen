@@ -6507,7 +6507,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This test reproduced an internal error bug affecting Doppelganger dice attacking Twin dice
