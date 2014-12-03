@@ -18,7 +18,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # LAS VEGAS
 # Clones of Black Jack, Craps, Shamrock, and Crypto - sans button specials
 # Black Jack, Shamrock, and Pai Gow have alternate recipes
-(688, 'Black Jack II',     '(1,1) (11) (8,8) (10,10,1) (T)',      1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
+# Black Jack II introduces Triplet Dice
+# (688, 'Black Jack II',     '(1,1) (11) (8,8) (10,10,1) (T)',      1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 (689, 'Twenty-One',        '(1,1) (11) (8,8) (10,11) (T)',        0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 (690, 'Them Bones',        '(6,6) (6,6) (6,6) (6,6) (6,6)',       0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 (691, 'Shamrock II',       '(2) (9) (7/13) (7/13) (7/13)',        1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
@@ -34,3 +35,6 @@ UPDATE button SET name='Wildcard'  WHERE name='WildCard';
 # Nara's name didn't match the button image.  The button image was currect. 
 UPDATE button SET name='Nara'   WHERE name='Zara';
 
+# WT??? 
+# Seriously!  I have no idea what this recipe is meant to be
+# (695, 'Bob',    '(pX+Y+Z) (t0]) (sA!) (zA!) (cA!) (X+Y+Z)',     1, 0, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
