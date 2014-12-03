@@ -6507,6 +6507,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This test reproduced an internal error bug affecting Doppelganger dice attacking Twin dice
@@ -6704,7 +6705,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill'),
-            array(39, 28, 7.3, -7.3),
+            array(45, 24, 14, -14),
             array(array(1, 0, array('value' => 1)),
                   array(0, 2, array('properties' => array()))),
             array(array(0, 3)),
@@ -6714,7 +6715,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):3] against [D(X=4):3]; Defender D(X=4) was captured; Attacker (4) rerolled 3 => 1'));
 
         // this triggers the bug
-        // $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
     /**
