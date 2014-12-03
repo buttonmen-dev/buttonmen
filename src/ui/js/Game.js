@@ -2490,7 +2490,7 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // number of sides
 Game.dieRecipeText = function(die, allowShowValues) {
   var dieRecipeText = die.recipe;
-  if (die.sides) {
+  if (die.sides !== undefined && die.sides !== null) {
     var lparen = die.recipe.indexOf('(');
     var rparen = die.recipe.indexOf(')');
     var recipeSideString = die.recipe.substring(lparen + 1, rparen);
@@ -2510,7 +2510,7 @@ Game.dieRecipeText = function(die, allowShowValues) {
         }
       }
 
-      if (sidesum != die.sides) {
+      if (swingcount > 0) {
         dieRecipeText = dieRecipeText.replace(
                           ')', '=' + (die.sides/swingcount) + ')');
       }
