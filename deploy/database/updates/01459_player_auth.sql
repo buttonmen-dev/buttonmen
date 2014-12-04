@@ -1,0 +1,1 @@
+ALTER TABLE player_auth MODIFY id INT UNSIGNED;
