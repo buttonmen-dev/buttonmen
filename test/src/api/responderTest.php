@@ -6514,7 +6514,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * 1. responder003 set swing values: X=4
      * 2. c2 set swing values: W=4
      *    c1 won initiative for round 1. Initial die values: c1 rolled [D(4):2, D(6):5, D(10):10, D(12):9, D(X=4):3], c2 rolled [(4):4, (8,8):15, (10,10):10, (12):9, (W=4,W=4):5].
-     * 3. responder003 performed Power attack using [D(10):10] against [(10,10):10]. ...
+     * 3. responder003 performed Power attack using [D(10):10] against [(10,10):10]; Defender (10,10) was captured; Attacker D(10) changed size from 10 to 20 sides, recipe changed from D(10) to (10,10), rerolled 10 => 5
+     * 4. responder004 performed Power attack using [(4):4] against [D(4):2]
+     * 5. responder003 performed Power attack using [D(12):9] against [(W=4,W=4):5]
      */
     public function test_interface_game_014() {
 
@@ -6625,6 +6627,94 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 2), array(1, 2)),
             $gameId, 1, 'Power', 0, 1, '');
 
+        $this->update_expected_data_after_normal_attack(
+            $expData, 1, array('Power', 'Skill'),
+            array(43, 20, 15.3, -15.3),
+            array(array(0, 2, array('value' => 5, 'recipe' => '(10,10)', 'description' => 'Twin Die (both with 10 sides)', 'sides' => 20, 'skills' => array(), 'properties' => array('HasJustMorphed')))),
+            array(array(1, 2)),
+            array(),
+            array(array(0, array('value' => 10, 'sides' => 20, 'recipe' => '(10,10)')))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [D(10):10] against [(10,10):10]; Defender (10,10) was captured; Attacker D(10) changed size from 10 to 20 sides, recipe changed from D(10) to (10,10), rerolled 10 => 5'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 04 - responder004 performed Power attack using [(4):4] against [D(4):2]
+        // [D(4):2, D(6):5, (10,10):5, D(12):9, D(X=4):3] <= [(4):4, (8,8):15, (12):9, (W=4,W=4):5]
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(3),
+            'responder004 performed Power attack using [(4):4] against [D(4):2]; Defender D(4) was captured; Attacker (4) rerolled 4 => 3. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 0, array('Power', 'Skill'),
+            array(41, 24, 11.3, -11.3),
+            array(array(1, 0, array('value' => 3)),
+                  array(0, 2, array('properties' => array()))),
+            array(array(0, 0)),
+            array(array(0, 0)),
+            array(array(1, array('value' => 2, 'sides' => 4, 'recipe' => 'D(4)')))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):4] against [D(4):2]; Defender D(4) was captured; Attacker (4) rerolled 4 => 3'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 05 - responder003 performed Power attack using [D(12):9] against [(W=4,W=4):5]
+        // [D(6):5, (10,10):5, (W=4,W=4):4, D(X=4):3] => [(4):3, (8,8):15, (12):9]
+
+        $this->verify_api_submitTurn(
+            array(1, 3),
+            'responder003 performed Power attack using [D(12):9] against [(W=4,W=4):5]; Defender (W=4,W=4) was captured; Attacker D(12) changed size from 12 to 8 sides, recipe changed from D(12) to (W=4,W=4), rerolled 9 => 4. ',
+            $retval, array(array(0, 2), array(1, 3)),
+            $gameId, 1, 'Power', 0, 1, '');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 1, array('Power', 'Skill'),
+            array(47, 20, 18, -18),
+            array(array(0, 2, array('value' => 4, 'sides' => 8, 'recipe' => '(W,W)', 'properties' => array('HasJustMorphed'), 'description' => 'Twin W Swing Die (both with 4 sides)', 'skills' => array()))),
+            array(array(1, 3)),
+            array(array(1, 0)),
+            array(array(0, array('value' => 5, 'sides' => 8, 'recipe' => '(W,W)')))
+        );
+        $expData['playerDataArray'][0]['swingRequestArray']['W'] = array(4, 12);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [D(12):9] against [(W=4,W=4):5]; Defender (W=4,W=4) was captured; Attacker D(12) changed size from 12 to 8 sides, recipe changed from D(12) to (W=4,W=4), rerolled 9 => 4'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 06 - responder004 performed Power attack using [(4):3] against [D(X=4):3]
+        // [D(6):5, (10,10):5, (W=4,W=4):4, D(X=4):3] <= [(4):3, (8,8):15, (12):9]
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1),
+            'responder004 performed Power attack using [(4):3] against [D(X=4):3]; Defender D(X=4) was captured; Attacker (4) rerolled 3 => 1. ',
+            $retval, array(array(0, 3), array(1, 0)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 0, array('Power', 'Skill'),
+            array(45, 24, 14, -14),
+            array(array(1, 0, array('value' => 1)),
+                  array(0, 2, array('properties' => array()))),
+            array(array(0, 3)),
+            array(array(0, 1)),
+            array(array(1, array('value' => 3, 'sides' => 4, 'recipe' => 'D(X)')))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):3] against [D(X=4):3]; Defender D(X=4) was captured; Attacker (4) rerolled 3 => 1'));
+
+        // this triggers the bug
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
     /**
