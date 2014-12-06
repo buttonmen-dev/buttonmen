@@ -105,6 +105,13 @@ class BMAttackTrip extends BMAttack {
             return TRUE;
         }
 
+        if ($def->has_skill('Konstant') && 
+            $att->has_skill('Konstant') &&
+            ($att->value < $def->value)) {
+            $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
+            return TRUE;
+        }
+
         return FALSE;
     }
 }
