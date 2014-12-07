@@ -254,7 +254,7 @@ class BMDieTwin extends BMDie {
         $this->remove_flag('IsAsymmetricTwin');
         if ($this->dice[0]->max != $this->dice[1]->max) {
             $this->add_flag('IsAsymmetricTwin',
-                            json_encode(array($this->dice[0]->max, $this->dice[1]->max)));
+                            array($this->dice[0]->max, $this->dice[1]->max));
         }
     }
 

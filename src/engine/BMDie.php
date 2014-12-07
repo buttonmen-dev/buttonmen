@@ -660,7 +660,11 @@ class BMDie extends BMCanHaveSkill {
         $flagString = $flag;
 
         if (isset($flagValue)) {
-            $flagString .= '__' . $flagValue;
+            if (is_array($flagValue)) {
+                $flagString .= '__' . json_encode($flagValue);
+            } else {
+                $flagString .= '__' . $flagValue;
+            }
         }
 
         $flagObject = BMFlag::create_from_string($flagString);
