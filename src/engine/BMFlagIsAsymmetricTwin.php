@@ -25,7 +25,20 @@ class BMFlagIsAsymmetricTwin extends BMFlag {
     public function __construct($dieSizeString) {
         $this->dieSizeArray = NULL;
         if (isset($dieSizeString)) {
-            $this->dieSizeArray = json_decode($dieSizeString);
+            $dieSizeArray = json_decode($dieSizeString);
+            if (!is_array($dieSizeArray)) {
+                throw new LogicException('Encoded die sizes must be contained in an array.');
+            }
+
+            if (2 != count($dieSizeArray)) {
+                throw new LogicException('IsAsymmetricTwin is only meant for twin dice.');
+            }
+
+            if ($dieSizeArray[0] == $dieSizeArray[1]) {
+                throw new LogicException('IsAsymmetricTwin is only meant for asymmetric twin dice.');
+            }
+
+            $this->dieSizeArray = $dieSizeArray;
         }
     }
 

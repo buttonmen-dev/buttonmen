@@ -8279,11 +8279,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // [q(2):1, z(3):2, s(23):11, t(T=1,T=1):2, t(T=1,T=1):2] => [Hog%(6):3, Hog%(6):2, Hog%(6):2]
         $this->verify_api_submitTurn(
             array(1, 0, 0, 1),
-            'responder003 performed Power attack using [t(T=1,T=1):2] against [Hog%(6):2]; Defender Hog%(6) was captured; Attacker t(T=1,T=1) showing 2 changed to t(T,T), which then split into: t(T=1,T) showing 1, and t(T,T=1) showing 1. ',
-            $retval, array(array(0, 3), array(1, 1)),
+            'responder003 performed Power attack using [t(T=1,T=1):2] against [Hog%(6):2]; Defender Hog%(6) was captured; Attacker t(T=1,T=1) showing 2 changed to t(T,T), which then split into: t(T=1,T=0) showing 1, and t(T=0,T=1) showing 1. ',
+            $retval, array(array(0, 4), array(1, 1)),
             $gameId, 1, 'Power', 0, 1, '');
 
-        // FIXME: insert the $expData changes in some form
+        $this->update_expected_data_after_normal_attack(
+            $expData, 1, array('Power', 'Skill'),
+            array(28, 11, 11.3, -11.3),
+            array(array(0, 4, array('value' => 1, 'sides' => 1, 'properties' => array('HasJustSplit', 'IsAsymmetricTwin'), 'description' => 'Trip Twin T Swing Die (with 1 and 0 sides)')),
+                  array(1, 0, array('properties' => array())),
+                  array(1, 2, array('properties' => array()))),
+            array(array(1, 1)),
+            array(array(1, 0)),
+            array(array(0, array('value' => 1, 'sides' => 2, 'recipe' => 'Hog%(6)')))
+        );
+
+        $expData['playerDataArray'][0]['activeDieArray'][] = array('value' => 1, 'sides' => 1, 'skills' => array('Trip'), 'properties' => array('HasJustSplit', 'IsAsymmetricTwin'), 'recipe' => 't(T,T)', 'description' => 'Trip Twin T Swing Die (with 0 and 1 sides)');
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['sides'] = 6;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [t(T=1,T=1):2] against [Hog%(6):2]; Defender Hog%(6) was captured; Attacker t(T=1,T=1) showing 2 changed to t(T,T), which then split into: t(T=1,T=0) showing 1, and t(T=0,T=1) showing 1'));
 
         // This throws the internal error
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);

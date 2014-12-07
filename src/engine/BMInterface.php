@@ -980,16 +980,16 @@ class BMInterface {
             $die->originalPlayerIdx = $originalPlayerIdx;
             $die->ownerObject = $game;
 
+            if (!is_null($row['flags'])) {
+                $die->load_flags_from_string($row['flags']);
+            }
+
             $this->set_swing_max($die, $originalPlayerIdx, $game, $row);
             $this->set_twin_swing_max($die, $originalPlayerIdx, $game, $row);
             $this->set_option_max($die, $row);
 
             if (isset($row['value'])) {
                 $die->value = (int)$row['value'];
-            }
-
-            if (!is_null($row['flags'])) {
-                $die->load_flags_from_string($row['flags']);
             }
 
             switch ($row['status']) {
@@ -1020,7 +1020,7 @@ class BMInterface {
     }
 
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
-        if (isset($die->swingType)) {
+        if (isset($die->swingType) && !$die instanceof BMDieTwin) {
             $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
             $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
@@ -1035,17 +1035,23 @@ class BMInterface {
             (($die->dice[0] instanceof BMDieSwing) ||
              ($die->dice[1] instanceof BMDieSwing))) {
 
-            foreach ($die->dice as $subdie) {
+            foreach ($die->dice as $subdieIdx => $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $swingType = $subdie->swingType;
                     $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
-                    if (isset($row['actual_max'])) {
-                        $subdie->max = (int)($row['actual_max']/2);
+                    if ($die->has_flag('IsAsymmetricTwin')) {
+                        $dieSizeArray = $die->flagList['IsAsymmetricTwin']->value();
+                        $subdie->max = (int)$dieSizeArray[$subdieIdx];
+                    } else {
+                        if (isset($row['actual_max'])) {
+                            $subdie->max = (int)($row['actual_max']/2);
+                        }
                     }
                 }
             }
 
+            $die->recalc_max_min();
             $game->request_swing_values($die, $swingType, $originalPlayerIdx);
         }
     }
