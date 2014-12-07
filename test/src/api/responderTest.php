@@ -8115,7 +8115,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // [t(1):1, (10):1, (10):4, z(12):9, (Y=1):1] => [Hog%(4):3, Hog%(4):2, Hog%(4):1, Hog%(4):3]
         $this->verify_api_submitTurn(
             array(1, 0),
-            'responder003 performed Power attack using [(Y=1):1] against [Hog%(4):1]; Defender Hog%(4) was captured; Attacker (Y=1) showing 1 split into: (Y=1) showing 1, and (Y) showing 0. ',
+            'responder003 performed Power attack using [(Y=1):1] against [Hog%(4):1]; Defender Hog%(4) was captured; Attacker (Y=1) showing 1 split into: (Y=1) showing 1, and (Y=0) showing 0. ',
             $retval, array(array(0, 4), array(1, 2)),
             $gameId, 1, 'Power', 0, 1, '');
 
@@ -8129,7 +8129,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('HasJustSplit');
         $expData['playerDataArray'][0]['activeDieArray'][]= array('value' => 0, 'sides' => 0, 'recipe' => '(Y)', 'description' => 'Y Swing Die (with 0 sides)', 'properties' => array('HasJustSplit'), 'skills' => array());
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(Y=1):1] against [Hog%(4):1]; Defender Hog%(4) was captured; Attacker (Y=1) showing 1 split into: (Y=1) showing 1, and (Y) showing 0'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(Y=1):1] against [Hog%(4):1]; Defender Hog%(4) was captured; Attacker (Y=1) showing 1 split into: (Y=1) showing 1, and (Y=0) showing 0'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
