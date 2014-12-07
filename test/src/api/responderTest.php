@@ -8077,7 +8077,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameState'] = 'START_TURN';
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['activePlayerIdx'] = 0;
-        // BUG: what?  Shadow?  That can't be right...
         $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow', 'Speed', 'Trip');
         $expData['playerDataArray'][0]['roundScore'] = 18.5;
         $expData['playerDataArray'][1]['roundScore'] = 8;
