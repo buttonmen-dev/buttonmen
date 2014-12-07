@@ -556,7 +556,7 @@ class BMDie extends BMCanHaveSkill {
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
-        if ($addMaxval && $dieObj->max) {
+        if ($addMaxval && isset($dieObj->max)) {
             return ($sidecountStr . '=' . $dieObj->max);
         } else {
             return ($sidecountStr);
