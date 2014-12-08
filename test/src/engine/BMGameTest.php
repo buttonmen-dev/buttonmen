@@ -3183,24 +3183,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
             $out1['playerDataArray'][0]['activeDieArray'][4]);
         $this->assertEquals(
-	    array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(),
+	    array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array('Twin'),
                   'recipe' => '(2,2)', 'description' => 'Twin Die (both with 2 sides)'),
             $out1['playerDataArray'][1]['activeDieArray'][0]);
         $this->assertEquals(
-	    array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+	    array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array('Twin'),
                   'recipe' => '(4,4)', 'description' => 'Twin Die (both with 4 sides)'),
             $out1['playerDataArray'][1]['activeDieArray'][1]);
         $this->assertEquals(
-	    array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(),
+	    array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array('Twin'),
                   'recipe' => '(6,6)', 'description' => 'Twin Die (both with 6 sides)'),
             $out1['playerDataArray'][1]['activeDieArray'][2]);
         $this->assertEquals(
-	    array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(),
+	    array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array('Twin'),
                   'recipe' => '(10,10)', 'description' => 'Twin Die (both with 10 sides)'),
             $out1['playerDataArray'][1]['activeDieArray'][3]);
         // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-	    array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+	    array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array('Twin'),
                   'recipe' => '(T,T)', 'description' => 'Twin T Swing Die'),
             $out1['playerDataArray'][1]['activeDieArray'][4]);
         $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);

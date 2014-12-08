@@ -1040,10 +1040,18 @@ class BMInterface {
                     $swingType = $subdie->swingType;
                     $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
-                    if ($die->has_flag('IsAsymmetricTwin')) {
-                        $dieSizeArray = $die->flagList['IsAsymmetricTwin']->value();
-                        $subdie->max = (int)$dieSizeArray[$subdieIdx];
+                    if ($die->has_flag('Twin')) {
+                        $subdiePropertyArray = $die->flagList['Twin']->value();
+                        $max = $subdiePropertyArray['sides'][$subdieIdx];
+                        if (isset($max)) {
+                            $subdie->max = (int)$max;
+                        }
+                        $value = $subdiePropertyArray['values'][$subdieIdx];
+                        if (isset($value)) {
+                            $subdie->value = (int)$value;
+                        }
                     } else {
+                        // continue to handle the old case where there was no BMFlagTwin information
                         if (isset($row['actual_max'])) {
                             $subdie->max = (int)($row['actual_max']/2);
                         }
@@ -1474,6 +1482,11 @@ class BMInterface {
                         $status = 'DISABLED';
                     } elseif ($activeDie->dizzy) {
                         $status = 'DIZZY';
+                    }
+
+                    if ($activeDie instanceof BMDieTwin) {
+                        // force regeneration of max, min, and BMFlagTwin
+                        $activeDie->recalc_max_min();
                     }
 
                     $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);

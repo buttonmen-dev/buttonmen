@@ -251,13 +251,30 @@ class BMDieTwin extends BMDie {
             $this->max += $die->max;
         }
 
-        $this->remove_flag('IsAsymmetricTwin');
-        if ($this->dice[0]->max != $this->dice[1]->max) {
-            $this->add_flag(
-                'IsAsymmetricTwin',
-                array($this->dice[0]->max, $this->dice[1]->max)
-            );
+        $this->remove_flag('Twin');
+
+        $subdieMaxArray = array();
+        $subdieValueArray = array();
+
+        foreach ($this->dice as $subdieIdx => $subdie) {
+            if (isset($subdie->max)) {
+                $subdieMaxArray[$subdieIdx] = $subdie->max;
+            } else {
+                $subdieMaxArray[$subdieIdx] = NULL;
+            }
+
+            if (isset($subdie->value)) {
+                $subdieValueArray[$subdieIdx] = $subdie->value;
+            } else {
+                $subdieValueArray[$subdieIdx] = NULL;
+            }
         }
+
+        $this->add_flag(
+            'Twin',
+            array('sides' => $subdieMaxArray,
+                  'values' => $subdieValueArray)
+        );
     }
 
     public function getDieTypes() {
