@@ -2949,6 +2949,7 @@ class BMGame {
         // request dice one at a time
         $valueArrayArray = $this->get_valueArrayArray($requestingPlayerIdx);
         $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
+        $subdiePropertiesArrayArray = $this->get_subdiePropertiesArrayArray($requestingPlayerIdx);
         $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
         $diePropertiesArrayArray = $this->get_diePropsArrayArray();
         $dieRecipeArrayArray = $this->get_dieRecipeArrayArray();
@@ -2956,7 +2957,7 @@ class BMGame {
 
         $activeDieArray = array();
         for ($dieIdx = 0; $dieIdx <= (count($valueArrayArray[$playerIdx]) - 1); $dieIdx++) {
-            $activeDieArray[] = array(
+            $activeDieDescription = array(
                 'value'       => $valueArrayArray[$playerIdx][$dieIdx],
                 'sides'       => $sidesArrayArray[$playerIdx][$dieIdx],
                 'skills'      => $dieSkillsArrayArray[$playerIdx][$dieIdx],
@@ -2964,6 +2965,14 @@ class BMGame {
                 'recipe'      => $dieRecipeArrayArray[$playerIdx][$dieIdx],
                 'description' => $dieDescriptionArrayArray[$playerIdx][$dieIdx],
             );
+
+            if (isset($subdiePropertiesArrayArray) &&
+                isset($subdiePropertiesArrayArray[$playerIdx][$dieIdx])) {
+                $activeDieDescription['subdieProperties'] =
+                    $subdiePropertiesArrayArray[$playerIdx][$dieIdx];
+            }
+
+            $activeDieArray[] = $activeDieDescription;
         }
         return $activeDieArray;
     }
@@ -3042,11 +3051,16 @@ class BMGame {
         if (isset($this->activeDieArrayArray)) {
             $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
+            $wereSwingOrOptionValuesReset = $this->wereSwingOrOptionValuesReset();
+            $isGameStateBeforeSpecifyDice = $this->gameState <= BMGameState::SPECIFY_DICE;
+
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
+                $isPlayerRequester = $playerIdx === $requestingPlayerIdx;
+
                 foreach ($activeDieArray as $dieIdx => $die) {
-                    if ($this->wereSwingOrOptionValuesReset() &&
-                        ($this->gameState <= BMGameState::SPECIFY_DICE) &&
-                        ($playerIdx !== $requestingPlayerIdx)) {
+                    if ($wereSwingOrOptionValuesReset &&
+                        $isGameStateBeforeSpecifyDice &&
+                        !$isPlayerRequester) {
 
                         if ($die instanceof BMDieSwing) {
                             $die->max = NULL;
@@ -3071,6 +3085,61 @@ class BMGame {
         }
 
         return $sidesArrayArray;
+    }
+
+    /**
+     * Array of arrays of possible arrays of subdie properties
+     *
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
+    protected function get_subdiePropertiesArrayArray($requestingPlayerIdx) {
+        $subdiePropertiesArrayArray = array_fill(0, $this->nPlayers, array());
+        $areAllPropertiesNull = TRUE;
+
+        if (isset($this->activeDieArrayArray)) {
+            $activeDieArrayArray = $this->clone_activeDieArrayArray();
+
+            $wereSwingOrOptionValuesReset = $this->wereSwingOrOptionValuesReset();
+            $isGameStateBeforeSpecifyDice = $this->gameState <= BMGameState::SPECIFY_DICE;
+
+            foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
+                $isPlayerRequester = $playerIdx === $requestingPlayerIdx;
+
+                foreach ($activeDieArray as $dieIdx => $die) {
+                    $subdieSidesArrayArray[$playerIdx][$dieIdx] = NULL;
+                    $subdieValuesArrayArray[$playerIdx][$dieIdx] = NULL;
+                    if (isset($die->dice) && is_array($die->dice)) {
+                        if ($wereSwingOrOptionValuesReset &&
+                            $isGameStateBeforeSpecifyDice &&
+                            !$isPlayerRequester) {
+                            continue;
+                        }
+
+                        foreach ($die->dice as $subdieIdx => $subdie) {
+                            if (isset($subdie->max)) {
+                                $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
+                                    $subdie->max;
+                                $areAllPropertiesNull = FALSE;
+                            }
+
+                            if (isset($subdie->value)) {
+                                $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
+                                    $subdie->value;
+                                $areAllPropertiesNull = FALSE;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        if ($areAllPropertiesNull) {
+            return NULL;
+        }
+
+        return $subdiePropertiesArrayArray;
     }
 
     /**

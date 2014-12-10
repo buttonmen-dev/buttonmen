@@ -240,15 +240,15 @@ class BMDieTwin extends BMDie {
         $this->min = 0;
         $this->max = 0;
 
-        foreach ($this->dice as $die) {
-            if (is_null($die->min) ||
-                is_null($die->max)) {
+        foreach ($this->dice as $subdie) {
+            if (!isset($subdie->min) ||
+                !isset($subdie->max)) {
                 $this->min = NULL;
                 $this->max = NULL;
                 break;
             }
-            $this->min += $die->min;
-            $this->max += $die->max;
+            $this->min += $subdie->min;
+            $this->max += $subdie->max;
         }
 
         $this->remove_flag('Twin');
