@@ -37,7 +37,7 @@ class BMSkillStingerTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMSkillStinger::attack_values
      */
-    public function testAttack_values()
+    public function testAttack_values_validation()
     {
         $attackValues = array(3);
 
@@ -51,18 +51,70 @@ class BMSkillStingerTest extends PHPUnit_Framework_TestCase {
         $this->object->attack_values(array('attackValues' => &$attackValues));
         $this->assertEquals(array(3), $attackValues);
 
-        $this->object->attack_values(array('attackType' => 'Power',
-                                           'attackValues' => &$attackValues));
+        $this->object->attack_values(array('minValue' => 1));
         $this->assertEquals(array(3), $attackValues);
 
-        // check that konstant die can have a negative value for a skill attack
+        $this->object->attack_values(array('attackType' => 'Power',
+                                           'attackValues' => &$attackValues,
+                                           'minValue' => 1));
+        $this->assertEquals(array(3), $attackValues);
+    }
+
+    /**
+     * @covers BMSkillStinger::attack_values
+     */
+    public function testAttack_values_standard()
+    {
+        $attackValues = array(3);
+
         $this->object->attack_values(array('attackType' => 'Skill',
-                                           'attackValues' => &$attackValues));
+                                           'attackValues' => &$attackValues,
+                                           'minValue' => 1));
         $this->assertEquals(array(1, 2, 3), $attackValues);
 
         $attackValues = array(1, 4, 5);
         $this->object->attack_values(array('attackType' => 'Skill',
-                                           'attackValues' => &$attackValues));
+                                           'attackValues' => &$attackValues,
+                                           'minValue' => 1));
         $this->assertEquals(array(1, 2, 3, 4, 5), $attackValues);
+    }
+
+    /**
+     * @covers BMSkillStinger::attack_values
+     */
+    public function testAttack_values_twin()
+    {
+        $attackValues = array(4);
+
+        $this->object->attack_values(array('attackType' => 'Skill',
+                                           'attackValues' => &$attackValues,
+                                           'minValue' => 2));
+        $this->assertEquals(array(2, 3, 4), $attackValues);
+    }
+
+    /**
+     * @covers BMSkillStinger::attack_values
+     */
+    public function testAttack_values_zero()
+    {
+        $attackValues = array(0);
+
+        $this->object->attack_values(array('attackType' => 'Skill',
+                                           'attackValues' => &$attackValues,
+                                           'minValue' => 0));
+        $this->assertEquals(array(0), $attackValues);
+    }
+
+    /**
+     * @covers BMSkillStinger::attack_values
+     */
+    public function testAttack_values_negative()
+    {
+        $attackValues = array(1);
+
+        $this->object->attack_values(array('attackType' => 'Skill',
+                                           'attackValues' => &$attackValues,
+                                           'minValue' => -1));
+        $this->assertEquals(array(-1, 0, 1), $attackValues);
     }
 }
