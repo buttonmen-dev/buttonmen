@@ -40,6 +40,11 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
+        if ($this->is_disabled_by_konstant($attackers, $defenders)) {
+            // validation message set within $this->is_disabled_by_konstant()
+            return FALSE;
+        }
+
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
@@ -57,26 +62,56 @@ class BMAttackTrip extends BMAttack {
             throw new InvalidArgumentException('defArray must have one element.');
         }
 
-        $returnVal = TRUE;
-
         $att = $attArray[0];
         $def = $defArray[0];
 
         if ($att->has_skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot perform trip attacks.';
-            $returnVal = FALSE;
+            return FALSE;
         }
 
         if (!$att->has_skill('Trip')) {
             $this->validationMessage = 'Dice without trip cannot perform trip attacks.';
-            $returnVal = FALSE;
+            return FALSE;
         }
 
         if ($def->has_skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be the target of trip attacks.';
-            $returnVal = FALSE;
+            return FALSE;
         }
 
-        return $returnVal;
+        return TRUE;
+    }
+
+    protected function is_disabled_by_konstant($attArray, $defArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attack must have one element.');
+        }
+
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
+        $att = $attArray[0];
+        $def = $defArray[0];
+
+        if ($att->has_skill('Konstant') && ($att->value < $def->min)) {
+            $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
+            return TRUE;
+        }
+
+        if ($def->has_skill('Konstant') && ($att->max < $def->value)) {
+            $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
+            return TRUE;
+        }
+
+        if ($att->has_skill('Konstant') &&
+            $def->has_skill('Konstant') &&
+            ($att->value < $def->value)) {
+            $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }
