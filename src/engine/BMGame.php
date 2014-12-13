@@ -3110,20 +3110,22 @@ class BMGame {
                     $subdieSidesArrayArray[$playerIdx][$dieIdx] = NULL;
                     $subdieValuesArrayArray[$playerIdx][$dieIdx] = NULL;
                     if (isset($die->dice) && is_array($die->dice)) {
-                        if ($wereSwingOrOptionValuesReset &&
-                            $isGameStateBeforeSpecifyDice &&
-                            !$isPlayerRequester) {
-                            continue;
-                        }
 
                         foreach ($die->dice as $subdieIdx => $subdie) {
+                            if (($subdie instanceof BMDieSwing) &&
+                                $wereSwingOrOptionValuesReset &&
+                                $isGameStateBeforeSpecifyDice &&
+                                !$isPlayerRequester) {
+                                continue;
+                            }
+
                             if (isset($subdie->max)) {
                                 $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
                                     $subdie->max;
                                 $areAllPropertiesNull = FALSE;
                             }
 
-                            if (isset($subdie->value)) {
+                            if (isset($subdie->value) && !$isGameStateBeforeSpecifyDice) {
                                 $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
                                     $subdie->value;
                                 $areAllPropertiesNull = FALSE;

@@ -985,7 +985,7 @@ class BMInterface {
             }
 
             $this->set_swing_max($die, $originalPlayerIdx, $game, $row);
-            $this->set_twin_swing_max($die, $originalPlayerIdx, $game, $row);
+            $this->set_twin_max($die, $originalPlayerIdx, $game, $row);
             $this->set_option_max($die, $row);
 
             if (isset($row['value'])) {
@@ -1030,38 +1030,44 @@ class BMInterface {
         }
     }
 
-    protected function set_twin_swing_max($die, $originalPlayerIdx, $game, $row) {
-        if ($die instanceof BMDieTwin &&
-            (($die->dice[0] instanceof BMDieSwing) ||
-             ($die->dice[1] instanceof BMDieSwing))) {
+    protected function set_twin_max($die, $originalPlayerIdx, $game, $row) {
+        if (!($die instanceof BMDieTwin)) {
+            return;
+        }
 
-            foreach ($die->dice as $subdieIdx => $subdie) {
+        if (($die->dice[0] instanceof BMDieSwing) ||
+            ($die->dice[1] instanceof BMDieSwing)) {
+
+            foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $swingType = $subdie->swingType;
                     $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
-
-                    if ($die->has_flag('Twin')) {
-                        $subdiePropertyArray = $die->flagList['Twin']->value();
-                        $max = $subdiePropertyArray['sides'][$subdieIdx];
-                        if (isset($max)) {
-                            $subdie->max = (int)$max;
-                        }
-                        $value = $subdiePropertyArray['values'][$subdieIdx];
-                        if (isset($value)) {
-                            $subdie->value = (int)$value;
-                        }
-                    } else {
-                        // continue to handle the old case where there was no BMFlagTwin information
-                        if (isset($row['actual_max'])) {
-                            $subdie->max = (int)($row['actual_max']/2);
-                        }
-                    }
                 }
             }
 
-            $die->recalc_max_min();
             $game->request_swing_values($die, $swingType, $originalPlayerIdx);
         }
+
+        foreach ($die->dice as $subdieIdx => $subdie) {
+            if ($die->has_flag('Twin')) {
+                $subdiePropertyArray = $die->flagList['Twin']->value();
+                $max = $subdiePropertyArray['sides'][$subdieIdx];
+                if (isset($max)) {
+                    $subdie->max = (int)$max;
+                }
+                $value = $subdiePropertyArray['values'][$subdieIdx];
+                if (isset($value)) {
+                    $subdie->value = (int)$value;
+                }
+            } else {
+                // continue to handle the old case where there was no BMFlagTwin information
+                if (isset($row['actual_max'])) {
+                    $subdie->max = (int)($row['actual_max']/2);
+                }
+            }
+        }
+
+        $die->recalc_max_min();
     }
 
     protected function set_option_max($die, $row) {
