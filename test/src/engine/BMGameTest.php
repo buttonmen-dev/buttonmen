@@ -3184,19 +3184,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $out1['playerDataArray'][0]['activeDieArray'][4]);
         $this->assertEquals(
 	    array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array('Twin'),
-                  'recipe' => '(2,2)', 'description' => 'Twin Die (both with 2 sides)'),
+                  'recipe' => '(2,2)', 'description' => 'Twin Die (both with 2 sides)', 'subdieProperties' => array('sides' => array(2, 2))),
             $out1['playerDataArray'][1]['activeDieArray'][0]);
         $this->assertEquals(
 	    array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array('Twin'),
-                  'recipe' => '(4,4)', 'description' => 'Twin Die (both with 4 sides)'),
+                  'recipe' => '(4,4)', 'description' => 'Twin Die (both with 4 sides)', 'subdieProperties' => array('sides' => array(4, 4))),
             $out1['playerDataArray'][1]['activeDieArray'][1]);
         $this->assertEquals(
 	    array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array('Twin'),
-                  'recipe' => '(6,6)', 'description' => 'Twin Die (both with 6 sides)'),
+                  'recipe' => '(6,6)', 'description' => 'Twin Die (both with 6 sides)', 'subdieProperties' => array('sides' => array(6, 6))),
             $out1['playerDataArray'][1]['activeDieArray'][2]);
         $this->assertEquals(
 	    array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array('Twin'),
-                  'recipe' => '(10,10)', 'description' => 'Twin Die (both with 10 sides)'),
+                  'recipe' => '(10,10)', 'description' => 'Twin Die (both with 10 sides)', 'subdieProperties' => array('sides' => array(10, 10))),
             $out1['playerDataArray'][1]['activeDieArray'][3]);
         // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(

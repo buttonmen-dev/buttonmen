@@ -3018,9 +3018,7 @@ class BMGame {
                         $swingValsSpecified = FALSE;
                     }
 
-                    if ($this->wereSwingOrOptionValuesReset() &&
-                        ($this->gameState <= BMGameState::SPECIFY_DICE) &&
-                        ($playerIdx !== $requestingPlayerIdx)) {
+                    if ($this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
                         $die->value = NULL;
                     }
                     $valueArrayArray[$playerIdx][$dieIdx] = $die->value;
@@ -3051,17 +3049,9 @@ class BMGame {
         if (isset($this->activeDieArrayArray)) {
             $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
-            $wereSwingOrOptionValuesReset = $this->wereSwingOrOptionValuesReset();
-            $isGameStateBeforeSpecifyDice = $this->gameState <= BMGameState::SPECIFY_DICE;
-
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
-                $isPlayerRequester = $playerIdx === $requestingPlayerIdx;
-
                 foreach ($activeDieArray as $dieIdx => $die) {
-                    if ($wereSwingOrOptionValuesReset &&
-                        $isGameStateBeforeSpecifyDice &&
-                        !$isPlayerRequester) {
-
+                    if ($this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
                         if ($die instanceof BMDieSwing) {
                             $die->max = NULL;
                         }
@@ -3094,46 +3084,39 @@ class BMGame {
      * @return array
      */
     protected function get_subdiePropertiesArrayArray($requestingPlayerIdx) {
-        $subdiePropertiesArrayArray = array_fill(0, $this->nPlayers, array());
+        if (!isset($this->activeDieArrayArray)) {
+            return NULL;
+        }
+
         $areAllPropertiesNull = TRUE;
+        $subdiePropertiesArrayArray = array_fill(0, $this->nPlayers, array());
+        $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
-        if (isset($this->activeDieArrayArray)) {
-            $activeDieArrayArray = $this->clone_activeDieArrayArray();
+        foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => $die) {
+                if (isset($die->dice) && is_array($die->dice)) {
 
-            $wereSwingOrOptionValuesReset = $this->wereSwingOrOptionValuesReset();
-            $isGameStateBeforeSpecifyDice = $this->gameState <= BMGameState::SPECIFY_DICE;
+                    foreach ($die->dice as $subdieIdx => $subdie) {
+                        if (($subdie instanceof BMDieSwing) &&
+                            $this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
+                            continue;
+                        }
 
-            foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
-                $isPlayerRequester = $playerIdx === $requestingPlayerIdx;
+                        if (isset($subdie->max)) {
+                            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
+                                $subdie->max;
+                            $areAllPropertiesNull = FALSE;
+                        }
 
-                foreach ($activeDieArray as $dieIdx => $die) {
-                    $subdieSidesArrayArray[$playerIdx][$dieIdx] = NULL;
-                    $subdieValuesArrayArray[$playerIdx][$dieIdx] = NULL;
-                    if (isset($die->dice) && is_array($die->dice)) {
-
-                        foreach ($die->dice as $subdieIdx => $subdie) {
-                            if (($subdie instanceof BMDieSwing) &&
-                                $wereSwingOrOptionValuesReset &&
-                                $isGameStateBeforeSpecifyDice &&
-                                !$isPlayerRequester) {
-                                continue;
-                            }
-
-                            if (isset($subdie->max)) {
-                                $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
-                                    $subdie->max;
-                                $areAllPropertiesNull = FALSE;
-                            }
-
-                            if (isset($subdie->value) && !$isGameStateBeforeSpecifyDice) {
-                                $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
-                                    $subdie->value;
-                                $areAllPropertiesNull = FALSE;
-                            }
+                        if (isset($subdie->value) &&
+                            !$this->isGameStateBeforeSpecifyingDice()) {
+                            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
+                                $subdie->value;
+                            $areAllPropertiesNull = FALSE;
                         }
                     }
-
                 }
+
             }
         }
 
@@ -3142,6 +3125,16 @@ class BMGame {
         }
 
         return $subdiePropertiesArrayArray;
+    }
+
+    protected function isGameStateBeforeSpecifyingDice() {
+        return $this->gameState <= BMGameState::SPECIFY_DICE;
+    }
+
+    protected function shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx) {
+        return ($this->wereSwingOrOptionValuesReset() &&
+                $this->isGameStateBeforeSpecifyingDice() &&
+                ($playerIdx !== $requestingPlayerIdx));
     }
 
     /**
