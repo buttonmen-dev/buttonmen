@@ -3102,18 +3102,13 @@ class BMGame {
                             continue;
                         }
 
-                        if (isset($subdie->max)) {
-                            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
-                                $subdie->max;
-                            $areAllPropertiesNull = FALSE;
-                        }
-
-                        if (isset($subdie->value) &&
-                            !$this->isGameStateBeforeSpecifyingDice()) {
-                            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
-                                $subdie->value;
-                            $areAllPropertiesNull = FALSE;
-                        }
+                        $areAllPropertiesNull &= $this->assignSubdieProperties(
+                            $subdiePropertiesArrayArray,
+                            $playerIdx,
+                            $dieIdx,
+                            $subdieIdx,
+                            $subdie
+                        );
                     }
                 }
 
@@ -3135,6 +3130,31 @@ class BMGame {
         return ($this->wereSwingOrOptionValuesReset() &&
                 $this->isGameStateBeforeSpecifyingDice() &&
                 ($playerIdx !== $requestingPlayerIdx));
+    }
+
+    protected function assignSubdieProperties(
+        &$subdiePropertiesArrayArray,
+        $playerIdx,
+        $dieIdx,
+        $subdieIdx,
+        $subdie
+    ) {
+        $areAllPropertiesNull = TRUE;
+
+        if (isset($subdie->max)) {
+            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
+                $subdie->max;
+            $areAllPropertiesNull = FALSE;
+        }
+
+        if (isset($subdie->value) &&
+            !$this->isGameStateBeforeSpecifyingDice()) {
+            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
+                $subdie->value;
+            $areAllPropertiesNull = FALSE;
+        }
+
+        return $areAllPropertiesNull;
     }
 
     /**
