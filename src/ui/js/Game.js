@@ -2499,6 +2499,7 @@ Game.dieRecipeText = function(die, allowShowValues) {
       dieRecipeText = dieRecipeText.replace(')', '=' + die.sides + ')');
     } else {
       var recipeSideTwinStrings = recipeSideString.split(',');
+
       var sidesum = 0;
       var swingcount = 0;
       for (var i = 0; i < recipeSideTwinStrings.length; i++) {
@@ -2511,8 +2512,25 @@ Game.dieRecipeText = function(die, allowShowValues) {
       }
 
       if (swingcount > 0) {
-        dieRecipeText = dieRecipeText.replace(
-                          ')', '=' + (die.sides/swingcount) + ')');
+        var subdieRecipeArray = [];
+        var subdieSidesArray = [];
+
+        if (die.subdieArray !== undefined && die.subdieArray !== null) {
+          for (var subdieIdx = 0; subdieIdx < recipeSideTwinStrings.length; subdieIdx++) {
+            subdieSidesArray[subdieIdx] = die.subdieArray[subdieIdx].sides;
+          }
+        } else {
+          // continue to handle old cases where there is no explicit information about subdice
+          for (var subdieIdx = 0; subdieIdx < recipeSideTwinStrings.length; subdieIdx++) {
+            subdieSidesArray[subdieIdx] = die.sides/swingcount;
+          }
+        }
+
+        for (var subdieIdx = 0; subdieIdx < recipeSideTwinStrings.length; subdieIdx++) {
+            subdieRecipeArray[subdieRecipeArray.length] = recipeSideTwinStrings[subdieIdx] + '=' +
+                                                          subdieSidesArray[subdieIdx];
+        }
+        dieRecipeText = dieRecipeText.replace(/\(.+\)/, '(' + subdieRecipeArray.join(',') + ')');
       }
     }
   }
@@ -2524,6 +2542,8 @@ Game.dieRecipeText = function(die, allowShowValues) {
       (die.properties.indexOf('ValueRelevantToScore') >= 0)) {
     dieRecipeText += ':' + die.value;
   }
+
+//  console.log(dieRecipeText);
 
   return dieRecipeText;
 };
