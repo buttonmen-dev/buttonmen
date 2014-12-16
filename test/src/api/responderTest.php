@@ -8460,5 +8460,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]; Defender sF(20) was captured; Attacker s(R=2,R=2)? changed size from 4 to 16 sides, recipe changed from s(R=2,R=2)? to s(R=4,R=10)?, rerolled 2 => 4'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 04 - responder003 performed Skill attack using [tm(6):3, z(10):1] against [s(R=4,R=10)?:4]
+        // [tm(6):3, f(8):8, g(10):7, z(10):1] => [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=4,R=10)?:4]
+        $this->verify_api_submitTurn(
+            // BUG: this actually succeeds: the rolled values are:
+            // * 1 (0): size index of left R
+            // * 2 (2): roll value of left R
+            // * 3 (3): size index of right R
+            // * 4 (1): roll value of right R
+            // * 5 (5): roll value of z(10)
+            // But if you play around with the roll values, you can generate an internal error.  The thing is, i'm having trouble generating exactly the error ("Invalid die value: 10 is not between 2 and 8 for die tm(R,R)") which i saw in the test.  And obviously that error was actually generated with live dierolling code, whereas i'm not sure any of the ones i've reproduced could be
+            array(0, 2, 3, 1, 5),
+            'responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=4,R=10)?:4]; Defender s(R=4,R=10)? was captured; Attacker tm(6) changed size from 6 to 14 sides, recipe changed from tm(6) to tm(R=2,R=8), rerolled 3 => 3; Attacker z(10) rerolled 1 => 5. ',
+            $retval, array(array(0, 0), array(0, 3), array(1, 4)),
+            $gameId, 1, 'Skill', 0, 1, '');
     }
 }
