@@ -8408,7 +8408,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (both with 2 sides)';
-        $expData['playerDataArray'][1]['activeDieArray'][4]['subdieProperties'] = array('sides' => array(2, 2), 'values' => array(1, 1));
+        $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'] = array(array('sides' => 2, 'value' => 1), array('sides' => 2, 'value' => 1));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: R=2'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [tm(6):3, f(8):8, g(10):7, z(10):1, sF(20):3], responder004 rolled [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=2,R=2)?:2]. responder003 has dice which are not counted for initiative due to die skills: [tm(6), g(10)].'));
 
@@ -8452,7 +8452,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Speed', 'Trip'),
             array(17, 34, -11.3, 11.3),
-            array(array(1, 4, array('value' => 4, 'sides' => 14, 'properties' => array('Twin'), 'description' => 'Shadow Twin R Mood Swing Die (with 4 and 10 sides)', 'subdieProperties' => array('sides' => array(4, 10), 'values' => array(2, 2))))),
+            array(array(1, 4, array('value' => 4, 'sides' => 14, 'properties' => array('Twin'), 'description' => 'Shadow Twin R Mood Swing Die (with 4 and 10 sides)', 'subdieArray' => array(array('sides' => 4, 'value' => 2), array('sides' => 10, 'value' => 2))))),
             array(array(0, 4)),
             array(),
             array(array(1, array('value' => 3, 'sides' => 20, 'recipe' => 'sF(20)')))
