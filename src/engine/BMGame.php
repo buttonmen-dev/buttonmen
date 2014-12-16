@@ -2949,7 +2949,7 @@ class BMGame {
         // request dice one at a time
         $valueArrayArray = $this->get_valueArrayArray($requestingPlayerIdx);
         $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
-        $subdiePropertiesArrayArray = $this->get_subdiePropertiesArrayArray($requestingPlayerIdx);
+        $subdieArrayArray = $this->get_subdieArrayArray($requestingPlayerIdx);
         $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
         $diePropertiesArrayArray = $this->get_diePropsArrayArray();
         $dieRecipeArrayArray = $this->get_dieRecipeArrayArray();
@@ -2966,10 +2966,10 @@ class BMGame {
                 'description' => $dieDescriptionArrayArray[$playerIdx][$dieIdx],
             );
 
-            if (isset($subdiePropertiesArrayArray) &&
-                isset($subdiePropertiesArrayArray[$playerIdx][$dieIdx])) {
-                $activeDieDescription['subdieProperties'] =
-                    $subdiePropertiesArrayArray[$playerIdx][$dieIdx];
+            if (isset($subdieArrayArray) &&
+                isset($subdieArrayArray[$playerIdx][$dieIdx])) {
+                $activeDieDescription['subdieArray'] =
+                    $subdieArrayArray[$playerIdx][$dieIdx];
             }
 
             $activeDieArray[] = $activeDieDescription;
@@ -3083,13 +3083,13 @@ class BMGame {
      * @param int $requestingPlayerIdx
      * @return array
      */
-    protected function get_subdiePropertiesArrayArray($requestingPlayerIdx) {
+    protected function get_subdieArrayArray($requestingPlayerIdx) {
         if (!isset($this->activeDieArrayArray)) {
             return NULL;
         }
 
         $areAllPropertiesNull = TRUE;
-        $subdiePropertiesArrayArray = array_fill(0, $this->nPlayers, array());
+        $subdieArrayArray = array_fill(0, $this->nPlayers, array());
         $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
         foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
@@ -3102,8 +3102,8 @@ class BMGame {
                             continue;
                         }
 
-                        $areAllPropertiesNull &= $this->assignSubdieProperties(
-                            $subdiePropertiesArrayArray,
+                        $areAllPropertiesNull &= $this->assignSubdice(
+                            $subdieArrayArray,
                             $playerIdx,
                             $dieIdx,
                             $subdieIdx,
@@ -3119,7 +3119,7 @@ class BMGame {
             return NULL;
         }
 
-        return $subdiePropertiesArrayArray;
+        return $subdieArrayArray;
     }
 
     protected function isGameStateBeforeSpecifyingDice() {
@@ -3132,8 +3132,8 @@ class BMGame {
                 ($playerIdx !== $requestingPlayerIdx));
     }
 
-    protected function assignSubdieProperties(
-        &$subdiePropertiesArrayArray,
+    protected function assignSubdice(
+        &$subdieArrayArray,
         $playerIdx,
         $dieIdx,
         $subdieIdx,
@@ -3142,15 +3142,13 @@ class BMGame {
         $areAllPropertiesNull = TRUE;
 
         if (isset($subdie->max)) {
-            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['sides'][$subdieIdx] =
-                $subdie->max;
+            $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['sides'] = $subdie->max;
             $areAllPropertiesNull = FALSE;
         }
 
         if (isset($subdie->value) &&
             !$this->isGameStateBeforeSpecifyingDice()) {
-            $subdiePropertiesArrayArray[$playerIdx][$dieIdx]['values'][$subdieIdx] =
-                $subdie->value;
+            $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['value'] = $subdie->value;
             $areAllPropertiesNull = FALSE;
         }
 
