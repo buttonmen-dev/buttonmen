@@ -2514,23 +2514,34 @@ Game.dieRecipeText = function(die, allowShowValues) {
       if (swingcount > 0) {
         var subdieRecipeArray = [];
         var subdieSidesArray = [];
+        var subdieIdx;
 
         if (die.subdieArray !== undefined && die.subdieArray !== null) {
-          for (var subdieIdx = 0; subdieIdx < recipeSideTwinStrings.length; subdieIdx++) {
+          for (subdieIdx = 0;
+               subdieIdx < recipeSideTwinStrings.length;
+               subdieIdx++) {
             subdieSidesArray[subdieIdx] = die.subdieArray[subdieIdx].sides;
           }
         } else {
-          // continue to handle old cases where there is no explicit information about subdice
-          for (var subdieIdx = 0; subdieIdx < recipeSideTwinStrings.length; subdieIdx++) {
+          // continue to handle old cases where there is no explicit
+          // information about subdice
+          for (subdieIdx = 0;
+               subdieIdx < recipeSideTwinStrings.length;
+               subdieIdx++) {
             subdieSidesArray[subdieIdx] = die.sides/swingcount;
           }
         }
 
-        for (var subdieIdx = 0; subdieIdx < recipeSideTwinStrings.length; subdieIdx++) {
-            subdieRecipeArray[subdieRecipeArray.length] = recipeSideTwinStrings[subdieIdx] + '=' +
-                                                          subdieSidesArray[subdieIdx];
+        for (subdieIdx = 0;
+             subdieIdx < recipeSideTwinStrings.length;
+             subdieIdx++) {
+          subdieRecipeArray[subdieRecipeArray.length] =
+            recipeSideTwinStrings[subdieIdx] + '=' +
+            subdieSidesArray[subdieIdx];
         }
-        dieRecipeText = dieRecipeText.replace(/\(.+\)/, '(' + subdieRecipeArray.join(',') + ')');
+        dieRecipeText =
+          dieRecipeText.replace(/\(.+\)/, '(' +
+          subdieRecipeArray.join(',') + ')');
       }
     }
   }
