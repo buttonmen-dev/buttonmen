@@ -8330,7 +8330,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This test reproduces a bug in which TheFool's sides have different sizes on reroll.
      * 0. Start a game with responder003 playing BlackOmega and responder004 playing TheFool
@@ -8457,10 +8456,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-
-        var_dump('first');
-        var_dump($expData['playerDataArray'][0]['capturedDieArray']);
-
         ////////////////////
         // Move 04 - responder003 performed Skill attack using [tm(6):3, z(10):1] against [s(R=8,R=8)?:4]
         // [tm(6):3, f(8):8, g(10):7, z(10):1] => [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=8,R=8)?:4]
@@ -8475,7 +8470,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Shadow'),
-            array(26, 27, -0.7, 0.7),
+            array(38, 27, 7.3, -7.3),
             array(array(0, 0, array('value' => 6, 'sides' => 16, 'properties' => array('HasJustMorphed', 'Twin'), 'recipe' => 'tm(R,R)', 'description' => 'Trip Morphing Twin R Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 4), array('sides' => 8, 'value' => 2)))),
                   array(0, 3, array('value' => 3))),
             array(array(1, 4)),
@@ -8486,7 +8481,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
-//        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
     }
 }

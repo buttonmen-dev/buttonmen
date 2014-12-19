@@ -1113,6 +1113,7 @@ class BMInterface {
             $this->save_option_values_from_this_round($game);
             $this->save_player_with_initiative($game);
             $this->save_players_awaiting_action($game);
+            $this->regenerate_essential_die_flags($game);
             $this->mark_existing_dice_as_deleted($game);
             $this->save_captured_dice($game);
             $this->delete_dice_marked_as_deleted($game);
@@ -1464,6 +1465,26 @@ class BMInterface {
         }
     }
 
+    protected function regenerate_essential_die_flags($game) {
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $activeDie) {
+                if ($activeDie instanceof BMDieTwin) {
+                    // force regeneration of max, min, and BMFlagTwin
+                    $activeDie->recalc_max_min();
+                }
+            }
+        }
+
+        foreach ($game->capturedDieArrayArray as $capturedDieArray) {
+            foreach ($capturedDieArray as $capturedDie) {
+                if ($capturedDie instanceof BMDieTwin) {
+                    // force regeneration of max, min, and BMFlagTwin
+                    $capturedDie->recalc_max_min();
+                }
+            }
+        }
+    }
+
     protected function mark_existing_dice_as_deleted($game) {
         // set existing dice to have a status of DELETED and get die ids
         //
@@ -1488,11 +1509,6 @@ class BMInterface {
                         $status = 'DISABLED';
                     } elseif ($activeDie->dizzy) {
                         $status = 'DIZZY';
-                    }
-
-                    if ($activeDie instanceof BMDieTwin) {
-                        // force regeneration of max, min, and BMFlagTwin
-                        $activeDie->recalc_max_min();
                     }
 
                     $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
