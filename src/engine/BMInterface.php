@@ -1466,20 +1466,28 @@ class BMInterface {
     }
 
     protected function regenerate_essential_die_flags($game) {
-        foreach ($game->activeDieArrayArray as $activeDieArray) {
-            foreach ($activeDieArray as $activeDie) {
-                if ($activeDie instanceof BMDieTwin) {
-                    // force regeneration of max, min, and BMFlagTwin
-                    $activeDie->recalc_max_min();
+        if (!empty($game->activeDieArrayArray)) {
+            foreach ($game->activeDieArrayArray as $activeDieArray) {
+                if (!empty($activeDieArray)) {
+                    foreach ($activeDieArray as $activeDie) {
+                        if ($activeDie instanceof BMDieTwin) {
+                            // force regeneration of max, min, and BMFlagTwin
+                            $activeDie->recalc_max_min();
+                        }
+                    }
                 }
             }
         }
 
-        foreach ($game->capturedDieArrayArray as $capturedDieArray) {
-            foreach ($capturedDieArray as $capturedDie) {
-                if ($capturedDie instanceof BMDieTwin) {
-                    // force regeneration of max, min, and BMFlagTwin
-                    $capturedDie->recalc_max_min();
+        if (!empty($game->capturedDieArrayArray)) {
+            foreach ($game->capturedDieArrayArray as $capturedDieArray) {
+                if (!empty($capturedDieArray)) {
+                    foreach ($capturedDieArray as $capturedDie) {
+                        if ($capturedDie instanceof BMDieTwin) {
+                            // force regeneration of max, min, and BMFlagTwin
+                            $capturedDie->recalc_max_min();
+                        }
+                    }
                 }
             }
         }
