@@ -8431,51 +8431,62 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-
         ////////////////////
         // Move 03 - responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]
         // [tm(6):3, f(8):8, g(10):7, z(10):1, sF(20):3] <= [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=2,R=2)?:2]
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            // Bug: it's *very* weird that 5 dice are specified.  If you modify the values, you can see that:
-            // * changing the first value (the 3) changes the reported number of sides after reroll from 16 to some other number, but has no effect on the recipe
-            // * changing the second value (the 1) changes the left sidecount reported in the action log from 4 to some other number
-            // * changing the third value (the first 2) changes the value rolled
-            // * changing the fourth value (the 4) changes the right sidecount reported in the action log from 10 to some other number
-            // * changing the fifth value (the second 2) changes the value rolled
-            array(3, 1, 2, 4, 2),
-            'responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]; Defender sF(20) was captured; Attacker s(R=2,R=2)? changed size from 4 to 16 sides, recipe changed from s(R=2,R=2)? to s(R=4,R=10)?, rerolled 2 => 4. ',
+            // * the first value changes the mood swing die size from 4 to 8
+            // * the second value changes the value rolled for subdie 1
+            // * the third value changes the value rolled for subdie 2
+            array(3, 1, 3),
+            'responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]; Defender sF(20) was captured; Attacker s(R=2,R=2)? changed size from 4 to 16 sides, recipe changed from s(R=2,R=2)? to s(R=8,R=8)?, rerolled 2 => 4. ',
             $retval, array(array(0, 4), array(1, 4)),
             $gameId, 1, 'Shadow', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Speed', 'Trip'),
-            array(17, 34, -11.3, 11.3),
-            array(array(1, 4, array('value' => 4, 'sides' => 14, 'properties' => array('Twin'), 'description' => 'Shadow Twin R Mood Swing Die (with 4 and 10 sides)', 'subdieArray' => array(array('sides' => 4, 'value' => 2), array('sides' => 10, 'value' => 2))))),
+            array(17, 35, -12.0, 12.0),
+            array(array(1, 4, array('value' => 4, 'sides' => 16, 'properties' => array('Twin'), 'description' => 'Shadow Twin R Mood Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 1), array('sides' => 8, 'value' => 3))))),
             array(array(0, 4)),
             array(),
             array(array(1, array('value' => 3, 'sides' => 20, 'recipe' => 'sF(20)')))
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]; Defender sF(20) was captured; Attacker s(R=2,R=2)? changed size from 4 to 16 sides, recipe changed from s(R=2,R=2)? to s(R=4,R=10)?, rerolled 2 => 4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]; Defender sF(20) was captured; Attacker s(R=2,R=2)? changed size from 4 to 16 sides, recipe changed from s(R=2,R=2)? to s(R=8,R=8)?, rerolled 2 => 4'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
+        var_dump('first');
+        var_dump($expData['playerDataArray'][0]['capturedDieArray']);
+
         ////////////////////
-        // Move 04 - responder003 performed Skill attack using [tm(6):3, z(10):1] against [s(R=4,R=10)?:4]
-        // [tm(6):3, f(8):8, g(10):7, z(10):1] => [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=4,R=10)?:4]
+        // Move 04 - responder003 performed Skill attack using [tm(6):3, z(10):1] against [s(R=8,R=8)?:4]
+        // [tm(6):3, f(8):8, g(10):7, z(10):1] => [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=8,R=8)?:4]
         $this->verify_api_submitTurn(
-            // BUG: this actually succeeds: the rolled values are:
-            // * 1 (0): size index of left R
-            // * 2 (2): roll value of left R
-            // * 3 (3): size index of right R
-            // * 4 (1): roll value of right R
-            // * 5 (5): roll value of z(10)
-            // But if you play around with the roll values, you can generate an internal error.  The thing is, i'm having trouble generating exactly the error ("Invalid die value: 10 is not between 2 and 8 for die tm(R,R)") which i saw in the test.  And obviously that error was actually generated with live dierolling code, whereas i'm not sure any of the ones i've reproduced could be
-            array(0, 2, 3, 1, 5),
-            'responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=4,R=10)?:4]; Defender s(R=4,R=10)? was captured; Attacker tm(6) changed size from 6 to 14 sides, recipe changed from tm(6) to tm(R=2,R=8), rerolled 3 => 3; Attacker z(10) rerolled 1 => 5. ',
+            // * 1 (4): roll value of left R
+            // * 2 (2): roll value of right R
+            // * 3 (3): roll value of z(10)
+            array(4, 2, 3),
+            'responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=8,R=8)?:4]; Defender s(R=8,R=8)? was captured; Attacker tm(6) changed size from 6 to 16 sides, recipe changed from tm(6) to tm(R=8,R=8), rerolled 3 => 6; Attacker z(10) rerolled 1 => 3. ',
             $retval, array(array(0, 0), array(0, 3), array(1, 4)),
             $gameId, 1, 'Skill', 0, 1, '');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 1, array('Power', 'Skill', 'Shadow'),
+            array(26, 27, -0.7, 0.7),
+            array(array(0, 0, array('value' => 6, 'sides' => 16, 'properties' => array('HasJustMorphed', 'Twin'), 'recipe' => 'tm(R,R)', 'description' => 'Trip Morphing Twin R Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 4), array('sides' => 8, 'value' => 2)))),
+                  array(0, 3, array('value' => 3))),
+            array(array(1, 4)),
+            array(),
+            array(array(0, array('value' => 4, 'sides' => 16, 'recipe' => 's(R,R)?', 'properties' => array('WasJustCaptured', 'Twin'))))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=8,R=8)?:4]; Defender s(R=8,R=8)? was captured; Attacker tm(6) changed size from 6 to 16 sides, recipe changed from tm(6) to tm(R=8,R=8), rerolled 3 => 6; Attacker z(10) rerolled 1 => 3'));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
+//        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
     }
 }

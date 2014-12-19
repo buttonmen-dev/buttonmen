@@ -72,20 +72,21 @@ class BMDieTwin extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         if (is_null($this->max)) {
             return;
         }
 
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack,
+                                           'isSubdie' => $isSubdie));
 
         // james: note that $this->value cannot be set to zero directly, since this triggers a bug
         $value = 0;
         foreach ($this->dice as &$die) {
             // note that we do not want to trigger the hooks again, so we set the
             // input parameter of roll() to FALSE
-            $die->roll(FALSE);
+            $die->roll(FALSE, TRUE);
             $value += $die->value;
         }
 
