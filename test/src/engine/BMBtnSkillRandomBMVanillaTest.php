@@ -29,8 +29,9 @@ class BMBtnSkillRandomBMVanillaTest extends PHPUnit_Framework_TestCase {
     public function testSpecify_recipes() {
         $button = new BMButton;
         $args = array('button' => $button);
-        $retVal = BMBtnSkillRandomBMVanilla::specify_recipes($args);
-        $this->assertTrue($retVal);
+        $this->assertNull($button->hasAlteredRecipe);
+        BMBtnSkillRandomBMVanilla::specify_recipes($args);
+        $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
     }
 }

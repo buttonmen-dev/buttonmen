@@ -13,11 +13,13 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
     public static $hooked_methods = array('specify_recipes');
 
     public static function specify_recipes(array $args) {
-        if (!parent::specify_recipes($args)) {
-            return FALSE;
-        };
+        parent::specify_recipes($args);
 
         $button = $args['button'];
+
+        if (!$button->hasAlteredRecipe) {
+            return;
+        }
 
         $dieRecipeArray = array_fill(0, 5, NULL);
         $validDieSizeArray = parent::$die_sizes_soldiers;
@@ -28,7 +30,5 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
         }
 
         $button->recipe = implode(' ', $dieRecipeArray);
-
-        return TRUE;
     }
 }

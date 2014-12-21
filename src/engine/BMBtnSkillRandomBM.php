@@ -21,9 +21,9 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         $button = $args['button'];
 
         if (!empty($button->recipe)) {
-            return FALSE;
+            return;
         }
 
-        return TRUE;
+        $button->hasAlteredRecipe = TRUE;
     }
 }
