@@ -1135,6 +1135,9 @@ class BMInterface {
             $this->choose_button($game, $buttonId, $buttonIdx);
         }
 
+        // ensure that the chat has also been cached
+        $this->save_chat_log($game);
+
         $game = $this->load_game($game->gameId);
         $game->proceed_to_next_user_action();
     }
@@ -1551,7 +1554,8 @@ class BMInterface {
 
         if ($activeDie->forceReportDieSize() ||
             ($activeDie instanceof BMDieOption) ||
-            ($activeDie instanceof BMDieSwing)) {
+            ($activeDie instanceof BMDieSwing) ||
+            ($activeDie instanceof BMDieTwin)) {
             $actualMax = $activeDie->max;
         }
 

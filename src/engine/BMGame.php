@@ -1012,6 +1012,22 @@ class BMGame {
         $needsFiring = $attackerValueSum < $defenderValueSum;
 
         if ($needsFiring) {
+            // Do rudimentary sanity check that the attacker actually has fire dice
+            // Note that this doesn't actually do a full check that any fire dice are not part
+            // of the attack already, nor that the fire dice can be turned down the correct amount
+            // since such checks should have been part of find_attack()
+            $hasFireDice = FALSE;
+            foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as $die) {
+                if ($die->has_skill('Fire')) {
+                    $hasFireDice = TRUE;
+                    break;
+                }
+            }
+
+            if (!$hasFireDice) {
+                throw new LogicException('Needs firing, but attacker has no fire dice');
+            }
+
             $this->log_action(
                 'needs_firing',
                 $this->playerIdArray[$this->attackerPlayerIdx],
