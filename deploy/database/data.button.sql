@@ -1092,4 +1092,4 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 #####   S P E C I A L   B U T T O N S   #####
 #############################################
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(10001, 'RandomBMVanilla', '', 1, 0, NULL);
+(10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="Special"));

@@ -1,0 +1,37 @@
+<?php
+
+class BMBtnSkillRandomBMVanillaTest extends PHPUnit_Framework_TestCase {
+    /**
+     * @var BMBtnSkillRandomBMVanilla
+     */
+    protected $object;
+
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp()
+    {
+        $this->object = new BMBtnSkillRandomBMVanilla;
+    }
+
+    /**
+     * Tears down the fixture, for example, closes a network connection.
+     * This method is called after a test is executed.
+     */
+    protected function tearDown()
+    {
+    }
+
+    /**
+     * @covers BMBtnSkillRandomBMVanilla::specify_recipes
+     */
+    public function testSpecify_recipes() {
+        $button = new BMButton;
+        $args = array('button' => $button);
+        $retVal = BMBtnSkillRandomBMVanilla::specify_recipes($args);
+        $this->assertTrue($retVal);
+        $this->assertNotEmpty($button->recipe);
+    }
+}
+
