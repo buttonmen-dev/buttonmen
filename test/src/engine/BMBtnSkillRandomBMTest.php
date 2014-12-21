@@ -23,26 +23,50 @@ class BMBtnSkillRandomBMTest extends PHPUnit_Framework_TestCase {
     {
     }
 
-//    /**
-//     * @covers BMBtnSkillRandomBM::load_buttons
-//     */
-//    public function testLoad_buttons_opp_undefined() {
-//        $retVal = BMBtnSkillEcho::load_buttons(array('name' => 'Echo',
-//                                                     'recipe' => '',
-//                                                     'oppname' => 'Echo',
-//                                                     'opprecipe' => ''));
-//        $this->assertEquals('(4) (4) (10) (12) (X)', $retVal['recipe']);
-//    }
-//
-//    /**
-//     * @covers BMBtnSkillEcho::load_buttons
-//     */
-//    public function testLoad_buttons_opp_defined() {
-//        $retVal = BMBtnSkillEcho::load_buttons(array('name' => 'Echo',
-//                                                     'recipe' => '',
-//                                                     'oppname' => 'Hammer',
-//                                                     'opprecipe' => '(6) (12) (20) (20) (X)'));
-//        $this->assertEquals('(6) (12) (20) (20) (X)', $retVal['recipe']);
-//    }
+    /**
+     * @covers BMBtnSkillRandomBM::specify_recipes
+     */
+    public function testSpecify_recipes_invalid_args() {
+        $args = array();
+
+        try {
+            BMBtnSkillRandomBM::specify_recipes($args);
+            $this->fail('specify_recipes should fail with empty args');
+        } catch (LogicException $ex) {
+            // expected
+        }
+
+        $args = array('button' => 'X');
+
+        try {
+            BMBtnSkillRandomBM::specify_recipes($args);
+            $this->fail('specify_recipes should fail with invalid args');
+        } catch (LogicException $ex) {
+            // expected
+        }
+    }
+
+    /**
+     * @covers BMBtnSkillRandomBM::specify_recipes
+     */
+    public function testSpecify_recipes_valid_args() {
+        $button = new BMButton;
+        $args = array('button' => $button);
+        $this->assertNull($button->hasAlteredRecipe);
+        $retval = BMBtnSkillRandomBM::specify_recipes($args);
+        $this->assertTrue($retval);
+    }
+
+    /**
+     * @covers BMBtnSkillRandomBM::specify_recipes
+     */
+    public function testSpecify_recipes_valid_args_already_specified() {
+        $button = new BMButton;
+        $button->recipe = '(4) (X)';
+        $args = array('button' => $button);
+        $this->assertNull($button->hasAlteredRecipe);
+        $retval = BMBtnSkillRandomBM::specify_recipes($args);
+        $this->assertFalse($retval);
+    }
 }
 

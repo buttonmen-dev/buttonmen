@@ -9,38 +9,48 @@
  * This class currently supports the special skills of Echo
  */
 class BMBtnSkillEcho extends BMBtnSkill {
-    public static $hooked_methods = array('load_buttons');
+    public static $hooked_methods = array('specify_recipes');
 
-    public static function load_buttons(array $args) {
+    public static function specify_recipes(array $args) {
         $areAllArgsPresent =
-            array_key_exists('name', $args) &&
-            array_key_exists('recipe', $args) &&
-            array_key_exists('oppname', $args) &&
-            array_key_exists('opprecipe', $args);
+            array_key_exists('button', $args) &&
+            array_key_exists('oppbutton', $args);
 
         if (!$areAllArgsPresent) {
-            throw new LogicException('load_buttons die hook is missing required input arguments');
+            throw new LogicException('specify_recipes die hook is missing required input arguments');
         }
 
-        if (empty($args['name'])) {
+        $button = $args['button'];
+        $oppbutton = $args['oppbutton'];
+
+        if (is_null($oppbutton)) {
+            return;
+        }
+
+        if (!($button instanceof BMButton) ||
+            !($oppbutton instanceof BMButton)) {
+            throw new LogicException('specify_recipes requires two BMButton input arguments');
+        }
+
+        if (empty($button->name)) {
             throw new LogicException('Button name may not be empty.');
         }
 
         // only copy recipe if the opponent button exists
-        if (empty($args['oppname'])) {
+        if (empty($oppbutton->name)) {
             return;
         }
 
-        $newRecipe = $args['recipe'];
+        $newRecipe = $button->recipe;
 
         // copy opponent's recipe only if Echo hasn't yet got a recipe
-        if ('' == $args['recipe']) {
-            $newRecipe = $args['opprecipe'];
+        if ('' == $button->recipe) {
+            $newRecipe = $oppbutton->recipe;
 
             if ('' == $newRecipe &&
                 (
-                    ('Echo' == $args['oppname']) ||
-                    ('Zero' == $args['oppname'])
+                    ('Echo' == $oppbutton->name) ||
+                    ('Zero' == $oppbutton->name)
                 )
                ) {
                 // choose a default recipe for Echo/Zero vs Echo/Zero games
@@ -48,6 +58,7 @@ class BMBtnSkillEcho extends BMBtnSkill {
             }
         }
 
-        return array('recipe' => $newRecipe);
+        $button->recipe = $newRecipe;
+        $button->hasAlteredRecipe = TRUE;
     }
 }

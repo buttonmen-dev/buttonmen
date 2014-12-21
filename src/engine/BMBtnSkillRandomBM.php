@@ -15,15 +15,18 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
 
     public static function specify_recipes(array $args) {
         // implement functionality that will be shared by all child classes
-        assert(array_key_exists('button', $args) &&
-               $args['button'] instanceof BMButton);
+        if (!array_key_exists('button', $args) ||
+            !($args['button'] instanceof BMButton)) {
+            throw new LogicException('specify_recipes requires a BMButton input argument');
+        }
 
         $button = $args['button'];
 
         if (!empty($button->recipe)) {
-            return;
+            return FALSE;
         }
 
         $button->hasAlteredRecipe = TRUE;
+        return TRUE;
     }
 }
