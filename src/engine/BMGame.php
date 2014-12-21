@@ -236,7 +236,7 @@ class BMGame {
         if (isset($this->buttonArray)) {
             foreach ($this->buttonArray as $buttonIdx => $button) {
                 $oppButtonIdx = ($buttonIdx + 1) % 2;
-                $hookResult = $button->run_hooks(
+                $button->run_hooks(
                     'specify_recipes',
                     array('button' => $button,
                           'oppbutton' => $this->buttonArray[$oppButtonIdx])
