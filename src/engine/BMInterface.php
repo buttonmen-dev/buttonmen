@@ -997,7 +997,11 @@ class BMInterface {
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'SELECTED':
-                    $die->selected = TRUE;
+                    if (BMGameState::CHOOSE_AUXILIARY_DICE == $game->gameState) {
+                        $die->add_flag('AddAuxiliary');
+                    } elseif (BMGameState::CHOOSE_AUXILIARY_DICE == $game->gameState) {
+                        $die->add_flag('AddReserve');
+                    }
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DISABLED':
@@ -1462,9 +1466,7 @@ class BMInterface {
                 foreach ($activeDieArray as $dieIdx => $activeDie) {
                     // james: set status, this is currently INCOMPLETE
                     $status = 'NORMAL';
-                    if ($activeDie->selected) {
-                        $status = 'SELECTED';
-                    } elseif ($activeDie->disabled) {
+                    if ($activeDie->disabled) {
                         $status = 'DISABLED';
                     } elseif ($activeDie->dizzy) {
                         $status = 'DIZZY';
@@ -3478,7 +3480,7 @@ class BMInterface {
                         return FALSE;
                     }
                     $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
-                    $die->selected = TRUE;
+                    $die->add_flag('AddAuxiliary');
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
@@ -3560,7 +3562,7 @@ class BMInterface {
                         return FALSE;
                     }
                     $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
-                    $die->selected = TRUE;
+                    $die->add_flag('AddReserve');
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;

@@ -4551,10 +4551,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 'add', 5);
         $_SESSION = $this->mock_test_user_login('responder003');
 
-        // expected changes
-        // #1266 - the API should lie about this to avoid information leaks
-        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 

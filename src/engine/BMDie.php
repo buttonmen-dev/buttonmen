@@ -49,9 +49,6 @@ class BMDie extends BMCanHaveSkill {
 
     protected $hasAttacked = FALSE;
 
-    // $selected is set when a player wants to add an auxiliary die
-    protected $selected = FALSE;
-
 // This is set when the die may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
 // the end of each of your turns.
@@ -883,15 +880,6 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->hasAttacked = $value;
-    }
-
-    protected function set__selected($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException(
-                'selected is a boolean.'
-            );
-        }
-        $this->selected = $value;
     }
 
     protected function set__inactive($value) {

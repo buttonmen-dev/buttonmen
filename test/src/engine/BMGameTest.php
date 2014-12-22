@@ -599,7 +599,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die3 = BMDie::create_from_recipe('(10)');
         // the reserve die is selected
         $die4 = BMDie::create_from_recipe('r(20)');
-        $die4->selected = TRUE;
+        $die4->add_flag('AddReserve');
 
         $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
         // all decisions have been made, so we are not waiting on anyone
@@ -8465,7 +8465,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
 
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $activeDieArrayArray[1][1]->selected = TRUE;
+        $activeDieArrayArray[1][1]->add_flag('AddReserve');
         $game->waitingOnActionArray = array(FALSE, FALSE);
 
         $game->proceed_to_next_user_action();
