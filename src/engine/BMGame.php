@@ -1295,9 +1295,6 @@ class BMGame {
 
             $postRerollDieInfo[] = $die->get_action_log_data();
 
-            if ($die->playerIdx === $this->attack['attackerPlayerIdx']) {
-                $die->inactive = '';
-            }
             $die->hasAttacked = FALSE;
         }
 

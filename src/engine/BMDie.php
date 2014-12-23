@@ -22,11 +22,9 @@
  * @property      bool   $captured              Has the die has been captured?
  * @property      bool   $hasAttacked           Has the die attacked this turn?
  * @property      bool   $selected              Does the player want to add this auxiliary die?
- * @property      string $inactive              Why may this die not attack?
  * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
- *
- * @SuppressWarnings(PMD.TooManyFields)
+ * 
  *  */
 class BMDie extends BMCanHaveSkill {
     // properties
@@ -48,11 +46,6 @@ class BMDie extends BMCanHaveSkill {
     protected $captured = FALSE;
 
     protected $hasAttacked = FALSE;
-
-// This is set when the die may not attack (sleep or focus, for instance)
-// It is set to a string, so the cause may be described. It is cleared at
-// the end of each of your turns.
-    protected $inactive = "";
 
 // Set when the die isn't in the game for whatever reason, but
 // could suddenly join (Warrior Dice). Prevents from being attacked,
@@ -336,7 +329,7 @@ class BMDie extends BMCanHaveSkill {
     public function is_valid_attacker(array $attackers) {
         $valid = TRUE;
 
-        if ($this->inactive || $this->hasAttacked) {
+        if ($this->hasAttacked) {
             $valid = FALSE;
         }
 
@@ -880,15 +873,6 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->hasAttacked = $value;
-    }
-
-    protected function set__inactive($value) {
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                'inactive is a string.'
-            );
-        }
-        $this->inactive = $value;
     }
 
     protected function set__unavailable($value) {

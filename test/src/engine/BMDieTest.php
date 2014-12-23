@@ -468,16 +468,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
             $this->assertTrue($this->object->is_valid_attacker(array($this->object, $attDie)));
         }
 
-        // Inactive is a string also used to descrbe why the die cannot attack
-        $this->object->inactive = "Yes";
-        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
-
-        $this->object->inactive = "";
-        $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
-
-
-        $this->object->inactive = "Yes";
         $this->object->hasAttacked = TRUE;
         $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
     }
