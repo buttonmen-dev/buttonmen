@@ -1009,7 +1009,7 @@ class BMInterface {
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DIZZY':
-                    $die->dizzy = TRUE;
+                    $die->add_flag('Dizzy');
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'CAPTURED':
@@ -1468,8 +1468,6 @@ class BMInterface {
                     $status = 'NORMAL';
                     if ($activeDie->disabled) {
                         $status = 'DISABLED';
-                    } elseif ($activeDie->dizzy) {
-                        $status = 'DIZZY';
                     }
 
                     $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);

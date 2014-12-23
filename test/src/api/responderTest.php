@@ -4981,9 +4981,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('dizzy');
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('Dizzy');
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('dizzy');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('Dizzy');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 gained initiative by turning down focus dice: f(6) from 4 to 1, f(8) from 8 to 1'));
         array_pop($expData['gameActionLog']);
 
@@ -7832,7 +7832,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('dizzy');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('Dizzy');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 gained initiative by turning down focus dice: f(8) from 3 to 1'));
         array_pop($expData['gameActionLog']);
 

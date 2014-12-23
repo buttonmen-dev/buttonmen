@@ -388,7 +388,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $att = BMAttack::get_instance('Power');
         $die1 = new BMDie;
         $die2 = new BMDie;
-        $die2->dizzy = TRUE;
+        $die2->add_flag('Dizzy');
         $this->assertFalse($att->has_dizzy_attackers(array($die1)));
         $this->assertTrue($att->has_dizzy_attackers(array($die2)));
         $this->assertTrue($att->has_dizzy_attackers(array($die1, $die2)));

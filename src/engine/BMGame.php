@@ -765,8 +765,8 @@ class BMGame {
                 if (count($activeDieArray) > 0) {
                     foreach ($activeDieArray as &$activeDie) {
                         if ($activeDie->has_skill('Focus') &&
-                            isset($activeDie->dizzy)) {
-                            unset($activeDie->dizzy);
+                            $activeDie->has_flag('Dizzy')) {
+                            $activeDie->remove_flag('Dizzy');
                         }
                     }
                 }
@@ -862,7 +862,7 @@ class BMGame {
             $attackDie =
                 &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
                                            [$attackerAttackDieIdx];
-            if ($attackDie->dizzy) {
+            if ($attackDie->has_flag('Dizzy')) {
                 $this->message = 'Attempting to attack with a dizzy die.';
                 $this->attack = NULL;
                 return FALSE;
@@ -1261,8 +1261,8 @@ class BMGame {
             if (isset($this->activeDieArrayArray) &&
                 isset($this->attack['attackerPlayerIdx'])) {
                 foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
-                    if ($activeDie->dizzy) {
-                            unset($activeDie->dizzy);
+                    if ($activeDie->has_flag('Dizzy')) {
+                            $activeDie->remove_flag('Dizzy');
                     }
                 }
             }
@@ -1686,7 +1686,7 @@ class BMGame {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
-                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->dizzy = TRUE;
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->add_flag('Dizzy');
                 }
             }
         } else {
@@ -3119,9 +3119,6 @@ class BMGame {
                 foreach ($activeDieArray as $dieIdx => $die) {
                     if ($die->disabled) {
                         $diePropsArrayArray[$playerIdx][$dieIdx][] = 'disabled';
-                    }
-                    if ($die->dizzy) {
-                        $diePropsArrayArray[$playerIdx][$dieIdx][] = 'dizzy';
                     }
 
                     if (!empty($die->flagList)) {

@@ -2076,7 +2076,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
       'text': dieval,
       'title': die.description,
     };
-    if ((die.properties.indexOf('dizzy') >= 0) &&
+    if ((die.properties.indexOf('Dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
       if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
@@ -2295,7 +2295,7 @@ Game.gamePlayerDice = function(player, player_active) {
     // is active and this particular die is not dizzy
     var clickable;
     if (player_active) {
-      if (die.properties.indexOf('dizzy') >= 0) {
+      if (die.properties.indexOf('Dizzy') >= 0) {
         clickable = false;
       } else {
         clickable = true;
