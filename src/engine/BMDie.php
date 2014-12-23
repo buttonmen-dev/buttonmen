@@ -22,9 +22,8 @@
  * @property      bool   $captured              Has the die has been captured?
  * @property      bool   $hasAttacked           Has the die attacked this turn?
  * @property      bool   $selected              Does the player want to add this auxiliary die?
- * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
- * 
+ *
  *  */
 class BMDie extends BMCanHaveSkill {
     // properties
@@ -46,11 +45,6 @@ class BMDie extends BMCanHaveSkill {
     protected $captured = FALSE;
 
     protected $hasAttacked = FALSE;
-
-// Set when the die isn't in the game for whatever reason, but
-// could suddenly join (Warrior Dice). Prevents from being attacked,
-// but not attacking
-    protected $unavailable = FALSE;
 
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
@@ -353,9 +347,11 @@ class BMDie extends BMCanHaveSkill {
     public function is_valid_target(array $defenders) {
         $valid = TRUE;
 
-        if ($this->unavailable) {
-            $valid = FALSE;
-        }
+        // james: needs to be reactivated when Warrior skill is added,
+        // probably in a die hook
+//        if ($this->has_skill('Warrior')) {
+//            $valid = FALSE;
+//        }
 
         // Are we actually among the defenders?
         $found = FALSE;
@@ -873,15 +869,6 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->hasAttacked = $value;
-    }
-
-    protected function set__unavailable($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException(
-                'unavailable is a boolean.'
-            );
-        }
-        $this->unavailable = $value;
     }
 
     protected function set__flagList($value) {

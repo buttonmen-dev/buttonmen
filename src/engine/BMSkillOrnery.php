@@ -38,7 +38,7 @@ class BMSkillOrnery extends BMSkill {
             return;
         }
 
-        if ($die->unavailable) {
+        if ($die->has_skill('Warrior')) {
             return;
         }
 

@@ -92,17 +92,19 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
     /*
      * @covers BMSkillOrnery::perform_end_of_turn_die_actions
      */
-    public function testPerform_end_of_turn_die_actions_unavailable() {
-        $die = BMDie::create(99);
-        $die->add_skill('Ornery');
-        $die->roll(FALSE);
-        $die->unavailable = TRUE;
-        $dieValue = $die->value;
-
-        $parArray = array('die' => $die, 'attackType' => 'Power');
-        BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
-        $this->assertEquals($dieValue, $die->value);
-        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
+    public function testPerform_end_of_turn_die_actions_warrior() {
+//        $die = BMDie::create(99);
+//        $die->add_skill('Ornery');
+//        $die->roll(FALSE);
+//
+        // james: needs to be reactivated when Warrior skill is added
+//        $die->add_skill('Warrior');
+//        $dieValue = $die->value;
+//
+//        $parArray = array('die' => $die, 'attackType' => 'Power');
+//        BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
+//        $this->assertEquals($dieValue, $die->value);
+//        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
     }
 
     /*
