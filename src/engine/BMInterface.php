@@ -980,16 +980,16 @@ class BMInterface {
             $die->originalPlayerIdx = $originalPlayerIdx;
             $die->ownerObject = $game;
 
+            if (!is_null($row['flags'])) {
+                $die->load_flags_from_string($row['flags']);
+            }
+
             $this->set_swing_max($die, $originalPlayerIdx, $game, $row);
-            $this->set_twin_swing_max($die, $originalPlayerIdx, $game, $row);
+            $this->set_twin_max($die, $originalPlayerIdx, $game, $row);
             $this->set_option_max($die, $row);
 
             if (isset($row['value'])) {
                 $die->value = (int)$row['value'];
-            }
-
-            if (!is_null($row['flags'])) {
-                $die->load_flags_from_string($row['flags']);
             }
 
             switch ($row['status']) {
@@ -1020,7 +1020,7 @@ class BMInterface {
     }
 
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
-        if (isset($die->swingType)) {
+        if (isset($die->swingType) && !$die instanceof BMDieTwin) {
             $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
             $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
@@ -1030,24 +1030,44 @@ class BMInterface {
         }
     }
 
-    protected function set_twin_swing_max($die, $originalPlayerIdx, $game, $row) {
-        if ($die instanceof BMDieTwin &&
-            (($die->dice[0] instanceof BMDieSwing) ||
-             ($die->dice[1] instanceof BMDieSwing))) {
+    protected function set_twin_max($die, $originalPlayerIdx, $game, $row) {
+        if (!($die instanceof BMDieTwin)) {
+            return;
+        }
+
+        if (($die->dice[0] instanceof BMDieSwing) ||
+            ($die->dice[1] instanceof BMDieSwing)) {
 
             foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $swingType = $subdie->swingType;
                     $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
-
-                    if (isset($row['actual_max'])) {
-                        $subdie->max = (int)($row['actual_max']/2);
-                    }
                 }
             }
 
             $game->request_swing_values($die, $swingType, $originalPlayerIdx);
         }
+
+        foreach ($die->dice as $subdieIdx => $subdie) {
+            if ($die->has_flag('Twin')) {
+                $subdiePropertyArray = $die->flagList['Twin']->value();
+                $max = $subdiePropertyArray['sides'][$subdieIdx];
+                if (isset($max)) {
+                    $subdie->max = (int)$max;
+                }
+                $value = $subdiePropertyArray['values'][$subdieIdx];
+                if (isset($value)) {
+                    $subdie->value = (int)$value;
+                }
+            } else {
+                // continue to handle the old case where there was no BMFlagTwin information
+                if (isset($row['actual_max'])) {
+                    $subdie->max = (int)($row['actual_max']/2);
+                }
+            }
+        }
+
+        $die->recalc_max_min();
     }
 
     protected function set_option_max($die, $row) {
@@ -1093,6 +1113,7 @@ class BMInterface {
             $this->save_option_values_from_this_round($game);
             $this->save_player_with_initiative($game);
             $this->save_players_awaiting_action($game);
+            $this->regenerate_essential_die_flags($game);
             $this->mark_existing_dice_as_deleted($game);
             $this->save_captured_dice($game);
             $this->delete_dice_marked_as_deleted($game);
@@ -1441,6 +1462,34 @@ class BMInterface {
             $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
                                       ':game_id' => $game->gameId,
                                       ':position' => $playerIdx));
+        }
+    }
+
+    protected function regenerate_essential_die_flags($game) {
+        if (!empty($game->activeDieArrayArray)) {
+            foreach ($game->activeDieArrayArray as $activeDieArray) {
+                if (!empty($activeDieArray)) {
+                    foreach ($activeDieArray as $activeDie) {
+                        if ($activeDie instanceof BMDieTwin) {
+                            // force regeneration of max, min, and BMFlagTwin
+                            $activeDie->recalc_max_min();
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!empty($game->capturedDieArrayArray)) {
+            foreach ($game->capturedDieArrayArray as $capturedDieArray) {
+                if (!empty($capturedDieArray)) {
+                    foreach ($capturedDieArray as $capturedDie) {
+                        if ($capturedDie instanceof BMDieTwin) {
+                            // force regeneration of max, min, and BMFlagTwin
+                            $capturedDie->recalc_max_min();
+                        }
+                    }
+                }
+            }
         }
     }
 

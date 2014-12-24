@@ -20,6 +20,10 @@ class BMSkillMood extends BMSkill {
             return FALSE;
         }
 
+        if (array_key_exists('isSubdie', $args) && $args['isSubdie']) {
+            return FALSE;
+        }
+
         // do nothing if the die is not a swing die or a
         // twin die with swing components
         $die = $args['die'];

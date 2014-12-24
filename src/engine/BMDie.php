@@ -180,9 +180,10 @@ class BMDie extends BMCanHaveSkill {
     }
 
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack,
+                                           'isSubdie' => $isSubdie));
 
         if (!isset($this->value) ||
             ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
@@ -661,7 +662,11 @@ class BMDie extends BMCanHaveSkill {
         $flagString = $flag;
 
         if (isset($flagValue)) {
-            $flagString .= '__' . $flagValue;
+            if (is_array($flagValue)) {
+                $flagString .= '__' . json_encode($flagValue);
+            } else {
+                $flagString .= '__' . $flagValue;
+            }
         }
 
         $flagObject = BMFlag::create_from_string($flagString);
