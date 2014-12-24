@@ -1445,7 +1445,7 @@ test("test_Game.dieRecipeText", function(assert) {
   assert.equal(text, "(6,6)", "text for non-swing option die should be correct");
 
   text = Game.dieRecipeText({'recipe': '(W,W)', 'skills': [], 'sides': 14,});
-  assert.equal(text, "(W,W=7)", "text for swing option die should be correct");
+  assert.equal(text, "(W=7,W=7)", "text for swing option die should be correct");
 });
 
 test("test_Game.dieValidTurndownValues", function(assert) {

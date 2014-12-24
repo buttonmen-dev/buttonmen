@@ -58,7 +58,7 @@ class BMDieOption extends BMDie {
         $newDie->valueRequested = TRUE;
     }
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         if ($this->needsOptionValue && !isset($this->max)) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_option_values(
@@ -69,7 +69,7 @@ class BMDieOption extends BMDie {
                 $this->valueRequested = TRUE;
             }
         } else {
-            parent::roll($isTriggeredByAttack);
+            parent::roll($isTriggeredByAttack, $isSubdie);
         }
     }
 
