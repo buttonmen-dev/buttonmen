@@ -2087,7 +2087,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
         dieopts.title += '. (This die is dizzy because it has been turned ' +
           'down. It can\'t be used during this attack.)';
       }
-    } else if ((die.properties.indexOf('disabled') >= 0) &&
+    } else if ((die.properties.indexOf('Disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
       dieopts.title += '. (This chance die cannot be rerolled again ' +

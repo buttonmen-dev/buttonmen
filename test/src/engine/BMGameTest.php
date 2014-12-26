@@ -1052,16 +1052,16 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $game->activeDieArrayArray[1][4]->value);
         $this->assertEquals(BMGameState::DETERMINE_INITIATIVE, $game->gameState);
         $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
-        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
 
         $game->do_next_step();
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
 
         // test correct 'chance' action by player 2
         $this->assertTrue(
@@ -1082,18 +1082,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $game->activeDieArrayArray[1][2]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
         $this->assertEquals(BMGameState::DETERMINE_INITIATIVE, $game->gameState);
-        $this->assertFalse(isset($game->activeDieArrayArray[1][1]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
+        $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[1][4]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
 
         $game->do_next_step();
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
-        $this->assertFalse(isset($game->activeDieArrayArray[1][1]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->disabled));
+        $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[1][4]->has_flag('Disabled'));
 
         // test correct 'chance' action by player 1
         $this->assertTrue(
@@ -1112,10 +1112,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
         $this->assertEquals(2, $game->activeDieArrayArray[1][4]->value);
         $this->assertEquals(BMGameState::DETERMINE_INITIATIVE, $game->gameState);
-        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[1][1]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->disabled));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[1][4]->has_flag('Disabled'));
     }
 
     /**
@@ -1183,13 +1183,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $game->activeDieArrayArray[1][4]->value);
         $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
-        $this->assertTrue($game->activeDieArrayArray[0][3]->disabled);
-        $this->assertTrue($game->activeDieArrayArray[0][4]->disabled);
+        $this->assertTrue($game->activeDieArrayArray[0][3]->has_flag('Disabled'));
+        $this->assertTrue($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('Disabled'));
+        $this->assertFalse($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
     }
 
     /**

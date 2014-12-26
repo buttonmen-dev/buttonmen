@@ -1006,7 +1006,7 @@ class BMInterface {
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DISABLED':
-                    $die->disabled = TRUE;
+                    $die->add_flag('Disabled');
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DIZZY':
@@ -1468,9 +1468,6 @@ class BMInterface {
                 foreach ($activeDieArray as $dieIdx => $activeDie) {
                     // james: set status, this is currently INCOMPLETE
                     $status = 'NORMAL';
-                    if ($activeDie->disabled) {
-                        $status = 'DISABLED';
-                    }
 
                     $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
                 }

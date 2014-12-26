@@ -707,7 +707,7 @@ class BMGame {
 
                 // re-enable all disabled chance dice for non-active players
                 if ($activeDie->has_skill('Chance')) {
-                    unset($activeDie->disabled);
+                    $activeDie->remove_flag('Disabled');
                 }
 
                 if (is_array($hookResultArray) && count($hookResultArray) > 0) {
@@ -733,7 +733,7 @@ class BMGame {
                     if (isset($activeDieArray)) {
                         foreach ($activeDieArray as &$activeDie) {
                             if ($activeDie->has_skill('Chance')) {
-                                unset($activeDie->disabled);
+                                $activeDie->remove_flag('Disabled');
                             }
                         }
                     }
@@ -1570,7 +1570,7 @@ class BMGame {
             // only need to disable chance dice if the reroll fails to gain initiative
             foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
                 if ($die->has_skill('Chance')) {
-                    $die->disabled = TRUE;
+                    $die->add_flag('Disabled');
                 }
             }
         }
@@ -3114,10 +3114,6 @@ class BMGame {
                 }
 
                 foreach ($activeDieArray as $dieIdx => $die) {
-                    if ($die->disabled) {
-                        $diePropsArrayArray[$playerIdx][$dieIdx][] = 'disabled';
-                    }
-
                     if (!empty($die->flagList)) {
                         foreach (array_keys($die->flagList) as $flag) {
                             // actively lie about auxiliary choices to avoid leaking info
