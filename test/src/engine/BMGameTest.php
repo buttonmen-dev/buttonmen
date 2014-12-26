@@ -6264,7 +6264,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         foreach ($game->activeDieArrayArray as $activeDieArray) {
             foreach ($activeDieArray as $die) {
                 $this->assertFalse($die->hasAttacked);
-                $this->assertEquals('', $die->inactive);
             }
         }
 
