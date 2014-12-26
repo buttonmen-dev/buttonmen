@@ -2946,6 +2946,7 @@ class BMGame {
         // request dice one at a time
         $valueArrayArray = $this->get_valueArrayArray($requestingPlayerIdx);
         $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
+        $subdieArrayArray = $this->get_subdieArrayArray($requestingPlayerIdx);
         $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
         $diePropertiesArrayArray = $this->get_diePropsArrayArray();
         $dieRecipeArrayArray = $this->get_dieRecipeArrayArray();
@@ -2953,7 +2954,7 @@ class BMGame {
 
         $activeDieArray = array();
         for ($dieIdx = 0; $dieIdx <= (count($valueArrayArray[$playerIdx]) - 1); $dieIdx++) {
-            $activeDieArray[] = array(
+            $activeDieDescription = array(
                 'value'       => $valueArrayArray[$playerIdx][$dieIdx],
                 'sides'       => $sidesArrayArray[$playerIdx][$dieIdx],
                 'skills'      => $dieSkillsArrayArray[$playerIdx][$dieIdx],
@@ -2961,6 +2962,14 @@ class BMGame {
                 'recipe'      => $dieRecipeArrayArray[$playerIdx][$dieIdx],
                 'description' => $dieDescriptionArrayArray[$playerIdx][$dieIdx],
             );
+
+            if (isset($subdieArrayArray) &&
+                isset($subdieArrayArray[$playerIdx][$dieIdx])) {
+                $activeDieDescription['subdieArray'] =
+                    $subdieArrayArray[$playerIdx][$dieIdx];
+            }
+
+            $activeDieArray[] = $activeDieDescription;
         }
         return $activeDieArray;
     }
@@ -3006,9 +3015,7 @@ class BMGame {
                         $swingValsSpecified = FALSE;
                     }
 
-                    if ($this->wereSwingOrOptionValuesReset() &&
-                        ($this->gameState <= BMGameState::SPECIFY_DICE) &&
-                        ($playerIdx !== $requestingPlayerIdx)) {
+                    if ($this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
                         $die->value = NULL;
                     }
                     $valueArrayArray[$playerIdx][$dieIdx] = $die->value;
@@ -3041,10 +3048,7 @@ class BMGame {
 
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
                 foreach ($activeDieArray as $dieIdx => $die) {
-                    if ($this->wereSwingOrOptionValuesReset() &&
-                        ($this->gameState <= BMGameState::SPECIFY_DICE) &&
-                        ($playerIdx !== $requestingPlayerIdx)) {
-
+                    if ($this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
                         if ($die instanceof BMDieSwing) {
                             $die->max = NULL;
                         }
@@ -3068,6 +3072,84 @@ class BMGame {
         }
 
         return $sidesArrayArray;
+    }
+
+    /**
+     * Array of arrays of possible arrays of subdie properties
+     *
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
+    protected function get_subdieArrayArray($requestingPlayerIdx) {
+        if (!isset($this->activeDieArrayArray)) {
+            return NULL;
+        }
+
+        $areAllPropertiesNull = TRUE;
+        $subdieArrayArray = array_fill(0, $this->nPlayers, array());
+        $activeDieArrayArray = $this->clone_activeDieArrayArray();
+
+        foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => $die) {
+                if (isset($die->dice) && is_array($die->dice)) {
+
+                    foreach ($die->dice as $subdieIdx => $subdie) {
+                        if (($subdie instanceof BMDieSwing) &&
+                            $this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
+                            continue;
+                        }
+
+                        $areAllPropertiesNull &= $this->assignSubdice(
+                            $subdieArrayArray,
+                            $playerIdx,
+                            $dieIdx,
+                            $subdieIdx,
+                            $subdie
+                        );
+                    }
+                }
+
+            }
+        }
+
+        if ($areAllPropertiesNull) {
+            return NULL;
+        }
+
+        return $subdieArrayArray;
+    }
+
+    protected function isGameStateBeforeSpecifyingDice() {
+        return $this->gameState <= BMGameState::SPECIFY_DICE;
+    }
+
+    protected function shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx) {
+        return ($this->wereSwingOrOptionValuesReset() &&
+                $this->isGameStateBeforeSpecifyingDice() &&
+                ($playerIdx !== $requestingPlayerIdx));
+    }
+
+    protected function assignSubdice(
+        &$subdieArrayArray,
+        $playerIdx,
+        $dieIdx,
+        $subdieIdx,
+        $subdie
+    ) {
+        $areAllPropertiesNull = TRUE;
+
+        if (isset($subdie->max)) {
+            $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['sides'] = $subdie->max;
+            $areAllPropertiesNull = FALSE;
+        }
+
+        if (isset($subdie->value) &&
+            !$this->isGameStateBeforeSpecifyingDice()) {
+            $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['value'] = $subdie->value;
+            $areAllPropertiesNull = FALSE;
+        }
+
+        return $areAllPropertiesNull;
     }
 
     /**

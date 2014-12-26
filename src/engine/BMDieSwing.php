@@ -99,7 +99,7 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         if ($this->needsSwingValue && !isset($this->max)) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values(
@@ -110,7 +110,7 @@ class BMDieSwing extends BMDie {
                 $this->valueRequested = TRUE;
             }
         } else {
-            parent::roll($isTriggeredByAttack);
+            parent::roll($isTriggeredByAttack, $isSubdie);
         }
     }
 

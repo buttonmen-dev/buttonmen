@@ -72,20 +72,21 @@ class BMDieTwin extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         if (is_null($this->max)) {
             return;
         }
 
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack,
+                                           'isSubdie' => $isSubdie));
 
         // james: note that $this->value cannot be set to zero directly, since this triggers a bug
         $value = 0;
         foreach ($this->dice as &$die) {
             // note that we do not want to trigger the hooks again, so we set the
             // input parameter of roll() to FALSE
-            $die->roll(FALSE);
+            $die->roll(FALSE, TRUE);
             $value += $die->value;
         }
 
@@ -240,16 +241,41 @@ class BMDieTwin extends BMDie {
         $this->min = 0;
         $this->max = 0;
 
-        foreach ($this->dice as $die) {
-            if (is_null($die->min) ||
-                is_null($die->max)) {
+        foreach ($this->dice as $subdie) {
+            if (!isset($subdie->min) ||
+                !isset($subdie->max)) {
                 $this->min = NULL;
                 $this->max = NULL;
                 break;
             }
-            $this->min += $die->min;
-            $this->max += $die->max;
+            $this->min += $subdie->min;
+            $this->max += $subdie->max;
         }
+
+        $this->remove_flag('Twin');
+
+        $subdieMaxArray = array();
+        $subdieValueArray = array();
+
+        foreach ($this->dice as $subdieIdx => $subdie) {
+            if (isset($subdie->max)) {
+                $subdieMaxArray[$subdieIdx] = $subdie->max;
+            } else {
+                $subdieMaxArray[$subdieIdx] = NULL;
+            }
+
+            if (isset($subdie->value)) {
+                $subdieValueArray[$subdieIdx] = $subdie->value;
+            } else {
+                $subdieValueArray[$subdieIdx] = NULL;
+            }
+        }
+
+        $this->add_flag(
+            'Twin',
+            array('sides' => $subdieMaxArray,
+                  'values' => $subdieValueArray)
+        );
     }
 
     public function getDieTypes() {

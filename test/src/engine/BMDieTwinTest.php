@@ -582,6 +582,32 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('sp(X=8,X=8)', $die8->get_recipe(TRUE));
     }
 
+    /**
+     * @covers BMDieTwin::recalc_max_min
+     *
+     * @depends testInit
+     */
+    public function testRecalc_max_min() {
+        $die = new BMDieTwin;
+        $die->init(array('X', 'X'));
+        $swingList = array('X' => 8);
+        $die->set_swingValue($swingList);
+        $this->assertEquals(8, $die->dice[0]->max);
+        $this->assertEquals(8, $die->dice[1]->max);
+        $this->assertEquals(16, $die->max);
+        $die->dice[0]->value = 2;
+        $die->dice[1]->value = 3;
+        $die->value = 5;
+
+        $die->dice[0]->max = 3;
+        $die->dice[1]->max = 4;
+        $die->recalc_max_min();
+        $this->assertEquals(7, $die->max);
+        $this->assertEquals(5, $die->value);
+        $this->assertEquals(2, $die->dice[0]->value);
+        $this->assertEquals(3, $die->dice[1]->value);
+    }
+
 
     /**
      * @covers BMDieTwin::set_swingValue
