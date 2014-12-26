@@ -997,6 +997,7 @@ class BMInterface {
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'SELECTED':
+                    // james: maintain backward compatibility
                     if (BMGameState::CHOOSE_AUXILIARY_DICE == $game->gameState) {
                         $die->add_flag('AddAuxiliary');
                     } elseif (BMGameState::CHOOSE_AUXILIARY_DICE == $game->gameState) {
@@ -1009,6 +1010,7 @@ class BMInterface {
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DIZZY':
+                    // james: maintain backward compatibility
                     $die->add_flag('Dizzy');
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
