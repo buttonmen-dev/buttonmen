@@ -251,7 +251,7 @@ test("test_Game.showStatePage_newgame_nonplayer", function(assert) {
 
 test("test_Game.showStatePage_turn_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -265,7 +265,7 @@ test("test_Game.showStatePage_turn_active", function(assert) {
 
 test("test_Game.showStatePage_turn_active_compactMode", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Env.setCookieCompactMode(true);
   Game.getCurrentGame(function() {
     Game.showStatePage();
@@ -610,7 +610,7 @@ test("test_Game.actionReactToInitiativeNonplayer", function(assert) {
 
 test("test_Game.actionPlayTurnActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -693,7 +693,7 @@ test("test_Game.actionAdjustFireDiceNonplayer", function(assert) {
 
 test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.activity.chat = 'I had previously typed some text';
   Game.activity.attackType = 'Skill';
   Game.activity.dieSelectStatus = {
@@ -702,6 +702,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
     'playerIdx_1_dieIdx_0': false,
     'playerIdx_1_dieIdx_1': false,
     'playerIdx_1_dieIdx_2': true,
+    'playerIdx_1_dieIdx_3': true,
   };
 
   Game.getCurrentGame(function() {
@@ -909,7 +910,7 @@ test("test_Game.formAdjustFireDiceActive", function(assert) {
 
 test("test_Game.formPlayTurnActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -926,7 +927,7 @@ test("test_Game.formPlayTurnActive", function(assert) {
 
 test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -979,7 +980,7 @@ test("test_Game.formDismissGame", function(assert) {
 
 test("test_Game.readCurrentGameActivity", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -995,9 +996,11 @@ test("test_Game.readCurrentGameActivity", function(assert) {
   });
 });
 
+// another cheat - the fix would be to mock the submission function
+// for testing and not use an API response at all
 test("test_Game.showFullLogHistory", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win_fulllogs';
   Game.getCurrentGame(function() {
     $.ajaxSetup({ async: false });
     Game.showFullLogHistory();
@@ -1081,7 +1084,7 @@ test("test_Game.pageAddGameNavigationFooter_pendingGames", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter_turn_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
@@ -1135,12 +1138,12 @@ test("test_Game.pageAddLogFooter", function(assert) {
 
 test("test_Game.pageAddLogFooter_actionlog", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    assert.ok(htmlout.match("tester2 performed Power attack"),
+    assert.ok(htmlout.match("responder003 performed Power attack"),
       "Action log footer for a game in progress should contain entries");
     start();
   });
@@ -1148,7 +1151,7 @@ test("test_Game.pageAddLogFooter_actionlog", function(assert) {
 
 test("test_Game.pageAddLogFooter_chatlog", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_first_comments_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
@@ -1275,7 +1278,7 @@ test("test_Game.activeDieFieldString", function(assert) {
 
 test("test_Game.pageAddDieBattleTable", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
@@ -1290,16 +1293,26 @@ test("test_Game.pageAddDieBattleTable", function(assert) {
 
 test("test_Game.gamePlayerStatus", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.page.append(Game.gamePlayerStatus('player', false, true));
-    var htmlout = Game.page.html();
-    assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
-    assert.ok(htmlout.match('Dice captured'),
-      "game player status should report captured dice");
-    assert.ok(htmlout.match('(X=4)'),
-      "status should report that player captured an X=4");
+    var statusJQuery = Game.gamePlayerStatus('player', false, true);
+    var statusPropArr = BMTestUtils.DOMNodePropArray(statusJQuery[0]);
+    var expectedPropArr = [
+      "DIV", { "class": "status_player" }, [
+        [ "DIV", {}, [ "W/L/T: 1/1/0 (3)", "foobar", [ "B", {}, [ "Score: 13 (-30.7 sides)" ] ] ] ],
+        [ "DIV", {}, [ [ "SPAN", {}, [ "Dice captured: q(Z=4)" ] ] ] ],
+      ]
+    ];
+    assert.equal(statusPropArr[0], "DIV", "Game.gamePlayerStatus() returns a DIV");
+    assert.equal(statusPropArr[1]['class'], "status_player", "Game.gamePlayerStatus() sets correct class for active player");
+
+    var wltScoreDivContents = statusPropArr[2][0][2];
+    assert.equal(wltScoreDivContents[0], "W/L/T: 1/1/0 (3)", "Game.gamePlayerStatus() sets expected WLT for a game in progress");
+    assert.equal(wltScoreDivContents[2][0], "B", "Game.gamePlayerStatus() typesets the round score in boldface");
+    assert.equal(wltScoreDivContents[2][2], "Score: 13 (-30.7 sides)", "Game.gamePlayerStatus() sets expected round score for a game in progress");
+
+    var capturedDivContents = statusPropArr[2][1][2][0];
+    assert.equal(capturedDivContents[2][0], "Dice captured: q(Z=4)", "Game.gamePlayerStatus() lists the expected set of captured dice");
     start();
   });
 });
@@ -1322,7 +1335,7 @@ test("test_Game.gamePlayerStatusWithValue", function(assert) {
 
 test("test_Game.gamePlayerDice", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
@@ -1348,7 +1361,7 @@ test("test_Game.gamePlayerDice_disabled", function(assert) {
 
 test("test_Game.gamePlayerDice_captured", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
@@ -1360,12 +1373,12 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
 
 test("test_Game.buttonImageDisplay", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.buttonImageDisplay('player'));
     var htmlout = Game.page.html();
-    assert.ok(htmlout.match('avis.png'),
+    assert.ok(htmlout.match('washu.png'),
       "page should include a link to the button image");
     start();
   });
@@ -1373,13 +1386,13 @@ test("test_Game.buttonImageDisplay", function(assert) {
 
 test("test_Game.buttonImageDisplay_noImage", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Env.setCookieNoImages(true);
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.buttonImageDisplay('player'));
     var htmlout = Game.page.html();
-    assert.ok(!htmlout.match('avis.png'),
+    assert.ok(!htmlout.match('washu.png'),
       "page should not include a link to the button image");
     start();
   });
@@ -1502,7 +1515,7 @@ test("test_Game.chatBox", function(assert) {
 
 test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
@@ -1530,7 +1543,7 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
 
 test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
@@ -1619,7 +1632,7 @@ test("test_Game.reactToInitiativeSuccessMsg", function(assert) {
 
 test("test_Game.dieFocusOutlineHandler", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1656,7 +1669,7 @@ test("test_Game.pageAddNewGameLinkFooter", function(assert) {
 test("test_Game.pageAddNewGameLinkFooter_turn_active", function(assert) {
   stop();
   expect(3); // tests plus 2 teardown tests
-  BMTestUtils.GameType = 'turn_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddNewGameLinkFooter();
