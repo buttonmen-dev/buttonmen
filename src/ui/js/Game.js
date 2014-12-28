@@ -2504,10 +2504,10 @@ Game.dieRecipeText = function(die, allowShowValues) {
       var swingcount = 0;
       for (var i = 0; i < recipeSideTwinStrings.length; i++) {
         var itemSides = parseInt(recipeSideTwinStrings[i], 10);
-        if (itemSides > 0) {
-          sidesum += itemSides;
-        } else {
+        if (isNaN(itemSides)) {
           swingcount += 1;
+        } else {
+          sidesum += itemSides;
         }
       }
 

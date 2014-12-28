@@ -377,21 +377,26 @@ test("test_Api.getGameData_nonplayer", function(assert) {
 
 test("test_Api.getGameData_somelogs", function(assert) {
   stop();
-  Game.game = '3';
-  Api.getGameData(Game.game, 3, function() {
-    assert.equal(Api.game.actionLog.length, 3, "getGameData() passed limited action log length");
-    assert.equal(Api.game.chatLog.length, 3, "getGameData() passed limited chat log length");
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_cant_win');
+  Game.game = gameId;
+  Api.getGameData(Game.game, 10, function() {
+    assert.equal(Api.game.actionLog.length, 10, "getGameData() passed limited action log length");
+    assert.equal(Api.game.chatLog.length, 10, "getGameData() passed limited chat log length");
     delete Game.game;
     start();
   });
 });
 
+// Technically, this is a cheat.  It's showing that when the backend
+// sends the full logs, the Api object receives them, but it is not
+// testing whether Api.getGameData() successfully sends the request
+// for full logs, because the API response is canned, so it can't test that.
 test("test_Api.getGameData_alllogs", function(assert) {
   stop();
-  Game.game = '3';
-  Api.getGameData(Game.game, 0, function() {
-    assert.ok(Api.game.actionLog.length > 3, "getGameData() passed unlimited action log length");
-    assert.ok(Api.game.chatLog.length > 3, "getGameData() passed unlimited chat log length");
+  Game.game = BMTestUtils.testGameId('washu_hooloovoo_cant_win_fulllogs');
+  Api.getGameData(Game.game, undefined, function() {
+    assert.ok(Api.game.actionLog.length > 10, "getGameData() passed unlimited action log length");
+    assert.ok(Api.game.chatLog.length > 10, "getGameData() passed unlimited chat log length");
     delete Game.game;
     start();
   });
