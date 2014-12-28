@@ -322,50 +322,18 @@ class BMDie extends BMCanHaveSkill {
 // check for special-case situations where an otherwise-valid attack
 // is not legal
     public function is_valid_attacker(array $attackers) {
-        $valid = TRUE;
-
-        if ($this->hasAttacked) {
-            $valid = FALSE;
-        }
-
-        // Are we actually among the attackers?
-        $found = FALSE;
-
-        foreach ($attackers as $die) {
-            if ($die === $this) {
-                $found = TRUE;
-                break;
-            }
-        }
-        if (!$found) {
-            $valid = FALSE;
-        }
-
-        return $valid;
+        return in_array($this, $attackers, TRUE);
     }
 
 
     public function is_valid_target(array $defenders) {
-        $valid = TRUE;
+        $valid = in_array($this, $defenders, TRUE);
 
         // james: needs to be reactivated when Warrior skill is added,
         // probably in a die hook
 //        if ($this->has_skill('Warrior')) {
 //            $valid = FALSE;
 //        }
-
-        // Are we actually among the defenders?
-        $found = FALSE;
-
-        foreach ($defenders as $die) {
-            if ($die === $this) {
-                $found = TRUE;
-                break;
-            }
-        }
-        if (!$found) {
-            $valid = FALSE;
-        }
 
         return $valid;
     }

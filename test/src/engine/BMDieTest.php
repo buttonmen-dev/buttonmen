@@ -467,9 +467,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
             $this->assertTrue($this->object->is_valid_attacker(array($this->object)));
             $this->assertTrue($this->object->is_valid_attacker(array($this->object, $attDie)));
         }
-
-        $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
     }
 
     /**
