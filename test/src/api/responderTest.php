@@ -696,8 +696,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $args = array(
             'type' => 'loadGameData',
             'game' => $gameId,
-            'logEntryLimit' => $logEntryLimit,
         );
+        if ($logEntryLimit) {
+            $args['logEntryLimit'] = $logEntryLimit;
+        }
         $retval = $this->verify_api_success($args);
         $this->assertEquals('Loaded data for game ' . $gameId . '.', $retval['message']);
         if ($check) {
@@ -5192,7 +5194,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(17),
             'responder004 performed Shadow attack using [q(X=20):1] against [(12):5]; Defender (12) was captured; Attacker q(X=20) rerolled 1 => 17. ',
             $retval, array(array(0, 2), array(1, 2)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Default', 1, 0, "This is my first comment.\n    Ceci n'est pas une <script>tag<\/script>");
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
@@ -5207,6 +5209,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][] = array('value' => 5, 'sides' => 12, 'properties' => array('WasJustCaptured'), 'recipe' => '(12)');
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 17;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Shadow attack using [q(X=20):1] against [(12):5]; Defender (12) was captured; Attacker q(X=20) rerolled 1 => 17'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => "This is my first comment.\n    Ceci n'est pas une <script>tag<\/script>"));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5219,10 +5222,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(5),
             'responder003 performed Power attack using [(6):1] against [q(T=2):1]; Defender q(T=2) was captured; Attacker (6) rerolled 1 => 5. ',
             $retval, array(array(0, 1), array(1, 0)),
-            $gameId, 1, 'Power', 0, 1, '');
+            $gameId, 1, 'Power', 0, 1, 'This is [b]my[/b] first comment');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['activePlayerIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['roundScore'] = 9.5;
@@ -5234,6 +5238,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['capturedDieArray'][] = array('value' => 1, 'sides' => 2, 'properties' => array('WasJustCaptured'), 'recipe' => 'q(T)');
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 5;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(6):1] against [q(T=2):1]; Defender q(T=2) was captured; Attacker (6) rerolled 1 => 5'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'This is [b]my[/b] first comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5248,9 +5253,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(7),
             'responder004 performed Power attack using [q(W=8):8] against [(6):5]; Defender (6) was captured; Attacker q(W=8) rerolled 8 => 7. responder003 passed. ',
             $retval, array(array(0, 1), array(1, 0)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Default', 1, 0, 'This is my second comment');
         $_SESSION = $this->mock_test_user_login('responder003');
 
+        $expData['gameChatEditable'] = FALSE;
         $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['roundScore'] = 6.5;
         $expData['playerDataArray'][1]['roundScore'] = 46;
@@ -5262,6 +5268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 7;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [q(W=8):8] against [(6):5]; Defender (6) was captured; Attacker q(W=8) rerolled 8 => 7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my second comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5276,7 +5283,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(17),
             'responder004 performed Power attack using [q(Z=28):22] against [(X=5):3]; Defender (X=5) was captured; Attacker q(Z=28) rerolled 22 => 17. responder003 passed. responder004 passed. End of round: responder004 won round 1 (51 vs. 4). ',
             $retval, array(array(0, 1), array(1, 2)),
-            $gameId, 1, 'Power', 1, 0, '');
+            $gameId, 1, 'Power', 1, 0, 'This is my third comment');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameState'] = 'CHOOSE_RESERVE_DICE';
@@ -5323,6 +5330,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 1 (51 vs. 4)'));
         $cachedActionLog = array();
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my third comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5394,10 +5402,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(6, 5),
             'responder003 performed Skill attack using [(12):4,(20):8] against [q(Z=28):12]; Defender q(Z=28) was captured; Attacker (12) rerolled 4 => 6; Attacker (20) rerolled 8 => 5. ',
             $retval, array(array(0, 2), array(0, 4), array(1, 3)),
-            $gameId, 2, 'Skill', 0, 1, '');
+            $gameId, 2, 'Skill', 0, 1, 'This is [b]my[/b] second comment');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['activePlayerIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow');
         $expData['playerDataArray'][0]['roundScore'] = 59;
@@ -5410,6 +5419,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 5;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [(12):4,(20):8] against [q(Z=28):12]; Defender q(Z=28) was captured; Attacker (12) rerolled 4 => 6; Attacker (20) rerolled 8 => 5'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'This is [b]my[/b] second comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5424,11 +5434,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(2),
             'responder004 performed Power attack using [q(T=2):2] against [(6):2]; Defender (6) was captured; Attacker q(T=2) rerolled 2 => 2. ',
             $retval, array(array(0, 1), array(1, 0)),
-            $gameId, 2, 'Default', 1, 0, '');
+            $gameId, 2, 'Default', 1, 0, 'This is my fourth comment');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['gameChatEditable'] = FALSE;
         $expData['activePlayerIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
         $expData['playerDataArray'][0]['roundScore'] = 56;
@@ -5441,6 +5452,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 2;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [q(T=2):2] against [(6):2]; Defender (6) was captured; Attacker q(T=2) rerolled 2 => 2'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my fourth comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5453,10 +5465,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(18),
             'responder003 performed Power attack using [(20):5] against [q(W=8):5]; Defender q(W=8) was captured; Attacker (20) rerolled 5 => 18. ',
             $retval, array(array(0, 3), array(1, 1)),
-            $gameId, 2, 'Power', 0, 1, '');
+            $gameId, 2, 'Power', 0, 1, 'This is [b]my[/b] third comment');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['activePlayerIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['roundScore'] = 64;
@@ -5469,6 +5482,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 18;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(20):5] against [q(W=8):5]; Defender q(W=8) was captured; Attacker (20) rerolled 5 => 18'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'This is [b]my[/b] third comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5482,11 +5496,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(16),
             'responder004 performed Power attack using [q(X=20):20] against [(12):6]; Defender (12) was captured; Attacker q(X=20) rerolled 20 => 16. ',
             $retval, array(array(0, 1), array(1, 1)),
-            $gameId, 2, 'Power', 1, 0, '');
+            $gameId, 2, 'Power', 1, 0, 'This is my fifth comment');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['gameChatEditable'] = FALSE;
         $expData['activePlayerIdx'] = 0;
         $expData['playerDataArray'][0]['roundScore'] = 58;
         $expData['playerDataArray'][1]['roundScore'] = 29;
@@ -5498,6 +5513,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 16;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [q(X=20):20] against [(12):6]; Defender (12) was captured; Attacker q(X=20) rerolled 20 => 16'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my fifth comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5510,8 +5526,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(8),
             'responder003 performed Power attack using [(20):18] against [q(X=20):16]; Defender q(X=20) was captured; Attacker (20) rerolled 18 => 8. responder004 passed. ',
             $retval, array(array(0, 2), array(1, 1)),
-            $gameId, 2, 'Power', 0, 1, '');
+            $gameId, 2, 'Power', 0, 1, 'This is [b]my[/b] fourth comment');
 
+        // #1477: this shouldn't be editable because responder004's autopass happens after responder003's attack
+        $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['playerDataArray'][0]['roundScore'] = 78;
         $expData['playerDataArray'][1]['roundScore'] = 19;
         $expData['playerDataArray'][0]['sideScore'] = 39.3;
@@ -5524,10 +5542,31 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'This is [b]my[/b] fourth comment'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+
+        ////////////////////
+        // responder004 adds some chat without taking a turn
+	// #1477: responder004 chatting here is a test hack --- otherwise, the next
+	// few turns will intermittently fail depending on whether the test timing crosses a second boundary
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $retval = $this->verify_api_success(array(
+            'type' => 'submitChat',
+            'game' => $gameId,
+            'chat' => 'This is my sixth comment',
+        ));
+        $this->assertEquals('Added game message', $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['gameChatEditable'] = FALSE;
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my sixth comment'));
+
+        // now load the game and check its state
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
         ////////////////////
         // Move 14 - responder003 performed Power attack using [(X=20):7] against [q(T=2):2]
@@ -5667,11 +5706,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 4, 3, 1, 10),
             'responder004 performed Skill attack using [q(T=2):2,q(W=4):4,q(X=4):1,q(Z=4):1,z(S=20):4] against [(X=20):12]; Defender (X=20) was captured; Attacker q(T=2) rerolled 2 => 1; Attacker q(W=4) rerolled 4 => 4; Attacker q(X=4) rerolled 1 => 3; Attacker q(Z=4) rerolled 1 => 1; Attacker z(S=20) rerolled 4 => 10. ',
             $retval, array(array(0, 3), array(1, 0), array(1, 1), array(1, 2), array(1, 3), array(1, 4)),
-            $gameId, 3, 'Skill', 1, 0, '');
+            $gameId, 3, 'Skill', 1, 0, 'This is my seventh comment');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['gameChatEditable'] = FALSE;
         $expData['activePlayerIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
         $expData['playerDataArray'][0]['roundScore'] = 21;
@@ -5687,6 +5727,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 10;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [q(T=2):2,q(W=4):4,q(X=4):1,q(Z=4):1,z(S=20):4] against [(X=20):12]; Defender (X=20) was captured; Attacker q(T=2) rerolled 2 => 1; Attacker q(W=4) rerolled 4 => 4; Attacker q(X=4) rerolled 1 => 3; Attacker q(Z=4) rerolled 1 => 1; Attacker z(S=20) rerolled 4 => 10'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my seventh comment'));
+        $cachedChatLog = array();
+        $cachedChatLog[] = array_pop($expData['gameChatLog']);
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5699,10 +5742,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(12),
             'responder003 performed Power attack using [(12):1] against [q(Z=4):1]; Defender q(Z=4) was captured; Attacker (12) rerolled 1 => 12. ',
             $retval, array(array(0, 2), array(1, 3)),
-            $gameId, 3, 'Power', 0, 1, '');
+            $gameId, 3, 'Power', 0, 1, 'This is [b]my[/b] sixth comment');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['activePlayerIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow', 'Speed');
         $expData['playerDataArray'][0]['roundScore'] = 25;
@@ -5715,6 +5759,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 12;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(12):1] against [q(Z=4):1]; Defender q(Z=4) was captured; Attacker (12) rerolled 1 => 12'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'This is [b]my[/b] sixth comment'));
+        $cachedChatLog[] = array_pop($expData['gameChatLog']);
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -5728,11 +5774,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(12),
             'responder004 performed Speed attack using [z(S=20):10] against [(4):2,(20):8]; Defender (4) was captured; Defender (20) was captured; Attacker z(S=20) rerolled 10 => 12. ',
             $retval, array(array(0, 0), array(0, 3), array(1, 3)),
-            $gameId, 3, 'Speed', 1, 0, '');
+            $gameId, 3, 'Speed', 1, 0, 'This is my eighth comment');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['gameChatEditable'] = FALSE;
         $expData['activePlayerIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
         $expData['playerDataArray'][0]['roundScore'] = 13;
@@ -5748,9 +5795,35 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 12;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Speed attack using [z(S=20):10] against [(4):2,(20):8]; Defender (4) was captured; Defender (20) was captured; Attacker z(S=20) rerolled 10 => 12'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'This is my eighth comment'));
+        $cachedChatLog[] = array_pop($expData['gameChatLog']);
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+	// load the same game without limiting action or chat logs,
+	// both of which should contain over 10 entries now
+
+        // first re-add each cached action log and chat log entry to the expected data array
+        foreach(array_reverse($cachedActionLog) as $cachedEntry) {
+            $expData['gameActionLog'][] = $cachedEntry;
+        }
+        foreach(array_reverse($cachedChatLog) as $cachedEntry) {
+            $expData['gameChatLog'][] = $cachedEntry;
+        }
+
+        // now load the game with no length limit
+        $retval = $this->verify_api_loadGameData($expData, $gameId, FALSE);
+
+        // now remove each cached entry again
+        foreach($cachedActionLog as $cachedEntry) {
+            array_pop($expData['gameActionLog']);
+        }
+        foreach($cachedChatLog as $cachedEntry) {
+            array_pop($expData['gameChatLog']);
+        }
 
 
         ////////////////////
@@ -6079,6 +6152,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 4 because opponent surrendered'));
         foreach(array_reverse($cachedActionLog) as $cachedEntry) {
             $expData['gameActionLog'][] = $cachedEntry;
+        }
+        foreach(array_reverse($cachedChatLog) as $cachedEntry) {
+            $expData['gameChatLog'][] = $cachedEntry;
         }
 
         // now load the game and check its state
