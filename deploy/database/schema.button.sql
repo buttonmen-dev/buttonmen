@@ -22,7 +22,6 @@ CREATE TABLE button (
     tourn_legal BOOLEAN NOT NULL,
     set_id      SMALLINT UNSIGNED,
     flavor_text VARCHAR(500),
-    dhs_id      SMALLINT UNSIGNED,
     INDEX (name)
 );
 
