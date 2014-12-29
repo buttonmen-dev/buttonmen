@@ -3,8 +3,8 @@
 class BMFlagDizzyTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @covers BMFlagDizzy::__construct
-     * @covers BMFlagDizzy::value
+     * @covers BMFlag::__construct
+     * @covers BMFlag::value
      */
     public function testConstruct() {
         $flag = BMFlag::create_from_string('Dizzy');
@@ -12,7 +12,7 @@ class BMFlagDizzyTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMFlagDizzy::__toString
+     * @covers BMFlag::__toString
      */
     public function testToString() {
         $flag = BMFlag::create_from_string('Dizzy');

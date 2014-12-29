@@ -3,8 +3,8 @@
 class BMFlagAddAuxiliaryTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @covers BMFlagAddAuxiliary::__construct
-     * @covers BMFlagAddAuxiliary::value
+     * @covers BMFlag::__construct
+     * @covers BMFlag::value
      */
     public function testConstruct() {
         $flag = BMFlag::create_from_string('AddAuxiliary');
@@ -12,7 +12,7 @@ class BMFlagAddAuxiliaryTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMFlagAddAuxiliary::__toString
+     * @covers BMFlag::__toString
      */
     public function testToString() {
         $flag = BMFlag::create_from_string('AddAuxiliary');

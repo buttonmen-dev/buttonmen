@@ -3,8 +3,8 @@
 class BMFlagAddReserveTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @covers BMFlagAddReserve::__construct
-     * @covers BMFlagAddReserve::value
+     * @covers BMFlag::__construct
+     * @covers BMFlag::value
      */
     public function testConstruct() {
         $flag = BMFlag::create_from_string('AddReserve');
@@ -12,7 +12,7 @@ class BMFlagAddReserveTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMFlagAddReserve::__toString
+     * @covers BMFlag::__toString
      */
     public function testToString() {
         $flag = BMFlag::create_from_string('AddReserve');
