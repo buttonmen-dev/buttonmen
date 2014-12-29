@@ -1,15 +1,15 @@
 DROP TABLE IF EXISTS dhs_player;
 CREATE TABLE dhs_player (
-    dhs_player_id   TINYINT UNSIGNED NOT NULL,
+    dhs_player_id   SMALLINT UNSIGNED NOT NULL,
     dhs_player_name VARCHAR(40) NOT NULL,
-    bw_player_id    TINYINT UNSIGNED
+    bw_player_id    SMALLINT UNSIGNED
 );
 
 DROP TABLE IF EXISTS dhs_button;
 CREATE TABLE dhs_button (
-    dhs_button_id   TINYINT UNSIGNED NOT NULL,
+    dhs_button_id   SMALLINT UNSIGNED NOT NULL,
     dhs_button_name VARCHAR(40) NOT NULL,
-    bw_button_id    TINYINT UNSIGNED
+    bw_button_id    SMALLINT UNSIGNED
 );
 
 
@@ -24,9 +24,9 @@ CREATE TABLE dhs_site_button_vs_button_stats (
 
 
 DROP TABLE IF EXISTS dhs_site_button_player_stats;
-CREATE TABLE dhs_site_button_vs_button_stats (
-    dhs_button_id         TINYINT UNSIGNED NOT NULL,
-    dhs_player_id         TINYINT UNSIGNED NOT NULL,
+CREATE TABLE dhs_site_button_player_stats (
+    dhs_button_id         SMALLINT UNSIGNED NOT NULL,
+    dhs_player_id         SMALLINT UNSIGNED NOT NULL,
     games_won_using       MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
     games_lost_using      MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
     games_won_against     MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
