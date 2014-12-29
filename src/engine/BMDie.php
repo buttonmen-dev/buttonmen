@@ -20,7 +20,6 @@
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
- * @property      bool   $selected              Does the player want to add this auxiliary die?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  *
  *  */
