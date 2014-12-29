@@ -22,6 +22,7 @@ CREATE TABLE button (
     tourn_legal BOOLEAN NOT NULL,
     set_id      SMALLINT UNSIGNED,
     flavor_text VARCHAR(500),
+    dhs_id      SMALLINT UNSIGNED,
     INDEX (name)
 );
 
@@ -36,7 +37,7 @@ CREATE TABLE button_tag_map(
     button_id SMALLINT UNSIGNED NOT NULL,
     tag_id SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (button_id, tag_id),
-    CONSTRAINT fk_tagged_button_id 
+    CONSTRAINT fk_tagged_button_id
                          FOREIGN KEY (button_id) REFERENCES button(id),
     CONSTRAINT fk_tag_id FOREIGN KEY (tag_id)    REFERENCES tag(id)
 );

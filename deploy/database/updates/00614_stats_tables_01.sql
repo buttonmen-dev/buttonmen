@@ -1,0 +1,1 @@
+ALTER TABLE button ADD dhs_id SMALLINT UNSIGNED;
