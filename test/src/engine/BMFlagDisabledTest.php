@@ -3,7 +3,7 @@
 class BMFlagDisabledTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @covers BMFlag::__construct
+     * @covers BMFlag::create_from_string
      * @covers BMFlag::value
      */
     public function testConstruct() {
