@@ -79,8 +79,8 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
     public function testPerform_end_of_turn_die_actions_has_attacked() {
         $die = BMDie::create(99);
         $die->add_skill('Ornery');
-         $die->roll(FALSE);
-        $die->hasAttacked = TRUE;
+        $die->roll(FALSE);
+        $die->add_flag('IsAttacker');
         $dieValue = $die->value;
 
         $parArray = array('die' => $die, 'attackType' => 'Power');

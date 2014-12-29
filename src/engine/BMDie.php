@@ -20,7 +20,6 @@
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
- * @property      bool   $hasAttacked           Has the die attacked this turn?
  * @property      bool   $selected              Does the player want to add this auxiliary die?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  *
@@ -43,8 +42,6 @@ class BMDie extends BMCanHaveSkill {
 
     protected $doesReroll = TRUE;
     protected $captured = FALSE;
-
-    protected $hasAttacked = FALSE;
 
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
@@ -833,15 +830,6 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->captured = $value;
-    }
-
-    protected function set__hasAttacked($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException(
-                'hasAttacked is a boolean.'
-            );
-        }
-        $this->hasAttacked = $value;
     }
 
     protected function set__flagList($value) {

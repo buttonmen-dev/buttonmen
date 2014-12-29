@@ -59,7 +59,7 @@ class BMSkillMorphing extends BMSkill {
         $newDie->ownerObject = $att->ownerObject;
         $newDie->playerIdx = $att->playerIdx;
         $newDie->originalPlayerIdx = $att->originalPlayerIdx;
-        $newDie->hasAttacked = TRUE;
+        $newDie->add_flag('IsAttacker');
 
         if (!empty($att->flagList)) {
             foreach ($att->flagList as $flagType => $flag) {

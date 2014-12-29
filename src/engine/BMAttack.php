@@ -215,7 +215,7 @@ abstract class BMAttack {
 
         // set attack defaults
         foreach ($attackers as &$att) {
-            $att->hasAttacked = TRUE;
+            $att->add_flag('IsAttacker');
         }
 
         foreach ($defenders as &$def) {

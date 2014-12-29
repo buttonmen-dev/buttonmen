@@ -1295,7 +1295,7 @@ class BMGame {
 
             $postRerollDieInfo[] = $die->get_action_log_data();
 
-            $die->hasAttacked = FALSE;
+            $die->remove_flag('IsAttacker');
         }
 
         if ($hasRerolled) {

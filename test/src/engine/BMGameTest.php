@@ -6221,7 +6221,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         foreach ($game->activeDieArrayArray as $activeDieArray) {
             foreach ($activeDieArray as $die) {
-                $this->assertFalse($die->hasAttacked);
+                $this->assertFalse($die->has_flag('IsAttacker'));
             }
         }
 
@@ -6263,7 +6263,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         foreach ($game->activeDieArrayArray as $activeDieArray) {
             foreach ($activeDieArray as $die) {
-                $this->assertFalse($die->hasAttacked);
+                $this->assertFalse($die->has_flag('IsAttacker'));
             }
         }
 
