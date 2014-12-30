@@ -89,7 +89,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'newgame') { return '1'; }
 //  if (gameDesc == 'swingset') { return '2'; }
 //  if (gameDesc == 'turn_active') { return '3'; }
-  if (gameDesc == 'turn_inactive') { return '4'; }
+//  if (gameDesc == 'turn_inactive') { return '4'; }
   if (gameDesc == 'finished') { return '5'; }
   if (gameDesc == 'newgame_twin') { return '6'; }
   if (gameDesc == 'focus') { return '7'; }
@@ -114,6 +114,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
+  if (gameDesc == 'washu_hooloovoo_startturn_inactive') { return '1003'; }
   if (gameDesc == 'washu_hooloovoo_first_comments_inactive') { return '1005'; }
   if (gameDesc == 'washu_hooloovoo_cant_win') { return '1021'; }
   if (gameDesc == 'washu_hooloovoo_cant_win_fulllogs') { return '1022'; }

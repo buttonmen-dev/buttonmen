@@ -282,7 +282,7 @@ test("test_Game.showStatePage_turn_active_compactMode", function(assert) {
 
 test("test_Game.showStatePage_turn_inactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_first_comments_inactive';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -724,7 +724,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
 
 test("test_Game.actionPlayTurnInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
@@ -733,6 +733,26 @@ test("test_Game.actionPlayTurnInactive", function(assert) {
     assert.equal(item, null, "#attack_type_select is not set");
     var item = document.getElementById('game_chat');
     assert.equal($(item).val(), 'I had previously typed some text',
+      'Previous text is retained by game chat');
+    assert.ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+test("test_Game.actionPlayTurnInactive_chat_editable", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_first_comments_inactive';
+  var serverPrevChat = 'This is [b]my[/b] first comment';
+  var activityPrevChat = 'I had previously typed some text';
+  Game.activity.chat = activityPrevChat;
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
+    var item = document.getElementById('attack_type_select');
+    assert.equal(item, null, "#attack_type_select is not set");
+    var item = document.getElementById('game_chat');
+    // Once #1481 is fixed, the item should match activityPrevChat instead
+    assert.equal($(item).val(), serverPrevChat,
       'Previous text is retained by game chat');
     assert.ok(Game.form, "Game.form is set");
     start();
@@ -946,7 +966,7 @@ test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
 
 test("test_Game.formPlayTurnInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1055,7 +1075,7 @@ test("test_Game.pageAddUnhideChatButton", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
@@ -1348,7 +1368,7 @@ test("test_Game.gamePlayerDice", function(assert) {
 
 test("test_Game.gamePlayerDice_disabled", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', false));
