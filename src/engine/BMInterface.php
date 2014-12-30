@@ -238,7 +238,7 @@ class BMInterface {
         return TRUE;
     }
 
-    private function validate_and_set_homepage($homepage, array &$infoArray) {
+    protected function validate_and_set_homepage($homepage, array &$infoArray) {
         if ($homepage == NULL || $homepage == "") {
             $infoArray['homepage'] = NULL;
             return TRUE;
@@ -371,7 +371,7 @@ class BMInterface {
         }
     }
 
-    private function insert_new_game(
+    protected function insert_new_game(
         array $playerIdArray,
         $maxWins = 3,
         $description = '',
@@ -428,7 +428,7 @@ class BMInterface {
         }
     }
 
-    private function add_player_to_new_game($gameId, $playerId, $buttonId, $position) {
+    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
                  '(game_id, player_id, button_id, position) '.
@@ -520,7 +520,7 @@ class BMInterface {
         return TRUE;
     }
 
-    private function validate_previous_game_players($previousGameId, array $playerIdArray) {
+    protected function validate_previous_game_players($previousGameId, array $playerIdArray) {
         // If there was no previous game, then there's nothing to worry about
         if ($previousGameId == NULL) {
             return TRUE;
@@ -787,7 +787,7 @@ class BMInterface {
         return $game;
     }
 
-    private function load_game_attributes($game, $row) {
+    protected function load_game_attributes($game, $row) {
         $game->gameState = $row['game_state'];
         $game->maxWins   = $row['n_target_wins'];
         $game->turnNumberInRound = $row['turn_number_in_round'];
@@ -838,7 +838,7 @@ class BMInterface {
         }
     }
 
-    private function load_player_attributes($game, $pos, $row) {
+    protected function load_player_attributes($game, $pos, $row) {
         switch ($row['is_awaiting_action']) {
             case 1:
                 $game->setArrayPropEntry('waitingOnActionArray', $pos, TRUE);
@@ -2433,7 +2433,7 @@ class BMInterface {
         }
     }
 
-    private function execute_button_data_query($buttonName, $setName) {
+    protected function execute_button_data_query($buttonName, $setName) {
         $parameters = array();
         $query =
             'SELECT id, name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
@@ -2453,7 +2453,7 @@ class BMInterface {
         return $statement;
     }
 
-    private function assemble_button_data($row, $site_type, $single_button, $forceImplemented = FALSE) {
+    protected function assemble_button_data($row, $site_type, $single_button, $forceImplemented = FALSE) {
         // Look for unimplemented skills in each button definition.
         $button = new BMButton();
         $button->load($row['recipe'], $row['name']);
@@ -2517,7 +2517,7 @@ class BMInterface {
         return $currentButton;
     }
 
-    private function get_button_tags($buttonName) {
+    protected function get_button_tags($buttonName) {
         $tags = array();
 
         try {
@@ -4569,7 +4569,7 @@ class BMInterface {
     // safe to insert into an anchor tag (or returns NULL if we can't sensibly do
     // that).
     // Based in part on advice from http://stackoverflow.com/questions/205923
-    private function validate_url($url) {
+    protected function validate_url($url) {
         // First, check for and reject anything with inappropriate characters
         // (We can expand this list later if it becomes necessary)
         if (!preg_match('/^[-A-Za-z0-9+&@#\\/%?=~_!:,.\\(\\)]+$/', $url)) {
