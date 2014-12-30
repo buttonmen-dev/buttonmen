@@ -605,6 +605,38 @@ class BMInterface {
         return $buttonIdArray;
     }
 
+    public function save_join_game_decision($playerId, $gameId, $decision) {
+        if (!is_bool($decision)) {
+           throw new InvalidArgumentException('decision must be boolean');
+        }
+
+        $game = $this->load_game($gameId);
+
+        if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
+            return;
+        }
+
+        if (!isset($game->hasPlayerAcceptedGameArray)) {
+            throw new LogicException('hasPlayerAcceptedGameArray needs to exist');
+        }
+
+        $playerIdx = array_search($playerId, $game->playerIdArray);
+
+        if (FALSE === $playerIdx) {
+            return;
+        }
+
+        $game->hasPlayerAcceptedGameArray[$playerIdx] = $decision;
+
+        $this->save_game($gameId);
+
+        if ($decision) {
+            $this->message = "Joined game $gameId";
+        } else {
+            $this->message = "Rejected game $gameId";
+        }
+    }
+
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
         $game = $this->load_game($gameId, $logEntryLimit);
         if ($game) {

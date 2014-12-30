@@ -802,6 +802,15 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_and_load_new_game
+     *
+     * @covers BMInterface::save_join_game_decision
+     */
+    public function test_save_join_game_decision() {
+
+    }
+
+    /**
      * @depends test_create_and_load_new_game_with_empty_opponent
      *
      * @covers BMInterface::join_open_game
