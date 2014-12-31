@@ -2145,6 +2145,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+        // check the game state as a nonplayer so the UI tests have access to a game in START_TURN from a nonplayer perspective
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder001');
+
 
         ////////////////////
         // Move 02 - player 2 captures player 1's option die

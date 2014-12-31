@@ -294,7 +294,7 @@ test("test_Game.showStatePage_turn_inactive", function(assert) {
 
 test("test_Game.showStatePage_turn_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -756,7 +756,7 @@ test("test_Game.actionPlayTurnInactive_chat_editable", function(assert) {
 
 test("test_Game.actionPlayTurnNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1112,7 +1112,7 @@ test("test_Game.pageAddGameNavigationFooter_turn_active", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();

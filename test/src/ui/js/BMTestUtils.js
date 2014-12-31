@@ -96,7 +96,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'chance_active') { return '8'; }
 //  if (gameDesc == 'chance_inactive') { return '9'; }
 //  if (gameDesc == 'newgame_nonplayer') { return '10'; }
-  if (gameDesc == 'turn_nonplayer') { return '11'; }
+//  if (gameDesc == 'turn_nonplayer') { return '11'; }
   if (gameDesc == 'chance_nonplayer') { return '12'; }
   if (gameDesc == 'chooseaux_active') { return '13'; }
   if (gameDesc == 'chooseaux_inactive') { return '14'; }
@@ -112,6 +112,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
   if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
+  if (gameDesc == 'frasquito_wiseman_startturn_nonplayer') { return '104'; }
 
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
