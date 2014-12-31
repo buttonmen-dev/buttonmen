@@ -94,7 +94,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'newgame_twin') { return '6'; }
 //  if (gameDesc == 'focus') { return '7'; }
 //  if (gameDesc == 'chance_active') { return '8'; }
-  if (gameDesc == 'chance_inactive') { return '9'; }
+//  if (gameDesc == 'chance_inactive') { return '9'; }
   if (gameDesc == 'newgame_nonplayer') { return '10'; }
   if (gameDesc == 'turn_nonplayer') { return '11'; }
   if (gameDesc == 'chance_nonplayer') { return '12'; }
@@ -115,6 +115,8 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
+
+  if (gameDesc == 'merlin_crane_reacttoinitiative_inactive') { return '901'; }
 
   if (gameDesc == 'washu_hooloovoo_startturn_inactive') { return '1003'; }
   if (gameDesc == 'washu_hooloovoo_first_comments_inactive') { return '1005'; }

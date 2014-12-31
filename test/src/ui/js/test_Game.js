@@ -575,7 +575,7 @@ test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
 
 test("test_Game.actionReactToInitiativeInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_inactive';
+  BMTestUtils.GameType = 'merlin_crane_reacttoinitiative_inactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
