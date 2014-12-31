@@ -239,7 +239,7 @@ test("test_Game.showStatePage_swingset", function(assert) {
 
 test("test_Game.showStatePage_newgame_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice_nonplayer';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -456,7 +456,7 @@ test("test_Game.actionSpecifyDiceInactive", function(assert) {
 
 test("test_Game.actionSpecifyDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');

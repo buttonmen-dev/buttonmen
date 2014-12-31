@@ -95,7 +95,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'focus') { return '7'; }
 //  if (gameDesc == 'chance_active') { return '8'; }
 //  if (gameDesc == 'chance_inactive') { return '9'; }
-  if (gameDesc == 'newgame_nonplayer') { return '10'; }
+//  if (gameDesc == 'newgame_nonplayer') { return '10'; }
   if (gameDesc == 'turn_nonplayer') { return '11'; }
   if (gameDesc == 'chance_nonplayer') { return '12'; }
   if (gameDesc == 'chooseaux_active') { return '13'; }
