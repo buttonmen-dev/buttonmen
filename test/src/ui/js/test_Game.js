@@ -379,13 +379,13 @@ test("test_Game.parseValidInitiativeActions_focus", function(assert) {
 
 test("test_Game.parseValidInitiativeActions_chance", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_active';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     assert.deepEqual(
       Api.game.player.initiativeActions,
         {'chance': { '1': true, '4': true }, 'decline': true },
-        "Correct valid initiative actions identified for John Kovalic");
+        "Correct valid initiative actions identified for Pikathulhu");
     start();
   });
 });
@@ -1228,7 +1228,7 @@ test("test_Game.dieRecipeTable_focus", function(assert) {
 
 test("test_Game.dieRecipeTable_chance", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_active';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
@@ -1240,12 +1240,14 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
     assert.ok(item, "Document should contain die recipe table");
     assert.equal(item.nodeName, "TABLE",
       "Die recipe table should be a table element");
-    assert.ok(item.innerHTML.match('John Kovalic'),
+    assert.ok(item.innerHTML.match('Pikathulhu'),
       "Die recipe table should contain button names");
     assert.ok(item.innerHTML.match('Value'),
       "Die recipe table should contain header for table of values");
     assert.ok(item.innerHTML.match(/id="init_react_1"/),
       "Die recipe table should contain an init reaction entry for die idx 1");
+    assert.ok(item.innerHTML.match(/id="init_react_4"/),
+      "Die recipe table should contain an init reaction entry for die idx 4");
     start();
   });
 });
@@ -1278,10 +1280,10 @@ test("test_Game.dieTableEntry_empty", function(assert) {
 
 test("test_Game.activeDieFieldString", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_active';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_active';
   Game.getCurrentGame(function() {
     var valstr = Game.activeDieFieldString(4, 'value', Api.game.player.activeDieArray);
-    assert.deepEqual(valstr, 4, "Die value string has expected contents for an existing die");
+    assert.deepEqual(valstr, 2, "Die value string has expected contents for an existing die");
 
     valstr = Game.activeDieFieldString(6, 'value', Api.game.player.activeDieArray);
     assert.deepEqual(valstr, '', "Die value string has expected contents for a nonexistent die");

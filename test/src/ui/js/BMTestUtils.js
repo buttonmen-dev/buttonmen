@@ -93,7 +93,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'finished') { return '5'; }
 //  if (gameDesc == 'newgame_twin') { return '6'; }
 //  if (gameDesc == 'focus') { return '7'; }
-  if (gameDesc == 'chance_active') { return '8'; }
+//  if (gameDesc == 'chance_active') { return '8'; }
   if (gameDesc == 'chance_inactive') { return '9'; }
   if (gameDesc == 'newgame_nonplayer') { return '10'; }
   if (gameDesc == 'turn_nonplayer') { return '11'; }
@@ -121,6 +121,8 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'washu_hooloovoo_cant_win') { return '1021'; }
   if (gameDesc == 'washu_hooloovoo_cant_win_fulllogs') { return '1022'; }
   if (gameDesc == 'washu_hooloovoo_game_over') { return '1032'; }
+
+  if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_active') { return '1902'; }
 
   if (gameDesc == 'blackomega_thefool_reacttoinitiative') { return '2302'; }
 }
