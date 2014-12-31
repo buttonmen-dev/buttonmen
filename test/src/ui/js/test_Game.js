@@ -363,14 +363,13 @@ test("test_Game.parseValidFireOptions_fire_active", function(assert) {
 
 test("test_Game.parseValidInitiativeActions_focus", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     assert.deepEqual(
       Api.game.player.initiativeActions,
         {'focus': {
-          '3': [5, 4, 3, 2, 1],
-          '4': [17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+          '1': [7, 6, 5, 4, 3, 2, 1]
          },
          'decline': true },
         "Correct valid initiative actions identified for Crab");
@@ -536,20 +535,18 @@ test("test_Game.actionChooseReserveDiceNonplayer", function(assert) {
 
 test("test_Game.actionReactToInitiativeActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
-    var item = document.getElementById('init_react_3');
-    assert.ok(item, "#init_react_3 select is set");
+    var item = document.getElementById('init_react_1');
+    assert.ok(item, "#init_react_1 select is set");
     $.each(item.childNodes, function(childid, child) {
-      if (child.getAttribute('label') == '6') {
+      if (child.getAttribute('label') == '8') {
         assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Focus die is initially set to maximum value');
       }
     });
-    item = document.getElementById('init_react_4');
-    assert.ok(item, "#init_react_4 select is set");
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -557,22 +554,20 @@ test("test_Game.actionReactToInitiativeActive", function(assert) {
 
 test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
-  Game.activity.initiativeDieIdxArray = [ 3, ];
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
+  Game.activity.initiativeDieIdxArray = [ 1, ];
   Game.activity.initiativeDieValueArray = [ 2, ];
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
-    var item = document.getElementById('init_react_3');
-    assert.ok(item, "#init_react_3 select is set");
+    var item = document.getElementById('init_react_1');
+    assert.ok(item, "#init_react_1 select is set");
     $.each(item.childNodes, function(childid, child) {
       if (child.getAttribute('label') == '2') {
         assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Focus die is turned down to previously chosen value');
       }
     });
-    item = document.getElementById('init_react_4');
-    assert.ok(item, "#init_react_4 select is set");
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -870,12 +865,12 @@ test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
 
 test("test_Game.formReactToInitiativeActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#react_type_select').val('focus');
-    $('#init_react_3').val('5');
+    $('#init_react_1').val('3');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -890,12 +885,12 @@ test("test_Game.formReactToInitiativeActive", function(assert) {
 
 test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#react_type_select').val('decline');
-    $('#init_react_3').val('5');
+    $('#init_react_1').val('3');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -1130,7 +1125,7 @@ test("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function(assert) {
 
 test("test_Game.pageAddSkillListFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddSkillListFooter();
@@ -1207,7 +1202,7 @@ test("test_Game.dieRecipeTable", function(assert) {
 
 test("test_Game.dieRecipeTable_focus", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
@@ -1219,16 +1214,14 @@ test("test_Game.dieRecipeTable_focus", function(assert) {
     assert.ok(item, "Document should contain die recipe table");
     assert.equal(item.nodeName, "TABLE",
       "Die recipe table should be a table element");
-    assert.ok(item.innerHTML.match('Crab'),
+    assert.ok(item.innerHTML.match('BlackOmega'),
       "Die recipe table should contain button names");
     assert.ok(item.innerHTML.match('Value'),
       "Die recipe table should contain header for table of values");
     assert.ok(item.innerHTML.match(/7/),
       "Die recipe table should contain entries for table of values");
-    assert.ok(item.innerHTML.match(/id="init_react_3"/),
-      "Die recipe table should contain an init reaction entry for die idx 3");
-    assert.ok(item.innerHTML.match(/id="init_react_4"/),
-      "Die recipe table should contain an init reaction entry for die idx 4");
+    assert.ok(item.innerHTML.match(/id="init_react_1"/),
+      "Die recipe table should contain an init reaction entry for die idx 1");
     start();
   });
 });
