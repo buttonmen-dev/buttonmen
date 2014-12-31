@@ -774,7 +774,7 @@ test("test_Game.actionPlayTurnNonplayer", function(assert) {
 
 test("test_Game.actionShowFinishedGame", function(assert) {
   stop();
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1089,7 +1089,7 @@ test("test_Game.pageAddGameNavigationFooter", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter_pendingGames", function(assert) {
   stop();
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Api.pending_games.count = 3;
@@ -1420,12 +1420,12 @@ test("test_Game.buttonImageDisplay_noImage", function(assert) {
 
 test("test_Game.gameWinner", function(assert) {
   stop();
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gameWinner());
     var htmlout = Game.page.html();
-    assert.ok(htmlout.match('tester1 won!'),
+    assert.ok(htmlout.match('responder004 won!'),
       "correct game winner should be displayed");
     start();
   });
@@ -1673,7 +1673,7 @@ test("test_Game.dieFocusOutlineHandler", function(assert) {
 test("test_Game.pageAddNewGameLinkFooter", function(assert) {
   stop();
   expect(4); // tests plus 2 teardown tests
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddNewGameLinkFooter();

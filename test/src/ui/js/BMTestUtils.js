@@ -90,7 +90,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'swingset') { return '2'; }
 //  if (gameDesc == 'turn_active') { return '3'; }
 //  if (gameDesc == 'turn_inactive') { return '4'; }
-  if (gameDesc == 'finished') { return '5'; }
+//  if (gameDesc == 'finished') { return '5'; }
   if (gameDesc == 'newgame_twin') { return '6'; }
   if (gameDesc == 'focus') { return '7'; }
   if (gameDesc == 'chance_active') { return '8'; }

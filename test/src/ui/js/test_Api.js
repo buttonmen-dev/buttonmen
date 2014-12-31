@@ -464,9 +464,10 @@ test("test_Api.parseGamePlayerData_option", function(assert) {
 
 test("test_Api.playerWLTText", function(assert) {
   stop();
-  Api.getGameData('5', 10, function() {
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
+  Api.getGameData(gameId, 10, function() {
     var text = Api.playerWLTText('opponent');
-    assert.ok(text.match('2/3/0'),
+    assert.ok(text.match('3/1/0'),
        "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
