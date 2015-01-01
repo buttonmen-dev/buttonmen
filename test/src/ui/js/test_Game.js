@@ -171,7 +171,7 @@ test("test_Game.showStatePage", function(assert) {
 
 test("test_Game.showStatePage_chooseaux_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -392,12 +392,12 @@ test("test_Game.parseValidInitiativeActions_chance", function(assert) {
 
 test("test_Game.parseAuxiliaryDieOptions", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.parseAuxiliaryDieOptions();
-    assert.equal(Api.game.player.auxiliaryDieRecipe, "+(20)",
+    assert.equal(Api.game.player.auxiliaryDieRecipe, "+s(X)",
       "Correct auxiliary die option for player");
-    assert.equal(Api.game.opponent.auxiliaryDieRecipe, "+(20)",
+    assert.equal(Api.game.opponent.auxiliaryDieRecipe, "+s(X)",
       "Correct auxiliary die option for opponent");
     start();
   });
@@ -469,7 +469,7 @@ test("test_Game.actionSpecifyDiceNonplayer", function(assert) {
 
 test("test_Game.actionChooseAuxiliaryDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -480,7 +480,7 @@ test("test_Game.actionChooseAuxiliaryDiceActive", function(assert) {
 
 test("test_Game.actionChooseAuxiliaryDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_inactive';
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -491,7 +491,7 @@ test("test_Game.actionChooseAuxiliaryDiceInactive", function(assert) {
 
 test("test_Game.actionChooseAuxiliaryDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_nonplayer';
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -575,7 +575,7 @@ test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
 
 test("test_Game.actionReactToInitiativeInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'merlin_crane_reacttoinitiative_inactive';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_inactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -590,7 +590,7 @@ test("test_Game.actionReactToInitiativeInactive", function(assert) {
 
 test("test_Game.actionReactToInitiativeNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_nonplayer';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -807,7 +807,7 @@ test("test_Game.formSpecifyDiceActive", function(assert) {
 
 test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');

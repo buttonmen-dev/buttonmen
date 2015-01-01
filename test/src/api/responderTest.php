@@ -7645,6 +7645,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+        // now load the game as non-participating player responder001 and check its state
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
 
         // responder003 rerolled a chance die, but did not gain initiative: c(6) rerolled 3 => 4
         $this->verify_api_reactToInitiative(
@@ -8564,5 +8569,100 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This game provides examples of auxiliary with different dice,
+     * active player waiting for the other player's auxiliary choice,
+     * and decline of auxiliary dice, for use in UI testing
+     */
+    public function test_interface_game_024() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 24;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        // In a game with auxiliary dice, no dice are rolled until after auxiliary selection
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder003', 'responder004', 'Merlin', 'Ein', 3);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'CHOOSE_AUXILIARY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Focus', 'Shadow', 'Trip'));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Ein', 'recipe' => '(8) (8) f(8) t(8) (X) +(Y)', 'artFilename' => 'ein.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 2, 'skills' => array(), 'properties' => array(), 'recipe' => '(2)', 'description' => '2-sided die'),
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => NULL, 'sides' => 10, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(10)', 'description' => 'Shadow 10-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(20)', 'description' => 'Shadow 20-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Auxiliary', 'Shadow'), 'properties' => array(), 'recipe' => '+s(X)', 'description' => 'Auxiliary Shadow X Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            array('value' => NULL, 'sides' => 8, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(8)', 'description' => 'Focus 8-sided die'),
+            array('value' => NULL, 'sides' => 8, 'skills' => array('Trip'), 'properties' => array(), 'recipe' => 't(8)', 'description' => 'Trip 8-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Auxiliary'), 'properties' => array(), 'recipe' => '+(Y)', 'description' => 'Auxiliary Y Swing Die'),
+        );
+
+        // now load the game and check its state
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        // now load the game as non-participating player responder001 and check its state
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        ////////////////////
+        // Move 01 - responder003 chose to use auxiliary die +s(X) in this game
+        // no dice are rolled when the first player chooses auxiliary
+        $this->verify_api_reactToAuxiliary(
+            array(),
+            'Chose to add auxiliary die',
+            $gameId, 'add', 5);
+
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+
+        // now load the game and check its state
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 02 - responder004 chose not to use auxiliary die +(Y) in this game
+        // 4 of Merlin's dice, and 4 of Ein's, are rolled initially
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_reactToAuxiliary(
+            array(1, 1, 4, 15, 8, 2, 4, 8),
+            'responder004 chose not to use auxiliary dice in this game: neither player will get an auxiliary die. ',
+            $gameId, 'decline', NULL);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        // expected changes
+        // #1216: Auxiliary shouldn't be removed from the list of game skills
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Shadow', 'Trip'));
+        $expData['gameState'] = 'SPECIFY_DICE';
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['button']['recipe'] = '(2) (4) s(10) s(20) (X)';
+        $expData['playerDataArray'][1]['button']['recipe'] = '(8) (8) f(8) t(8) (X)';
+        array_splice($expData['playerDataArray'][0]['activeDieArray'], 5, 1);
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 5, 1);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to use auxiliary die +s(X) in this game'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 chose not to use auxiliary dice in this game: neither player will get an auxiliary die'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 }
