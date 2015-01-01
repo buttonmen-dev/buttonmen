@@ -226,6 +226,10 @@ class BMGame {
         if (isset($this->hasPlayerAcceptedGameArray) &&
             is_array($this->hasPlayerAcceptedGameArray) &&
             in_array(FALSE, $this->hasPlayerAcceptedGameArray)) {
+            foreach ($this->hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
+                $this->waitingOnActionArray[$playerIdx] = !$hasAccepted;
+            }
+
             return;
         }
 

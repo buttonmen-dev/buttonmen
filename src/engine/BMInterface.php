@@ -636,7 +636,7 @@ class BMInterface {
 
         $game->hasPlayerAcceptedGameArray[$playerIdx] = $decision;
 
-        $this->save_game($gameId);
+        $this->save_game($game);
 
         if ($decision) {
             $this->message = "Joined game $gameId";
@@ -775,7 +775,8 @@ class BMInterface {
                  'v.is_awaiting_action, '.
                  'v.is_button_random, '.
                  'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp, '.
-                 'v.was_game_dismissed '.
+                 'v.was_game_dismissed, '.
+                 'v.has_player_accepted '.
                  'FROM game AS g '.
                  'LEFT JOIN game_status AS s '.
                  'ON s.id = g.status_id '.
@@ -798,6 +799,7 @@ class BMInterface {
             if (isset($pos)) {
                 $game->setArrayPropEntry('playerIdArray', $pos, $row['player_id']);
                 $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
+                $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);
             }
 
             if (1 == $row['did_win_initiative']) {
@@ -852,6 +854,7 @@ class BMInterface {
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
         $game->hasPlayerDismissedGameArray = array_fill(0, $nPlayers, FALSE);
+        $game->hasPlayerAcceptedGameArray = array_fill(0, $nPlayers, FALSE);
     }
 
     protected function load_button($game, $pos, $row) {
@@ -1151,6 +1154,7 @@ class BMInterface {
             $this->save_swing_values_from_this_round($game);
             $this->save_option_values_from_last_round($game);
             $this->save_option_values_from_this_round($game);
+            $this->save_player_game_decisions($game);
             $this->save_player_with_initiative($game);
             $this->save_players_awaiting_action($game);
             $this->regenerate_essential_die_flags($game);
@@ -1463,6 +1467,26 @@ class BMInterface {
                                                   ':is_expired' => FALSE));
                     }
                 }
+            }
+        }
+    }
+
+    protected function save_player_game_decisions($game) {
+        if (isset($game->hasPlayerAcceptedGameArray)) {
+            foreach ($game->hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
+                $query = 'UPDATE game_player_map '.
+                         'SET has_player_accepted = :has_player_accepted '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+                if ($hasAccepted) {
+                    $hasPlayerAccepted = 1;
+                } else {
+                    $hasPlayerAccepted = 0;
+                }
+                $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
+                                          ':game_id' => $game->gameId,
+                                          ':position' => $playerIdx));
             }
         }
     }
