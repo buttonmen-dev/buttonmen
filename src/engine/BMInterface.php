@@ -320,7 +320,8 @@ class BMInterface {
         $maxWins = 3,
         $description = '',
         $previousGameId = NULL,
-        $currentPlayerId = NULL
+        $currentPlayerId = NULL,
+        $autoAccept = TRUE
     ) {
         $isValidInfo =
             $this->validate_game_info(
@@ -342,7 +343,13 @@ class BMInterface {
             $gameId = $this->insert_new_game($playerIdArray, $maxWins, $description, $previousGameId);
 
             foreach ($playerIdArray as $position => $playerId) {
-                $this->add_player_to_new_game($gameId, $playerId, $buttonIdArray[$position], $position);
+                $this->add_player_to_new_game(
+                    $gameId,
+                    $playerId,
+                    $buttonIdArray[$position],
+                    $position,
+                    (0 == $position) || $autoAccept
+                );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
 
@@ -428,18 +435,19 @@ class BMInterface {
         }
     }
 
-    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position) {
+    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted = TRUE) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
-                 '(game_id, player_id, button_id, position) '.
+                 '(game_id, player_id, button_id, position, has_player_accepted) '.
                  'VALUES '.
-                 '(:game_id, :player_id, :button_id, :position)';
+                 '(:game_id, :player_id, :button_id, :position, :has_player_accepted)';
         $statement = self::$conn->prepare($query);
 
         $statement->execute(array(':game_id'   => $gameId,
                                   ':player_id' => $playerId,
                                   ':button_id' => $buttonId,
-                                  ':position'  => $position));
+                                  ':position'  => $position,
+                                  ':has_player_accepted' => $hasAccepted));
     }
 
     protected function set_random_button_flags($gameId, array $buttonNameArray) {
