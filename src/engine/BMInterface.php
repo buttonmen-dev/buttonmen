@@ -615,7 +615,7 @@ class BMInterface {
 
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (!is_bool($decision)) {
-           throw new InvalidArgumentException('decision must be boolean');
+            throw new InvalidArgumentException('decision must be boolean');
         }
 
         $game = $this->load_game($gameId);
