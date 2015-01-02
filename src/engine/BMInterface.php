@@ -3019,7 +3019,8 @@ class BMInterface {
         // Only the most recent chat entry can be modified --- was
         // it made by the active player?
         if ((FALSE === $currentPlayerIdx) ||
-            ($playerNameArray[$currentPlayerIdx] != $chatLogEntries[0]['player'])) {
+            ($playerNameArray[$currentPlayerIdx] != $chatLogEntries[0]['player']) ||
+            ($playerNameArray[$currentPlayerIdx] != $actionLogEntries[0]['player'])) {
             return FALSE;
         }
 
