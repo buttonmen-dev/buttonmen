@@ -29,7 +29,7 @@ Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 Game.logEntryLimit = 10;
 
 // Maximum number of characters permitted in a given chat message
-Game.GAME_CHAT_MAX_LENGTH = 500;
+Game.GAME_CHAT_MAX_LENGTH = 2000;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
