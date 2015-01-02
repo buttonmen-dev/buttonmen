@@ -424,15 +424,15 @@ test("test_Game.actionSpecifyDiceActive", function(assert) {
 
 test("test_Game.actionSpecifyDiceActive_option", function(assert) {
   stop();
-  BMTestUtils.GameType = 'option_active';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_specify_table');
     assert.equal(item.nodeName, "TABLE",
       "#die_specify_table is a table after actionSpecifyDiceActive() is called");
-    var item = document.getElementById('option_3');
-    assert.ok(item, "#option_3 select is set");
+    var item = document.getElementById('option_4');
+    assert.ok(item, "#option_4 select is set");
 
     var item = document.getElementById('opponent_swing');
     assert.equal(item.nodeName, "TABLE",

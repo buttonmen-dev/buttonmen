@@ -104,7 +104,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'reserve_active') { return '16'; }
 //  if (gameDesc == 'reserve_inactive') { return '17'; }
 //  if (gameDesc == 'reserve_nonplayer') { return '18'; }
-  if (gameDesc == 'option_active') { return '19'; }
+//  if (gameDesc == 'option_active') { return '19'; }
   if (gameDesc == 'fire_active') { return '22'; }
   if (gameDesc == 'fire_inactive') { return '23'; }
   if (gameDesc == 'fire_nonplayer') { return '24'; }
