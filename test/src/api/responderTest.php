@@ -5629,6 +5629,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+        // now load the game as non-participating player responder001 and check its state
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
         // Move 15 - responder004 added a reserve die: rz(S)

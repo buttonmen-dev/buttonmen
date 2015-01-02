@@ -185,7 +185,7 @@ test("test_Game.showStatePage_chooseaux_active", function(assert) {
 
 test("test_Game.showStatePage_reserve_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -199,7 +199,7 @@ test("test_Game.showStatePage_reserve_active", function(assert) {
 
 test("test_Game.showStatePage_reserve_inactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_inactive';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -213,7 +213,7 @@ test("test_Game.showStatePage_reserve_inactive", function(assert) {
 
 test("test_Game.showStatePage_reserve_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_nonplayer';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_nonplayer';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -328,7 +328,7 @@ test("test_Game.parseValidReserveOptions", function(assert) {
 
 test("test_Game.parseValidReserveOptions_reserve_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.parseValidReserveOptions();
     assert.deepEqual(Api.game.player.reserveOptions,
@@ -502,7 +502,7 @@ test("test_Game.actionChooseAuxiliaryDiceNonplayer", function(assert) {
 
 test("test_Game.actionChooseReserveDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -513,7 +513,7 @@ test("test_Game.actionChooseReserveDiceActive", function(assert) {
 
 test("test_Game.actionChooseReserveDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -524,7 +524,7 @@ test("test_Game.actionChooseReserveDiceInactive", function(assert) {
 
 test("test_Game.actionChooseReserveDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_nonplayer';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -826,7 +826,7 @@ test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
 
 test("test_Game.formChooseReserveDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -846,7 +846,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
 
 test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');

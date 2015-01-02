@@ -101,9 +101,9 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'chooseaux_active') { return '13'; }
 //  if (gameDesc == 'chooseaux_inactive') { return '14'; }
 //  if (gameDesc == 'chooseaux_nonplayer') { return '15'; }
-  if (gameDesc == 'reserve_active') { return '16'; }
-  if (gameDesc == 'reserve_inactive') { return '17'; }
-  if (gameDesc == 'reserve_nonplayer') { return '18'; }
+//  if (gameDesc == 'reserve_active') { return '16'; }
+//  if (gameDesc == 'reserve_inactive') { return '17'; }
+//  if (gameDesc == 'reserve_nonplayer') { return '18'; }
   if (gameDesc == 'option_active') { return '19'; }
   if (gameDesc == 'fire_active') { return '22'; }
   if (gameDesc == 'fire_inactive') { return '23'; }
@@ -121,9 +121,12 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   if (gameDesc == 'washu_hooloovoo_startturn_inactive') { return '1003'; }
   if (gameDesc == 'washu_hooloovoo_first_comments_inactive') { return '1005'; }
-  if (gameDesc == 'washu_hooloovoo_cant_win') { return '1021'; }
-  if (gameDesc == 'washu_hooloovoo_cant_win_fulllogs') { return '1022'; }
-  if (gameDesc == 'washu_hooloovoo_game_over') { return '1032'; }
+  if (gameDesc == 'washu_hooloovoo_reacttoreserve_active') { return '1007'; }
+  if (gameDesc == 'washu_hooloovoo_reacttoreserve_inactive') { return '1016'; }
+  if (gameDesc == 'washu_hooloovoo_reacttoreserve_nonplayer') { return '1017'; }
+  if (gameDesc == 'washu_hooloovoo_cant_win') { return '1022'; }
+  if (gameDesc == 'washu_hooloovoo_cant_win_fulllogs') { return '1023'; }
+  if (gameDesc == 'washu_hooloovoo_game_over') { return '1033'; }
 
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_active') { return '1902'; }
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_nonplayer') { return '1903'; }
