@@ -802,7 +802,7 @@ Game.actionPlayTurnInactive = function() {
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<br>'));
 
-  if (Api.game.chatEditable) {
+  if (Api.game.chatEditable && !Game.activity.chat) {
     Game.activity.chat = Api.game.chatLog[0].message;
   }
   var chatdiv = $('<div>');
