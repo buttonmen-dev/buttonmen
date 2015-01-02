@@ -85,7 +85,7 @@ class BMDieSwing extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        if (!$this->doesSkipSwingRequest) {
+        if (!$this->does_skip_swing_request()) {
             // The clone is the one going into the game, so it's the one
             // that needs a swing value to be set.
             $this->ownerObject->request_swing_values(
@@ -99,8 +99,8 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($isTriggeredByAttack = FALSE) {
-        if ($this->needsSwingValue) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
+        if ($this->needsSwingValue && !isset($this->max)) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values(
                     $this,
@@ -110,7 +110,7 @@ class BMDieSwing extends BMDie {
                 $this->valueRequested = TRUE;
             }
         } else {
-            parent::roll($isTriggeredByAttack);
+            parent::roll($isTriggeredByAttack, $isSubdie);
         }
     }
 
@@ -167,9 +167,6 @@ class BMDieSwing extends BMDie {
         if ($sides < $this->swingMin || $sides > $this->swingMax) {
             return FALSE;
         }
-
-        $this->run_hooks(__FUNCTION__, array('isValid'   => &$valid,
-                                             'swingList' => $swingList));
 
         if ($valid) {
             $this->swingValue = $sides;

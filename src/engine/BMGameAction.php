@@ -230,16 +230,17 @@ class BMGameAction {
             $postInfo = $postAttackDice['defender'][$idx];
             $postEventsDefender = array();
 
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_recipe_change($defenderInfo, $postInfo, FALSE)
+            );
+
             if ($defenderRerollsEarly) {
                 $this->message_append(
                     $postEventsDefender,
                     $this->message_value_change($defenderInfo, $postInfo)
                 );
             }
-            $this->message_append(
-                $postEventsDefender,
-                $this->message_recipe_change($defenderInfo, $postInfo)
-            );
             $this->message_append(
                 $postEventsDefender,
                 $this->message_capture($postInfo)
@@ -255,6 +256,16 @@ class BMGameAction {
 
     protected function messageAttacker($preAttackDice, $postAttackDice) {
         $messageAttackerArray = array();
+
+        // deal with the possibility of an attacker that splits
+        if (count($preAttackDice['attacker']) <
+            count($postAttackDice['attacker'])) {
+            return $this->message_split(
+                $preAttackDice['attacker'],
+                $postAttackDice['attacker']
+            );
+        }
+
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
@@ -284,6 +295,51 @@ class BMGameAction {
         return $messageAttacker;
     }
 
+    protected function message_split(array $preAttackAttackers, array $postAttackAttackers) {
+        assert(count($preAttackAttackers) < count($postAttackAttackers));
+
+        // james: currently, the logic only handles one die splitting into two
+        assert(1 == count($preAttackAttackers));
+        assert(2 == count($postAttackAttackers));
+
+        $messageChangePreSplit = '';
+        if (array_key_exists('recipeBeforeSplitting', $postAttackAttackers[0]) &&
+            ($preAttackAttackers[0]['recipe'] != $postAttackAttackers[0]['recipeBeforeSplitting'])) {
+            $messageChangePreSplit = ' changed to ' .
+                                     $postAttackAttackers[0]['recipeBeforeSplitting'] .
+                                     ', which then';
+        }
+
+        $messagePreSplit = 'Attacker ' . $preAttackAttackers[0]['recipe'] . ' showing ' .
+                           $preAttackAttackers[0]['value'] .
+                           $messageChangePreSplit .
+                           ' split into: ';
+
+        $messagePostSplit0 = $this->message_grow_shrink($postAttackAttackers[0]) .
+                             $postAttackAttackers[0]['recipe'] . ' showing ' .
+                             $postAttackAttackers[0]['value'];
+
+        $messagePostSplit1 = $this->message_grow_shrink($postAttackAttackers[1]) .
+                             $postAttackAttackers[1]['recipe'] . ' showing ' .
+                             $postAttackAttackers[1]['value'];
+
+        $message = $messagePreSplit . $messagePostSplit0 . ', and ' . $messagePostSplit1;
+
+        return $message;
+    }
+
+    protected function message_grow_shrink(array $diePropertyArray) {
+        if (array_key_exists('recipeBeforeGrowing', $diePropertyArray) &&
+            $diePropertyArray['recipeBeforeGrowing']) {
+            return $diePropertyArray['recipeBeforeGrowing'] . ' which grew into ';
+        } elseif (array_key_exists('recipeBeforeShrinking', $diePropertyArray) &&
+                  $diePropertyArray['recipeBeforeShrinking']) {
+            return $diePropertyArray['recipeBeforeShrinking'] . ' which shrunk into ';
+        } else {
+            return '';
+        }
+    }
+
     protected function message_append(array &$messageArray, $messageIncrement) {
         if (!empty($messageIncrement)) {
             $messageArray[] = $messageIncrement;
@@ -295,19 +351,27 @@ class BMGameAction {
 
         if ($preInfo['max'] != $postInfo['max']) {
             $message = 'changed size from ' . $preInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
-        } elseif (array_key_exists('forceReportDieSize', $preInfo) &&
-                  $preInfo['forceReportDieSize']) {
+        } elseif ((array_key_exists('forceReportDieSize', $preInfo) &&
+                   $preInfo['forceReportDieSize']) ||
+                  (array_key_exists('forceReportDieSize', $postInfo) &&
+                   $postInfo['forceReportDieSize'])) {
             $message = 'remained the same size';
         }
 
         return $message;
     }
 
-    protected function message_recipe_change($preInfo, $postInfo) {
+    protected function message_recipe_change($preInfo, $postInfo, $showFrom = TRUE) {
         $message = '';
 
         if ($preInfo['recipe'] != $postInfo['recipe']) {
-            $message = 'recipe changed from ' . $preInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            $message = 'recipe changed';
+
+            if ($showFrom) {
+                $message .= ' from ' . $preInfo['recipe'];
+            }
+
+            $message .= ' to ' . $postInfo['recipe'];
         }
 
         return $message;

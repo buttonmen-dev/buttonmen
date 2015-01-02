@@ -39,7 +39,7 @@ class BMSkillMadTest extends PHPUnit_Framework_TestCase {
         // check that resizing can occur when the die has a value
         $this->assertTrue(BMSkillMad::pre_roll($args));
 
-        $nRep = 100;
+        $nRep = 200;
         $maxArray = array_fill(1, $nRep, 0);
         for ($idx = 1; $idx <= $nRep; $idx++) {
             $die->set_swingValue(array('X' => 6));

@@ -58,8 +58,6 @@ class BMDieTwin extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         foreach ($this->dice as $die) {
             if ($die instanceof BMDieSwing) {
                 $this->ownerObject->request_swing_values(
@@ -74,20 +72,21 @@ class BMDieTwin extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         if (is_null($this->max)) {
             return;
         }
 
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack,
+                                           'isSubdie' => $isSubdie));
 
         // james: note that $this->value cannot be set to zero directly, since this triggers a bug
         $value = 0;
         foreach ($this->dice as &$die) {
             // note that we do not want to trigger the hooks again, so we set the
             // input parameter of roll() to FALSE
-            $die->roll(FALSE);
+            $die->roll(FALSE, TRUE);
             $value += $die->value;
         }
 
@@ -170,16 +169,21 @@ class BMDieTwin extends BMDie {
     }
 
     public function split() {
+        $oldRecipe = $this->get_recipe();
+        unset($this->value);
         $newdie = clone $this;
 
         foreach ($this->dice as $dieIdx => &$die) {
             $splitDieArray = $die->split();
-            $this->dice[$dieIdx] = $splitDieArray[0];
-            $newdie->dice[$dieIdx] = $splitDieArray[1];
+            $this->dice[$dieIdx] = $splitDieArray[$dieIdx % 2];
+            $newdie->dice[$dieIdx] = $splitDieArray[($dieIdx + 1) % 2];
         }
 
         $this->recalc_max_min();
         $newdie->recalc_max_min();
+
+        $this->add_flag('HasJustSplit', $oldRecipe);
+        $newdie->add_flag('HasJustSplit', $oldRecipe);
 
         $splitDice = array($this, $newdie);
 
@@ -190,20 +194,32 @@ class BMDieTwin extends BMDie {
 
     // shrink() is intended to be used for weak dice
     public function shrink() {
+        $oldRecipe = $this->get_recipe();
+
         foreach ($this->dice as &$die) {
             $die->shrink();
         }
 
         $this->recalc_max_min();
+
+        if ($this->get_recipe() != $oldRecipe) {
+            $this->add_flag('HasJustShrunk', $oldRecipe);
+        }
     }
 
     // grow() is intended to be used for mighty dice
     public function grow() {
+        $oldRecipe = $this->get_recipe();
+
         foreach ($this->dice as &$die) {
             $die->grow();
         }
 
         $this->recalc_max_min();
+
+        if ($this->get_recipe() != $oldRecipe) {
+            $this->add_flag('HasJustGrown', $oldRecipe);
+        }
     }
 
     public function set_swingValue($swingList) {
@@ -225,16 +241,41 @@ class BMDieTwin extends BMDie {
         $this->min = 0;
         $this->max = 0;
 
-        foreach ($this->dice as $die) {
-            if (is_null($die->min) ||
-                is_null($die->max)) {
+        foreach ($this->dice as $subdie) {
+            if (!isset($subdie->min) ||
+                !isset($subdie->max)) {
                 $this->min = NULL;
                 $this->max = NULL;
                 break;
             }
-            $this->min += $die->min;
-            $this->max += $die->max;
+            $this->min += $subdie->min;
+            $this->max += $subdie->max;
         }
+
+        $this->remove_flag('Twin');
+
+        $subdieMaxArray = array();
+        $subdieValueArray = array();
+
+        foreach ($this->dice as $subdieIdx => $subdie) {
+            if (isset($subdie->max)) {
+                $subdieMaxArray[$subdieIdx] = $subdie->max;
+            } else {
+                $subdieMaxArray[$subdieIdx] = NULL;
+            }
+
+            if (isset($subdie->value)) {
+                $subdieValueArray[$subdieIdx] = $subdie->value;
+            } else {
+                $subdieValueArray[$subdieIdx] = NULL;
+            }
+        }
+
+        $this->add_flag(
+            'Twin',
+            array('sides' => $subdieMaxArray,
+                  'values' => $subdieValueArray)
+        );
     }
 
     public function getDieTypes() {

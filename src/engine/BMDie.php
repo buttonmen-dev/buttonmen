@@ -16,6 +16,7 @@
  * @property-read int    $firingMax             Maximum amount that the die can be fired up
  * @property      BMGame/BMButton $ownerObject  Game or button that owns the die
  * @property      int    $playerIdx             Index of player that currently owns the die
+ * @property-read int    $activeDieIdx          Index of die in activeDieArrayArray
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
@@ -24,7 +25,9 @@
  * @property      string $inactive              Why may this die not attack?
  * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
- */
+ *
+ * @SuppressWarnings(PMD.TooManyFields)
+ *  */
 class BMDie extends BMCanHaveSkill {
     // properties
 
@@ -38,6 +41,7 @@ class BMDie extends BMCanHaveSkill {
 // references back to the owner
     protected $ownerObject;
     protected $playerIdx;
+    protected $activeDieIdx;
     protected $originalPlayerIdx;
 
     protected $doesReroll = TRUE;
@@ -165,8 +169,6 @@ class BMDie extends BMCanHaveSkill {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         $this->ownerObject->add_die($newDie);
     }
 
@@ -178,13 +180,14 @@ class BMDie extends BMCanHaveSkill {
     }
 
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack,
+                                           'isSubdie' => $isSubdie));
 
         if (!isset($this->value) ||
             ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
-            $this->value = bm_rand($this->min, $this->max);
+            $this->set__value(bm_rand($this->min, $this->max));
         }
 
         $this->run_hooks('post_roll', array('die' => $this,
@@ -218,7 +221,8 @@ class BMDie extends BMCanHaveSkill {
         $list = array($this->value);
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'attackValues' => &$list));
+                                             'attackValues' => &$list,
+                                             'minValue' => $this->min));
 
         return $list;
     }
@@ -327,29 +331,18 @@ class BMDie extends BMCanHaveSkill {
             }
         }
 
-        // Hooks are where the die gets adjusted if need be.
-        if ($valid) {
-            $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                                 'attackers' => $attackers,
-                                                 'defenders' => $defenders,
-                                                 'amount' => $amount));
-        }
         return $valid;
 
     }
 
 // check for special-case situations where an otherwise-valid attack
-// is not legal. Single-die skill attacks with stealth dice are the only
-// situation I can come up with off the top of my head
-//
-// These methods cannot act, they may only check: they're called a lot
-    public function is_valid_attacker($type, array $attackers) {
+// is not legal
+    public function is_valid_attacker(array $attackers) {
         $valid = TRUE;
 
         if ($this->inactive || $this->hasAttacked) {
             $valid = FALSE;
         }
-
 
         // Are we actually among the attackers?
         $found = FALSE;
@@ -364,15 +357,11 @@ class BMDie extends BMCanHaveSkill {
             $valid = FALSE;
         }
 
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'die' => $this,
-                                             'isValid' => &$valid));
-
         return $valid;
     }
 
 
-    public function is_valid_target($type, array $defenders) {
+    public function is_valid_target(array $defenders) {
         $valid = TRUE;
 
         if ($this->unavailable) {
@@ -392,34 +381,21 @@ class BMDie extends BMCanHaveSkill {
             $valid = FALSE;
         }
 
-
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'die' => $this,
-                                             'isValid' => &$valid));
-
         return $valid;
     }
 
-    public function capture($type, array $attackers, array $defenders) {
-        $result = $this->run_hooks(__FUNCTION__, array('type' => $type,
-                                                       'attackers' => $attackers,
-                                                       'defenders' => $defenders,
-                                                       'caller' => $this));
-
-        if (isset($result)) {
-            if (array_key_exists('BMSkillMorphing', $result)) {
-                return $result['BMSkillMorphing'];
-            } elseif (array_key_exists('BMSkillDoppelganger', $result)) {
-                return $result['BMSkillDoppelganger'];
-            }
-        }
+    public function capture($type, array &$attackers, array &$defenders) {
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
     }
 
 
     public function be_captured($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders));
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders));
     }
 
 // Print long description
@@ -456,20 +432,30 @@ class BMDie extends BMCanHaveSkill {
 // automatically pick up the need to reroll. (It is possible there is
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
-//
-// konstant needs to hook this method to fix the die's value. Very
-// little else will.
     public function split() {
-        // james: the die value must remain so that mighty/weak trigger correctly afterwards
-
+        $oldRecipe = $this->get_recipe(TRUE);
+        unset($this->value);
         $newdie = clone $this;
 
-        if ($newdie->max > 1) {
-            $remainder = $newdie->max % 2;
-            $newdie->max -= $remainder;
-            $newdie->max = $newdie->max / 2;
-            $this->max -= $newdie->max;
+        // james: reinstate the commented condition if we want a 1-sider to split into
+        //        two 1-siders
+//        if ($newdie->max > 1) {
+        $remainder = $newdie->max % 2;
+        $newdie->max -= $remainder;
+        $newdie->max = $newdie->max / 2;
+        $this->max -= $newdie->max;
+//        }
+
+        if (0 == $this->max) {
+            $this->min = 0;
         }
+
+        if (0 == $newdie->max) {
+            $newdie->min = 0;
+        }
+
+        $this->add_flag('HasJustSplit', $oldRecipe);
+        $newdie->add_flag('HasJustSplit', $oldRecipe);
 
         $dice = array($this, $newdie);
 
@@ -485,6 +471,7 @@ class BMDie extends BMCanHaveSkill {
 
         foreach ($dieSizes as $size) {
             if ($size < $this->max) {
+                $this->add_flag('HasJustShrunk', $this->get_recipe());
                 $this->max = $size;
                 return;
             }
@@ -498,7 +485,9 @@ class BMDie extends BMCanHaveSkill {
 
         foreach ($dieSizes as $size) {
             if ($size > $this->max) {
+                $this->add_flag('HasJustGrown', $this->get_recipe());
                 $this->max = $size;
+                $this->min = 1;  // deal explicitly with the possibility of 0-siders
                 return;
             }
         }
@@ -569,7 +558,7 @@ class BMDie extends BMCanHaveSkill {
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
-        if ($addMaxval && $dieObj->max) {
+        if ($addMaxval && isset($dieObj->max)) {
             return ($sidecountStr . '=' . $dieObj->max);
         } else {
             return ($sidecountStr);
@@ -584,6 +573,33 @@ class BMDie extends BMCanHaveSkill {
         return ($this->max - $this->value);
     }
 
+    /** function that looks for the current object (BMDie) within the owning player's activeDieArray
+     *
+     * @return mixed Index of die in activeDieArray of the owning player
+     */
+    protected function get_activeDieIdx() {
+        $owner = $this->ownerObject;
+
+        if (!isset($owner) || !($owner instanceof BMGame)) {
+            return NULL;
+        }
+
+        $activeDieArrayArray = $owner->activeDieArrayArray;
+
+        // search for the exact instance of the current BMDie requires TRUE as third argument
+        $dieIdx = array_search(
+            $this,
+            $activeDieArrayArray[$this->playerIdx],
+            TRUE
+        );
+
+        if (FALSE === $dieIdx) {
+            return NULL;
+        }
+
+        return $dieIdx;
+    }
+
     // Return all information about a die which is useful when
     // constructing an action log entry, in the form of an array.
     // This function exists so that BMGame can easily compare the
@@ -591,8 +607,20 @@ class BMDie extends BMCanHaveSkill {
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
         $valueAfterTripAttack = NULL;
+        $recipeBeforeGrowing = NULL;
+        $recipeBeforeShrinking = NULL;
+        $recipeBeforeSplitting = NULL;
         if ($this->has_flag('JustPerformedTripAttack')) {
             $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
+        }
+        if ($this->has_flag('HasJustGrown')) {
+            $recipeBeforeGrowing = $this->flagList['HasJustGrown']->value();
+        }
+        if ($this->has_flag('HasJustShrunk')) {
+            $recipeBeforeShrinking = $this->flagList['HasJustShrunk']->value();
+        }
+        if ($this->has_flag('HasJustSplit')) {
+            $recipeBeforeSplitting = $this->flagList['HasJustSplit']->value();
         }
         return(array(
             'recipe' => $recipe,
@@ -606,31 +634,22 @@ class BMDie extends BMCanHaveSkill {
             'valueAfterTripAttack' => $valueAfterTripAttack,
             'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
             'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
+            'recipeBeforeGrowing' => $recipeBeforeGrowing,
+            'recipeBeforeShrinking' => $recipeBeforeShrinking,
+            'recipeBeforeSplitting' => $recipeBeforeSplitting,
         ));
     }
 
     public function forceReportDieSize() {
-        return ($this->has_skill('Mood') || $this->has_skill('Mad'));
+        return ($this->has_skill('Mood') || $this->has_skill('Mad') ||
+                $this->has_flag('HasJustMorphed'));
     }
 
-    public function cast_as_BMDie() {
-        if (!($this instanceof BMDie)) {
-            return NULL;
-        }
-
-        $newDie = new BMDie;
-
-        foreach (get_object_vars($this) as $key => $value) {
-            $newDie->$key = $value;
-        }
-        return $newDie;
-    }
-
-    public function doesSkipSwingRequest() {
+    public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
 
         $doesSkipSwingRequest = is_array($hookResult) &&
-                                array_search('doesSkipSwingRequest', $hookResult);
+                                array_search('does_skip_swing_request', $hookResult);
 
         return $doesSkipSwingRequest;
     }
@@ -643,7 +662,11 @@ class BMDie extends BMCanHaveSkill {
         $flagString = $flag;
 
         if (isset($flagValue)) {
-            $flagString .= '__' . $flagValue;
+            if (is_array($flagValue)) {
+                $flagString .= '__' . json_encode($flagValue);
+            } else {
+                $flagString .= '__' . $flagValue;
+            }
         }
 
         $flagObject = BMFlag::create_from_string($flagString);
@@ -710,6 +733,8 @@ class BMDie extends BMCanHaveSkill {
                     return $this->get_recipe();
                 case 'firingMax':
                     return $this->get_firingMax();
+                case 'activeDieIdx':
+                    return $this->get_activeDieIdx();
                 default:
                     return $this->$property;
             }
@@ -738,6 +763,11 @@ class BMDie extends BMCanHaveSkill {
     }
 
     protected function set__max($value) {
+        if ($value === 0) {
+            $this->min = 0;
+            $this->max = 0;
+        }
+
         if (!is_null($value) &&
             (FALSE ===
              filter_var(
@@ -766,7 +796,8 @@ class BMDie extends BMCanHaveSkill {
             )
            ) {
             throw new InvalidArgumentException(
-                'Invalid die value.'
+                'Invalid die value: ' . $value . ' is not between ' .
+                $this->min . ' and ' . $this->max . ' for die ' . $this
             );
         }
         $this->value = $value;
@@ -806,6 +837,12 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->playerIdx = $value;
+    }
+
+    protected function set__activeDieIdx() {
+        throw new LogicException(
+            'Die index is derived automatically.'
+        );
     }
 
     protected function set__originalPlayerIdx($value) {

@@ -55,14 +55,14 @@ class BMAttackShadow extends BMAttackPower {
         }
 
         $canAttDoThisAttack =
-            $att->is_valid_attacker($this->type, $attackers);
+            $att->is_valid_attacker($attackers);
         if (!$canAttDoThisAttack) {
             $this->validationMessage = 'Invalid attacking die';
             return FALSE;
         }
 
         $isDefValidTarget =
-            $def->is_valid_target($this->type, $defenders);
+            $def->is_valid_target($defenders);
         if (!$isDefValidTarget) {
             $this->validationMessage = 'Invalid target die';
             return FALSE;

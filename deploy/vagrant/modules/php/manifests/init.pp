@@ -18,6 +18,10 @@ class php::base {
       require => Package["libapache2-mod-php5"];
   }
 
+  include "php::base::feature::phpunit"
+}
+
+class php::base::feature::phpunit {
   exec {
     "php_wget_phpunit":
       command => "/usr/bin/wget --no-verbose -O /etc/php5/deploy-includes/phpunit.phar http://phar.phpunit.de/phpunit.phar",
@@ -54,4 +58,12 @@ class php::type::jenkins {
       require => Exec["php_pear_discover_phpdoc"],
       creates => "/usr/share/php/phpDocumentor";
   }
+
+  file {
+    "/etc/php5/deploy-includes":
+      ensure => directory,
+      require => Package["php5-xdebug"];
+  }
+
+  include "php::base::feature::phpunit"
 }
