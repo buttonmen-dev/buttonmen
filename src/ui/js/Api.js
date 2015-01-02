@@ -318,7 +318,7 @@ var Api = (function () {
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
       } else {
-        my.active_games.games.awaitingOpponent.push(gameInfo);
+        my.active_games.games.awaitingOpponent.unshift(gameInfo);
       }
       i += 1;
     }
