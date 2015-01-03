@@ -6695,8 +6695,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'antillama.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'antillama.png');
         $expData['activePlayerIdx'] = 1;
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
@@ -7687,7 +7687,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16), 'U' => array(8, 30));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['button'] = array('name' => 'fendrin', 'recipe' => 'f(3) nD(R) (1) n(2) Bp(U)', 'artFilename' => 'fendrin.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman7216.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 3, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(3)', 'description' => 'Focus 3-sided die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Null', 'Doppelganger'), 'properties' => array(), 'recipe' => 'nD(R)', 'description' => 'Null Doppelganger R Swing Die'),
