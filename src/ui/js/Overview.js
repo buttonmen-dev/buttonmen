@@ -198,9 +198,13 @@ Overview.pageAddNewgameLink = function() {
   Overview.page.append(newgameDiv);
 };
 
-Overview.pageAddGameTable = function(gameType, sectionHeader, reverseSortOrder) {
+Overview.pageAddGameTable = function(
+    gameType,
+    sectionHeader,
+    reverseSortOrder
+  ) {
   if (typeof reverseSortOrder === 'undefined') {
-      reverseSortOrder = false;
+    reverseSortOrder = false;
   }
 
   var gamesource;
@@ -218,7 +222,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader, reverseSortOrder) 
   }
 
   if (reverseSortOrder) {
-      gamesource.reverse();
+    gamesource.reverse();
   }
 
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
