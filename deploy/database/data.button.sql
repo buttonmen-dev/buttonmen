@@ -1093,3 +1093,10 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 #############################################
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"));
+
+#####################################################
+#####   B U T T O N   D E S C R I P T I O N S   #####
+#####################################################
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a vanilla random formula (5 dice, no swing dice, no skills)'
+WHERE name='RandomBMVanilla';
