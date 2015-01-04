@@ -85,7 +85,7 @@ CREATE TABLE game_chat_log (
     chat_time          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     chatting_player    SMALLINT UNSIGNED NOT NULL,
     -- A chat message is limited to 2000 Unicode characters (see
-    -- GAME_CHAT_MAX_LENGTH in BMInterface and Game.js). Since a Unicode
+    -- GAME_CHAT_MAX_LENGTH in ApiSpec.php and Game.js). Since a Unicode
     -- character can be up to four bytes, this requires a varchar(8000).
     message            VARCHAR(8000)
 );
