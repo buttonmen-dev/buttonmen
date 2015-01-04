@@ -4559,6 +4559,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 'add', 5);
         $_SESSION = $this->mock_test_user_login('responder003');
 
+	// the API should lie about whether a player has responded to auxiliary
+	// to avoid information leaks
+	$expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
