@@ -18,11 +18,21 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
         }
 
         $button = $args['button'];
-        $dieRecipeArray = array_fill(0, 5, NULL);
+        $nDice = 5;
+        $dieSizeArray = array_fill(0, $nDice, NULL);
+        $dieRecipeArray = array_fill(0, $nDice, NULL);
         $validDieSizeArray = parent::$die_sizes_soldiers;
-        foreach ($dieRecipeArray as &$dieRecipe) {
+        $nValidDieSizes = count($validDieSizeArray);
+
+        foreach ($dieSizeArray as &$dieSize) {
+            $dieSize = $validDieSizeArray[bm_rand(0, $nValidDieSizes - 1)];
+        }
+
+        sort($dieSizeArray, SORT_NUMERIC);
+
+        foreach ($dieRecipeArray as $dieIdx => &$dieRecipe) {
             $dieRecipe = '(' .
-                         $validDieSizeArray[bm_rand(0, count($validDieSizeArray) - 1)] .
+                         $dieSizeArray[$dieIdx] .
                          ')';
         }
 

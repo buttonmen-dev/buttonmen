@@ -89,7 +89,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (65, 'Classic Fanatics', 100000),
 
 # Special
-(10000, 'Special', 1);
+(10000, 'RandomBM', 200000);
 
 
 DELETE FROM button;
@@ -1092,4 +1092,4 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 #####   S P E C I A L   B U T T O N S   #####
 #############################################
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="Special"));
+(10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"));
