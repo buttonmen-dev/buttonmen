@@ -12,7 +12,7 @@
  */
 class ApiSpec {
     // constants
-    const GAME_CHAT_MAX_LENGTH = 500;
+    const GAME_CHAT_MAX_LENGTH = 2000;
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
