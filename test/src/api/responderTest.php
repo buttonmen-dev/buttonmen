@@ -8161,7 +8161,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['button'] = array('name' => 'slamkrypare', 'recipe' => 't(1) (10) (10) z(12) (Y)', 'artFilename' => 'slamkrypare.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array('Trip'), 'properties' => array(), 'recipe' => 't(1)', 'description' => 'Trip 1-sided die'),
             array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
@@ -8269,7 +8269,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['swingRequestArray'] = array('T' => array(2, 12));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 2, 'skills' => array('Queer'), 'properties' => array(), 'recipe' => 'q(2)', 'description' => 'Queer 2-sided die'),
             array('value' => NULL, 'sides' => 3, 'skills' => array('Speed'), 'properties' => array(), 'recipe' => 'z(3)', 'description' => 'Speed 3-sided die'),
