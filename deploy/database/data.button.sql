@@ -86,7 +86,10 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (75, 'MegaTokyo',                     7400),
 
 # Fanatics
-(65, 'Classic Fanatics', 100000);
+(65, 'Classic Fanatics', 100000),
+
+# Special
+(10000, 'RandomBM', 200000);
 
 
 DELETE FROM button;
@@ -1112,3 +1115,16 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (547, 'Zomulgustar', 't(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?', 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 (548, 'Zophiel',         'k(1) (6) z(8,8) H(12) (Y)?',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 (549, 'Zotmeister',      'd(1) d(1) d(2,2) d(8,8) rd(1) rd(26,26)',    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics"));
+
+#############################################
+#####   S P E C I A L   B U T T O N S   #####
+#############################################
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"));
+
+#####################################################
+#####   B U T T O N   D E S C R I P T I O N S   #####
+#####################################################
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a vanilla random formula (5 dice, no swing dice, no skills)'
+WHERE name='RandomBMVanilla';
