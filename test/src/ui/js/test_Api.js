@@ -377,21 +377,26 @@ test("test_Api.getGameData_nonplayer", function(assert) {
 
 test("test_Api.getGameData_somelogs", function(assert) {
   stop();
-  Game.game = '3';
-  Api.getGameData(Game.game, 3, function() {
-    assert.equal(Api.game.actionLog.length, 3, "getGameData() passed limited action log length");
-    assert.equal(Api.game.chatLog.length, 3, "getGameData() passed limited chat log length");
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_cant_win');
+  Game.game = gameId;
+  Api.getGameData(Game.game, 10, function() {
+    assert.equal(Api.game.actionLog.length, 10, "getGameData() passed limited action log length");
+    assert.equal(Api.game.chatLog.length, 10, "getGameData() passed limited chat log length");
     delete Game.game;
     start();
   });
 });
 
+// Technically, this is a cheat.  It's showing that when the backend
+// sends the full logs, the Api object receives them, but it is not
+// testing whether Api.getGameData() successfully sends the request
+// for full logs, because the API response is canned, so it can't test that.
 test("test_Api.getGameData_alllogs", function(assert) {
   stop();
-  Game.game = '3';
-  Api.getGameData(Game.game, 0, function() {
-    assert.ok(Api.game.actionLog.length > 3, "getGameData() passed unlimited action log length");
-    assert.ok(Api.game.chatLog.length > 3, "getGameData() passed unlimited chat log length");
+  Game.game = BMTestUtils.testGameId('washu_hooloovoo_cant_win_fulllogs');
+  Api.getGameData(Game.game, undefined, function() {
+    assert.ok(Api.game.actionLog.length > 10, "getGameData() passed unlimited action log length");
+    assert.ok(Api.game.chatLog.length > 10, "getGameData() passed unlimited chat log length");
     delete Game.game;
     start();
   });
@@ -444,24 +449,22 @@ test("test_Api.parseGamePlayerData", function(assert) {
 
 test("test_Api.parseGamePlayerData_option", function(assert) {
   stop();
-  Game.game = '19';
-  Api.getGameData(Game.game, 10, function() {
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
+  Api.getGameData(gameId, 10, function() {
     assert.deepEqual(Api.game.player.swingRequestArray, {});
     assert.deepEqual(Api.game.player.optRequestArray, {
-      2: [2, 12],
-      3: [8, 16],
-      4: [20, 24],
+      4: ["2", "20"],
     });
-    delete Game.game;
     start();
   });
 });
 
 test("test_Api.playerWLTText", function(assert) {
   stop();
-  Api.getGameData('5', 10, function() {
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
+  Api.getGameData(gameId, 10, function() {
     var text = Api.playerWLTText('opponent');
-    assert.ok(text.match('2/3/0'),
+    assert.ok(text.match('3/1/0'),
        "opponent WLT text should contain opponent's view of WLT state");
     start();
   });

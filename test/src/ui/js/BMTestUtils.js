@@ -88,23 +88,23 @@ BMTestUtils.cleanupFakeLogin = function() {
 BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'newgame') { return '1'; }
 //  if (gameDesc == 'swingset') { return '2'; }
-  if (gameDesc == 'turn_active') { return '3'; }
-  if (gameDesc == 'turn_inactive') { return '4'; }
-  if (gameDesc == 'finished') { return '5'; }
-  if (gameDesc == 'newgame_twin') { return '6'; }
-  if (gameDesc == 'focus') { return '7'; }
-  if (gameDesc == 'chance_active') { return '8'; }
-  if (gameDesc == 'chance_inactive') { return '9'; }
-  if (gameDesc == 'newgame_nonplayer') { return '10'; }
-  if (gameDesc == 'turn_nonplayer') { return '11'; }
-  if (gameDesc == 'chance_nonplayer') { return '12'; }
-  if (gameDesc == 'chooseaux_active') { return '13'; }
-  if (gameDesc == 'chooseaux_inactive') { return '14'; }
-  if (gameDesc == 'chooseaux_nonplayer') { return '15'; }
-  if (gameDesc == 'reserve_active') { return '16'; }
-  if (gameDesc == 'reserve_inactive') { return '17'; }
-  if (gameDesc == 'reserve_nonplayer') { return '18'; }
-  if (gameDesc == 'option_active') { return '19'; }
+//  if (gameDesc == 'turn_active') { return '3'; }
+//  if (gameDesc == 'turn_inactive') { return '4'; }
+//  if (gameDesc == 'finished') { return '5'; }
+//  if (gameDesc == 'newgame_twin') { return '6'; }
+//  if (gameDesc == 'focus') { return '7'; }
+//  if (gameDesc == 'chance_active') { return '8'; }
+//  if (gameDesc == 'chance_inactive') { return '9'; }
+//  if (gameDesc == 'newgame_nonplayer') { return '10'; }
+//  if (gameDesc == 'turn_nonplayer') { return '11'; }
+//  if (gameDesc == 'chance_nonplayer') { return '12'; }
+//  if (gameDesc == 'chooseaux_active') { return '13'; }
+//  if (gameDesc == 'chooseaux_inactive') { return '14'; }
+//  if (gameDesc == 'chooseaux_nonplayer') { return '15'; }
+//  if (gameDesc == 'reserve_active') { return '16'; }
+//  if (gameDesc == 'reserve_inactive') { return '17'; }
+//  if (gameDesc == 'reserve_nonplayer') { return '18'; }
+//  if (gameDesc == 'option_active') { return '19'; }
   if (gameDesc == 'fire_active') { return '22'; }
   if (gameDesc == 'fire_inactive') { return '23'; }
   if (gameDesc == 'fire_nonplayer') { return '24'; }
@@ -112,8 +112,30 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
   if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
+  if (gameDesc == 'frasquito_wiseman_startturn_nonplayer') { return '104'; }
+
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
+
+  if (gameDesc == 'merlin_crane_reacttoauxiliary_active') { return '901'; }
+
+  if (gameDesc == 'washu_hooloovoo_startturn_inactive') { return '1003'; }
+  if (gameDesc == 'washu_hooloovoo_first_comments_inactive') { return '1005'; }
+  if (gameDesc == 'washu_hooloovoo_reacttoreserve_active') { return '1007'; }
+  if (gameDesc == 'washu_hooloovoo_reacttoreserve_inactive') { return '1016'; }
+  if (gameDesc == 'washu_hooloovoo_reacttoreserve_nonplayer') { return '1017'; }
+  if (gameDesc == 'washu_hooloovoo_cant_win') { return '1022'; }
+  if (gameDesc == 'washu_hooloovoo_cant_win_fulllogs') { return '1023'; }
+  if (gameDesc == 'washu_hooloovoo_game_over') { return '1033'; }
+
+  if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_active') { return '1902'; }
+  if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_nonplayer') { return '1903'; }
+  if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_inactive') { return '1914'; }
+
+  if (gameDesc == 'blackomega_thefool_reacttoinitiative') { return '2302'; }
+
+  if (gameDesc == 'merlin_ein_reacttoauxiliary_nonplayer') { return '2402'; }
+  if (gameDesc == 'merlin_ein_reacttoauxiliary_inactive') { return '2403'; }
 }
 
 // We don't currently usually test reading the URL bar contents, because
