@@ -5533,8 +5533,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 2), array(1, 1)),
             $gameId, 2, 'Power', 0, 1, 'This is [b]my[/b] fourth comment');
 
-        // #1477: this shouldn't be editable because responder004's autopass happens after responder003's attack
-        $expData['gameChatEditable'] = 'TIMESTAMP';
+        $expData['gameChatEditable'] = FALSE;
         $expData['playerDataArray'][0]['roundScore'] = 78;
         $expData['playerDataArray'][1]['roundScore'] = 19;
         $expData['playerDataArray'][0]['sideScore'] = 39.3;
