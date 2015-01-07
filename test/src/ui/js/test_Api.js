@@ -449,24 +449,22 @@ test("test_Api.parseGamePlayerData", function(assert) {
 
 test("test_Api.parseGamePlayerData_option", function(assert) {
   stop();
-  Game.game = '19';
-  Api.getGameData(Game.game, 10, function() {
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
+  Api.getGameData(gameId, 10, function() {
     assert.deepEqual(Api.game.player.swingRequestArray, {});
     assert.deepEqual(Api.game.player.optRequestArray, {
-      2: [2, 12],
-      3: [8, 16],
-      4: [20, 24],
+      4: ["2", "20"],
     });
-    delete Game.game;
     start();
   });
 });
 
 test("test_Api.playerWLTText", function(assert) {
   stop();
-  Api.getGameData('5', 10, function() {
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
+  Api.getGameData(gameId, 10, function() {
     var text = Api.playerWLTText('opponent');
-    assert.ok(text.match('2/3/0'),
+    assert.ok(text.match('3/1/0'),
        "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
