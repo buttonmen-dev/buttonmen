@@ -102,9 +102,6 @@ class BMSkillMood extends BMSkill {
     /**
      * Description of skill
      *
-     * Each skill class must override this with a meaningful
-     * description of how the skill works
-     *
      * @return string
      */
     protected static function get_description() {
@@ -121,8 +118,7 @@ class BMSkillMood extends BMSkill {
     /**
      * Descriptions of interactions between this skill and other skills
      *
-     * Each skill class must override this with an array, indexed
-     * by other skill name, whose values are descriptions of
+     * An array, indexed by other skill name, whose values are descriptions of
      * interactions between the relevant skills
      *
      * @return array

@@ -9,12 +9,23 @@
  * This class contains code specific to the chance die skill
  */
 class BMSkillChance extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array("react_to_initiative");
 
     public static function react_to_initiative() {
         return TRUE;
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'If you do not have the initiative at the start of ' .
                'a round you may re-roll one of your Chance Dice. If this ' .
@@ -30,6 +41,14 @@ class BMSkillChance extends BMSkill {
                'initiative with them.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',

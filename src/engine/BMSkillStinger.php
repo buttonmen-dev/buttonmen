@@ -9,6 +9,12 @@
  * This class contains code specific to the stinger die skill
  */
 class BMSkillStinger extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('initiative_value',
                                           'attack_values');
 
@@ -36,6 +42,11 @@ class BMSkillStinger extends BMSkill {
         $args['attackValues'] = range($args['minValue'], max($args['attackValues']));
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'When a Stinger Die participates in a Skill Attack, it can be used as any number between its minimum ' .
                'possible value and the value it currently shows. Thus, a normal die showing 4 and a Stinger Die ' .
@@ -44,6 +55,14 @@ class BMSkillStinger extends BMSkill {
                'goes first.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Shadow' => 'Dice with both Shadow and Stinger skills can singly attack with any value from the min to ' .

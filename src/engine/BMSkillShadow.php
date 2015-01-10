@@ -9,6 +9,12 @@
  * This class contains code specific to the shadow die skill
  */
 class BMSkillShadow extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('attack_list');
 
     public static function attack_list($args) {
@@ -26,11 +32,16 @@ class BMSkillShadow extends BMSkill {
 
         $attackTypeArray['Shadow'] = 'Shadow';
     }
-    
+
     public static function incompatible_attack_types($args = NULL) {
         return array('Power');
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'These dice are normal in all respects, except that ' .
                'they cannot make Power Attacks. Instead, they make inverted ' .
@@ -43,6 +54,14 @@ class BMSkillShadow extends BMSkill {
                '2 to 10.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Stinger' => 'Dice with both Shadow and Stinger skills ' .

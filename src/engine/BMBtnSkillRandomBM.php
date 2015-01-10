@@ -9,6 +9,12 @@
  * This class currently supports the special skills of RandomBM
  */
 class BMBtnSkillRandomBM extends BMBtnSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('specify_recipes');
 
     public static $die_sizes_soldiers = array(4, 6, 8, 10, 12, 20);

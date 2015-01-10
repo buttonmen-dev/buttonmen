@@ -9,6 +9,12 @@
  * This class contains code specific to the weak die skill
  */
 class BMSkillWeak extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('pre_roll');
 
     public static function pre_roll($args) {
@@ -28,6 +34,11 @@ class BMSkillWeak extends BMSkill {
         $die->shrink();
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'When a Weak Die rerolls for any reason, ' .
                'it first shrinks from its current size to the ' .
@@ -35,6 +46,14 @@ class BMSkillWeak extends BMSkill {
                'die sizes (1, 2, 4, 6, 8, 10, 12, 16, 20, 30).';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Berserk' => 'Dice with both Berserk and Weak skills will first ' .
@@ -44,6 +63,11 @@ class BMSkillWeak extends BMSkill {
         );
     }
 
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
     public static function prevents_win_determination() {
         return TRUE;
     }

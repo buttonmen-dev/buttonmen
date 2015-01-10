@@ -9,6 +9,12 @@
  * This class contains code specific to the radioactive die skill
  */
 class BMSkillRadioactive extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('capture', 'be_captured');
 
     public static function capture(&$args) {
@@ -70,6 +76,11 @@ class BMSkillRadioactive extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'If a radioactive die is either the attacking die or the target die in an attack with a ' .
                'single attacking die and a single target die, the attacking die splits, or "decays", ' .
@@ -81,6 +92,14 @@ class BMSkillRadioactive extends BMSkill {
                'power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack ' .

@@ -9,6 +9,12 @@
  * This class currently supports the special skills of Giant
  */
 class BMBtnSkillGiant extends BMBtnSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('is_button_slow');
 
     public static function is_button_slow() {
