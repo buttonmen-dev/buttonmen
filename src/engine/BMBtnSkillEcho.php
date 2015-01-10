@@ -9,6 +9,12 @@
  * This class currently supports the special skills of Echo
  */
 class BMBtnSkillEcho extends BMBtnSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('specify_recipes');
 
     public static function specify_recipes(array $args) {
