@@ -17,6 +17,11 @@ class BMSkillDoppelganger extends BMSkillMorphing {
      */
     public static $hooked_methods = array('capture');
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture(&$args) {
         if (!self::are_dice_in_attack_valid($args)) {
             return;

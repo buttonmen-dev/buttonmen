@@ -20,6 +20,11 @@ class BMSkillKonstant extends BMSkill {
                                           'attack_values',
                                           'hit_table');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;

@@ -17,6 +17,11 @@ class BMSkillShadow extends BMSkill {
      */
     public static $hooked_methods = array('attack_list');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
@@ -33,7 +38,12 @@ class BMSkillShadow extends BMSkill {
         $attackTypeArray['Shadow'] = 'Shadow';
     }
 
-    public static function incompatible_attack_types($args = NULL) {
+    /**
+     * Attack types incompatible with this skill type
+     *
+     * @return array
+     */
+    public static function incompatible_attack_types() {
         return array('Power');
     }
 

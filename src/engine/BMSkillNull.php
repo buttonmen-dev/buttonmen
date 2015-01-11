@@ -23,6 +23,11 @@ class BMSkillNull extends BMSkill {
         $args['mult'] = 0;
     }
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture($args) {
         assert(array_key_exists('attackers', $args));
         assert(array_key_exists('defenders', $args));

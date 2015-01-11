@@ -17,6 +17,11 @@ class BMSkillQueer extends BMSkill {
      */
     public static $hooked_methods = array('attack_list');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
@@ -42,6 +47,12 @@ class BMSkillQueer extends BMSkill {
         }
     }
 
+    /**
+     * Attack types incompatible with this skill type
+     *
+     * @param array $args
+     * @return array
+     */
     public static function incompatible_attack_types($args = NULL) {
         if (!isset($args) || !array_key_exists('value', $args)) {
             return array();

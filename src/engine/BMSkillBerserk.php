@@ -17,6 +17,11 @@ class BMSkillBerserk extends BMSkill {
      */
     public static $hooked_methods = array('attack_list', 'capture');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
@@ -33,10 +38,20 @@ class BMSkillBerserk extends BMSkill {
         $attackTypeArray['Berserk'] = 'Berserk';
     }
 
-    public static function incompatible_attack_types($args = NULL) {
+    /**
+     * Attack types incompatible with this skill type
+     *
+     * @return array
+     */
+    public static function incompatible_attack_types() {
         return array('Skill');
     }
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture(&$args) {
         if (!is_array($args)) {
             return;

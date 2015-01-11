@@ -17,10 +17,20 @@ class BMSkillRadioactive extends BMSkill {
      */
     public static $hooked_methods = array('capture', 'be_captured');
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture(&$args) {
         self::radioactive_split($args);
     }
 
+    /**
+     * Hooked method applied when a die is being captured
+     *
+     * @param array $args
+     */
     public static function be_captured(&$args) {
         self::radioactive_split($args);
     }

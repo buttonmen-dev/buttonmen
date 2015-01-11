@@ -18,6 +18,11 @@ class BMSkillFire extends BMSkill {
     public static $hooked_methods = array('attack_list',
                                           'assist_values');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
