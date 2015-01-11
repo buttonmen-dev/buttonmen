@@ -17,6 +17,11 @@ class BMSkillOrnery extends BMSkill {
      */
     public static $hooked_methods = array('perform_end_of_turn_die_actions');
 
+    /**
+     * Hooked method applied at the end of turn
+     *
+     * @param array $args
+     */
     public static function perform_end_of_turn_die_actions(&$args) {
         if (!is_array($args)) {
             return;

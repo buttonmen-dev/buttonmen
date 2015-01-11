@@ -17,6 +17,11 @@ class BMSkillPoison extends BMSkill {
      */
     public static $hooked_methods = array("score_value");
 
+    /**
+     * Hooked method applied when determining the score value of a die
+     *
+     * @param array $args
+     */
     public static function score_value($args) {
         assert(array_key_exists('mult', $args));
         assert(array_key_exists('div', $args));

@@ -37,6 +37,11 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 
+    /**
+     * Hooked method applied when adding the skill
+     *
+     * @param array $args
+     */
     public static function add_skill($args) {
         if (!array_key_exists('die', $args)) {
             return;
@@ -45,6 +50,11 @@ class BMSkillKonstant extends BMSkill {
         $args['die']->doesReroll = FALSE;
     }
 
+    /**
+     * Hooked method applied when determining the attack values of a die
+     *
+     * @param array $args
+     */
     public static function attack_values($args) {
         if (!is_array($args) ||
             !array_key_exists('attackType', $args) ||
@@ -74,6 +84,11 @@ class BMSkillKonstant extends BMSkill {
         );
     }
 
+    /**
+     * Hooked method applied when calculating a skill attack hit table
+     *
+     * @param array $args
+     */
     public static function hit_table($args) {
         // validate arguments
         assert(

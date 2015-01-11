@@ -35,6 +35,11 @@ class BMSkillRadioactive extends BMSkill {
         self::radioactive_split($args);
     }
 
+    /**
+     * Hooked method applied when a die splits due to radioactive
+     *
+     * @param array $args
+     */
     protected static function radioactive_split(&$args) {
         if (!is_array($args)) {
             return;

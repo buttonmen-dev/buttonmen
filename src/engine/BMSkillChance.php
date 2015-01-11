@@ -17,6 +17,12 @@ class BMSkillChance extends BMSkill {
      */
     public static $hooked_methods = array("react_to_initiative");
 
+    /**
+     * Hooked method applied when checking if it is possible to react to initiative
+     *
+     * @param array $args
+     * @return boolean
+     */
     public static function react_to_initiative() {
         return TRUE;
     }

@@ -18,6 +18,11 @@ class BMSkillValue extends BMSkill {
     public static $hooked_methods =
         array('add_skill', 'remove_skill', 'score_value', 'capture');
 
+    /**
+     * Hooked method applied when adding the skill
+     *
+     * @param array $args
+     */
     public static function add_skill($args) {
         assert(array_key_exists('die', $args));
 
@@ -25,6 +30,11 @@ class BMSkillValue extends BMSkill {
         $die->add_flag('ValueRelevantToScore');
     }
 
+    /**
+     * Hooked method applied when removing the skill
+     *
+     * @param array $args
+     */
     public static function remove_skill($args) {
         assert(array_key_exists('die', $args));
 
@@ -35,6 +45,11 @@ class BMSkillValue extends BMSkill {
         $die->remove_flag('ValueRelevantToScore');
     }
 
+    /**
+     * Hooked method applied when determining the score value of a die
+     *
+     * @param array $args
+     */
     public static function score_value($args) {
         assert(array_key_exists('scoreValue', $args));
         assert(array_key_exists('value', $args));

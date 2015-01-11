@@ -17,6 +17,11 @@ class BMSkillSlow extends BMSkill {
      */
     public static $hooked_methods = array('initiative_value');
 
+    /**
+     * Hooked method applied when determining the initiative value of a die
+     *
+     * @param array $args
+     */
     public static function initiative_value(&$args) {
         if (!is_array($args)) {
             return;

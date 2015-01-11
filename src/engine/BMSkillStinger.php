@@ -18,6 +18,11 @@ class BMSkillStinger extends BMSkill {
     public static $hooked_methods = array('initiative_value',
                                           'attack_values');
 
+    /**
+     * Hooked method applied when determining the initiative value of a die
+     *
+     * @param array $args
+     */
     public static function initiative_value(&$args) {
         if (!is_array($args)) {
             return;
@@ -27,6 +32,11 @@ class BMSkillStinger extends BMSkill {
         $args['initiativeValue'] = -1;
     }
 
+    /**
+     * Hooked method applied when determining the attack values of a die
+     *
+     * @param array $args
+     */
     public static function attack_values($args) {
         if (!is_array($args) ||
             !array_key_exists('attackType', $args) ||

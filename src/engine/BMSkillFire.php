@@ -35,6 +35,11 @@ class BMSkillFire extends BMSkill {
         }
     }
 
+    /**
+     * Hooked method applied when determining fire assist values
+     *
+     * @param array $args
+     */
     public static function assist_values(&$args) {
         if (!is_array($args)) {
             return;

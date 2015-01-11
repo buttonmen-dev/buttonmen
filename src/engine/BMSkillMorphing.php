@@ -50,6 +50,12 @@ class BMSkillMorphing extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
+    /**
+     * Check whether the dice specified in the attack are possibly valid
+     *
+     * @param array $args
+     * @return boolean
+     */
     protected static function are_dice_in_attack_valid($args) {
         if (!is_array($args['attackers']) ||
             (0 == count($args['attackers'])) ||
@@ -61,6 +67,13 @@ class BMSkillMorphing extends BMSkill {
         return TRUE;
     }
 
+    /**
+     * Create a die clone due to morphing or doppelganger
+     *
+     * @param BMDie $att
+     * @param BMDie $def
+     * @return BMDie
+     */
     protected static function create_morphing_clone_target($att, $def) {
         $newDie = clone $def;
         unset($newDie->value);

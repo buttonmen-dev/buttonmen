@@ -17,6 +17,11 @@ class BMSkillReserve extends BMSkill {
      */
     public static $hooked_methods = array('does_skip_swing_request');
 
+    /**
+     * Hooked method applied when checking if a die should request a swing value
+     *
+     * @return string
+     */
     public static function does_skip_swing_request() {
         return 'does_skip_swing_request';
     }
