@@ -17,6 +17,11 @@ class BMBtnSkillEcho extends BMBtnSkill {
      */
     public static $hooked_methods = array('specify_recipes');
 
+    /**
+     * Hooked method applied when specifying recipes
+     *
+     * @param array $args
+     */
     public static function specify_recipes(array $args) {
         $areAllArgsPresent =
             array_key_exists('button', $args) &&

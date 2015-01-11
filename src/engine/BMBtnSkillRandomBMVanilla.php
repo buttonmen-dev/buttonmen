@@ -18,6 +18,12 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
      */
     public static $hooked_methods = array('specify_recipes');
 
+    /**
+     * Hooked method applied when specifying recipes
+     *
+     * @param array $args
+     * @return boolean
+     */
     public static function specify_recipes(array $args) {
         if (!parent::specify_recipes($args)) {
             return FALSE;

@@ -17,8 +17,19 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
      */
     public static $hooked_methods = array('specify_recipes');
 
+    /**
+     * Array of standard die sizes found in Soldiers
+     *
+     * @var array
+     */
     public static $die_sizes_soldiers = array(4, 6, 8, 10, 12, 20);
 
+    /**
+     * Hooked method applied when specifying recipes
+     *
+     * @param array $args
+     * @return boolean
+     */
     public static function specify_recipes(array $args) {
         // implement functionality that will be shared by all child classes
         if (!array_key_exists('button', $args) ||

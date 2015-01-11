@@ -17,6 +17,11 @@ class BMBtnSkillGiant extends BMBtnSkill {
      */
     public static $hooked_methods = array('is_button_slow');
 
+    /**
+     * Hooked method applied when checking initiative
+     *
+     * @return array
+     */
     public static function is_button_slow() {
         return array('is_button_slow' => TRUE);
     }
