@@ -1,15 +1,16 @@
 <?php
 /**
- * BMBtnSkillRandomBMVanilla: Code specific to RandomBMVanilla
+ * BMBtnSkillRandomBMFixed: Code specific to RandomBMFixed
  *
  * @author: james
  */
 
 /**
- * This class currently supports the special skills of RandomBMVanilla, which has
- * vanilla random recipes (5 dice, no swing dice, no skills)
+ * This class currently supports the special skills of RandomBMFixed, which has
+ * fixed random recipes (5 dice, no swing dice, two of them having a single skill
+ * chosen independently from c, f, and d)
  */
-class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
+class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
     public static $hooked_methods = array('specify_recipes');
 
     public static function specify_recipes(array $args) {
@@ -20,9 +21,9 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
         $button = $args['button'];
         $nDice = 5;
         $dieSizeArray = parent::generate_die_sizes($nDice);
-        $dieSkillLettersArray = array_fill(0, $nDice, NULL);
-
+        $dieSkillLettersArray = parent::generate_die_skills(5, array('c', 'f', 'd'), 2, 1);
         $button->recipe = parent::generate_die_recipe($dieSizeArray, $dieSkillLettersArray);
+
         return TRUE;
     }
 }

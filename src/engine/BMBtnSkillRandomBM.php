@@ -29,4 +29,69 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         $button->hasAlteredRecipe = TRUE;
         return TRUE;
     }
+
+    protected static function generate_die_sizes($nDice) {
+        $dieSizeArray = array_fill(0, $nDice, NULL);
+        $validDieSizeArray = self::$die_sizes_soldiers;
+        $nValidDieSizes = count($validDieSizeArray);
+
+        foreach ($dieSizeArray as &$dieSize) {
+            $dieSize = $validDieSizeArray[bm_rand(0, $nValidDieSizes - 1)];
+        }
+
+        sort($dieSizeArray, SORT_NUMERIC);
+
+        return $dieSizeArray;
+    }
+
+    protected static function generate_die_skills(
+        $nDice,
+        array $validDieSkillLetterArray,
+        $nSkillsToBeGenerated,
+        $maxSkillsPerDie = PHP_INT_MAX
+    ) {
+        $dieSkillArrayArray = array_fill(0, $nDice, array());
+        $nSkills = count($validDieSkillLetterArray);
+        $nSkillsGenerated = 0;
+
+        while ($nSkillsGenerated < $nSkillsToBeGenerated) {
+            $skillChosen = $validDieSkillLetterArray[bm_rand(0, $nSkills - 1)];
+            $dieIdx = bm_rand(0, $nDice - 1);
+            if ((count($dieSkillArrayArray[$dieIdx]) < $maxSkillsPerDie) &&
+                (!in_array($skillChosen, $dieSkillArrayArray[$dieIdx]))) {
+                // add the $skillChosen to the index to ensure that the final
+                // string is sorted in alphabetical order
+                $dieSkillArrayArray[$dieIdx][$skillChosen] = $skillChosen;
+                $nSkillsGenerated++;
+            }
+        }
+
+        $dieSkillLettersArray = array_fill(0, $nDice, '');
+
+        foreach ($dieSkillLettersArray as $dieIdx => &$dieSkillLetters) {
+            $dieSkillLetters = implode('', $dieSkillArrayArray[$dieIdx]);
+        }
+
+        return $dieSkillLettersArray;
+    }
+
+    protected static function generate_die_recipe(
+        array $dieSizeArray,
+        array $dieSkillLettersArray
+    ) {
+        if (count($dieSizeArray) != count($dieSkillLettersArray)) {
+            throw new LogicException('die sizes and skills must have the same length');
+        }
+
+        $dieRecipeArray = array_fill(0, count($dieSizeArray), NULL);
+
+        foreach ($dieRecipeArray as $dieIdx => &$dieRecipe) {
+            $dieRecipe = $dieSkillLettersArray[$dieIdx] .
+                         '(' .
+                         $dieSizeArray[$dieIdx] .
+                         ')';
+        }
+
+        return implode(' ', $dieRecipeArray);
+    }
 }
