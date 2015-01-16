@@ -4480,6 +4480,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
+     *
      * @depends test_request_savePlayerInfo
      *
      * This scenario tests some simple auxiliary, swing, and focus functionality
@@ -4557,11 +4559,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(),
             'Chose to add auxiliary die',
             $gameId, 'add', 5);
+
+        $expData004 = $expData;
+        $expData004['currentPlayerIdx'] = 1;
+        $expData004['playerDataArray'][0]['playerColor'] = '#ddffdd';
+        $expData004['playerDataArray'][1]['playerColor'] = '#dd99dd';
+
+        // the API must tell the truth about whether the active player has
+        // responded to auxiliary
+        $expData004['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData004['playerDataArray'][1]['activeDieArray'][5]['properties'] =
+            array('AddAuxiliary');
+
+        $retval = $this->verify_api_loadGameData($expData004, $gameId, 10);
+
         $_SESSION = $this->mock_test_user_login('responder003');
 
-	// the API should lie about whether a player has responded to auxiliary
-	// to avoid information leaks
-	$expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        // the API should lie about whether another player has responded to auxiliary
+        // to avoid information leaks
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);

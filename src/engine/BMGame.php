@@ -2879,7 +2879,7 @@ class BMGame {
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
-                'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx),
+                'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $roundScoreArray[$playerIdx],
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $this->gameScoreArrayArray[$playerIdx],
@@ -2948,7 +2948,7 @@ class BMGame {
         $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
         $subdieArrayArray = $this->get_subdieArrayArray($requestingPlayerIdx);
         $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
-        $diePropertiesArrayArray = $this->get_diePropsArrayArray();
+        $diePropertiesArrayArray = $this->get_diePropsArrayArray($requestingPlayerIdx);
         $dieRecipeArrayArray = $this->get_dieRecipeArrayArray();
         $dieDescriptionArrayArray = $this->get_dieDescriptionArrayArray($requestingPlayerIdx);
 
@@ -3183,9 +3183,10 @@ class BMGame {
     /**
      * Array of arrays of die properties
      *
+     * @param int $requestingPlayerIdx
      * @return array
      */
-    protected function get_diePropsArrayArray() {
+    protected function get_diePropsArrayArray($requestingPlayerIdx) {
         $diePropsArrayArray = array();
 
         if (isset($this->activeDieArrayArray)) {
@@ -3199,7 +3200,8 @@ class BMGame {
                     if (!empty($die->flagList)) {
                         foreach (array_keys($die->flagList) as $flag) {
                             // actively lie about auxiliary choices to avoid leaking info
-                            if ('AddAuxiliary' == $flag) {
+                            if (('AddAuxiliary' == $flag) &&
+                                ($requestingPlayerIdx !== $playerIdx)) {
                                 continue;
                             }
                             $diePropsArrayArray[$playerIdx][$dieIdx][] = $flag;
@@ -3371,10 +3373,11 @@ class BMGame {
         return $prevOptValueArray;
     }
 
-    protected function get_waitingOnActionArray($playerIdx) {
+    protected function get_waitingOnActionArray($playerIdx, $requestingPlayerIdx) {
         // actively lie about whether a player has chosen auxiliary dice
         // to avoid leaking information
-        if (BMGameState::CHOOSE_AUXILIARY_DICE == $this->gameState) {
+        if ((BMGameState::CHOOSE_AUXILIARY_DICE == $this->gameState) &&
+            $requestingPlayerIdx !== $playerIdx) {
             return TRUE;
         }
 
