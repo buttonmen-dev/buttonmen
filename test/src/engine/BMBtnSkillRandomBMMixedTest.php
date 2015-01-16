@@ -1,8 +1,8 @@
 <?php
 
-class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillRandomBMMixedTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMBtnSkillRandomBMFixed
+     * @var BMBtnSkillRandomBMMixed
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMBtnSkillRandomBMFixed;
+        $this->object = new BMBtnSkillRandomBMMixed;
     }
 
     /**
@@ -24,7 +24,7 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMBtnSkillRandomBMFixed::specify_recipes
+     * @covers BMBtnSkillRandomBMMixed::specify_recipes
      */
     public function testSpecify_recipes_valid_args() {
         global $BM_RAND_VALS;
@@ -35,26 +35,35 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
         $this->assertEmpty($button->recipe);
 
         // choose dice with 6, 20, 10, 12, 6 sides
-        // and then choose 'f' on the third die and 'c' on the fifth die
-        $BM_RAND_VALS = array(1, 5, 3, 4, 1,    // die sizes
-                              1, 2,             // focus skill
-                              0, 4);            // chance skill
+        // then choose skills 'c', '+', and '?'
+        // then place 'c' on the 2nd die and the 1st die
+        // then place '+' on the 5th die and the 4th die
+        // then place '?' on the 2nd die and the 4th die
+        //
+        // Note: the values used to select a skill may change when new skills
+        //       become available
+        $BM_RAND_VALS = array(1, 5, 3, 4, 1,      // die sizes
+                              2, 0, 10,           // skill types
+                              1, 0,               // die indices for skill type 1
+                              4, 4, 3,            // die indices for skill type 2, including repeat
+                              1, 3);              // die indices for skill type 3
 
-        $retval = BMBtnSkillRandomBMFixed::specify_recipes($args);
+        $retval = BMBtnSkillRandomBMMixed::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('(6) (6) f(10) (12) c(20)', $button->recipe);
+
+        $this->assertEquals('c(6) c(6)? (10) +(12)? +(20)', $button->recipe);
     }
 
     /**
-     * @covers BMBtnSkillRandomBMFixed::specify_recipes
+     * @covers BMBtnSkillRandomBMMixed::specify_recipes
      */
     public function testSpecify_recipes_valid_args_already_specified() {
         $button = new BMButton;
         $button->recipe = '(4) (X)';
         $args = array('button' => $button);
-        $retval = BMBtnSkillRandomBMFixed::specify_recipes($args);
+        $retval = BMBtnSkillRandomBMMixed::specify_recipes($args);
         $this->assertFalse($retval);
         $this->assertNull($button->hasAlteredRecipe);
         $this->assertEquals('(4) (X)', $button->recipe);

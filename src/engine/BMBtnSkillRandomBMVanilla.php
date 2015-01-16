@@ -22,7 +22,7 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
         $dieSizeArray = parent::generate_die_sizes($nDice);
         $dieSkillLettersArray = array_fill(0, $nDice, NULL);
 
-        $button->recipe = parent::generate_die_recipe($dieSizeArray, $dieSkillLettersArray);
+        $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLettersArray);
         return TRUE;
     }
 }

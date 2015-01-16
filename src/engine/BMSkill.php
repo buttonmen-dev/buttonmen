@@ -67,7 +67,7 @@ class BMSkill {
      * @param string $skillLetter
      * @return string
      */
-    private static function expand_skill_letter($skillLetter) {
+    protected static function expand_skill_letter($skillLetter) {
         $skillLetter = array_search(
             $skillLetter,
             BMSkill::skill_name_abbreviation_mapping()
@@ -132,6 +132,10 @@ class BMSkill {
                      'Trip'         => 't',
                      'Value'        => 'v',
                      'Weak'         => 'h');
+    }
+
+    public static function all_skill_chars() {
+        return array_values(self::skill_name_abbreviation_mapping());
     }
 
     /**

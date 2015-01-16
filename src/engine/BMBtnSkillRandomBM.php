@@ -30,6 +30,27 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         return TRUE;
     }
 
+    public static function randomly_select_skills(array $possibleSkillArray, $nSkills) {
+        if (count($possibleSkillArray) < $nSkills) {
+            throw new LogicException('Not enough possible skills to select from');
+        }
+
+        $skillArray = array();
+        $nPossibleSkills = count($possibleSkillArray);
+
+        while (count($skillArray) < $nSkills) {
+            $skillArray[$possibleSkillArray[bm_rand(0, $nPossibleSkills - 1)]] = TRUE;
+        }
+
+        return array_keys($skillArray);
+    }
+
+    /**
+     * Generates an array of die sizes
+     *
+     * @param int $nDice
+     * @return array
+     */
     protected static function generate_die_sizes($nDice) {
         $dieSizeArray = array_fill(0, $nDice, NULL);
         $validDieSizeArray = self::$die_sizes_soldiers;
@@ -44,54 +65,102 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         return $dieSizeArray;
     }
 
+    /**
+     * Generates an array of skill strings
+     *
+     * @param int $nDice
+     * @param array $validDieSkillLetterArray
+     * @param int $nSkillsToBeGeneratedRandomly
+     * @param int $nTimesToGenerateAllSkills
+     * @param int $maxSkillsPerDie
+     * @return array
+     */
     protected static function generate_die_skills(
-        $nDice,
-        array $validDieSkillLetterArray,
-        $nSkillsToBeGenerated,
-        $maxSkillsPerDie = PHP_INT_MAX
+        $nDice,                             // number of dice in total
+        array $validDieSkillLetterArray,    // skill letters to be used
+        $nSkillsToBeGeneratedRandomly,      // number of times to choose a skill at random
+        $nTimesToGenerateAllSkills,         // number of times to generate all skills
+        $maxSkillsPerDie = PHP_INT_MAX      // maximum number of skills per die
     ) {
-        $dieSkillArrayArray = array_fill(0, $nDice, array());
+        if ($nDice*$maxSkillsPerDie < $nSkillsToBeGeneratedRandomly +
+                                      $nTimesToGenerateAllSkills*count($validDieSkillLetterArray)) {
+            throw new LogicException('Each die would have too many skills');
+        }
+
+        $dieSkillLetterArrayArray = array_fill(0, $nDice, array());
+
+        foreach ($validDieSkillLetterArray as $skillLetter) {
+            for ($nSkillIdx = 0; $nSkillIdx < $nTimesToGenerateAllSkills; $nSkillIdx++) {
+                $assigned = FALSE;
+                while (!$assigned) {
+                    $dieIdx = bm_rand(0, $nDice - 1);
+                    if ((count($dieSkillLetterArrayArray[$dieIdx]) < $maxSkillsPerDie) &&
+                        (!in_array($skillLetter, $dieSkillLetterArrayArray[$dieIdx]))) {
+                        // add the $skillLetter to the index to ensure that the final
+                        // string is sorted in alphabetical order
+                        $dieSkillLetterArrayArray[$dieIdx][$skillLetter] = $skillLetter;
+                        $assigned = TRUE;
+                    }
+                }
+            }
+        }
+
         $nSkills = count($validDieSkillLetterArray);
         $nSkillsGenerated = 0;
 
-        while ($nSkillsGenerated < $nSkillsToBeGenerated) {
+        while ($nSkillsGenerated < $nSkillsToBeGeneratedRandomly) {
             $skillChosen = $validDieSkillLetterArray[bm_rand(0, $nSkills - 1)];
             $dieIdx = bm_rand(0, $nDice - 1);
-            if ((count($dieSkillArrayArray[$dieIdx]) < $maxSkillsPerDie) &&
-                (!in_array($skillChosen, $dieSkillArrayArray[$dieIdx]))) {
+            if ((count($dieSkillLetterArrayArray[$dieIdx]) < $maxSkillsPerDie) &&
+                (!in_array($skillChosen, $dieSkillLetterArrayArray[$dieIdx]))) {
                 // add the $skillChosen to the index to ensure that the final
                 // string is sorted in alphabetical order
-                $dieSkillArrayArray[$dieIdx][$skillChosen] = $skillChosen;
+                $dieSkillLetterArrayArray[$dieIdx][$skillChosen] = $skillChosen;
                 $nSkillsGenerated++;
             }
         }
 
-        $dieSkillLettersArray = array_fill(0, $nDice, '');
-
-        foreach ($dieSkillLettersArray as $dieIdx => &$dieSkillLetters) {
-            $dieSkillLetters = implode('', $dieSkillArrayArray[$dieIdx]);
-        }
-
-        return $dieSkillLettersArray;
+        return $dieSkillLetterArrayArray;
     }
 
-    protected static function generate_die_recipe(
+    /**
+     * Generates random recipe
+     *
+     * @param array $dieSizeArray
+     * @param array $dieSkillLetterArrayArray
+     * @return string
+     */
+    protected static function generate_recipe(
         array $dieSizeArray,
-        array $dieSkillLettersArray
+        array $dieSkillLetterArrayArray
     ) {
-        if (count($dieSizeArray) != count($dieSkillLettersArray)) {
+        if (count($dieSizeArray) != count($dieSkillLetterArrayArray)) {
             throw new LogicException('die sizes and skills must have the same length');
         }
 
         $dieRecipeArray = array_fill(0, count($dieSizeArray), NULL);
 
         foreach ($dieRecipeArray as $dieIdx => &$dieRecipe) {
-            $dieRecipe = $dieSkillLettersArray[$dieIdx] .
-                         '(' .
+            $dieRecipe = '(' .
                          $dieSizeArray[$dieIdx] .
                          ')';
+
+            if (!empty($dieSkillLetterArrayArray[$dieIdx])) {
+                foreach ($dieSkillLetterArrayArray[$dieIdx] as $skillLetter) {
+                    $skillName = 'BMSkill' . BMSkill::expand_skill_string($skillLetter)[0];
+                    $skill = new $skillName;
+
+                    if ($skill::do_print_skill_preceding()) {
+                        $dieRecipe = $skillLetter . $dieRecipe;
+                    } else {
+                        $dieRecipe = $dieRecipe . $skillLetter;
+                    }
+                }
+            }
         }
 
-        return implode(' ', $dieRecipeArray);
+        $recipe = implode(' ', $dieRecipeArray);
+
+        return $recipe;
     }
 }
