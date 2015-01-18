@@ -26,7 +26,8 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
             5,
             parent::randomly_select_skills(BMSkill::all_skill_chars(), 3),
             0,
-            2);
+            2
+        );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
 
         return TRUE;

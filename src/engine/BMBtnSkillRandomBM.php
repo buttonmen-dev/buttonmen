@@ -68,19 +68,19 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
     /**
      * Generates an array of skill strings
      *
-     * @param int $nDice
-     * @param array $validDieSkillLetterArray
-     * @param int $nSkillsToBeGeneratedRandomly
-     * @param int $nTimesToGenerateAllSkills
-     * @param int $maxSkillsPerDie
+     * @param int                                $nDice number of dice in total
+     * @param array $validDieSkillLetterArray    skill letters to be used
+     * @param int $nSkillsToBeGeneratedRandomly  number of times to choose a skill at random
+     * @param int $nTimesToGenerateAllSkills     number of times to generate all skills
+     * @param int $maxSkillsPerDie               maximum number of skills per die
      * @return array
      */
     protected static function generate_die_skills(
-        $nDice,                             // number of dice in total
-        array $validDieSkillLetterArray,    // skill letters to be used
-        $nSkillsToBeGeneratedRandomly,      // number of times to choose a skill at random
-        $nTimesToGenerateAllSkills,         // number of times to generate all skills
-        $maxSkillsPerDie = PHP_INT_MAX      // maximum number of skills per die
+        $nDice,
+        array $validDieSkillLetterArray,
+        $nSkillsToBeGeneratedRandomly,
+        $nTimesToGenerateAllSkills,
+        $maxSkillsPerDie = PHP_INT_MAX      
     ) {
         if ($nDice*$maxSkillsPerDie < $nSkillsToBeGeneratedRandomly +
                                       $nTimesToGenerateAllSkills*count($validDieSkillLetterArray)) {
