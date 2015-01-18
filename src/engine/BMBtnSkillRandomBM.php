@@ -147,8 +147,8 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
 
             if (!empty($dieSkillLetterArrayArray[$dieIdx])) {
                 foreach ($dieSkillLetterArrayArray[$dieIdx] as $skillLetter) {
-                    $skillNameArray = 'BMSkill' . BMSkill::expand_skill_string($skillLetter);
-                    $skillName = $skillNameArray[0];
+                    $skillNameArray = BMSkill::expand_skill_string($skillLetter);
+                    $skillName = 'BMSkill' . $skillNameArray[0];
                     $skill = new $skillName;
 
                     if ($skill::do_print_skill_preceding()) {
