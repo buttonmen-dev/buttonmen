@@ -80,7 +80,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         array $validDieSkillLetterArray,
         $nSkillsToBeGeneratedRandomly,
         $nTimesToGenerateAllSkills,
-        $maxSkillsPerDie = PHP_INT_MAX      
+        $maxSkillsPerDie = PHP_INT_MAX
     ) {
         if ($nDice*$maxSkillsPerDie < $nSkillsToBeGeneratedRandomly +
                                       $nTimesToGenerateAllSkills*count($validDieSkillLetterArray)) {
@@ -147,7 +147,8 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
 
             if (!empty($dieSkillLetterArrayArray[$dieIdx])) {
                 foreach ($dieSkillLetterArrayArray[$dieIdx] as $skillLetter) {
-                    $skillName = 'BMSkill' . BMSkill::expand_skill_string($skillLetter)[0];
+                    $skillNameArray = 'BMSkill' . BMSkill::expand_skill_string($skillLetter);
+                    $skillName = $skillNameArray[0];
                     $skill = new $skillName;
 
                     if ($skill::do_print_skill_preceding()) {
