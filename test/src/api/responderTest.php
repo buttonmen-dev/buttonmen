@@ -8773,9 +8773,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 - responder004 performed Trip attack using [t(T=2,T=2):3] against [(5):5]
         $_SESSION = $this->mock_test_user_login('responder004');
-        // BUG: there should only be 3 rolls, 2 for the trip attack and 1 for the defender, not 5
         $this->verify_api_submitTurn(
-            array(2, 2, 4, 2, 1),
+            array(2, 2, 4),
             'responder004 performed Trip attack using [t(T=2,T=2):3] against [(5):5]; Attacker t(T=2,T=2) rerolled 3 => 4; Defender (5) rerolled 5 => 4, was captured. ',
             $retval, array(array(0, 2), array(1, 4)),
             $gameId, 1, 'Trip', 1, 0, '');
@@ -8784,15 +8783,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Shadow', 'Speed', 'Trip'),
             array(16, 23.5, -5.0, 5.0),
-            // BUG: value should be 4
-            array(array(1, 4, array('value' => 3, 'properties' => array('JustPerformedTripAttack', 'Twin')))),
+            array(array(1, 4, array('value' => 4, 'properties' => array('JustPerformedTripAttack', 'Twin')))),
             array(array(0, 2)),
             array(),
             array(array(1, array('value' => 4, 'sides' => 5, 'recipe' => '(5)', 'properties' => array('WasJustCaptured'))))
         );
         $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'][0]['value'] = 2;
-        // BUG: should be 2
-        $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'][1]['value'] = 2;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Trip attack using [t(T=2,T=2):3] against [(5):5]; Attacker t(T=2,T=2) rerolled 3 => 4; Defender (5) rerolled 5 => 4, was captured'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
