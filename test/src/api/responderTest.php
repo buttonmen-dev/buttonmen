@@ -8671,7 +8671,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This game tries to reproduce a bug with trip twin dice.
      */
