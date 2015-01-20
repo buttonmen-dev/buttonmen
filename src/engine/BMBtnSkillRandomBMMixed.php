@@ -19,12 +19,17 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
             return FALSE;
         }
 
+        // actively exclude problematic skills
+        $excludedSkillArray = array('Auxiliary', 'Reserve');
+        $excludedSkillCharArray = array_map('BMSkill::abbreviate_skill_name', $excludedSkillArray);
+        $skillCharArray = array_merge(array_diff(BMSkill::all_skill_chars(), $excludedSkillCharArray));
+
         $button = $args['button'];
         $nDice = 5;
         $dieSizeArray = parent::generate_die_sizes($nDice);
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills(BMSkill::all_skill_chars(), 3),
+            parent::randomly_select_skills($skillCharArray, 3),
             0,
             2
         );
