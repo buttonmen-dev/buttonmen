@@ -183,7 +183,7 @@ abstract class BMAttack {
     // check if any of the attackers is dizzy
     public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
-            if ($attacker->dizzy) {
+            if ($attacker->has_flag('Dizzy')) {
                 $this->validationMessage = 'Dizzy dice cannot be used as attacking dice.';
                 return TRUE;
             }
@@ -215,7 +215,7 @@ abstract class BMAttack {
 
         // set attack defaults
         foreach ($attackers as &$att) {
-            $att->hasAttacked = TRUE;
+            $att->add_flag('IsAttacker');
         }
 
         foreach ($defenders as &$def) {
