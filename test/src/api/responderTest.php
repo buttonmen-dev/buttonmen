@@ -8654,6 +8654,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 'add', 5);
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['properties'] = array('AddAuxiliary');
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
