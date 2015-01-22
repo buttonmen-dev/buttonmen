@@ -229,6 +229,29 @@ class BMGame {
             return;
         }
 
+        $this->gameState = BMGameState::SPECIFY_RECIPES;
+    }
+
+    protected function do_next_step_specify_recipes() {
+        if (isset($this->buttonArray)) {
+            foreach ($this->buttonArray as $buttonIdx => $button) {
+                $oppButtonIdx = ($buttonIdx + 1) % 2;
+                $button->run_hooks(
+                    'specify_recipes',
+                    array('button' => $button,
+                          'oppbutton' => $this->buttonArray[$oppButtonIdx])
+                );
+            }
+        }
+    }
+
+    protected function update_game_state_specify_recipes() {
+        foreach ($this->buttonArray as $button) {
+            if (empty($button->recipe)) {
+                return;
+            }
+        }
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
@@ -2422,30 +2445,6 @@ class BMGame {
             if ($button instanceof BMButton) {
                 $button->playerIdx = $playerIdx;
                 $button->ownerObject = $this;
-            }
-        }
-        foreach ($this->buttonArray as $playerIdx => &$button) {
-            if ($button instanceof BMButton) {
-                $oppIdx = ($playerIdx + 1) % 2;
-                $oppButton = $this->buttonArray[$oppIdx];
-                if ($oppButton instanceof BMButton) {
-                    $oppButtonName = $oppButton->name;
-                    $oppButtonRecipe = $oppButton->recipe;
-                } else {
-                    $oppButtonName = '';
-                    $oppButtonRecipe = '';
-                }
-                $hookResult = $button->run_hooks(
-                    'load_buttons',
-                    array('name' => $button->name,
-                          'recipe' => $button->recipe,
-                          'oppname' => $oppButtonName,
-                          'opprecipe' => $oppButtonRecipe)
-                );
-                if (isset($hookResult['BMBtnSkill'.$button->name]['recipe'])) {
-                    $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
-                    $button->hasAlteredRecipe = TRUE;
-                }
             }
         }
     }
