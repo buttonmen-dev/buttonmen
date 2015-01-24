@@ -34,11 +34,11 @@ class BMSkillOrnery extends BMSkill {
 
         $die = $args['die'];
 
-        if ($die->hasAttacked) {
+        if ($die->has_flag('IsAttacker')) {
             return;
         }
 
-        if ($die->unavailable) {
+        if ($die->has_skill('Warrior')) {
             return;
         }
 
