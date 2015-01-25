@@ -825,7 +825,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
 
-        $this->object->save_join_game_decision(self::$userId2WithoutAutopass, $gameId, TRUE);
+        $this->object->save_join_game_decision(self::$userId2WithoutAutopass, $gameId, 'accept');
         $game = self::load_game($gameId);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);

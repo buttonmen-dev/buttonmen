@@ -614,8 +614,8 @@ class BMInterface {
     }
 
     public function save_join_game_decision($playerId, $gameId, $decision) {
-        if (!is_bool($decision)) {
-            throw new InvalidArgumentException('decision must be boolean');
+        if (('accept' != $decision) && ('reject' != $decision)) {
+            throw new InvalidArgumentException('decision must be either accept or reject');
         }
 
         $game = $this->load_game($gameId);
@@ -634,11 +634,12 @@ class BMInterface {
             return;
         }
 
-        $game->hasPlayerAcceptedGameArray[$playerIdx] = $decision;
+        $decisionFlag = ('accept' == $decision);
+        $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
 
         $this->save_game($game);
 
-        if ($decision) {
+        if ($decisionFlag) {
             $this->message = "Joined game $gameId";
         } else {
             $this->message = "Rejected game $gameId";
