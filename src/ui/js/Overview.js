@@ -422,7 +422,7 @@ Overview.pageAddIntroText = function() {
 
   infopar = $('<p>');
   infopar.append(
-    'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games: ');
   infopar.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',
