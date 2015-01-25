@@ -746,8 +746,7 @@ test("test_Game.actionPlayTurnInactive_chat_editable", function(assert) {
     var item = document.getElementById('attack_type_select');
     assert.equal(item, null, "#attack_type_select is not set");
     var item = document.getElementById('game_chat');
-    // Once #1481 is fixed, the item should match activityPrevChat instead
-    assert.equal($(item).val(), serverPrevChat,
+    assert.equal($(item).val(), activityPrevChat,
       'Previous text is retained by game chat');
     assert.ok(Game.form, "Game.form is set");
     start();

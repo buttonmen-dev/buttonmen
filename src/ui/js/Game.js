@@ -805,7 +805,7 @@ Game.actionPlayTurnInactive = function() {
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<br>'));
 
-  if (Api.game.chatEditable) {
+  if (Api.game.chatEditable && !Game.activity.chat) {
     Game.activity.chat = Api.game.chatLog[0].message;
   }
   var chatdiv = $('<div>');
@@ -2079,7 +2079,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
       'text': dieval,
       'title': die.description,
     };
-    if ((die.properties.indexOf('dizzy') >= 0) &&
+    if ((die.properties.indexOf('Dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
       if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
@@ -2090,7 +2090,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
         dieopts.title += '. (This die is dizzy because it has been turned ' +
           'down. It can\'t be used during this attack.)';
       }
-    } else if ((die.properties.indexOf('disabled') >= 0) &&
+    } else if ((die.properties.indexOf('Disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
       dieopts.title += '. (This chance die cannot be rerolled again ' +
@@ -2298,7 +2298,7 @@ Game.gamePlayerDice = function(player, player_active) {
     // is active and this particular die is not dizzy
     var clickable;
     if (player_active) {
-      if (die.properties.indexOf('dizzy') >= 0) {
+      if (die.properties.indexOf('Dizzy') >= 0) {
         clickable = false;
       } else {
         clickable = true;

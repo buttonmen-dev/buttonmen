@@ -2283,7 +2283,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
         $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
-        $this->assertTrue($game->activeDieArrayArray[0][5]->selected);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
 
         // player 1 tries incorrectly to act again
         $this->assertFalse(
@@ -2368,7 +2368,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
         $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
-        $this->assertTrue($game->activeDieArrayArray[0][5]->selected);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
 
         $this->assertTrue(
             $this->object->react_to_auxiliary(
