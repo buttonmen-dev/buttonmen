@@ -20,6 +20,7 @@
 
                 try {
                     // drop database
+                    print "Deleting database $dbname<br>";
                     $query = "DROP DATABASE IF EXISTS `$dbname`;";
                     $statement = $conn->prepare($query);
                     $statement->execute();
@@ -28,6 +29,7 @@
                 }
 
                 // recreate database
+                print "Creating database $dbname<br>";
                 $query = "CREATE DATABASE `$dbname`;".
                          "CREATE USER :user@:host IDENTIFIED BY :pass;".
                          "GRANT ALL ON `$dbname`.* TO :user@:host;".
