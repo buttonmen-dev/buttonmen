@@ -5,14 +5,43 @@
 <body>
     <?php
 
+        recreate_database('buttonmen');
+        recreate_database('buttonmen_test');
+
         $conn = db_connect('buttonmen');
         run_all_sql_files($conn);
 
         $conn = db_connect('buttonmen_test');
         run_all_sql_files($conn);
 
+        function recreate_database($dbname) {
+            try {
+                $conn = db_connect($dbname);
+
+                try {
+                    // drop database
+                    $query = "DROP DATABASE IF EXISTS `$dbname`;";
+                    $statement = $conn->prepare($query);
+                    $statement->execute();
+                } catch (PDOException $e) {
+                    var_dump("drop of database $dbname failed");
+                }
+
+                // recreate database
+                $query = "CREATE DATABASE `$dbname`;".
+                         "CREATE USER :user@:host IDENTIFIED BY :pass;".
+                         "GRANT ALL ON `$dbname`.* TO :user@:host;".
+                         "FLUSH PRIVILEGES;";
+                $statement = $conn->prepare($query);
+                $statement->execute(array(':user' => 'root',
+                                          ':pass' => 'root',
+                                          ':host' => 'localhost'));
+            } catch (PDOException $e) {
+                var_dump($e);
+            }
+        }
+
         function run_all_sql_files($conn) {
-            run_sql_file($conn, "../database/drop_all_tables_and_views.sql");
             run_sql_file($conn, "../database/schema.config.sql");
             run_sql_file($conn, "../database/schema.button.sql");
             run_sql_file($conn, "../database/schema.player.sql");
@@ -75,12 +104,22 @@
             $user = 'root';
             $pass = 'root';
 
-            $conn = new PDO("mysql:host=$host;port=$port;dbname=$name", $user, $pass);
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            try {
+                // try to connect to the specific database
+                $conn = new PDO("mysql:host=$host;port=$port;dbname=$name", $user, $pass);
+                $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            // Make sure auto_increment_increment is 1
-            $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
-            $statement->execute();
+                // Make sure auto_increment_increment is 1
+                $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
+                $statement->execute();
+            } catch (PDOException $ex) {
+                // connect generically, without connecting to a specific database
+                $conn = new PDO("mysql:host=$host;port=$port", $user, $pass);
+                $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
+                $statement->execute();
+            }
+
             return $conn;
         }
     ?>

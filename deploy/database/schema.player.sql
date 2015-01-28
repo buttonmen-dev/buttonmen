@@ -1,6 +1,3 @@
-DROP TABLE IF EXISTS player;
-DROP TABLE IF EXISTS player_status;
-
 CREATE TABLE player_status (
     id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(20) NOT NULL
@@ -47,7 +44,6 @@ CREATE TABLE player (
       FOREIGN KEY  (status_id)             REFERENCES player_status(id)
 );
 
-DROP TABLE IF EXISTS player_auth;
 CREATE TABLE player_auth (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     player_id  SMALLINT UNSIGNED,
@@ -55,7 +51,6 @@ CREATE TABLE player_auth (
     login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS player_verification;
 CREATE TABLE player_verification (
     player_id        SMALLINT UNSIGNED PRIMARY KEY,
     verification_key VARCHAR(253) UNIQUE NOT NULL,
