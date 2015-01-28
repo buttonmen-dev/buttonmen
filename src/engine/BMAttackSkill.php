@@ -192,6 +192,10 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        if ($def->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked';
+        }
+
         foreach ($attArray as $att) {
             if ($att->has_skill('Berserk')) {
                 $this->validationMessage = 'Berserk dice cannot perform skill attacks.';

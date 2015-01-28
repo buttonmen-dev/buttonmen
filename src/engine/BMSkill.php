@@ -131,6 +131,7 @@ class BMSkill {
                      'Stinger'      => 'g',
                      'Trip'         => 't',
                      'Value'        => 'v',
+                     'Warrior'      => '`',
                      'Weak'         => 'h');
     }
 
@@ -203,6 +204,7 @@ class BMSkill {
         // fires first
         return array('BMSkillAuxiliary',
                      'BMSkillReserve',
+                     'BMSkillWarrior',
                      'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillSpeed',
