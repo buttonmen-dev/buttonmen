@@ -388,7 +388,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $att = BMAttack::get_instance('Power');
         $die1 = new BMDie;
         $die2 = new BMDie;
-        $die2->dizzy = TRUE;
+        $die2->add_flag('Dizzy');
         $this->assertFalse($att->has_dizzy_attackers(array($die1)));
         $this->assertTrue($att->has_dizzy_attackers(array($die2)));
         $this->assertTrue($att->has_dizzy_attackers(array($die1, $die2)));
@@ -424,13 +424,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         // Basic success
         $this->assertEmpty($game->captures);
-        $this->assertFalse($die1->hasAttacked);
+        $this->assertFalse($die1->has_flag('IsAttacker'));
         $this->assertFalse($die2->captured);
 
         $this->object->validate = TRUE;
         $this->assertTrue($this->object->commit_attack($game, $att, $def));
 
-        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die1->has_flag('IsAttacker'));
         $this->assertTrue($die2->captured);
 
         // test appropriate methods were called
@@ -497,9 +497,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->commit_attack($game, $att, $def));
 
-        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die1->has_flag('IsAttacker'));
         $this->assertTrue($die2->captured);
-        $this->assertTrue($die3->hasAttacked);
+        $this->assertTrue($die3->has_flag('IsAttacker'));
         $this->assertTrue($die4->captured);
 
         // $game->capture_die
@@ -615,13 +615,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         // Basic success
         $this->assertEmpty($game->captures);
-        $this->assertFalse($die1->hasAttacked);
+        $this->assertFalse($die1->has_flag('IsAttacker'));
         $this->assertFalse($die2->captured);
 
         $this->object->validate = TRUE;
         $this->assertTrue($this->object->commit_attack($game, $att, $def));
 
-        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die1->has_flag('IsAttacker'));
         $this->assertTrue($die2->captured);
 
         // test appropriate methods were called
@@ -691,9 +691,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->commit_attack($game, $att, $def));
 
-        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die1->has_flag('IsAttacker'));
         $this->assertTrue($die2->captured);
-        $this->assertTrue($die3->hasAttacked);
+        $this->assertTrue($die3->has_flag('IsAttacker'));
         $this->assertTrue($die4->captured);
 
         // $game->capture_die
