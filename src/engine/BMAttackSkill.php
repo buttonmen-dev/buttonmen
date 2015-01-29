@@ -203,7 +203,7 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
-        if ($this->is_invalid_warrior_attack()) {
+        if ($this->is_invalid_warrior_attack($attArray)) {
             // validation message set within $this->is_invalid_warrior_attack()
             return FALSE;
         }
@@ -231,7 +231,7 @@ class BMAttackSkill extends BMAttack {
         }
 
         // check that there is at least one non-warrior die taking part
-        if (1 == count($args['attackers'])) {
+        if (1 == count($attArray)) {
             $this->validationMessage = 'There must be at least one non-Warrior attacker';
             return TRUE;
         }
