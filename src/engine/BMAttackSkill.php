@@ -203,6 +203,37 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
+        if ($this->is_invalid_warrior_attack()) {
+            // validation message set within $this->is_invalid_warrior_attack()
+            return FALSE;
+        }
+
         return TRUE;
+    }
+
+    protected function is_invalid_warrior_attack(array $attArray) {
+        $nWarrior = 0;
+        foreach ($attArray as $attacker) {
+            if ($attacker->has_skill('Warrior')) {
+                $nWarrior++;
+            }
+        }
+
+        // check if there are any warrior dice present
+        if (0 == $nWarrior) {
+            return FALSE;
+        }
+
+        // check that there is only one warrior die present
+        if ($nWarrior != 1) {
+            $this->validationMessage = 'Only one Warrior die can be brought into play at a time';
+            return TRUE;
+        }
+
+        // check that there is at least one non-warrior die taking part
+        if (1 == count($args['attackers'])) {
+            $this->validationMessage = 'There must be at least one non-Warrior attacker';
+            return TRUE;
+        }
     }
 }

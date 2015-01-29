@@ -22,13 +22,29 @@ class BMSkillWarrior extends BMSkill {
                                           'score_value');
 
 // james: yet to be tested/implemented:
-//        - attack_list() needs to consider if there are multiple warrior dice
 //        - adding a warrior die is not mandatory
+//             this can be implemented by causing Warrior to add BMAttackSkillOptional
+//             and then handling this attack type when listing all possible attack types
+//             to add the Pass attack as necessary
+
+    /**
+     * Hooked method applied when determining initiative
+     *
+     * @param array $args
+     */
+    public static function initiative_value(&$args) {
+        if (!is_array($args)) {
+            return;
+        }
+
+        // warrior dice don't contribute to initiative
+        $args['initiativeValue'] = -1;
+    }
 
     /**
      * Hooked method applied when determining possible attack types
      *
-     * @param type $args
+     * @param array $args
      */
     public static function attack_list($args) {
         if (!is_array($args)) {
@@ -45,20 +61,6 @@ class BMSkillWarrior extends BMSkill {
                 unset($attackTypeArray[$attackType]);
             }
         }
-    }
-
-    /**
-     * Hooked method applied when determining initiative
-     *
-     * @param array $args
-     */
-    public static function initiative_value(&$args) {
-        if (!is_array($args)) {
-            return;
-        }
-
-        // warrior dice don't contribute to initiative
-        $args['initiativeValue'] = -1;
     }
 
     /**
@@ -83,7 +85,7 @@ class BMSkillWarrior extends BMSkill {
             return;
         }
 
-        if (count($args['attackers'] <= 1)) {
+        if (count($args['attackers']) <= 1) {
             throw new LogicException('There must be more than one attacker when bringing a Warrior die into play.');
         }
 
