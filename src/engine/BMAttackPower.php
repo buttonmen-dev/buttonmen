@@ -11,7 +11,7 @@
 class BMAttackPower extends BMAttack {
     public $type = 'Power';
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         return $this->search_onevone($game, $this->validDice, $targets);

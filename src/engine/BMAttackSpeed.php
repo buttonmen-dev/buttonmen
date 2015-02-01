@@ -70,7 +70,7 @@ class BMAttackSpeed extends BMAttack {
         return TRUE;
     }
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->search_onevmany(
             $game,
             $game->attackerAllDieArray,

@@ -37,7 +37,7 @@ class TestDummyBMAttTesting extends BMAttack {
         return $this->validate;
     }
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         return FALSE;
     }
 

@@ -26,7 +26,18 @@ class BMAttackSkill extends BMAttack {
         $this->hit_table = new BMUtilityHitTable($this->validDice);
     }
 
-    public function find_attack($game) {
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
+    public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         if (count($targets) < 1) {

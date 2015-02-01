@@ -13,7 +13,7 @@ class BMAttackDefault extends BMAttack {
     public $type = 'Default';
     protected $resolvedType = '';
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->validate_attack(
             $game,
             $this->attackerAttackDieArray,
