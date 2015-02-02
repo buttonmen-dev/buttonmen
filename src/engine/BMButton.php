@@ -192,7 +192,7 @@ class BMButton extends BMCanHaveSkill {
     public function __set($property, $value) {
         switch ($property) {
             case 'recipe':
-                $this->load($value);
+                $this->load($value, $this->name, $this->hasAlteredRecipe);
                 break;
 
             case 'dieArray':
