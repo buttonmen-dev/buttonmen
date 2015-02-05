@@ -20,13 +20,8 @@
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
- * @property      bool   $hasAttacked           Has the die attacked this turn?
- * @property      bool   $selected              Does the player want to add this auxiliary die?
- * @property      string $inactive              Why may this die not attack?
- * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  *
- * @SuppressWarnings(PMD.TooManyFields)
  *  */
 class BMDie extends BMCanHaveSkill {
     // properties
@@ -46,21 +41,6 @@ class BMDie extends BMCanHaveSkill {
 
     protected $doesReroll = TRUE;
     protected $captured = FALSE;
-
-    protected $hasAttacked = FALSE;
-
-    // $selected is set when a player wants to add an auxiliary die
-    protected $selected = FALSE;
-
-// This is set when the die may not attack (sleep or focus, for instance)
-// It is set to a string, so the cause may be described. It is cleared at
-// the end of each of your turns.
-    protected $inactive = "";
-
-// Set when the die isn't in the game for whatever reason, but
-// could suddenly join (Warrior Dice). Prevents from being attacked,
-// but not attacking
-    protected $unavailable = FALSE;
 
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
@@ -180,9 +160,10 @@ class BMDie extends BMCanHaveSkill {
     }
 
 
-    public function roll($isTriggeredByAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack,
+                                           'isSubdie' => $isSubdie));
 
         if (!isset($this->value) ||
             ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
@@ -220,7 +201,8 @@ class BMDie extends BMCanHaveSkill {
         $list = array($this->value);
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'attackValues' => &$list));
+                                             'attackValues' => &$list,
+                                             'minValue' => $this->min));
 
         return $list;
     }
@@ -336,48 +318,18 @@ class BMDie extends BMCanHaveSkill {
 // check for special-case situations where an otherwise-valid attack
 // is not legal
     public function is_valid_attacker(array $attackers) {
-        $valid = TRUE;
-
-        if ($this->inactive || $this->hasAttacked) {
-            $valid = FALSE;
-        }
-
-        // Are we actually among the attackers?
-        $found = FALSE;
-
-        foreach ($attackers as $die) {
-            if ($die === $this) {
-                $found = TRUE;
-                break;
-            }
-        }
-        if (!$found) {
-            $valid = FALSE;
-        }
-
-        return $valid;
+        return in_array($this, $attackers, TRUE);
     }
 
 
     public function is_valid_target(array $defenders) {
-        $valid = TRUE;
+        $valid = in_array($this, $defenders, TRUE);
 
-        if ($this->unavailable) {
-            $valid = FALSE;
-        }
-
-        // Are we actually among the defenders?
-        $found = FALSE;
-
-        foreach ($defenders as $die) {
-            if ($die === $this) {
-                $found = TRUE;
-                break;
-            }
-        }
-        if (!$found) {
-            $valid = FALSE;
-        }
+        // james: needs to be reactivated when Warrior skill is added,
+        // probably in a die hook
+//        if ($this->has_skill('Warrior')) {
+//            $valid = FALSE;
+//        }
 
         return $valid;
     }
@@ -431,6 +383,7 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
     public function split() {
+        $oldRecipe = $this->get_recipe(TRUE);
         unset($this->value);
         $newdie = clone $this;
 
@@ -450,6 +403,9 @@ class BMDie extends BMCanHaveSkill {
         if (0 == $newdie->max) {
             $newdie->min = 0;
         }
+
+        $this->add_flag('HasJustSplit', $oldRecipe);
+        $newdie->add_flag('HasJustSplit', $oldRecipe);
 
         $dice = array($this, $newdie);
 
@@ -552,7 +508,7 @@ class BMDie extends BMCanHaveSkill {
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
-        if ($addMaxval && $dieObj->max) {
+        if ($addMaxval && isset($dieObj->max)) {
             return ($sidecountStr . '=' . $dieObj->max);
         } else {
             return ($sidecountStr);
@@ -603,6 +559,7 @@ class BMDie extends BMCanHaveSkill {
         $valueAfterTripAttack = NULL;
         $recipeBeforeGrowing = NULL;
         $recipeBeforeShrinking = NULL;
+        $recipeBeforeSplitting = NULL;
         if ($this->has_flag('JustPerformedTripAttack')) {
             $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
         }
@@ -611,6 +568,9 @@ class BMDie extends BMCanHaveSkill {
         }
         if ($this->has_flag('HasJustShrunk')) {
             $recipeBeforeShrinking = $this->flagList['HasJustShrunk']->value();
+        }
+        if ($this->has_flag('HasJustSplit')) {
+            $recipeBeforeSplitting = $this->flagList['HasJustSplit']->value();
         }
         return(array(
             'recipe' => $recipe,
@@ -626,6 +586,7 @@ class BMDie extends BMCanHaveSkill {
             'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
             'recipeBeforeGrowing' => $recipeBeforeGrowing,
             'recipeBeforeShrinking' => $recipeBeforeShrinking,
+            'recipeBeforeSplitting' => $recipeBeforeSplitting,
         ));
     }
 
@@ -651,7 +612,11 @@ class BMDie extends BMCanHaveSkill {
         $flagString = $flag;
 
         if (isset($flagValue)) {
-            $flagString .= '__' . $flagValue;
+            if (is_array($flagValue)) {
+                $flagString .= '__' . json_encode($flagValue);
+            } else {
+                $flagString .= '__' . $flagValue;
+            }
         }
 
         $flagObject = BMFlag::create_from_string($flagString);
@@ -748,6 +713,11 @@ class BMDie extends BMCanHaveSkill {
     }
 
     protected function set__max($value) {
+        if ($value === 0) {
+            $this->min = 0;
+            $this->max = 0;
+        }
+
         if (!is_null($value) &&
             (FALSE ===
              filter_var(
@@ -859,42 +829,6 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->captured = $value;
-    }
-
-    protected function set__hasAttacked($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException(
-                'hasAttacked is a boolean.'
-            );
-        }
-        $this->hasAttacked = $value;
-    }
-
-    protected function set__selected($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException(
-                'selected is a boolean.'
-            );
-        }
-        $this->selected = $value;
-    }
-
-    protected function set__inactive($value) {
-        if (!is_string($value)) {
-            throw new InvalidArgumentException(
-                'inactive is a string.'
-            );
-        }
-        $this->inactive = $value;
-    }
-
-    protected function set__unavailable($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException(
-                'unavailable is a boolean.'
-            );
-        }
-        $this->unavailable = $value;
     }
 
     protected function set__flagList($value) {

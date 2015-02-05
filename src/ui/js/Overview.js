@@ -161,9 +161,9 @@ Overview.completeMonitor = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
-  Overview.pageAddGameTable('finished', 'Completed games');
-  Overview.pageAddGameTable('awaitingPlayer', 'Active games');
-  Overview.pageAddGameTable('awaitingOpponent', 'Active games');
+  Overview.pageAddGameTable('finished', 'Completed games', false);
+  Overview.pageAddGameTable('awaitingPlayer', 'Active games', false);
+  Overview.pageAddGameTable('awaitingOpponent', 'Active games', true);
 };
 
 Overview.pageAddNewgameLink = function() {
@@ -198,7 +198,15 @@ Overview.pageAddNewgameLink = function() {
   Overview.page.append(newgameDiv);
 };
 
-Overview.pageAddGameTable = function(gameType, sectionHeader) {
+Overview.pageAddGameTable = function(
+    gameType,
+    sectionHeader,
+    reverseSortOrder
+  ) {
+  if (typeof reverseSortOrder === 'undefined') {
+    reverseSortOrder = false;
+  }
+
   var gamesource;
   var tableClass;
   if (gameType == 'finished') {
@@ -211,6 +219,10 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 
   if (gamesource.length === 0) {
     return;
+  }
+
+  if (reverseSortOrder) {
+    gamesource.reverse();
   }
 
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
@@ -410,7 +422,7 @@ Overview.pageAddIntroText = function() {
 
   infopar = $('<p>');
   infopar.append(
-    'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games: ');
   infopar.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',

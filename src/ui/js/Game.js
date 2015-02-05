@@ -8,16 +8,19 @@ Game.bodyDivId = 'game_page';
 // Game states must match those reported by the API
 Game.GAME_STATE_START_GAME = 'START_GAME';
 Game.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
-Game.GAME_STATE_CHOOSE_AUXILIARY_DICE = 'CHOOSE_AUXILIARY_DICE';
-Game.GAME_STATE_CHOOSE_RESERVE_DICE = 'CHOOSE_RESERVE_DICE';
+Game.GAME_STATE_CHOOSE_JOIN_GAME = 'CHOOSE_JOIN_GAME';
+Game.GAME_STATE_SPECIFY_RECIPES = 'SPECIFY_RECIPES';
 Game.GAME_STATE_LOAD_DICE_INTO_BUTTONS = 'LOAD_DICE_INTO_BUTTONS';
 Game.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = 'ADD_AVAILABLE_DICE_TO_GAME';
+Game.GAME_STATE_CHOOSE_AUXILIARY_DICE = 'CHOOSE_AUXILIARY_DICE';
+Game.GAME_STATE_CHOOSE_RESERVE_DICE = 'CHOOSE_RESERVE_DICE';
 Game.GAME_STATE_SPECIFY_DICE = 'SPECIFY_DICE';
 Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
 Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
 Game.GAME_STATE_START_ROUND = 'START_ROUND';
 Game.GAME_STATE_START_TURN = 'START_TURN';
 Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
+Game.GAME_STATE_COMMIT_ATTACK = 'COMMIT_ATTACK';
 Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
@@ -29,7 +32,7 @@ Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 Game.logEntryLimit = 10;
 
 // Maximum number of characters permitted in a given chat message
-Game.GAME_CHAT_MAX_LENGTH = 500;
+Game.GAME_CHAT_MAX_LENGTH = 2000;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -802,7 +805,7 @@ Game.actionPlayTurnInactive = function() {
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<br>'));
 
-  if (Api.game.chatEditable) {
+  if (Api.game.chatEditable && !Game.activity.chat) {
     Game.activity.chat = Api.game.chatLog[0].message;
   }
   var chatdiv = $('<div>');
@@ -2076,7 +2079,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
       'text': dieval,
       'title': die.description,
     };
-    if ((die.properties.indexOf('dizzy') >= 0) &&
+    if ((die.properties.indexOf('Dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
       if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
@@ -2087,7 +2090,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
         dieopts.title += '. (This die is dizzy because it has been turned ' +
           'down. It can\'t be used during this attack.)';
       }
-    } else if ((die.properties.indexOf('disabled') >= 0) &&
+    } else if ((die.properties.indexOf('Disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
       dieopts.title += '. (This chance die cannot be rerolled again ' +
@@ -2295,7 +2298,7 @@ Game.gamePlayerDice = function(player, player_active) {
     // is active and this particular die is not dizzy
     var clickable;
     if (player_active) {
-      if (die.properties.indexOf('dizzy') >= 0) {
+      if (die.properties.indexOf('Dizzy') >= 0) {
         clickable = false;
       } else {
         clickable = true;
@@ -2490,7 +2493,7 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // number of sides
 Game.dieRecipeText = function(die, allowShowValues) {
   var dieRecipeText = die.recipe;
-  if (die.sides) {
+  if (die.sides !== undefined && die.sides !== null) {
     var lparen = die.recipe.indexOf('(');
     var rparen = die.recipe.indexOf(')');
     var recipeSideString = die.recipe.substring(lparen + 1, rparen);
@@ -2499,20 +2502,49 @@ Game.dieRecipeText = function(die, allowShowValues) {
       dieRecipeText = dieRecipeText.replace(')', '=' + die.sides + ')');
     } else {
       var recipeSideTwinStrings = recipeSideString.split(',');
+
       var sidesum = 0;
       var swingcount = 0;
       for (var i = 0; i < recipeSideTwinStrings.length; i++) {
         var itemSides = parseInt(recipeSideTwinStrings[i], 10);
-        if (itemSides > 0) {
-          sidesum += itemSides;
-        } else {
+        if (isNaN(itemSides)) {
           swingcount += 1;
+        } else {
+          sidesum += itemSides;
         }
       }
 
-      if (sidesum != die.sides) {
-        dieRecipeText = dieRecipeText.replace(
-                          ')', '=' + (die.sides/swingcount) + ')');
+      if (swingcount > 0) {
+        var subdieRecipeArray = [];
+        var subdieSidesArray = [];
+        var subdieIdx;
+
+        if (die.subdieArray !== undefined && die.subdieArray !== null) {
+          for (subdieIdx = 0;
+               subdieIdx < recipeSideTwinStrings.length;
+               subdieIdx++) {
+            subdieSidesArray[subdieIdx] = die.subdieArray[subdieIdx].sides;
+          }
+        } else {
+          // continue to handle old cases where there is no explicit
+          // information about subdice
+          for (subdieIdx = 0;
+               subdieIdx < recipeSideTwinStrings.length;
+               subdieIdx++) {
+            subdieSidesArray[subdieIdx] = die.sides/swingcount;
+          }
+        }
+
+        for (subdieIdx = 0;
+             subdieIdx < recipeSideTwinStrings.length;
+             subdieIdx++) {
+          subdieRecipeArray[subdieRecipeArray.length] =
+            recipeSideTwinStrings[subdieIdx] + '=' +
+            subdieSidesArray[subdieIdx];
+        }
+        dieRecipeText =
+          dieRecipeText.replace(/\(.+\)/, '(' +
+          subdieRecipeArray.join(',') + ')');
       }
     }
   }
@@ -2524,6 +2556,8 @@ Game.dieRecipeText = function(die, allowShowValues) {
       (die.properties.indexOf('ValueRelevantToScore') >= 0)) {
     dieRecipeText += ':' + die.value;
   }
+
+//  console.log(dieRecipeText);
 
   return dieRecipeText;
 };

@@ -9,7 +9,12 @@
  * This class contains all the logic for die information flags
  */
 abstract class BMFlag {
-    // factory method to enable loading flags from database
+    /**
+     * Factory method to enable loading flags from database
+     *
+     * @param string $string
+     * @return BMFlag
+     */
     public static function create_from_string($string) {
         if (empty($string)) {
             return;
@@ -32,12 +37,22 @@ abstract class BMFlag {
         return $flag;
     }
 
+    /**
+     * Flag name
+     *
+     * @return string
+     */
     public function type() {
         $type = get_class($this);
 
         return str_replace('BMFlag', '', $type);
     }
 
+    /**
+     * Value stored in flag
+     *
+     * @return mixed
+     */
     public function value() {
         return NULL;
     }

@@ -9,11 +9,22 @@
  * This class contains code specific to the konstant die skill
  */
 class BMSkillKonstant extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('attack_list',
                                           'add_skill',
                                           'attack_values',
                                           'hit_table');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
@@ -26,6 +37,11 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 
+    /**
+     * Hooked method applied when adding the skill
+     *
+     * @param array $args
+     */
     public static function add_skill($args) {
         if (!array_key_exists('die', $args)) {
             return;
@@ -34,6 +50,11 @@ class BMSkillKonstant extends BMSkill {
         $args['die']->doesReroll = FALSE;
     }
 
+    /**
+     * Hooked method applied when determining the attack values of a die
+     *
+     * @param array $args
+     */
     public static function attack_values($args) {
         if (!is_array($args) ||
             !array_key_exists('attackType', $args) ||
@@ -63,6 +84,11 @@ class BMSkillKonstant extends BMSkill {
         );
     }
 
+    /**
+     * Hooked method applied when calculating a skill attack hit table
+     *
+     * @param array $args
+     */
     public static function hit_table($args) {
         // validate arguments
         assert(
@@ -92,6 +118,11 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'These dice do not reroll after an attack; they keep ' .
                'their current value. Konstant Dice can not Power Attack, ' .
@@ -100,6 +131,14 @@ class BMSkillKonstant extends BMSkill {
                'Attack.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Chance' => 'Dice with both Chance and Konstant skills always retain their current value',

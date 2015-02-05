@@ -9,8 +9,19 @@
  * This class contains code specific to the berserk die skill
  */
 class BMSkillBerserk extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('attack_list', 'capture');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
@@ -27,10 +38,20 @@ class BMSkillBerserk extends BMSkill {
         $attackTypeArray['Berserk'] = 'Berserk';
     }
 
-    public static function incompatible_attack_types($args = NULL) {
+    /**
+     * Attack types incompatible with this skill type
+     *
+     * @return array
+     */
+    public static function incompatible_attack_types() {
         return array('Skill');
     }
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture(&$args) {
         if (!is_array($args)) {
             return;
@@ -66,6 +87,11 @@ class BMSkillBerserk extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'These dice cannot participate in Skill Attacks; ' .
                'instead they can make a Berserk Attack. These work exactly ' .
@@ -77,6 +103,14 @@ class BMSkillBerserk extends BMSkill {
                'characteristics it may have had.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Mighty' => 'Dice with both Berserk and Mighty skills will first ' .
@@ -91,6 +125,11 @@ class BMSkillBerserk extends BMSkill {
         );
     }
 
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
     public static function prevents_win_determination() {
         return TRUE;
     }

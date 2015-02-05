@@ -158,7 +158,7 @@ class BMSkill {
     /**
      * Attack types incompatible with this skill type
      *
-     * @return string
+     * @return array
      */
     public static function incompatible_attack_types() {
         return array();
