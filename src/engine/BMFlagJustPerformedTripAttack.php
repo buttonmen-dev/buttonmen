@@ -11,10 +11,18 @@
  * changes again afterwards.
  */
 class BMFlagJustPerformedTripAttack extends BMFlag {
-
-    // properties
+    /**
+     * Post-trip-attack die value, stored in flag
+     *
+     * @var int
+     */
     protected $postAttackValue;
 
+    /**
+     * Value stored in flag
+     *
+     * @return mixed
+     */
     public function value() {
         return $this->postAttackValue;
     }

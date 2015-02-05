@@ -10,5 +10,11 @@
  * button selection, even when there are unimplemented iconic button skills.
  */
 class BMBtnSkillArtificialReenable extends BMBtnSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array();
 }
