@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS buttonmen;
+DROP DATABASE IF EXISTS buttonmen_test;

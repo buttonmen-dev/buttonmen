@@ -1,6 +1,5 @@
 # Table definitions for button-related tables
 
-DROP TABLE IF EXISTS buttonset;
 CREATE TABLE buttonset (
     id          SMALLINT UNSIGNED PRIMARY KEY,
     # 'Chicagoland Games Enclave' has 27 characters
@@ -9,7 +8,6 @@ CREATE TABLE buttonset (
     sort_order  INT NOT NULL DEFAULT 999999
 );
 
-DROP TABLE IF EXISTS button;
 CREATE TABLE button (
     id          SMALLINT UNSIGNED PRIMARY KEY,
     # 'The Fictitious Alan Clark' has 25 characters
@@ -25,18 +23,16 @@ CREATE TABLE button (
     INDEX (name)
 );
 
-DROP TABLE IF EXISTS tag;
 CREATE TABLE tag (
     id SMALLINT UNSIGNED PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
 
-DROP TABLE IF EXISTS button_tag_map;
 CREATE TABLE button_tag_map(
     button_id SMALLINT UNSIGNED NOT NULL,
     tag_id SMALLINT UNSIGNED NOT NULL,
     PRIMARY KEY (button_id, tag_id),
-    CONSTRAINT fk_tagged_button_id 
+    CONSTRAINT fk_tagged_button_id
                          FOREIGN KEY (button_id) REFERENCES button(id),
     CONSTRAINT fk_tag_id FOREIGN KEY (tag_id)    REFERENCES tag(id)
 );
