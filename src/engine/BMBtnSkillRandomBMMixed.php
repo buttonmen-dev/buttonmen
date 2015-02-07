@@ -19,8 +19,15 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
             return FALSE;
         }
 
-        // actively exclude problematic skills
-        $excludedSkillArray = array('Auxiliary', 'Reserve');
+        // Actively exclude possibly problematic skills
+        // The current selection is conservative, and should be whittled down in time,
+        // after we deal with bugs that arise from strange skill combinations
+        $excludedSkillArray = array(
+            'Auxiliary', 'Reserve', // game-level skills
+            'Berserk', 'Doppelganger', 'Mad', 'Mighty', 'Mood', 'Morphing', 'Radioactive', 'Weak', // recipe-changing skills
+            'Fire', // skills that add an extra step to attacks
+        );
+
         $excludedSkillCharArray = array_map('BMSkill::abbreviate_skill_name', $excludedSkillArray);
         $skillCharArray = array_merge(array_diff(BMSkill::all_skill_chars(), $excludedSkillCharArray));
 
