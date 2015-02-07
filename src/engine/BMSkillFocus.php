@@ -9,8 +9,20 @@
  * This class contains code specific to the focus die skill
  */
 class BMSkillFocus extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array("react_to_initiative");
 
+    /**
+     * Hooked method applied when checking if it is possible to react to initiative
+     *
+     * @param array $args
+     * @return boolean
+     */
     public static function react_to_initiative($args) {
         $activeDieArrayArray = $args['activeDieArrayArray'];
         $playerIdx = $args['playerIdx'];
@@ -42,6 +54,11 @@ class BMSkillFocus extends BMSkill {
                 1 == array_sum($hasPlayerInitArray));
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'If you do not have the initiative at the start of ' .
                'a round you may reduce the values showing on one or more ' .
@@ -55,6 +72,14 @@ class BMSkillFocus extends BMSkill {
                'attack. (The second player has no such restriction.)';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',

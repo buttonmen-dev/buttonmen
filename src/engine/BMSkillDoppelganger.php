@@ -9,8 +9,19 @@
  * This class contains code specific to the doppelganger die skill
  */
 class BMSkillDoppelganger extends BMSkillMorphing {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('capture');
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture(&$args) {
         if (!self::are_dice_in_attack_valid($args)) {
             return;
@@ -32,6 +43,11 @@ class BMSkillDoppelganger extends BMSkillMorphing {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'When a Doppelganger Die performs a Power Attack on ' .
                'another die, the Doppelganger Die becomes an exact copy of ' .
@@ -44,6 +60,14 @@ class BMSkillDoppelganger extends BMSkillMorphing {
                'Die.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Radioactive' => 'Dice with both Radioactive and Doppelganger first decay, then ' .
@@ -52,6 +76,11 @@ class BMSkillDoppelganger extends BMSkillMorphing {
         );
     }
 
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
     public static function prevents_win_determination() {
         return TRUE;
     }

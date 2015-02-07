@@ -4485,6 +4485,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
+     *
      * @depends test_request_savePlayerInfo
      *
      * This scenario tests some simple auxiliary, swing, and focus functionality
@@ -4562,11 +4564,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(),
             'Chose to add auxiliary die',
             $gameId, 'add', 5);
+
+        $expData004 = $expData;
+        $expData004['currentPlayerIdx'] = 1;
+        $expData004['playerDataArray'][0]['playerColor'] = '#ddffdd';
+        $expData004['playerDataArray'][1]['playerColor'] = '#dd99dd';
+
+        // the API must tell the truth about whether the active player has
+        // responded to auxiliary
+        $expData004['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData004['playerDataArray'][1]['activeDieArray'][5]['properties'] =
+            array('AddAuxiliary');
+
+        $retval = $this->verify_api_loadGameData($expData004, $gameId, 10);
+
         $_SESSION = $this->mock_test_user_login('responder003');
 
-        // expected changes
-        // #1266 - the API should lie about this to avoid information leaks
-        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        // the API should lie about whether another player has responded to auxiliary
+        // to avoid information leaks
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -4998,9 +5014,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('dizzy');
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('Dizzy');
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('dizzy');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('Dizzy');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 gained initiative by turning down focus dice: f(6) from 4 to 1, f(8) from 8 to 1'));
         array_pop($expData['gameActionLog']);
 
@@ -7951,7 +7967,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('dizzy');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('Dizzy');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 gained initiative by turning down focus dice: f(8) from 3 to 1'));
         array_pop($expData['gameActionLog']);
 
@@ -8638,6 +8654,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 'add', 5);
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['properties'] = array('AddAuxiliary');
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);

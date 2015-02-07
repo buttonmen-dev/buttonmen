@@ -802,6 +802,36 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_and_load_new_game
+     *
+     * @covers BMInterface::save_join_game_decision
+     */
+    public function test_save_join_game_decision() {
+        $retval = $this->object->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
+
+        $this->object->save_join_game_decision(self::$userId2WithoutAutopass, $gameId, 'accept');
+        $game = self::load_game($gameId);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+    }
+
+    /**
      * @depends test_create_and_load_new_game_with_empty_opponent
      *
      * @covers BMInterface::join_open_game
@@ -2253,7 +2283,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
         $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
-        $this->assertTrue($game->activeDieArrayArray[0][5]->selected);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
 
         // player 1 tries incorrectly to act again
         $this->assertFalse(
@@ -2338,7 +2368,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
         $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
-        $this->assertTrue($game->activeDieArrayArray[0][5]->selected);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
 
         $this->assertTrue(
             $this->object->react_to_auxiliary(

@@ -9,9 +9,20 @@
  * This class contains code specific to the fire die skill
  */
 class BMSkillFire extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('attack_list',
                                           'assist_values');
 
+    /**
+     * Hooked method applied when determining possible attack types
+     *
+     * @param array $args
+     */
     public static function attack_list($args) {
         if (!is_array($args)) {
             return;
@@ -24,6 +35,11 @@ class BMSkillFire extends BMSkill {
         }
     }
 
+    /**
+     * Hooked method applied when determining fire assist values
+     *
+     * @param array $args
+     */
     public static function assist_values(&$args) {
         if (!is_array($args)) {
             return;
@@ -54,6 +70,11 @@ class BMSkillFire extends BMSkill {
         $args['possibleAssistValues'] = range(1, $die->value - $die->min);
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'Fire Dice cannot make Power Attacks. Instead, they can assist '.
                'other Dice in making Skill and Power Attacks. Before making a '.
@@ -69,6 +90,14 @@ class BMSkillFire extends BMSkill {
                'dice in making attacks other than normal Skill and Power Attacks.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Mighty' => 'Dice with both Fire and Mighty skills do not grow ' .

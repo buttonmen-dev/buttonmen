@@ -238,7 +238,7 @@ class BMInterface {
         return TRUE;
     }
 
-    private function validate_and_set_homepage($homepage, array &$infoArray) {
+    protected function validate_and_set_homepage($homepage, array &$infoArray) {
         if ($homepage == NULL || $homepage == "") {
             $infoArray['homepage'] = NULL;
             return TRUE;
@@ -320,7 +320,8 @@ class BMInterface {
         $maxWins = 3,
         $description = '',
         $previousGameId = NULL,
-        $currentPlayerId = NULL
+        $currentPlayerId = NULL,
+        $autoAccept = TRUE
     ) {
         $isValidInfo =
             $this->validate_game_info(
@@ -342,7 +343,13 @@ class BMInterface {
             $gameId = $this->insert_new_game($playerIdArray, $maxWins, $description, $previousGameId);
 
             foreach ($playerIdArray as $position => $playerId) {
-                $this->add_player_to_new_game($gameId, $playerId, $buttonIdArray[$position], $position);
+                $this->add_player_to_new_game(
+                    $gameId,
+                    $playerId,
+                    $buttonIdArray[$position],
+                    $position,
+                    (0 == $position) || $autoAccept
+                );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
 
@@ -371,7 +378,7 @@ class BMInterface {
         }
     }
 
-    private function insert_new_game(
+    protected function insert_new_game(
         array $playerIdArray,
         $maxWins = 3,
         $description = '',
@@ -428,18 +435,19 @@ class BMInterface {
         }
     }
 
-    private function add_player_to_new_game($gameId, $playerId, $buttonId, $position) {
+    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted = TRUE) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
-                 '(game_id, player_id, button_id, position) '.
+                 '(game_id, player_id, button_id, position, has_player_accepted) '.
                  'VALUES '.
-                 '(:game_id, :player_id, :button_id, :position)';
+                 '(:game_id, :player_id, :button_id, :position, :has_player_accepted)';
         $statement = self::$conn->prepare($query);
 
         $statement->execute(array(':game_id'   => $gameId,
                                   ':player_id' => $playerId,
                                   ':button_id' => $buttonId,
-                                  ':position'  => $position));
+                                  ':position'  => $position,
+                                  ':has_player_accepted' => $hasAccepted));
     }
 
     protected function set_random_button_flags($gameId, array $buttonNameArray) {
@@ -520,7 +528,7 @@ class BMInterface {
         return TRUE;
     }
 
-    private function validate_previous_game_players($previousGameId, array $playerIdArray) {
+    protected function validate_previous_game_players($previousGameId, array $playerIdArray) {
         // If there was no previous game, then there's nothing to worry about
         if ($previousGameId == NULL) {
             return TRUE;
@@ -603,6 +611,39 @@ class BMInterface {
         }
 
         return $buttonIdArray;
+    }
+
+    public function save_join_game_decision($playerId, $gameId, $decision) {
+        if (('accept' != $decision) && ('reject' != $decision)) {
+            throw new InvalidArgumentException('decision must be either accept or reject');
+        }
+
+        $game = $this->load_game($gameId);
+
+        if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
+            return;
+        }
+
+        if (!isset($game->hasPlayerAcceptedGameArray)) {
+            throw new LogicException('hasPlayerAcceptedGameArray needs to exist');
+        }
+
+        $playerIdx = array_search($playerId, $game->playerIdArray);
+
+        if (FALSE === $playerIdx) {
+            return;
+        }
+
+        $decisionFlag = ('accept' == $decision);
+        $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
+
+        $this->save_game($game);
+
+        if ($decisionFlag) {
+            $this->message = "Joined game $gameId";
+        } else {
+            $this->message = "Rejected game $gameId";
+        }
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
@@ -735,7 +776,8 @@ class BMInterface {
                  'v.is_awaiting_action, '.
                  'v.is_button_random, '.
                  'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp, '.
-                 'v.was_game_dismissed '.
+                 'v.was_game_dismissed, '.
+                 'v.has_player_accepted '.
                  'FROM game AS g '.
                  'LEFT JOIN game_status AS s '.
                  'ON s.id = g.status_id '.
@@ -758,6 +800,7 @@ class BMInterface {
             if (isset($pos)) {
                 $game->setArrayPropEntry('playerIdArray', $pos, $row['player_id']);
                 $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
+                $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);
             }
 
             if (1 == $row['did_win_initiative']) {
@@ -787,7 +830,7 @@ class BMInterface {
         return $game;
     }
 
-    private function load_game_attributes($game, $row) {
+    protected function load_game_attributes($game, $row) {
         $game->gameState = $row['game_state'];
         $game->maxWins   = $row['n_target_wins'];
         $game->turnNumberInRound = $row['turn_number_in_round'];
@@ -812,6 +855,7 @@ class BMInterface {
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
         $game->hasPlayerDismissedGameArray = array_fill(0, $nPlayers, FALSE);
+        $game->hasPlayerAcceptedGameArray = array_fill(0, $nPlayers, FALSE);
     }
 
     protected function load_button($game, $pos, $row) {
@@ -838,7 +882,7 @@ class BMInterface {
         }
     }
 
-    private function load_player_attributes($game, $pos, $row) {
+    protected function load_player_attributes($game, $pos, $row) {
         switch ($row['is_awaiting_action']) {
             case 1:
                 $game->setArrayPropEntry('waitingOnActionArray', $pos, TRUE);
@@ -997,15 +1041,21 @@ class BMInterface {
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'SELECTED':
-                    $die->selected = TRUE;
+                    // james: maintain backward compatibility
+                    if (BMGameState::CHOOSE_AUXILIARY_DICE == $game->gameState) {
+                        $die->add_flag('AddAuxiliary');
+                    } elseif (BMGameState::CHOOSE_AUXILIARY_DICE == $game->gameState) {
+                        $die->add_flag('AddReserve');
+                    }
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DISABLED':
-                    $die->disabled = TRUE;
+                    $die->add_flag('Disabled');
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'DIZZY':
-                    $die->dizzy = TRUE;
+                    // james: maintain backward compatibility
+                    $die->add_flag('Dizzy');
                     $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'CAPTURED':
@@ -1111,6 +1161,7 @@ class BMInterface {
             $this->save_swing_values_from_this_round($game);
             $this->save_option_values_from_last_round($game);
             $this->save_option_values_from_this_round($game);
+            $this->save_player_game_decisions($game);
             $this->save_player_with_initiative($game);
             $this->save_players_awaiting_action($game);
             $this->regenerate_essential_die_flags($game);
@@ -1427,6 +1478,26 @@ class BMInterface {
         }
     }
 
+    protected function save_player_game_decisions($game) {
+        if (isset($game->hasPlayerAcceptedGameArray)) {
+            foreach ($game->hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
+                $query = 'UPDATE game_player_map '.
+                         'SET has_player_accepted = :has_player_accepted '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+                if ($hasAccepted) {
+                    $hasPlayerAccepted = 1;
+                } else {
+                    $hasPlayerAccepted = 0;
+                }
+                $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
+                                          ':game_id' => $game->gameId,
+                                          ':position' => $playerIdx));
+            }
+        }
+    }
+
     protected function save_player_with_initiative($game) {
         if (isset($game->playerWithInitiativeIdx)) {
             // set all players to not having initiative
@@ -1511,13 +1582,6 @@ class BMInterface {
                 foreach ($activeDieArray as $dieIdx => $activeDie) {
                     // james: set status, this is currently INCOMPLETE
                     $status = 'NORMAL';
-                    if ($activeDie->selected) {
-                        $status = 'SELECTED';
-                    } elseif ($activeDie->disabled) {
-                        $status = 'DISABLED';
-                    } elseif ($activeDie->dizzy) {
-                        $status = 'DIZZY';
-                    }
 
                     $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
                 }
@@ -2433,7 +2497,7 @@ class BMInterface {
         }
     }
 
-    private function execute_button_data_query($buttonName, $setName) {
+    protected function execute_button_data_query($buttonName, $setName) {
         $parameters = array();
         $query =
             'SELECT id, name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
@@ -2453,7 +2517,7 @@ class BMInterface {
         return $statement;
     }
 
-    private function assemble_button_data($row, $site_type, $single_button, $forceImplemented = FALSE) {
+    protected function assemble_button_data($row, $site_type, $single_button, $forceImplemented = FALSE) {
         // Look for unimplemented skills in each button definition.
         $button = new BMButton();
         $button->load($row['recipe'], $row['name']);
@@ -2517,7 +2581,7 @@ class BMInterface {
         return $currentButton;
     }
 
-    private function get_button_tags($buttonName) {
+    protected function get_button_tags($buttonName) {
         $tags = array();
 
         try {
@@ -3528,7 +3592,7 @@ class BMInterface {
                         return FALSE;
                     }
                     $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
-                    $die->selected = TRUE;
+                    $die->add_flag('AddAuxiliary');
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
@@ -3610,7 +3674,7 @@ class BMInterface {
                         return FALSE;
                     }
                     $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
-                    $die->selected = TRUE;
+                    $die->add_flag('AddReserve');
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
@@ -4570,7 +4634,7 @@ class BMInterface {
     // safe to insert into an anchor tag (or returns NULL if we can't sensibly do
     // that).
     // Based in part on advice from http://stackoverflow.com/questions/205923
-    private function validate_url($url) {
+    protected function validate_url($url) {
         // First, check for and reject anything with inappropriate characters
         // (We can expand this list later if it becomes necessary)
         if (!preg_match('/^[-A-Za-z0-9+&@#\\/%?=~_!:,.\\(\\)]+$/', $url)) {

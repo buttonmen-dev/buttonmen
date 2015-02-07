@@ -1,6 +1,5 @@
 # Table schemas for game-related tables
 
-DROP TABLE IF EXISTS game;
 CREATE TABLE game (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     start_time         TIMESTAMP DEFAULT 0,
@@ -23,13 +22,11 @@ CREATE TABLE game (
     FOREIGN KEY (previous_game_id) REFERENCES game(id)
 );
 
-DROP TABLE IF EXISTS game_status;
 CREATE TABLE game_status (
     id                 TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name               VARCHAR(20) NOT NULL
 );
 
-DROP TABLE IF EXISTS game_player_map;
 CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED,
@@ -49,7 +46,6 @@ CREATE TABLE game_player_map (
     has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL
 );
 
-DROP TABLE IF EXISTS game_swing_map;
 CREATE TABLE game_swing_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
@@ -58,7 +54,6 @@ CREATE TABLE game_swing_map (
     is_expired         BOOLEAN DEFAULT FALSE
 );
 
-DROP TABLE IF EXISTS game_option_map;
 CREATE TABLE game_option_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
@@ -67,7 +62,6 @@ CREATE TABLE game_option_map (
     is_expired         BOOLEAN DEFAULT FALSE
 );
 
-DROP TABLE IF EXISTS game_action_log;
 CREATE TABLE game_action_log (
     id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
@@ -78,7 +72,6 @@ CREATE TABLE game_action_log (
     message            TEXT
 );
 
-DROP TABLE IF EXISTS game_chat_log;
 CREATE TABLE game_chat_log (
     id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
@@ -90,7 +83,6 @@ CREATE TABLE game_chat_log (
     message            VARCHAR(8000)
 );
 
-DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     owner_id           SMALLINT UNSIGNED NOT NULL,
@@ -104,29 +96,21 @@ CREATE TABLE die (
     flags              VARCHAR(253)
 );
 
-DROP TABLE IF EXISTS die_status;
 CREATE TABLE die_status (
     id                 TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name               VARCHAR(20) NOT NULL
 );
 
-DROP TABLE IF EXISTS open_game_possible_buttons;
 CREATE TABLE open_game_possible_buttons (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     button_id          SMALLINT UNSIGNED NOT NULL
 );
 
-DROP TABLE IF EXISTS open_game_possible_buttonsets;
 CREATE TABLE open_game_possible_buttonsets (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     set_id             SMALLINT UNSIGNED NOT NULL
 );
 
-# remove legacy tables that have been replaced by game_action_log
-DROP TABLE IF EXISTS last_attack;
-DROP TABLE IF EXISTS last_attack_die_map;
-
-DROP TABLE IF EXISTS tournament;
 CREATE TABLE tournament (
     id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     status_id          TINYINT UNSIGNED NOT NULL,
