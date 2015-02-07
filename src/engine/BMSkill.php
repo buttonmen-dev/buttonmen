@@ -67,7 +67,7 @@ class BMSkill {
      * @param string $skillLetter
      * @return string
      */
-    private static function expand_skill_letter($skillLetter) {
+    protected static function expand_skill_letter($skillLetter) {
         $skillLetter = array_search(
             $skillLetter,
             BMSkill::skill_name_abbreviation_mapping()
@@ -134,6 +134,10 @@ class BMSkill {
                      'Weak'         => 'h');
     }
 
+    public static function all_skill_chars() {
+        return array_values(self::skill_name_abbreviation_mapping());
+    }
+
     /**
      * All possible attack types
      *
@@ -158,7 +162,7 @@ class BMSkill {
     /**
      * Attack types incompatible with this skill type
      *
-     * @return string
+     * @return array
      */
     public static function incompatible_attack_types() {
         return array();

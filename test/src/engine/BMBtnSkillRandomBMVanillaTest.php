@@ -27,14 +27,21 @@ class BMBtnSkillRandomBMVanillaTest extends PHPUnit_Framework_TestCase {
      * @covers BMBtnSkillRandomBMVanilla::specify_recipes
      */
     public function testSpecify_recipes_valid_args() {
+        global $BM_RAND_VALS;
+
         $button = new BMButton;
         $args = array('button' => $button);
         $this->assertNull($button->hasAlteredRecipe);
         $this->assertEmpty($button->recipe);
+
+        // choose dice with 6, 20, 10, 20, 6 sides
+        $BM_RAND_VALS = array(1, 5, 3, 4, 1);
+
         $retval = BMBtnSkillRandomBMVanilla::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
+        $this->assertEquals('(6) (6) (10) (12) (20)', $button->recipe);
     }
 
     /**

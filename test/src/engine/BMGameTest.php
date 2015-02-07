@@ -8821,12 +8821,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDieSwing', $button1->dieArray[4]);
         $this->assertTrue($button1->dieArray[4]->needsSwingValue);
         $this->assertTrue($button1->dieArray[4]->has_skill('Mood'));
-        $this->assertEquals(array('pre_roll', 'add_skill'),
+        $this->assertEquals(array('pre_roll'),
                             array_keys($button1->dieArray[4]->hookList));
         $this->assertEquals(array('BMSkillMood'),
                             $button1->dieArray[4]->hookList['pre_roll']);
-        $this->assertEquals(array('BMSkillMood'),
-                            $button1->dieArray[4]->hookList['add_skill']);
 
         $button2 = new BMButton;
         $button2->load('(3) (12) (20) (20) (X)?', 'Igor');
@@ -8841,12 +8839,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDieSwing', $button2->dieArray[4]);
         $this->assertTrue($button2->dieArray[4]->needsSwingValue);
         $this->assertTrue($button2->dieArray[4]->has_skill('Mood'));
-        $this->assertEquals(array('pre_roll', 'add_skill'),
+        $this->assertEquals(array('pre_roll'),
                             array_keys($button2->dieArray[4]->hookList));
         $this->assertEquals(array('BMSkillMood'),
                             $button2->dieArray[4]->hookList['pre_roll']);
-        $this->assertEquals(array('BMSkillMood'),
-                            $button2->dieArray[4]->hookList['add_skill']);
 
         // load game
         $game = new BMGame(424242, array(123, 456), array('', ''), 2);

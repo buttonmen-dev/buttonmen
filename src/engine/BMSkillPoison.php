@@ -9,8 +9,19 @@
  * This class contains code specific to the poison die skill
  */
 class BMSkillPoison extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array("score_value");
 
+    /**
+     * Hooked method applied when determining the score value of a die
+     *
+     * @param array $args
+     */
     public static function score_value($args) {
         assert(array_key_exists('mult', $args));
         assert(array_key_exists('div', $args));
@@ -24,6 +35,11 @@ class BMSkillPoison extends BMSkill {
         }
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'These dice are worth negative points. If you keep ' .
                'a Poison Die of your own at the end of a round, subtract ' .
@@ -31,6 +47,14 @@ class BMSkillPoison extends BMSkill {
                'from someone else, subtract half its value from your score.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Null' => 'Dice with both Null and Poison skills are Null',
@@ -40,6 +64,11 @@ class BMSkillPoison extends BMSkill {
         );
     }
 
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
     public static function prevents_win_determination() {
         return TRUE;
     }
