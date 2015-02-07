@@ -31,25 +31,10 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
 
         $button = $args['button'];
         $nDice = 5;
-        $dieSizeArray = array_fill(0, $nDice, NULL);
-        $dieRecipeArray = array_fill(0, $nDice, NULL);
-        $validDieSizeArray = parent::$die_sizes_soldiers;
-        $nValidDieSizes = count($validDieSizeArray);
+        $dieSizeArray = parent::generate_die_sizes($nDice);
+        $dieSkillLettersArray = array_fill(0, $nDice, NULL);
 
-        foreach ($dieSizeArray as &$dieSize) {
-            $dieSize = $validDieSizeArray[bm_rand(0, $nValidDieSizes - 1)];
-        }
-
-        sort($dieSizeArray, SORT_NUMERIC);
-
-        foreach ($dieRecipeArray as $dieIdx => &$dieRecipe) {
-            $dieRecipe = '(' .
-                         $dieSizeArray[$dieIdx] .
-                         ')';
-        }
-
-        $button->recipe = implode(' ', $dieRecipeArray);
-
+        $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLettersArray);
         return TRUE;
     }
 }
