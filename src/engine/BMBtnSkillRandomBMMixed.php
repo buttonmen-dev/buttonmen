@@ -24,7 +24,8 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
         // after we deal with bugs that arise from strange skill combinations
         $excludedSkillArray = array(
             'Auxiliary', 'Reserve', // game-level skills
-            'Berserk', 'Doppelganger', 'Mad', 'Mighty', 'Mood', 'Morphing', 'Radioactive', 'Weak', // recipe-changing skills
+            'Berserk', 'Doppelganger', 'Mad', 'Mighty', 'Mood', 
+            'Morphing', 'Radioactive', 'Weak', // recipe-changing skills
             'Fire', // skills that add an extra step to attacks
         );
 
