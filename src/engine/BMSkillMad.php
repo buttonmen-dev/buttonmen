@@ -10,6 +10,12 @@
  */
 class BMSkillMad extends BMSkillMood {
 
+    /**
+     * Gives all valid die sizes in the swing range that are valid for mad swing
+     *
+     * @param array $swingRange
+     * @return array
+     */
     public static function valid_die_sizes(array $swingRange) {
         $dieSizeArray = range($swingRange[0], $swingRange[1]);
 
@@ -23,13 +29,11 @@ class BMSkillMad extends BMSkillMood {
         return array_values($dieSizeArray);
     }
 
-    public static function add_skill($args) {
-        if (!is_array($args) ||
-            !($args['die'] instanceof BMDie)) {
-            return;
-        }
-    }
-
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'These are a subcategory of Swing dice, whose size ' .
                'changes randomly when rerolled. At the very start of the ' .
@@ -41,6 +45,14 @@ class BMSkillMad extends BMSkillMood {
                'be set to an odd number.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Ornery' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',

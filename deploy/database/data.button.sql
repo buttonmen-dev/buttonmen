@@ -86,7 +86,10 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (75, 'MegaTokyo',                     7400),
 
 # Fanatics
-(65, 'Classic Fanatics', 100000);
+(65, 'Classic Fanatics', 100000),
+
+# Special
+(10000, 'RandomBM', 200000);
 
 
 DELETE FROM button;
@@ -100,15 +103,15 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (3, 'Wu Lan',      '(4) (10) (20) (20) (X)',          0, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # BUZZING WEASEL's recipe stands for(Fudge) (Regular) (Prestige) (Gamer) (Screw), which are all dice particular to this button
 # rather than any standard coding for swing sizes or die skills.  IMO these dice should not be made avialable for other buttons.
-# F: "Fudge" die. Rolls -1, 0, and 1 in a linear distribution. Is worth either 0, 1, or 3 points depending on who you talk to. 
-#    Zero, because that's twice its average roll; One, because that's its highest value; Three because it can vary between 
-#    3 different values. 
-# R: "Regular" die. Equivalent to an "X" Swing Die. 
-# P: "Prestige" die. A variable die which can be any size between 30 and 100 sides, the Prestige Die cannot make any Attacks 
-#     and is not worth any points. 
-# G: "Gamer" die. A variable die which can be any size between 3 and 21, except for the common die sizes of 4, 6, 8, 10, 12, and 20. 
+# F: "Fudge" die. Rolls -1, 0, and 1 in a linear distribution. Is worth either 0, 1, or 3 points depending on who you talk to.
+#    Zero, because that's twice its average roll; One, because that's its highest value; Three because it can vary between
+#    3 different values.
+# R: "Regular" die. Equivalent to an "X" Swing Die.
+# P: "Prestige" die. A variable die which can be any size between 30 and 100 sides, the Prestige Die cannot make any Attacks
+#     and is not worth any points.
+# G: "Gamer" die. A variable die which can be any size between 3 and 21, except for the common die sizes of 4, 6, 8, 10, 12, and 20.
 # S: "Screw" or "Suck" die. A 7-sided die. If the S die makes an attack and rolls odd, its owner gets another turn. If it rolls even,
-#     its owner loses. 
+#     its owner loses.
 # ('Buzzing Weasel','F R P G S',                   1, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # JAMES ERNEST is mathematically impossible to implement (though it might be fun to try to work around this, changing sizes to die skills)
 # ('James Ernest','(pi) (inf) (sqrt(-2)) (X)',     1, 0, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
@@ -677,7 +680,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (307, 'John Kovalic',  '(6) c(6) (10) (12) c(20)',    0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 (308, 'Pikathulhu',    '(6) c(6) (10) (12) c(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 (309, 'Ulthar',        '(4) (8) (10) c(10) c(T)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
-# WT??? 
+# WT???
 # Seriously!  I have no idea what this recipe is meant to be
 # (695, 'Bob',    '(pX+Y+Z) (t0]) (sA!) (zA!) (cA!) (X+Y+Z)',     1, 0, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
 
@@ -1112,3 +1115,27 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (547, 'Zomulgustar', 't(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?', 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 (548, 'Zophiel',         'k(1) (6) z(8,8) H(12) (Y)?',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 (549, 'Zotmeister',      'd(1) d(1) d(2,2) d(8,8) rd(1) rd(26,26)',    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics"));
+
+#############################################
+#####   S P E C I A L   B U T T O N S   #####
+#############################################
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
+(10002, 'RandomBMFixed',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
+(10003, 'RandomBMMixed',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"));
+
+#####################################################
+#####   B U T T O N   D E S C R I P T I O N S   #####
+#####################################################
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a vanilla random formula (5 dice, no swing dice, no skills)'
+WHERE name='RandomBMVanilla';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a fixed random formula (5 dice, no swing dice, two of them having a single skill chosen independently from c, f, and d)'
+WHERE name='RandomBMFixed';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a fixed random formula (5 dice, no swing dice, three skills chosen from all existing skills, with each skill dealt out twice randomly and independently over all dice)'
+WHERE name='RandomBMMixed';
+

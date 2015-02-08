@@ -10,10 +10,18 @@
  *  It stores the attack type.
  */
 class BMFlagIsAttacker extends BMFlag {
-
-    // properties
+    /**
+     * Attack type, stored in flag
+     *
+     * @var string
+     */
     protected $attackType;
 
+    /**
+     * Value stored in flag
+     *
+     * @return mixed
+     */
     public function value() {
         return $this->attackType;
     }

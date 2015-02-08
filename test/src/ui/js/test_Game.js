@@ -171,7 +171,7 @@ test("test_Game.showStatePage", function(assert) {
 
 test("test_Game.showStatePage_chooseaux_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -185,7 +185,7 @@ test("test_Game.showStatePage_chooseaux_active", function(assert) {
 
 test("test_Game.showStatePage_reserve_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -199,7 +199,7 @@ test("test_Game.showStatePage_reserve_active", function(assert) {
 
 test("test_Game.showStatePage_reserve_inactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_inactive';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -213,7 +213,7 @@ test("test_Game.showStatePage_reserve_inactive", function(assert) {
 
 test("test_Game.showStatePage_reserve_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_nonplayer';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_nonplayer';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -239,7 +239,7 @@ test("test_Game.showStatePage_swingset", function(assert) {
 
 test("test_Game.showStatePage_newgame_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice_nonplayer';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -282,7 +282,7 @@ test("test_Game.showStatePage_turn_active_compactMode", function(assert) {
 
 test("test_Game.showStatePage_turn_inactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_first_comments_inactive';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -294,7 +294,7 @@ test("test_Game.showStatePage_turn_inactive", function(assert) {
 
 test("test_Game.showStatePage_turn_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -328,7 +328,7 @@ test("test_Game.parseValidReserveOptions", function(assert) {
 
 test("test_Game.parseValidReserveOptions_reserve_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.parseValidReserveOptions();
     assert.deepEqual(Api.game.player.reserveOptions,
@@ -363,14 +363,13 @@ test("test_Game.parseValidFireOptions_fire_active", function(assert) {
 
 test("test_Game.parseValidInitiativeActions_focus", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     assert.deepEqual(
       Api.game.player.initiativeActions,
         {'focus': {
-          '3': [5, 4, 3, 2, 1],
-          '4': [17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+          '1': [7, 6, 5, 4, 3, 2, 1]
          },
          'decline': true },
         "Correct valid initiative actions identified for Crab");
@@ -380,25 +379,25 @@ test("test_Game.parseValidInitiativeActions_focus", function(assert) {
 
 test("test_Game.parseValidInitiativeActions_chance", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_active';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     assert.deepEqual(
       Api.game.player.initiativeActions,
         {'chance': { '1': true, '4': true }, 'decline': true },
-        "Correct valid initiative actions identified for John Kovalic");
+        "Correct valid initiative actions identified for Pikathulhu");
     start();
   });
 });
 
 test("test_Game.parseAuxiliaryDieOptions", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.parseAuxiliaryDieOptions();
-    assert.equal(Api.game.player.auxiliaryDieRecipe, "+(20)",
+    assert.equal(Api.game.player.auxiliaryDieRecipe, "+s(X)",
       "Correct auxiliary die option for player");
-    assert.equal(Api.game.opponent.auxiliaryDieRecipe, "+(20)",
+    assert.equal(Api.game.opponent.auxiliaryDieRecipe, "+s(X)",
       "Correct auxiliary die option for opponent");
     start();
   });
@@ -425,15 +424,15 @@ test("test_Game.actionSpecifyDiceActive", function(assert) {
 
 test("test_Game.actionSpecifyDiceActive_option", function(assert) {
   stop();
-  BMTestUtils.GameType = 'option_active';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_specify_table');
     assert.equal(item.nodeName, "TABLE",
       "#die_specify_table is a table after actionSpecifyDiceActive() is called");
-    var item = document.getElementById('option_3');
-    assert.ok(item, "#option_3 select is set");
+    var item = document.getElementById('option_4');
+    assert.ok(item, "#option_4 select is set");
 
     var item = document.getElementById('opponent_swing');
     assert.equal(item.nodeName, "TABLE",
@@ -457,7 +456,7 @@ test("test_Game.actionSpecifyDiceInactive", function(assert) {
 
 test("test_Game.actionSpecifyDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -470,7 +469,7 @@ test("test_Game.actionSpecifyDiceNonplayer", function(assert) {
 
 test("test_Game.actionChooseAuxiliaryDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -481,7 +480,7 @@ test("test_Game.actionChooseAuxiliaryDiceActive", function(assert) {
 
 test("test_Game.actionChooseAuxiliaryDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_inactive';
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -492,7 +491,7 @@ test("test_Game.actionChooseAuxiliaryDiceInactive", function(assert) {
 
 test("test_Game.actionChooseAuxiliaryDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_nonplayer';
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -503,7 +502,7 @@ test("test_Game.actionChooseAuxiliaryDiceNonplayer", function(assert) {
 
 test("test_Game.actionChooseReserveDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -514,7 +513,7 @@ test("test_Game.actionChooseReserveDiceActive", function(assert) {
 
 test("test_Game.actionChooseReserveDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -525,7 +524,7 @@ test("test_Game.actionChooseReserveDiceInactive", function(assert) {
 
 test("test_Game.actionChooseReserveDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_nonplayer';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -536,20 +535,18 @@ test("test_Game.actionChooseReserveDiceNonplayer", function(assert) {
 
 test("test_Game.actionReactToInitiativeActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
-    var item = document.getElementById('init_react_3');
-    assert.ok(item, "#init_react_3 select is set");
+    var item = document.getElementById('init_react_1');
+    assert.ok(item, "#init_react_1 select is set");
     $.each(item.childNodes, function(childid, child) {
-      if (child.getAttribute('label') == '6') {
+      if (child.getAttribute('label') == '8') {
         assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Focus die is initially set to maximum value');
       }
     });
-    item = document.getElementById('init_react_4');
-    assert.ok(item, "#init_react_4 select is set");
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -557,22 +554,20 @@ test("test_Game.actionReactToInitiativeActive", function(assert) {
 
 test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
-  Game.activity.initiativeDieIdxArray = [ 3, ];
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
+  Game.activity.initiativeDieIdxArray = [ 1, ];
   Game.activity.initiativeDieValueArray = [ 2, ];
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
-    var item = document.getElementById('init_react_3');
-    assert.ok(item, "#init_react_3 select is set");
+    var item = document.getElementById('init_react_1');
+    assert.ok(item, "#init_react_1 select is set");
     $.each(item.childNodes, function(childid, child) {
       if (child.getAttribute('label') == '2') {
         assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Focus die is turned down to previously chosen value');
       }
     });
-    item = document.getElementById('init_react_4');
-    assert.ok(item, "#init_react_4 select is set");
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -580,7 +575,7 @@ test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
 
 test("test_Game.actionReactToInitiativeInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_inactive';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_inactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -595,7 +590,7 @@ test("test_Game.actionReactToInitiativeInactive", function(assert) {
 
 test("test_Game.actionReactToInitiativeNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_nonplayer';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -724,7 +719,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
 
 test("test_Game.actionPlayTurnInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
@@ -739,9 +734,28 @@ test("test_Game.actionPlayTurnInactive", function(assert) {
   });
 });
 
+test("test_Game.actionPlayTurnInactive_chat_editable", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_first_comments_inactive';
+  var serverPrevChat = 'This is [b]my[/b] first comment';
+  var activityPrevChat = 'I had previously typed some text';
+  Game.activity.chat = activityPrevChat;
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
+    var item = document.getElementById('attack_type_select');
+    assert.equal(item, null, "#attack_type_select is not set");
+    var item = document.getElementById('game_chat');
+    assert.equal($(item).val(), activityPrevChat,
+      'Previous text is retained by game chat');
+    assert.ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
 test("test_Game.actionPlayTurnNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -754,7 +768,7 @@ test("test_Game.actionPlayTurnNonplayer", function(assert) {
 
 test("test_Game.actionShowFinishedGame", function(assert) {
   stop();
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -792,7 +806,7 @@ test("test_Game.formSpecifyDiceActive", function(assert) {
 
 test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chooseaux_active';
+  BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -811,7 +825,7 @@ test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
 
 test("test_Game.formChooseReserveDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -831,7 +845,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
 
 test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
   stop();
-  BMTestUtils.GameType = 'reserve_active';
+  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -850,12 +864,12 @@ test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
 
 test("test_Game.formReactToInitiativeActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#react_type_select').val('focus');
-    $('#init_react_3').val('5');
+    $('#init_react_1').val('3');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -870,12 +884,12 @@ test("test_Game.formReactToInitiativeActive", function(assert) {
 
 test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#react_type_select').val('decline');
-    $('#init_react_3').val('5');
+    $('#init_react_1').val('3');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -946,7 +960,7 @@ test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
 
 test("test_Game.formPlayTurnInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1055,7 +1069,7 @@ test("test_Game.pageAddUnhideChatButton", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
@@ -1069,7 +1083,7 @@ test("test_Game.pageAddGameNavigationFooter", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter_pendingGames", function(assert) {
   stop();
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Api.pending_games.count = 3;
@@ -1097,7 +1111,7 @@ test("test_Game.pageAddGameNavigationFooter_turn_active", function(assert) {
 
 test("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_nonplayer';
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
@@ -1110,7 +1124,7 @@ test("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function(assert) {
 
 test("test_Game.pageAddSkillListFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddSkillListFooter();
@@ -1187,7 +1201,7 @@ test("test_Game.dieRecipeTable", function(assert) {
 
 test("test_Game.dieRecipeTable_focus", function(assert) {
   stop();
-  BMTestUtils.GameType = 'focus';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
@@ -1199,23 +1213,21 @@ test("test_Game.dieRecipeTable_focus", function(assert) {
     assert.ok(item, "Document should contain die recipe table");
     assert.equal(item.nodeName, "TABLE",
       "Die recipe table should be a table element");
-    assert.ok(item.innerHTML.match('Crab'),
+    assert.ok(item.innerHTML.match('BlackOmega'),
       "Die recipe table should contain button names");
     assert.ok(item.innerHTML.match('Value'),
       "Die recipe table should contain header for table of values");
     assert.ok(item.innerHTML.match(/7/),
       "Die recipe table should contain entries for table of values");
-    assert.ok(item.innerHTML.match(/id="init_react_3"/),
-      "Die recipe table should contain an init reaction entry for die idx 3");
-    assert.ok(item.innerHTML.match(/id="init_react_4"/),
-      "Die recipe table should contain an init reaction entry for die idx 4");
+    assert.ok(item.innerHTML.match(/id="init_react_1"/),
+      "Die recipe table should contain an init reaction entry for die idx 1");
     start();
   });
 });
 
 test("test_Game.dieRecipeTable_chance", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_active';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
@@ -1227,12 +1239,14 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
     assert.ok(item, "Document should contain die recipe table");
     assert.equal(item.nodeName, "TABLE",
       "Die recipe table should be a table element");
-    assert.ok(item.innerHTML.match('John Kovalic'),
+    assert.ok(item.innerHTML.match('Pikathulhu'),
       "Die recipe table should contain button names");
     assert.ok(item.innerHTML.match('Value'),
       "Die recipe table should contain header for table of values");
     assert.ok(item.innerHTML.match(/id="init_react_1"/),
       "Die recipe table should contain an init reaction entry for die idx 1");
+    assert.ok(item.innerHTML.match(/id="init_react_4"/),
+      "Die recipe table should contain an init reaction entry for die idx 4");
     start();
   });
 });
@@ -1265,10 +1279,10 @@ test("test_Game.dieTableEntry_empty", function(assert) {
 
 test("test_Game.activeDieFieldString", function(assert) {
   stop();
-  BMTestUtils.GameType = 'chance_active';
+  BMTestUtils.GameType = 'pikathulhu_phoenix_reacttoinitiative_active';
   Game.getCurrentGame(function() {
     var valstr = Game.activeDieFieldString(4, 'value', Api.game.player.activeDieArray);
-    assert.deepEqual(valstr, 4, "Die value string has expected contents for an existing die");
+    assert.deepEqual(valstr, 2, "Die value string has expected contents for an existing die");
 
     valstr = Game.activeDieFieldString(6, 'value', Api.game.player.activeDieArray);
     assert.deepEqual(valstr, '', "Die value string has expected contents for a nonexistent die");
@@ -1348,7 +1362,7 @@ test("test_Game.gamePlayerDice", function(assert) {
 
 test("test_Game.gamePlayerDice_disabled", function(assert) {
   stop();
-  BMTestUtils.GameType = 'turn_inactive';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', false));
@@ -1400,12 +1414,12 @@ test("test_Game.buttonImageDisplay_noImage", function(assert) {
 
 test("test_Game.gameWinner", function(assert) {
   stop();
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gameWinner());
     var htmlout = Game.page.html();
-    assert.ok(htmlout.match('tester1 won!'),
+    assert.ok(htmlout.match('responder004 won!'),
       "correct game winner should be displayed");
     start();
   });
@@ -1653,7 +1667,7 @@ test("test_Game.dieFocusOutlineHandler", function(assert) {
 test("test_Game.pageAddNewGameLinkFooter", function(assert) {
   stop();
   expect(4); // tests plus 2 teardown tests
-  BMTestUtils.GameType = 'finished';
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddNewGameLinkFooter();

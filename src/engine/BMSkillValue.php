@@ -9,9 +9,20 @@
  * This class contains code specific to the value die skill
  */
 class BMSkillValue extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods =
         array('add_skill', 'remove_skill', 'score_value', 'capture');
 
+    /**
+     * Hooked method applied when adding the skill
+     *
+     * @param array $args
+     */
     public static function add_skill($args) {
         assert(array_key_exists('die', $args));
 
@@ -19,6 +30,11 @@ class BMSkillValue extends BMSkill {
         $die->add_flag('ValueRelevantToScore');
     }
 
+    /**
+     * Hooked method applied when removing the skill
+     *
+     * @param array $args
+     */
     public static function remove_skill($args) {
         assert(array_key_exists('die', $args));
 
@@ -29,6 +45,11 @@ class BMSkillValue extends BMSkill {
         $die->remove_flag('ValueRelevantToScore');
     }
 
+    /**
+     * Hooked method applied when determining the score value of a die
+     *
+     * @param array $args
+     */
     public static function score_value($args) {
         assert(array_key_exists('scoreValue', $args));
         assert(array_key_exists('value', $args));
@@ -40,6 +61,11 @@ class BMSkillValue extends BMSkill {
         }
     }
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture($args) {
         assert(array_key_exists('defenders', $args));
 
@@ -48,6 +74,11 @@ class BMSkillValue extends BMSkill {
         }
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'These dice are not scored like normal dice. Instead, a Value Die is scored as if the number of ' .
                'sides it has is equal to the value that it is currently showing. If a Value Die is ever part of an ' .
@@ -55,6 +86,14 @@ class BMSkillValue extends BMSkill {
                'they are showing when they are captured, not by their size).';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Null' => 'Dice with both Null and Value skills are Null',
@@ -63,6 +102,11 @@ class BMSkillValue extends BMSkill {
         );
     }
 
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
     public static function prevents_win_determination() {
         return TRUE;
     }
