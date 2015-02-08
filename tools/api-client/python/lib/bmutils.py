@@ -3,6 +3,8 @@
 # may not) report the API data in a more user-friendly form.
 
 import bmapi
+import os
+import json
 
 SkillName = {
   '+': 'Auxiliary',
@@ -98,10 +100,36 @@ class BMClientParser(bmapi.BMClient):
     return retval.data
 
   def wrap_load_game_data(self, game):
-    retval = self.load_game_data(game)
-    if not retval.status == 'ok':
-      raise ValueError, "Failed to call loadGameData, got: " + retval
-    data = retval.data
+    # if we're using a cache file
+    if self.cachefile:
+      # if the cache file exists
+      if os.path.isfile(self.cachefile):
+        # load the cache
+        with open(self.cachefile) as cache_fh:
+          cache = json.load(cache_fh)
+      # otherwise, we want to cache, but have none yet
+      else:
+        cache = {}
+      # if the game is in the cache file, use it as the data
+      if unicode(game) in cache:
+        data = cache[unicode(game)]
+      # otherwise, load the game, and cache it if it's completed
+      else:
+        retval = self.load_game_data(game)
+        if not retval.status == 'ok':
+          raise ValueError, "Failed to call loadGameData, got: " + retval
+        data = retval.data
+        if data['gameState'] == "END_GAME":
+          cache[game] = data
+          with open(self.cachefile, 'w') as cache_fh:
+            json.dump(cache, cache_fh, indent=1, sort_keys=True)
+    # otherwise (we aren't using a cache file), load the game
+    else:
+      retval = self.load_game_data(game)
+      if not retval.status == 'ok':
+        raise ValueError, "Failed to call loadGameData, got: " + retval
+      data = retval.data
+    # either way, at this point data is the right stuff, and all caching has happened
     playerIdx = int(data['currentPlayerIdx'])
     opponentIdx = 1 - playerIdx
     data['player'] = data['playerDataArray'][playerIdx]
