@@ -22,8 +22,22 @@ class BMAttackSkill extends BMAttack {
     // "Premature optimization is the root of all evil." -- Knuth
     protected $hit_table = NULL;
 
-    protected function generate_hit_table() {
-        $this->hit_table = new BMUtilityHitTable($this->validDice);
+    protected function generate_hit_table($includeOptional = TRUE) {
+        if ($includeOptional) {
+            $validDice = $this->validDice;
+        } else {
+            $validDice = array();
+
+            foreach ($this->validDice as &$die) {
+                if ($die->has_skill('Warrior')) {
+                    continue;
+                }
+                $validDice[] = $die;
+            }
+
+        }
+
+        $this->hit_table = new BMUtilityHitTable($validDice);
     }
 
     /**
@@ -44,7 +58,7 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
-        $this->generate_hit_table();
+        $this->generate_hit_table($includeOptional);
         $hits = $this->hit_table->list_hits();
         sort($hits);
 
@@ -205,6 +219,7 @@ class BMAttackSkill extends BMAttack {
 
         if ($def->has_skill('Warrior')) {
             $this->validationMessage = 'Warrior dice cannot be attacked';
+            return FALSE;
         }
 
         foreach ($attArray as $att) {
