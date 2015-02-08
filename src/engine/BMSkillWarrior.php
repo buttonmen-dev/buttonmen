@@ -21,12 +21,6 @@ class BMSkillWarrior extends BMSkill {
                                           'post_roll',
                                           'score_value');
 
-// james: yet to be tested/implemented:
-//        - adding a warrior die is not mandatory
-//             this can be implemented by causing Warrior to add BMAttackSkillOptional
-//             and then handling this attack type when listing all possible attack types
-//             to add the Pass attack as necessary
-
     /**
      * Hooked method applied when determining initiative
      *
@@ -169,5 +163,14 @@ class BMSkillWarrior extends BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array();
+    }
+
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
+    public static function prevents_win_determination() {
+        return TRUE;
     }
 }
