@@ -1979,7 +1979,7 @@ class BMGame {
 
         // find out if there are any possible attacks with any combination of
         // the attacker's and defender's dice
-        foreach ($attackTypeArray as $idx => $attackType) {
+        foreach ($attackTypeArray as $attackType) {
             if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, $attackType, FALSE)) {
                 $validAttackTypeArray[$attackType] = $attackType;
             }
