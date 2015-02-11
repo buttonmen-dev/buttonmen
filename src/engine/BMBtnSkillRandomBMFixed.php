@@ -23,9 +23,9 @@ class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
         $dieSizeArray = parent::generate_die_sizes($nDice);
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            array('c', 'f', 'd'),
-            2,
+            parent::randomly_select_skills(array('c', 'f', 'd'), 1),
             0,
+            2,
             1
         );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);

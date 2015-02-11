@@ -37,14 +37,14 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
         // choose dice with 6, 20, 10, 12, 6 sides
         // and then choose 'f' on the third die and 'c' on the fifth die
         $BM_RAND_VALS = array(1, 5, 3, 4, 1,    // die sizes
-                              1, 2,             // focus skill
-                              0, 4);            // chance skill
+                              1,                // choose focus skill
+                              2, 0);            // dice that have skill
 
         $retval = BMBtnSkillRandomBMFixed::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('(6) (6) f(10) (12) c(20)', $button->recipe);
+        $this->assertEquals('f(6) (6) f(10) (12) (20)', $button->recipe);
     }
 
     /**
