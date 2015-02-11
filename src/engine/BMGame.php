@@ -1985,8 +1985,6 @@ class BMGame {
             }
         }
 
-        $this->attack = $attackCache;
-
         if (empty($validAttackTypeArray)) {
             $validAttackTypeArray['Pass'] = 'Pass';
 
@@ -2011,6 +2009,8 @@ class BMGame {
                 }
             }
         }
+
+        $this->attack = $attackCache;
 
         // james: deliberately ignore Default and Surrender attacks here,
         //        so that they do not appear in the list of attack types
