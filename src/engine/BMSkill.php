@@ -216,7 +216,7 @@ class BMSkill {
                      'BMSkillShadow',
                      'BMSkillSlow',
                      'BMSkillStinger',
-		     'BMSkillFire',
+                     'BMSkillFire',
                      'BMSkillStealth',
                      'BMSkillOrnery',
                      'BMSkillMood',
