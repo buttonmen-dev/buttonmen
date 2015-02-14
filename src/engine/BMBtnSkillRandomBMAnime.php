@@ -25,7 +25,7 @@ class BMBtnSkillRandomBMAnime extends BMBtnSkillRandomBM {
         $dieSkillLetterArrayArray = array_merge(
             array_fill(0, 4, array()),
             array_fill(0, 4, array('r' => 'r'))
-        );       
+        );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
 
         return TRUE;
