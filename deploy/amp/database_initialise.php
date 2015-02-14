@@ -49,16 +49,19 @@
             run_sql_file($conn, "../database/schema.player.sql");
             run_sql_file($conn, "../database/schema.game.sql");
             run_sql_file($conn, "../database/schema.forum.sql");
+            run_sql_file($conn, "../database/schema.stats.sql");
             run_sql_file($conn, "../database/views.config.sql");
             run_sql_file($conn, "../database/views.button.sql");
             run_sql_file($conn, "../database/views.player.sql");
             run_sql_file($conn, "../database/views.game.sql");
             run_sql_file($conn, "../database/views.forum.sql");
+            run_sql_file($conn, "../database/views.stats.sql");
             run_sql_file($conn, "../database/data.config.sql");
             run_sql_file($conn, "../database/data.button.sql");
             run_sql_file($conn, "../database/data.game.sql");
             run_sql_file($conn, "../database/data.player.sql");
             run_sql_file($conn, "../database/data.forum.sql");
+            run_sql_file($conn, "../database/data.stats.sql");
         }
 
         // Courtesy: http://stackoverflow.com/questions/4027769/running-mysql-sql-files-in-php/10209702#10209702
