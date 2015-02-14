@@ -7,8 +7,8 @@
 
 /**
  * This class currently supports the special skills of RandomBMFixed, which has
- * fixed random recipes (5 dice, no swing dice, two of them having a single skill
- * chosen independently from c, f, and d)
+ * fixed random recipes: 5 dice, no swing dice, two of them having a single skill
+ * chosen from c, f, and d (the same skill on both)
  */
 class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
     public static $hooked_methods = array('specify_recipes');

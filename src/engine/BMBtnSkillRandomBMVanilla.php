@@ -7,7 +7,7 @@
 
 /**
  * This class currently supports the special skills of RandomBMVanilla, which has
- * vanilla random recipes (5 dice, no swing dice, no skills)
+ * vanilla random recipes: 5 dice, no swing dice, no skills
  */
 class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
     /**
