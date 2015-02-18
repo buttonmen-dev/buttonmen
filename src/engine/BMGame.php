@@ -2005,7 +2005,7 @@ class BMGame {
 
             if ($doWarriorDiceExist) {
                 if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, 'Skill', TRUE)) {
-                    $validAttackTypeArray[$attackType] = $attackType;
+                    $validAttackTypeArray[$attackType] = 'Skill';
                 }
             }
         }
@@ -3429,6 +3429,15 @@ class BMGame {
             $validAttackTypeArray = array_keys($this->valid_attack_types());
         } else {
             $validAttackTypeArray = array();
+        }
+
+        // force pass attacks to be last
+        $passIdx = array_search('Pass', $validAttackTypeArray);
+
+        if (FALSE !== $passIdx) {
+            unset($validAttackTypeArray[$passIdx]);
+            $validAttackTypeArray[] = 'Pass';
+            $validAttackTypeArray = array_values($validAttackTypeArray);
         }
 
         return $validAttackTypeArray;
