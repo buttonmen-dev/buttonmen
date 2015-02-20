@@ -56,17 +56,29 @@ class BMAttackSkill extends BMAttack {
 
     protected function sort_distance(array &$values, $targetValue) {
         // centre values around $targetValue
-        array_walk($values, function (&$val, $key, $centre) {$val = $val - $centre;}, $targetValue);
+        array_walk(
+            $values,
+            function (&$val, $key, $centre) {
+                $val = $val - $centre;
+            },
+            $targetValue
+        );
 
         // sort according to absolute distance from centre
         usort($values, array($this, 'absolute_distance_cmp'));
 
         // remove centration
-        array_walk($values, function (&$val, $key, $centre) {$val = $val + $centre;}, $targetValue);
+        array_walk(
+            $values,
+            function (&$val, $key, $centre) {
+                $val = $val + $centre;
+            },
+            $targetValue
+        );
     }
 
-    protected function absolute_distance_cmp($a, $b) {
-        return abs($a) > abs($b);
+    protected function absolute_distance_cmp($aVal, $bVal) {
+        return abs($aVal) > abs($bVal);
     }
 
     public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
