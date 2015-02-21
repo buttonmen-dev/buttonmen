@@ -45,6 +45,11 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
+        if ($this->is_disabled_by_maximum($attackers, $defenders)) {
+            // validation message set within $this->is_disabled_by_maximum()
+            return FALSE;
+        }
+
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
@@ -108,6 +113,26 @@ class BMAttackTrip extends BMAttack {
         if ($att->has_skill('Konstant') &&
             $def->has_skill('Konstant') &&
             ($att->value < $def->value)) {
+            $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    protected function is_disabled_by_maximum($attArray, $defArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attack must have one element.');
+        }
+
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
+        $att = $attArray[0];
+        $def = $defArray[0];
+
+        if ($def->has_skill('Maximum') && ($att->max < $def->max)) {
             $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
             return TRUE;
         }
