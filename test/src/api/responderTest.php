@@ -133,6 +133,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant Dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack.',
                 'interacts' => array(),
             ),
+            'Maximum' => array(
+                'code' => 'M',
+                'description' => 'Maximum dice always roll their maximum value.',
+                'interacts' => array(
+                ),
+            ),
             'Mighty' => array(
                 'code' => 'H',
                 'description' => 'When a Mighty Die rerolls for any reason, it first grows from its current size to the next larger size in the list of "standard" die sizes (1, 2, 4, 6, 8, 10, 12, 16, 20, 30).',
@@ -8807,6 +8813,96 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'][0]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'][1]['value'] = 2;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Trip attack using [t(T=2,T=2):3] against [(5):5]; Attacker t(T=2,T=2) rerolled 3 => 4; Defender (5) rerolled 5 => 4, was captured'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This game tests RandomBMMixed and verifies that trip attacks fail against too-large shadow maximum dice
+     */
+    public function test_interface_game_026() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 26;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        $gameId = $this->verify_api_createGame(
+            array(
+                4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
+                0, 4, 13,          // die skills for r3: c, n, t
+                1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
+                1, 2, 2, 3, 5,     // die sizes for r4
+                8, 3, 5,           // die skills for r4
+                1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
+                4, 3, 3, 5, 5,     // initial die rolls for r3
+                6, 8, 5, 7, 7,     // initial die rolls for r4
+            ),
+            'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Chance', 'Maximum', 'Null', 'Ornery', 'Shadow', 'Trip'));
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Trip');
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['playerDataArray'][0]['roundScore'] = 17;
+        $expData['playerDataArray'][1]['roundScore'] = 26;
+        $expData['playerDataArray'][0]['sideScore'] = -6.0;
+        $expData['playerDataArray'][1]['sideScore'] = 6.0;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'tn(4) c(10) tn(10) c(12) (12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'o(6) Ms(8) (8) s(10) oM(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 4, 'sides' => 4, 'skills' => array('Trip', 'Null'), 'properties' => array(), 'recipe' => 'tn(4)', 'description' => 'Trip Null 4-sided die'),
+            array('value' => 3, 'sides' => 10, 'skills' => array('Chance'), 'properties' => array(), 'recipe' => 'c(10)', 'description' => 'Chance 10-sided die'),
+            array('value' => 3, 'sides' => 10, 'skills' => array('Trip', 'Null'), 'properties' => array(), 'recipe' => 'tn(10)', 'description' => 'Trip Null 10-sided die'),
+            array('value' => 5, 'sides' => 12, 'skills' => array('Chance'), 'properties' => array(), 'recipe' => 'c(12)', 'description' => 'Chance 12-sided die'),
+            array('value' => 5, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 6, 'sides' => 6, 'skills' => array('Ornery'), 'properties' => array(), 'recipe' => 'o(6)', 'description' => 'Ornery 6-sided die'),
+            array('value' => 8, 'sides' => 8, 'skills' => array('Maximum', 'Shadow'), 'properties' => array(), 'recipe' => 'Ms(8)', 'description' => 'Maximum Shadow 8-sided die'),
+            array('value' => 5, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            array('value' => 7, 'sides' => 10, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(10)', 'description' => 'Shadow 10-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array('Ornery', 'Maximum'), 'properties' => array(), 'recipe' => 'oM(20)', 'description' => 'Ornery Maximum 20-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [tn(4):4, c(10):3, tn(10):3, c(12):5, (12):5], responder004 rolled [o(6):6, Ms(8):8, (8):5, s(10):7, oM(20):20]. responder003 has dice which are not counted for initiative due to die skills: [tn(4), tn(10)].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - verify that a trip attack by the smaller trip die against the Ms(8) is rejected
+        // [tn(4):4, c(10):3, tn(10):3, c(12):5, (12):5] => [o(6):6, Ms(8):8, (8):5, s(10):7, oM(20):20]
+        $this->verify_api_submitTurn_failure(
+            array(),
+            'The attacking die cannot roll high enough to capture the target die',
+            $retval, array(array(0, 0), array(1, 1)),
+            $gameId, 1, 'Trip', 0, 1, '');
+
+	// A trip attack by the larger trip die against the Ms(8) should be allowed,
+        // and should fail even though the Maximum die "rolls" a smaller value than the trip die
+        $this->verify_api_submitTurn(
+            array(7, 5),
+            'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured. ',
+            $retval, array(array(0, 2), array(1, 1)),
+            $gameId, 1, 'Trip', 0, 1, '');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 1, array('Power', 'Skill', 'Shadow'),
+            array(17, 26, -6.0, 6.0),
+            array(array(0, 2, array('value' => 7, 'properties' => array('JustPerformedTripAttack', 'JustPerformedUnsuccessfulAttack')))),
+            array(),
+            array(),
+            array()
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
