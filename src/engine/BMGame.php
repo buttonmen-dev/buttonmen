@@ -1986,7 +1986,6 @@ class BMGame {
         }
 
         if (empty($validAttackTypeArray)) {
-            $validAttackTypeArray['Pass'] = 'Pass';
 
             // Now find optional attack types
 
@@ -2005,10 +2004,14 @@ class BMGame {
 
             if ($doWarriorDiceExist) {
                 if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, 'Skill', TRUE)) {
-                    $validAttackTypeArray[$attackType] = 'Skill';
+                    $validAttackTypeArray['Skill'] = 'Skill';
                 }
             }
         }
+
+	// james: ensure that Pass attacks occur last in the list of possible
+	// attacks by adding them AFTER optional attacks
+        $validAttackTypeArray['Pass'] = 'Pass';
 
         $this->attack = $attackCache;
 
@@ -3429,15 +3432,6 @@ class BMGame {
             $validAttackTypeArray = array_keys($this->valid_attack_types());
         } else {
             $validAttackTypeArray = array();
-        }
-
-        // force pass attacks to be last
-        $passIdx = array_search('Pass', $validAttackTypeArray);
-
-        if (FALSE !== $passIdx) {
-            unset($validAttackTypeArray[$passIdx]);
-            $validAttackTypeArray[] = 'Pass';
-            $validAttackTypeArray = array_values($validAttackTypeArray);
         }
 
         return $validAttackTypeArray;
