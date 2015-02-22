@@ -218,6 +218,7 @@ class BMSkill {
                      'BMSkillShadow',
                      'BMSkillSlow',
                      'BMSkillStinger',
+                     'BMSkillFire',
                      'BMSkillStealth',
                      'BMSkillOrnery',
                      'BMSkillMood',
@@ -231,8 +232,6 @@ class BMSkill {
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
-                     'BMSkillKonstant',
-                     'BMSkillMorphing',
                      'BMSkillMaximum');
         // fires last
     }
