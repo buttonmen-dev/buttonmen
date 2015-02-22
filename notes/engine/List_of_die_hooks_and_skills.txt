@@ -8,6 +8,7 @@ pre_roll
   Mood
 post_roll
   Maximum
+  Warrior
 attack_list
   Berserk
   Fire
@@ -17,6 +18,7 @@ attack_list
   Speed
   Stealth
   Trip
+  Warrior
 attack_values
   Konstant
   Stinger
@@ -24,10 +26,12 @@ score_value
   Null
   Poison
   Value
+  Warrior
 initiative_value
   Slow
   Stinger
   Trip
+  Warrior
 assist_values
   Fire
 capture
@@ -38,6 +42,7 @@ capture
   Radioactive
   Trip
   Value
+  Warrior
 be_captured
   Radioactive
 split

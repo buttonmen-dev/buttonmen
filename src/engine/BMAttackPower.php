@@ -11,7 +11,7 @@
 class BMAttackPower extends BMAttack {
     public $type = 'Power';
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         return $this->search_onevone($game, $this->validDice, $targets);
@@ -120,9 +120,19 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform power attacks.';
+            return FALSE;
+        }
+
         // defender skills
         if ($def->has_Skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be attacked by power attacks.';
+            return FALSE;
+        }
+
+        if ($def->has_Skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked.';
             return FALSE;
         }
 

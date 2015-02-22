@@ -22,18 +22,43 @@ class BMAttackSkill extends BMAttack {
     // "Premature optimization is the root of all evil." -- Knuth
     protected $hitTable = NULL;
 
-    protected function generate_hit_table() {
-        $this->hitTable = new BMUtilityHitTable($this->validDice);
+    protected function generate_hit_table($includeOptional = TRUE) {
+        if ($includeOptional) {
+            $validDice = $this->validDice;
+        } else {
+            $validDice = array();
+
+            foreach ($this->validDice as &$die) {
+                if ($die->has_skill('Warrior')) {
+                    continue;
+                }
+                $validDice[] = $die;
+            }
+
+        }
+
+        $this->hitTable = new BMUtilityHitTable($validDice);
     }
 
-    public function find_attack($game) {
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
+    public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         if (count($targets) < 1) {
             return FALSE;
         }
 
-        $this->generate_hit_table();
+        $this->generate_hit_table($includeOptional);
         $hits = $this->hitTable->list_hits();
 
         foreach ($targets as $t) {
@@ -202,6 +227,11 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        if ($def->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked';
+            return FALSE;
+        }
+
         foreach ($attArray as $att) {
             if ($att->has_skill('Berserk')) {
                 $this->validationMessage = 'Berserk dice cannot perform skill attacks.';
@@ -209,6 +239,37 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
+        if ($this->is_invalid_warrior_attack($attArray)) {
+            // validation message set within $this->is_invalid_warrior_attack()
+            return FALSE;
+        }
+
         return TRUE;
+    }
+
+    protected function is_invalid_warrior_attack(array $attArray) {
+        $nWarrior = 0;
+        foreach ($attArray as $attacker) {
+            if ($attacker->has_skill('Warrior')) {
+                $nWarrior++;
+            }
+        }
+
+        // check if there are any warrior dice present
+        if (0 == $nWarrior) {
+            return FALSE;
+        }
+
+        // check that there is only one warrior die present
+        if ($nWarrior != 1) {
+            $this->validationMessage = 'Only one Warrior die can be brought into play at a time';
+            return TRUE;
+        }
+
+        // check that there is at least one non-warrior die taking part
+        if (1 == count($attArray)) {
+            $this->validationMessage = 'There must be at least one non-Warrior attacker';
+            return TRUE;
+        }
     }
 }

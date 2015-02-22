@@ -31,6 +31,7 @@ SkillName = {
   't': 'Trip',
   'v': 'Value',
   'h': 'Weak',
+  '`': 'Warrior',
 }
 
 class BMClientParser(bmapi.BMClient):

@@ -90,8 +90,18 @@ class BMAttackShadow extends BMAttackPower {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform shadow attacks.';
+            return FALSE;
+        }
+
         if ($def->has_skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be attacked by shadow attacks.';
+            return FALSE;
+        }
+
+        if ($def->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked.';
             return FALSE;
         }
 
