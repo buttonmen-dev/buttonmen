@@ -1986,7 +1986,6 @@ class BMGame {
         }
 
         if (empty($validAttackTypeArray)) {
-
             // Now find optional attack types
 
             // Currently, the only optional attacks are skill attacks
@@ -2007,11 +2006,12 @@ class BMGame {
                     $validAttackTypeArray['Skill'] = 'Skill';
                 }
             }
+	
+            // james: ensure that Pass attacks occur last in the list of
+            // possible attacks by adding them AFTER optional attacks
+            $validAttackTypeArray['Pass'] = 'Pass';
         }
 
-	// james: ensure that Pass attacks occur last in the list of possible
-	// attacks by adding them AFTER optional attacks
-        $validAttackTypeArray['Pass'] = 'Pass';
 
         $this->attack = $attackCache;
 
