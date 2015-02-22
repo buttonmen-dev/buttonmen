@@ -70,7 +70,7 @@ class BMAttackSpeed extends BMAttack {
         return TRUE;
     }
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->search_onevmany(
             $game,
             $game->attackerAllDieArray,
@@ -95,6 +95,12 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform ' .
+                                       strtolower($this->type). ' attacks.';
+            return FALSE;
+        }
+
         if (!$att->has_skill($this->type)) {
             $this->validationMessage = 'Dice without ' .
                                        strtolower($this->type). ' cannot perform ' .
@@ -106,6 +112,11 @@ class BMAttackSpeed extends BMAttack {
             if ($def->has_skill('Stealth')) {
                 $this->validationMessage = 'Stealth dice cannot be attacked by ' .
                                            strtolower($this->type). ' attacks.';
+                return FALSE;
+            }
+
+            if ($def->has_skill('Warrior')) {
+                $this->validationMessage = 'Warrior dice cannot be attacked.';
                 return FALSE;
             }
         }

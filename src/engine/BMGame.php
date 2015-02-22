@@ -59,46 +59,46 @@
  * @SuppressWarnings(PMD.UnusedPrivateField)
  */
 class BMGame {
-    // properties -- all accessible, but written as private to enable the use of
+    // properties -- all accessible, but written as protected to enable the use of
     //               getters and setters
-    private $gameId;                // game ID number in the database
-    private $playerIdArray;         // array of player IDs
-    private $nPlayers;              // number of players in the game
-    private $roundNumber;           // current round number
-    private $turnNumberInRound;     // current turn number in current round
-    private $activePlayerIdx;       // index of the active player in playerIdxArray
-    private $playerWithInitiativeIdx; // index of the player who won initiative
-    private $buttonArray;           // buttons for all players
-    private $activeDieArrayArray;   // active dice for all players
-    private $attack;                // array('attackerPlayerIdx',
+    protected $gameId;                // game ID number in the database
+    protected $playerIdArray;         // array of player IDs
+    protected $nPlayers;              // number of players in the game
+    protected $roundNumber;           // current round number
+    protected $turnNumberInRound;     // current turn number in current round
+    protected $activePlayerIdx;       // index of the active player in playerIdxArray
+    protected $playerWithInitiativeIdx; // index of the player who won initiative
+    protected $buttonArray;           // buttons for all players
+    protected $activeDieArrayArray;   // active dice for all players
+    protected $attack;                // array('attackerPlayerIdx',
                                     //       'defenderPlayerIdx',
                                     //       'attackerAttackDieIdxArray',
                                     //       'defenderAttackDieIdxArray',
                                     //       'attackType')
-    private $attackerPlayerIdx;     // index in playerIdxArray of the attacker
-    private $defenderPlayerIdx;     // index in playerIdxArray of the defender
-    private $attackerAllDieArray;   // array of all attacker's dice
-    private $defenderAllDieArray;   // array of all defender's dice
-    private $attackerAttackDieArray; // array of attacker's dice used in attack
-    private $defenderAttackDieArray; // array of defender's dice used in attack
-    private $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
-    private $nRecentPasses;         // number of consecutive passes
-    private $capturedDieArrayArray; // captured dice for all players
-    private $roundScoreArray;       // current points score in this round
-    private $gameScoreArrayArray;   // number of games W/L/D for all players
-    private $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
-    private $maxWins;               // the game ends when a player has this many wins
-    private $gameState;             // current game state as a BMGameState enum
-    private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
-    private $autopassArray;         // boolean array whether each player has enabled autopass
-    private $firingAmount;          // amount of firing that has been submitted
-    private $actionLog;             // game actions taken by this BMGame instance
-    private $chat;                  // chat message submitted by the active player with an attack
-    private $description;           // description provided when the game was created
-    private $previousGameId;        // the game whose chat is being continued with this game
-    private $message;               // message to be passed to the GUI
+    protected $attackerPlayerIdx;     // index in playerIdxArray of the attacker
+    protected $defenderPlayerIdx;     // index in playerIdxArray of the defender
+    protected $attackerAllDieArray;   // array of all attacker's dice
+    protected $defenderAllDieArray;   // array of all defender's dice
+    protected $attackerAttackDieArray; // array of attacker's dice used in attack
+    protected $defenderAttackDieArray; // array of defender's dice used in attack
+    protected $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
+    protected $nRecentPasses;         // number of consecutive passes
+    protected $capturedDieArrayArray; // captured dice for all players
+    protected $roundScoreArray;       // current points score in this round
+    protected $gameScoreArrayArray;   // number of games W/L/D for all players
+    protected $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
+    protected $maxWins;               // the game ends when a player has this many wins
+    protected $gameState;             // current game state as a BMGameState enum
+    protected $waitingOnActionArray;  // boolean array whether each player needs to perform an action
+    protected $autopassArray;         // boolean array whether each player has enabled autopass
+    protected $firingAmount;          // amount of firing that has been submitted
+    protected $actionLog;             // game actions taken by this BMGame instance
+    protected $chat;                  // chat message submitted by the active player with an attack
+    protected $description;           // description provided when the game was created
+    protected $previousGameId;        // the game whose chat is being continued with this game
+    protected $message;               // message to be passed to the GUI
 
-    private $forceRoundResult;      // boolean array whether each player has won the round
+    protected $forceRoundResult;      // boolean array whether each player has won the round
 
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
@@ -114,8 +114,8 @@ class BMGame {
                                     // accepted this game
     public $hasPlayerDismissedGameArray;
 
-    private $fireCache;             // internal cache of fire info, used for logging
-    private $debug;
+    protected $fireCache;             // internal cache of fire info, used for logging
+    protected $debug;
 
     // methods
     public function do_next_step() {
@@ -1661,7 +1661,7 @@ class BMGame {
         return array('gainedInitiative' => FALSE);
     }
 
-    private function possibleChanceAction($die, $dieValueArray, $dieIdxArray) {
+    protected function possibleChanceAction($die, $dieValueArray, $dieIdxArray) {
         // check for ANY selected dice, not just a single die
         $possChanceAction = $die->has_skill('Chance') &&
                             !isset($dieValueArray) &&
@@ -1670,7 +1670,7 @@ class BMGame {
         return $possChanceAction;
     }
 
-    private function possibleFocusAction($die, $dieValueArray, $dieIdxArray, $listIdx) {
+    protected function possibleFocusAction($die, $dieValueArray, $dieIdxArray, $listIdx) {
         // check for ANY change in die value, also invalid changes
         $possFocusAction = $die->has_skill('Focus') &&
                            is_array($dieValueArray) &&
@@ -1979,28 +1979,41 @@ class BMGame {
 
         // find out if there are any possible attacks with any combination of
         // the attacker's and defender's dice
-        foreach ($attackTypeArray as $idx => $attackType) {
-            $this->attack = array('attackerPlayerIdx' => $attackerIdx,
-                                  'defenderPlayerIdx' => $defenderIdx,
-                                  'attackerAttackDieIdxArray' =>
-                                      range(0, count($this->activeDieArrayArray[$attackerIdx]) - 1),
-                                  'defenderAttackDieIdxArray' =>
-                                      range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
-                                  'attackType' => $attackTypeArray[$idx]);
-            $attack = BMAttack::get_instance($attackType);
-            foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
-                $attack->add_die($attackDie);
-            }
-            if ($attack->find_attack($this)) {
+        foreach ($attackTypeArray as $attackType) {
+            if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, $attackType, FALSE)) {
                 $validAttackTypeArray[$attackType] = $attackType;
             }
         }
 
-        $this->attack = $attackCache;
-
         if (empty($validAttackTypeArray)) {
+            // Now find optional attack types
+
+            // Currently, the only optional attacks are skill attacks
+            // involving Warrior dice, so the code is streamlined to search
+            // specifically for this. However, this could easily be generalised
+            // if other optional attack types become available.
+            $doWarriorDiceExist = FALSE;
+
+            foreach ($this->activeDieArrayArray[$attackerIdx] as $activeDie) {
+                if ($activeDie->has_skill('Warrior')) {
+                    $doWarriorDiceExist = TRUE;
+                    break;
+                }
+            }
+
+            if ($doWarriorDiceExist) {
+                if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, 'Skill', TRUE)) {
+                    $validAttackTypeArray['Skill'] = 'Skill';
+                }
+            }
+
+            // james: ensure that Pass attacks occur last in the list of
+            // possible attacks by adding them AFTER optional attacks
             $validAttackTypeArray['Pass'] = 'Pass';
         }
+
+
+        $this->attack = $attackCache;
 
         // james: deliberately ignore Default and Surrender attacks here,
         //        so that they do not appear in the list of attack types
@@ -2008,7 +2021,27 @@ class BMGame {
         return $validAttackTypeArray;
     }
 
-    private function activate_GUI($activation_type, $input_parameters = NULL) {
+    protected function does_valid_attack_exist(
+        $attackerIdx,
+        $defenderIdx,
+        $attackType,
+        $includeOptional
+    ) {
+        $this->attack = array('attackerPlayerIdx' => $attackerIdx,
+                              'defenderPlayerIdx' => $defenderIdx,
+                              'attackerAttackDieIdxArray' =>
+                                  range(0, count($this->activeDieArrayArray[$attackerIdx]) - 1),
+                              'defenderAttackDieIdxArray' =>
+                                  range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
+                              'attackType' => $attackType);
+        $attack = BMAttack::get_instance($attackType);
+        foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
+            $attack->add_die($attackDie);
+        }
+        return $attack->find_attack($this, $includeOptional);
+    }
+
+    protected function activate_GUI($activation_type, $input_parameters = NULL) {
         // currently acts as a placeholder
         $this->debug_message .= "\n{$activation_type} {$input_parameters}";
     }
@@ -2029,7 +2062,7 @@ class BMGame {
         unset($this->forceRoundResult);
     }
 
-    private function update_active_player() {
+    protected function update_active_player() {
         if (!isset($this->activePlayerIdx)) {
             throw new LogicException(
                 'Active player must be set before it can be updated.'
@@ -2092,7 +2125,7 @@ class BMGame {
      *
      * @return int
      */
-    private function get_prevRoundNumber() {
+    protected function get_prevRoundNumber() {
         return array_sum($this->gameScoreArrayArray[0]);
     }
 
@@ -2101,7 +2134,7 @@ class BMGame {
      *
      * @return array
      */
-    private function get_sideScoreArray() {
+    protected function get_sideScoreArray() {
         $roundScoreArray = $this->get__roundScoreArray();
 
         if (2 != count($roundScoreArray) ||

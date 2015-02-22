@@ -11,7 +11,7 @@
 class BMAttackTrip extends BMAttack {
     public $type = 'Trip';
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         return $this->search_onevone($game, $this->validDice, $targets);
@@ -75,6 +75,11 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform trip attacks.';
+            return FALSE;
+        }
+
         if (!$att->has_skill('Trip')) {
             $this->validationMessage = 'Dice without trip cannot perform trip attacks.';
             return FALSE;
@@ -82,6 +87,11 @@ class BMAttackTrip extends BMAttack {
 
         if ($def->has_skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be the target of trip attacks.';
+            return FALSE;
+        }
+
+        if ($def->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked.';
             return FALSE;
         }
 

@@ -172,8 +172,18 @@ abstract class BMAttack {
         return array($helpMin, $helpMax);
     }
 
-    // uses the dice in validDice to find a single valid attack within the game
-    abstract public function find_attack($game);
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
+    abstract public function find_attack($game, $includeOptional = TRUE);
 
     // confirm that an attack is legal
     abstract public function validate_attack($game, array $attackers, array $defenders);

@@ -11,7 +11,7 @@
 class BMAttackPass extends BMAttack {
     public $type = "Pass";
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->validate_attack(
             $game,
             $this->validDice,
