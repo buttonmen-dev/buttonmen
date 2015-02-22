@@ -2006,7 +2006,7 @@ class BMGame {
                     $validAttackTypeArray['Skill'] = 'Skill';
                 }
             }
-	
+
             // james: ensure that Pass attacks occur last in the list of
             // possible attacks by adding them AFTER optional attacks
             $validAttackTypeArray['Pass'] = 'Pass';
