@@ -37,7 +37,7 @@ class BMAttackSkill extends BMAttack {
 
         }
 
-        $this->hit_table = new BMUtilityHitTable($validDice);
+        $this->hitTable = new BMUtilityHitTable($validDice);
     }
 
     /**
