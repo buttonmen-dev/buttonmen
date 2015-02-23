@@ -106,7 +106,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'reserve_nonplayer') { return '18'; }
 //  if (gameDesc == 'option_active') { return '19'; }
 //  if (gameDesc == 'fire_active') { return '22'; }
-  if (gameDesc == 'fire_inactive') { return '23'; }
+//  if (gameDesc == 'fire_inactive') { return '23'; }
 //  if (gameDesc == 'fire_nonplayer') { return '24'; }
 //  if (gameDesc == 'value') { return '25'; }
 
@@ -140,6 +140,8 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   if (gameDesc == 'merlin_ein_reacttoauxiliary_nonplayer') { return '2402'; }
   if (gameDesc == 'merlin_ein_reacttoauxiliary_inactive') { return '2403'; }
+
+  if (gameDesc == 'beatnikturtle_firebreather_adjustfire_inactive') { return '2803'; }
 }
 
 // We don't currently usually test reading the URL bar contents, because

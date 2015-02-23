@@ -658,14 +658,14 @@ test("test_Game.actionAdjustFireDiceActive", function(assert) {
 
 test("test_Game.actionAdjustFireDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'fire_inactive';
+  BMTestUtils.GameType = 'beatnikturtle_firebreather_adjustfire_inactive';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
-    item = document.getElementById('fire_adjust_0');
-    assert.equal(item, null, "#fire_adjust_0 select is not set");
+    item = document.getElementById('fire_adjust_2');
+    assert.equal(item, null, "#fire_adjust_2 select is not set");
     assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
