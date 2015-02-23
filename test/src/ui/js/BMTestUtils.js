@@ -105,9 +105,9 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'reserve_inactive') { return '17'; }
 //  if (gameDesc == 'reserve_nonplayer') { return '18'; }
 //  if (gameDesc == 'option_active') { return '19'; }
-  if (gameDesc == 'fire_active') { return '22'; }
+//  if (gameDesc == 'fire_active') { return '22'; }
   if (gameDesc == 'fire_inactive') { return '23'; }
-  if (gameDesc == 'fire_nonplayer') { return '24'; }
+//  if (gameDesc == 'fire_nonplayer') { return '24'; }
   if (gameDesc == 'value') { return '25'; }
 
   if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
@@ -116,6 +116,9 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
+
+  if (gameDesc == 'blackomega_tamiya_adjustfire_active') { return '807'; }
+  if (gameDesc == 'blackomega_tamiya_adjustfire_nonplayer') { return '808'; }
 
   if (gameDesc == 'merlin_crane_reacttoauxiliary_active') { return '901'; }
 

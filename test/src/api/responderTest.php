@@ -4322,13 +4322,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_request_savePlayerInfo
      *
-     * This scenario tests unsuccessful and successful morphing trip attacks.
+     * This scenario tests unsuccessful and successful morphing trip attacks, and also basic regression tests of adjusting fire dice
      * 0. Start a game with responder003 playing BlackOmega and responder004 playing Tamiya
      *    responder004 won initiative for round 1. Initial die values: responder003 rolled [tm(6):5, f(8):8, g(10):1, z(10):3, sF(20):7], responder004 rolled [(4):1, (8):7, (8):1, (12):9, z(20):18]. responder003 has dice which are not counted for initiative due to die skills: [tm(6), g(10)].
      * 1. responder004 performed Power attack using [(8):1] against [g(10):1]; Defender g(10) was captured; Attacker (8) rerolled 1 => 6
      * 2. responder003 performed Trip attack using [tm(6):5] against [z(20):18]; Attacker tm(6) rerolled 5 => 1; Defender z(20) rerolled 18 => 4, was not captured; Attacker tm(6) changed size from 6 to 20 sides, recipe changed from tm(6) to tm(20), rerolled 1 => 4
      * 3. responder004 performed Power attack using [z(20):4] against [z(10):3]; Defender z(10) was captured; Attacker z(20) rerolled 4 => 17
      * 4. responder003 performed Trip attack using [tm(20):4] against [(8):6]; Attacker tm(20) rerolled 4 => 20; Defender (8) rerolled 6 => 5, was captured; Attacker tm(20) changed size from 20 to 8 sides, recipe changed from tm(20) to tm(8), rerolled 20 => 5
+     * 5. responder004 performed Power attack using [(12):9] against [f(8):8]; Attacker (12) rerolled 9 => 11; Defender f(8) was captured
+     * 6. responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack
      */
     public function test_interface_game_008() {
 
@@ -4493,11 +4495,57 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 05 - responder004 performed Power attack using [(12):9] against [f(8):8]; Attacker (12) rerolled 9 => 11; Defender f(8) was captured
+        // [tm(8):3, f(8):8, sF(20):7] <= [(4):1, (8):7, (12):9, z(20):17]
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(11),
+            'responder004 performed Power attack using [(12):9] against [f(8):8]; Defender f(8) was captured; Attacker (12) rerolled 9 => 11. ',
+            $retval, array(array(0, 1), array(1, 2)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        // expected changes
+        $this->update_expected_data_after_normal_attack(
+            $expData, 0, array('Power', 'Skill', 'Shadow', 'Trip'),
+            array(22.0, 50.0, -18.7, 18.7),
+            array(array(1, 2, array('value' => 11)),
+                  array(0, 0, array('properties' => array()))),
+            array(array(0, 1)),
+            array(array(0, 0, array('properties' => array()))),
+            array(array(1, array('value' => 8, 'sides' => 8, 'recipe' => 'f(8)', 'properties' => array('WasJustCaptured'))))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(12):9] against [f(8):8]; Defender f(8) was captured; Attacker (12) rerolled 9 => 11'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 06 - responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_submitTurn(
+            array(),
+            'responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack. ',
+            $retval, array(array(0, 0), array(1, 1)),
+            $gameId, 1, 'Skill', 0, 1, '');
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack'));
+        $expData['gameState'] = 'ADJUST_FIRE_DICE';
+        $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('IsAttackTarget');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        // now load the game as non-participating player responder001 and check its state
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
     }
 
     /**
-     * @group fulltest_deps
-     *
      * @depends test_request_savePlayerInfo
      *
      * This scenario tests some simple auxiliary, swing, and focus functionality
@@ -8914,7 +8962,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This game is a regression test for the behavior of warrior dice
      */
