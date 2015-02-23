@@ -11,7 +11,7 @@
 class BMAttackTrip extends BMAttack {
     public $type = 'Trip';
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         return $this->search_onevone($game, $this->validDice, $targets);
@@ -45,6 +45,11 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
+        if ($this->is_disabled_by_maximum($attackers, $defenders)) {
+            // validation message set within $this->is_disabled_by_maximum()
+            return FALSE;
+        }
+
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
@@ -70,6 +75,11 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform trip attacks.';
+            return FALSE;
+        }
+
         if (!$att->has_skill('Trip')) {
             $this->validationMessage = 'Dice without trip cannot perform trip attacks.';
             return FALSE;
@@ -77,6 +87,11 @@ class BMAttackTrip extends BMAttack {
 
         if ($def->has_skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be the target of trip attacks.';
+            return FALSE;
+        }
+
+        if ($def->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked.';
             return FALSE;
         }
 
@@ -108,6 +123,26 @@ class BMAttackTrip extends BMAttack {
         if ($att->has_skill('Konstant') &&
             $def->has_skill('Konstant') &&
             ($att->value < $def->value)) {
+            $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+    protected function is_disabled_by_maximum($attArray, $defArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attack must have one element.');
+        }
+
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
+        $att = $attArray[0];
+        $def = $defArray[0];
+
+        if ($def->has_skill('Maximum') && ($att->max < $def->max)) {
             $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
             return TRUE;
         }

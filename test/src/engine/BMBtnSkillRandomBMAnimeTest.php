@@ -1,8 +1,8 @@
 <?php
 
-class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillRandomBMAnimeTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMBtnSkillRandomBMFixed
+     * @var BMBtnSkillRandomBMAnime
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMBtnSkillRandomBMFixed;
+        $this->object = new BMBtnSkillRandomBMAnime;
     }
 
     /**
@@ -24,7 +24,7 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMBtnSkillRandomBMFixed::specify_recipes
+     * @covers BMBtnSkillRandomBMAnime::specify_recipes
      */
     public function testSpecify_recipes_valid_args() {
         global $BM_RAND_VALS;
@@ -34,27 +34,24 @@ class BMBtnSkillRandomBMFixedTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($button->hasAlteredRecipe);
         $this->assertEmpty($button->recipe);
 
-        // choose dice with 6, 20, 10, 12, 6 sides
-        // and then choose 'f' on the third die and 'c' on the fifth die
-        $BM_RAND_VALS = array(1, 5, 3, 4, 1,    // die sizes
-                              1,                // choose focus skill
-                              2, 0);            // dice that have skill
+        // choose dice with 6, 20, 10, 12, 8, 8, 4, 20 sides
+        $BM_RAND_VALS = array(1, 5, 3, 4, 2, 2, 0, 5);    // die sizes
 
-        $retval = BMBtnSkillRandomBMFixed::specify_recipes($args);
+        $retval = BMBtnSkillRandomBMAnime::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('f(6) (6) f(10) (12) (20)', $button->recipe);
+        $this->assertEquals('(6) (10) (12) (20) r(4) r(8) r(8) r(20)', $button->recipe);
     }
 
     /**
-     * @covers BMBtnSkillRandomBMFixed::specify_recipes
+     * @covers BMBtnSkillRandomBMAnime::specify_recipes
      */
     public function testSpecify_recipes_valid_args_already_specified() {
         $button = new BMButton;
         $button->recipe = '(4) (X)';
         $args = array('button' => $button);
-        $retval = BMBtnSkillRandomBMFixed::specify_recipes($args);
+        $retval = BMBtnSkillRandomBMAnime::specify_recipes($args);
         $this->assertFalse($retval);
         $this->assertNull($button->hasAlteredRecipe);
         $this->assertEquals('(4) (X)', $button->recipe);

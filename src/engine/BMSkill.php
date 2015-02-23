@@ -131,6 +131,7 @@ class BMSkill {
                      'Stinger'      => 'g',
                      'Trip'         => 't',
                      'Value'        => 'v',
+                     'Warrior'      => '`',
                      'Weak'         => 'h');
     }
 
@@ -207,6 +208,7 @@ class BMSkill {
         // fires first
         return array('BMSkillAuxiliary',
                      'BMSkillReserve',
+                     'BMSkillWarrior',
                      'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillSpeed',
@@ -216,6 +218,7 @@ class BMSkill {
                      'BMSkillShadow',
                      'BMSkillSlow',
                      'BMSkillStinger',
+                     'BMSkillFire',
                      'BMSkillStealth',
                      'BMSkillOrnery',
                      'BMSkillMood',
@@ -229,8 +232,6 @@ class BMSkill {
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
-                     'BMSkillKonstant',
-                     'BMSkillMorphing',
                      'BMSkillMaximum');
         // fires last
     }

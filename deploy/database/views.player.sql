@@ -34,7 +34,10 @@ AS SELECT
     i.creation_time,
     i.fanatic_button_id,
     i.n_games_won,
-    i.n_games_lost
+    i.n_games_lost,
+    d.dhs_player_id,
+    d.dhs_player_name
 FROM player AS i
     LEFT JOIN player_auth AS a ON i.id = a.id
-    LEFT JOIN player_status AS ps ON ps.id = i.status_id;
+    LEFT JOIN player_status AS ps ON ps.id = i.status_id
+    LEFT JOIN dhs_player AS d ON d.bw_player_id = i.id;
