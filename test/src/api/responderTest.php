@@ -8501,6 +8501,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
      *    responder004 won initiative for round 1. Initial die values: responder003 rolled [tm(6):3, f(8):8, g(10):7, z(10):1, sF(20):3], responder004 rolled [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=2,R=2)?:2]. responder003 has dice which are not counted for initiative due to die skills: [tm(6), g(10)].
      * 2. responder003 chose not to try to gain initiative using chance or focus dice
      * 3. responder004 performed Shadow attack using [s(R=2,R=2)?:2] against [sF(20):3]; Defender sF(20) was captured; Attacker s(R=2,R=2)? changed size from 4 to 16 sides, recipe changed from s(R=2,R=2)? to s(R=4,R=10)?, rerolled 2 => 4
+     * 4. responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=8,R=8)?:4]; Defender s(R=8,R=8)? was captured; Attacker tm(6) changed size from 6 to 16 sides, recipe changed from tm(6) to tm(R=8,R=8), rerolled 3 => 6; Attacker z(10) rerolled 1 => 3
+     * 5. responder004 performed Power attack using [v(10):6] against [tm(R=8,R=8):6]; Defender tm(R=8,R=8) recipe changed to tmv(R=8,R=8), was captured; Attacker v(10) rerolled 6 => 2
      */
     public function test_interface_game_023() {
 
@@ -8620,6 +8622,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+
         ////////////////////
         // Move 04 - responder003 performed Skill attack using [tm(6):3, z(10):1] against [s(R=8,R=8)?:4]
         // [tm(6):3, f(8):8, g(10):7, z(10):1] => [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=8,R=8)?:4]
@@ -8647,6 +8650,32 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+
+        ////////////////////
+        // Move 05 - responder004 performed Power attack using [v(10):6] against [tm(R=8,R=8):6]
+        // [tm(R=8,R=8):6, f(8):8, g(10):7, z(10):1] <= [v(5):2, v(10):6, vq(10):1, vs(15):5]
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(2),
+            'responder004 performed Power attack using [v(10):6] against [tm(R=8,R=8):6]; Defender tm(R=8,R=8) recipe changed to tmv(R=8,R=8), was captured; Attacker v(10) rerolled 6 => 2. ',
+            $retval, array(array(0, 0), array(1, 1)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 0, array('Power', 'Skill', 'Speed'),
+            array(30, 31, -0.7, 0.7),
+            array(array(1, 1, array('value' => 2))),
+            array(array(0, 0)),
+            array(array(0, 0)),
+            array(array(1, array('value' => 6, 'sides' => 16, 'recipe' => 'tmv(R,R)')))
+        );
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('Twin');
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array('ValueRelevantToScore', 'WasJustCaptured', 'Twin');
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [v(10):6] against [tm(R=8,R=8):6]; Defender tm(R=8,R=8) recipe changed to tmv(R=8,R=8), was captured; Attacker v(10) rerolled 6 => 2'));
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+     // 5. responder004 performed Power attack using [v(10):6] against [tm(R=8,R=8):6]; Defender tm(R=8,R=8) recipe changes from tm(R=8,R=8):6 to tmv(R=8,R=8):6, was captured; Attacker v(10) rerolled 6 => 2
     }
 
     /**

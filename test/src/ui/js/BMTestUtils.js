@@ -108,7 +108,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 //  if (gameDesc == 'fire_active') { return '22'; }
   if (gameDesc == 'fire_inactive') { return '23'; }
 //  if (gameDesc == 'fire_nonplayer') { return '24'; }
-  if (gameDesc == 'value') { return '25'; }
+//  if (gameDesc == 'value') { return '25'; }
 
   if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
   if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
@@ -136,6 +136,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_inactive') { return '1914'; }
 
   if (gameDesc == 'blackomega_thefool_reacttoinitiative') { return '2302'; }
+  if (gameDesc == 'blackomega_thefool_captured_value_die') { return '2306'; }
 
   if (gameDesc == 'merlin_ein_reacttoauxiliary_nonplayer') { return '2402'; }
   if (gameDesc == 'merlin_ein_reacttoauxiliary_inactive') { return '2403'; }

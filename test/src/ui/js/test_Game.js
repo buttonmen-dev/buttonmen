@@ -1333,16 +1333,16 @@ test("test_Game.gamePlayerStatus", function(assert) {
 
 test("test_Game.gamePlayerStatusWithValue", function(assert) {
   stop();
-  BMTestUtils.GameType = 'value';
+  BMTestUtils.GameType = 'blackomega_thefool_captured_value_die';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.page.append(Game.gamePlayerStatus('player', false, true));
+    Game.page.append(Game.gamePlayerStatus('opponent', false, true));
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
     assert.ok(htmlout.match('Dice captured'),
       "game player status should report captured dice");
-    assert.ok(htmlout.match(/v\(20\):6/),
-      "status should report that player captured an v(20) showing a value of 6");
+    assert.ok(htmlout.match(/tmv\(R=8,R=8\):6/),
+      "status should report that player captured a tmv(R=8,R=8) showing a value of 6");
     start();
   });
 });
