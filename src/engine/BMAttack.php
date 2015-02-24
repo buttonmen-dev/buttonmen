@@ -82,7 +82,7 @@ abstract class BMAttack {
         return $allAttackTypesArray;
     }
 
-    protected static function display_cmp($str1, $str2) {
+    public static function display_cmp($str1, $str2) {
         if ($str1 == $str2) {
             return 0;
         }
@@ -99,6 +99,13 @@ abstract class BMAttack {
             return -1;
         } elseif ('Skill' == $str2) {
             return 1;
+        }
+
+        // force Pass attacks to be displayed last
+        if ('Pass' == $str1) {
+            return 1;
+        } elseif ('Pass' == $str2) {
+            return -1;
         }
 
         return strcasecmp($str1, $str2);

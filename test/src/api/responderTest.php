@@ -9224,8 +9224,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameState'] = 'START_TURN';
         $expData['activePlayerIdx'] = 0;
         $expData['playerWithInitiativeIdx'] = 0;
-        // BUG: this should include Skill
-        $expData['validAttackTypeArray'] = array('Power', 'Speed');
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Speed');
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['roundScore'] = 17.5;
