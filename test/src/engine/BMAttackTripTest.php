@@ -12,7 +12,7 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackTrip::get_instance();
+        $this->object = new BMAttackTrip;
     }
 
     /**

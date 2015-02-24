@@ -12,7 +12,7 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackSpeed::get_instance();
+        $this->object = new BMAttackSpeed;
     }
 
     /**
