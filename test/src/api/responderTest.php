@@ -9387,7 +9387,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
-        $this->game_number = 28;
+        $this->game_number = 29;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
