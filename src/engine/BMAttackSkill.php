@@ -2,6 +2,38 @@
 /**
  * BMAttackSkill: Code specific to skill attacks
  *
+ * The degenerate case of skill attacks is where you have a lot of potential
+ * attacks, and very few (or none) of them hit. Golo vs Nelde (Y=1), perhaps.
+ * We’re going to have to check every combination of Golo’s dice, for every
+ * value of each die, against each of Nelde’s dice. Worst case (10, 12, 20, 20),
+ * that’s 62 1-die checks, 120 + 200 + 200 + 240 + 240 + 400 2-die checks,
+ * 2400 + 2400 + 4000 + 4800 3-die, and 48000 4-die. (Times five, since nelde
+ * has five dice.)
+ *
+ * This can be made a lot faster if the skill attack code understands how the
+ * various skills behave, but that’s a nightmare of special cases, and should
+ * be avoided unless there’s no other choice.
+ *
+ * The idea of hit tables is to make the bad cases faster by making the general
+ * cases a bit slower. We build a complete list of the values that the
+ * attacker’s dice can make, and each value has an attached list of which
+ * combinations of dice can make it. At the very least, that cuts the Golo vs.
+ * nelde case by a factor of five, and IIRC, there are some other optimizations
+ * in there to reduce it further. (And it’s almost certainly tractable to
+ * future optimization as well.)
+ *
+ * The way the skill attack code should work is:
+ *
+ * - Build the hit table.
+ * - Check each of the defender’s die values by looking it up in the table. If
+ *   it’s there, and the attack validates, we’re good.
+ * - If we have no direct hits, check to see if there’s any assist values
+ *   available (Fire, or any future skill that works similarly).
+ * - If there is assistance, search the entire hit table, using validate_attack
+ *   to see if any of the possible attacks are possible due to assistance.
+ *
+ * That last step is slow, and only necessary rarely.
+ *
  * @author Julian
  */
 
@@ -9,19 +41,27 @@
  * This class contains code specific to skill attacks
  */
 class BMAttackSkill extends BMAttack {
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type = "Skill";
 
-    // Especially once you take stinger and constant into account,
-    // searching the full attack space is slow and complex
-    //
-    // Building a hit table once trades some increased setup cost for
-    // a much reduced search cost
-    //
-    // Fire still makes life more complex than it might be.
-    //
-    // "Premature optimization is the root of all evil." -- Knuth
+    /**
+     * Hit table containing all possible hit values without help from fire.
+     *
+     * @var BMUtilityHitTable
+     */
     protected $hitTable = NULL;
 
+    /**
+     * Create $this->hitTable anew.
+     *
+     * If $includeOptional is FALSE, attacking warrior dice are excluded.
+     *
+     * @param bool $includeOptional
+     */
     protected function generate_hit_table($includeOptional = TRUE) {
         if ($includeOptional) {
             $validDice = $this->validDice;
@@ -79,6 +119,12 @@ class BMAttackSkill extends BMAttack {
         return FALSE;
     }
 
+    /**
+     * Sort values by distance from $targetValue in ascending order
+     *
+     * @param array $values
+     * @param double $targetValue
+     */
     protected function sort_distance(array &$values, $targetValue) {
         // centre values around $targetValue
         array_walk(
@@ -102,10 +148,26 @@ class BMAttackSkill extends BMAttack {
         );
     }
 
+    /**
+     * Comparator used for sorting by absolute distance.
+     *
+     * @param double $aVal
+     * @param double $bVal
+     * @return bool
+     */
     protected function absolute_distance_cmp($aVal, $bVal) {
         return abs($aVal) > abs($bVal);
     }
 
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @param double $helpValue
+     * @return boolean
+     */
     public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
 
@@ -140,8 +202,16 @@ class BMAttackSkill extends BMAttack {
         return $this->is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue);
     }
 
-    // array_intersect tries to convert to strings, so we use array_uintersect,
-    // which needs a comparison function
+    /**
+     * Comparator used for merging arrays of BMDie.
+     *
+     * array_intersect tries to convert to strings, so we use array_uintersect,
+     * which needs a comparison function.
+     *
+     * @param mixed $var1
+     * @param mixed $var2
+     * @return int
+     */
     protected static function cmp($var1, $var2) {
         if ($var1===$var2) {
             return 0;
@@ -152,19 +222,36 @@ class BMAttackSkill extends BMAttack {
         return -1;
     }
 
+    /**
+     * Determine if direct attack without help is valid.
+     *
+     * @param array $attackers
+     * @param double $dval
+     * @return boolean
+     */
     protected function is_direct_attack_valid($attackers, $dval) {
         $combos = $this->hitTable->find_hit($dval);
         if ($combos) {
             foreach ($combos as $c) {
                 if (count($c) == count($attackers) &&
                     count(array_uintersect($c, $attackers, 'BMAttackSkill::cmp')) ==
-                    count($c)) {
+                      count($c)) {
                     return TRUE;
                 }
             }
         }
     }
 
+    /**
+     * Determine if assisted attack (including help) is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @param double $dval
+     * @param double $helpValue
+     * @return boolean
+     */
     protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue) {
         if (is_null($helpValue)) {
             $bounds = $this->help_bounds(
@@ -198,6 +285,13 @@ class BMAttackSkill extends BMAttack {
         return FALSE;
     }
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (0 == count($attArray)) {
             throw new InvalidArgumentException('attArray must have at least one element.');
@@ -247,6 +341,15 @@ class BMAttackSkill extends BMAttack {
         return TRUE;
     }
 
+    /**
+     * Check if the proposed attack is an invalid warrior attack, namely:
+     *
+     * - there are multiple warrior dice present, or
+     * - there are no non-warrior dice present
+     *
+     * @param array $attArray
+     * @return boolean
+     */
     protected function is_invalid_warrior_attack(array $attArray) {
         $nWarrior = 0;
         foreach ($attArray as $attacker) {
