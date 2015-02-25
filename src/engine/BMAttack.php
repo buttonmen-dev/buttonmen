@@ -9,8 +9,6 @@
  * This class is the parent class for all attack types
  */
 abstract class BMAttack {
-    protected static $instance = array();
-
     // True for attacks that do something besides simple capture,
     // because the player may have to choose which attack type to
     // use. Captures are indistinguishable among attacks with no
@@ -24,35 +22,18 @@ abstract class BMAttack {
     // Dice that effect or affect this attack
     protected $validDice = array();
 
-    /**
-     * Constructor
-     *
-     * This is private, thus disabled, since this is a Singleton.
-     */
-    private function __construct() {
-    }
-
-    public static function get_instance($type = NULL) {
+    public static function create($type = NULL) {
         if ($type) {
             $cname = "BMAttack" . ucfirst(strtolower($type));
             if (class_exists($cname)) {
-                return $cname::get_instance();
+                return $cname::create();
             } else {
                 return NULL;
             }
         }
 
         $class = get_called_class();
-        if (!isset(static::$instance[$class])) {
-            static::$instance[$class] = new $class;
-        }
-        static::$instance[$class]->validDice = array();
-
-        if (!empty(static::$instance[$class]->resolvedType)) {
-            static::$instance[$class]->resolvedType = '';
-        }
-
-        return static::$instance[$class];
+        return new $class;
     }
 
     public static function possible_attack_types(array $attackers) {

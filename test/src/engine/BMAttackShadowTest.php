@@ -12,7 +12,7 @@ class BMAttackShadowTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackShadow::get_instance();
+        $this->object = new BMAttackShadow;
     }
 
     /**

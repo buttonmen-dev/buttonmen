@@ -3519,7 +3519,7 @@ class BMInterface {
             $game->attack = array($attackerIdx, $defenderIdx,
                                   $attackerDieIdx, $defenderDieIdx,
                                   $attackType);
-            $attack = BMAttack::get_instance($attackType);
+            $attack = BMAttack::create($attackType);
 
             foreach ($attackers as $attackDie) {
                 $attack->add_die($attackDie);

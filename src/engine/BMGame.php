@@ -880,7 +880,7 @@ class BMGame {
             $this->regenerate_attack();
         }
 
-        $attack = BMAttack::get_instance($this->attack['attackType']);
+        $attack = BMAttack::create($this->attack['attackType']);
 
         $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
         $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
@@ -923,7 +923,7 @@ class BMGame {
 
         if ('Default' == $this->attack['attackType']) {
             $attack->resolve_default_attack($this);
-            $attack = BMAttack::get_instance($this->attack['attackType']);
+            $attack = BMAttack::create($this->attack['attackType']);
         }
 
         return array('attack' => $attack,
@@ -2035,7 +2035,7 @@ class BMGame {
                               'defenderAttackDieIdxArray' =>
                                   range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
                               'attackType' => $attackType);
-        $attack = BMAttack::get_instance($attackType);
+        $attack = BMAttack::create($attackType);
         foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
             $attack->add_die($attackDie);
         }
