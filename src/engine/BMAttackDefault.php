@@ -29,7 +29,7 @@ class BMAttackDefault extends BMAttack {
         $validAttackTypeArray = array();
 
         foreach ($possibleAttackTypeArray as $attackType) {
-            $attack = BMAttack::get_instance($attackType);
+            $attack = BMAttack::create($attackType);
             if (!empty($this->validDice)) {
                 foreach ($this->validDice as &$die) {
                     $attack->add_die($die);

@@ -19,7 +19,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = TestDummyBMAttTesting::get_instance();
+        $this->object = new TestDummyBMAttTesting;
         $this->object->clear_dice();
         $this->object->clear_log();
     }
@@ -33,18 +33,18 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttack::get_instance
+     * @covers BMAttack::create
      */
-    public function testGet_instance()
+    public function testCreate()
     {
-        $test1 = BMAttack::get_instance('Power');
-        $test2 = BMAttack::get_instance('Power');
+        $test1 = BMAttack::create('Power');
+        $test2 = BMAttack::create('Power');
 
-        $this->assertTrue($test1 === $test2);
+        $this->assertFalse($test1 === $test2);
 
-        $this->assertNull(BMAttack::get_instance("NotAnAttack"));
+        $this->assertNull(BMAttack::create("NotAnAttack"));
 
-        $power = BMAttack::get_instance("Power");
+        $power = BMAttack::create("Power");
         $this->assertNotNull($power);
         $this->assertInstanceOf('BMAttack', $power);
         $this->assertInstanceOf('BMAttackPower', $power);
@@ -385,7 +385,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
      */
     public function testHas_dizzy_attackers()
     {
-        $att = BMAttack::get_instance('Power');
+        $att = BMAttack::create('Power');
         $die1 = new BMDie;
         $die2 = new BMDie;
         $die2->add_flag('Dizzy');
@@ -789,7 +789,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     public function testSearch_ovm_helper() {
 
         // need to get at a protected method
-        $attack = TestDummyBMAttTesting::get_instance();
+        $attack = new TestDummyBMAttTesting();
 
         $attackLog = array();
         $aRef = &$attackLog;

@@ -86,36 +86,15 @@ BMTestUtils.cleanupFakeLogin = function() {
 // need to be kept in sync with responderTest in order for anything
 // good to happen.
 BMTestUtils.testGameId = function(gameDesc) {
-//  if (gameDesc == 'newgame') { return '1'; }
-//  if (gameDesc == 'swingset') { return '2'; }
-//  if (gameDesc == 'turn_active') { return '3'; }
-//  if (gameDesc == 'turn_inactive') { return '4'; }
-//  if (gameDesc == 'finished') { return '5'; }
-//  if (gameDesc == 'newgame_twin') { return '6'; }
-//  if (gameDesc == 'focus') { return '7'; }
-//  if (gameDesc == 'chance_active') { return '8'; }
-//  if (gameDesc == 'chance_inactive') { return '9'; }
-//  if (gameDesc == 'newgame_nonplayer') { return '10'; }
-//  if (gameDesc == 'turn_nonplayer') { return '11'; }
-//  if (gameDesc == 'chance_nonplayer') { return '12'; }
-//  if (gameDesc == 'chooseaux_active') { return '13'; }
-//  if (gameDesc == 'chooseaux_inactive') { return '14'; }
-//  if (gameDesc == 'chooseaux_nonplayer') { return '15'; }
-//  if (gameDesc == 'reserve_active') { return '16'; }
-//  if (gameDesc == 'reserve_inactive') { return '17'; }
-//  if (gameDesc == 'reserve_nonplayer') { return '18'; }
-//  if (gameDesc == 'option_active') { return '19'; }
-  if (gameDesc == 'fire_active') { return '22'; }
-  if (gameDesc == 'fire_inactive') { return '23'; }
-  if (gameDesc == 'fire_nonplayer') { return '24'; }
-  if (gameDesc == 'value') { return '25'; }
-
   if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
   if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
   if (gameDesc == 'frasquito_wiseman_startturn_nonplayer') { return '104'; }
 
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
+
+  if (gameDesc == 'blackomega_tamiya_adjustfire_active') { return '807'; }
+  if (gameDesc == 'blackomega_tamiya_adjustfire_nonplayer') { return '808'; }
 
   if (gameDesc == 'merlin_crane_reacttoauxiliary_active') { return '901'; }
 
@@ -133,9 +112,12 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_inactive') { return '1914'; }
 
   if (gameDesc == 'blackomega_thefool_reacttoinitiative') { return '2302'; }
+  if (gameDesc == 'blackomega_thefool_captured_value_die') { return '2306'; }
 
   if (gameDesc == 'merlin_ein_reacttoauxiliary_nonplayer') { return '2402'; }
   if (gameDesc == 'merlin_ein_reacttoauxiliary_inactive') { return '2403'; }
+
+  if (gameDesc == 'beatnikturtle_firebreather_adjustfire_inactive') { return '2803'; }
 }
 
 // We don't currently usually test reading the URL bar contents, because

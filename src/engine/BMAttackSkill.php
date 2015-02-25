@@ -131,7 +131,9 @@ class BMAttackSkill extends BMAttack {
 
         $dval = $defenders[0]->defense_value($this->type);
 
-        $this->generate_hit_table();
+        if (!($this->hitTable instanceof BMUtilityHitTable)) {
+            $this->generate_hit_table();
+        }
 
         if ($this->is_direct_attack_valid($attackers, $dval)) {
             return TRUE;

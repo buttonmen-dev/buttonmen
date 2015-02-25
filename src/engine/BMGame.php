@@ -880,7 +880,7 @@ class BMGame {
             $this->regenerate_attack();
         }
 
-        $attack = BMAttack::get_instance($this->attack['attackType']);
+        $attack = BMAttack::create($this->attack['attackType']);
 
         $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
         $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
@@ -923,7 +923,7 @@ class BMGame {
 
         if ('Default' == $this->attack['attackType']) {
             $attack->resolve_default_attack($this);
-            $attack = BMAttack::get_instance($this->attack['attackType']);
+            $attack = BMAttack::create($this->attack['attackType']);
         }
 
         return array('attack' => $attack,
@@ -1977,41 +1977,42 @@ class BMGame {
 
         $attackCache = $this->attack;
 
-        // find out if there are any possible attacks with any combination of
-        // the attacker's and defender's dice
+        // find out if there are any possible obligatory attacks with any
+        // combination of the attacker's and defender's dice
         foreach ($attackTypeArray as $attackType) {
             if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, $attackType, FALSE)) {
                 $validAttackTypeArray[$attackType] = $attackType;
             }
         }
 
-        if (empty($validAttackTypeArray)) {
-            // Now find optional attack types
+        $hasObligatoryAttack = !empty($validAttackTypeArray);
 
-            // Currently, the only optional attacks are skill attacks
-            // involving Warrior dice, so the code is streamlined to search
-            // specifically for this. However, this could easily be generalised
-            // if other optional attack types become available.
-            $doWarriorDiceExist = FALSE;
+        // Now find optional attack types
 
-            foreach ($this->activeDieArrayArray[$attackerIdx] as $activeDie) {
-                if ($activeDie->has_skill('Warrior')) {
-                    $doWarriorDiceExist = TRUE;
-                    break;
-                }
+        // Currently, the only optional attacks are skill attacks
+        // involving Warrior dice, so the code is streamlined to search
+        // specifically for this. However, this could easily be generalised
+        // if other optional attack types become available.
+        $doWarriorDiceExist = FALSE;
+
+        foreach ($this->activeDieArrayArray[$attackerIdx] as $activeDie) {
+            if ($activeDie->has_skill('Warrior')) {
+                $doWarriorDiceExist = TRUE;
+                break;
             }
+        }
 
-            if ($doWarriorDiceExist) {
-                if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, 'Skill', TRUE)) {
-                    $validAttackTypeArray['Skill'] = 'Skill';
-                }
+        if ($doWarriorDiceExist) {
+            if ($this->does_valid_attack_exist($attackerIdx, $defenderIdx, 'Skill', TRUE)) {
+                $validAttackTypeArray['Skill'] = 'Skill';
             }
+        }
 
-            // james: ensure that Pass attacks occur last in the list of
-            // possible attacks by adding them AFTER optional attacks
+        if (!$hasObligatoryAttack) {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
+        uksort($validAttackTypeArray, 'BMAttack::display_cmp');
 
         $this->attack = $attackCache;
 
@@ -2034,7 +2035,7 @@ class BMGame {
                               'defenderAttackDieIdxArray' =>
                                   range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
                               'attackType' => $attackType);
-        $attack = BMAttack::get_instance($attackType);
+        $attack = BMAttack::create($attackType);
         foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
             $attack->add_die($attackDie);
         }
