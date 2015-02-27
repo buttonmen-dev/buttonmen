@@ -2363,7 +2363,7 @@ Game.gamePlayerDice = function(player, player_active) {
             'down.  It can\'t be used during this attack.)';
         } else {
           containerDivOpts.title +=
-            '. (This die is a Warrior die and can\'t be targeted.)'
+            '. (This die is a Warrior die and can\'t be targeted.)';
         }
       }
       containerDivOpts['class'] = 'die_container die_alive';
