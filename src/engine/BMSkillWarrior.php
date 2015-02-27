@@ -161,7 +161,7 @@ class BMSkillWarrior extends BMSkill {
                'Only one Warrior Die may be used in any given Skill Attack, ' .
                'and that Skill Attack must include one or more dice that are ' .
                'already in play as well (i.e. you can\'t make a single-die ' .
-               'Skill Attack with a Warrior die). The Warrior die adds its ' .
+               'Skill Attack with a Warrior die). The Warrior die adds its full ' .
                'value to the Skill Attack. After the target die is captured, ' .
                'the Warrior loses the Warrior skill, any other skills on the ' .
                'die become active, and the former Warrior die is treated ' .
