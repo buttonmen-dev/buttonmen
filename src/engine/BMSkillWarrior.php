@@ -17,6 +17,7 @@ class BMSkillWarrior extends BMSkill {
      */
     public static $hooked_methods = array('initiative_value',
                                           'attack_list',
+                                          'attack_values',
                                           'capture',
                                           'post_roll',
                                           'score_value');

@@ -204,7 +204,6 @@ class BMDie extends BMCanHaveSkill {
                                              'attackValues' => &$list,
                                              'minValue' => $this->min,
                                              'maxValue' => $this->max));
-
         return $list;
     }
 
