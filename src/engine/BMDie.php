@@ -202,7 +202,8 @@ class BMDie extends BMCanHaveSkill {
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
                                              'attackValues' => &$list,
-                                             'minValue' => $this->min));
+                                             'minValue' => $this->min,
+                                             'maxValue' => $this->max));
 
         return $list;
     }

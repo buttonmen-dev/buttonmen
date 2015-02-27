@@ -58,6 +58,21 @@ class BMSkillWarrior extends BMSkill {
     }
 
     /**
+     * Hooked method applied when determining possible attack values
+     *
+     * @param array $args
+     */
+    public static function attack_values($args) {
+        if (!is_array($args) ||
+            !array_key_exists('attackValues', $args) ||
+            !array_key_exists('maxValue', $args)) {
+            return;
+        }
+
+        $args['attackValues'] = array($args['maxValue']);
+    }
+
+    /**
      * Hooked method applied during capture
      *
      * @param array $args
