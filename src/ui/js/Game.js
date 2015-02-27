@@ -2300,6 +2300,8 @@ Game.gamePlayerDice = function(player, player_active) {
     if (player_active) {
       if (die.properties.indexOf('Dizzy') >= 0) {
         clickable = false;
+      } else if ((player != 'player') && (die.skills.indexOf('Warrior') >= 0)) {
+        clickable = false;
       } else {
         clickable = true;
       }
@@ -2355,9 +2357,14 @@ Game.gamePlayerDice = function(player, player_active) {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       divOpts['class'] = 'die_img die_greyed';
       if (player_active) {
-        containerDivOpts.title +=
-          '. (This die is dizzy because it was turned ' +
-          'down.  It can\'t be used during this attack.)';
+        if (player == 'player') {
+          containerDivOpts.title +=
+            '. (This die is dizzy because it was turned ' +
+            'down.  It can\'t be used during this attack.)';
+        } else {
+          containerDivOpts.title +=
+            '. (This die is a Warrior die and can\'t be targeted.)'
+        }
       }
       containerDivOpts['class'] = 'die_container die_alive';
       dieContainerDiv = $('<div>', containerDivOpts);
