@@ -64,6 +64,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Directory to cache JSON output for UI tests to use
         $this->jsonApiRoot = BW_PHP_ROOT . "/api/dummy_data/";
 
+        // API functions for which we cache JSON output while testing
+        $this->apiFunctionsWithTestOutput = array('loadGameData');
+
+
+        if (!file_exists($this->jsonApiRoot)) {
+            mkdir($this->jsonApiRoot);
+        }
+        foreach ($this->apiFunctionsWithTestOutput as $apiFunction) {
+            if (!file_exists($this->jsonApiRoot . $apiFunction)) {
+                mkdir($this->jsonApiRoot . $apiFunction);
+            }
+        }
+
         // Tests in this file should override randomization, so
         // force overrides and reset the queue at the beginning of each test
         global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
