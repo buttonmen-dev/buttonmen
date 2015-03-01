@@ -63,10 +63,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Directory to cache JSON output for UI tests to use
         $this->jsonApiRoot = BW_PHP_ROOT . "/api/dummy_data/";
+
+        // API functions for which we cache JSON output while testing
+        $this->apiFunctionsWithTestOutput = array('loadGameData');
+
+
         if (!file_exists($this->jsonApiRoot)) {
             mkdir($this->jsonApiRoot);
         }
-        foreach (array('loadGameData') as $apiFunction) {
+        foreach ($this->apiFunctionsWithTestOutput as $apiFunction) {
             if (!file_exists($this->jsonApiRoot . $apiFunction)) {
                 mkdir($this->jsonApiRoot . $apiFunction);
             }
