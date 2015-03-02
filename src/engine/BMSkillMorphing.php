@@ -9,8 +9,19 @@
  * This class contains code specific to the morphing die skill
  */
 class BMSkillMorphing extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('capture');
 
+    /**
+     * Hooked method applied during capture
+     *
+     * @param array $args
+     */
     public static function capture(&$args) {
         if (!self::are_dice_in_attack_valid($args)) {
             return;
@@ -39,6 +50,12 @@ class BMSkillMorphing extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
+    /**
+     * Check whether the dice specified in the attack are possibly valid
+     *
+     * @param array $args
+     * @return boolean
+     */
     protected static function are_dice_in_attack_valid($args) {
         if (!is_array($args['attackers']) ||
             (0 == count($args['attackers'])) ||
@@ -50,6 +67,13 @@ class BMSkillMorphing extends BMSkill {
         return TRUE;
     }
 
+    /**
+     * Create a die clone due to morphing or doppelganger
+     *
+     * @param BMDie $att
+     * @param BMDie $def
+     * @return BMDie
+     */
     protected static function create_morphing_clone_target($att, $def) {
         $newDie = clone $def;
         unset($newDie->value);
@@ -72,6 +96,11 @@ class BMSkillMorphing extends BMSkill {
         return $newDie;
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'When a Morphing Die is used in any attack, it changes ' .
                'size, becoming the same size as the die that was captured. ' .
@@ -83,6 +112,14 @@ class BMSkillMorphing extends BMSkill {
                'round';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Radioactive' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
@@ -90,6 +127,11 @@ class BMSkillMorphing extends BMSkill {
         );
     }
 
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
     public static function prevents_win_determination() {
         return TRUE;
     }

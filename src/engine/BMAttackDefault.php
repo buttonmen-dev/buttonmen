@@ -13,7 +13,7 @@ class BMAttackDefault extends BMAttack {
     public $type = 'Default';
     protected $resolvedType = '';
 
-    public function find_attack($game) {
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->validate_attack(
             $game,
             $this->attackerAttackDieArray,
@@ -29,7 +29,7 @@ class BMAttackDefault extends BMAttack {
         $validAttackTypeArray = array();
 
         foreach ($possibleAttackTypeArray as $attackType) {
-            $attack = BMAttack::get_instance($attackType);
+            $attack = BMAttack::create($attackType);
             if (!empty($this->validDice)) {
                 foreach ($this->validDice as &$die) {
                     $attack->add_die($die);

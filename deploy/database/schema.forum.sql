@@ -1,14 +1,5 @@
 # Table schemas for forum-related tables
 
-# Drop order and create order are the reverse of each other because of the
-# foreign keys.
-
-DROP TABLE IF EXISTS forum_thread_player_map;
-DROP TABLE IF EXISTS forum_board_player_map;
-DROP TABLE IF EXISTS forum_post;
-DROP TABLE IF EXISTS forum_thread;
-DROP TABLE IF EXISTS forum_board;
-
 CREATE TABLE forum_board (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,

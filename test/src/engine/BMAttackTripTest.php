@@ -12,7 +12,7 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackTrip::get_instance();
+        $this->object = new BMAttackTrip;
     }
 
     /**
@@ -186,5 +186,29 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
         $die1->value = 4;
 
         $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_normal_targeting_maximum() {
+        $game = new BMGame;
+
+        $die1 = new BMDie;
+        $die1->add_skill('Trip');
+        $die1->init(4);
+        $die1->value = 1;
+
+        $die2 = new BMDie;
+        $die2->add_skill('Maximum');
+        $die2->init(4);
+        $die2->value = 1;  // possible through something like focus
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+
+        $die2->init(8);
+        $die2->value = 1;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
     }
 }

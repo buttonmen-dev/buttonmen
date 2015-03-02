@@ -10,10 +10,18 @@
  * It stores the initial die recipe for logging purposes.
  */
 class BMFlagHasJustGrownOrShrunk extends BMFlag {
-
-    // properties
+    /**
+     * Initial die recipe before changing size, stored in flag
+     *
+     * @var string
+     */
     protected $preChangeRecipe;
 
+    /**
+     * Value stored in flag
+     *
+     * @return mixed
+     */
     public function value() {
         return $this->preChangeRecipe;
     }

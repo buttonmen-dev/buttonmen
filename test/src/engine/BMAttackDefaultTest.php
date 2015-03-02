@@ -12,7 +12,7 @@ class BMAttackDefaultTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackDefault::get_instance();
+        $this->object = new BMAttackDefault;
     }
 
     /**

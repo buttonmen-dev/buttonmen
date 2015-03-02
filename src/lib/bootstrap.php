@@ -38,10 +38,15 @@ function buttonweavers_autoload($name) {
     }
 }
 
-/**
- * Default behaviour of the random number generator, when not tweaked for unit testing
- */
+
 if (!function_exists('bm_rand')) {
+    /**
+     * Default behaviour of the random number generator, when not tweaked for unit testing
+     *
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
     function bm_rand($min, $max) {
         return mt_rand($min, $max);
     }

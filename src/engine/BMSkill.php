@@ -67,7 +67,7 @@ class BMSkill {
      * @param string $skillLetter
      * @return string
      */
-    private static function expand_skill_letter($skillLetter) {
+    protected static function expand_skill_letter($skillLetter) {
         $skillLetter = array_search(
             $skillLetter,
             BMSkill::skill_name_abbreviation_mapping()
@@ -131,7 +131,12 @@ class BMSkill {
                      'Stinger'      => 'g',
                      'Trip'         => 't',
                      'Value'        => 'v',
+                     'Warrior'      => '`',
                      'Weak'         => 'h');
+    }
+
+    public static function all_skill_chars() {
+        return array_values(self::skill_name_abbreviation_mapping());
     }
 
     /**
@@ -158,7 +163,7 @@ class BMSkill {
     /**
      * Attack types incompatible with this skill type
      *
-     * @return string
+     * @return array
      */
     public static function incompatible_attack_types() {
         return array();
@@ -203,6 +208,7 @@ class BMSkill {
         // fires first
         return array('BMSkillAuxiliary',
                      'BMSkillReserve',
+                     'BMSkillWarrior',
                      'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillSpeed',
@@ -212,6 +218,7 @@ class BMSkill {
                      'BMSkillShadow',
                      'BMSkillSlow',
                      'BMSkillStinger',
+                     'BMSkillFire',
                      'BMSkillStealth',
                      'BMSkillOrnery',
                      'BMSkillMood',
@@ -225,8 +232,6 @@ class BMSkill {
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
-                     'BMSkillKonstant',
-                     'BMSkillMorphing',
                      'BMSkillMaximum');
         // fires last
     }

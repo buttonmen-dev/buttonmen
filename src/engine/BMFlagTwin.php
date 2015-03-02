@@ -10,9 +10,18 @@
  * It stores the die sizes and values of the two subdice.
  */
 class BMFlagTwin extends BMFlag {
-// properties
+    /**
+     * Array of subdie properties, stored in flag
+     *
+     * @var array
+     */
     protected $subdiePropertyArray;
 
+    /**
+     * Value stored in flag
+     *
+     * @return mixed
+     */
     public function value() {
         return $this->subdiePropertyArray;
     }

@@ -9,8 +9,19 @@
  * This class contains code specific to the ornery die skill
  */
 class BMSkillOrnery extends BMSkill {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('perform_end_of_turn_die_actions');
 
+    /**
+     * Hooked method applied at the end of turn
+     *
+     * @param array $args
+     */
     public static function perform_end_of_turn_die_actions(&$args) {
         if (!is_array($args)) {
             return;
@@ -47,12 +58,25 @@ class BMSkillOrnery extends BMSkill {
         return TRUE;
     }
 
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
     protected static function get_description() {
         return 'Ornery dice reroll every time the player makes any attack - ' .
                'whether the Ornery dice participated in it or not. The only time ' .
                'they don\'t reroll is if the player passes, making no attack whatsoever.';
     }
 
+    /**
+     * Descriptions of interactions between this skill and other skills
+     *
+     * An array, indexed by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
     protected static function get_interaction_descriptions() {
         return array(
             'Mad' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
