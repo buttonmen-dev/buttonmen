@@ -109,7 +109,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Berserk' => array(
                 'code' => 'B',
-                'description' => 'These dice cannot participate in Skill Attacks; instead they can make a Berserk Attack. These work exactly like Speed Attacks - one Berserk Die can capture any number of dice which add up exactly to its value. Once a Berserk Die performs a Berserk Attack, it is replaced with a non-berserk die with half the number of sides it previously had, rounding up. It also loses any Swing/Mood Swing/Mad Swing characteristics it may have had.',
+                'description' => 'These dice cannot participate in Skill Attacks; instead they can make a Berserk Attack. These work exactly like Speed Attacks - one Berserk Die can capture any number of dice which add up exactly to its value. Once a Berserk Die performs a Berserk Attack, it is replaced with a non-berserk die with half the number of sides it previously had, rounding up.',
                 'interacts' => array(
                     'Mighty' => 'Dice with both Berserk and Mighty skills will first halve in size, and then grow',
                     'Radioactive' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
