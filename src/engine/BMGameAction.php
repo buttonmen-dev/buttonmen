@@ -173,9 +173,13 @@ class BMGameAction {
             $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
             $message .= '; ' . $messageDefender;
 
-            // now deal with morphing after trip
-            if (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
-                ($postAttackDice['attacker'][0]['hasJustMorphed'])) {
+            $splittingAfterTrip = (count($midAttackDice['attacker']) !=
+                                   count($postAttackDice['attacker']));
+            $morphingAfterTrip = (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
+                                 ($postAttackDice['attacker'][0]['hasJustMorphed']));
+
+            // deal with splitting after trip
+            if ($splittingAfterTrip || $morphingAfterTrip) {
                 $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
             }
         } else {
