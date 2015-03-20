@@ -3344,7 +3344,15 @@ class BMGame {
             isset($this->swingRequestArrayArray[$playerIdx])) {
             foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
                 if ($swingdice[0] instanceof BMDieTwin) {
-                    $swingdie = $swingdice[0]->dice[0];
+                    if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
+                        $swingdie = $swingdice[0]->dice[0];
+                    } elseif ($swingdice[0]->dice[1] instanceof BMDieSwing) {
+                        $swingdie = $swingdice[0]->dice[1];
+                    } else {
+                        throw new LogicException(
+                            'At least one of the subdice of a twin swing die should be a swing die'
+                        );
+                    }
                 } else {
                     $swingdie = $swingdice[0];
                 }
@@ -3352,7 +3360,7 @@ class BMGame {
                     $validRange = $swingdie->swing_range($swingtype);
                 } else {
                     throw new LogicException(
-                        "Tried to put die in swingRequestArray which is not a swing die: " . $swingdie
+                        'Tried to put die in swingRequestArray which is not a swing die: ' . $swingdie
                     );
                 }
                 $swingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
