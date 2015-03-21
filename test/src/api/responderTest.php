@@ -9722,7 +9722,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(1, 1)),
             array(array(0, array('value' => 2, 'sides' => 5, 'recipe' => '(5/10)')))
         );
-//        error_log(var_export($expData, TRUE));
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => "Yeah, ok, so:\n\n> responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1\n\nThis shouldn't be legal, because the Warrior Stinger 2 doesn't have Stinger while it has Warrior. (Or, at least, that's how the old site did it.)"));
@@ -9730,7 +9729,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-        // BUG #1540: this dies with an internal error
         $retval = $this->verify_api_success(array(
             'type' => 'submitChat',
             'game' => $gameId,
