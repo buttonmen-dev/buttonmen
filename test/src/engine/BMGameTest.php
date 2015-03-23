@@ -1497,6 +1497,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::do_next_step_react_to_initiative
+     *
+     * This tests that warrior dice cannot be used to react to initiative
+     */
+    public function test_do_next_step_react_to_initiative_warrior_focus_chance() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('`cf(10)', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('(2)', 'Test2');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+
+        // manually set die values
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[0][0]->value = 4;
+        $activeDieArrayArray[1][0]->value = 2;
+        $game->activeDieArrayArray = $activeDieArrayArray;
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(1, $game->activePlayerIdx);
+    }
+
+    /**
      * @covers BMGame::update_game_state_react_to_initiative
      */
     public function test_update_game_state_react_to_initiative() {

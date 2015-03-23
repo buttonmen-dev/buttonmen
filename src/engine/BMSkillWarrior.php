@@ -19,7 +19,8 @@ class BMSkillWarrior extends BMSkill {
                                           'attack_list',
                                           'capture',
                                           'post_roll',
-                                          'score_value');
+                                          'score_value',
+                                          'react_to_initiative');
 
     /**
      * Hooked method applied when determining initiative
@@ -125,6 +126,13 @@ class BMSkillWarrior extends BMSkill {
         assert(array_key_exists('mult', $args));
 
         $args['mult'] = 0;
+    }
+
+    /**
+     * Hooked method applied when determining whether a die can react to initiative
+     */
+    public static function react_to_initiative() {
+        return 'forceFalse';
     }
 
     /**

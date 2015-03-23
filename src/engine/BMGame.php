@@ -739,9 +739,13 @@ class BMGame {
 
                 if (is_array($hookResultArray) && count($hookResultArray) > 0) {
                     foreach ($hookResultArray as $hookResult) {
+                        if ('forceFalse' === $hookResult) {
+                            $canReactArray[$playerIdx] = FALSE;
+                            continue 2;
+                        }
+
                         if (TRUE === $hookResult) {
                             $canReactArray[$playerIdx] = TRUE;
-                            continue;
                         }
                     }
                 }
