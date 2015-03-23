@@ -66,11 +66,11 @@ class BMSkillWarrior extends BMSkill {
     public static function attack_values($args) {
         if (!is_array($args) ||
             !array_key_exists('attackValues', $args) ||
-            !array_key_exists('maxValue', $args)) {
+            !array_key_exists('value', $args)) {
             return;
         }
 
-        $args['attackValues'] = array($args['maxValue']);
+        $args['attackValues'] = array($args['value']);
     }
 
     /**

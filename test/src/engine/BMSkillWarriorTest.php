@@ -85,7 +85,7 @@ class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
         $args = array('attackType' => 'Skill',
                       'attackValues' => &$attackValues,
                       'minValue' => 1,
-                      'maxValue' => 6);
+                      'value' => 6);
 
         $this->object->attack_values($args);
         $this->assertEquals(array(6), $args['attackValues']);
