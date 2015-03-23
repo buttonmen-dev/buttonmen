@@ -1385,6 +1385,32 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
   });
 });
 
+test("test_Game.gamePlayerDice_warrior", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'shadowwarriors_fernworthy_newgame_active';
+  Game.getCurrentGame(function() {
+    // opponent should have greyed warriors
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('opponent', true));
+    assert.ok(Game.page.find('.die_greyed').length == 4,
+      "four of opponent's dice should be greyed out");
+    var htmlout = Game.page.html();
+    assert.ok(htmlout.match('This die is a Warrior die'),
+      "Opponent title text reports greyed warriors");
+
+    // player should have not greyed warriors
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('player', true));
+    assert.ok(Game.page.find('.die_greyed').length == 0,
+      "none of player's dice should be greyed out");
+    var htmlout = Game.page.html();
+    assert.ok(!htmlout.match('This die is a Warrior die'),
+      "Player title text does not report any greyed warriors");
+
+    start();
+  });
+});
+
 test("test_Game.buttonImageDisplay", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
