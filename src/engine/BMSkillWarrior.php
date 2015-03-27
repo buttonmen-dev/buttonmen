@@ -17,6 +17,7 @@ class BMSkillWarrior extends BMSkill {
      */
     public static $hooked_methods = array('initiative_value',
                                           'attack_list',
+                                          'attack_values',
                                           'capture',
                                           'post_roll',
                                           'score_value');
@@ -55,6 +56,21 @@ class BMSkillWarrior extends BMSkill {
                 unset($attackTypeArray[$attackType]);
             }
         }
+    }
+
+    /**
+     * Hooked method applied when determining possible attack values
+     *
+     * @param array $args
+     */
+    public static function attack_values($args) {
+        if (!is_array($args) ||
+            !array_key_exists('attackValues', $args) ||
+            !array_key_exists('value', $args)) {
+            return;
+        }
+
+        $args['attackValues'] = array($args['value']);
     }
 
     /**
@@ -146,7 +162,7 @@ class BMSkillWarrior extends BMSkill {
                'Only one Warrior Die may be used in any given Skill Attack, ' .
                'and that Skill Attack must include one or more dice that are ' .
                'already in play as well (i.e. you can\'t make a single-die ' .
-               'Skill Attack with a Warrior die). The Warrior die adds its ' .
+               'Skill Attack with a Warrior die). The Warrior die adds its full ' .
                'value to the Skill Attack. After the target die is captured, ' .
                'the Warrior loses the Warrior skill, any other skills on the ' .
                'die become active, and the former Warrior die is treated ' .
