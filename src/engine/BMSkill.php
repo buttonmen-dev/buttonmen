@@ -233,7 +233,8 @@ class BMSkill {
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
-                     'BMSkillMaximum');
+                     'BMSkillMaximum',
+                     'BMSkillTimeAndSpace');
         // fires last
     }
 

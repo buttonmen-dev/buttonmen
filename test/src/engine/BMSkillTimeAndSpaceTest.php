@@ -23,8 +23,26 @@ class BMSkillTimeAndSpaceTest extends PHPUnit_Framework_TestCase {
     {
     }
 
-    // this is to satisfy the PHPUnit audit
-    public function testDummy()
+    /**
+     * @covers BMSkillTimeAndSpace::commit_attack
+     */
+    public function testCommit_attack()
     {
+        $game = new BMGame;
+        $game->activePlayerIdx = 1;
+
+        $die = BMDie::create(4);
+        $die->value = 2;
+        $args = array('value' => $die->value, 'game' => $game);
+        $this->object->commit_attack($args);
+
+        $this->assertFalse(isset($game->nextPlayerIdx));
+
+        $die = BMDie::create(4);
+        $die->value = 3;
+        $args = array('value' => $die->value, 'game' => $game);
+        $this->object->commit_attack($args);
+
+        $this->assertTrue(isset($game->nextPlayerIdx));
     }
 }

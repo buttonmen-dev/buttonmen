@@ -214,6 +214,8 @@ abstract class BMAttack {
         // set attack defaults
         foreach ($attackers as &$att) {
             $att->add_flag('IsAttacker');
+            $att->run_hooks(__FUNCTION__, array('value' => $att->value,
+                                                'game' => &$game));
         }
 
         foreach ($defenders as &$def) {

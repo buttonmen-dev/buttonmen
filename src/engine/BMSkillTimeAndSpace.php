@@ -15,16 +15,28 @@ class BMSkillTimeAndSpace extends BMSkill {
      *
      * @var array
      */
-    public static $hooked_methods = array();
+    public static $hooked_methods = array('commit_attack');
 
-//    /**
-//     * Hooked method applied when checking if a die should request a swing value
-//     *
-//     * @return string
-//     */
-//    public static function does_skip_swing_request() {
-//        return 'does_skip_swing_request';
-//    }
+    /**
+     * Hooked method applied when checking if a die should request a swing value
+     *
+     * @return string
+     */
+    public static function commit_attack($args) {
+        if (!is_array($args)) {
+            return;
+        }
+
+        if (!array_key_exists('value', $args) ||
+            !array_key_exists('game', $args)) {
+            return;
+        };
+
+        // if odd value, the bitwise AND with 1 will be true
+        if ($args['value'] & 1) {
+            $args['game']->nextPlayerIdx = $args['game']->activePlayerIdx;
+        }
+    }
 
     /**
      * Description of skill

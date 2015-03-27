@@ -61,3 +61,5 @@ load_buttons
   BtnSkillEcho
 hit_table
   Konstant
+commit_attack
+  TimeAndSpace
