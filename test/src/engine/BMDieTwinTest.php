@@ -68,6 +68,7 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->has_skill("Testing2"));
         $this->assertCount(2, $this->object->dice);
         $this->assertInstanceOf('BMDie', $this->object->dice[0]);
+        $this->assertNotInstanceOf('BMDieSwing', $this->object->dice[0]);
         $this->assertInstanceOf('BMDieSwing', $this->object->dice[1]);
         $this->assertEquals(1, $this->object->dice[0]->min);
         $this->assertEquals(2, $this->object->dice[0]->max);
@@ -87,6 +88,7 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(2, $this->object->dice);
         $this->assertInstanceOf('BMDieSwing', $this->object->dice[0]);
         $this->assertInstanceOf('BMDie', $this->object->dice[1]);
+        $this->assertNotInstanceOf('BMDieSwing', $this->object->dice[1]);
         $this->assertEquals(1, $this->object->dice[0]->min);
         $this->assertNull($this->object->dice[0]->max);
         $this->assertEquals(1, $this->object->dice[1]->min);
