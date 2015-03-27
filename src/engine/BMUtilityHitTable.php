@@ -2,6 +2,15 @@
 /**
  * BMUtilityHitTable: utility class used for constructing hit tables
  *
+ * Hit tables are constructed as follows:
+ *
+ * - For each die, get a list of its values.
+ * - For each value that was in the table, add each of the die’s values to that
+ *   value, and make a new table entry for the new value (or add the new combo
+ *   to a preexisting entry).
+ * - Add each of the die’s values to the table. If the value already exists,
+ *   add the die to the list of ways the value can be constructed.
+ *
  * @author Julian
  */
 

@@ -99,8 +99,7 @@ class BMSkillBerserk extends BMSkill {
                'of dice which add up exactly to its value. Once a Berserk ' .
                'Die performs a Berserk Attack, it is replaced with a ' .
                'non-berserk die with half the number of sides it previously ' .
-               'had, rounding up. It also loses any Swing/Mood Swing/Mad Swing ' .
-               'characteristics it may have had.';
+               'had, rounding up.';
     }
 
     /**
