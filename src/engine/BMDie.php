@@ -202,8 +202,8 @@ class BMDie extends BMCanHaveSkill {
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
                                              'attackValues' => &$list,
-                                             'minValue' => $this->min));
-
+                                             'minValue' => $this->min,
+                                             'value' => $this->value));
         return $list;
     }
 
@@ -387,14 +387,10 @@ class BMDie extends BMCanHaveSkill {
         unset($this->value);
         $newdie = clone $this;
 
-        // james: reinstate the commented condition if we want a 1-sider to split into
-        //        two 1-siders
-//        if ($newdie->max > 1) {
         $remainder = $newdie->max % 2;
         $newdie->max -= $remainder;
         $newdie->max = $newdie->max / 2;
         $this->max -= $newdie->max;
-//        }
 
         if (0 == $this->max) {
             $this->min = 0;
