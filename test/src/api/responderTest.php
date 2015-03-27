@@ -9633,8 +9633,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(1, 2, 1),
-            'responder004 performed Skill attack using [ds(1/15=1):1,`(5/10=5):5,p(Y=1):1] against [(3,17):7]; Defender (3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `(5/10=5) recipe changed from `(5/10=5) to (5/10=5), rerolled 5 => 2; Attacker p(Y=1) rerolled 1 => 1. ',
+            array(1, 3, 1),
+            'responder004 performed Skill attack using [ds(1/15=1):1,`(5/10=5):5,p(Y=1):1] against [(3,17):7]; Defender (3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `(5/10=5) recipe changed from `(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1. ',
             $retval, array(array(0, 3), array(1, 1), array(1, 2), array(1, 3)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -9642,20 +9642,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Trip'),
             array(4, 30.5, -17.7, 17.7),
-            array(array(1, 2, array('recipe' => '(5/10)', 'skills' => array(), 'value' => 2, 'description' => 'Option Die (with 5 sides)'))),
+            array(array(1, 2, array('recipe' => '(5/10)', 'skills' => array(), 'value' => 3, 'description' => 'Option Die (with 5 sides)'))),
             array(array(0, 3)),
             array(),
             array(array(1, array('value' => 7, 'sides' => 20, 'recipe' => '(3,17)')))
         );
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`(5/10=5):5,p(Y=1):1] against [(3,17):7]; Defender (3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `(5/10=5) recipe changed from `(5/10=5) to (5/10=5), rerolled 5 => 2; Attacker p(Y=1) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`(5/10=5):5,p(Y=1):1] against [(3,17):7]; Defender (3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `(5/10=5) recipe changed from `(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
         ////////////////////
         // Move 04 - responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1):1]
-        // [k(7):5, p(X=4)?:4, o(Z=4):4, t(5):4, g`(2):2] => [ft(5):3, ds(1/15=1):1, (5/10=5):2, p(Y=1):1, wHz(12):12]
+        // [k(7):5, p(X=4)?:4, o(Z=4):4, t(5):4, g`(2):2] => [ft(5):3, ds(1/15=1):1, (5/10=5):3, p(Y=1):1, wHz(12):12]
 
         $this->verify_api_submitTurn(
             array(3, 9, 1),
@@ -9681,7 +9681,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 05 - responder004 performed Skill attack using [ft(5):3,ds(1/15=1):1] against [t(5):4]
-        // [k(7):5, p(X=10)?:9, o(Z=4):1, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, (5/10=5):2, wHz(12):12]
+        // [k(7):5, p(X=10)?:9, o(Z=4):1, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
@@ -9706,14 +9706,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
 
         ////////////////////
-        // Move 06 - responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]
-        // [k(7):5, p(X=10)?:9, o(Z=4):1, g`(2):2] => [ft(5):5, ds(1/15=1):1, (5/10=5):2, wHz(12):12]
+        // Move 06 - responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]
+        // [k(7):5, p(X=10)?:9, o(Z=4):1, g`(2):2] => [ft(5):5, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
 
         $this->verify_api_submitTurn(
             array(1, 1),
-            'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. ',
+            'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. ',
             $retval, array(array(0, 2), array(0, 3), array(1, 2)),
-            $gameId, 1, 'Skill', 0, 1, "Yeah, ok, so:\n\n> responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1\n\nThis shouldn't be legal, because the Warrior Stinger 2 doesn't have Stinger while it has Warrior. (Or, at least, that's how the old site did it.)");
+            $gameId, 1, 'Skill', 0, 1, 'Warrior stinger dice must use their full value');
 
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Trip'),
@@ -9721,11 +9721,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, 3, array('value' => 1, 'recipe' => 'g(2)', 'skills' => array('Stinger'), 'description' => 'Stinger 2-sided die'))),
             array(array(1, 2)),
             array(array(1, 1)),
-            array(array(0, array('value' => 2, 'sides' => 5, 'recipe' => '(5/10)')))
+            array(array(0, array('value' => 3, 'sides' => 5, 'recipe' => '(5/10)')))
         );
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
-        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => "Yeah, ok, so:\n\n> responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):2]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1\n\nThis shouldn't be legal, because the Warrior Stinger 2 doesn't have Stinger while it has Warrior. (Or, at least, that's how the old site did it.)"));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Warrior stinger dice must use their full value'));
         $expData['gameChatEditable'] = 'TIMESTAMP';
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
