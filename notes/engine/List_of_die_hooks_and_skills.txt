@@ -9,6 +9,7 @@ pre_roll
 post_roll
   Maximum
   Warrior
+  TimeAndSpace
 attack_list
   Berserk
   Fire
@@ -61,5 +62,3 @@ load_buttons
   BtnSkillEcho
 hit_table
   Konstant
-commit_attack
-  TimeAndSpace

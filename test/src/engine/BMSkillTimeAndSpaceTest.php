@@ -24,25 +24,30 @@ class BMSkillTimeAndSpaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillTimeAndSpace::commit_attack
+     * @covers BMSkillTimeAndSpace::post_roll
      */
-    public function testCommit_attack()
+    public function testPost_roll()
     {
         $game = new BMGame;
         $game->activePlayerIdx = 1;
 
         $die = BMDie::create(4);
-        $die->value = 2;
-        $args = array('value' => $die->value, 'game' => $game);
-        $this->object->commit_attack($args);
+        $die->value = 3;
+        $die->add_skill('TimeAndSpace');
+        $die->ownerObject = $game;
+        $args = array('die' => $die);
+        $this->object->post_roll($args);
 
         $this->assertFalse(isset($game->nextPlayerIdx));
 
-        $die = BMDie::create(4);
+        $die->value = 2;
+        $die->add_flag('IsAttacker');
+        $this->assertFalse(isset($game->nextPlayerIdx));
+
         $die->value = 3;
-        $args = array('value' => $die->value, 'game' => $game);
-        $this->object->commit_attack($args);
+        $this->object->post_roll($args);
 
         $this->assertTrue(isset($game->nextPlayerIdx));
+        $this->assertEquals(1, $game->nextPlayerIdx);
     }
 }
