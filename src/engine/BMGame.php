@@ -2075,6 +2075,16 @@ class BMGame {
         $nPlayers = count($this->playerIdArray);
         // move to the next player
         if (isset($this->nextPlayerIdx)) {
+            if ($this->nextPlayerIdx === $this->activePlayerIdx) {
+                // james: currently, the only reason that this would be true is TimeAndSpace,
+                //        so hard code it for the moment
+                $this->log_action(
+                    'play_another_turn',
+                    $this->playerIdArray[$this->activePlayerIdx],
+                    array('cause' => 'TimeAndSpace')
+                );
+            }
+
             $this->activePlayerIdx = $this->nextPlayerIdx;
             $this->nextPlayerIdx = NULL;
         } else {

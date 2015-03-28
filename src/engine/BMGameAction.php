@@ -571,6 +571,17 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_play_another_turn() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   ' gets another turn';
+
+        if ('TimeAndSpace' == $this->params['cause']) {
+            $message .= ' because a TimeAndSpace die rolled odd';
+        }
+
+        return $message;
+    }
+
     protected function friendly_message_ornery_reroll() {
         $messageArray = array();
         // Report what happened to each rerolling die
