@@ -9514,7 +9514,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * 0. Start a game with responder003 playing Max Factor and responder004 playing Noeh
