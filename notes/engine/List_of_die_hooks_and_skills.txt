@@ -22,6 +22,7 @@ attack_list
 attack_values
   Konstant
   Stinger
+  Warrior
 score_value
   Null
   Poison
