@@ -9512,4 +9512,117 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
+
+    /**
+     * @group fulltest_deps
+     * @depends test_request_savePlayerInfo
+     *
+     * 0. Start a game with responder003 playing Max Factor and responder004 playing Noeh
+     * 1. responder004 set swing values: Y=5 and option dice: f(4/20=20)
+     * 2. responder003 set swing values: X=11
+     *    responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):2, (8):3, (12):10, (X=11):4, (X=11):8], responder004 rolled [z(15,15):6, tg(6):6, n(Y=5):4, f(4/20=20):3, sgv(17):6, `(1):1]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].
+     * Now the game state should be REACT_TO_INITIATIVE
+     */
+    public function test_interface_game_031() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 31;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        // Max Factor rolls 3 dice, Noeh rolls 5
+        $gameId = $this->verify_api_createGame(
+            array(2, 3, 10, 4, 2, 6, 6, 1),
+            'responder003', 'responder004', 'Max Factor', 'Noeh', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Null', 'Shadow', 'Speed', 'Stinger', 'Trip', 'Value', 'Warrior'));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
+        $expData['playerDataArray'][1]['optRequestArray'] = array(3 => array(4, 20));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Max Factor', 'recipe' => '(6) (8) (12) (X) (X)', 'artFilename' => 'maxfactor.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Noeh', 'recipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'artFilename' => 'noeh.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 30, 'skills' => array('Speed'), 'properties' => array('Twin'), 'recipe' => 'z(15,15)', 'description' => 'Speed Twin Die (both with 15 sides)', 'subdieArray' => array(array('sides' => 15), array('sides' => 15))),
+            array('value' => NULL, 'sides' => 6, 'skills' => array('Trip', 'Stinger'), 'properties' => array(), 'recipe' => 'tg(6)', 'description' => 'Trip Stinger 6-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Null'), 'properties' => array(), 'recipe' => 'n(Y)', 'description' => 'Null Y Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(4/20)', 'description' => 'Focus Option Die (with 4 or 20 sides)'),
+            array('value' => NULL, 'sides' => 17, 'skills' => array('Shadow', 'Stinger', 'Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'sgv(17)', 'description' => 'Shadow Stinger Value 17-sided die'),
+            array('value' => NULL, 'sides' => 1, 'skills' => array('Warrior'), 'properties' => array(), 'recipe' => '`(1)', 'description' => 'Warrior 1-sided die'),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder004 set swing values: Y=5 and option dice: f(4/20=20)
+
+        // this should cause the swing and option dice to be rerolled
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitDieValues(
+            array(4, 3),
+            $gameId, 1, array('Y' => 5), array(3 => 20));
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set die sizes'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 02 - responder003 set swing values: X=11
+        //   responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):2, (8):3, (12):10, (X=11):4, (X=11):8], responder004 rolled [z(15,15):6, tg(6):6, n(Y=5):4, f(4/20=20):3, sgv(17):6, `(1):1]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].
+
+        $this->verify_api_submitDieValues(
+            array(4, 8),
+            $gameId, 1, array('X' => 11), NULL);
+
+        $expData['gameState'] = 'REACT_TO_INITIATIVE';
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 24;
+        $expData['playerDataArray'][1]['roundScore'] = 31;
+        $expData['playerDataArray'][0]['sideScore'] = -4.7;
+        $expData['playerDataArray'][1]['sideScore'] = 4.7;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = 'X Swing Die (with 11 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = 'X Swing Die (with 11 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Null Y Swing Die (with 5 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 20;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'Focus Option Die (with 20 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 1;
+
+        $expData['gameActionLog'][0]['message'] = 'responder004 set swing values: Y=5 and option dice: f(4/20=20)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=11'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(6):2, (8):3, (12):10, (X=11):4, (X=11):8], responder004 rolled [z(15,15):6, tg(6):6, n(Y=5):4, f(4/20=20):3, sgv(17):6, `(1):1]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
 }
