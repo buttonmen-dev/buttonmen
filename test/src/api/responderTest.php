@@ -8344,8 +8344,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
-     *
      * @depends test_request_savePlayerInfo
      *
      * This test reproduces an internal error bug caused by zero-sided twin swing dice
