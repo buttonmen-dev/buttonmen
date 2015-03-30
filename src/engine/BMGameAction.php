@@ -575,7 +575,8 @@ class BMGameAction {
         $messageArray = array();
         // Report what happened to each rerolling die
         foreach ($this->params['postRerollDieInfo'] as $idx => $postInfo) {
-            if (!$postInfo['hasJustRerolledOrnery']) {
+            if (!isset($postInfo['hasJustRerolledOrnery']) ||
+                !$postInfo['hasJustRerolledOrnery']) {
                 continue;
             }
 

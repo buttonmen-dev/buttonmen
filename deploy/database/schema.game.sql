@@ -69,7 +69,8 @@ CREATE TABLE game_action_log (
     game_state         TINYINT UNSIGNED DEFAULT 10,
     action_type        VARCHAR(20),
     acting_player      SMALLINT UNSIGNED NOT NULL,
-    message            TEXT
+    message            TEXT,
+    INDEX (game_id)
 );
 
 CREATE TABLE game_chat_log (
@@ -80,7 +81,8 @@ CREATE TABLE game_chat_log (
     -- A chat message is limited to 2000 Unicode characters (see
     -- GAME_CHAT_MAX_LENGTH in ApiSpec.php and Game.js). Since a Unicode
     -- character can be up to four bytes, this requires a varchar(8000).
-    message            VARCHAR(8000)
+    message            VARCHAR(8000),
+    INDEX (game_id)
 );
 
 CREATE TABLE die (
