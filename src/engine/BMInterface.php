@@ -2899,9 +2899,6 @@ class BMInterface {
                      'game_state,action_type,acting_player,message ' .
                      'FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC';
-            if (!is_null($logEntryLimit)) {
-                $query = $query . ' LIMIT ' . $logEntryLimit;
-            }
 
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -2931,6 +2928,11 @@ class BMInterface {
                 }
             }
 
+            if (!is_null($logEntryLimit) &&
+                (count($logEntries) > $logEntryLimit)) {
+                $logEntries = array_slice($logEntries, 0, $logEntryLimit);
+            }
+            
             return $logEntries;
         } catch (Exception $e) {
             error_log(
