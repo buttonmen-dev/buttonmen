@@ -10,8 +10,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (10002, 'RandomBMAnime', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
 (10004, 'RandomBMFixed', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"));
 
-UPDATE game_player_map SET button_id = (SELECT id FROM button WHERE name = "RandomBMAnime") WHERE button_id=20000;
-UPDATE game_player_map SET button_id = (SELECT id FROM button WHERE name = "RandomBMFixed") WHERE button_id=20001;
+UPDATE game_player_map SET button_id = (SELECT id FROM button WHERE name = "RandomBMFixed") WHERE button_id=20000;
+UPDATE game_player_map SET button_id = (SELECT id FROM button WHERE name = "RandomBMAnime") WHERE button_id=20001;
 
 UPDATE button
 SET flavor_text='This button gets a different random recipe in each game, with a fixed random formula: 5 dice, no swing dice, two of them having a single skill chosen from c, f, and d (the same skill on both)'
