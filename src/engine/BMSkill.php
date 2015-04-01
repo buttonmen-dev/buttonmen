@@ -208,7 +208,6 @@ class BMSkill {
         // fires first
         return array('BMSkillAuxiliary',
                      'BMSkillReserve',
-                     'BMSkillWarrior',
                      'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillSpeed',
@@ -232,7 +231,8 @@ class BMSkill {
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
-                     'BMSkillMaximum');
+                     'BMSkillMaximum',
+                     'BMSkillWarrior');
         // fires last
     }
 
