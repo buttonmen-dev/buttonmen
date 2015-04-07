@@ -117,6 +117,8 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'merlin_ein_reacttoauxiliary_nonplayer') { return '2402'; }
   if (gameDesc == 'merlin_ein_reacttoauxiliary_inactive') { return '2403'; }
 
+  if (gameDesc == 'shadowwarriors_fernworthy_newgame_active') { return '2701'; }
+
   if (gameDesc == 'beatnikturtle_firebreather_adjustfire_inactive') { return '2803'; }
 }
 

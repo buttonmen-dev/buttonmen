@@ -105,5 +105,17 @@ class BMSkillQueerTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, count($a));
         $this->assertContains('Shadow', $a);
         $this->assertContains('Skill', $a);
+
+        
+        // test with zero value
+        $a = array();
+        $b = array('attackTypeArray' => &$a, 'value' => 0);
+
+        $this->object->attack_list($b);
+        // Test adding Queer
+        $this->assertNotEmpty($a);
+        $this->assertContains('Power', $a);
+        // Only once
+        $this->assertEquals(1, count($a));
     }
 }

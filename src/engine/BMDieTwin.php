@@ -169,7 +169,7 @@ class BMDieTwin extends BMDie {
     }
 
     public function split() {
-        $oldRecipe = $this->get_recipe();
+        $oldRecipe = $this->get_recipe(TRUE);
         unset($this->value);
         $newdie = clone $this;
 

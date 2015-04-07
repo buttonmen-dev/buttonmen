@@ -202,8 +202,8 @@ class BMDie extends BMCanHaveSkill {
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
                                              'attackValues' => &$list,
-                                             'minValue' => $this->min));
-
+                                             'minValue' => $this->min,
+                                             'value' => $this->value));
         return $list;
     }
 
@@ -387,14 +387,10 @@ class BMDie extends BMCanHaveSkill {
         unset($this->value);
         $newdie = clone $this;
 
-        // james: reinstate the commented condition if we want a 1-sider to split into
-        //        two 1-siders
-//        if ($newdie->max > 1) {
         $remainder = $newdie->max % 2;
         $newdie->max -= $remainder;
         $newdie->max = $newdie->max / 2;
         $this->max -= $newdie->max;
-//        }
 
         if (0 == $this->max) {
             $this->min = 0;
@@ -556,23 +552,8 @@ class BMDie extends BMCanHaveSkill {
     // die state before the attack to the die state after the attack.
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
-        $valueAfterTripAttack = NULL;
-        $recipeBeforeGrowing = NULL;
-        $recipeBeforeShrinking = NULL;
-        $recipeBeforeSplitting = NULL;
-        if ($this->has_flag('JustPerformedTripAttack')) {
-            $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
-        }
-        if ($this->has_flag('HasJustGrown')) {
-            $recipeBeforeGrowing = $this->flagList['HasJustGrown']->value();
-        }
-        if ($this->has_flag('HasJustShrunk')) {
-            $recipeBeforeShrinking = $this->flagList['HasJustShrunk']->value();
-        }
-        if ($this->has_flag('HasJustSplit')) {
-            $recipeBeforeSplitting = $this->flagList['HasJustSplit']->value();
-        }
-        return(array(
+
+        $actionLogInfo = array(
             'recipe' => $recipe,
             'min' => $this->min,
             'max' => $this->max,
@@ -580,14 +561,40 @@ class BMDie extends BMCanHaveSkill {
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
             'recipeStatus' => $recipe . ':' . $this->value,
-            'forceReportDieSize' => $this->forceReportDieSize(),
-            'valueAfterTripAttack' => $valueAfterTripAttack,
-            'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
-            'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
-            'recipeBeforeGrowing' => $recipeBeforeGrowing,
-            'recipeBeforeShrinking' => $recipeBeforeShrinking,
-            'recipeBeforeSplitting' => $recipeBeforeSplitting,
-        ));
+        );
+
+        $forceReportDieSize = $this->forceReportDieSize();
+        if ($forceReportDieSize) {
+            $actionLogInfo['forceReportDieSize'] = $forceReportDieSize;
+        }
+
+        $hasJustMorphed = $this->has_flag('HasJustMorphed');
+        if ($hasJustMorphed) {
+            $actionLogInfo['hasJustMorphed'] = $hasJustMorphed;
+        }
+
+        $hasJustRerolledOrnery = $this->has_flag('HasJustRerolledOrnery');
+        if ($hasJustRerolledOrnery) {
+            $actionLogInfo['hasJustRerolledOrnery'] = $hasJustRerolledOrnery;
+        }
+
+        if ($this->has_flag('JustPerformedTripAttack')) {
+            $actionLogInfo['valueAfterTripAttack'] = $this->flagList['JustPerformedTripAttack']->value();
+        }
+
+        if ($this->has_flag('HasJustGrown')) {
+            $actionLogInfo['recipeBeforeGrowing'] = $this->flagList['HasJustGrown']->value();
+        }
+
+        if ($this->has_flag('HasJustShrunk')) {
+            $actionLogInfo['recipeBeforeShrinking'] = $this->flagList['HasJustShrunk']->value();
+        }
+
+        if ($this->has_flag('HasJustSplit')) {
+            $actionLogInfo['recipeBeforeSplitting'] = $this->flagList['HasJustSplit']->value();
+        }
+        
+        return($actionLogInfo);
     }
 
     public function forceReportDieSize() {
