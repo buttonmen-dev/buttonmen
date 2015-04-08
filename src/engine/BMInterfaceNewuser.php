@@ -22,11 +22,27 @@ class BMInterfaceNewuser {
     const EMAIL_MAX_LENGTH = 254;
 
     // properties
-    private $message;               // message intended for GUI
-//    private $timestamp;             // timestamp of last game action
-    private static $conn = NULL;    // connection to database
 
-    private $isTest;         // indicates if the interface is for testing
+    /**
+     * Message intended for GUI
+     *
+     * @var string
+     */
+    private $message;
+
+    /**
+     * Connection to database
+     *
+     * @var PDO
+     */
+    private static $conn = NULL;
+
+    /**
+     * Indicates if the interface is for testing
+     *
+     * @var boolean
+     */
+    private $isTest;
 
     /**
      * Constructor
@@ -54,6 +70,13 @@ class BMInterfaceNewuser {
 
     // methods
 
+    /**
+     * Create a new user
+     *
+     * @param string $username
+     * @param string $password
+     * @param string $email
+     */
     public function create_user($username, $password, $email) {
         try {
             if (strlen($username) > BMInterfaceNewuser::USERNAME_MAX_LENGTH) {
@@ -150,6 +173,13 @@ class BMInterfaceNewuser {
         }
     }
 
+    /**
+     * Verify a user on first login using the verification key sent by email
+     *
+     * @param int $playerId
+     * @param string $playerKey
+     * @return boolean
+     */
     public function verify_user($playerId, $playerKey) {
         try {
             // Check for a user with this id
@@ -205,6 +235,13 @@ class BMInterfaceNewuser {
         }
     }
 
+    /**
+     * Create and send email allowing new users to login for the first time
+     *
+     * @param int $playerId
+     * @param string $username
+     * @param string $playerEmail
+     */
     public function send_email_verification($playerId, $username, $playerEmail) {
 
         // a given player should only have one verification code at a time, so delete any old ones
