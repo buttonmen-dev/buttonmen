@@ -47,6 +47,13 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         return TRUE;
     }
 
+    /**
+     * Choose n skills from an array of possible skills
+     *
+     * @param array $possibleSkillArray
+     * @param int $nSkills
+     * @return array
+     */
     public static function randomly_select_skills(array $possibleSkillArray, $nSkills) {
         if (count($possibleSkillArray) < $nSkills) {
             throw new LogicException('Not enough possible skills to select from');
