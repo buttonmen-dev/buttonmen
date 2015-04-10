@@ -14,6 +14,7 @@
  * @property-read int   $roundNumber;            Current round number
  * @property      int   $turnNumberInRound;      Current turn number in current round
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
+ * @property      int   $nextPlayerIdx           Index of the next player to take a turn in playerIdxArray
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
  * @property      array $buttonArray             Buttons for all players
  * @property-read array $activeDieArrayArray     Active dice for all players
@@ -67,14 +68,15 @@ class BMGame {
     protected $roundNumber;           // current round number
     protected $turnNumberInRound;     // current turn number in current round
     protected $activePlayerIdx;       // index of the active player in playerIdxArray
+    protected $nextPlayerIdx;         // index of the next player to take a turn in playerIdxArray
     protected $playerWithInitiativeIdx; // index of the player who won initiative
     protected $buttonArray;           // buttons for all players
     protected $activeDieArrayArray;   // active dice for all players
     protected $attack;                // array('attackerPlayerIdx',
-                                    //       'defenderPlayerIdx',
-                                    //       'attackerAttackDieIdxArray',
-                                    //       'defenderAttackDieIdxArray',
-                                    //       'attackType')
+                                      //       'defenderPlayerIdx',
+                                      //       'attackerAttackDieIdxArray',
+                                      //       'defenderAttackDieIdxArray',
+                                      //       'attackType')
     protected $attackerPlayerIdx;     // index in playerIdxArray of the attacker
     protected $defenderPlayerIdx;     // index in playerIdxArray of the defender
     protected $attackerAllDieArray;   // array of all attacker's dice
@@ -108,10 +110,10 @@ class BMGame {
     public $prevOptValueArrayArray;
 
     public $lastActionTimeArray;
-    public $isButtonChoiceRandom;   // used by the database to record whether the choice of the
-                                    // button was random or not
+    public $isButtonChoiceRandom;     // used by the database to record whether the choice of the
+                                      // button was random or not
     public $hasPlayerAcceptedGameArray;  // used by the database to record whether each player has
-                                    // accepted this game
+                                         // accepted this game
     public $hasPlayerDismissedGameArray;
 
     protected $fireCache;             // internal cache of fire info, used for logging
@@ -2072,7 +2074,22 @@ class BMGame {
 
         $nPlayers = count($this->playerIdArray);
         // move to the next player
-        $this->activePlayerIdx = ($this->activePlayerIdx + 1) % $nPlayers;
+        if (isset($this->nextPlayerIdx)) {
+            if ($this->nextPlayerIdx === $this->activePlayerIdx) {
+                // james: currently, the only reason that this would be true is TimeAndSpace,
+                //        so hard code it for the moment
+                $this->log_action(
+                    'play_another_turn',
+                    $this->playerIdArray[$this->activePlayerIdx],
+                    array('cause' => 'TimeAndSpace')
+                );
+            }
+
+            $this->activePlayerIdx = $this->nextPlayerIdx;
+            $this->nextPlayerIdx = NULL;
+        } else {
+            $this->activePlayerIdx = ($this->activePlayerIdx + 1) % $nPlayers;
+        }
 
         // currently not waiting on anyone
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
