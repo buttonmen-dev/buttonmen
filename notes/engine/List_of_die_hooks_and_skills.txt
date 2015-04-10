@@ -9,6 +9,7 @@ pre_roll
 post_roll
   Maximum
   Warrior
+  TimeAndSpace
 attack_list
   Berserk
   Fire
