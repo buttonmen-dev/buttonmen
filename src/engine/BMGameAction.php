@@ -576,7 +576,7 @@ class BMGameAction {
                    ' gets another turn';
 
         if ('TimeAndSpace' == $this->params['cause']) {
-            $message .= ' because a TimeAndSpace die rolled odd';
+            $message .= ' because a Time and Space die rolled odd';
         }
 
         return $message;
