@@ -867,12 +867,13 @@ Game.actionAdjustFireDiceActive = function() {
   });
 
   Game.page.append($('<div>', {
-    'text': 'Turn down Fire dice by a total of ' +
+    'html': 'Turn down Fire dice by a total of ' +
             (defenderSum - attackerSum) +
             ' to make up the difference between the sum of your attacking' +
             ' dice (' + attackerSum + ') and the defending die value (' +
             defenderSum + ').' +
-            ' Note that you may be able to turn down your Fire dice further' +
+            '<br/>' +
+            'Note that you may be able to turn down your Fire dice further' +
             ' in the case of a Power attack.',
   }));
 
