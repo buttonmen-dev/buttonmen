@@ -92,7 +92,8 @@ class BMDieTwin extends BMDie {
 
         $this->value = $value;
 
-        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
+        $this->run_hooks('post_roll', array('die' => $this,
+                                            'isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     // Print long description
