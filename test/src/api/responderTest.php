@@ -4563,7 +4563,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 1, 'Skill', 0, 1, '');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack'));
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
-        $expData['validAttackTypeArray'] = array();
+        $expData['validAttackTypeArray'] = array('Skill');
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
         $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('IsAttackTarget');
 
@@ -9363,7 +9363,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
-        $expData['validAttackTypeArray'] = array();
+        $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('ValueRelevantToScore', 'IsAttackTarget');
         $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('IsAttacker');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 chose to perform a Power attack using [(12):3] against [vz(20):5]; responder004 must turn down fire dice to complete this attack'));

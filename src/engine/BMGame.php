@@ -989,7 +989,7 @@ class BMGame {
     }
 
     protected function do_next_step_adjust_fire_dice() {
-        if ($this->needs_firing()) {
+        if ($this->needs_firing() || $this->allows_fire_overshooting()) {
             $this->waitingOnActionArray[$this->attack['attackerPlayerIdx']] = TRUE;
         }
     }
@@ -1056,6 +1056,45 @@ class BMGame {
         }
 
         return $needsFiring;
+    }
+
+    /**
+     * This checks for the special case of a Power attack where the attacker is
+     * already able to capture the defender without help, but where there is
+     * fire support possible, and the attacker is not yet at maximum value.
+     *
+     * @return boolean
+     */
+    protected function allows_fire_overshooting() {
+        return FALSE;
+
+
+//        if ('Power' != $this->attack['attackType']) {
+//            return FALSE;
+//        }
+//
+//        $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+//        $attackerDieIdx = $this->attack['attackerAttackDieIdxArray'][0];
+//        $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
+//        $attackerDieArray = array($attackerDie);
+//
+//        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+//        $defenderDieIdx = $this->attack['defenderAttackDieIdxArray'][0];
+//        $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
+//        $defenderDieArray = array($defenderDie);
+//
+//        $attack = BMAttack::create('Power');
+//
+//        if ($attack->validate_attack(
+//              $this,
+//              $attackerDieArray,
+//              $defenderDieArray,
+//              max(1, $defenderDie->value - $attackerDie->value + 1))
+//           ) {
+//            return TRUE;
+//        }
+//
+//        return FALSE;
     }
 
     protected function update_game_state_adjust_fire_dice() {
@@ -3454,8 +3493,25 @@ class BMGame {
     protected function get_validAttackTypeArray() {
         // If it's someone's turn to attack, report the valid attack
         // types as part of the game data
-        if ($this->gameState == BMGameState::START_TURN) {
+        if (BMGameState::START_TURN == $this->gameState) {
             $validAttackTypeArray = array_keys($this->valid_attack_types());
+        } elseif (BMGameState::ADJUST_FIRE_DICE == $this->gameState) {
+            $attackType = '';
+
+            // need to reconstruct attack type from die flag BMFlagIsAttacker
+            foreach ($this->activeDieArrayArray as $activeDieArray) {
+                foreach ($activeDieArray as $die) {
+                    if ($die->has_flag('IsAttacker')) {
+                        foreach ($die->flagList as $flag) {
+                            if ($flag instanceof BMFlagIsAttacker) {
+                                $attackType = $flag->value();
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            }
+            $validAttackTypeArray = array($attackType);
         } else {
             $validAttackTypeArray = array();
         }
