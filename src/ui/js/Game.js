@@ -853,8 +853,10 @@ Game.actionAdjustFireDiceActive = function() {
     'Your turn to complete an attack by adjusting fire dice');
 
   var attackerSum = 0;
+  var attackerDiffFromMax = 0;
   $.each(Api.game.player.activeDieArray, function(i, die) {
     if (die.properties.indexOf('IsAttacker') >= 0) {
+      attackerDiffFromMax += die.sides - die.value;
       attackerSum += die.value;
     }
   });
@@ -866,15 +868,26 @@ Game.actionAdjustFireDiceActive = function() {
     }
   });
 
+  var fireMessage = '';
+  var attackType = Api.game.validAttackTypeArray[0];
+  var exactFiringAmount = defenderSum - attackerSum;
+
+  fireMessage += 'Turn down Fire dice by a total of ';
+
+  console.log(attackerDiffFromMax);
+  console.log(exactFiringAmount);
+
+  if (('Power' == attackType) &&
+    (attackerDiffFromMax > exactFiringAmount)) {
+    fireMessage += 'between ' + exactFiringAmount + ' and ' + attackerDiffFromMax;
+  } else {
+    fireMessage += exactFiringAmount;
+  }
+
+  fireMessage += '.';
+
   Game.page.append($('<div>', {
-    'html': 'Turn down Fire dice by a total of ' +
-            (defenderSum - attackerSum) +
-            ' to make up the difference between the sum of your attacking' +
-            ' dice (' + attackerSum + ') and the defending die value (' +
-            defenderSum + ').' +
-            '<br/>' +
-            'Note that you may be able to turn down your Fire dice further' +
-            ' in the case of a Power attack.',
+    'html': fireMessage,
   }));
 
   // Create a form for adjusting fire dice
