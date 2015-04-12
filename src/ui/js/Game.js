@@ -879,7 +879,8 @@ Game.actionAdjustFireDiceActive = function() {
 
   if (('Power' == attackType) &&
     (attackerDiffFromMax > exactFiringAmount)) {
-    fireMessage += 'between ' + exactFiringAmount + ' and ' + attackerDiffFromMax;
+    fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
+                   ' and ' + attackerDiffFromMax;
   } else {
     fireMessage += exactFiringAmount;
   }
