@@ -1066,35 +1066,37 @@ class BMGame {
      * @return boolean
      */
     protected function allows_fire_overshooting() {
+        if ('Power' != $this->attack['attackType']) {
+            return FALSE;
+        }
+
+        $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+        $attackerDieIdx = $this->attack['attackerAttackDieIdxArray'][0];
+        $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
+        $attackerDieArray = array($attackerDie);
+
+        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        $defenderDieIdx = $this->attack['defenderAttackDieIdxArray'][0];
+        $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
+        $defenderDieArray = array($defenderDie);
+
+        $attack = BMAttack::create('Power');
+
+        $bounds = $attack->help_bounds_specific($this, $attackerDieArray, $defenderDieArray);
+        if (0 == $bounds[1]) {
+            return FALSE;
+        }
+
+        if ($attack->validate_attack(
+              $this,
+              $attackerDieArray,
+              $defenderDieArray,
+              max(1, $defenderDie->value - $attackerDie->value + 1))
+           ) {
+            return TRUE;
+        }
+
         return FALSE;
-
-
-//        if ('Power' != $this->attack['attackType']) {
-//            return FALSE;
-//        }
-//
-//        $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
-//        $attackerDieIdx = $this->attack['attackerAttackDieIdxArray'][0];
-//        $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
-//        $attackerDieArray = array($attackerDie);
-//
-//        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-//        $defenderDieIdx = $this->attack['defenderAttackDieIdxArray'][0];
-//        $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
-//        $defenderDieArray = array($defenderDie);
-//
-//        $attack = BMAttack::create('Power');
-//
-//        if ($attack->validate_attack(
-//              $this,
-//              $attackerDieArray,
-//              $defenderDieArray,
-//              max(1, $defenderDie->value - $attackerDie->value + 1))
-//           ) {
-//            return TRUE;
-//        }
-//
-//        return FALSE;
     }
 
     protected function update_game_state_adjust_fire_dice() {
