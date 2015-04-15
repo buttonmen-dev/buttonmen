@@ -129,6 +129,7 @@ class BMSkill {
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
                      'Stinger'      => 'g',
+                     'TimeAndSpace' => '^',
                      'Trip'         => 't',
                      'Value'        => 'v',
                      'Warrior'      => '`',
@@ -237,6 +238,7 @@ class BMSkill {
                      'BMSkillPoison',
                      'BMSkillNull',
                      'BMSkillMaximum',
+                     'BMSkillTimeAndSpace',
                      'BMSkillWarrior');
         // fires last
     }
