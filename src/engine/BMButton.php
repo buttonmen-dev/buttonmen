@@ -28,7 +28,7 @@ class BMButton extends BMCanHaveSkill {
     protected $name;
 
     /**
-     * Button recipe
+     * String representation of the button recipe
      *
      * @var string
      */
@@ -36,7 +36,7 @@ class BMButton extends BMCanHaveSkill {
 
 
     /**
-     * Filename of button art
+     * Filename in the image directory containing button art
      *
      * Note that this declaration is only needed so that get_filename()
      * triggers correctly in the getter. The property should not be used
@@ -47,7 +47,7 @@ class BMButton extends BMCanHaveSkill {
     protected $artFilename;
 
     /**
-     * Array of BMDice
+     * Array of BMDie
      *
      * @var array
      */
@@ -72,14 +72,15 @@ class BMButton extends BMCanHaveSkill {
     protected $dieTypes;
 
     /**
-     * The game that owns this particular instance of the button
+     * BMGame that owns this particular instance of the BMButton
      *
      * @var BMGame
      */
     protected $ownerObject;
 
     /**
-     * The player who owns this particular instance of the button
+     * BMGame index of the player that owns this particular instance of the
+     * BMButton
      *
      * @var integer
      */
