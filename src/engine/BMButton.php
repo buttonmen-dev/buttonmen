@@ -82,7 +82,7 @@ class BMButton extends BMCanHaveSkill {
      * BMGame index of the player that owns this particular instance of the
      * BMButton
      *
-     * @var integer
+     * @var int
      */
     protected $playerIdx;
 
@@ -90,7 +90,7 @@ class BMButton extends BMCanHaveSkill {
      * Flag signalling whether there is an unimplemented skill in the recipe,
      * which will prevent the dice from being loaded into the button
      *
-     * @var boolean
+     * @var bool
      */
     protected $hasUnimplementedSkill;
 
@@ -99,7 +99,7 @@ class BMButton extends BMCanHaveSkill {
      * from the initial recipe, and thus whether it needs to be loaded from
      * and saved explicitly to the database
      *
-     * @var boolean
+     * @var bool
      */
     protected $hasAlteredRecipe;
 

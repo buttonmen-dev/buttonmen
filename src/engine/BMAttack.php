@@ -15,7 +15,7 @@ abstract class BMAttack {
      * use. Captures are indistinguishable among attacks with no
      * side effects
      *
-     * @var boolean
+     * @var bool
      */
     public $sideEffect = FALSE;
 

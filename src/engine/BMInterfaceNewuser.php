@@ -40,7 +40,7 @@ class BMInterfaceNewuser {
     /**
      * Indicates if the interface is for testing
      *
-     * @var boolean
+     * @var bool
      */
     private $isTest;
 
