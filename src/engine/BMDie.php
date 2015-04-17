@@ -563,11 +563,6 @@ class BMDie extends BMCanHaveSkill {
      * In the case of an odd number of sides, the remainder stays with the
      * original die
      *
-     * At the moment, only attacking dice can split, so the dice will
-     * automatically pick up the need to reroll. (It is possible there is
-     * some undesireable behavior there, but I cannot think
-     * what. Radioactive removes T&S.)
-     *
      * @return array
      */
     public function split() {
