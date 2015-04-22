@@ -29,6 +29,11 @@ class BMSkillMaximum extends BMSkill {
         }
 
         $die = $args['die'];
+
+        if (!$die->doesReroll) {
+            return FALSE;
+        }
+
         $die->value = $die->max;
         return TRUE;
     }
