@@ -120,6 +120,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If you do not have the initiative at the start of a round you may re-roll one of your Chance Dice. If this results in you gaining the initiative, your opponent may re-roll one of their Chance Dice. This can continue with each player re-rolling Chance Dice, even re-rolling the same die, until one person fails to gain the initiative or lets their opponent go first. Re-rolling Chance Dice is not only a way to gain the initiative; it can also be useful in protecting your larger dice, or otherwise improving your starting roll. Unlike Focus Dice, Chance Dice can be immediately re-used in an attack even if you do gain the initiative with them.',
                 'interacts' => array(
                     'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+                    'Konstant' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                                  'when rerolled due to Chance'
                 ),
             ),
             'Doppelganger' => array(
@@ -141,17 +143,26 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If you do not have the initiative at the start of a round you may reduce the values showing on one or more of your Focus Dice. You may only do this if it results in your gaining the initiative. If your opponent has Focus Dice, they may now do the same, and each player may respond by turning down one or more Focus Dice until no further moves are legal, or until one player allows the other to take the first turn. IMPORTANT: If you go first, any Focus Dice you have reduced may not be used as part of your first attack. (The second player has no such restriction.)',
                 'interacts' => array(
                     'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+                    'Konstant' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
                 ),
             ),
             'Konstant' => array(
                 'code' => 'k',
-                'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant Dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack.',
-                'interacts' => array(),
+                'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
+                'interacts' => array(
+                    'Chance' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                                'when rerolled due to Chance',
+                    'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
+                    'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
+                    'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+                    'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
+                ),
             ),
             'Maximum' => array(
                 'code' => 'M',
                 'description' => 'Maximum dice always roll their maximum value.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
                 ),
             ),
             'Mighty' => array(
@@ -186,6 +197,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 'o',
                 'description' => 'Ornery dice reroll every time the player makes any attack - whether the Ornery dice participated in it or not. The only time they don\'t reroll is if the player passes, making no attack whatsoever.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
                     'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
                 ),
             ),
@@ -256,6 +268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 't',
                 'description' => 'These dice can also make Trip Attacks. To make a Trip Attack, choose any one opposing die as the Target. Roll both the Trip Die and the Target, then compare the numbers they show. If the Trip Die now shows an equal or greater number than the Target, the Target is captured. Otherwise, the attack merely has the effect of re-rolling both dice. A Trip Attack is illegal if it has no chance of capturing (this is possible in the case of a Trip-1 attacking a Twin Die). IMPORTANT: Trip Dice do not count for determining who goes first.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
                     'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                     'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                 ),
