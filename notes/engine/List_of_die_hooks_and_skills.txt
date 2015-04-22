@@ -6,8 +6,9 @@ add_skill
   Value
 pre_roll
   Mood
-post_roll
+roll
   Maximum
+post_roll
   Warrior
   TimeAndSpace
 attack_list
