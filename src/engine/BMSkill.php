@@ -136,6 +136,11 @@ class BMSkill {
                      'Weak'         => 'h');
     }
 
+    /**
+     * All possible skill characters
+     *
+     * @return array
+     */
     public static function all_skill_chars() {
         return array_values(self::skill_name_abbreviation_mapping());
     }

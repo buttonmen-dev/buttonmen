@@ -10,7 +10,7 @@
  *
  * @property      string  $name                  Name of button
  * @property      string  $recipe                String representation of the button recipe
- * @property      string  $artFilename           Filename in the image directory containing button art
+ * @property-read string  $artFilename           Filename in the image directory containing button art
  * @property-read array   $dieArray              Array of BMDie
  * @property      BMGame  $ownerObject           BMGame that owns the BMButton
  * @property      BMGame  $playerIdx             BMGame index of the player that owns the BMButton
@@ -19,17 +19,97 @@
  */
 class BMButton extends BMCanHaveSkill {
     // properties
+
+    /**
+     * Button name
+     *
+     * @var string
+     */
     protected $name;
+
+    /**
+     * String representation of the button recipe
+     *
+     * @var string
+     */
     protected $recipe;
+
+
+    /**
+     * Filename in the image directory containing button art
+     *
+     * Note that this declaration is only needed so that get_filename()
+     * triggers correctly in the getter. The property should not be used
+     * directly.
+     *
+     * @var string
+     */
     protected $artFilename;
+
+    /**
+     * Array of BMDie
+     *
+     * @var array
+     */
     protected $dieArray;
+
+    /**
+     * An array of the skills of all the dice in dieArray.
+     *
+     * The keys are the names of the skills, and the values are the class names.
+     *
+     * @var array
+     */
     protected $dieSkills;
+
+    /**
+     * An array of the die types (e.g., swing, option, twin) of all the dice in dieArray.
+     *
+     * The keys are the names of the die types, and the values are the class names.
+     *
+     * @var array
+     */
     protected $dieTypes;
+
+    /**
+     * BMGame that owns this particular instance of the BMButton
+     *
+     * @var BMGame
+     */
     protected $ownerObject;
+
+    /**
+     * BMGame index of the player that owns this particular instance of the
+     * BMButton
+     *
+     * @var int
+     */
     protected $playerIdx;
+
+    /**
+     * Flag signalling whether there is an unimplemented skill in the recipe,
+     * which will prevent the dice from being loaded into the button
+     *
+     * @var bool
+     */
     protected $hasUnimplementedSkill;
+
+    /**
+     * Flag signalling whether the current recipe of the button has changed
+     * from the initial recipe, and thus whether it needs to be loaded from
+     * and saved explicitly to the database
+     *
+     * @var bool
+     */
     protected $hasAlteredRecipe;
 
+    /**
+     * Set button recipe, add button skill (if it exists), and add dice to button
+     *
+     * @param string $recipe
+     * @param string $name
+     * @param bool $isRecipeAltered
+     */
     public function load($recipe, $name = NULL, $isRecipeAltered = FALSE) {
         if (!is_null($name)) {
             $this->name = $name;
@@ -85,10 +165,18 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Discard button state and reload a fresh copy
+     */
     public function reload() {
         $this->load($this->recipe, $this->name, $this->hasAlteredRecipe);
     }
 
+    /**
+     * Load values into the dice in dieArray
+     *
+     * @param array $valueArray
+     */
     public function load_values(array $valueArray) {
         if (count($this->dieArray) != count($valueArray)) {
             throw new InvalidArgumentException('Invalid number of values.');
@@ -104,10 +192,21 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Add a die to dieArray
+     *
+     * @param BMDie $die
+     */
     public function add_die($die) {
         $this->dieArray[] = $die;
     }
 
+    /**
+     * Check that a recipe is valid. If it is invalid, an
+     * InvalidArgumentException is thrown.
+     *
+     * @param string $recipe
+     */
     private function validate_recipe($recipe) {
         $dieArray = preg_split(
             '/[[:space:]]+/',
@@ -129,12 +228,20 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Activate all dice in dieArray. This causes clones of the dice to be
+     * added to their ownerObjects. Since their ownerObjects should be the
+     * BMGame that owns the button, this effectively adds dice to the game.
+     */
     public function activate() {
         foreach ($this->dieArray as $die) {
             $die->activate();
         }
     }
 
+    /**
+     * Change the button recipe
+     */
     public function update_button_recipe() {
         $recipe = '';
 
@@ -155,6 +262,11 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Get the filename of the button art
+     *
+     * @return string
+     */
     protected function get_artFilename() {
         $artFilename = preg_replace('/[^a-z0-9]/', '', strtolower($this->name)) . '.png';
         $artFilepath = BW_PHP_ROOT . '/ui/images/button/' . $artFilename;
