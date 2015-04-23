@@ -728,7 +728,7 @@ div.forum tr td.editBody {
 }
 
 div.forum td.markRead {
-    text-align: right;
+    text-align: left;
     border: 0;
 }
 
