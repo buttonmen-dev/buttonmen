@@ -12,22 +12,65 @@
  * @property      int   $swingValue        Swing value
  * @property      int   $swingMax          Maximum possible value of this swing type
  * @property      int   $swingMin          Minimum possible value of this swing type
- * @property-read bool  $needsSwingValue   Flag indicating whether a swing value is still needed
- * @property-read bool  $valueRequested    Flag indicating whether a swing request has been sent to the parent
+ * @property-read bool  $needsSwingValue   Flag indicating if a swing value is still needed
+ * @property-read bool  $valueRequested    Flag indicating if a swing request has been sent to the owning BMGame
  */
 class BMDieSwing extends BMDie {
+    /**
+     * Swing type
+     *
+     * @var char
+     */
     public $swingType;
-    public $swingValue;  // this is ALWAYS the value chosen by the player
+
+    /**
+     * Swing value
+     *
+     * This is ALWAYS the value chosen by the player.
+     *
+     * @var int
+     */
+    public $swingValue;
+
+    /**
+     * Maximum possible value of this swing type
+     *
+     * @var int
+     */
     public $swingMax;
+
+    /**
+     * Minimum possible value of this swing type
+     *
+     * @var int
+     */
     public $swingMin;
+
+    /**
+     * Flag indicating if a swing value is still needed
+     *
+     * @var bool
+     */
     protected $needsSwingValue = TRUE;
+
+    /**
+     * Flag indicating if a swing request has been sent to the owning BMGame
+     *
+     * @var bool
+     */
     protected $valueRequested = FALSE;
 
-    // Don't really like putting data in the code, but where else
-    // should it go?
-    //
-    // Should be a constant, but that isn't allowed. Instead, we wrap
-    // it in a method
+    /**
+     * Swing ranges for all swing types
+     *
+     * Don't really like putting data in the code, but where else
+     * should it go?
+     *
+     * Should be a constant, but that isn't allowed. Instead, we wrap
+     * it in a method
+     *
+     * @var array
+     */
     private static $swingRanges = array(
         "R"	=> array(2, 16),
         "S"	=> array(6, 20),
@@ -39,6 +82,12 @@ class BMDieSwing extends BMDie {
         "Y"	=> array(1, 20),
         "Z"	=> array(4, 30));
 
+    /**
+     * Swing range for a specified swing type
+     *
+     * @param char $type
+     * @return array
+     */
     public static function swing_range($type) {
         if (array_key_exists($type, self::$swingRanges)) {
             return self::$swingRanges[$type];
@@ -46,6 +95,19 @@ class BMDieSwing extends BMDie {
         return NULL;
     }
 
+    /**
+     * Set the swing type for the BMDieSwing, and add die skills
+     *
+     * Hackish: the caller can specify each skill as either a plain
+     * value, "skill", or a key/value pair "ClassName" => "skill",
+     * where the key is the class name which implements that skill.
+     * This is only for use by callers outside of engine (e.g.
+     * testing), and should never be used for the default BMSkill*
+     * set of skills.
+     *
+     * @param char $type
+     * @param array $skills
+     */
     public function init($type, array $skills = NULL) {
         $this->min = 1;
 
@@ -67,6 +129,14 @@ class BMDieSwing extends BMDie {
         $this->add_multiple_skills($skills);
     }
 
+    /**
+     * Create a BMDieSwing with a specified swing type, then
+     * add skills to the die.
+     *
+     * @param string $recipe
+     * @param array $skills
+     * @return BMDieSwing
+     */
     public static function create($recipe, array $skills = NULL) {
 
         if (!is_string($recipe) || strlen($recipe) != 1 ||
@@ -79,9 +149,14 @@ class BMDieSwing extends BMDie {
         $die->init($recipe, $skills);
 
         return $die;
-
     }
 
+    /**
+     * Wakes up a die from its container to be used in a game.
+     * Does not roll the die.
+     *
+     * Clones the die and returns the clone.
+     */
     public function activate() {
         $newDie = clone $this;
 
@@ -99,6 +174,12 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
+    /**
+     * Roll die
+     *
+     * @param bool $isTriggeredByAttack
+     * @param bool $isSubdie
+     */
     public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         if ($this->needsSwingValue && !isset($this->max)) {
             if (!$this->valueRequested) {
@@ -114,7 +195,12 @@ class BMDieSwing extends BMDie {
         }
     }
 
-    // Print long description
+    /**
+     * Print long description
+     *
+     * @param bool $isValueRequired
+     * @return string
+     */
     public function describe($isValueRequired = FALSE) {
         if (!is_bool($isValueRequired)) {
             throw new InvalidArgumentException('isValueRequired must be boolean');
@@ -155,6 +241,12 @@ class BMDieSwing extends BMDie {
         return $result;
     }
 
+    /**
+     * Try to set swing value for this BMDieSwing from an array of all swing values
+     *
+     * @param array $swingList
+     * @return bool
+     */
     public function set_swingValue($swingList) {
         $valid = TRUE;
 
@@ -179,6 +271,11 @@ class BMDieSwing extends BMDie {
         return $valid;
     }
 
+    /**
+     * Get all die types.
+     *
+     * @return array
+     */
     public function getDieTypes() {
         $typesList = array();
         $typesList[$this->swingType . ' Swing'] = array(

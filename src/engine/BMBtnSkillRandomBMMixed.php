@@ -12,8 +12,20 @@
  * over all dice
  */
 class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
     public static $hooked_methods = array('specify_recipes');
 
+    /**
+     * Hooked method applied when specifying recipes
+     *
+     * @param array $args
+     * @return boolean
+     */
     public static function specify_recipes(array $args) {
         if (!parent::specify_recipes($args)) {
             return FALSE;

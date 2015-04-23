@@ -14,9 +14,9 @@
  * @property      int    $value                 Current die value
  * @property-read string $recipe                Die recipe
  * @property-read int    $firingMax             Maximum amount that the die can be fired up
- * @property      BMGame/BMButton $ownerObject  Game or button that owns the die
+ * @property      BMGame|BMButton $ownerObject  Game or button that owns the die
  * @property      int    $playerIdx             Index of player that currently owns the die
- * @property-read int    $activeDieIdx          Index of die in activeDieArrayArray
+ * @property-read int    $activeDieIdx          Index of die in BMGame->activeDieArrayArray
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
@@ -27,30 +27,103 @@ class BMDie extends BMCanHaveSkill {
     // properties
 
 // Basic facts about the die
+    /**
+     * Minimum die value
+     *
+     * @var int
+     */
     protected $min;
+
+    /**
+     * Maximum die value
+     *
+     * @var int
+     */
     protected $max;
+
+    /**
+     * Current die value
+     *
+     * @var int
+     */
     protected $value;
+
+    /**
+     * Die recipe
+     *
+     * @var string
+     */
     protected $recipe;
+
+    /**
+     * Maximum amount that the die can be fired up
+     *
+     * @var int
+     */
     protected $firingMax;
 
-// references back to the owner
+    /**
+     * Game or button that owns the die
+     *
+     * @var BMGame|BMButton
+     */
     protected $ownerObject;
+
+    /**
+     * Index of player that currently owns the die
+     *
+     * @var int
+     */
     protected $playerIdx;
+
+    /**
+     * Index of die in BMGame->activeDieArrayArray
+     *
+     * @var int
+     */
     protected $activeDieIdx;
+
+    /**
+     * Index of player that originally owned the die
+     *
+     * @var int
+     */
     protected $originalPlayerIdx;
 
+    /**
+     * Flag signalling whether the die can reroll
+     *
+     * @var bool
+     */
     protected $doesReroll = TRUE;
+
+    /**
+     * Flag signalling whether the die has been captured
+     *
+     * @var bool
+     */
     protected $captured = FALSE;
 
-    // $flagList is designed to contain various BMFlags
+    /**
+     * Array designed to contain various BMFlags
+     *
+     * @var array
+     */
     protected $flagList = array();
 
-    // Hackish: the caller can specify each skill as either a plain
-    // value, "skill", or a key/value pair "ClassName" => "skill",
-    // where the key is the class name which implements that skill.
-    // This is only for use by callers outside of engine (e.g.
-    // testing), and should never be used for the default BMSkill<skill>
-    // set of skills.
+    /**
+     * Set number of sides of the die, and add die skills
+     *
+     * Hackish: the caller can specify each skill as either a plain
+     * value, "skill", or a key/value pair "ClassName" => "skill",
+     * where the key is the class name which implements that skill.
+     * This is only for use by callers outside of engine (e.g.
+     * testing), and should never be used for the default BMSkill*
+     * set of skills.
+     *
+     * @param int $sides
+     * @param array $skills
+     */
     public function init($sides, array $skills = NULL) {
         if (0 == $sides) {
             $this->min = 0;
@@ -63,6 +136,12 @@ class BMDie extends BMCanHaveSkill {
         $this->add_multiple_skills($skills);
     }
 
+    /**
+     * Parse the die recipe to extract the number of sides
+     *
+     * @param string $recipe
+     * @return string
+     */
     protected static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
             return $match[1];
@@ -71,10 +150,22 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Parse the die recipe to extract the skills into an array of BMSkills
+     *
+     * @param string $recipe
+     * @return array
+     */
     protected static function parse_recipe_for_skills($recipe) {
         return BMSkill::expand_skill_string(preg_replace('/\(.*\)/', '', $recipe));
     }
 
+    /**
+     * Determine if there is an unimplemented skill in a skill recipe string
+     *
+     * @param string $recipe
+     * @return bool
+     */
     public static function unimplemented_skill_in_recipe($recipe) {
         return BMSkill::unimplemented_skill_in_string(preg_replace('/\(.*\)/', '', $recipe));
     }
@@ -85,6 +176,14 @@ class BMDie extends BMCanHaveSkill {
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
 
+    /**
+     * Create an appropriate type of BMDie from a core recipe (the bit inside
+     * the parentheses), and then add skills.
+     *
+     * @param string $recipe
+     * @param array $skills
+     * @return BMDie
+     */
     protected static function create_from_string_components($recipe, array $skills = NULL) {
         $die = NULL;
 
@@ -119,12 +218,26 @@ class BMDie extends BMCanHaveSkill {
         return $die;
     }
 
+    /**
+     * Create an appropriate type of BMDie from a full die recipe
+     *
+     * @param string $recipe
+     * @return BMDie
+     */
     public static function create_from_recipe($recipe) {
         $sides = BMDie::parse_recipe_for_sides($recipe);
         $skills = BMDie::parse_recipe_for_skills($recipe);
         return BMDie::create_from_string_components($sides, $skills);
     }
 
+    /**
+     * Create an appropriate BMDie with a specified number of sides, then
+     * add skills to the die.
+     *
+     * @param int $size
+     * @param array $skills
+     * @return BMDie
+     */
     public static function create($size, array $skills = NULL) {
         if (!is_numeric($size) || ($size != (int)$size) ||
             $size < 0 || $size > 99) {
@@ -141,25 +254,35 @@ class BMDie extends BMCanHaveSkill {
 
     // hooked methods
 
-// When a die is "woken up" from its container to be used in a
-//  game. Does not roll the die
-//
-// Clones the die and returns the clone
-
+    /**
+     * Wakes up a die from its container to be used in a game.
+     * Does not roll the die.
+     *
+     * Clones the die and returns the clone.
+     */
     public function activate() {
         $newDie = clone $this;
 
         $this->ownerObject->add_die($newDie);
     }
 
-// Roll the die into a game. Clone self, roll, return the clone.
+    /**
+     * Roll the die into a game. Clone self, roll, return the clone.
+     *
+     * @return BMDie
+     */
     public function make_play_die() {
         $newDie = clone $this;
         $newDie->roll();
         return $newDie;
     }
 
-
+    /**
+     * Roll die
+     *
+     * @param bool $isTriggeredByAttack
+     * @param bool $isSubdie
+     */
     public function roll($isTriggeredByAttack = FALSE, $isSubdie = FALSE) {
         $this->run_hooks('pre_roll', array('die' => $this,
                                            'isTriggeredByAttack' => $isTriggeredByAttack,
@@ -174,6 +297,11 @@ class BMDie extends BMCanHaveSkill {
                                             'isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
+    /**
+     * Array of attack types that can be performed by this die
+     *
+     * @return array
+     */
     public function attack_list() {
         $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
@@ -194,9 +322,13 @@ class BMDie extends BMCanHaveSkill {
         return $list;
     }
 
-    // Return all possible values the die may use in this type of attack
-    //
-    // The values must be sorted, highest to lowest, with no duplication.
+    /**
+     * Return all possible values the die may use in this type of attack.
+     * The values must be sorted, highest to lowest, with no duplication.
+     *
+     * @param string $type
+     * @return array
+     */
     public function attack_values($type) {
         $list = array($this->value);
 
@@ -207,18 +339,28 @@ class BMDie extends BMCanHaveSkill {
         return $list;
     }
 
+    /**
+     * Defense value of the die
+     *
+     * @return int
+     */
     public function defense_value() {
         $val = $this->value;
         return $val;
     }
 
-// returns ten times the "real" scoring value
 //
-// We do not want to use floating-point math -- there's a real risk of
-// having 10.5 not equal 10.5.
-//
-// We use a multiplier and divisor so various skills can manipulate them
-// without stepping on each others' toes
+    /**
+     * Returns ten times the "real" scoring value
+     *
+     * We do not want to use floating-point math -- there's a real risk of
+     * having 10.5 not equal 10.5.
+     *
+     * We use a multiplier and divisor so various skills can manipulate them
+     * without stepping on each others' toes
+     *
+     * @return int
+     */
     public function get_scoreValueTimesTen() {
         $scoreValue = $this->max;
 
@@ -245,10 +387,14 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
-    // Return die's initiative value.
-    // Negative means it doesn't count for initiative.
-    // "?" means it's a chance die.
+    //
 
+    /**
+     * Return die's initiative value.
+     * Negative means it doesn't count for initiative.
+     *
+     * @return int
+     */
     public function initiative_value() {
         $val = $this->value;
 
@@ -257,22 +403,27 @@ class BMDie extends BMCanHaveSkill {
         return $val;
     }
 
-
-    // Returns what values the die can contribute to an attack that
-    // it's not actually participating in.
-    //
-    // Fire is currently the only skill that requires this
-    //
-    // Returned values must be sorted from lowest to highest, and zero
-    // must be omitted unless you cannot contribute.
-    //
-    // The attack code currently assumes that every value between the
-    // lowest and highest is possible, and that 1 and -1 are possible
-    // values if the help values go above or below zero. If that
-    // changes, the code'll need some work.
-    //
-    // It does not assume that the values are positive, even though
-    // they must be at the moment.
+    /**
+     * Returns what values the die can contribute to an attack that
+     * it's not actually participating in.
+     *
+     * Fire is currently the only skill that requires this
+     *
+     * Returned values must be sorted from lowest to highest, and zero
+     * must be omitted unless you cannot contribute.
+     *
+     * The attack code currently assumes that every value between the
+     * lowest and highest is possible, and that 1 and -1 are possible
+     * values if the help values go above or below zero. If that
+     * changes, the code'll need some work.
+     *
+     * It does not assume that the values are positive, even though
+     * they must be at the moment.
+     *
+     * @param string $type
+     * @param array $attackers
+     * @return array
+     */
     public function assist_values($type, array $attackers) {
         $vals = array(0);
 
@@ -288,13 +439,22 @@ class BMDie extends BMCanHaveSkill {
         return $vals;
     }
 
-    // Actually contribute to an attack. Returns true if the attack
-    // was contributed to, false otherwise.
-    //
-    // Returning false in normal usage indicates an error somewhere or
-    // an attempt to cheat.
-    //
-    // once again, this is just for Fire
+
+    /**
+     * Actually contribute to an attack. Returns true if the attack
+     * was contributed to, false otherwise.
+     *
+     * Returning false in normal usage indicates an error somewhere or
+     * an attempt to cheat.
+     *
+     * once again, this is just for Fire
+     *
+     * @param string $type
+     * @param array $attackers
+     * @param array $defenders
+     * @param int $amount
+     * @return boolean
+     */
     public function attack_contribute($type, array $attackers, array $defenders, $amount) {
         if ($amount == 0) {
             return FALSE;
@@ -315,25 +475,37 @@ class BMDie extends BMCanHaveSkill {
 
     }
 
-// check for special-case situations where an otherwise-valid attack
-// is not legal
+    /**
+     * Check for special-case situations where an otherwise-valid attacker
+     * is not legal
+     *
+     * @param array $attackers
+     * @return bool
+     */
     public function is_valid_attacker(array $attackers) {
         return in_array($this, $attackers, TRUE);
     }
 
-
+    /**
+     * Check for special-case situations where an otherwise-valid defender
+     * is not legal
+     *
+     * @param array $defenders
+     * @return bool
+     */
     public function is_valid_target(array $defenders) {
         $valid = in_array($this, $defenders, TRUE);
-
-        // james: needs to be reactivated when Warrior skill is added,
-        // probably in a die hook
-//        if ($this->has_skill('Warrior')) {
-//            $valid = FALSE;
-//        }
 
         return $valid;
     }
 
+    /**
+     * Run die hooks that trigger at capture when the die is an attacker
+     *
+     * @param string $type
+     * @param array $attackers
+     * @param array $defenders
+     */
     public function capture($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => &$attackers,
@@ -342,13 +514,25 @@ class BMDie extends BMCanHaveSkill {
     }
 
 
+    /**
+     * Run die hooks that trigger at capture when the die is an defender
+     *
+     * @param string $type
+     * @param array $attackers
+     * @param array $defenders
+     */
     public function be_captured($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => &$attackers,
                                              'defenders' => &$defenders));
     }
 
-// Print long description
+    /**
+     * Print long description
+     *
+     * @param bool $isValueRequired
+     * @return string
+     */
     public function describe($isValueRequired = FALSE) {
         if (!is_bool($isValueRequired)) {
             throw new InvalidArgumentException('isValueRequired must be boolean');
@@ -371,17 +555,16 @@ class BMDie extends BMCanHaveSkill {
         return $result;
     }
 
-// split a die in twain. If something needs to cut a die's size in
-// half, it should use this and throw one part away. (Or toss both;
-// all references to the original die will pick up the split.)
-//
-// In the case of an odd number of sides, the remainder stays with the
-// original die
-//
-// At the moment, only attacking dice can split, so the dice will
-// automatically pick up the need to reroll. (It is possible there is
-// some undesireable behavior there, but I cannot think
-// what. Radioactive removes T&S.)
+    /**
+     * split a die in twain. If something needs to cut a die's size in
+     * half, it should use this and throw one part away. (Or toss both;
+     * all references to the original die will pick up the split.)
+     *
+     * In the case of an odd number of sides, the remainder stays with the
+     * original die
+     *
+     * @return array
+     */
     public function split() {
         $oldRecipe = $this->get_recipe(TRUE);
         unset($this->value);
@@ -410,7 +593,9 @@ class BMDie extends BMCanHaveSkill {
         return $dice;
     }
 
-    // shrink() is intended to be used for weak dice
+    /**
+     * shrink() is intended to be used for weak dice
+     */
     public function shrink() {
         $dieSizes = self::grow_shrink_die_sizes();
         rsort($dieSizes);
@@ -424,7 +609,9 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
-    // grow() is intended to be used for mighty dice
+    /**
+     * grow() is intended to be used for mighty dice
+     */
     public function grow() {
         $dieSizes = self::grow_shrink_die_sizes();
         sort($dieSizes);
@@ -439,6 +626,12 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Get recipe of die
+     *
+     * @param bool $addMaxvals
+     * @return string
+     */
     public function get_recipe($addMaxvals = FALSE) {
         $recipe = '';
         foreach ($this->skillList as $skill) {
@@ -499,7 +692,8 @@ class BMDie extends BMCanHaveSkill {
         return $recipe;
     }
 
-    /** helper function to print a die sidecount with or without its swing/option value
+    /**
+     * helper function to print a die sidecount with or without its swing/option value
      *
      * @return string Representation of the side count of the die
      */
@@ -511,7 +705,8 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
-    /** function that calculates how much a die can be fired up by a helper die
+    /**
+     * function that calculates how much a die can be fired up by a helper die
      *
      * @return int Number of sides that the die can be fired up
      */
@@ -519,7 +714,8 @@ class BMDie extends BMCanHaveSkill {
         return ($this->max - $this->value);
     }
 
-    /** function that looks for the current object (BMDie) within the owning player's activeDieArray
+    /**
+     * function that looks for the current object (BMDie) within the owning player's activeDieArray
      *
      * @return mixed Index of die in activeDieArray of the owning player
      */
@@ -546,10 +742,15 @@ class BMDie extends BMCanHaveSkill {
         return $dieIdx;
     }
 
-    // Return all information about a die which is useful when
-    // constructing an action log entry, in the form of an array.
-    // This function exists so that BMGame can easily compare the
-    // die state before the attack to the die state after the attack.
+    /**
+     * Return all information about a die which is useful when
+     *
+     * constructing an action log entry, in the form of an array.
+     * This function exists so that BMGame can easily compare the
+     * die state before the attack to the die state after the attack.
+     *
+     * @return array
+     */
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
 
@@ -593,15 +794,26 @@ class BMDie extends BMCanHaveSkill {
         if ($this->has_flag('HasJustSplit')) {
             $actionLogInfo['recipeBeforeSplitting'] = $this->flagList['HasJustSplit']->value();
         }
-        
+
         return($actionLogInfo);
     }
 
+    /**
+     * Determine whether the die size always needs to be reported, even when
+     * there is no change.
+     *
+     * @return bool
+     */
     public function forceReportDieSize() {
         return ($this->has_skill('Mood') || $this->has_skill('Mad') ||
                 $this->has_flag('HasJustMorphed'));
     }
 
+    /**
+     * Determine whether the die skips the swing request phase
+     *
+     * @return type
+     */
     public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
 
@@ -611,10 +823,22 @@ class BMDie extends BMCanHaveSkill {
         return $doesSkipSwingRequest;
     }
 
+    /**
+     * Checks whether a die has a certain flag
+     *
+     * @param string $flag
+     * @return bool
+     */
     public function has_flag($flag) {
         return array_key_exists($flag, $this->flagList);
     }
 
+    /**
+     * Add a flag to the die
+     *
+     * @param string $flag
+     * @param mixed $flagValue
+     */
     public function add_flag($flag, $flagValue = NULL) {
         $flagString = $flag;
 
@@ -632,16 +856,29 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Remove a flag from the die
+     *
+     * @param string $flag
+     */
     public function remove_flag($flag) {
         if ($this->has_flag($flag)) {
             unset($this->flagList[$flag]);
         }
     }
 
+    /**
+     * Remove all flags from the die
+     */
     public function remove_all_flags() {
         $this->flagList = array();
     }
 
+    /**
+     * Print list of flags
+     *
+     * @return string
+     */
     public function flags_as_string() {
         if (empty($this->flagList)) {
             return '';
@@ -650,6 +887,11 @@ class BMDie extends BMCanHaveSkill {
         return implode(';', $this->flagList);
     }
 
+    /**
+     * Load flags from a string and add them to the die
+     *
+     * @param string $string
+     */
     public function load_flags_from_string($string) {
         if (empty($string)) {
             return;
@@ -661,17 +903,30 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Get all die types.
+     *
+     * @return array
+     */
     public function getDieTypes() {
         $typesList = array();
         return $typesList;
     }
 
-    // these are used for mood swing
+    /**
+     * The standard die sizes are used for mood swing
+     *
+     * @return array
+     */
     public static function standard_die_sizes() {
         return array(1, 2, 4, 6, 8, 10, 12, 20, 30);
     }
 
-    // these are used for Mighty and Weak
+    /**
+     * The die sizes are used for weak and mighty
+     *
+     * @return array
+     */
     public static function grow_shrink_die_sizes() {
         return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
     }
@@ -713,12 +968,18 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Set the minimum value of the die
+     */
     protected function set__min() {
         throw new LogicException(
             'min is set at creation time.'
         );
     }
 
+    /**
+     * Set the maximum value of the die
+     */
     protected function set__max($value) {
         if ($value === 0) {
             $this->min = 0;
@@ -741,6 +1002,9 @@ class BMDie extends BMCanHaveSkill {
         $this->max = $value;
     }
 
+    /**
+     * Set the value of the die
+     */
     protected function set__value($value) {
         if (!is_null($value) &&
             (FALSE ===
@@ -760,12 +1024,18 @@ class BMDie extends BMCanHaveSkill {
         $this->value = $value;
     }
 
+    /**
+     * Set the recipe of the die
+     */
     protected function set__recipe() {
         throw new LogicException(
             'Die recipe is derived automatically.'
         );
     }
 
+    /**
+     * Set the ownerObject of the die
+     */
     protected function set__ownerObject($value) {
         if (!(is_null($value) ||
               ($value instanceof BMButton) ||
@@ -778,6 +1048,9 @@ class BMDie extends BMCanHaveSkill {
         $this->ownerObject = $value;
     }
 
+    /**
+     * Set the index value of the player who owns the die
+     */
     protected function set__playerIdx($value) {
         if (!is_null($value) &&
             (FALSE ===
@@ -796,12 +1069,20 @@ class BMDie extends BMCanHaveSkill {
         $this->playerIdx = $value;
     }
 
+    /**
+     * Prevent direct setting of the active die index
+     */
     protected function set__activeDieIdx() {
         throw new LogicException(
             'Die index is derived automatically.'
         );
     }
 
+    /**
+     * Set the player index of the player who originally owned the die
+     *
+     * @param int $value
+     */
     protected function set__originalPlayerIdx($value) {
         if (!is_null($value) &&
             (FALSE ===
@@ -820,6 +1101,11 @@ class BMDie extends BMCanHaveSkill {
         $this->originalPlayerIdx = $value;
     }
 
+    /**
+     * Set whether a die rerolls
+     *
+     * @param int $value
+     */
     protected function set__doesReroll($value) {
         if (!is_bool($value)) {
             throw new InvalidArgumentException(
@@ -829,6 +1115,11 @@ class BMDie extends BMCanHaveSkill {
         $this->doesReroll = $value;
     }
 
+    /**
+     * Set whether a die has been captured
+     *
+     * @param int $value
+     */
     protected function set__captured($value) {
         if (!is_bool($value)) {
             throw new InvalidArgumentException(
@@ -838,6 +1129,11 @@ class BMDie extends BMCanHaveSkill {
         $this->captured = $value;
     }
 
+    /**
+     * Set flag list of the die
+     *
+     * @param array $value
+     */
     protected function set__flagList($value) {
         if (!is_array($value)) {
             throw new InvalidArgumentException(

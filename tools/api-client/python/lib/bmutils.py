@@ -28,6 +28,7 @@ SkillName = {
   'z': 'Speed',
   'd': 'Stealth',
   'g': 'Stinger',
+  '^': 'TimeAndSpace',
   't': 'Trip',
   'v': 'Value',
   'h': 'Weak',
