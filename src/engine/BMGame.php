@@ -62,61 +62,343 @@
 class BMGame {
     // properties -- all accessible, but written as protected to enable the use of
     //               getters and setters
-    protected $gameId;                // game ID number in the database
-    protected $playerIdArray;         // array of player IDs
-    protected $nPlayers;              // number of players in the game
-    protected $roundNumber;           // current round number
-    protected $turnNumberInRound;     // current turn number in current round
-    protected $activePlayerIdx;       // index of the active player in playerIdxArray
-    protected $nextPlayerIdx;         // index of the next player to take a turn in playerIdxArray
-    protected $playerWithInitiativeIdx; // index of the player who won initiative
-    protected $buttonArray;           // buttons for all players
-    protected $activeDieArrayArray;   // active dice for all players
-    protected $attack;                // array('attackerPlayerIdx',
-                                      //       'defenderPlayerIdx',
-                                      //       'attackerAttackDieIdxArray',
-                                      //       'defenderAttackDieIdxArray',
-                                      //       'attackType')
-    protected $attackerPlayerIdx;     // index in playerIdxArray of the attacker
-    protected $defenderPlayerIdx;     // index in playerIdxArray of the defender
-    protected $attackerAllDieArray;   // array of all attacker's dice
-    protected $defenderAllDieArray;   // array of all defender's dice
-    protected $attackerAttackDieArray; // array of attacker's dice used in attack
-    protected $defenderAttackDieArray; // array of defender's dice used in attack
-    protected $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
-    protected $nRecentPasses;         // number of consecutive passes
-    protected $capturedDieArrayArray; // captured dice for all players
-    protected $roundScoreArray;       // current points score in this round
-    protected $gameScoreArrayArray;   // number of games W/L/D for all players
-    protected $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
-    protected $maxWins;               // the game ends when a player has this many wins
-    protected $gameState;             // current game state as a BMGameState enum
-    protected $waitingOnActionArray;  // boolean array whether each player needs to perform an action
-    protected $autopassArray;         // boolean array whether each player has enabled autopass
-    protected $firingAmount;          // amount of firing that has been submitted
-    protected $actionLog;             // game actions taken by this BMGame instance
-    protected $chat;                  // chat message submitted by the active player with an attack
-    protected $description;           // description provided when the game was created
-    protected $previousGameId;        // the game whose chat is being continued with this game
-    protected $message;               // message to be passed to the GUI
 
-    protected $forceRoundResult;      // boolean array whether each player has won the round
+    /**
+     * Game ID number in the database
+     *
+     * @var int
+     */
+    protected $gameId;
 
+    /**
+     * Array of player IDs
+     *
+     * @var array
+     */
+    protected $playerIdArray;
+
+    /**
+     * Number of players in the game
+     *
+     * @var int
+     */
+    protected $nPlayers;
+
+    /**
+     * Current round number
+     *
+     * @var int
+     */
+    protected $roundNumber;
+
+    /**
+     * Current turn number in current round
+     *
+     * @var int
+     */
+    protected $turnNumberInRound;
+
+    /**
+     * Index of the active player in playerIdxArray
+     *
+     * @var int
+     */
+    protected $activePlayerIdx;
+
+    /**
+     * Index of the next player to take a turn in playerIdxArray
+     *
+     * @var int
+     */
+    protected $nextPlayerIdx;
+
+    /**
+     * Index of the player who won initiative
+     *
+     * @var int
+     */
+    protected $playerWithInitiativeIdx;
+
+    /**
+     * Buttons for all players
+     *
+     * @var array
+     */
+    protected $buttonArray;
+
+    /**
+     * Active dice for all players
+     *
+     * @var type
+     */
+    protected $activeDieArrayArray;
+
+    /**
+     * Details of attack
+     *
+     * array(
+     *   'attackerPlayerIdx',
+     *   'defenderPlayerIdx',
+     *   'attackerAttackDieIdxArray',
+     *   'defenderAttackDieIdxArray',
+     *   'attackType'
+     * )
+     *
+     * @var array
+     */
+    protected $attack;
+
+    /**
+     * Index in playerIdxArray of the attacker
+     *
+     * @var int
+     */
+    protected $attackerPlayerIdx;
+
+    /**
+     * Index in playerIdxArray of the defender
+     *
+     * @var int
+     */
+    protected $defenderPlayerIdx;
+
+    /**
+     * Array of all attacker's dice
+     *
+     * @var array
+     */
+    protected $attackerAllDieArray;
+
+    /**
+     * Array of all defender's dice
+     *
+     * @var array
+     */
+    protected $defenderAllDieArray;
+
+    /**
+     * Array of attacker's dice used in attack
+     *
+     * @var array
+     */
+    protected $attackerAttackDieArray;
+
+    /**
+     * Array of defender's dice used in attack
+     *
+     * @var array
+     */
+    protected $defenderAttackDieArray;
+
+    /**
+     * Array storing player decisions about auxiliary dice
+     *
+     * @var array
+     */
+    protected $auxiliaryDieDecisionArrayArray;
+
+    /**
+     * Number of consecutive passes
+     *
+     * @var int
+     */
+    protected $nRecentPasses;
+
+    /**
+     * Captured dice for all players
+     *
+     * @var array
+     */
+    protected $capturedDieArrayArray;
+
+    /**
+     * Current points score in this round
+     *
+     * @var array
+     */
+    protected $roundScoreArray;
+
+    /**
+     * Number of games W/L/D for all players
+     *
+     * @var array
+     */
+    protected $gameScoreArrayArray;
+
+    /**
+     * Boolean array whether each player won the previous round
+     *
+     * @var array
+     */
+    protected $isPrevRoundWinnerArray;
+
+    /**
+     * The game ends when a player has this many wins
+     *
+     * @var int
+     */
+    protected $maxWins;
+
+    /**
+     * Current game state as a BMGameState enum
+     *
+     * @var int
+     */
+    protected $gameState;
+
+    /**
+     * Boolean array whether each player needs to perform an action
+     *
+     * @var array
+     */
+    protected $waitingOnActionArray;
+
+    /**
+     * Boolean array whether each player has enabled autopass
+     *
+     * @var array
+     */
+    protected $autopassArray;
+
+    /**
+     * Amount of firing that has been submitted
+     *
+     * @var int
+     */
+    protected $firingAmount;
+
+    /**
+     * Game actions taken by this BMGame instance
+     *
+     * @var array
+     */
+    protected $actionLog;
+
+    /**
+     * Chat message submitted by the active player with an attack
+     *
+     * array(
+     *   'playerIdx',
+     *   'chat'
+     * )
+     *
+     * @var array
+     */
+    protected $chat;
+
+    /**
+     * Description provided when the game was created
+     *
+     * @var string
+     */
+    protected $description;
+
+    /**
+     * The game whose chat is being continued with this game
+     *
+     * @var int
+     */
+    protected $previousGameId;
+
+    /**
+     * Message to be passed to the GUI
+     *
+     * @var string
+     */
+    protected $message;
+
+    /**
+     * Boolean array whether each player has won the round
+     *
+     * @var array
+     */
+    protected $forceRoundResult;
+
+    /**
+     * Array of arrays containing swing value requests
+     *
+     * @var array
+     */
     public $swingRequestArrayArray;
+
+    /**
+     * Array of arrays containing chosen swing values
+     *
+     * @var array
+     */
     public $swingValueArrayArray;
+
+    /**
+     * Array of arrays containing chosen swing values from last round
+     *
+     * @var array
+     */
     public $prevSwingValueArrayArray;
+
+    /**
+     * Array of arrays containing option value requests
+     *
+     * @var array
+     */
     public $optRequestArrayArray;
+
+    /**
+     * Array of arrays containing chosen option values
+     *
+     * @var array
+     */
     public $optValueArrayArray;
+
+    /**
+     * Array of arrays containing chosen option values from last round
+     *
+     * @var array
+     */
     public $prevOptValueArrayArray;
 
+    /**
+     * Array holding the times that each player performed an action
+     *
+     * @var array
+     */
     public $lastActionTimeArray;
-    public $isButtonChoiceRandom;     // used by the database to record whether the choice of the
-                                      // button was random or not
-    public $hasPlayerAcceptedGameArray;  // used by the database to record whether each player has
-                                         // accepted this game
+
+    /**
+     * Used by the database to record whether the choice of the
+     * button was random or not
+     *
+     * @var array
+     */
+    public $isButtonChoiceRandom;
+
+    /**
+     * Used by the database to record whether each player has accepted this game
+     *
+     * @var array
+     */
+    public $hasPlayerAcceptedGameArray;
+
+    /**
+     * Used by the database to record whether each player has dismissed this game
+     *
+     * @var array
+     */
     public $hasPlayerDismissedGameArray;
 
-    protected $fireCache;             // internal cache of fire info, used for logging
+    /**
+     * Internal cache of fire info, used for logging
+     *
+     * @var array
+     */
+    protected $fireCache;
+
+    /**
+     * Boolean signalling whether the debug flag is active or not.
+     *
+     * Used only for debugging
+     *
+     * @var bool
+     */
     protected $debug;
 
     // methods
@@ -2644,7 +2926,7 @@ class BMGame {
     /**
      * Allow setting the number of recent consecutive passes
      *
-     * @param type $value
+     * @param int $value
      */
     protected function set__nRecentPasses($value) {
         if (FALSE ===
@@ -2710,7 +2992,7 @@ class BMGame {
     /**
      * Allow setting the array of arrays of game scores
      *
-     * @param type $value
+     * @param array $value
      */
     protected function set__gameScoreArrayArray($value) {
         $value = array_values($value);
@@ -2747,7 +3029,7 @@ class BMGame {
     /**
      * Allow setting the maximum number of wins
      *
-     * @param type $value
+     * @param int $value
      */
     protected function set__maxWins($value) {
         if (FALSE ===
@@ -2776,7 +3058,7 @@ class BMGame {
     /**
      * Allow setting the array of which players are being waited upon
      *
-     * @param type $value
+     * @param array $value
      */
     protected function set__waitingOnActionArray($value) {
         if (!is_array($value) ||
@@ -2798,7 +3080,7 @@ class BMGame {
     /**
      * Allow setting the array of whether autopass is allowed
      *
-     * @param type $value
+     * @param array $value
      */
     protected function set__autopassArray($value) {
         if (!is_array($value) ||

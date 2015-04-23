@@ -9,14 +9,38 @@
  * This class contains code specific to power attacks
  */
 class BMAttackPower extends BMAttack {
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type = 'Power';
 
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
     public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
 
         return $this->search_onevone($game, $this->validDice, $targets);
     }
 
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
 
@@ -82,6 +106,13 @@ class BMAttackPower extends BMAttack {
         return FALSE;
     }
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
@@ -139,6 +170,13 @@ class BMAttackPower extends BMAttack {
         return TRUE;
     }
 
+    /**
+     * Determine error message for incorrect power attack
+     *
+     * @param array $validationArray
+     * @param int $helpValue
+     * @return string
+     */
     protected function get_validation_message($validationArray, $helpValue) {
         if (!$validationArray['isDieLargeEnough']) {
             return 'Attacking die size must be at least as large as target die value';
