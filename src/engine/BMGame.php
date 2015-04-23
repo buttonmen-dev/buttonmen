@@ -55,6 +55,7 @@
  * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
  *
+ * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
  * @SuppressWarnings(PMD.UnusedPrivateField)
@@ -1370,11 +1371,11 @@ class BMGame {
         }
 
         if ($attack->validate_attack(
-              $this,
-              $attackerDieArray,
-              $defenderDieArray,
-              max(1, $defenderDie->value - $attackerDie->value + 1))
-           ) {
+            $this,
+            $attackerDieArray,
+            $defenderDieArray,
+            max(1, $defenderDie->value - $attackerDie->value + 1)
+        )) {
             return TRUE;
         }
 
