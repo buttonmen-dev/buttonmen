@@ -8929,6 +8929,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
+     *
      * @depends test_request_savePlayerInfo
      *
      * This game tests RandomBMMixed and verifies that trip attacks fail against too-large shadow maximum dice
@@ -8947,10 +8949,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                0, 4, 14,          // die skills for r3: c, n, t
+                1, 5, 15,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                8, 3, 5,           // die skills for r4
+                9, 4, 6,           // die skills for r4
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 8, 5, 7, 7,     // initial die rolls for r4

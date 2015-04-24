@@ -35,15 +35,15 @@ class BMBtnSkillRandomBMMixedTest extends PHPUnit_Framework_TestCase {
         $this->assertEmpty($button->recipe);
 
         // choose dice with 6, 20, 10, 12, 6 sides
-        // then choose skills 'c', '+', and '?'
-        // then place 'c' on the 2nd die and the 1st die
-        // then place '+' on the 5th die and the 4th die
-        // then place '?' on the 2nd die and the 4th die
+        // then choose skills 'k', 'c', and 'w'
+        // then place 'k' on the 2nd die and the 1st die
+        // then place 'c' on the 5th die and the 4th die
+        // then place 'w' on the 2nd die and the 4th die
         //
         // Note: the values used to select a skill may change when new skills
         //       become available
         $BM_RAND_VALS = array(1, 5, 3, 4, 1,      // die sizes
-                              2, 0, 9,           // skill types
+                              3, 1, 10,           // skill types
                               1, 0,               // die indices for skill type 1
                               4, 4, 3,            // die indices for skill type 2, including repeat
                               1, 3);              // die indices for skill type 3

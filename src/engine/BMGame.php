@@ -32,6 +32,7 @@
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property-read array $capturedDieArrayArray   Captured dice for all players
+ * @property-read array $outOfGameArrayArray     Out-of-game dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
@@ -210,6 +211,13 @@ class BMGame {
      * @var array
      */
     protected $capturedDieArrayArray;
+
+    /**
+     * Out-of-game dice for all players
+     *
+     * @var array
+     */
+    protected $outOfGameDieArrayArray;
 
     /**
      * Current points score in this round
@@ -2341,6 +2349,7 @@ class BMGame {
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
+        $this->outOfGameDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $this->swingRequestArrayArray = array_fill(0, $nPlayers, array());
         $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
