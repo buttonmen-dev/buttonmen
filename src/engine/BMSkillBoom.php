@@ -43,7 +43,7 @@ class BMSkillBoom extends BMSkill {
         assert(1 == count($args['defenders']));
 
         $att = $args['attackers'][0];
-        $def = $args['defenders'][0];
+        $def = &$args['defenders'][0];
 
         $game = $att->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -57,7 +57,12 @@ class BMSkillBoom extends BMSkill {
             1
         );
 
+        $game->activeDieArrayArray = $activeDieArrayArray;
+        $game->outOfGameDieArrayArray = $outOfGameDieArrayArray;
+
         $def->roll(TRUE);
+        $def->captured = FALSE;
+        $def->remove_flag('WasJustCaptured');
     }
 
     /**
