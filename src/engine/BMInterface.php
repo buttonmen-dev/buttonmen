@@ -1010,6 +1010,7 @@ class BMInterface {
 
         $activeDieArrayArray = array_fill(0, count($game->playerIdArray), array());
         $captDieArrayArray = array_fill(0, count($game->playerIdArray), array());
+        $outOfGameDieArrayArray = array_fill(0, count($game->playerIdArray), array());
 
         while ($row = $statement3->fetch()) {
             $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
@@ -1061,6 +1062,9 @@ class BMInterface {
                 case 'CAPTURED':
                     $die->captured = TRUE;
                     $captDieArrayArray[$playerIdx][$row['position']] = $die;
+                    break;
+                case 'OUT_OF_GAME':
+                    $outOfGameDieArrayArray[$playerIdx[$row['position']]] = $die;
                     break;
             }
         }
@@ -1166,7 +1170,9 @@ class BMInterface {
             $this->save_players_awaiting_action($game);
             $this->regenerate_essential_die_flags($game);
             $this->mark_existing_dice_as_deleted($game);
+            $this->save_active_dice($game);
             $this->save_captured_dice($game);
+            $this->save_out_of_game_dice($game);
             $this->delete_dice_marked_as_deleted($game);
             $this->save_action_log($game);
             $this->save_chat_log($game);
@@ -1575,32 +1581,28 @@ class BMInterface {
                  'WHERE game_id = :game_id;';
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':game_id' => $game->gameId));
+    }
 
-        // add active dice to table 'die'
-        if (isset($game->activeDieArrayArray)) {
-            foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'NORMAL';
-
-                    $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
+    protected function save_dice($game, $dieArrayArray, $status) {
+        if (isset($dieArrayArray)) {
+            foreach ($dieArrayArray as $playerIdx => $dieArray) {
+                foreach ($dieArray as $dieIdx => $die) {
+                    $this->db_insert_die($game, $playerIdx, $die, $status, $dieIdx);
                 }
             }
         }
     }
 
-    protected function save_captured_dice($game) {
-        // add captured dice to table 'die'
-        if (isset($game->capturedDieArrayArray)) {
-            foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'CAPTURED';
+    protected function save_active_dice($game) {
+        $this->save_dice($game, $game->activeDieArrayArray, 'NORMAL');
+    }
 
-                    $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
-                }
-            }
-        }
+    protected function save_captured_dice($game) {
+        $this->save_dice($game, $game->capturedDieArrayArray, 'CAPTURED');
+    }
+
+    protected function save_out_of_game_dice($game) {
+        $this->save_dice($game, $game->outOfGameDieArrayArray, 'OUT_OF_GAME');
     }
 
     protected function delete_dice_marked_as_deleted($game) {
@@ -2932,7 +2934,7 @@ class BMInterface {
                 (count($logEntries) > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
-            
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(
