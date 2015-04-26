@@ -330,6 +330,10 @@ class BMGameAction {
                 $postEventsDefender,
                 $this->message_capture($postInfo)
             );
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_out_of_play($defenderInfo, $postInfo)
+            );
 
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
@@ -374,6 +378,10 @@ class BMGameAction {
             $this->message_append(
                 $postEventsAttacker,
                 $this->message_value_change($attackerInfo, $postInfo)
+            );
+            $this->message_append(
+                $postEventsAttacker,
+                $this->message_out_of_play($attackerInfo, $postInfo)
             );
 
             if (!empty($postEventsAttacker)) {
@@ -531,6 +539,28 @@ class BMGameAction {
             $message = 'was captured';
         } else {
             $message = 'was not captured';
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describes whether a die has been taken out of play
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
+    protected function message_out_of_play($preInfo, $postInfo) {
+        $message = '';
+
+        $isOutOfPlayPost = array_key_exists('outOfPlay', $postInfo) &&
+                           $postInfo['outOfPlay'];
+        $isOutOfPlayPre  = array_key_exists('outOfPlay', $preInfo) &&
+                           $preInfo['outOfPlay'];
+
+        if ($isOutOfPlayPost && !$isOutOfPlayPre) {
+            $message = 'was taken out of play';
         }
 
         return $message;

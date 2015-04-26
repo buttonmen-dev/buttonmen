@@ -51,11 +51,12 @@ class BMSkillBoom extends BMSkill {
 
         // add attacker to the out-of-game dice, and remove it from the
         // active dice
+        $att->outOfPlay = TRUE;
         $game = $att->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $outOfGameDieArrayArray = $game->outOfGameDieArrayArray;
+        $outOfPlayDieArrayArray = $game->outOfPlayDieArrayArray;
 
-        $outOfGameDieArrayArray[$att->playerIdx][] = $att;
+        $outOfPlayDieArrayArray[$att->playerIdx][] = $att;
 
         array_splice(
             $activeDieArrayArray[$att->playerIdx],
@@ -64,7 +65,7 @@ class BMSkillBoom extends BMSkill {
         );
 
         $game->activeDieArrayArray = $activeDieArrayArray;
-        $game->outOfGameDieArrayArray = $outOfGameDieArrayArray;
+        $game->outOfPlayDieArrayArray = $outOfPlayDieArrayArray;
 
         // reroll defender
         $def->roll(TRUE);

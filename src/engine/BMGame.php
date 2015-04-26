@@ -32,7 +32,7 @@
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property-read array $capturedDieArrayArray   Captured dice for all players
- * @property-read array $outOfGameDieArrayArray  Out-of-game dice for all players
+ * @property-read array $outOfPlayDieArrayArray  Out-of-play dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
@@ -213,11 +213,11 @@ class BMGame {
     protected $capturedDieArrayArray;
 
     /**
-     * Out-of-game dice for all players
+     * Out-of-play dice for all players
      *
      * @var array
      */
-    protected $outOfGameDieArrayArray;
+    protected $outOfPlayDieArrayArray;
 
     /**
      * Current points score in this round
@@ -2349,7 +2349,7 @@ class BMGame {
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
-        $this->outOfGameDieArrayArray = array_fill(0, $nPlayers, array());
+        $this->outOfPlayDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $this->swingRequestArrayArray = array_fill(0, $nPlayers, array());
         $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
@@ -3215,7 +3215,7 @@ class BMGame {
         $canStillWinArray = $this->get_canStillWinArray();
 
         foreach ($this->playerIdArray as $playerIdx => $playerId) {
-            $outOfGameDieArray = $this->get_outOfGameDieArray($playerIdx);
+            $outOfPlayDieArray = $this->get_outOfPlayDieArray($playerIdx);
 
             $playerData = array(
                 'playerId'            => $playerId,
@@ -3235,8 +3235,8 @@ class BMGame {
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
 
-            if (!empty($outOfGameDieArray)) {
-                $playerData['outOfGameDieArray'] = $outOfGameDieArray;
+            if (!empty($outOfPlayDieArray)) {
+                $playerData['outOfPlayDieArray'] = $outOfPlayDieArray;
             }
 
             $playerDataArray[] = $playerData;
@@ -3347,16 +3347,16 @@ class BMGame {
     }
 
     /**
-     * Array of info about out of game dice
+     * Array of info about out of play dice
      *
      * @param int $playerIdx
      * @return array
      */
-    protected function get_outOfGameDieArray($playerIdx) {
-        $outOfGameDieArray = array();
-        if (isset($this->outOfGameDieArrayArray)) {
-            foreach ($this->outOfGameDieArrayArray[$playerIdx] as $die) {
-                $outOfGameDieArray[] = array(
+    protected function get_outOfPlayDieArray($playerIdx) {
+        $outOfPlayDieArray = array();
+        if (isset($this->outOfPlayDieArrayArray)) {
+            foreach ($this->outOfPlayDieArrayArray[$playerIdx] as $die) {
+                $outOfPlayDieArray[] = array(
                     'value' => $die->value,
                     'sides' => $die->max,
                     'recipe' => $die->recipe,
@@ -3364,7 +3364,7 @@ class BMGame {
                 );
             }
         }
-        return $outOfGameDieArray;
+        return $outOfPlayDieArray;
     }
 
     /**

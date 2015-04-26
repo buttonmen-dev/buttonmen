@@ -2225,7 +2225,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
 
   var capturedDiceDiv;
-  var outOfGameDiceDiv;
+  var outOfPlayDiceDiv;
   if (game_active) {
 
     // Round score, only applicable in active games
@@ -2257,19 +2257,19 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
       'text': 'Dice captured: ' + capturedDieText,
     }));
 
-    // Dice that are out of game, only applicable in active games
-    var outOfGameDieText;
-    if (('outOfGameDieArray' in Api.game[player]) &&
-        Api.game[player].outOfGameDieArray.length > 0) {
-      var outOfGameDieDescs = [];
+    // Dice that are out of play, only applicable in active games
+    var outOfPlayDieText;
+    if (('outOfPlayDieArray' in Api.game[player]) &&
+        Api.game[player].outOfPlayDieArray.length > 0) {
+      var outOfPlayDieDescs = [];
 
-      $.each(Api.game[player].outOfGameDieArray, function(i, die) {
-        outOfGameDieDescs.push(Game.dieRecipeText(die, true));
+      $.each(Api.game[player].outOfPlayDieArray, function(i, die) {
+        outOfPlayDieDescs.push(Game.dieRecipeText(die, true));
       });
-      outOfGameDieText = outOfGameDieDescs.join(', ');
-      outOfGameDiceDiv = $('<div>');
-      outOfGameDiceDiv.append($('<span>', {
-        'text': 'Dice out of game: ' + outOfGameDieText,
+      outOfPlayDieText = outOfPlayDieDescs.join(', ');
+      outOfPlayDiceDiv = $('<div>');
+      outOfPlayDiceDiv.append($('<span>', {
+        'text': 'Dice out of play: ' + outOfPlayDieText,
       }));
     }
   }
@@ -2277,8 +2277,8 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
-      if (undefined !== outOfGameDiceDiv) {
-          statusDiv.append(outOfGameDiceDiv);
+      if (undefined !== outOfPlayDiceDiv) {
+          statusDiv.append(outOfPlayDiceDiv);
       }
       statusDiv.append(capturedDiceDiv);
     }
@@ -2288,8 +2288,8 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     statusDiv.append(gameScoreDiv);
     if (game_active) {
       statusDiv.append(capturedDiceDiv);
-      if (undefined !== outOfGameDiceDiv) {
-          statusDiv.append(outOfGameDiceDiv);
+      if (undefined !== outOfPlayDiceDiv) {
+          statusDiv.append(outOfPlayDiceDiv);
       }
     }
   }

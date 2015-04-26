@@ -1010,7 +1010,7 @@ class BMInterface {
 
         $activeDieArrayArray = array_fill(0, count($game->playerIdArray), array());
         $captDieArrayArray = array_fill(0, count($game->playerIdArray), array());
-        $outOfGameDieArrayArray = array_fill(0, count($game->playerIdArray), array());
+        $outOfPlayDieArrayArray = array_fill(0, count($game->playerIdArray), array());
 
         while ($row = $statement3->fetch()) {
             $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
@@ -1063,15 +1063,15 @@ class BMInterface {
                     $die->captured = TRUE;
                     $captDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
-                case 'OUT_OF_GAME':
-                    $outOfGameDieArrayArray[$playerIdx][$row['position']] = $die;
+                case 'OUT_OF_PLAY':
+                    $outOfPlayDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
             }
         }
 
         $game->activeDieArrayArray = $activeDieArrayArray;
         $game->capturedDieArrayArray = $captDieArrayArray;
-        $game->outOfGameDieArrayArray = $outOfGameDieArrayArray;
+        $game->outOfPlayDieArrayArray = $outOfPlayDieArrayArray;
     }
 
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
@@ -1173,7 +1173,7 @@ class BMInterface {
             $this->mark_existing_dice_as_deleted($game);
             $this->save_active_dice($game);
             $this->save_captured_dice($game);
-            $this->save_out_of_game_dice($game);
+            $this->save_out_of_play_dice($game);
             $this->delete_dice_marked_as_deleted($game);
             $this->save_action_log($game);
             $this->save_chat_log($game);
@@ -1602,8 +1602,8 @@ class BMInterface {
         $this->save_dice($game, $game->capturedDieArrayArray, 'CAPTURED');
     }
 
-    protected function save_out_of_game_dice($game) {
-        $this->save_dice($game, $game->outOfGameDieArrayArray, 'OUT_OF_GAME');
+    protected function save_out_of_play_dice($game) {
+        $this->save_dice($game, $game->outOfPlayDieArrayArray, 'OUT_OF_PLAY');
     }
 
     protected function delete_dice_marked_as_deleted($game) {
