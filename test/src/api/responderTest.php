@@ -8929,8 +8929,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
-     *
      * @depends test_request_savePlayerInfo
      *
      * This game tests RandomBMMixed and verifies that trip attacks fail against too-large shadow maximum dice
