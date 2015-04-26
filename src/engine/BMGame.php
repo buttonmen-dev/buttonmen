@@ -32,7 +32,7 @@
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property-read array $capturedDieArrayArray   Captured dice for all players
- * @property-read array $outOfGameArrayArray     Out-of-game dice for all players
+ * @property-read array $outOfGameDieArrayArray  Out-of-game dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
@@ -3236,7 +3236,7 @@ class BMGame {
             );
 
             if (!empty($outOfGameDieArray)) {
-                $playerDataArray['outOfGameDieArray'] = $outOfGameDieArray;
+                $playerData['outOfGameDieArray'] = $outOfGameDieArray;
             }
 
             $playerDataArray[] = $playerData;

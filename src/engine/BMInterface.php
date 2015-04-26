@@ -1064,13 +1064,14 @@ class BMInterface {
                     $captDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
                 case 'OUT_OF_GAME':
-                    $outOfGameDieArrayArray[$playerIdx[$row['position']]] = $die;
+                    $outOfGameDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
             }
         }
 
         $game->activeDieArrayArray = $activeDieArrayArray;
         $game->capturedDieArrayArray = $captDieArrayArray;
+        $game->outOfGameDieArrayArray = $outOfGameDieArrayArray;
     }
 
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
