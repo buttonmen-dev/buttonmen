@@ -2225,6 +2225,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
 
   var capturedDiceDiv;
+  var outOfGameDiceDiv;
   if (game_active) {
 
     // Round score, only applicable in active games
@@ -2255,11 +2256,30 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     capturedDiceDiv.append($('<span>', {
       'text': 'Dice captured: ' + capturedDieText,
     }));
+
+    // Dice that are out of game, only applicable in active games
+    var outOfGameDieText;
+    if (('outOfGameDieArray' in Api.game[player]) &&
+        Api.game[player].outOfGameDieArray.length > 0) {
+      var outOfGameDieDescs = [];
+
+      $.each(Api.game[player].outOfGameDieArray, function(i, die) {
+        outOfGameDieDescs.push(Game.dieRecipeText(die, true));
+      });
+      outOfGameDieText = outOfGameDieDescs.join(', ');
+      outOfGameDiceDiv = $('<div>');
+      outOfGameDiceDiv.append($('<span>', {
+        'text': 'Dice out of game: ' + outOfGameDieText,
+      }));
+    }
   }
 
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
+      if (undefined !== outOfGameDiceDiv) {
+          statusDiv.append(outOfGameDiceDiv);
+      }
       statusDiv.append(capturedDiceDiv);
     }
     statusDiv.append(gameScoreDiv);
@@ -2268,6 +2288,9 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     statusDiv.append(gameScoreDiv);
     if (game_active) {
       statusDiv.append(capturedDiceDiv);
+      if (undefined !== outOfGameDiceDiv) {
+          statusDiv.append(outOfGameDiceDiv);
+      }
     }
   }
   return statusDiv;
