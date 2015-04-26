@@ -511,7 +511,7 @@ class BMGameAction {
      * @return string
      */
     protected function message_value_change($preInfo, $postInfo) {
-        if ($preInfo['doesReroll']) {
+        if ($preInfo['doesReroll'] && $postInfo['doesReroll']) {
             $message = 'rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
         } else {
             $message = 'does not reroll';

@@ -42,9 +42,15 @@ class BMSkillBoom extends BMSkill {
         assert(1 == count($args['attackers']));
         assert(1 == count($args['defenders']));
 
-        $att = $args['attackers'][0];
+        $att = &$args['attackers'][0];
         $def = &$args['defenders'][0];
 
+        // ensure that attacker doesn't reroll (because it's going out
+        // of the game)
+        $att->doesReroll = FALSE;
+
+        // add attacker to the out-of-game dice, and remove it from the
+        // active dice
         $game = $att->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
         $outOfGameDieArrayArray = $game->outOfGameDieArrayArray;
@@ -60,6 +66,7 @@ class BMSkillBoom extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
         $game->outOfGameDieArrayArray = $outOfGameDieArrayArray;
 
+        // reroll defender
         $def->roll(TRUE);
         $def->captured = FALSE;
         $def->remove_flag('WasJustCaptured');
