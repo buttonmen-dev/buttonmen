@@ -3215,6 +3215,8 @@ class BMGame {
         $canStillWinArray = $this->get_canStillWinArray();
 
         foreach ($this->playerIdArray as $playerIdx => $playerId) {
+            $outOfGameDieArray = $this->get_outOfGameDieArray($playerIdx);
+
             $playerData = array(
                 'playerId'            => $playerId,
                 'button'              => $this->get_buttonInfo($playerIdx),
@@ -3232,6 +3234,10 @@ class BMGame {
                 'hasDismissedGame'    => $this->hasPlayerDismissedGameArray[$playerIdx],
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
+
+            if (!empty($outOfGameDieArray)) {
+                $playerDataArray['outOfGameDieArray'] = $outOfGameDieArray;
+            }
 
             $playerDataArray[] = $playerData;
         }
@@ -3333,11 +3339,32 @@ class BMGame {
                     'value' => $die->value,
                     'sides' => $die->max,
                     'recipe' => $die->recipe,
-                    'properties' => $this->get_capturedDieProps($die),
+                    'properties' => $this->get_dieProps($die),
                 );
             }
         }
         return $capturedDieArray;
+    }
+
+    /**
+     * Array of info about out of game dice
+     *
+     * @param int $playerIdx
+     * @return array
+     */
+    protected function get_outOfGameDieArray($playerIdx) {
+        $outOfGameDieArray = array();
+        if (isset($this->outOfGameDieArrayArray)) {
+            foreach ($this->outOfGameDieArrayArray[$playerIdx] as $die) {
+                $outOfGameDieArray[] = array(
+                    'value' => $die->value,
+                    'sides' => $die->max,
+                    'recipe' => $die->recipe,
+                    'properties' => $this->get_dieProps($die),
+                );
+            }
+        }
+        return $outOfGameDieArray;
     }
 
     /**
@@ -3624,19 +3651,19 @@ class BMGame {
     }
 
     /**
-     * Array of captured die properties
+     * Array of die properties
      *
      * @param BMDie $die
      * @return array
      */
-    protected function get_capturedDieProps($die) {
-        $capturedDieProps = array();
+    protected function get_dieProps($die) {
+        $dieProps = array();
         if (!empty($die->flagList)) {
             foreach (array_keys($die->flagList) as $flag) {
-                $capturedDieProps[] = $flag;
+                $dieProps[] = $flag;
             }
         }
-        return $capturedDieProps;
+        return $dieProps;
     }
 
     /**
