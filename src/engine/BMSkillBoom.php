@@ -79,8 +79,7 @@ class BMSkillBoom extends BMSkill {
      * @return string
      */
     protected static function get_description() {
-        return 'Boom Dice were created for the Unexploded Cow set by Cheapass Games. ' .
-               'They are like normal dice and they have an additional attack, ' .
+        return 'Boom Dice are like normal dice with an additional attack, ' .
                'the Boom attack. To make a Boom Attack, remove one of your Boom Dice ' .
                'from play (neither player will score it). Choose one of your opponent\'s ' .
                'dice, and reroll it. Note that the targeted die is never captured, ' .
