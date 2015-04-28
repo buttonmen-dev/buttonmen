@@ -6463,6 +6463,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $game->attack);
 
         $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
+
+        $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
         $game->do_next_step();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
