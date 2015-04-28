@@ -5759,6 +5759,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
 
         $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
 
         $game->do_next_step();
@@ -6424,6 +6428,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->do_next_step();
         $game->update_game_state();
         $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
 
         $game->do_next_step();
         $this->assertEquals(1, $game->activePlayerIdx);
@@ -9539,7 +9547,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $game->firingAmount);
 
         $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
 
+        $game->do_next_step();
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
 
