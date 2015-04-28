@@ -2278,7 +2278,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   if (reversed) {
     if (game_active) {
       if (undefined !== outOfPlayDiceDiv) {
-          statusDiv.append(outOfPlayDiceDiv);
+        statusDiv.append(outOfPlayDiceDiv);
       }
       statusDiv.append(capturedDiceDiv);
     }
@@ -2289,7 +2289,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     if (game_active) {
       statusDiv.append(capturedDiceDiv);
       if (undefined !== outOfPlayDiceDiv) {
-          statusDiv.append(outOfPlayDiceDiv);
+        statusDiv.append(outOfPlayDiceDiv);
       }
     }
   }
