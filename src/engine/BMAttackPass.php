@@ -9,8 +9,24 @@
  * This class contains code specific to pass attacks
  */
 class BMAttackPass extends BMAttack {
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type = "Pass";
 
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
     public function find_attack($game, $includeOptional = TRUE) {
         return $this->validate_attack(
             $game,
@@ -19,6 +35,14 @@ class BMAttackPass extends BMAttack {
         );
     }
 
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     public function validate_attack($game, array $attackers, array $defenders) {
         $this->validationMessage = '';
 
@@ -31,6 +55,13 @@ class BMAttackPass extends BMAttack {
         return $isValid;
     }
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         return TRUE;
     }

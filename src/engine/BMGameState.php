@@ -42,6 +42,11 @@ class BMGameState {
     // end game
     const END_GAME = 60;
 
+    /**
+     * All possible game state strings
+     *
+     * @return array
+     */
     public static function all_game_state_strings() {
         return array('START_GAME',
                      'APPLY_HANDICAPS',
@@ -63,6 +68,11 @@ class BMGameState {
                      'END_GAME');
     }
 
+    /**
+     * All possible game state values
+     *
+     * @return array
+     */
     public static function all_game_state_values() {
         $gameStateValueArray = array();
         foreach (BMGameState::all_game_state_strings() as $gameStateStr) {
@@ -71,6 +81,12 @@ class BMGameState {
         return $gameStateValueArray;
     }
 
+    /**
+     * Convert numerical game state into a string
+     *
+     * @param int $gameState
+     * @return string
+     */
     public static function as_string($gameState) {
         $gameStateStrings = BMGameState::all_game_state_strings();
         $gameStateValues = BMGameState::all_game_state_values();
@@ -85,6 +101,11 @@ class BMGameState {
         return $gameStateString;
     }
 
+    /**
+     * Check that a provided game state is valid
+     *
+     * @param mixed $value
+     */
     public static function validate_game_state($value) {
         if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
             throw new InvalidArgumentException(

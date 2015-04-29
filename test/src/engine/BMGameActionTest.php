@@ -832,7 +832,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     public function test_friendly_message_play_another_turn() {
         $this->object = new BMGameAction(BMGameState::END_TURN, 'play_another_turn', 1, array('cause' => 'TimeAndSpace'));
         $this->assertEquals(
-            'gameaction01 gets another turn because a TimeAndSpace die rolled odd',
+            'gameaction01 gets another turn because a Time and Space die rolled odd',
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }
