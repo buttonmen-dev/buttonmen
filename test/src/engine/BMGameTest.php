@@ -1608,7 +1608,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state_start_turn
+     * @covers BMGame::update_game_state_adjust_fire_dice
      */
     public function test_update_game_state_adjust_fire_dice() {
 
@@ -1691,6 +1691,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state_commit_attack
      */
     public function test_update_game_state_commit_attack() {
+
+    }
+
+    /**
+     * @covers BMGame::do_next_step_choose_turbo_swing
+     */
+    public function test_do_next_step_choose_turbo_swing() {
+
+    }
+
+    /**
+     * @covers BMGame::update_game_state_choose_turbo_swing
+     */
+    public function test_update_game_state_choose_turbo_swing() {
 
     }
 
