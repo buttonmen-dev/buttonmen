@@ -54,49 +54,6 @@ class BMInterface {
 
     // methods
 
-    protected function validate_player_dob(array $infoArray) {
-        if (($infoArray['dob_month'] != 0 && $infoArray['dob_day'] == 0) ||
-            ($infoArray['dob_month'] == 0 && $infoArray['dob_day'] != 0)) {
-            $this->message = 'DOB is incomplete.';
-            return FALSE;
-        }
-
-        if ($infoArray['dob_month'] != 0 && $infoArray['dob_day'] != 0 &&
-            !checkdate($infoArray['dob_month'], $infoArray['dob_day'], 4)) {
-            $this->message = 'DOB is not a valid date.';
-            return FALSE;
-        }
-
-        return TRUE;
-    }
-
-    protected function validate_player_password_and_email(array $addlInfo, $playerId) {
-        if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
-            !isset($addlInfo['current_password'])) {
-            $this->message = 'Current password is required to change password or email.';
-            return FALSE;
-        }
-
-        if (isset($addlInfo['current_password'])) {
-            $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
-            $passwordQuery = self::$conn->prepare($passwordQuery);
-            $passwordQuery->execute(array(':playerId' => $playerId));
-
-            $passwordResults = $passwordQuery->fetchAll();
-            if (count($passwordResults) != 1) {
-                $this->message = 'An error occurred in BMInterface::set_player_info().';
-                return FALSE;
-            }
-            $password_hashed = $passwordResults[0]['password_hashed'];
-            if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
-                $this->message = 'Current password is incorrect.';
-                return FALSE;
-            }
-        }
-
-        return TRUE;
-    }
-
     protected function validate_and_set_homepage($homepage, array &$infoArray) {
         if ($homepage == NULL || $homepage == "") {
             $infoArray['homepage'] = NULL;
@@ -111,68 +68,6 @@ class BMInterface {
 
         $infoArray['homepage'] = $homepage;
         return TRUE;
-    }
-
-    public function get_profile_info($profilePlayerName) {
-        $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
-        if (!is_int($profilePlayerId)) {
-            return NULL;
-        }
-
-        $interfacePlayer = new BMInterfacePlayer($this->isTest);
-        $playerInfoResults = $interfacePlayer->get_player_info($profilePlayerId);
-        $playerInfo = $playerInfoResults['user_prefs'];
-
-        $query =
-            'SELECT ' .
-                'COUNT(*) AS number_of_games, ' .
-                'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
-            'FROM game AS g ' .
-                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
-                'INNER JOIN game_player_view AS v ' .
-                    'ON v.game_id = g.id AND v.player_id = :player_id ' .
-            'WHERE s.name = "COMPLETE" ' .
-            'GROUP BY v.n_rounds_won >= g.n_target_wins;';
-
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':player_id' => $profilePlayerId));
-
-        $nWins = 0;
-        $nLosses = 0;
-
-        while ($row = $statement->fetch()) {
-            if ((int)$row['win_or_loss'] == 1) {
-                $nWins = (int)$row['number_of_games'];
-            }
-            if ((int)$row['win_or_loss'] == 0) {
-                $nLosses = (int)$row['number_of_games'];
-            }
-        }
-
-        // Just select the fields we want to expose publically
-        $profileInfoArray = array(
-            'id' => $playerInfo['id'],
-            'name_ingame' => $playerInfo['name_ingame'],
-            'name_irl' => $playerInfo['name_irl'],
-            'email' => ($playerInfo['is_email_public'] == 1 ? $playerInfo['email'] : NULL),
-            'email_hash' => md5(strtolower(trim($playerInfo['email']))),
-            'dob_month' => (int)$playerInfo['dob_month'],
-            'dob_day' => (int)$playerInfo['dob_day'],
-            'gender' => $playerInfo['gender'],
-            'image_size' => $playerInfo['image_size'],
-            'uses_gravatar' => $playerInfo['uses_gravatar'],
-            'comment' => $playerInfo['comment'],
-            'homepage' => $playerInfo['homepage'],
-            'favorite_button' => $playerInfo['favorite_button'],
-            'favorite_buttonset' => $playerInfo['favorite_buttonset'],
-            'last_access_time' => $playerInfo['last_access_time'],
-            'creation_time' => $playerInfo['creation_time'],
-            'fanatic_button_id' => $playerInfo['fanatic_button_id'],
-            'n_games_won' => $nWins,
-            'n_games_lost' => $nLosses,
-        );
-
-        return array('profile_info' => $profileInfoArray);
     }
 
     public function create_game(
@@ -4334,46 +4229,6 @@ class BMInterface {
 
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
-
-    public function update_last_action_time($playerId, $gameId = NULL) {
-        try {
-            $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-
-            if (is_null($gameId)) {
-                return;
-            }
-
-            $query = 'UPDATE game_player_map SET last_action_time = now() '.
-                     'WHERE player_id = :player_id '.
-                     'AND game_id = :game_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId,
-                                      ':game_id' => $gameId));
-
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::update_last_action_time: ' .
-                $e->getMessage()
-            );
-            return NULL;
-        }
-    }
-
-    public function update_last_access_time($playerId) {
-        try {
-            $query = 'UPDATE player SET last_access_time = now() WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::update_last_access_time: ' .
-                $e->getMessage()
-            );
-            return NULL;
-        }
-    }
 
     protected function get_config($conf_key) {
         try {

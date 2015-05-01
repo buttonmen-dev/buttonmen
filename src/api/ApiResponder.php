@@ -144,7 +144,8 @@ class ApiResponder {
         if (isset($retval)) {
             foreach ($playerIdArray as $playerId) {
                 if (isset($playerId)) {
-                    $interface->update_last_action_time($playerId, $retval['gameId']);
+                    $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+                    $interfacePlayer->update_last_action_time($playerId, $retval['gameId']);
                 }
             }
         }
@@ -317,14 +318,15 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interface->update_last_action_time($_SESSION['user_id']);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id']);
         }
 
         return $retval;
     }
 
     protected function get_interface_response_loadProfileInfo($interface, $args) {
-        return $interface->get_profile_info($args['playerName']);
+        $interfacePlayer = new BMInterfacePlayer($this->isTest);
+        return $interfacePlayer->get_profile_info($args['playerName']);
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {
@@ -351,7 +353,8 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -370,7 +373,8 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -389,7 +393,8 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -413,7 +418,8 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -437,7 +443,8 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -455,7 +462,8 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -478,7 +486,8 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -489,7 +498,8 @@ class ApiResponder {
         if (isset($retval)) {
             // Just update the player's last action time. Don't update the
             // game's, since the game is already over.
-            $interface->update_last_action_time($_SESSION['user_id']);
+            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer->update_last_action_time($_SESSION['user_id']);
         }
         return $retval;
     }

@@ -6,6 +6,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
     protected function createObject() {
         $this->object = new BMInterface(TRUE);
+        $this->interfacePlayer = new BMInterfacePlayer(TRUE);
     }
 
     /**
@@ -61,19 +62,22 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
 
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $interfacePlayer->set_player_info($createResult['playerId'],
-                                          $infoArray,
-                                          $addlInfo);
+        $this->interfacePlayer->set_player_info(
+            $createResult['playerId'],
+            $infoArray,
+            $addlInfo
+        );
         self::$userId3WithAutopass = (int)$createResult['playerId'];
 
         $trynum++;
         $username = 'interface' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
         $createResult = $this->newuserObject->create_user($username, 't', $email);
-        $interfacePlayer->set_player_info($createResult['playerId'],
-                                          $infoArray,
-                                          $addlInfo);
+        $this->interfacePlayer->set_player_info(
+            $createResult['playerId'],
+            $infoArray,
+            $addlInfo
+        );
         self::$userId4WithAutopass = (int)$createResult['playerId'];
     }
 
@@ -3037,9 +3041,9 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterfaceTest::test_create_user
      *
-     * @covers BMInterface::update_last_action_time
+     * @covers BMInterfacePlayer::update_last_action_time
      */
     public function test_update_last_action_time() {
         $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
@@ -3050,11 +3054,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = self::load_game($gameId);
         $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
 
-        $this->object->update_last_action_time(self::$userId1WithoutAutopass);
+        $this->interfacePlayer->update_last_action_time(self::$userId1WithoutAutopass);
         $game = self::load_game($gameId);
         $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
 
-        $this->object->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
+        $this->interfacePlayer->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
         $game = self::load_game($gameId);
         $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
         $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
@@ -3067,14 +3071,13 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::update_last_access_time
      */
     public function test_update_last_access_time() {
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $retval =  $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
+        $retval =  $this->interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $retval['user_prefs'];
         $preTime = $playerInfoArray['last_access_time'];
 
-        $this->object->update_last_access_time(self::$userId1WithoutAutopass);
+        $this->interfacePlayer->update_last_access_time(self::$userId1WithoutAutopass);
 
-        $retval =  $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
+        $retval =  $this->interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $retval['user_prefs'];
         $postTime = $playerInfoArray['last_access_time'];
 
