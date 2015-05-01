@@ -1,53 +1,11 @@
 <?php
 
-class BMInterfaceTest extends PHPUnit_Framework_TestCase {
+require_once 'BMInterfaceTestAbstract.php';
 
-    /**
-     * @var BMInterface
-     */
-    protected $object;
-    private static $userId1WithoutAutopass;
-    private static $userId2WithoutAutopass;
-    private static $userId3WithAutopass;
-    private static $userId4WithAutopass;
+class BMInterfaceTest extends BMInterfaceTestAbstract {
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp() {
-        if (file_exists('../test/src/database/mysql.test.inc.php')) {
-            require_once '../test/src/database/mysql.test.inc.php';
-        } else {
-            require_once 'test/src/database/mysql.test.inc.php';
-        }
+    protected function createObject() {
         $this->object = new BMInterface(TRUE);
-        $this->newuserObject = new BMInterfaceNewuser(TRUE);
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
-
-    }
-
-    protected static function getMethod($name) {
-        $class = new ReflectionClass('BMInterface');
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-        return $method;
-    }
-
-    protected function load_game($gameId) {
-        $load_game = self::getMethod('load_game');
-        return $load_game->invokeArgs($this->object, array($gameId));
-    }
-
-    protected function save_game($game) {
-        $save_game = self::getMethod('save_game');
-        return $save_game->invokeArgs($this->object, array($game));
     }
 
     /**
@@ -121,60 +79,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_create_user
      *
-     * @covers BMInterface::get_player_info
-     */
-    public function test_get_player_info() {
-        $data = $this->object->get_player_info(self::$userId3WithAutopass);
-        $resultArray = $data['user_prefs'];
-        $this->assertTrue(is_array($resultArray));
-
-        $this->assertArrayHasKey('id', $resultArray);
-        $this->assertArrayHasKey('name_ingame', $resultArray);
-        $this->assertArrayNotHasKey('password_hashed', $resultArray);
-        $this->assertArrayHasKey('name_irl', $resultArray);
-        $this->assertArrayHasKey('email', $resultArray);
-        $this->assertArrayHasKey('is_email_public', $resultArray);
-        $this->assertArrayHasKey('dob_month', $resultArray);
-        $this->assertArrayHasKey('dob_day', $resultArray);
-        $this->assertArrayHasKey('gender', $resultArray);
-        $this->assertArrayHasKey('image_size', $resultArray);
-        $this->assertArrayHasKey('image_size', $resultArray);
-        $this->assertArrayHasKey('uses_gravatar', $resultArray);
-        $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
-        $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
-        $this->assertArrayHasKey('automatically_monitor', $resultArray);
-        $this->assertArrayHasKey('comment', $resultArray);
-        $this->assertArrayHasKey('player_color', $resultArray);
-        $this->assertArrayHasKey('opponent_color', $resultArray);
-        $this->assertArrayHasKey('neutral_color_a', $resultArray);
-        $this->assertArrayHasKey('neutral_color_b', $resultArray);
-        $this->assertArrayHasKey('homepage', $resultArray);
-        $this->assertArrayHasKey('favorite_button', $resultArray);
-        $this->assertArrayHasKey('favorite_buttonset', $resultArray);
-        $this->assertArrayHasKey('last_action_time', $resultArray);
-        $this->assertArrayHasKey('creation_time', $resultArray);
-        $this->assertArrayHasKey('fanatic_button_id', $resultArray);
-        $this->assertArrayHasKey('n_games_won', $resultArray);
-        $this->assertArrayHasKey('n_games_lost', $resultArray);
-
-        $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
-
-        $this->assertTrue(is_bool($resultArray['autopass']));
-        $this->assertTrue(is_bool($resultArray['monitor_redirects_to_game']));
-        $this->assertTrue(is_bool($resultArray['monitor_redirects_to_forum']));
-        $this->assertTrue(is_bool($resultArray['automatically_monitor']));
-
-        $this->assertTrue(is_int($resultArray['fanatic_button_id']));
-        $this->assertEquals(0, $resultArray['fanatic_button_id']);
-        $this->assertTrue(is_int($resultArray['n_games_won']));
-        $this->assertTrue(is_int($resultArray['n_games_lost']));
-    }
-
-    /**
-     * @depends test_create_user
-     *
-     * @covers BMInterface::get_player_info
+     * @covers BMInterfacePlayer::get_player_info
      * @covers BMInterface::set_player_info
      */
     public function test_set_player_info() {
@@ -199,7 +104,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
                                        $addlInfo);
-        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
+        $data = $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
@@ -211,10 +117,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $infoArray['monitor_redirects_to_game'] = 0;
         $infoArray['monitor_redirects_to_forum'] = 0;
         $infoArray['automatically_monitor'] = 0;
+        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
                                        $addlInfo);
-        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $data = $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
@@ -229,7 +136,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $addlInfo
             );
         $this->assertEquals(NULL, $response);
-        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
+        $data = $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
     }
 
@@ -3223,13 +3131,14 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::update_last_access_time
      */
     public function test_update_last_access_time() {
-        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
+        $retval =  $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $retval['user_prefs'];
         $preTime = $playerInfoArray['last_access_time'];
 
         $this->object->update_last_access_time(self::$userId1WithoutAutopass);
 
-        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $retval =  $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $retval['user_prefs'];
         $postTime = $playerInfoArray['last_access_time'];
 

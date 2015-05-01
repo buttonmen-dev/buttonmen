@@ -22,11 +22,11 @@ class BMInterface {
     const DEFAULT_NEUTRAL_COLOR_B = '#dddddd';
 
     // properties
-    private $message;               // message intended for GUI
-    private $timestamp;             // timestamp of last game action
-    private static $conn = NULL;    // connection to database
+    protected $message;               // message intended for GUI
+    protected $timestamp;             // timestamp of last game action
+    protected static $conn = NULL;    // connection to database
 
-    private $isTest;         // indicates if the interface is for testing
+    public $isTest;         // indicates if the interface is for testing
 
     /**
      * Constructor
@@ -53,88 +53,6 @@ class BMInterface {
     }
 
     // methods
-
-    public function get_player_info($playerId) {
-        try {
-            $query =
-                'SELECT p.*, b.name AS favorite_button, bs.name AS favorite_buttonset, ' .
-                    'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
-                    'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
-                    'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
-                'FROM player_view p ' .
-                    'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
-                    'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
-                'WHERE p.id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-            $result = $statement->fetchAll();
-
-            if (0 == count($result)) {
-                return NULL;
-            }
-        } catch (Exception $e) {
-            if (isset($statement)) {
-                $errorData = $statement->errorInfo();
-                $this->message = 'Player info get failed: ' . $errorData[2];
-            } else {
-                $this->message = 'Player info get failed: ' . $e->getMessage();
-            }
-            error_log($this->message);
-            return NULL;
-        }
-
-        $infoArray = $result[0];
-
-        $last_action_time = (int)$infoArray['last_action_timestamp'];
-        if ($last_action_time == 0) {
-            $last_action_time = NULL;
-        }
-
-        $last_access_time = (int)$infoArray['last_access_timestamp'];
-        if ($last_access_time == 0) {
-            $last_access_time = NULL;
-        }
-
-        $image_size = NULL;
-        if ($infoArray['image_size'] != NULL) {
-            $image_size = (int)$infoArray['image_size'];
-        }
-
-        // set the values we want to actually return
-        $playerInfoArray = array(
-            'id' => (int)$infoArray['id'],
-            'name_ingame' => $infoArray['name_ingame'],
-            'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
-            'email' => $infoArray['email'],
-            'is_email_public' => (bool)$infoArray['is_email_public'],
-            'status' => $infoArray['status'],
-            'dob_month' => (int)$infoArray['dob_month'],
-            'dob_day' => (int)$infoArray['dob_day'],
-            'gender' => $infoArray['gender'],
-            'image_size' => $image_size,
-            'autopass' => (bool)$infoArray['autopass'],
-            'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
-            'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
-            'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
-            'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
-            'comment' => $infoArray['comment'],
-            'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
-            'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
-            'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
-            'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
-            'homepage' => $infoArray['homepage'],
-            'favorite_button' => $infoArray['favorite_button'],
-            'favorite_buttonset' => $infoArray['favorite_buttonset'],
-            'last_action_time' => $last_action_time,
-            'last_access_time' => $last_access_time,
-            'creation_time' => (int)$infoArray['creation_timestamp'],
-            'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
-            'n_games_won' => (int)$infoArray['n_games_won'],
-            'n_games_lost' => (int)$infoArray['n_games_lost'],
-        );
-
-        return array('user_prefs' => $playerInfoArray);
-    }
 
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
@@ -259,7 +177,9 @@ class BMInterface {
         if (!is_int($profilePlayerId)) {
             return NULL;
         }
-        $playerInfoResults = $this->get_player_info($profilePlayerId);
+
+        $interfacePlayer = new BMInterfacePlayer($this->isTest);
+        $playerInfoResults = $interfacePlayer->get_player_info($profilePlayerId);
         $playerInfo = $playerInfoResults['user_prefs'];
 
         $query =
@@ -2932,7 +2852,7 @@ class BMInterface {
                 (count($logEntries) > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
-            
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(
@@ -4576,7 +4496,8 @@ class BMInterface {
 
     // Retrieves the colors that the user has saved in their preferences
     protected function load_player_colors($currentPlayerId) {
-        $playerInfoArray = $this->get_player_info($currentPlayerId);
+        $interfacePlayer = new BMInterfacePlayer($this->isTest);
+        $playerInfoArray = $interfacePlayer->get_player_info($currentPlayerId);
 
         $colors = array(
             'player' => $playerInfoArray['user_prefs']['player_color'],

@@ -261,7 +261,8 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadPlayerInfo($interface) {
-        return $interface->get_player_info($_SESSION['user_id']);
+        $interfacePlayer = new BMInterfacePlayer($this->isTest);
+        return $interfacePlayer->get_player_info($_SESSION['user_id']);
     }
 
     protected function get_interface_response_savePlayerInfo($interface, $args) {
