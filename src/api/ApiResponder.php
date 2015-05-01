@@ -309,7 +309,8 @@ class ApiResponder {
             $addlInfo['new_email'] = $args['new_email'];
         }
 
-        $retval = $interface->set_player_info(
+        $interfacePlayer = new BMInterfacePlayer($this->isTest);
+        $retval = $interfacePlayer->set_player_info(
             $_SESSION['user_id'],
             $infoArray,
             $addlInfo
