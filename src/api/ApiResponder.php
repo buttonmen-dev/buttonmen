@@ -264,8 +264,9 @@ class ApiResponder {
 
     protected function get_interface_response_loadPlayerInfo($interface) {
         $interfacePlayer = $interface->cast('BMInterfacePlayer');
-        $interfacePlayer->get_player_info($_SESSION['user_id']);
+        $result = $interfacePlayer->get_player_info($_SESSION['user_id']);
         $interface = $interfacePlayer->cast('BMInterface');
+        return $result;
     }
 
     protected function get_interface_response_savePlayerInfo($interface, $args) {
