@@ -9,6 +9,7 @@ pre_roll
 post_roll
   Maximum
   Warrior
+  TimeAndSpace
 attack_list
   Berserk
   Fire
@@ -54,6 +55,7 @@ does_skip_swing_request
 react_to_initiative
   Chance
   Focus
+  Warrior
 perform_end_of_turn_die_actions
   Ornery
 is_button_slow

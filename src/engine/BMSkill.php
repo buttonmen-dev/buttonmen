@@ -129,12 +129,18 @@ class BMSkill {
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
                      'Stinger'      => 'g',
+                     'TimeAndSpace' => '^',
                      'Trip'         => 't',
                      'Value'        => 'v',
                      'Warrior'      => '`',
                      'Weak'         => 'h');
     }
 
+    /**
+     * All possible skill characters
+     *
+     * @return array
+     */
     public static function all_skill_chars() {
         return array_values(self::skill_name_abbreviation_mapping());
     }
@@ -232,6 +238,7 @@ class BMSkill {
                      'BMSkillPoison',
                      'BMSkillNull',
                      'BMSkillMaximum',
+                     'BMSkillTimeAndSpace',
                      'BMSkillWarrior');
         // fires last
     }
