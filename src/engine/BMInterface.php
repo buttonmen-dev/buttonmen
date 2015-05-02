@@ -52,6 +52,27 @@ class BMInterface {
         self::$conn = conn();
     }
 
+    /**
+     * Casts a BMInterface* object to another BMInterface* object
+     *
+     * @param type $className
+     */
+    public function cast($className) {
+        // only allow cast to another BMInterface class
+        if ('BMInterface' != substr($className, 0, 11)) {
+            throw new InvalidArgumentException('BMInterface classes can only be cast to another BMInterface class');
+        }
+
+        if (!class_exists($className)) {
+            throw new InvalidArgumentException('Non-existent class');
+        }
+
+        $result = new $className($this->isTest);
+        $result->message = $this->message;
+        $result->timestamp = $this->timestamp;
+        return $result;
+    }
+
     // methods
 
     protected function validate_and_set_homepage($homepage, array &$infoArray) {

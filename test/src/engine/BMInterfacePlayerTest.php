@@ -14,8 +14,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
      * @covers BMInterfacePlayer::get_player_info
      */
     public function test_get_player_info() {
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $data = $interfacePlayer->get_player_info(self::$userId3WithAutopass);
+        $data = $this->object->get_player_info(self::$userId3WithAutopass);
         $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
@@ -87,12 +86,10 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => 'google.com');
 
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $interfacePlayer->set_player_info(self::$userId1WithoutAutopass,
-                                          $infoArray,
-                                          $addlInfo);
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $data = $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
+        $this->object->set_player_info(self::$userId1WithoutAutopass,
+                                       $infoArray,
+                                       $addlInfo);
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
@@ -104,11 +101,10 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $infoArray['monitor_redirects_to_game'] = 0;
         $infoArray['monitor_redirects_to_forum'] = 0;
         $infoArray['automatically_monitor'] = 0;
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $interfacePlayer->set_player_info(self::$userId1WithoutAutopass,
-                                          $infoArray,
-                                          $addlInfo);
-        $data = $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
+        $this->object->set_player_info(self::$userId1WithoutAutopass,
+                                       $infoArray,
+                                       $addlInfo);
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
@@ -117,14 +113,13 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
 
         $addlInfo['homepage'] = 'javascript:alert(\"Evil\");';
         $response =
-            $interfacePlayer->set_player_info(
+            $this->object->set_player_info(
                 self::$userId1WithoutAutopass,
                 $infoArray,
                 $addlInfo
             );
         $this->assertEquals(NULL, $response);
-        $interfacePlayer = new BMInterfacePlayer($this->object->isTest);
-        $data = $interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
     }
 

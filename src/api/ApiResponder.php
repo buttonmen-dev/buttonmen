@@ -144,8 +144,9 @@ class ApiResponder {
         if (isset($retval)) {
             foreach ($playerIdArray as $playerId) {
                 if (isset($playerId)) {
-                    $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+                    $interfacePlayer = $interface->cast('BMInterfacePlayer');
                     $interfacePlayer->update_last_action_time($playerId, $retval['gameId']);
+                    $interface = $interfacePlayer->cast('BMInterface');
                 }
             }
         }
@@ -262,8 +263,9 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadPlayerInfo($interface) {
-        $interfacePlayer = new BMInterfacePlayer($this->isTest);
-        return $interfacePlayer->get_player_info($_SESSION['user_id']);
+        $interfacePlayer = $interface->cast('BMInterfacePlayer');
+        $interfacePlayer->get_player_info($_SESSION['user_id']);
+        $interface = $interfacePlayer->cast('BMInterface');
     }
 
     protected function get_interface_response_savePlayerInfo($interface, $args) {
@@ -310,7 +312,7 @@ class ApiResponder {
             $addlInfo['new_email'] = $args['new_email'];
         }
 
-        $interfacePlayer = new BMInterfacePlayer($this->isTest);
+        $interfacePlayer = $interface->cast('BMInterfacePlayer');
         $retval = $interfacePlayer->set_player_info(
             $_SESSION['user_id'],
             $infoArray,
@@ -321,12 +323,15 @@ class ApiResponder {
             $interfacePlayer->update_last_action_time($_SESSION['user_id']);
         }
 
+        $interface = $interfacePlayer->cast('BMInterface');
         return $retval;
     }
 
-    protected function get_interface_response_loadProfileInfo($interface, $args) {
-        $interfacePlayer = new BMInterfacePlayer($this->isTest);
-        return $interfacePlayer->get_profile_info($args['playerName']);
+    protected function get_interface_response_loadProfileInfo(&$interface, $args) {
+        $interfacePlayer = $interface->cast('BMInterfacePlayer');
+        $result = $interfacePlayer->get_profile_info($args['playerName']);
+        $interface = $interfacePlayer->cast('BMInterface');
+        return $result;
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {
@@ -353,8 +358,9 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -373,8 +379,9 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -393,8 +400,9 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -418,8 +426,9 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -443,8 +452,9 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -462,8 +472,9 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -486,8 +497,9 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
 
         return $retval;
@@ -498,8 +510,9 @@ class ApiResponder {
         if (isset($retval)) {
             // Just update the player's last action time. Don't update the
             // game's, since the game is already over.
-            $interfacePlayer = new BMInterfacePlayer($interface->isTest);
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
             $interfacePlayer->update_last_action_time($_SESSION['user_id']);
+            $interface = $interfacePlayer->cast('BMInterface');
         }
         return $retval;
     }
@@ -620,7 +633,9 @@ class ApiResponder {
                     apache_note('BMUserID', $_SESSION['user_id']);
                     $interface = new BMInterface($this->isTest);
                     if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
-                        $interface->update_last_access_time($_SESSION['user_id']);
+                        $interfacePlayer = $interface->cast('BMInterfacePlayer');
+                        $interfacePlayer->update_last_access_time($_SESSION['user_id']);
+                        $interface = $interfacePlayer->cast('BMInterface');
                     }
                 } else {
                     $interface = new BMInterfaceNewuser($this->isTest);

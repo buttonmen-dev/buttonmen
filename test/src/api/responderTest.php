@@ -980,7 +980,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $this->object_structures_match($retval, $dummyval),
             "Real and dummy return values should have matching structures");
     }
-
+    
     public function test_request_createUser() {
         $this->verify_invalid_arg_rejected('createUser');
         $this->verify_mandatory_args_required(
