@@ -21,7 +21,7 @@ class BMInterfaceTestAbstract extends PHPUnit_Framework_TestCase {
         } else {
             require_once 'test/src/database/mysql.test.inc.php';
         }
-        $this->createObject();
+        $this->init();
         $this->newuserObject = new BMInterfaceNewuser(TRUE);
     }
 

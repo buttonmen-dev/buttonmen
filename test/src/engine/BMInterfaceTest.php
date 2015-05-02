@@ -4,85 +4,13 @@ require_once 'BMInterfaceTestAbstract.php';
 
 class BMInterfaceTest extends BMInterfaceTestAbstract {
 
-    protected function createObject() {
+    protected function init() {
         $this->object = new BMInterface(TRUE);
         $this->interfacePlayer = new BMInterfacePlayer(TRUE);
     }
 
     /**
-     * @covers BMInterfaceNewuser::create_user
-     */
-    public function test_create_user() {
-        $created_real = False;
-        $maxtries = 999;
-        $trynum = 1;
-
-        // Tests may be run multiple times.  Find a user of the
-        // form interfaceNNN which hasn't been created yet and
-        // create it in the test DB.  The dummy interface will claim
-        // success for any username of this form.
-        while (!($created_real)) {
-            $this->assertTrue($trynum < $maxtries,
-                "Internal test error: too many interfaceNNN users in the test database. " .
-                "Clean these out by hand.");
-            $username = 'interface' . sprintf('%03d', $trynum);
-            $email = $username . '@example.com';
-            $createResult = $this->newuserObject->create_user($username, 't', $email);
-            if (isset($createResult)) {
-                $created_real = True;
-            }
-            $trynum++;
-        }
-
-        $this->assertTrue($created_real,
-            "Creation of $username user should be reported as success");
-        self::$userId1WithoutAutopass = (int)$createResult['playerId'];
-
-        $username = 'interface' . sprintf('%03d', $trynum);
-        $email = $username . '@example.com';
-        $createResult = $this->newuserObject->create_user($username, 't', $email);
-        self::$userId2WithoutAutopass = (int)$createResult['playerId'];
-
-        $trynum++;
-        $username = 'interface' . sprintf('%03d', $trynum);
-        $email = $username . '@example.com';
-        $createResult = $this->newuserObject->create_user($username, 't', $email);
-
-        $infoArray = array(
-            'name_irl' => '',
-            'is_email_public' => FALSE,
-            'dob_month' => 0,
-            'dob_day' => 0,
-            'gender' => '',
-            'comment' => '',
-            'monitor_redirects_to_game' => 0,
-            'monitor_redirects_to_forum' => 0,
-            'automatically_monitor' => 0,
-            'autopass' => 1
-        );
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
-
-        $this->interfacePlayer->set_player_info(
-            $createResult['playerId'],
-            $infoArray,
-            $addlInfo
-        );
-        self::$userId3WithAutopass = (int)$createResult['playerId'];
-
-        $trynum++;
-        $username = 'interface' . sprintf('%03d', $trynum);
-        $email = $username . '@example.com';
-        $createResult = $this->newuserObject->create_user($username, 't', $email);
-        $this->interfacePlayer->set_player_info(
-            $createResult['playerId'],
-            $infoArray,
-            $addlInfo
-        );
-        self::$userId4WithAutopass = (int)$createResult['playerId'];
-    }
-
-    /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -194,7 +122,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -345,7 +273,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -365,7 +293,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -401,7 +329,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -421,7 +349,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -441,7 +369,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -512,7 +440,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -581,7 +509,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -719,7 +647,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      */
@@ -734,7 +662,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      */
@@ -773,7 +701,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -893,7 +821,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -948,7 +876,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::load_game
      */
@@ -1007,7 +935,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      */
@@ -1176,7 +1104,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      */
@@ -1247,7 +1175,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * even when the swing dice have been changed to normal dice,
      *   e.g., by a berserk attack.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1323,7 +1251,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * The following unit tests ensure that the number of passes is updated
      * correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1406,7 +1334,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that autopass works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1481,7 +1409,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that twin dice work correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::save_game
@@ -1583,7 +1511,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that konstant works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1670,7 +1598,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that konstant works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1781,7 +1709,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that surrender attacks work correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1877,7 +1805,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that the autoplay bug doesn't occur.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2031,7 +1959,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that a decline of an auxiliary die works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      * @covers BMInterface::save_game
@@ -2094,7 +2022,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that courtesy auxiliary dice are given correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      * @covers BMInterface::save_game
@@ -2169,7 +2097,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that courtesy auxiliary dice are given correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      * @covers BMInterface::save_game
@@ -2245,7 +2173,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that a bad action is handled gracefully.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      */
@@ -2256,7 +2184,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that a decline of a reserve die works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_reserve
      * @covers BMInterface::save_game
@@ -2337,7 +2265,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that a decline of a reserve die works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_reserve
      * @covers BMInterface::save_game
@@ -2403,7 +2331,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that the reserve swing setting bug is fixed.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      */
     public function test_reserve_swing_setting() {
@@ -2458,7 +2386,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that Echo games can be created and played correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2501,7 +2429,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      *
      * @coversNothing
@@ -2533,7 +2461,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * The following unit tests ensure that declined courtesy auxiliary swing dice work correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -2573,7 +2501,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     /**
      * Check that option dice are loaded and saved correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2773,7 +2701,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -2793,7 +2721,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2906,7 +2834,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -3041,51 +2969,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends BMInterfaceTest::test_create_user
-     *
-     * @covers BMInterfacePlayer::update_last_action_time
-     */
-    public function test_update_last_action_time() {
-        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
-                                                   self::$userId2WithoutAutopass),
-                                                   array('Avis', 'Hammer'), 4);
-        $gameId = $retval['gameId'];
-
-        $game = self::load_game($gameId);
-        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
-
-        $this->interfacePlayer->update_last_action_time(self::$userId1WithoutAutopass);
-        $game = self::load_game($gameId);
-        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
-
-        $this->interfacePlayer->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
-        $game = self::load_game($gameId);
-        $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
-        $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
-        $this->assertEquals(0, $game->lastActionTimeArray[1]);
-    }
-
-    /**
-     * @depends test_create_user
-     *
-     * @covers BMInterface::update_last_access_time
-     */
-    public function test_update_last_access_time() {
-        $retval =  $this->interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
-        $playerInfoArray = $retval['user_prefs'];
-        $preTime = $playerInfoArray['last_access_time'];
-
-        $this->interfacePlayer->update_last_access_time(self::$userId1WithoutAutopass);
-
-        $retval =  $this->interfacePlayer->get_player_info(self::$userId1WithoutAutopass);
-        $playerInfoArray = $retval['user_prefs'];
-        $postTime = $playerInfoArray['last_access_time'];
-
-        $this->assertGreaterThan($preTime, $postTime);
-    }
-
-    /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -3200,7 +3084,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */

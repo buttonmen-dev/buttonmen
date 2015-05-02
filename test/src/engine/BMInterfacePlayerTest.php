@@ -4,12 +4,12 @@ require_once 'BMInterfaceTestAbstract.php';
 
 class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
 
-    protected function createObject() {
+    protected function init() {
         $this->object = new BMInterfacePlayer(TRUE);
     }
 
     /**
-     * @depends BMInterfaceTest::test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterfacePlayer::get_player_info
      */
@@ -62,7 +62,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends BMInterfaceTest::test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterfacePlayer::get_player_info
      * @covers BMInterfacePlayer::set_player_info
@@ -123,4 +123,47 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
     }
 
+    /**
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfacePlayer::update_last_action_time
+     */
+    public function test_update_last_action_time() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Avis', 'Hammer'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
+
+        $this->object->update_last_action_time(self::$userId1WithoutAutopass);
+        $game = self::load_game($gameId);
+        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
+
+        $this->object->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
+        $game = self::load_game($gameId);
+        $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
+        $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
+        $this->assertEquals(0, $game->lastActionTimeArray[1]);
+    }
+
+    /**
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfacePlayer::update_last_access_time
+     */
+    public function test_update_last_access_time() {
+        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $retval['user_prefs'];
+        $preTime = $playerInfoArray['last_access_time'];
+
+        $this->object->update_last_access_time(self::$userId1WithoutAutopass);
+
+        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $retval['user_prefs'];
+        $postTime = $playerInfoArray['last_access_time'];
+
+        $this->assertGreaterThan($preTime, $postTime);
+    }
 }
