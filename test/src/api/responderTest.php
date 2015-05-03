@@ -8953,7 +8953,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 8, 3, 5,           // die skills for r4
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
-                6, 5, 7,           // initial die rolls for r4
+                6, 8, 5, 7, 7,     // initial die rolls for r4
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3);
 
@@ -8997,9 +8997,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 0), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
 
-	// A trip attack by the larger trip die against the Ms(8) should be allowed
+	// A trip attack by the larger trip die against the Ms(8) should be allowed,
+        // and should fail even though the Maximum die "rolls" a smaller value than the trip die
         $this->verify_api_submitTurn(
-            array(7),
+            array(7, 5),
             'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured. ',
             $retval, array(array(0, 2), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
