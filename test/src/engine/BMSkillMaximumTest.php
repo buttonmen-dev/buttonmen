@@ -24,20 +24,40 @@ class BMSkillMaximumTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillMaximum::post_roll
+     * @covers BMSkillMaximum::roll
      */
-    public function testPost_roll_bad_args() {
+    public function testRoll_bad_args() {
         $args = NULL;
-        $this->assertFalse(BMSkillMaximum::post_roll($args));
+        $this->assertFalse(BMSkillMaximum::roll($args));
     }
 
     /**
-     * @covers BMSkillMaximum::post_roll
+     * @covers BMSkillMaximum::roll
      */
-    public function testPost_roll() {
+    public function testRoll() {
         $die = BMDie::create(6);
         $args = array('die' => $die);
-        $this->assertTrue(BMSkillMaximum::post_roll($args));
+        $this->assertTrue(BMSkillMaximum::roll($args));
         $this->assertEquals(6, $die->value);
+    }
+
+    /**
+     * @covers BMSkillMaximum::roll
+     */
+    public function testRoll_with_konstant() {
+        $die = BMDie::create(6);
+        $die->add_skill('Maximum');
+        $die->add_skill('Konstant');
+
+        // check that the initial roll occurs correctly
+        $die->roll(FALSE);
+        $this->assertEquals(6, $die->value);
+
+        $die->value = 3;
+        $die->roll(FALSE);
+        $this->assertEquals(3, $die->value);
+
+        $die->roll(TRUE);
+        $this->assertEquals(3, $die->value);
     }
 }

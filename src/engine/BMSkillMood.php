@@ -36,6 +36,10 @@ class BMSkillMood extends BMSkill {
             return FALSE;
         }
 
+        if (!$args['die']->doesReroll) {
+            return FALSE;
+        }
+
         // do nothing if the die is not a swing die or a
         // twin die with swing components
         $die = $args['die'];
