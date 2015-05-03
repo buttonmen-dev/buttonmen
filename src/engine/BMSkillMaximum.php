@@ -15,25 +15,20 @@ class BMSkillMaximum extends BMSkill {
      *
      * @var array
      */
-    public static $hooked_methods = array('roll');
+    public static $hooked_methods = array('post_roll');
 
     /**
-     * Hooked method applied while rolling a die
+     * Hooked method applied after rolling a die
      *
      * @param array $args
      * @return boolean
      */
-    public static function roll(&$args) {
+    public static function post_roll(&$args) {
         if (!($args['die'] instanceof BMDie)) {
             return FALSE;
         }
 
         $die = $args['die'];
-
-        if (!$die->doesReroll && isset($die->value)) {
-            return FALSE;
-        }
-
         $die->value = $die->max;
         return TRUE;
     }
