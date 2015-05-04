@@ -45,12 +45,12 @@ class BMAttackBoom extends BMAttack {
         $this->validationMessage = '';
 
         if (count($attackers) != 1) {
-            $this->validationMessage = 'There must be exactly one attacking die for a trip attack.';
+            $this->validationMessage = 'There must be exactly one attacking die for a boom attack.';
             return FALSE;
         }
 
         if (count($defenders) != 1) {
-            $this->validationMessage = 'There must be exactly one target die for a trip attack.';
+            $this->validationMessage = 'There must be exactly one target die for a boom attack.';
             return FALSE;
         }
 

@@ -37,6 +37,10 @@ class BMSkillBoom extends BMSkill {
      * @param array $args
      */
     public static function capture($args) {
+        if ($args['type'] != 'Boom') {
+            return;
+        }
+
         assert(array_key_exists('attackers', $args));
         assert(array_key_exists('defenders', $args));
         assert(1 == count($args['attackers']));
