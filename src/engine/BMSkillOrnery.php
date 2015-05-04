@@ -79,6 +79,7 @@ class BMSkillOrnery extends BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array(
+            'Konstant' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
             'Mad' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
             'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
         );
