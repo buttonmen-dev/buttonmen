@@ -51,6 +51,8 @@ class BMSkillMaximum extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Konstant' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
+        );
     }
 }
