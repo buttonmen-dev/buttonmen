@@ -298,7 +298,13 @@ class BMDie extends BMCanHaveSkill {
 
         if (!isset($this->value) ||
             ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
-            $this->set__value(bm_rand($this->min, $this->max));
+            $hookResultArray = $this->run_hooks(__FUNCTION__, array('die' => $this));
+
+            // if all hook results are FALSE, then roll the die
+            if (empty($hookResultArray) ||
+                (0 == count(array_filter($hookResultArray, function ($value) { return $value !== FALSE; })))) {
+                $this->set__value(bm_rand($this->min, $this->max));
+            }
         }
 
         $this->run_hooks('post_roll', array('die' => $this,

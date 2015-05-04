@@ -6,8 +6,9 @@ add_skill
   Value
 pre_roll
   Mood
-post_roll
+roll
   Maximum
+post_roll
   Warrior
   TimeAndSpace
 attack_list
@@ -57,6 +58,7 @@ does_skip_swing_request
 react_to_initiative
   Chance
   Focus
+  Warrior
 perform_end_of_turn_die_actions
   Ornery
 is_button_slow
