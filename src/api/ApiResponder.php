@@ -12,17 +12,22 @@
 class ApiResponder {
 
     // properties
-    private $isTest;               // whether this invocation is for testing
+    protected $isTest;               // whether this invocation is for testing
 
     // functions which allow access by unauthenticated users
     // For now, all game functionality should require login: only
     // add things to this list if they are necessary for user
     // creation and/or login.
-    private $unauthFunctions = array(
+    protected $unauthFunctions = array(
         'createUser',
         'verifyUser',
         'loadPlayerName',
         'login',
+    );
+
+    // functions that handle player-related information
+    protected $playerFunctions = array(
+        'createGame',
     );
 
     /**
@@ -44,46 +49,6 @@ class ApiResponder {
             require_once 'api_core.php';
             require_once('../lib/bootstrap.php');
         }
-    }
-
-    // This function looks at the provided arguments and verifies
-    // both that an appropriate interface routine exists and that
-    // the requester has sufficient credentials to access it
-    protected function verify_function_access($args) {
-        if (array_key_exists('type', $args)) {
-            $funcname = 'get_interface_response_' . $args['type'];
-            if (method_exists($this, $funcname)) {
-                if (in_array($args['type'], $this->unauthFunctions)) {
-                    $result = array(
-                        'ok' => TRUE,
-                        'functype' => 'newuser',
-                        'funcname' => $funcname,
-                    );
-                } elseif (auth_session_exists()) {
-                    $result = array(
-                        'ok' => TRUE,
-                        'functype' => 'auth',
-                        'funcname' => $funcname,
-                    );
-                } else {
-                    $result = array(
-                        'ok' => FALSE,
-                        'message' => "You need to login before calling API function " . $args['type'],
-                    );
-                }
-            } else {
-                $result = array(
-                    'ok' => FALSE,
-                    'message' => 'Specified API function does not exist',
-                );
-            }
-        } else {
-            $result = array(
-                'ok' => FALSE,
-                'message' => 'No "type" argument specified',
-            );
-        }
-        return $result;
     }
 
     protected function get_interface_response_createUser($interface, $args) {
@@ -630,17 +595,7 @@ class ApiResponder {
                 // As far as we can easily tell, it's safe to call
                 // the function.  Go ahead and create an interface
                 // object, invoke the function, and return the result
-                if ($check['functype'] == 'auth') {
-                    apache_note('BMUserID', $_SESSION['user_id']);
-                    $interface = new BMInterface($this->isTest);
-                    if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
-                        $interfacePlayer = $interface->cast('BMInterfacePlayer');
-                        $interfacePlayer->update_last_access_time($_SESSION['user_id']);
-                        $interface = $interfacePlayer->cast('BMInterface');
-                    }
-                } else {
-                    $interface = new BMInterfaceNewuser($this->isTest);
-                }
+                $interface = $this->create_interface($args, $check);
                 apache_note('BMAPIMethod', $args['type']);
                 $data = $this->$check['funcname']($interface, $args);
 
@@ -678,6 +633,67 @@ class ApiResponder {
             header('Content-Type: application/json');
             echo json_encode($output);
         }
+    }
+
+    // This function looks at the provided arguments and verifies
+    // both that an appropriate interface routine exists and that
+    // the requester has sufficient credentials to access it
+    protected function verify_function_access($args) {
+        if (array_key_exists('type', $args)) {
+            $funcname = 'get_interface_response_' . $args['type'];
+            if (method_exists($this, $funcname)) {
+                if (in_array($args['type'], $this->unauthFunctions)) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'newuser',
+                        'funcname' => $funcname,
+                    );
+                } elseif (auth_session_exists()) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'auth',
+                        'funcname' => $funcname,
+                    );
+                } else {
+                    $result = array(
+                        'ok' => FALSE,
+                        'message' => "You need to login before calling API function " . $args['type'],
+                    );
+                }
+            } else {
+                $result = array(
+                    'ok' => FALSE,
+                    'message' => 'Specified API function does not exist',
+                );
+            }
+        } else {
+            $result = array(
+                'ok' => FALSE,
+                'message' => 'No "type" argument specified',
+            );
+        }
+        return $result;
+    }
+
+    protected function create_interface($args, $check) {
+        if ($check['functype'] != 'auth') {
+            return new BMInterfaceNewuser($this->isTest);
+        }
+
+        apache_note('BMUserID', $_SESSION['user_id']);
+
+        if (array_search($check['funcname'], $this->playerFunctions, TRUE)) {
+            $interface = new BMInterfacePlayer($this->isTest);
+        } else {
+            $interface = new BMInterface($this->isTest);
+        }
+
+        if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
+            $interfacePlayer = $interface->cast('BMInterfacePlayer');
+            $interfacePlayer->update_last_access_time($_SESSION['user_id']);
+        }
+
+        return $interface;
     }
 }
 

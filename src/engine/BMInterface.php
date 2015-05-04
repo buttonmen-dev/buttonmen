@@ -70,6 +70,7 @@ class BMInterface {
         $result = new $className($this->isTest);
         $result->message = $this->message;
         $result->timestamp = $this->timestamp;
+        $result::$conn = self::$conn;
         return $result;
     }
 
