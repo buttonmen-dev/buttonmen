@@ -874,9 +874,6 @@ Game.actionAdjustFireDiceActive = function() {
 
   fireMessage += 'Turn down Fire dice by a total of ';
 
-  console.log(attackerDiffFromMax);
-  console.log(exactFiringAmount);
-
   if (('Power' == attackType) &&
     (attackerDiffFromMax > exactFiringAmount)) {
     fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
