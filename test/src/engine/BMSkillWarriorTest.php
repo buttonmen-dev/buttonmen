@@ -186,4 +186,18 @@ class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
         $die->captured = TRUE;
         $this->assertEquals(0, $die->get_scoreValueTimesTen());
     }
+
+    /**
+     * @covers BMSkillWarrior::react_to_initiative
+     */
+    public function testReact_to_initiative() {
+        $die = BMDie::create(8);
+        $die->add_skill('Warrior');
+        $this->assertEquals(array('BMSkillWarrior'), $die->hookList['react_to_initiative']);
+
+        $args = array('activeDieArrayArray' => array(array($die), array(BMDie::create(5))),
+                      'playerIdx' => 0);
+
+        $this->assertEquals('forceFalse', $this->object->react_to_initiative($args));
+    }
 }

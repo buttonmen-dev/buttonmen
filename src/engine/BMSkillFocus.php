@@ -83,6 +83,7 @@ class BMSkillFocus extends BMSkill {
     protected static function get_interaction_descriptions() {
         return array(
             'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+            'Konstant' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
         );
     }
 }

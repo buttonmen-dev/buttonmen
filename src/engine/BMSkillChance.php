@@ -58,7 +58,8 @@ class BMSkillChance extends BMSkill {
     protected static function get_interaction_descriptions() {
         return array(
             'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
-            'Konstant' => 'Dice with both Chance and Konstant skills always retain their current value',
+            'Konstant' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                          'when rerolled due to Chance',
         );
     }
 }

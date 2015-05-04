@@ -120,6 +120,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If you do not have the initiative at the start of a round you may re-roll one of your Chance Dice. If this results in you gaining the initiative, your opponent may re-roll one of their Chance Dice. This can continue with each player re-rolling Chance Dice, even re-rolling the same die, until one person fails to gain the initiative or lets their opponent go first. Re-rolling Chance Dice is not only a way to gain the initiative; it can also be useful in protecting your larger dice, or otherwise improving your starting roll. Unlike Focus Dice, Chance Dice can be immediately re-used in an attack even if you do gain the initiative with them.',
                 'interacts' => array(
                     'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+                    'Konstant' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                                  'when rerolled due to Chance'
                 ),
             ),
             'Doppelganger' => array(
@@ -141,17 +143,26 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If you do not have the initiative at the start of a round you may reduce the values showing on one or more of your Focus Dice. You may only do this if it results in your gaining the initiative. If your opponent has Focus Dice, they may now do the same, and each player may respond by turning down one or more Focus Dice until no further moves are legal, or until one player allows the other to take the first turn. IMPORTANT: If you go first, any Focus Dice you have reduced may not be used as part of your first attack. (The second player has no such restriction.)',
                 'interacts' => array(
                     'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+                    'Konstant' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
                 ),
             ),
             'Konstant' => array(
                 'code' => 'k',
-                'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant Dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack.',
-                'interacts' => array(),
+                'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
+                'interacts' => array(
+                    'Chance' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                                'when rerolled due to Chance',
+                    'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
+                    'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
+                    'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+                    'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
+                ),
             ),
             'Maximum' => array(
                 'code' => 'M',
                 'description' => 'Maximum dice always roll their maximum value.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
                 ),
             ),
             'Mighty' => array(
@@ -186,6 +197,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 'o',
                 'description' => 'Ornery dice reroll every time the player makes any attack - whether the Ornery dice participated in it or not. The only time they don\'t reroll is if the player passes, making no attack whatsoever.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
                     'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
                 ),
             ),
@@ -205,7 +217,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Radioactive' => array(
                 'code' => '%',
-                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), [and, not yet implemented: Jolt(J), and Time and Space(^)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
+                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), Time and Space(^), [and, not yet implemented: Jolt(J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
@@ -256,6 +268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 't',
                 'description' => 'These dice can also make Trip Attacks. To make a Trip Attack, choose any one opposing die as the Target. Roll both the Trip Die and the Target, then compare the numbers they show. If the Trip Die now shows an equal or greater number than the Target, the Target is captured. Otherwise, the attack merely has the effect of re-rolling both dice. A Trip Attack is illegal if it has no chance of capturing (this is possible in the case of a Trip-1 attacking a Twin Die). IMPORTANT: Trip Dice do not count for determining who goes first.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
                     'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                     'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                 ),
@@ -8947,13 +8960,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                0, 4, 14,          // die skills for r3: c, n, t
+                0, 4, 13,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
                 8, 3, 5,           // die skills for r4
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
-                6, 8, 5, 7, 7,     // initial die rolls for r4
+                6, 5, 7,           // initial die rolls for r4
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3);
 
@@ -8997,10 +9010,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 0), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
 
-	// A trip attack by the larger trip die against the Ms(8) should be allowed,
-        // and should fail even though the Maximum die "rolls" a smaller value than the trip die
+	// A trip attack by the larger trip die against the Ms(8) should be allowed
         $this->verify_api_submitTurn(
-            array(7, 5),
+            array(7),
             'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured. ',
             $retval, array(array(0, 2), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
@@ -9867,6 +9879,118 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [^B(T=3,T=3):4] against [(20):4]; Defender (20) was captured; Attacker ^B(T=3,T=3) rerolled 4 => 3'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 gets another turn because a Time and Space die rolled odd'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003\'s idle ornery dice rerolled at end of turn: Ho(W=4)? changed size from 4 to 12 sides, recipe changed from Ho(W=4)? to Ho(W=12)?, rerolled 2 => 8'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * 0. Start a game with responder003 playing Max Factor and responder004 playing Noeh
+     * 1. responder004 set swing values: Y=5 and option dice: f(4/20=20)
+     * 2. responder003 set swing values: X=11
+     *    responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):2, (8):3, (12):10, (X=11):4, (X=11):8], responder004 rolled [z(15,15):6, tg(6):6, n(Y=5):4, f(4/20=20):3, sgv(17):6, `(1):1]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].
+     * Now the game state should be REACT_TO_INITIATIVE
+     */
+    public function test_interface_game_032() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 32;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        // Max Factor rolls 3 dice, Noeh rolls 5
+        $gameId = $this->verify_api_createGame(
+            array(2, 3, 10, 4, 2, 6, 6, 1),
+            'responder003', 'responder004', 'Max Factor', 'Noeh', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Null', 'Shadow', 'Speed', 'Stinger', 'Trip', 'Value', 'Warrior'));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
+        $expData['playerDataArray'][1]['optRequestArray'] = array(3 => array(4, 20));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Max Factor', 'recipe' => '(6) (8) (12) (X) (X)', 'artFilename' => 'maxfactor.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Noeh', 'recipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'artFilename' => 'noeh.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 30, 'skills' => array('Speed'), 'properties' => array('Twin'), 'recipe' => 'z(15,15)', 'description' => 'Speed Twin Die (both with 15 sides)', 'subdieArray' => array(array('sides' => 15), array('sides' => 15))),
+            array('value' => NULL, 'sides' => 6, 'skills' => array('Trip', 'Stinger'), 'properties' => array(), 'recipe' => 'tg(6)', 'description' => 'Trip Stinger 6-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Null'), 'properties' => array(), 'recipe' => 'n(Y)', 'description' => 'Null Y Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(4/20)', 'description' => 'Focus Option Die (with 4 or 20 sides)'),
+            array('value' => NULL, 'sides' => 17, 'skills' => array('Shadow', 'Stinger', 'Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'sgv(17)', 'description' => 'Shadow Stinger Value 17-sided die'),
+            array('value' => NULL, 'sides' => 1, 'skills' => array('Warrior'), 'properties' => array(), 'recipe' => '`(1)', 'description' => 'Warrior 1-sided die'),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder004 set swing values: Y=5 and option dice: f(4/20=20)
+
+        // this should cause the swing and option dice to be rerolled
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitDieValues(
+            array(4, 3),
+            $gameId, 1, array('Y' => 5), array(3 => 20));
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set die sizes'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 02 - responder003 set swing values: X=11
+        //   responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):2, (8):3, (12):10, (X=11):4, (X=11):8], responder004 rolled [z(15,15):6, tg(6):6, n(Y=5):4, f(4/20=20):3, sgv(17):6, `(1):1]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].
+
+        $this->verify_api_submitDieValues(
+            array(4, 8),
+            $gameId, 1, array('X' => 11), NULL);
+
+        $expData['gameState'] = 'REACT_TO_INITIATIVE';
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 24;
+        $expData['playerDataArray'][1]['roundScore'] = 31;
+        $expData['playerDataArray'][0]['sideScore'] = -4.7;
+        $expData['playerDataArray'][1]['sideScore'] = 4.7;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = 'X Swing Die (with 11 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = 'X Swing Die (with 11 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Null Y Swing Die (with 5 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 20;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'Focus Option Die (with 20 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 1;
+
+        $expData['gameActionLog'][0]['message'] = 'responder004 set swing values: Y=5 and option dice: f(4/20=20)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=11'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(6):2, (8):3, (12):10, (X=11):4, (X=11):8], responder004 rolled [z(15,15):6, tg(6):6, n(Y=5):4, f(4/20=20):3, sgv(17):6, `(1):1]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }

@@ -104,6 +104,7 @@ class BMSkillTrip extends BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array(
+            'Konstant' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
             'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip ' .
                        'Attacking via a Power Attack',
             'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip ' .

@@ -1023,13 +1023,24 @@ class BMGame {
                 }
 
                 if (is_array($hookResultArray) && count($hookResultArray) > 0) {
+                    $canDieReact = FALSE;
+
                     foreach ($hookResultArray as $hookResult) {
+                        if ('forceFalse' === $hookResult) {
+                            continue 2;
+                        }
+
                         if (TRUE === $hookResult) {
-                            $canReactArray[$playerIdx] = TRUE;
-                            continue;
+                            $canDieReact = TRUE;
                         }
                     }
+
+                    if ($canDieReact) {
+                        $canReactArray[$playerIdx] = TRUE;
+                    }
                 }
+
+
             }
         }
 
