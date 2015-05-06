@@ -320,7 +320,7 @@ class BMGameAction {
                 $this->message_recipe_change($defenderInfo, $postInfo, FALSE)
             );
 
-            if ($defenderRerollsEarly) {
+            if ($defenderRerollsEarly || !$postInfo['captured']) {
                 $this->message_append(
                     $postEventsDefender,
                     $this->message_value_change($defenderInfo, $postInfo)

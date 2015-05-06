@@ -94,6 +94,6 @@ class BMAttackBoomTest extends PHPUnit_Framework_TestCase {
         $die2->value = 1;
 
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
-        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
     }
 }
