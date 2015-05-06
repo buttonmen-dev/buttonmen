@@ -905,19 +905,23 @@ Game.actionAdjustFireDiceActive = function() {
     'name': 'fire_action_select',
   });
 
-  var fireoptions = {
-    'turndown': 'Turn down fire dice',
-    'no_turndown': 'Submit attack without turning down fire dice',
-    'cancel':
-      'Don\'t turn down fire dice (cancelling the attack in progress)',
-  };
+  var allows_zero_turndown = (exactFiringAmount <= 0);
+
+  var fireoptions = {};
+  if (allows_zero_turndown) {
+    fireoptions.no_turndown = 'Submit attack without turning down fire dice';
+  }
+  fireoptions.turndown = 'Turn down fire dice';
+  fireoptions.cancel = 'Don\'t turn down fire dice (cancelling the attack in progress)';
+
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
       'value': actionname,
       'label': actiontext,
       'text': actiontext,
     };
-    if (actionname == 'turndown') {
+    if ((actionname == 'no_turndown') ||
+        (!allows_zero_turndown && (actionname == 'turndown'))) {
       fireactionopts.selected = 'selected';
     }
     fireactionselect.append($('<option>', fireactionopts));
