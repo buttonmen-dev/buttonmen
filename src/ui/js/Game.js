@@ -912,7 +912,8 @@ Game.actionAdjustFireDiceActive = function() {
     fireoptions.no_turndown = 'Submit attack without turning down fire dice';
   }
   fireoptions.turndown = 'Turn down fire dice';
-  fireoptions.cancel = 'Don\'t turn down fire dice (cancelling the attack in progress)';
+  fireoptions.cancel =
+    'Don\'t turn down fire dice (cancelling the attack in progress)';
 
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
