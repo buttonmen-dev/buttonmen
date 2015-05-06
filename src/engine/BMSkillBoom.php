@@ -99,7 +99,9 @@ class BMSkillBoom extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Stealth' => 'Stealth dice may be targeted by boom attacks',
+        );
     }
 
     /**

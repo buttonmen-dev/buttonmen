@@ -101,11 +101,6 @@ class BMAttackBoom extends BMAttack {
             return FALSE;
         }
 
-        if ($def->has_skill('Stealth')) {
-            $this->validationMessage = 'Stealth dice cannot be the target of boom attacks.';
-            return FALSE;
-        }
-
         if ($def->has_skill('Warrior')) {
             $this->validationMessage = 'Warrior dice cannot be attacked.';
             return FALSE;
