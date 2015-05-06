@@ -2932,7 +2932,7 @@ class BMInterface {
                 (count($logEntries) > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
-            
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(
@@ -3820,14 +3820,15 @@ class BMInterface {
     // adjust_fire expects the following inputs:
     //
     //   $action:
-    //       One of {'turndown', 'cancel'}.
+    //       One of {'turndown', 'no_turndown', 'cancel'}.
     //
     //   $dieIdxArray:
-    //       (i)  If this is a 'turndown' action, then this is the nonempty array
+    //       (i)   If this is a 'turndown' action, then this is the nonempty array
     //             of die indices corresponding to the die values in
     //             dieValueArray. This can be either the indices of ALL fire
     //             dice OR just a subset.
-    //       (ii) If this is a 'cancel' action, then this will be ignored.
+    //       (ii)  If this is a 'no_turndown' action, then this will be ignored.
+    //       (iii) If this is a 'cancel' action, then this will be ignored.
     //
     //   $dieValueArray:
     //       This is only used for the 'turndown' action. It is a nonempty array
@@ -3877,6 +3878,7 @@ class BMInterface {
                         $argArray['fireValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
                     }
                     break;
+                case 'no_turndown':  // fallthrough to allow multiple cases with the same logic
                 case 'cancel':
                     $argArray['dieIdxArray'] = $dieIdxArray;
                     $argArray['dieValueArray'] = $dieValueArray;

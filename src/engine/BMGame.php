@@ -1435,9 +1435,9 @@ class BMGame {
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
 
-        if (!in_array($args['action'], array('turndown', 'cancel'))) {
+        if (!in_array($args['action'], array('turndown', 'no_turndown', 'cancel'))) {
             throw new InvalidArgumentException(
-                'Reaction must be turndown or cancel.'
+                'Reaction must be turndown, no_turndown, or cancel.'
             );
         }
 
@@ -1519,6 +1519,35 @@ class BMGame {
         );
 
         $this->message = 'Successfully turned down fire dice.';
+        return TRUE;
+    }
+
+    protected function react_to_firing_no_turndown() {
+        if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            $this->message = 'Wrong game state to react to firing.';
+            return FALSE;
+        }
+
+        $instance = $this->create_attack_instance();
+        if (FALSE === $instance) {
+            $this->message = 'Invalid attack.';
+            return FALSE;
+        }
+
+        if (!$instance['attack']->validate_attack(
+            $this,
+            $instance['attAttackDieArray'],
+            $instance['defAttackDieArray'],
+            0
+        )) {
+            $this->message = $instance['attack']->validationMessage;
+            return FALSE;
+        }
+
+        $this->firingAmount = 0;
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        $this->message = 'Successfully attacked without turning down fire dice.';
         return TRUE;
     }
 

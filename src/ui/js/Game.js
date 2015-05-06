@@ -885,7 +885,7 @@ Game.actionAdjustFireDiceActive = function() {
   fireMessage += '.';
 
   Game.page.append($('<div>', {
-    'html': fireMessage,
+    'text': fireMessage,
   }));
 
   // Create a form for adjusting fire dice
@@ -907,6 +907,7 @@ Game.actionAdjustFireDiceActive = function() {
 
   var fireoptions = {
     'turndown': 'Turn down fire dice',
+    'no_turndown': 'Submit attack without turning down fire dice',
     'cancel':
       'Don\'t turn down fire dice (cancelling the attack in progress)',
   };
@@ -1285,7 +1286,8 @@ Game.formAdjustFireDiceActive = function() {
   switch (Game.activity.fireActionType) {
 
   // valid action, nothing special to do, but validate selections just in case
-  case 'cancel':
+  case 'cancel':    // fallthrough to allow multiple cases with the same logic
+  case 'no_turndown':
     $.each(Api.game.player.fireOptions, function(i, vals) {
       if (vals.length > 0) {
         var value = $('#fire_adjust_' + i).val();
