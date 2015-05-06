@@ -10084,16 +10084,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill'),
-            array(8, 16, -5.3, 5.3), // these are wrong
-            array(array(1, 0, array('value' => 2, 'sides' => 2, 'recipe' => 'Mkh(2)')),
+            array(8, 15, -4.7, 4.7),
+            array(array(1, 0, array('value' => 2, 'sides' => 2, 'recipe' => 'Mkh(2)', 'description' => 'Maximum Konstant Weak 2-sided die', 'properties' => array('HasJustShrunk'))),
                   array(1, 3, array('value' => 9))),
             array(array(0, 3)),
             array(array(0, 0)),
             array(array(1, array('value' => 3, 'sides' => 10, 'recipe' => 'n(10)', 'properties' => array('WasJustCaptured'))))
         );
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9'));
-        // BUG encountered: Internal error while loading game.
-        // the log message is: Caught exception in BMInterface::load_game: Invalid die value: 4 is not between 1 and 2 for die Mkh(2)
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 }
