@@ -9994,4 +9994,106 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * 0. Start a game with responder003 playing RandomBMMixed [k(4) pk(4) np(8) n(10) (20)] and
+     *    responder004 playing RandomBMMixed [Mkh(4) M(4) k(10) h(12) (12)]
+     *    responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, pk(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mkh(4):4, M(4):4, k(10):5, h(12):2, (12):7].
+     * 1. responder003 performed Skill attack using [k(4):1,np(8):6] against [k(10):5]; Defender k(10) recipe changed to kn(10), was captured; Attacker k(4) does not reroll; Attacker np(8) rerolled 6 => 7
+     * 2. responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9
+     * Now loading the game leads to an internal error
+     */
+    public function test_interface_game_033() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 33;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $gameId = $this->verify_api_createGame(
+            array(
+                0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
+                3, 8, 6,           // die skills for r3: k, n, p
+                0, 0, 1, 2, 1, 2,  // distribution of skills onto dice for r3
+                3, 3, 0, 4, 0,     // die sizes for r4: 4, 4, 10, 12, 12
+                4, 17, 3,          // die skills for r4: h, k, M
+                4, 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
+                1, 3, 6, 3, 3,     // initial die rolls for r3
+                5, 2, 7,           // initial die rolls for r4
+            ),
+            'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
+        );
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Konstant', 'Maximum', 'Null', 'Poison', 'Weak'));
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['playerDataArray'][0]['roundScore'] = 8;
+        $expData['playerDataArray'][1]['roundScore'] = 21;
+        $expData['playerDataArray'][0]['sideScore'] = -8.7;
+        $expData['playerDataArray'][1]['sideScore'] = 8.7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'k(4) pk(4) np(8) n(10) (20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'Mkh(4) M(4) k(10) h(12) (12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 1, 'sides' => 4, 'skills' => array('Konstant'), 'properties' => array(), 'recipe' => 'k(4)', 'description' => 'Konstant 4-sided die'),
+            array('value' => 3, 'sides' => 4, 'skills' => array('Poison', 'Konstant'), 'properties' => array(), 'recipe' => 'pk(4)', 'description' => 'Poison Konstant 4-sided die'),
+            array('value' => 6, 'sides' => 8, 'skills' => array('Null', 'Poison'), 'properties' => array(), 'recipe' => 'np(8)', 'description' => 'Null Poison 8-sided die'),
+            array('value' => 3, 'sides' => 10, 'skills' => array('Null'), 'properties' => array(), 'recipe' => 'n(10)', 'description' => 'Null 10-sided die'),
+            array('value' => 3, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 4, 'sides' => 4, 'skills' => array('Maximum', 'Konstant', 'Weak'), 'properties' => array(), 'recipe' => 'Mkh(4)', 'description' => 'Maximum Konstant Weak 4-sided die'),
+            array('value' => 4, 'sides' => 4, 'skills' => array('Maximum'), 'properties' => array(), 'recipe' => 'M(4)', 'description' => 'Maximum 4-sided die'),
+            array('value' => 5, 'sides' => 10, 'skills' => array('Konstant'), 'properties' => array(), 'recipe' => 'k(10)', 'description' => 'Konstant 10-sided die'),
+            array('value' => 2, 'sides' => 12, 'skills' => array('Weak'), 'properties' => array(), 'recipe' => 'h(12)', 'description' => 'Weak 12-sided die'),
+            array('value' => 7, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, pk(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mkh(4):4, M(4):4, k(10):5, h(12):2, (12):7].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(7),
+            'responder003 performed Skill attack using [k(4):1,np(8):6] against [k(10):5]; Defender k(10) recipe changed to kn(10), was captured; Attacker k(4) does not reroll; Attacker np(8) rerolled 6 => 7. ',
+            $retval, array(array(0, 0), array(0, 2), array(1, 2)),
+            $gameId, 1, 'Skill', 0, 1, '');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 1, array('Power', 'Skill'),
+            array(8, 16, -5.3, 5.3),
+            array(array(0, 2, array('value' => 7))),
+            array(array(1, 2)),
+            array(),
+            array(array(0, array('value' => 5, 'sides' => 10, 'recipe' => 'kn(10)', 'properties' => array('WasJustCaptured'))))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [k(4):1,np(8):6] against [k(10):5]; Defender k(10) recipe changed to kn(10), was captured; Attacker k(4) does not reroll; Attacker np(8) rerolled 6 => 7'));
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(9),
+            'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9. ',
+            $retval, array(array(1, 0), array(1, 3), array(0, 3)),
+            $gameId, 1, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $this->update_expected_data_after_normal_attack(
+            $expData, 0, array('Power', 'Skill'),
+            array(8, 16, -5.3, 5.3), // these are wrong
+            array(array(1, 0, array('value' => 2, 'sides' => 2, 'recipe' => 'Mkh(2)')),
+                  array(1, 3, array('value' => 9))),
+            array(array(0, 3)),
+            array(array(0, 0)),
+            array(array(1, array('value' => 3, 'sides' => 10, 'recipe' => 'n(10)', 'properties' => array('WasJustCaptured'))))
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9'));
+        // BUG encountered: Internal error while loading game.
+        // the log message is: Caught exception in BMInterface::load_game: Invalid die value: 4 is not between 1 and 2 for die Mkh(2)
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
 }
