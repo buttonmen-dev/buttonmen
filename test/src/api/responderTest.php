@@ -120,6 +120,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If you do not have the initiative at the start of a round you may re-roll one of your Chance Dice. If this results in you gaining the initiative, your opponent may re-roll one of their Chance Dice. This can continue with each player re-rolling Chance Dice, even re-rolling the same die, until one person fails to gain the initiative or lets their opponent go first. Re-rolling Chance Dice is not only a way to gain the initiative; it can also be useful in protecting your larger dice, or otherwise improving your starting roll. Unlike Focus Dice, Chance Dice can be immediately re-used in an attack even if you do gain the initiative with them.',
                 'interacts' => array(
                     'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+                    'Konstant' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                                  'when rerolled due to Chance'
                 ),
             ),
             'Doppelganger' => array(
@@ -141,17 +143,26 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If you do not have the initiative at the start of a round you may reduce the values showing on one or more of your Focus Dice. You may only do this if it results in your gaining the initiative. If your opponent has Focus Dice, they may now do the same, and each player may respond by turning down one or more Focus Dice until no further moves are legal, or until one player allows the other to take the first turn. IMPORTANT: If you go first, any Focus Dice you have reduced may not be used as part of your first attack. (The second player has no such restriction.)',
                 'interacts' => array(
                     'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+                    'Konstant' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
                 ),
             ),
             'Konstant' => array(
                 'code' => 'k',
-                'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant Dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack.',
-                'interacts' => array(),
+                'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
+                'interacts' => array(
+                    'Chance' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                                'when rerolled due to Chance',
+                    'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
+                    'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
+                    'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+                    'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
+                ),
             ),
             'Maximum' => array(
                 'code' => 'M',
                 'description' => 'Maximum dice always roll their maximum value.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
                 ),
             ),
             'Mighty' => array(
@@ -186,6 +197,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 'o',
                 'description' => 'Ornery dice reroll every time the player makes any attack - whether the Ornery dice participated in it or not. The only time they don\'t reroll is if the player passes, making no attack whatsoever.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
                     'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
                 ),
             ),
@@ -205,7 +217,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Radioactive' => array(
                 'code' => '%',
-                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), [and, not yet implemented: Jolt(J), and Time and Space(^)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
+                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), Time and Space(^), [and, not yet implemented: Jolt(J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
@@ -256,6 +268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 't',
                 'description' => 'These dice can also make Trip Attacks. To make a Trip Attack, choose any one opposing die as the Target. Roll both the Trip Die and the Target, then compare the numbers they show. If the Trip Die now shows an equal or greater number than the Target, the Target is captured. Otherwise, the attack merely has the effect of re-rolling both dice. A Trip Attack is illegal if it has no chance of capturing (this is possible in the case of a Trip-1 attacking a Twin Die). IMPORTANT: Trip Dice do not count for determining who goes first.',
                 'interacts' => array(
+                    'Konstant' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
                     'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                     'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                 ),
@@ -8947,13 +8960,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                0, 4, 14,          // die skills for r3: c, n, t
+                1, 5, 14,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                8, 3, 5,           // die skills for r4
+                9, 4, 6,           // die skills for r4
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
-                6, 8, 5, 7, 7,     // initial die rolls for r4
+                6, 5, 7,           // initial die rolls for r4
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3);
 
@@ -8997,10 +9010,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 0), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
 
-	// A trip attack by the larger trip die against the Ms(8) should be allowed,
-        // and should fail even though the Maximum die "rolls" a smaller value than the trip die
+	// A trip attack by the larger trip die against the Ms(8) should be allowed
         $this->verify_api_submitTurn(
-            array(7, 5),
+            array(7),
             'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured. ',
             $retval, array(array(0, 2), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
