@@ -28,11 +28,15 @@ class BMSkillMood extends BMSkill {
             return FALSE;
         }
 
-        if (empty($args['die']->value)) {
+        if (empty($args['die']->value) && !$args['die']->has_flag('HasJustSplit')) {
             return FALSE;
         }
 
         if (array_key_exists('isSubdie', $args) && $args['isSubdie']) {
+            return FALSE;
+        }
+
+        if (!$args['die']->doesReroll) {
             return FALSE;
         }
 

@@ -8725,6 +8725,66 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The following unit tests ensure that berserk mood dice apply mood after berserk attacks
+     *
+     * @coversNothing
+     */
+    public function test_berserk_mood() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1) (1) B(X)?', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('(1,1) (1,1)', 'Test2');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertArrayHasKey('X', $game->swingRequestArrayArray[0]);
+        $this->assertEquals(array(), $game->swingRequestArrayArray[1]);
+        $game->swingValueArrayArray = array(array('X' => 4), array());
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 4, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals( 2, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals( 2, $game->activeDieArrayArray[1][1]->max);
+
+        // artificially set die value of berserk die
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[0][2]->value = 2;
+
+        // round 1, turn 1, player 1 to attack
+        // [1 1 2] vs [2 2]
+        $this->assertNULL($game->attack);
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(2),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Berserk');  // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertNotEquals(2, $game->activeDieArrayArray[0][2]->max); // check that it hasn't stayed unsplit
+        $this->assertNotEquals(1, $game->activeDieArrayArray[0][2]->max); // check that mood has triggered after split
+        $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+    }
+
+    /**
      * The following unit tests ensure that declined courtesy auxiliary swing dice work correctly.
      *
      * @coversNothing
