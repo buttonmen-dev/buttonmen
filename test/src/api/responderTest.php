@@ -8960,10 +8960,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                1, 6, 15,          // die skills for r3: c, n, t
+                2, 7, 16,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                10, 4, 7,          // die skills for r4: s, M, o
+                11, 5, 8,          // die skills for r4: s, M, o
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 5, 7,           // initial die rolls for r4
@@ -9996,6 +9996,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
+     *
      * @depends test_request_savePlayerInfo
      *
      * 0. Start a game with responder003 playing RandomBMMixed [k(4) pk(4) np(8) n(10) (20)] and
@@ -10003,7 +10005,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
      *    responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, pk(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mkh(4):4, M(4):4, k(10):5, h(12):2, (12):7].
      * 1. responder003 performed Skill attack using [k(4):1,np(8):6] against [k(10):5]; Defender k(10) recipe changed to kn(10), was captured; Attacker k(4) does not reroll; Attacker np(8) rerolled 6 => 7
      * 2. responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9
-     * Now loading the game leads to an internal error
      */
     public function test_interface_game_033() {
 
@@ -10016,11 +10017,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
-                3, 8, 6,           // die skills for r3: k, n, p
-                0, 0, 1, 2, 1, 2,  // distribution of skills onto dice for r3
-                3, 3, 0, 4, 0,     // die sizes for r4: 4, 4, 10, 12, 12
-                4, 17, 3,          // die skills for r4: h, k, M
-                4, 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
+                4, 9, 7,           // die skills for r3: k, p, n
+                0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
+                4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
+                18, 4, 5,          // die skills for r4: h, k, M
+                3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
                 1, 3, 6, 3, 3,     // initial die rolls for r3
                 5, 2, 7,           // initial die rolls for r4
             ),
