@@ -610,6 +610,7 @@ class BMDie extends BMCanHaveSkill {
             if ($size < $this->max) {
                 $this->add_flag('HasJustShrunk', $this->get_recipe());
                 $this->max = $size;
+                unset($this->value);
                 return;
             }
         }
@@ -627,6 +628,7 @@ class BMDie extends BMCanHaveSkill {
                 $this->add_flag('HasJustGrown', $this->get_recipe());
                 $this->max = $size;
                 $this->min = 1;  // deal explicitly with the possibility of 0-siders
+                unset($this->value);
                 return;
             }
         }
