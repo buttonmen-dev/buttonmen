@@ -5,7 +5,9 @@ add_skill
   Null
   Value
 pre_roll
+  Mighty
   Mood
+  Weak
 roll
   Maximum
 post_roll
