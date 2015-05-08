@@ -109,6 +109,8 @@ class BMSkillTrip extends BMSkill {
                        'Attacking via a Power Attack',
             'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip ' .
                         'Attacking via a Power Attack',
+            'Turbo' => 'If a Turbo Die is rerolled because it is the target ' .
+                       'of a Trip attack, then the size cannot be changed.',
         );
     }
 }

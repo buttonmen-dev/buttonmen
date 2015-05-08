@@ -25,12 +25,9 @@ class BMSkillTurbo extends BMSkill {
      */
     protected static function get_description() {
         return 'After your starting roll, you may change the size of a ' .
-               'Turbo Swing die or a Turbo Option die every time you roll it. ' .
+               'Turbo Swing or Option die every time you roll it. ' .
                'Decide on a size first that is valid for the Swing or Option '.
-               'type, then roll the new die as usual. If a Turbo Die is ' .
-               'rerolled by a player other than the player who has the Turbo ' .
-               'die (e.g., during a trip attack), then the size cannot be ' .
-               'changed.';
+               'type, then roll the new die as usual.';
     }
 
     /**
@@ -42,6 +39,11 @@ class BMSkillTurbo extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Boom' => 'If a Turbo Die is rerolled because it is the target ' .
+                      'of a Boom attack, then the size cannot be changed.',
+            'Trip' => 'If a Turbo Die is rerolled because it is the target ' .
+                      'of a Trip attack, then the size cannot be changed.',
+        );
     }
 }
