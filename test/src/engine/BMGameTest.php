@@ -1608,7 +1608,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state_start_turn
+     * @covers BMGame::update_game_state_adjust_fire_dice
      */
     public function test_update_game_state_adjust_fire_dice() {
 
@@ -1691,6 +1691,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state_commit_attack
      */
     public function test_update_game_state_commit_attack() {
+
+    }
+
+    /**
+     * @covers BMGame::do_next_step_choose_turbo_swing
+     */
+    public function test_do_next_step_choose_turbo_swing() {
+
+    }
+
+    /**
+     * @covers BMGame::update_game_state_choose_turbo_swing
+     */
+    public function test_update_game_state_choose_turbo_swing() {
 
     }
 
@@ -5759,6 +5773,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
 
         $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
 
         $game->do_next_step();
@@ -6426,6 +6444,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
 
         $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
+
+        $game->do_next_step();
         $this->assertEquals(1, $game->activePlayerIdx);
 
         $game->update_game_state();
@@ -6453,6 +6475,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                   'defenderAttackDieIdxArray' => array(),
                                   'attackType' => 'Pass'),
                             $game->attack);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
@@ -9599,7 +9626,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $game->firingAmount);
 
         $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING, $game->gameState);
 
+        $game->do_next_step();
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
 

@@ -1591,6 +1591,14 @@ class BMGame {
         }
 
         unset($this->fireCache);
+        $this->gameState = BMGameState::CHOOSE_TURBO_SWING;
+    }
+
+    protected function do_next_step_choose_turbo_swing() {
+
+    }
+
+    protected function update_game_state_choose_turbo_swing() {
         $this->gameState = BMGameState::END_TURN;
     }
 
