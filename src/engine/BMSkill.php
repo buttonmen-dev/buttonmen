@@ -131,6 +131,9 @@ class BMSkill {
                      'Stinger'      => 'g',
                      'TimeAndSpace' => '^',
                      'Trip'         => 't',
+// james: Turbo must stay commented so that it remains inactive until the
+//        implementation is complete
+//                     'Turbo'        => '!',
                      'Value'        => 'v',
                      'Warrior'      => '`',
                      'Weak'         => 'h');
