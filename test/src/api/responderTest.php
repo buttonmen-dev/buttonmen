@@ -994,9 +994,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy return values should have matching structures");
     }
 
-    /**
-     * @group fulltest_deps
-     */
     public function test_request_createUser() {
         $this->verify_invalid_arg_rejected('createUser');
         $this->verify_mandatory_args_required(
