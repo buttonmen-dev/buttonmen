@@ -1432,7 +1432,7 @@ Game.formDismissGame = function(e) {
     messages,
     $(this),
     function() {
-      window.location.href = Env.ui_root;
+      window.location.href = Env.ui_root + 'index.html?mode=nextGame';
       return false;
     },
     Game.showLoggedInPage
