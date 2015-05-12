@@ -1678,7 +1678,7 @@ Game.pageAddNewGameLinkFooter = function() {
     Game.page.append($('<div>', {
       'text':
         'Challenge ' + Api.game.opponent.playerName +
-        ' to a another game, preserving chat:',
+        ' to another game, preserving chat:',
     }));
 
     linkDiv = $('<div>');
@@ -1701,6 +1701,14 @@ Game.pageAddNewGameLinkFooter = function() {
       Api.game.gameId
       ));
     }
+
+    linkDiv.append(Game.buildNewGameLink(
+      'random buttons',
+      Api.game.opponent.playerName,
+      '__random',
+      '__random',
+      Api.game.gameId
+    ));
 
     linkDiv.append(Game.buildNewGameLink(
       'new buttons',
@@ -1749,7 +1757,7 @@ Game.pageAddNewGameLinkFooter = function() {
   Game.page.append($('<br>'));
 };
 
-// Contstructs a span containing a link to the Create Game page
+// Constructs a span containing a link to the Create Game page
 Game.buildNewGameLink = function(text, opponent, button, opponentButton,
     previousGameId) {
   var holder = $('<span>');
