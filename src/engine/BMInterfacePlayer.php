@@ -297,5 +297,4 @@ class BMInterfacePlayer extends BMInterface {
             return NULL;
         }
     }
-
 }
