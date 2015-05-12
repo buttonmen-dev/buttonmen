@@ -34,9 +34,9 @@ class BMInterfacePlayer extends BMInterface {
         } catch (Exception $e) {
             if (isset($statement)) {
                 $errorData = $statement->errorInfo();
-                $this->message = 'Player info get failed: ' . $errorData[2];
+                $this->set_message('Player info get failed: ' . $errorData[2]);
             } else {
-                $this->message = 'Player info get failed: ' . $e->getMessage();
+                $this->set_message('Player info get failed: ' . $e->getMessage());
             }
             error_log($this->message);
             return NULL;
@@ -147,23 +147,23 @@ class BMInterfacePlayer extends BMInterface {
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
             } catch (Exception $e) {
-                $this->message = 'Player info update failed: '.$e->getMessage();
+                $this->set_message('Player info update failed: '.$e->getMessage());
             }
         }
-        $this->message = "Player info updated successfully.";
+        $this->set_message("Player info updated successfully.");
         return array('playerId' => $playerId);
     }
 
     protected function validate_player_dob(array $infoArray) {
         if (($infoArray['dob_month'] != 0 && $infoArray['dob_day'] == 0) ||
             ($infoArray['dob_month'] == 0 && $infoArray['dob_day'] != 0)) {
-            $this->message = 'DOB is incomplete.';
+            $this->set_message('DOB is incomplete.');
             return FALSE;
         }
 
         if ($infoArray['dob_month'] != 0 && $infoArray['dob_day'] != 0 &&
             !checkdate($infoArray['dob_month'], $infoArray['dob_day'], 4)) {
-            $this->message = 'DOB is not a valid date.';
+            $this->set_message('DOB is not a valid date.');
             return FALSE;
         }
 
@@ -173,7 +173,7 @@ class BMInterfacePlayer extends BMInterface {
     protected function validate_player_password_and_email(array $addlInfo, $playerId) {
         if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
             !isset($addlInfo['current_password'])) {
-            $this->message = 'Current password is required to change password or email.';
+            $this->set_message('Current password is required to change password or email.');
             return FALSE;
         }
 
@@ -184,12 +184,12 @@ class BMInterfacePlayer extends BMInterface {
 
             $passwordResults = $passwordQuery->fetchAll();
             if (count($passwordResults) != 1) {
-                $this->message = 'An error occurred in BMInterface::set_player_info().';
+                $this->set_message('An error occurred in BMInterface::set_player_info().');
                 return FALSE;
             }
             $password_hashed = $passwordResults[0]['password_hashed'];
             if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
-                $this->message = 'Current password is incorrect.';
+                $this->set_message('Current password is incorrect.');
                 return FALSE;
             }
         }
@@ -203,8 +203,7 @@ class BMInterfacePlayer extends BMInterface {
             return NULL;
         }
 
-        $interfacePlayer = new BMInterfacePlayer($this->isTest);
-        $playerInfoResults = $interfacePlayer->get_player_info($profilePlayerId);
+        $playerInfoResults = $this->get_player_info($profilePlayerId);
         $playerInfo = $playerInfoResults['user_prefs'];
 
         $query =
