@@ -5,8 +5,30 @@
     Description: Stylesheet for the GUI for the Button Men Online Game
 */
 
+html,
+body {
+   margin:0;
+   padding:0;
+   height:100%;
+}
+
 div {
     text-align: center;
+}
+
+div#container {
+    min-height:100%;
+    position:relative;
+}
+
+div#c_body {
+    padding:5px;
+}
+
+div#c_footer {
+    position:absolute;
+    bottom:0;
+    width:100%;
 }
 
 div#login_header{
@@ -14,13 +36,18 @@ div#login_header{
 }
 
 div#login_header p {
-    padding: 5px 5px;
-    margin: 0;
+    padding:5px;
+    margin:0;
 }
 
 div#login_header table {
     /* to cancel the margin: auto used to center other tables */
     margin: 0;
+}
+
+div#footer p{
+    padding:5px;
+    margin:0;
 }
 
 h2.monitorMessage {
@@ -889,12 +916,4 @@ div.forum div.splitRight {
 
 #buttons_page table.skills p.interaction {
     font-style: italic;
-}
-
-div.mainBody {
-min-height: 300px;
-}
-
-#footer_separator {
-    margin-top: 40px;
 }

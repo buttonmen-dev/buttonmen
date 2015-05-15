@@ -31,8 +31,8 @@ Login.pageModule = null;
 //   either calls showLoggedInPage() or showLoggedOutPage() on the module
 //   (each of which is expected to finish by calling Login.arrangePage())
 //   *or* sets up a message that the user needs to log in and then calls
-//   Login.arragePage() itself.
-// * Login.arragePage() calls Login.arrangeHeader(), Login.arrangeBody() and
+//   Login.arrangePage() itself.
+// * Login.arrangePage() calls Login.arrangeHeader(), Login.arrangeBody() and
 //   Login.arrangeFooter() to display everything that was constructed in the
 //   previous three steps.
 //
@@ -54,9 +54,15 @@ Login.showLoginHeader = function(pageModule) {
   }
 
   // Make sure div elements that we will need exist in the page body
-  if ($('#login_header').length === 0) {
-    $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>', { 'id': 'header_separator', }));
+  if ($('#container').length === 0) {
+    // create a container that will have 100% height, to allow correct
+    // positioning of the page elements, especially the footer
+    $('body').append($('<div>', {'id': 'container', }));
+    $('#container').append($('<div>', {'id': 'c_header'}));
+    $('#container').append($('<div>', {'id': 'c_body'}));
+    $('#container').append($('<div>', {'id': 'c_footer'}));
+    $('#c_header').append($('<div>', {'id': 'login_header', }));
+    $('#c_header').append($('<hr>', { 'id': 'header_separator', }));
   }
 
   // Find the current login header contents and display them followed by
@@ -107,7 +113,7 @@ Login.getLoginHeader = function() {
 Login.getFooter = function() {
   Login.footer = $('<div>');
 
-  var copyright = $('<div>');
+  var copyright = $('<p>');
   Login.footer.append(copyright);
   copyright.append(
     'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games: ');
@@ -125,13 +131,13 @@ Login.getFooter = function() {
   var contact = $('<p>');
   Login.footer.append(contact);
   contact.append(
-    'If you find anything broken or hard to use, or if you have any ' +
-    'questions, please get in touch, either by opening a ticket at ');
+    'For questions, suggestions, or bug reports, ' +
+    'you can either e-mail us at help@buttonweavers.com, or open a ticket at ');
   contact.append($('<a>', {
     'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
     'text': 'the buttonweavers issue tracker',
   }));
-  contact.append(' or by e-mailing us at help@buttonweavers.com.');
+  contact.append('.');
 
   Login.getBody();
 };
@@ -193,7 +199,7 @@ Login.arrangeBody = function(page, form, submitSelector) {
   }
 
   if ($('#' + Login.pageModule.bodyDivId).length === 0) {
-    $('body').append($('<div>', {
+    $('#c_body').append($('<div>', {
       'id': Login.pageModule.bodyDivId,
       'class': 'mainBody',
     }));
@@ -209,8 +215,8 @@ Login.arrangeBody = function(page, form, submitSelector) {
 
 Login.arrangeFooter = function() {
   if ($('#footer').length === 0) {
-    $('body').append($('<hr>', { 'id': 'footer_separator', }));
-    $('body').append($('<div>', {'id': 'footer', }));
+    $('#c_footer').append($('<hr>', { 'id': 'footer_separator', }));
+    $('#c_footer').append($('<div>', {'id': 'footer', }));
   }
   $('#footer').empty();
   $('#footer').append(Login.footer);
