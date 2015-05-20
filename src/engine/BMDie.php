@@ -703,6 +703,9 @@ class BMDie extends BMCanHaveSkill {
     /**
      * helper function to print a die sidecount with or without its swing/option value
      *
+     * @param string $sidecountStr
+     * @param BMDie $dieObj
+     * @param boolean $addMaxval
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
@@ -820,7 +823,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Determine whether the die skips the swing request phase
      *
-     * @return type
+     * @return boolean
      */
     public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
@@ -987,6 +990,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the maximum value of the die
+     *
+     *  @param int $value
      */
     protected function set__max($value) {
         if ($value === 0) {
@@ -1012,6 +1017,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the value of the die
+     *
+     * @param int $value
      */
     protected function set__value($value) {
         if (!is_null($value) &&
@@ -1034,6 +1041,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the recipe of the die
+     *
+     * @param string $value
      */
     protected function set__recipe() {
         throw new LogicException(
@@ -1043,6 +1052,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the ownerObject of the die
+     *
+     * @param mixed $value
      */
     protected function set__ownerObject($value) {
         if (!(is_null($value) ||
@@ -1058,6 +1069,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the index value of the player who owns the die
+     *
+     * @param int $value
      */
     protected function set__playerIdx($value) {
         if (!is_null($value) &&
@@ -1171,7 +1184,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Unset
      *
-     * @param type $property
+     * @param mixed $property
      * @return boolean
      */
     public function __unset($property) {
