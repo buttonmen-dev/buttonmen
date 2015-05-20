@@ -260,6 +260,7 @@ Overview.pageAddGameTable = function(
   }
 
   var i = 0;
+  var staleGamesExist = false;
   while (i < gamesource.length) {
     var gameInfo = gamesource[i];
     var playerColor = gameInfo.playerColor;
@@ -273,6 +274,12 @@ Overview.pageAddGameTable = function(
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'Play Game ' + gameInfo.gameId,}));
     } else if (gameType == 'awaitingOpponent') {
+      if (gameInfo.inactivityRaw > 14*24*60*60) {
+        staleGamesExist = true;
+        gameRow.addClass('staleGame');
+        gameRow.hide();
+      }
+
       gameLinkTd =
         $('<td>', { 'style': 'background-color: ' + opponentColor, });
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
@@ -339,6 +346,25 @@ Overview.pageAddGameTable = function(
 
     i += 1;
     tableBody.append(gameRow);
+  }
+
+  if (staleGamesExist) {
+    var tableFoot = $('<tfoot>');
+    var footRow = $('<tr>');
+    var footCol = $('<td>');
+    // james: Do not use colspan="0" because this is incompatible with older
+    //        browsers. Instead, use overkill and specify 100 columns.
+    footCol.attr('colspan', 100);
+    footCol.text('Show stale games');
+    footRow.append(footCol);
+    tableFoot.append(footRow);
+    tableFoot.click(function() {
+      $('.staleGame').toggle();
+      $('.staleGame').is(":visible") ?
+        footCol.text('Hide stale games') :
+        footCol.text('Show stale games');
+    })
+    tableBody.closest('table').append(tableFoot);
   }
 };
 

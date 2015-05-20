@@ -2224,6 +2224,7 @@ class BMInterface {
         $gameStateArray = array();
         $statusArray = array();
         $inactivityArray = array();
+        $inactivityRawArray = array();
         $playerColorArray = array();
         $opponentColorArray = array();
 
@@ -2257,6 +2258,7 @@ class BMInterface {
             $statusArray[]        = $row['status'];
             $inactivityArray[]    =
                 $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
+            $inactivityRawArray[] = (int)$now - $row['last_action_timestamp'];
             $playerColorArray[]   = $gameColors['playerA'];
             $opponentColorArray[] = $gameColors['playerB'];
         }
@@ -2274,6 +2276,7 @@ class BMInterface {
                      'gameStateArray'          => $gameStateArray,
                      'statusArray'             => $statusArray,
                      'inactivityArray'         => $inactivityArray,
+                     'inactivityRawArray'      => $inactivityRawArray,
                      'playerColorArray'        => $playerColorArray,
                      'opponentColorArray'      => $opponentColorArray);
     }
@@ -2932,7 +2935,7 @@ class BMInterface {
                 (count($logEntries) > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
-            
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(

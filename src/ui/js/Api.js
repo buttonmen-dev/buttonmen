@@ -312,6 +312,7 @@ var Api = (function () {
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
         'inactivity': data.inactivityArray[i],
+        'inactivityRaw': data.inactivityRawArray[i],
         'playerColor': data.playerColorArray[i],
         'opponentColor': data.opponentColorArray[i],
       };
