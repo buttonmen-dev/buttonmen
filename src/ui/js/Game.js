@@ -399,10 +399,6 @@ Game.actionSpecifyDiceActive = function() {
   Game.page.append(dietable);
 };
 
-Game.generateSwingRequestTable = function() {
-
-}
-
 Game.actionSpecifyDiceInactive = function() {
 
   // nothing to do on button click
@@ -2074,15 +2070,19 @@ Game.dieRecipeTable = function(table_action, active) {
     dietable.append(subrow);
   }
 
-// james: still haven't added the swing values of the reserve dice
-  $.each(
-    Api.game.player.swingRequestArray,
-    function(letter, range) {
-      var swingrow = $('<tr>', {});
-      var swingtext = letter + ': ' + range.min + '-' + range.max;
-      swingrow.append($('<td>', { 'text': swingtext, }));
-      dietable.append(swingrow);
-    });
+  if (active) {
+    var swingRangeStr = $('<p>', {});
+    var swingRangeArray = [];
+    $.each(
+      Api.game.player.swingRequestArray,
+      function(letter, range) {
+        var swingtext = letter + ': ' + range.min + '-' + range.max;
+        swingRangeArray.push(swingtext);
+      });
+    swingRangeStr.append(swingRangeArray.join(', '));
+
+    dietable.append(swingRangeStr);
+  }
 
   return dietable;
 };

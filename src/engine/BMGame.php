@@ -3697,10 +3697,16 @@ class BMGame {
     protected function get_all_swing_requests() {
         $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
+        if (!isset($this->buttonArray)) {
+            return $swingRequestArrayArray;
+        }
+
         foreach ($this->buttonArray as $playerIdx => $button) {
-            foreach ($button->dieArray as $die) {
-                if (isset($die->swingType)) {
-                    $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+            if (isset($button->dieArray)) {
+                foreach ($button->dieArray as $die) {
+                    if (isset($die->swingType)) {
+                        $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+                    }
                 }
             }
         }
