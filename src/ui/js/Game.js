@@ -2079,6 +2079,7 @@ Game.dieRecipeTable = function(table_action, active) {
         var swingtext = letter + ': ' + range.min + '-' + range.max;
         swingRangeArray.push(swingtext);
       });
+    swingRangeArray.sort();
     swingRangeStr.append(swingRangeArray.join(', '));
 
     dietable.append(swingRangeStr);
