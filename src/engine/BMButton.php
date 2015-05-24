@@ -233,9 +233,9 @@ class BMButton extends BMCanHaveSkill {
      * added to their ownerObjects. Since their ownerObjects should be the
      * BMGame that owns the button, this effectively adds dice to the game.
      */
-    public function activate() {
+    public function activate($forceSwingRequest = FALSE) {
         foreach ($this->dieArray as $die) {
-            $die->activate();
+            $die->activate($forceSwingRequest);
         }
     }
 

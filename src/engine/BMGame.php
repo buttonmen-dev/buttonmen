@@ -3658,9 +3658,15 @@ class BMGame {
     protected function get_swingRequestArray($playerIdx) {
         $swingRequestArray = array();
 
+        if ($this->gameState <= BMGameState::CHOOSE_RESERVE_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests();
+        } else {
+            $swingRequestArrayArray = $this->swingRequestArrayArray;
+        }
+
         if (isset($this->activeDieArrayArray) &&
-            isset($this->swingRequestArrayArray[$playerIdx])) {
-            foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+            isset($swingRequestArrayArray[$playerIdx])) {
+            foreach ($swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
                 if ($swingdice[0] instanceof BMDieTwin) {
                     if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
                         $swingdie = $swingdice[0]->dice[0];
@@ -3686,6 +3692,20 @@ class BMGame {
         }
 
         return $swingRequestArray;
+    }
+
+    protected function get_all_swing_requests() {
+        $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+
+        foreach ($this->buttonArray as $playerIdx => $button) {
+            foreach ($button->dieArray as $die) {
+                if (isset($die->swingType)) {
+                    $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+                }
+            }
+        }
+
+        return $swingRequestArrayArray;
     }
 
     /**
