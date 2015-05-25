@@ -360,10 +360,12 @@ Overview.pageAddGameTable = function(
     tableFoot.append(footRow);
     tableFoot.click(function() {
       $('.staleGame').toggle();
-      $('.staleGame').is(":visible") ?
-        footCol.text('Hide stale games') :
-        footCol.text('Show stale games');
-    })
+      footCol.text(
+        $('.staleGame').is(':visible') ?
+        'Hide stale games' :
+        'Show stale games'
+      );
+    });
     tableBody.closest('table').append(tableFoot);
   }
 };
