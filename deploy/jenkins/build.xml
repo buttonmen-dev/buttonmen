@@ -5,7 +5,6 @@
  <property name="source" value="./src"/>
  <property name="source_api" value="./src/api"/>
  <property name="source_engine" value="./src/engine"/>
- <property name="phpdocExclude" value="./src/api/DummyApiResponder.php,./src/api/ApiResponder.php"/>
 
  <target name="clean" description="Clean up and create artifact directories">
   <delete dir="${basedir}/build"/>
@@ -108,7 +107,7 @@
 
  <target name="phpdoc" description="Generate API documentation using PHPDocumentor">
   <exec executable="phpdoc">
-   <arg line="-d ${source} -i ${phpdocExclude} -t ${basedir}/build/api" />
+   <arg line="-d ${source} -i './src/api/DummyApiResponder.php,./src/api/ApiResponder.php' -t ${basedir}/build/api" />
   </exec>
  </target>
 
