@@ -814,7 +814,7 @@ class BMGame {
 
         if (isset($this->activeDieArrayArray)) {
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $die) {
+                foreach ($activeDieArray as $die) {
                     if ($die->has_flag('AddReserve')) {
                         $die->remove_skill('Reserve');
                         $die->remove_flag('AddReserve');
