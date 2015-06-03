@@ -661,13 +661,32 @@ class BMGame {
 
         foreach ($this->optValueArrayArray as $playerIdx => $optionValueArray) {
             if (!empty($optionValueArray)) {
+                $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+
                 foreach ($optionValueArray as $dieIdx => $optionValue) {
-                    $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
-                    assert($die instanceof BMDieOption);
+                    $die = $this->activeDieArrayArray[$playerIdx][$dieIndicesWithoutReserve[$dieIdx]];
+                    if (!($die instanceof BMDieOption)) {
+                        throw new LogicException('Die must be an option die.');
+                    }
+
                     $die->set_optionValue($optionValue);
                 }
             }
         }
+    }
+
+    protected function die_indices_without_reserve($playerIdx) {
+        $activeDieArray = $this->activeDieArrayArray[$playerIdx];
+        $hasReserveArray = array_fill(0, count($activeDieArray), FALSE);
+
+        foreach ($activeDieArray as $dieIdx => $die) {
+            if ($die->has_skill('Reserve')) {
+                $hasReserveArray[$dieIdx] = TRUE;
+            }
+        }
+
+        $dieIndicesWithoutReserve = array_keys($hasReserveArray, FALSE, TRUE);
+        return($dieIndicesWithoutReserve);
     }
 
     protected function update_game_state_add_available_dice_to_game() {
@@ -784,6 +803,7 @@ class BMGame {
 
             }
 
+            $this->update_opt_requests_to_ignore_reserve_dice();
             $this->remove_dice_with_skill('Reserve');
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
@@ -794,7 +814,7 @@ class BMGame {
 
         if (isset($this->activeDieArrayArray)) {
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $die) {
+                foreach ($activeDieArray as $dieIdx => $die) {
                     if ($die->has_flag('AddReserve')) {
                         $die->remove_skill('Reserve');
                         $die->remove_flag('AddReserve');
@@ -813,6 +833,34 @@ class BMGame {
         }
 
         return $areAnyDiceAdded;
+    }
+
+    protected function update_opt_requests_to_ignore_reserve_dice() {
+        if (empty($this->optRequestArrayArray)) {
+            return;
+        }
+
+        $optRequestArrayArray = $this->optRequestArrayArray;
+
+        foreach ($optRequestArrayArray as $playerIdx => $optRequestArray) {
+            if (empty($optRequestArray)) {
+                continue;
+            }
+
+            $newOptRequestArray = array();
+            $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+
+            foreach ($optRequestArray as $dieIdx => $optRequest) {
+                $newDieIdx = array_search($dieIdx, $dieIndicesWithoutReserve, TRUE);
+                if (FALSE !== $newDieIdx) {
+                    $newOptRequestArray[$newDieIdx] = $optRequest;
+                }
+            }
+
+            $optRequestArrayArray[$playerIdx] = $newOptRequestArray;
+        }
+
+        $this->optRequestArrayArray = $optRequestArrayArray;
     }
 
     protected function do_next_step_specify_dice() {
