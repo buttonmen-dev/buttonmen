@@ -10101,7 +10101,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      *
      * This reproduces an internal error bug affecting bobby 5150
      */
-    public function test_interface_game_00034() {
+    public function test_interface_game_034() {
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
