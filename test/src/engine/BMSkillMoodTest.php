@@ -126,6 +126,23 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(12, 16, 20, 24), $values);
     }
 
+    public function testPre_roll_with_konstant() {
+        $die = BMDie::create_from_recipe('k(V)');
+        $this->assertInstanceOf('BMDieSwing', $die);
+        $this->assertTrue($die->has_skill('Konstant'));
+
+        $die->set_swingValue(array('V' => 6));
+        $args = array('die' => $die);
+        // check that no resizing occurs when the die has no value
+        $this->assertFalse(BMSkillMood::pre_roll($args));
+        $this->assertEquals(6, $die->max);
+        $die->value = 2;
+        // check that no resizing occurs even when the die has a value
+        $this->assertFalse(BMSkillMood::pre_roll($args));
+        $this->assertEquals(6, $die->max);
+        $die->value = 2;
+    }
+
     public function testPre_add_skill_with_mood_no_swing() {
         $die = BMDie::create_from_recipe('(6)?');
         $this->assertTrue($die->has_skill('Mood'));

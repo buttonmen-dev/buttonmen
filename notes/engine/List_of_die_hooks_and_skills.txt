@@ -5,9 +5,12 @@ add_skill
   Null
   Value
 pre_roll
+  Mighty
   Mood
-post_roll
+  Weak
+roll
   Maximum
+post_roll
   Warrior
   TimeAndSpace
 attack_list
