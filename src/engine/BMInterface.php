@@ -2932,7 +2932,7 @@ class BMInterface {
                 (count($logEntries) > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
-            
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(
