@@ -360,12 +360,35 @@ class BMGameAction {
 
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $initialAttackerInfo = $attackerInfo;
+
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
 
+            $messageBerserk = $this->message_berserk($attackerInfo, $postInfo);
             $this->message_append(
                 $postEventsAttacker,
-                $this->message_size_change($attackerInfo, $postInfo)
+                $messageBerserk
+            );
+
+            // now report as if the berserk attack were completed
+            if ($messageBerserk) {
+                $attackerInfo['recipe'] = $postInfo['recipeAfterBerserkAttack'];
+                $attackerInfo['max'] = filter_var(
+                    $postInfo['recipeAfterBerserkAttack'],
+                    FILTER_SANITIZE_NUMBER_INT
+                );
+            }
+
+            $messageSizeChange = '';
+            if ($messageBerserk) {
+                $messageSizeChange .= 'and then ';
+            }
+            $messageSizeChange .= $this->message_size_change($attackerInfo, $postInfo);
+
+            $this->message_append(
+                $postEventsAttacker,
+                $messageSizeChange
             );
             $this->message_append(
                 $postEventsAttacker,
@@ -378,7 +401,7 @@ class BMGameAction {
 
             if (!empty($postEventsAttacker)) {
                 $messageAttackerArray[] =
-                    'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                    'Attacker ' . $initialAttackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
 
@@ -455,6 +478,20 @@ class BMGameAction {
         if (!empty($messageIncrement)) {
             $messageArray[] = $messageIncrement;
         }
+    }
+
+    protected function message_berserk($preInfo, $postInfo) {
+        $message = '';
+
+        if (array_key_exists('recipeAfterBerserkAttack', $postInfo) &&
+            ($postInfo['recipe'] != $postInfo['recipeAfterBerserkAttack'])) {
+            $message .= 'changed to ' . $postInfo['recipeAfterBerserkAttack'] .
+                        ' and changed size from ' . $preInfo['max'] . ' to ' .
+                        filter_var($postInfo['recipeAfterBerserkAttack'], FILTER_SANITIZE_NUMBER_INT) .
+                        ' sides because of the Berserk attack';
+        }
+
+        return $message;
     }
 
     /**
