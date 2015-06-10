@@ -82,6 +82,7 @@ class BMSkillBerserk extends BMSkill {
         // halve number of sides
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
+        $newAttackDie->add_flag('JustPerformedBerserkAttack');
         $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
