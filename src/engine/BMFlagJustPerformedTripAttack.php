@@ -11,4 +11,15 @@
  * changes again afterwards.
  */
 class BMFlagJustPerformedTripAttack extends BMFlagJustPerformedTypeOfAttack {
+    /**
+     * Constructor
+     *
+     * @param int $dieValue
+     */
+    public function __construct($dieValue) {
+        parent::__construct();
+        if (isset($dieValue)) {
+            $this->postAttackInfo = (int)$dieValue;
+        }
+    }
 }

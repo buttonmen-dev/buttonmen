@@ -12,11 +12,11 @@
  */
 class BMFlagJustPerformedTypeOfAttack extends BMFlag {
     /**
-     * Post-trip-attack die value, stored in flag
+     * Post-attack information, stored in flag
      *
      * @var int
      */
-    protected $postAttackValue;
+    protected $postAttackInfo;
 
     /**
      * Value stored in flag
@@ -24,19 +24,14 @@ class BMFlagJustPerformedTypeOfAttack extends BMFlag {
      * @return mixed
      */
     public function value() {
-        return $this->postAttackValue;
+        return $this->postAttackInfo;
     }
 
     /**
      * Constructor
-     *
-     * @param int $dieValue
      */
-    public function __construct($dieValue) {
-        $this->postAttackValue = NULL;
-        if (isset($dieValue)) {
-            $this->postAttackValue = (int)$dieValue;
-        }
+    public function __construct() {
+        $this->postAttackInfo = NULL;
     }
 
     /**
@@ -46,9 +41,7 @@ class BMFlagJustPerformedTypeOfAttack extends BMFlag {
      */
     public function __toString() {
         $string = $this->type();
-        if (is_integer($this->postAttackValue)) {
-            $string .= '__' . $this->postAttackValue;
-        }
+        $string .= '__' . $this->postAttackInfo;
 
         return $string;
     }

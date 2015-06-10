@@ -9,7 +9,7 @@ class BMFlagJustPerformedTypeOfAttackTest extends PHPUnit_Framework_TestCase {
     public function testConstruct() {
         $flag = BMFlag::create_from_string('JustPerformedTypeOfAttack__6');
         $this->assertInstanceOf('BMFlagJustPerformedTypeOfAttack', $flag);
-        $this->assertEquals(6, $flag->value());
+        $this->assertNull($flag->value());
     }
 
     /**
@@ -17,6 +17,6 @@ class BMFlagJustPerformedTypeOfAttackTest extends PHPUnit_Framework_TestCase {
      */
     public function testToString() {
         $flag = BMFlag::create_from_string('JustPerformedTypeOfAttack__6');
-        $this->assertEquals('JustPerformedTypeOfAttack__6', strval($flag));
+        $this->assertEquals('JustPerformedTypeOfAttack__', strval($flag));
     }
 }
