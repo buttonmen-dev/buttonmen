@@ -10,5 +10,5 @@
  * trip attack. It stores the post-attack die value, in case the attacking die
  * changes again afterwards.
  */
-class BMFlagJustPerformedTripAttack extends BMFlagJustPerformedTypeOfAttack {
+class BMFlagJustPerformedBerserkAttack extends BMFlagJustPerformedTypeOfAttack {
 }
