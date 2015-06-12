@@ -407,9 +407,26 @@ class BMGameAction {
         return $messageAttacker;
     }
 
+    /**
+     * Extracts the die max from a fully-qualified recipe.
+     *
+     * This has been written this way to work correctly for normal dice,
+     * swing dice, and twin dice. It fails for Wildcard at the moment.
+     *
+     * It would be possible to implement this fully to work with
+     * BMDie->create_from_recipe(), but it's a lot more complicated, and
+     * currently, it's only needed here in the logging.
+     *
+     * @param string $recipe
+     * @return int
+     */
     protected function max_from_recipe($recipe) {
-        preg_match_all('!\d+!', $recipe, $matches);
-        return array_sum($matches[0]);
+        preg_match_all('/=(\d+)/', $recipe, $matches);
+        if (count($matches)) {
+            return array_sum($matches[1]);
+        } else {
+            return NULL;
+        }
     }
 
     /**
@@ -482,7 +499,14 @@ class BMGameAction {
         }
     }
 
-    protected function message_berserk($preInfo, $postInfo) {
+    /**
+     * Describes the recipe and size change during a berserk attack
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
+    protected function message_berserk(array $preInfo, array $postInfo) {
         $message = '';
 
         if (array_key_exists('recipeAfterBerserkAttack', $postInfo) &&
