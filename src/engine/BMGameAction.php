@@ -374,10 +374,7 @@ class BMGameAction {
             // now report as if the berserk attack were completed
             if ($messageBerserk) {
                 $attackerInfo['recipe'] = $postInfo['recipeAfterBerserkAttack'];
-                $attackerInfo['max'] = filter_var(
-                    $postInfo['recipeAfterBerserkAttack'],
-                    FILTER_SANITIZE_NUMBER_INT
-                );
+                $attackerInfo['max'] = $this->max_from_recipe($postInfo['recipeAfterBerserkAttack']);
             }
 
             $messageSizeChange = '';
@@ -408,6 +405,11 @@ class BMGameAction {
         $messageAttacker = implode('; ', $messageAttackerArray);
 
         return $messageAttacker;
+    }
+
+    protected function max_from_recipe($recipe) {
+        preg_match_all('!\d+!', $recipe, $matches);
+        return array_sum($matches[0]);
     }
 
     /**
@@ -487,7 +489,7 @@ class BMGameAction {
             ($postInfo['recipe'] != $postInfo['recipeAfterBerserkAttack'])) {
             $message .= 'changed to ' . $postInfo['recipeAfterBerserkAttack'] .
                         ' and changed size from ' . $preInfo['max'] . ' to ' .
-                        filter_var($postInfo['recipeAfterBerserkAttack'], FILTER_SANITIZE_NUMBER_INT) .
+                        $this->max_from_recipe($postInfo['recipeAfterBerserkAttack']) .
                         ' sides because of the Berserk attack';
         }
 
