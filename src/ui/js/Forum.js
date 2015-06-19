@@ -323,7 +323,7 @@ Forum.showThread = function() {
     'maxlength': Forum.FORUM_BODY_MAX_LENGTH,
   });
   replyBodyTextArea.on('change keyup paste', function() {
-    if ('' == $(this).val().trim()) {
+    if ('' === $(this).val().trim()) {
       if ('disabled' == $('#markReadButton').attr('disabled')) {
         $('#markReadButton').removeAttr('disabled');
         $('#markReadButton').removeAttr('title');
@@ -331,10 +331,11 @@ Forum.showThread = function() {
     } else {
       if ('disabled' != $('#markReadButton').attr('disabled')) {
         $('#markReadButton').attr('disabled', 'disabled');
-        $('#markReadButton').attr('title', 'Disabled because there is text in the reply box')
+        $('#markReadButton').attr('title',
+          'Disabled because there is text in the reply box');
       }
     }
-  })
+  });
   replyBodyTd.append(replyBodyTextArea);
 
   var replyButton = $('<input>', {
