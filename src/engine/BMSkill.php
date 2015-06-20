@@ -123,6 +123,7 @@ class BMSkill {
                      'Poison'       => 'p',
                      'Queer'        => 'q',
                      'Radioactive'  => '%',
+                     'Rage'         => 'G',
                      'Reserve'      => 'r',
                      'Shadow'       => 's',
                      'Slow'         => 'w',
