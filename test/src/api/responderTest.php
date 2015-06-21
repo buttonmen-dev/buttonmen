@@ -113,6 +113,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'interacts' => array(
                     'Mighty' => 'Dice with both Berserk and Mighty skills will first halve in size, and then grow',
                     'Radioactive' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
+                    'Speed' => 'Dice with both Berserk and Speed skills may choose to make either kind of attack',
                 ),
             ),
             'Chance' => array(
@@ -244,7 +245,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'Speed' => array(
                 'code' => 'z',
                 'description' => 'These dice can also make Speed Attacks, which are the equivalent of inverted Skill Attacks. In a Speed Attack, one Speed Die can capture any number of dice which add up exactly to its value.',
-                'interacts' => array(),
+                'interacts' => array(
+                    'Berserk' => 'Dice with both Berserk and Speed skills may choose to make either kind of attack',
+                ),
             ),
             'Stealth' => array(
                 'code' => 'd',
