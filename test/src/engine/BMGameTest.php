@@ -6174,6 +6174,84 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @coversNothing
      */
+    public function test_trip_weak_round() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('th(8) (1) (1) (1)', 'TestButton');
+
+        $button2 = new BMButton;
+        $button2->load('h(12) (20)', 'TestTarget');
+
+        $game = new BMGame(234567, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // perform trip attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Trip'); // attackType
+
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = array(5, 1); // trip rerolls
+
+        $game->proceed_to_next_user_action();
+
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+
+        $this->assertEquals(6, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals(5, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(10, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(1, $game->capturedDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function test_trip_mighty_round() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('tH(8) (1) (1) (1)', 'TestButton');
+
+        $button2 = new BMButton;
+        $button2->load('H(12) (20)', 'TestTarget');
+
+        $game = new BMGame(234567, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // perform trip attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Trip'); // attackType
+
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = array(5, 1); // trip rerolls
+
+        $game->proceed_to_next_user_action();
+
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+
+        $this->assertEquals(10, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals(5, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(16, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(1, $game->capturedDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * @coversNothing
+     */
     public function test_ornery_round() {
         // load buttons
         $button1 = new BMButton;
