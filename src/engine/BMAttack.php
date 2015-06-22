@@ -294,7 +294,6 @@ abstract class BMAttack {
         }
 
         // allow attack type to modify default behaviour
-        $activeDiceNew = array();
         foreach ($attackers as &$att) {
             $att->capture($this->type, $attackers, $defenders);
         }
@@ -307,10 +306,6 @@ abstract class BMAttack {
         // trip dice that have already rerolled
         foreach ($attackers as &$att) {
             $att->roll(TRUE);
-        }
-
-        if (isset($activeDiceNew)) {
-            $this->assign_new_active_dice($game, $activeDiceNew);
         }
 
         $this->process_captured_dice($game, $defenders);
@@ -346,22 +341,6 @@ abstract class BMAttack {
                 $game->capture_die($def);
             }
         }
-    }
-
-    /**
-     * Assign a new array of arrays of active dice to a game
-     *
-     * @param BMGame $game
-     * @param array $activeDiceNew
-     */
-    protected function assign_new_active_dice($game, array $activeDiceNew) {
-        $activeDiceCopy = $game->activeDieArrayArray;
-        foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
-            foreach ($activeDieArray as $dieIdx => $newDie) {
-                $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
-            }
-        }
-        $game->activeDieArrayArray = $activeDiceCopy;
     }
 
     // methods to find that there is a valid attack
