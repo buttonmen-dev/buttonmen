@@ -20,6 +20,7 @@
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
+ * @property      bool   $outOfPlay             Is the die out of play?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  *
  *  */
@@ -103,6 +104,13 @@ class BMDie extends BMCanHaveSkill {
      * @var bool
      */
     protected $captured = FALSE;
+
+    /**
+     * Flag signalling whether the die is out of play
+     *
+     * @var bool
+     */
+    protected $outOfPlay = FALSE;
 
     /**
      * Array designed to contain various BMFlags
@@ -772,6 +780,7 @@ class BMDie extends BMCanHaveSkill {
             'value' => $this->value,
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
+            'outOfPlay' => $this->outOfPlay,
             'recipeStatus' => $recipe . ':' . $this->value,
         );
 

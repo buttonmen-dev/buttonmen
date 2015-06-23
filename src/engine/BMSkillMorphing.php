@@ -79,7 +79,11 @@ class BMSkillMorphing extends BMSkill {
         unset($newDie->value);
         $newDie->remove_all_flags();
 
+        // reset default die properties
+        $newDie->doesReroll = TRUE;
         $newDie->captured = FALSE;
+        $newDie->outOfPlay = FALSE;
+        
         $newDie->ownerObject = $att->ownerObject;
         $newDie->playerIdx = $att->playerIdx;
         $newDie->originalPlayerIdx = $att->originalPlayerIdx;

@@ -108,6 +108,7 @@ class BMSkill {
     protected static function skill_name_abbreviation_mapping() {
         return array('Auxiliary'    => '+',
                      'Berserk'      => 'B',
+                     'Boom'         => 'b',
                      'Chance'       => 'c',
                      'Doppelganger' => 'D',
                      'Fire'         => 'F',
@@ -155,6 +156,7 @@ class BMSkill {
      */
     public static function attack_types() {
         return array(// skill related attack types
+                     'Boom',
                      'Berserk',
                      'Konstant',
                      'Null',
@@ -242,7 +244,8 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillMaximum',
                      'BMSkillTimeAndSpace',
-                     'BMSkillWarrior');
+                     'BMSkillWarrior',
+                     'BMSkillBoom');
         // fires last
     }
 
