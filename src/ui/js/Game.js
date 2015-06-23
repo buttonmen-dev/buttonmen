@@ -1432,7 +1432,7 @@ Game.formDismissGame = function(e) {
     messages,
     $(this),
     function() {
-      window.location.href = Env.ui_root;
+      window.location.href = Env.ui_root + 'index.html?mode=preference';
       return false;
     },
     Game.showLoggedInPage
@@ -1678,7 +1678,7 @@ Game.pageAddNewGameLinkFooter = function() {
     Game.page.append($('<div>', {
       'text':
         'Challenge ' + Api.game.opponent.playerName +
-        ' to a another game, preserving chat:',
+        ' to another game, preserving chat:',
     }));
 
     linkDiv = $('<div>');
@@ -1701,6 +1701,14 @@ Game.pageAddNewGameLinkFooter = function() {
       Api.game.gameId
       ));
     }
+
+    linkDiv.append(Game.buildNewGameLink(
+      'random buttons',
+      Api.game.opponent.playerName,
+      '__random',
+      '__random',
+      Api.game.gameId
+    ));
 
     linkDiv.append(Game.buildNewGameLink(
       'new buttons',
@@ -1749,7 +1757,7 @@ Game.pageAddNewGameLinkFooter = function() {
   Game.page.append($('<br>'));
 };
 
-// Contstructs a span containing a link to the Create Game page
+// Constructs a span containing a link to the Create Game page
 Game.buildNewGameLink = function(text, opponent, button, opponentButton,
     previousGameId) {
   var holder = $('<span>');
@@ -2226,6 +2234,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
 
   var capturedDiceDiv;
+  var outOfPlayDiceDiv;
   if (game_active) {
 
     // Round score, only applicable in active games
@@ -2256,11 +2265,30 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     capturedDiceDiv.append($('<span>', {
       'text': 'Dice captured: ' + capturedDieText,
     }));
+
+    // Dice that are out of play, only applicable in active games
+    var outOfPlayDieText;
+    if (('outOfPlayDieArray' in Api.game[player]) &&
+        Api.game[player].outOfPlayDieArray.length > 0) {
+      var outOfPlayDieDescs = [];
+
+      $.each(Api.game[player].outOfPlayDieArray, function(i, die) {
+        outOfPlayDieDescs.push(Game.dieRecipeText(die, true));
+      });
+      outOfPlayDieText = outOfPlayDieDescs.join(', ');
+      outOfPlayDiceDiv = $('<div>');
+      outOfPlayDiceDiv.append($('<span>', {
+        'text': 'Dice out of play: ' + outOfPlayDieText,
+      }));
+    }
   }
 
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
+      if (undefined !== outOfPlayDiceDiv) {
+        statusDiv.append(outOfPlayDiceDiv);
+      }
       statusDiv.append(capturedDiceDiv);
     }
     statusDiv.append(gameScoreDiv);
@@ -2269,6 +2297,9 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     statusDiv.append(gameScoreDiv);
     if (game_active) {
       statusDiv.append(capturedDiceDiv);
+      if (undefined !== outOfPlayDiceDiv) {
+        statusDiv.append(outOfPlayDiceDiv);
+      }
     }
   }
   return statusDiv;
