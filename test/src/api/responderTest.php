@@ -11054,15 +11054,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         //////////
         // Move 3 - responder003 performed Berserk attack using [hB(12):2] against [q(6):2]
-        // BUG - intermediate log value should not be 0 sides
         $this->verify_api_submitTurn(
             array(1),
-            'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 0 sides because of the Berserk attack, and then changed size from 0 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1. ',
+            'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1. ',
             $retval, array(array(0, 4), array(1, 0)),
             $gameId, 1, 'Berserk', 0, 1, '');
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 0 sides because of the Berserk attack, and then changed size from 0 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1'));
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Weak 4-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array("HasJustSplit", "JustPerformedBerserkAttack", "HasJustShrunk");

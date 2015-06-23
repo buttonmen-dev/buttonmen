@@ -378,7 +378,7 @@ class BMGameAction {
             // now report as if the berserk attack were completed
             if ($messageBerserk) {
                 $attackerInfo['recipe'] = $postInfo['recipeAfterBerserkAttack'];
-                $attackerInfo['max'] = $this->max_from_recipe($postInfo['recipeAfterBerserkAttack']);
+                $attackerInfo['max'] = self::max_from_recipe($postInfo['recipeAfterBerserkAttack']);
             }
 
             $messageSizeChange = '';
@@ -428,8 +428,8 @@ class BMGameAction {
      * @param string $recipe
      * @return int
      */
-    protected function max_from_recipe($recipe) {
-        preg_match_all('/=(\d+)/', $recipe, $matches);
+    protected static function max_from_recipe($recipe) {
+        preg_match_all('/(\d+)/', $recipe, $matches);
         if (count($matches)) {
             return array_sum($matches[1]);
         } else {

@@ -858,6 +858,21 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }
+
+    /**
+     * @covers BMGameAction::max_from_recipe()
+     */
+    public function test_max_from_recipe() {
+        $method = new ReflectionMethod('BMGameAction', 'max_from_recipe');
+        $method->setAccessible(TRUE);
+
+        $this->assertEquals(4, $method->invoke(NULL, '(4)'));
+        $this->assertEquals(4, $method->invoke(NULL, '(X=4)'));
+        $this->assertEquals(4, $method->invoke(NULL, '(X=4)?'));
+        $this->assertEquals(4, $method->invoke(NULL, 'bcdGHz(X=4)&'));
+        $this->assertEquals(9, $method->invoke(NULL, '(4,5)'));
+        $this->assertEquals(9, $method->invoke(NULL, 'fhkmnp(X=4,Y=5)?'));
+    }
 }
 
 ?>
