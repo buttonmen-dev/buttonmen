@@ -137,10 +137,10 @@ class TestBMClient(unittest.TestCase):
     self.assertTrue(type(r.data['currentPlayerIdx']) in [int, type(None)])
 
     player_data_keys = [
-      'activeDieArray', 'button', 'canStillWin',
-      'capturedDieArray', 'outOfPlayDieArray',
+      'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
       'gameScoreArray', 'hasDismissedGame', 'lastActionTime',
-      'optRequestArray', 'playerColor', 'playerId', 'playerName',
+      'optRequestArray', 'outOfPlayDieArray',
+      'playerColor', 'playerId', 'playerName',
       'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',
       'swingRequestArray', 'waitingOnAction'
     ]
