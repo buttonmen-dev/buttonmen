@@ -10797,8 +10797,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Boom', 'Mad'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) &(Y)', 'artFilename' => 'elsie.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) &(Y)', 'artFilename' => 'elsie.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) (Y)&', 'artFilename' => 'elsie.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) (Y)&', 'artFilename' => 'elsie.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
