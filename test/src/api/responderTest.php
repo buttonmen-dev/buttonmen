@@ -10946,7 +10946,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
 
         $gameId = $this->verify_api_createGame(
-            array(4, 1, 3, 3, 0, 0, 13, 18, 2, 2, 4, 1, 3, 4, 3, 5, 1, 4, 1, 3, 17, 1, 1, 10, 4, 2, 3, 0, 3, 1, 4, 4, 1, 2, 2, 2, 2, 4, 2, 13),
+            array(
+                4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
+                0, 13, 18,            // die skills for r3: B, d, h
+                2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
+                5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
+                17, 1, 1, 10,         // die skills for r4: q, v, b
+                4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
+                4, 4, 1, 2, 2,        // initial die rolls for r3
+                2, 2, 4, 2, 13,       // initial die rolls for r4
+            ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
         );
 
