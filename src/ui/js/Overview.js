@@ -8,6 +8,8 @@ Overview.bodyDivId = 'overview_page';
 Overview.GAME_STATE_END_GAME = 60;
 
 Overview.MONITOR_TIMEOUT = 60;
+Overview.STALENESS_DAYS = 14;
+Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -274,7 +276,7 @@ Overview.pageAddGameTable = function(
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'Play Game ' + gameInfo.gameId,}));
     } else if (gameType == 'awaitingOpponent') {
-      if (gameInfo.inactivityRaw > 14*24*60*60) {
+      if (gameInfo.inactivityRaw > Overview.STALENESS_SECS) {
         staleGamesExist = true;
         gameRow.addClass('staleGame');
         gameRow.hide();
@@ -351,24 +353,30 @@ Overview.pageAddGameTable = function(
   if (staleGamesExist) {
     var tableFoot = $('<tfoot>');
     var footRow = $('<tr>');
-    var footCol = $('<td>');
-    // james: Do not use colspan="0" because this is incompatible with older
-    //        browsers. Instead, use overkill and specify 100 columns.
-    footCol.attr('colspan', 100);
-    footCol.text('Show stale games');
-    footRow.append(footCol);
-    tableFoot.append(footRow);
-    tableFoot.click(function() {
-      $('.staleGame').toggle();
-      footCol.text(
-        $('.staleGame').is(':visible') ?
-        'Hide stale games' :
-        'Show stale games'
-      );
+    var footCol = $('<td>', {
+      'colspan': '6',
     });
+    var staleToggle = $('<a>', {
+      'id': 'staleToggle',
+      'href': 'javascript:Overview.toggleStaleGame();',
+      'text': 'Show stale games',
+    });
+
+    footCol.append(staleToggle);
+    footRow.append(footCol)
+    tableFoot.append(footRow);
     tableBody.closest('table').append(tableFoot);
   }
 };
+
+Overview.toggleStaleGame = function() {
+  $('.staleGame').toggle();
+  $('#staleToggle').text(
+    $('.staleGame').is(':visible') ?
+    'Hide stale games' :
+    'Show stale games'
+  );
+}
 
 Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
