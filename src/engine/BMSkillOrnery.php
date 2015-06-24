@@ -53,6 +53,10 @@ class BMSkillOrnery extends BMSkill {
             return;
         }
 
+        if ($die->outOfPlay) {
+            return;
+        }
+
         $die->roll(FALSE);
         $die->add_flag('HasJustRerolledOrnery');
         return TRUE;

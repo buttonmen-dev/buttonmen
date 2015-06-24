@@ -233,7 +233,7 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_capture_order() {
-        // boom occurs before all other conflicting capture events
+        // boom occurs before all other conflicting skills
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillBoom',
                                             'BMSkillMorphing'));
@@ -249,6 +249,14 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillBoom',
                                             'BMSkillValue'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBoom',
+                                            'BMSkillMighty'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBoom',
+                                            'BMSkillWeak'));
 
         // doppelganger occurs before null
         $this->assertEquals(-1,

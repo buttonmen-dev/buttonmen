@@ -42,6 +42,11 @@ class BMSkillMighty extends BMSkill {
             return;
         }
 
+        // don't trigger skil if the die has already left play
+        if ($die->outOfPlay) {
+            return;
+        }
+
         $die->grow();
     }
 
