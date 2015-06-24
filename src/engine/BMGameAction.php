@@ -429,7 +429,13 @@ class BMGameAction {
      * @return int
      */
     protected static function max_from_recipe($recipe) {
-        preg_match_all('/(\d+)/', $recipe, $matches);
+        // if there is an equals present, it must be a swing or option die, so play safe and
+        // only look for numbers directly after an equals sign
+        if (preg_match('/\(.+=.+\)/', $recipe)) {
+          preg_match_all('/=(\d+)/', $recipe, $matches);
+        } else {
+          preg_match_all('/(\d+)/', $recipe, $matches);
+        }
         if (count($matches)) {
             return array_sum($matches[1]);
         } else {
