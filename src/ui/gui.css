@@ -461,28 +461,9 @@ table.gameList th {
     background-color: #cccccc;
 }
 
-table.gameList td:first-child,
-table.gameList th:first-child
+table.gameList tbody
 {
-  border-left: 2px solid #cccccc;
-}
-
-table.gameList td:last-child,
-table.gameList th:last-child
-{
-  border-right: 2px solid #cccccc;
-}
-
-table.gameList tr:first-child td,
-table.gameList tr:first-child th
-{
-  border-top: 2px solid #cccccc;
-}
-
-table.gameList tr:last-child td,
-table.gameList tr:last-child th
-{
-  border-bottom: 2px solid #cccccc;
+    border: 2px solid #cccccc;
 }
 
 table.gameList tr.spacer td {
@@ -492,7 +473,7 @@ table.gameList tr.spacer td {
   border-bottom: 2px solid #cccccc;
 }
 
-table.gameList tbody:before,
+table.gameList thead:after,
 table.gameList tfoot:before {
     line-height: 1em;
     content: "-";
