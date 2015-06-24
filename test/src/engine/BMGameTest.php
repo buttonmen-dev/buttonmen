@@ -10208,4 +10208,171 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, $game->roundNumber);
     }
 
+    /**
+     * @coversNothing
+     */
+    public function test_boom_with_other_skills_round() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('bn(1) bv(30) b(1) (1)', 'TestButton1');
+        $this->assertEquals('bn(1) bv(30) b(1) (1)', $button1->recipe);
+        // check dice in $button1->dieArray are correct
+        $this->assertCount(4, $button1->dieArray);
+        $this->assertEquals(1, $button1->dieArray[0]->max);
+        $this->assertEquals(30, $button1->dieArray[1]->max);
+        $this->assertEquals(1, $button1->dieArray[2]->max);
+        $this->assertEquals(1, $button1->dieArray[3]->max);
+
+        $button2 = new BMButton;
+        $button2->load('b%(1) bm(30) (1)', 'TestButton2');
+        $this->assertEquals('b%(1) bm(30) (1)', $button2->recipe);
+        // check dice in $button2->dieArray are correct
+        $this->assertCount(3, $button2->dieArray);
+        $this->assertEquals(1, $button2->dieArray[0]->max);
+        $this->assertEquals(30, $button2->dieArray[1]->max);
+        $this->assertEquals(1, $button2->dieArray[2]->max);
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+        $this->assertEquals(2, $game->maxWins);
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+
+        // check that player 0 always wins initiative
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
+        $this->assertEquals(0, $game->activePlayerIdx);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        // artificially set die values
+        // bn(1) bv(30) b(1) (1) showing 1, 18, 1, 1
+        // b%(1) bm(30) (1) showing 1, 15, 1
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $this->assertEquals(1, $activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $activeDieArrayArray[0][2]->value);
+        $this->assertEquals(1, $activeDieArrayArray[1][0]->value);
+        $this->assertEquals(1, $activeDieArrayArray[1][2]->value);
+        $activeDieArrayArray[0][1]->value = 18;
+        $activeDieArrayArray[1][1]->value = 15;
+
+        // check that boom attacks do not impart null
+        // results in:
+        // bv(30) b(1) (1) showing 18, 1, 1
+        // b%(1) bm(30) (1) showing 1, 15, 1
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(2),    // defenderAttackDieIdxArray
+                              'Boom');     // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertEquals(18, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][2]->value);
+        $this->assertCount(3, $game->activeDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(15, $game->activeDieArrayArray[1][1]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][2]->value);
+        $this->assertFalse($game->activeDieArrayArray[1][2]->has_skill('Null'));
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertCount(1, $game->outOfPlayDieArrayArray[0]);
+        $this->assertCount(0, $game->outOfPlayDieArrayArray[1]);
+        $this->assertEquals(1, $game->outOfPlayDieArrayArray[0][0]->max);
+        $this->assertEquals(1, $game->outOfPlayDieArrayArray[0][0]->value);
+        $this->assertTrue($game->outOfPlayDieArrayArray[0][0]->has_skill('Boom'));
+        $this->assertTrue($game->outOfPlayDieArrayArray[0][0]->has_skill('Null'));
+
+        // check that boom attacks do not trigger morphing
+        // results in:
+        // bv(30) b(1) (1) showing 18, 1, 1
+        // b%(1) (1) showing 1, 1
+        $game->attack = array(1,           // attackerPlayerIdx
+                              0,           // defenderPlayerIdx
+                              array(1),    // attackerAttackDieIdxArray
+                              array(2),    // defenderAttackDieIdxArray
+                              'Boom');     // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertEquals(18, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][2]->value);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][1]->value);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertCount(1, $game->outOfPlayDieArrayArray[0]);
+        $this->assertCount(1, $game->outOfPlayDieArrayArray[1]);
+        $this->assertEquals(30, $game->outOfPlayDieArrayArray[1][0]->max);
+        $this->assertEquals(15, $game->outOfPlayDieArrayArray[1][0]->value);
+        $this->assertTrue($game->outOfPlayDieArrayArray[1][0]->has_skill('Boom'));
+        $this->assertTrue($game->outOfPlayDieArrayArray[1][0]->has_skill('Morphing'));
+
+        // check that boom attacks do not impart value and do not split when targeting
+        // radioactive dice
+        // results in:
+        // b(1) (1) showing 1, 1
+        // b%(1) (1) showing 1, 1
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Boom');     // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][1]->value);
+        $this->assertFalse($game->activeDieArrayArray[1][0]->has_skill('Value'));
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertCount(2, $game->outOfPlayDieArrayArray[0]);
+        $this->assertCount(1, $game->outOfPlayDieArrayArray[1]);
+        $this->assertEquals(30, $game->outOfPlayDieArrayArray[0][1]->max);
+        $this->assertEquals(18, $game->outOfPlayDieArrayArray[0][1]->value);
+        $this->assertTrue($game->outOfPlayDieArrayArray[0][1]->has_skill('Boom'));
+        $this->assertTrue($game->outOfPlayDieArrayArray[0][1]->has_skill('Value'));
+
+        // check that boom dice do not split when attacking with radioactive
+        // results in:
+        // b(1) (1) showing 1, 1
+        // (1) showing 1
+        $game->attack = array(1,           // attackerPlayerIdx
+                              0,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(1),    // defenderAttackDieIdxArray
+                              'Boom');     // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertCount(2, $game->outOfPlayDieArrayArray[0]);
+        $this->assertCount(2, $game->outOfPlayDieArrayArray[1]);
+        $this->assertEquals(1, $game->outOfPlayDieArrayArray[1][1]->max);
+        $this->assertEquals(1, $game->outOfPlayDieArrayArray[1][1]->value);
+        $this->assertTrue($game->outOfPlayDieArrayArray[1][1]->has_skill('Boom'));
+        $this->assertTrue($game->outOfPlayDieArrayArray[1][1]->has_skill('Radioactive'));
+    }
 }
