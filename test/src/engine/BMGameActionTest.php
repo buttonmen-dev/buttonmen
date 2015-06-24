@@ -867,11 +867,13 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $method->setAccessible(TRUE);
 
         $this->assertEquals(4, $method->invoke(NULL, '(4)'));
+        $this->assertEquals(0, $method->invoke(NULL, '(X)'));
         $this->assertEquals(4, $method->invoke(NULL, '(X=4)'));
         $this->assertEquals(4, $method->invoke(NULL, '(X=4)?'));
         $this->assertEquals(4, $method->invoke(NULL, 'bcdGHz(X=4)&'));
         $this->assertEquals(9, $method->invoke(NULL, '(4,5)'));
         $this->assertEquals(9, $method->invoke(NULL, 'fhkmnp(X=4,Y=5)?'));
+        $this->assertEquals(0, $method->invoke(NULL, '(4/16)'));
         $this->assertEquals(16, $method->invoke(NULL, '(4/16=16)'));
         $this->assertEquals(4, $method->invoke(NULL, 'sz`(4/16=4)'));
     }
