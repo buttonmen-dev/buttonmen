@@ -3282,13 +3282,12 @@ class BMGame {
         $canStillWinArray = $this->get_canStillWinArray();
 
         foreach ($this->playerIdArray as $playerIdx => $playerId) {
-            $outOfPlayDieArray = $this->get_outOfPlayDieArray($playerIdx);
-
             $playerData = array(
                 'playerId'            => $playerId,
                 'button'              => $this->get_buttonInfo($playerIdx),
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
+                'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
                 'swingRequestArray'   => $this->get_swingRequestArray($playerIdx),
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
@@ -3301,10 +3300,6 @@ class BMGame {
                 'hasDismissedGame'    => $this->hasPlayerDismissedGameArray[$playerIdx],
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
-
-            if (!empty($outOfPlayDieArray)) {
-                $playerData['outOfPlayDieArray'] = $outOfPlayDieArray;
-            }
 
             $playerDataArray[] = $playerData;
         }

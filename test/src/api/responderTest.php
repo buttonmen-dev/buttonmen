@@ -455,6 +455,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 array(
                     'playerId' => $playerId1,
                     'capturedDieArray' => array(),
+                    'outOfPlayDieArray' => array(),
                     'swingRequestArray' => array(),
                     'optRequestArray' => array(),
                     'prevSwingValueArray' => array(),
@@ -472,6 +473,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 array(
                     'playerId' => $playerId2,
                     'capturedDieArray' => array(),
+                    'outOfPlayDieArray' => array(),
                     'swingRequestArray' => array(),
                     'optRequestArray' => array(),
                     'prevSwingValueArray' => array(),
