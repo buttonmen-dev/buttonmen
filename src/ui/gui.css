@@ -463,14 +463,27 @@ table.gameList th {
 
 table.gameList tbody
 {
-    border: 2px solid #cccccc;
+    border-top: 2px solid #cccccc;
+    border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tbody td:first-child,
+table.gameList tbody th:first-child
+{
+    border-left: 2px solid #cccccc;
+}
+
+table.gameList tbody td:last-child,
+table.gameList tbody th:last-child
+{
+    border-right: 2px solid #cccccc;
 }
 
 table.gameList tr.spacer td {
-  border-left: none;
-  border-right: none;
-  border-top: 2px solid #cccccc;
-  border-bottom: 2px solid #cccccc;
+    border-left: none;
+    border-right: none;
+    border-top: 2px solid #cccccc;
+    border-bottom: 2px solid #cccccc;
 }
 
 table.gameList thead:after,
