@@ -363,7 +363,7 @@ Overview.pageAddGameTable = function(
     });
 
     footCol.append(staleToggle);
-    footRow.append(footCol)
+    footRow.append(footCol);
     tableFoot.append(footRow);
     tableBody.closest('table').append(tableFoot);
   }
@@ -376,7 +376,7 @@ Overview.toggleStaleGame = function() {
     'Hide stale games' :
     'Show stale games'
   );
-}
+};
 
 Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
