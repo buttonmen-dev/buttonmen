@@ -37,6 +37,11 @@ class BMSkillMighty extends BMSkill {
             return;
         }
 
+        // don't trigger skill when the die has just performed a trip attack
+        if ($die->has_flag('JustPerformedTripAttack')) {
+            return;
+        }
+
         $die->grow();
     }
 
