@@ -84,6 +84,7 @@ class BMSkillRage extends BMSkill {
         $newDefenderDie->copy_skills_from_die($def);
         $newDefenderDie->remove_skill('Rage');
         $newDefenderDie->captured = FALSE;
+        $newDefenderDie->add_flag('IsRageTargetReplacement');
         $newDefenderDie->roll(FALSE);
 
         // james:
@@ -103,8 +104,6 @@ class BMSkillRage extends BMSkill {
         );
 
         $game->activeDieArrayArray = $activeDieArrayArray;
-
-        $args['caller']->remove_skill('Rage');
     }
 
     /**
