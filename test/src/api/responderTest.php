@@ -8982,17 +8982,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-//<<<<<<< HEAD
-//                1, 6, 16,          // die skills for r3: c, n, t
-//                1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
-//                1, 2, 2, 3, 5,     // die sizes for r4
-//                11, 4, 7,          // die skills for r4: s, M, o
-//=======
-                2, 7, 16,          // die skills for r3: c, n, t
+                2, 7, 17,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                11, 5, 8,          // die skills for r4: s, M, o
-//>>>>>>> upstream/master
+                12, 5, 8,          // die skills for r4: s, M, o
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 5, 7,           // initial die rolls for r4
@@ -9630,7 +9623,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
 
         ////////////////////
-        // Move 02 - responder004 set swing values: Y=1 and option dice: ds(1/15=1), `(5/10=5)
+        // Move 02 - responder004 set swing values: Y=1 and option dice: ds(1/15=1), `G(5/10=5)
 
         // this should cause the one option die to be rerolled
         $_SESSION = $this->mock_test_user_login('responder004');
@@ -9675,12 +9668,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 03 - responder004 performed Skill attack using [ds(1/15=1):1,`(5/10=5):5,p(Y=1):1] against [(3,17):7]
-        // [k(7):5, p(X=4)?:4, o(Z=4):4, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, `(5/10=5):5, p(Y=1):1, wHz(12):12]
+        // [k(7):5, p(X=4)?:4, o(Z=4):4, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1):1, wHz(12):12]
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(1, 3, 1),
-            'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to G(5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1. ',
+            'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1. ',
             $retval, array(array(0, 3), array(1, 1), array(1, 2), array(1, 3)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -9688,13 +9681,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Trip'),
             array(4, 30.5, -17.7, 17.7),
-            array(array(1, 2, array('recipe' => 'G(5/10)', 'skills' => array('Rage'), 'value' => 3, 'description' => 'Rage Option Die (with 5 sides)'))),
+            array(array(1, 2, array('recipe' => '(5/10)', 'skills' => array(), 'value' => 3, 'description' => 'Option Die (with 5 sides)'))),
             array(array(0, 3)),
             array(),
             array(array(1, array('value' => 7, 'sides' => 20, 'recipe' => 'G(3,17)')))
         );
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to G(5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -9757,7 +9750,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(1, 1),
-            'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [G(5/10=5):3]; Defender G(5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. ',
+            'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. ',
             $retval, array(array(0, 2), array(0, 3), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, 'Warrior stinger dice must use their full value');
 
@@ -9767,10 +9760,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, 3, array('value' => 1, 'recipe' => 'g(2)', 'skills' => array('Stinger'), 'description' => 'Stinger 2-sided die'))),
             array(array(1, 2)),
             array(array(1, 1)),
-            array(array(0, array('value' => 3, 'sides' => 5, 'recipe' => 'G(5/10)')))
+            array(array(0, array('value' => 3, 'sides' => 5, 'recipe' => '(5/10)')))
         );
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [G(5/10=5):3]; Defender G(5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Warrior stinger dice must use their full value'));
         $expData['gameChatEditable'] = 'TIMESTAMP';
 
@@ -9791,7 +9784,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This game reproduces a bug in which time and space is not triggered on a twin die
@@ -10046,19 +10038,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
-//<<<<<<< HEAD
-//                3, 8, 6,           // die skills for r3: k, n, p
-//                0, 0, 1, 2, 1, 2,  // distribution of skills onto dice for r3
-//                3, 3, 0, 4, 0,     // die sizes for r4: 4, 4, 10, 12, 12
-//                4, 18, 3,          // die skills for r4: h, k, M
-//                4, 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
-//=======
                 4, 9, 7,           // die skills for r3: k, p, n
                 0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
                 4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
-                18, 4, 5,          // die skills for r4: h, k, M
+                19, 4, 5,          // die skills for r4: h, k, M
                 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
-//>>>>>>> upstream/master
                 1, 3, 6, 3, 3,     // initial die rolls for r3
                 5, 2, 7,           // initial die rolls for r4
             ),

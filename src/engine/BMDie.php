@@ -538,7 +538,8 @@ class BMDie extends BMCanHaveSkill {
     public function be_captured($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => &$attackers,
-                                             'defenders' => &$defenders));
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
     }
 
     /**

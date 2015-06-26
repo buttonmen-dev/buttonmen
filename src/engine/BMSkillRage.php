@@ -83,8 +83,25 @@ class BMSkillRage extends BMSkill {
         $newDefenderDie = self::create_rage_clone_target($def);
         $newDefenderDie->copy_skills_from_die($def);
         $newDefenderDie->remove_skill('Rage');
+        $newDefenderDie->captured = FALSE;
+        $newDefenderDie->roll(FALSE);
 
-        array_splice($activeDieArrayArray[$def->playerIdx], $def->activeDieIdx + 1, 0, $newDefenderDie);
+        // james:
+        // Note that the replacement is always assumed to be an array if possible.
+        // Thus, an object needs to be wrapped in an array, otherwise it will be
+        // decomposed as if it were an array.
+        //
+        // From http://php.net/manual/en/function.array-splice.php
+        // If replacement is just one element it is not necessary to put array()
+        // around it, unless the element is an array itself, an object or NULL.
+
+        array_splice(
+            $activeDieArrayArray[$def->playerIdx],
+            $def->activeDieIdx + 1,
+            0,
+            array($newDefenderDie)
+        );
+
         $game->activeDieArrayArray = $activeDieArrayArray;
 
         $args['caller']->remove_skill('Rage');
