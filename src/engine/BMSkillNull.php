@@ -44,7 +44,9 @@ class BMSkillNull extends BMSkill {
         }
 
         foreach ($args['defenders'] as $defender) {
-            $defender->add_skill('Null');
+            if ($defender->captured) {
+                $defender->add_skill('Null');
+            }
         }
     }
 
