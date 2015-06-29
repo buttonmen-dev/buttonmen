@@ -310,9 +310,16 @@ class BMGameAction {
      */
     protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
         $messageDefenderArray = array();
+        $nExtraDice = 0;
+
         // Report what happened to each defending die
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-            $postInfo = $postAttackDice['defender'][$idx];
+            // Skip extra dice for the moment
+            while (array_key_exists('isRageTargetReplacement', $postAttackDice['defender'][$idx + $nExtraDice])) {
+                $nExtraDice++;
+            }
+
+            $postInfo = $postAttackDice['defender'][$idx + $nExtraDice];
             $postEventsDefender = array();
 
             $this->message_append(
@@ -336,6 +343,14 @@ class BMGameAction {
             );
 
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+        }
+
+        // now report on added dice
+        if ($nExtraDice > 0) {
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_added_dice($postInfo)
+            );
         }
 
         $messageDefender = implode('; ', $messageDefenderArray);

@@ -103,6 +103,13 @@ class BMSkillRage extends BMSkill {
             array($newDefenderDie)
         );
 
+        array_splice(
+            $args['defenders'],
+            $defenderDieIdx + 1,
+            0,
+            array($newDefenderDie)
+        );
+
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 

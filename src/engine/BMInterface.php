@@ -3551,6 +3551,7 @@ class BMInterface {
                 'Caught exception in BMInterface::submit_turn: ' .
                 $e->getMessage()
             );
+            var_dump($e->getMessage());
             $this->message = 'Internal error while submitting turn';
         }
     }

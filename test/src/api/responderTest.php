@@ -9667,12 +9667,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
 
         ////////////////////
-        // Move 03 - responder004 performed Skill attack using [ds(1/15=1):1,`(5/10=5):5,p(Y=1):1] against [(3,17):7]
+        // Move 03 - responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]
         // [k(7):5, p(X=4)?:4, o(Z=4):4, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1):1, wHz(12):12]
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(1, 3, 1),
+            array(2, 14, 1, 3, 1),
             'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1. ',
             $retval, array(array(0, 3), array(1, 1), array(1, 2), array(1, 3)),
             $gameId, 1, 'Skill', 1, 0, '');
@@ -9680,11 +9680,30 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Trip'),
-            array(4, 30.5, -17.7, 17.7),
+            array(14, 30.5, -11.0, 11.0),
             array(array(1, 2, array('recipe' => '(5/10)', 'skills' => array(), 'value' => 3, 'description' => 'Option Die (with 5 sides)'))),
             array(array(0, 3)),
             array(),
             array(array(1, array('value' => 7, 'sides' => 20, 'recipe' => 'G(3,17)')))
+        );
+        array_splice(
+            $expData['playerDataArray'][0]['activeDieArray'],
+            3,
+            0,
+            array(
+                array(
+                    'value' => 16,
+                    'sides' => 20,
+                    'recipe' => '(3,17)',
+                    'skills' => array(),
+                    'properties' => array('WasJustCaptured', 'IsRageTargetReplacement', 'Twin'),
+                    'description' => 'Twin Die (with 3 and 17 sides)',
+                    'subdieArray' => array(
+                        array('value' => 2, 'sides' => 3),
+                        array('value' => 14, 'sides' => 17)
+                    )
+                )
+            )
         );
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1'));
@@ -9694,7 +9713,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 04 - responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1):1]
-        // [k(7):5, p(X=4)?:4, o(Z=4):4, t(5):4, g`(2):2] => [ft(5):3, ds(1/15=1):1, (5/10=5):3, p(Y=1):1, wHz(12):12]
+        // [k(7):5, p(X=4)?:4, o(Z=4):4, (3,17):7, t(5):4, g`(2):2] => [ft(5):3, ds(1/15=1):1, (5/10=5):3, p(Y=1):1, wHz(12):12]
 
         $this->verify_api_submitTurn(
             array(3, 9, 1),
@@ -9704,13 +9723,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Trip'),
-            array(-2.5, 31.5, -22.7, 22.7),
+            array(7.5, 31.5, -16.0, 16.0),
             array(array(0, 1, array('value' => 9, 'sides' => '10', 'description' => 'Poison X Mood Swing Die (with 10 sides)')),
                   array(0, 2, array('value' => 1, 'properties' => array('HasJustRerolledOrnery')))),
             array(array(1, 3)),
             array(array(1, 0)),
             array(array(0, array('value' => 1, 'sides' => 1, 'recipe' => 'p(Y)')))
         );
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('Twin');
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('Twin');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1):1]; Defender p(Y=1) was captured; Attacker p(X=4)? changed size from 4 to 10 sides, recipe changed from p(X=4)? to p(X=10)?, rerolled 4 => 9'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003\'s idle ornery dice rerolled at end of turn: o(Z=4) rerolled 4 => 1'));
@@ -9720,22 +9740,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 05 - responder004 performed Skill attack using [ft(5):3,ds(1/15=1):1] against [t(5):4]
-        // [k(7):5, p(X=10)?:9, o(Z=4):1, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
+        // [k(7):5, p(X=10)?:9, o(Z=4):1, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(5, 1),
             'responder004 performed Skill attack using [ft(5):3,ds(1/15=1):1] against [t(5):4]; Defender t(5) was captured; Attacker ft(5) rerolled 3 => 5; Attacker ds(1/15=1) rerolled 1 => 1. ',
-            $retval, array(array(0, 3), array(1, 0), array(1, 1)),
+            $retval, array(array(0, 4), array(1, 0), array(1, 1)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill'),
-            array(-5, 36.5, -27.7, 27.7),
+            array(5, 36.5, -21.0, 21.0),
             array(array(1, 0, array('value' => 5)),
                   array(0, 2, array('properties' => array()))),
-            array(array(0, 3)),
+            array(array(0, 4)),
             array(array(0, 0)),
             array(array(1, array('value' => 4, 'sides' => 5, 'recipe' => 't(5)')))
         );
@@ -9746,18 +9766,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 06 - responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]
-        // [k(7):5, p(X=10)?:9, o(Z=4):1, g`(2):2] => [ft(5):5, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
+        // [k(7):5, p(X=10)?:9, o(Z=4):1, (3,17):7, g`(2):2] => [ft(5):5, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
 
         $this->verify_api_submitTurn(
             array(1, 1),
             'responder003 performed Skill attack using [o(Z=4):1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4) rerolled 1 => 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. ',
-            $retval, array(array(0, 2), array(0, 3), array(1, 2)),
+            $retval, array(array(0, 2), array(0, 4), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, 'Warrior stinger dice must use their full value');
 
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Trip'),
-            array(1, 34, -22.0, 22.0),
-            array(array(0, 3, array('value' => 1, 'recipe' => 'g(2)', 'skills' => array('Stinger'), 'description' => 'Stinger 2-sided die'))),
+            array(11, 34, -15.3, 15.3),
+            array(array(0, 4, array('value' => 1, 'recipe' => 'g(2)', 'skills' => array('Stinger'), 'description' => 'Stinger 2-sided die'))),
             array(array(1, 2)),
             array(array(1, 1)),
             array(array(0, array('value' => 3, 'sides' => 5, 'recipe' => '(5/10)')))

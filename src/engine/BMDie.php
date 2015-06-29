@@ -785,19 +785,16 @@ class BMDie extends BMCanHaveSkill {
             'recipeStatus' => $recipe . ':' . $this->value,
         );
 
-        $forceReportDieSize = $this->forceReportDieSize();
-        if ($forceReportDieSize) {
-            $actionLogInfo['forceReportDieSize'] = $forceReportDieSize;
+        if ($this->forceReportDieSize()) {
+            $actionLogInfo['forceReportDieSize'] = TRUE;
         }
 
-        $hasJustMorphed = $this->has_flag('HasJustMorphed');
-        if ($hasJustMorphed) {
-            $actionLogInfo['hasJustMorphed'] = $hasJustMorphed;
+        if ($this->has_flag('HasJustMorphed')) {
+            $actionLogInfo['hasJustMorphed'] = TRUE;
         }
 
-        $hasJustRerolledOrnery = $this->has_flag('HasJustRerolledOrnery');
-        if ($hasJustRerolledOrnery) {
-            $actionLogInfo['hasJustRerolledOrnery'] = $hasJustRerolledOrnery;
+        if ($this->has_flag('HasJustRerolledOrnery')) {
+            $actionLogInfo['hasJustRerolledOrnery'] = TRUE;
         }
 
         if ($this->has_flag('JustPerformedTripAttack')) {
@@ -814,6 +811,10 @@ class BMDie extends BMCanHaveSkill {
 
         if ($this->has_flag('HasJustSplit')) {
             $actionLogInfo['recipeBeforeSplitting'] = $this->flagList['HasJustSplit']->value();
+        }
+
+        if ($this->has_flag('IsRageTargetReplacement')) {
+            $actionLogInfo['isRageTargetReplacement'] = TRUE;
         }
 
         return($actionLogInfo);

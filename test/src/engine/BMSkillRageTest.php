@@ -134,5 +134,15 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
 
         $this->assertEquals(99, $game->activeDieArrayArray[1][3]->max);
+
+        $this->assertCount(2, $defenders);
+        $this->assertEquals(8, $defenders[0]->max);
+        $this->assertTrue($defenders[0]->captured);
+        $this->assertEquals(2, $defenders[0]->value);
+        $this->assertFalse($defenders[0]->has_flag('IsRageTargetReplacement'));
+        $this->assertEquals(8, $defenders[1]->max);
+        $this->assertFalse($defenders[1]->captured);
+        $this->assertNotNull($defenders[1]->value);
+        $this->assertTrue($defenders[1]->has_flag('IsRageTargetReplacement'));
     }
 }
