@@ -238,7 +238,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Rage' => array(
                 'code' => 'G',
-                'description' => '',
+                'description' => 'If a Rage die is captured, then the owner of the Rage Die adds a new die to their pool of the same size and ability of the Rage die that was taken, except that it loses the Rage ability. If a Rage Die participates in an Attack, it loses its Rage ability. IMPORTANT: Rage dice do not count for determining who goes first.',
                 'interacts' => array(),
             ),
             'Reserve' => array(
