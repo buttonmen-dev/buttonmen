@@ -145,7 +145,12 @@ class BMSkillRage extends BMSkill {
      * @return string
      */
     protected static function get_description() {
-        return '';
+        return 'If a Rage die is captured, then the owner of the Rage Die ' .
+               'adds a new die to their pool of the same size and ability of ' .
+               'the Rage die that was taken, except that it loses the Rage ' .
+               'ability. If a Rage Die participates in an Attack, it loses ' .
+               'its Rage ability. IMPORTANT: Rage dice do not count for ' .
+               'determining who goes first.';
     }
 
     /**
@@ -158,5 +163,14 @@ class BMSkillRage extends BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array();
+    }
+
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return bool
+     */
+    public static function prevents_win_determination() {
+        return TRUE;
     }
 }

@@ -235,6 +235,7 @@ class BMSkill {
                      'BMSkillOrnery',
                      'BMSkillMood',
                      'BMSkillMad',
+                     'BMSkillRage',
                      'BMSkillKonstant',
                      'BMSkillMorphing',
                      'BMSkillRadioactive',
