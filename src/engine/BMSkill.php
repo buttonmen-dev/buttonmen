@@ -222,6 +222,7 @@ class BMSkill {
                      'BMSkillReserve',
                      'BMSkillChance',
                      'BMSkillFocus',
+                     'BMSkillBoom',
                      'BMSkillSpeed',
                      'BMSkillTrip',
                      'BMSkillQueer',
@@ -245,8 +246,7 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillMaximum',
                      'BMSkillTimeAndSpace',
-                     'BMSkillWarrior',
-                     'BMSkillBoom');
+                     'BMSkillWarrior');
         // fires last
     }
 
