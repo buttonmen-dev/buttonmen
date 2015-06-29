@@ -81,12 +81,6 @@ class BMSkillRage extends BMSkill {
         assert(FALSE !== $defenderDieIdx);
 
         $newDefenderDie = self::create_rage_clone_target($def);
-        $newDefenderDie->copy_skills_from_die($def);
-        $newDefenderDie->remove_skill('Rage');
-        $newDefenderDie->captured = FALSE;
-        $newDefenderDie->add_flag('IsRageTargetReplacement');
-        $newDefenderDie->remove_flag('WasJustCaptured');
-        $newDefenderDie->roll(FALSE);
 
         // james:
         // Note that the replacement is always assumed to be an array if possible.
@@ -135,6 +129,13 @@ class BMSkillRage extends BMSkill {
                 $newDie->add_flag($flagType, $flag->value());
             }
         }
+
+        $newDie->copy_skills_from_die($def);
+        $newDie->remove_skill('Rage');
+        $newDie->captured = FALSE;
+        $newDie->remove_flag('WasJustCaptured');
+        $newDie->add_flag('IsRageTargetReplacement');
+        $newDie->roll(FALSE);
 
         return $newDie;
     }
