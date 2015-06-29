@@ -359,7 +359,7 @@ Overview.pageAddGameTable = function(
     var staleToggle = $('<a>', {
       'id': 'staleToggle',
       'href': 'javascript:Overview.toggleStaleGame();',
-      'text': 'Show stale games',
+      'text': '[Show stale games]',
     });
 
     footCol.append(staleToggle);
@@ -373,8 +373,8 @@ Overview.toggleStaleGame = function() {
   $('.staleGame').toggle();
   $('#staleToggle').text(
     $('.staleGame').is(':visible') ?
-    'Hide stale games' :
-    'Show stale games'
+    '[Hide stale games]' :
+    '[Show stale games]'
   );
 };
 

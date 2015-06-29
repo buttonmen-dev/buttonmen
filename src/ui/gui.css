@@ -454,7 +454,7 @@ table.activePlayerList th.idleness {
 
 /* Game lists (Overview, Game History) */
 table.gameList a {
-    color: black;
+    color: blue;
 }
 
 table.gameList th {
