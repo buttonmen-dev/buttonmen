@@ -85,6 +85,7 @@ class BMSkillRage extends BMSkill {
         $newDefenderDie->remove_skill('Rage');
         $newDefenderDie->captured = FALSE;
         $newDefenderDie->add_flag('IsRageTargetReplacement');
+        $newDefenderDie->remove_flag('WasJustCaptured');
         $newDefenderDie->roll(FALSE);
 
         // james:

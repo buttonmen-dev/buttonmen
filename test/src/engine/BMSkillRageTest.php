@@ -93,6 +93,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $def->ownerObject = $game;
         $def->playerIdx = 1;
         $def->captured = TRUE;
+        $def->add_flag('WasJustCaptured');
 
         $this->assertInstanceOf('BMDie', $dummy1);
         $this->assertInstanceOf('BMDie', $dummy2);
@@ -126,12 +127,14 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->activeDieArrayArray[1][1]->captured);
         $this->assertEquals(2, $game->activeDieArrayArray[1][1]->value);
         $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('IsRageTargetReplacement'));
+        $this->assertTrue($game->activeDieArrayArray[1][1]->has_flag('WasJustCaptured'));
 
         // rage replacement die
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertFalse($game->activeDieArrayArray[1][2]->captured);
         $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
         $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
+        $this->assertFalse($game->activeDieArrayArray[1][2]->has_flag('WasJustCaptured'));
 
         $this->assertEquals(99, $game->activeDieArrayArray[1][3]->max);
 
@@ -140,9 +143,11 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($defenders[0]->captured);
         $this->assertEquals(2, $defenders[0]->value);
         $this->assertFalse($defenders[0]->has_flag('IsRageTargetReplacement'));
+        $this->assertTrue($defenders[0]->has_flag('WasJustCaptured'));
         $this->assertEquals(8, $defenders[1]->max);
         $this->assertFalse($defenders[1]->captured);
         $this->assertNotNull($defenders[1]->value);
         $this->assertTrue($defenders[1]->has_flag('IsRageTargetReplacement'));
+        $this->assertFalse($defenders[1]->has_flag('WasJustCaptured'));
     }
 }

@@ -9696,7 +9696,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'sides' => 20,
                     'recipe' => '(3,17)',
                     'skills' => array(),
-                    'properties' => array('WasJustCaptured', 'IsRageTargetReplacement', 'Twin'),
+                    'properties' => array('IsRageTargetReplacement', 'Twin'),
                     'description' => 'Twin Die (with 3 and 17 sides)',
                     'subdieArray' => array(
                         array('value' => 2, 'sides' => 3),
