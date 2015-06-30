@@ -9673,7 +9673,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(2, 14, 1, 3, 1),
-            'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1. ',
+            'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17) was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1. ',
             $retval, array(array(0, 3), array(1, 1), array(1, 2), array(1, 3)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -9706,10 +9706,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             )
         );
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1):1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17) was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1) rerolled 1 => 1'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
-
 
         ////////////////////
         // Move 04 - responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1):1]

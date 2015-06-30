@@ -345,17 +345,40 @@ class BMGameAction {
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
 
+        $nExtraDice = count($postAttackDice['defender']) - count($preAttackDice['defender']);
         // now report on added dice
         if ($nExtraDice > 0) {
             $this->message_append(
-                $postEventsDefender,
-                $this->message_added_dice($postInfo)
+                $messageDefenderArray,
+                $this->message_defender_added_dice($postAttackDice['defender'])
             );
         }
 
         $messageDefender = implode('; ', $messageDefenderArray);
 
         return $messageDefender;
+    }
+
+    protected function message_defender_added_dice($postAttackDice) {
+        $addedDieRecipes = array();
+
+        foreach ($postAttackDice as $dieInfo) {
+            if (array_key_exists('isRageTargetReplacement', $dieInfo)) {
+                $addedDieRecipes[] = $dieInfo['recipe'];
+            }
+        }
+
+        if (empty($addedDieRecipes)) {
+            return '';
+        } elseif (1 == count($addedDieRecipes)) {
+            $msgStart = 'Defender ';
+            $msgEnd = ' was added';
+        } else {
+            $msgStart = 'Defenders ';
+            $msgEnd = ' were added';
+        }
+
+        return $msgStart . implode(', ', $addedDieRecipes) . $msgEnd;
     }
 
     /**
