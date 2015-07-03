@@ -62,6 +62,11 @@ class BMSkillRadioactive extends BMSkill {
         }
 
         $attacker = &$args['attackers'][0];
+
+        if ($attacker->outOfPlay) {
+            return;
+        }
+
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
 
