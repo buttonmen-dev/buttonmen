@@ -669,10 +669,23 @@ class BMInterface {
             }
 
             $actionLogArray = $this->load_game_action_log($game, $logEntryLimit);
-            $data['gameActionLog'] = $actionLogArray['logEntries'];
-            $data['gameActionLogCount'] = $actionLogArray['nEntries'];
-            $data['gameChatLog'] = $this->load_game_chat_log($game, $logEntryLimit);
-            $data['gameChatLogCount'] = $this->count_game_chat_log($game);
+            if (empty($actionLogArray)) {
+                $data['gameActionLog'] = NULL;
+                $data['gameActionLogCount'] = 0;
+            } else {
+                $data['gameActionLog'] = $actionLogArray['logEntries'];
+                $data['gameActionLogCount'] = $actionLogArray['nEntries'];
+            }
+
+            $chatLogArray = $this->load_game_chat_log($game, $logEntryLimit);
+            if (empty($actionLogArray)) {
+                $data['gameChatLog'] = NULL;
+                $data['gameChatLogCount'] = 0;
+            } else {
+                $data['gameChatLog'] = $chatLogArray['chatEntries'];
+                $data['gameChatLogCount'] = $chatLogArray['nEntries'];
+            }
+
             $data['timestamp'] = $this->timestamp;
 
             $data['gameChatEditable'] = $this->find_editable_chat_timestamp(
@@ -2935,7 +2948,7 @@ class BMInterface {
             $nEntries = count($logEntries);
 
             if (!is_null($logEntryLimit) &&
-                (count($logEntries) > $logEntryLimit)) {
+                ($nEntries > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
 
@@ -2972,35 +2985,17 @@ class BMInterface {
                 );
             }
 
+            $nEntries = count($chatEntries);
+
             if (!is_null($logEntryLimit) &&
-                (count($chatEntries) > $logEntryLimit)) {
+                ($nEntries > $logEntryLimit)) {
                 $chatEntries = array_slice($chatEntries, 0, $logEntryLimit);
             }
 
-            return $chatEntries;
+            return array('chatEntries' => $chatEntries, 'nEntries' => $nEntries);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_game_chat_log: ' .
-                $e->getMessage()
-            );
-            $this->message = 'Internal error while reading chat entries';
-            return NULL;
-        }
-    }
-
-    protected function count_game_chat_log(BMGame $game) {
-        try {
-            $sqlParameters = array(':game_id' => $game->gameId);
-            $query = 'SELECT COUNT(*) AS num_entries FROM game_chat_log ';
-            $query .= $this->build_game_log_query_restrictions($game, TRUE, TRUE, $sqlParameters);
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute($sqlParameters);
-            $fetchResult = $statement->fetchAll();
-            return (int)$fetchResult[0]['num_entries'];
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::count_game_chat_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading chat entries';
@@ -3197,7 +3192,7 @@ class BMInterface {
             foreach ($game->playerIdArray as $gamePlayerId) {
                 $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
             }
-            $lastChatEntryList = $this->load_game_chat_log($game, 1);
+            $lastChatEntryList = $this->load_game_chat_log($game, 1)['chatEntries'];
             $lastActionEntryList = $this->load_game_action_log($game, 1)['logEntries'];
 
             if ($editTimestamp) {
@@ -3254,7 +3249,8 @@ class BMInterface {
                 'Caught exception in BMInterface::submit_chat: ' .
                 $e->getMessage()
             );
-            $this->message = 'Internal error while updating game chat';
+            $this->message = $e->getMessage();
+//            $this->message = 'Internal error while updating game chat';
         }
     }
 
