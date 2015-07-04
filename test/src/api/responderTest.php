@@ -10402,6 +10402,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 14.3;
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
+        $expData['gameActionLogCount'] = 2;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10430,6 +10431,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -5.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power", "Skill");
+        $expData['gameActionLogCount'] = 3;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10473,6 +10475,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -2.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
+        $expData['gameActionLogCount'] = 4;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10491,6 +10494,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 5;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10531,6 +10535,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -7.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
+        $expData['gameActionLogCount'] = 6;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10559,6 +10564,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -27.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 7;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10593,6 +10599,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -13.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
+        $expData['gameActionLogCount'] = 8;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10611,6 +10618,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][2]['properties'] = array();
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 9;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10703,6 +10711,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['roundNumber'] = 2;
         $expData['validAttackTypeArray'] = array();
+        $expData['gameActionLogCount'] = 11;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10722,6 +10731,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30) r^(4) rz(12) (1/30)");
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "4" => array(1, 30));
+        $expData['gameActionLogCount'] = 12;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10757,6 +10767,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 40;
         $expData['playerDataArray'][1]['sideScore'] = 20;
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Trip");
+        $expData['gameActionLogCount'] = 14;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10782,6 +10793,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 0;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 15;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10811,6 +10823,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 1;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
+        $expData['gameActionLogCount'] = 16;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10837,6 +10850,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -19;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 17;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10879,6 +10893,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -16;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
+        $expData['gameActionLogCount'] = 18;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10905,6 +10920,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -36;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 19;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10939,6 +10955,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -22;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Shadow", "Trip");
+        $expData['gameActionLogCount'] = 20;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10958,6 +10975,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][2]['properties'] = array();
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
+        $expData['gameActionLogCount'] = 21;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -10984,6 +11002,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][3]['value'] = 5;
         $expData['playerDataArray'][1]['roundScore'] = 58;
         $expData['playerDataArray'][1]['sideScore'] = 8;
+        $expData['gameActionLogCount'] = 23;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11051,6 +11070,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set die sizes'));
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['gameActionLogCount'] = 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11087,6 +11107,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 3.3;
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Boom");
+        $expData['gameActionLogCount'] = 3;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11114,6 +11135,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 18;
         $expData['playerDataArray'][1]['sideScore'] = 0.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['gameActionLogCount'] = 4;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11142,6 +11164,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 28;
         $expData['playerDataArray'][1]['sideScore'] = 10.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['gameActionLogCount'] = 5;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
