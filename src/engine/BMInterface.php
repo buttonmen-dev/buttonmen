@@ -3249,8 +3249,7 @@ class BMInterface {
                 'Caught exception in BMInterface::submit_chat: ' .
                 $e->getMessage()
             );
-            $this->message = $e->getMessage();
-//            $this->message = 'Internal error while updating game chat';
+            $this->message = 'Internal error while updating game chat';
         }
     }
 
