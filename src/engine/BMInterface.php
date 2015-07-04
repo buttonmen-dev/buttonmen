@@ -668,8 +668,9 @@ class BMInterface {
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
             }
 
-            $data['gameActionLog'] = $this->load_game_action_log($game, $logEntryLimit);
-            $data['gameActionLogCount'] = $this->count_game_action_log($game);
+            $actionLogArray = $this->load_game_action_log($game, $logEntryLimit);
+            $data['gameActionLog'] = $actionLogArray['logEntries'];
+            $data['gameActionLogCount'] = $actionLogArray['nEntries'];
             $data['gameChatLog'] = $this->load_game_chat_log($game, $logEntryLimit);
             $data['gameChatLogCount'] = $this->count_game_chat_log($game);
             $data['timestamp'] = $this->timestamp;
@@ -2931,38 +2932,20 @@ class BMInterface {
                 }
             }
 
+            $nEntries = count($logEntries);
+
             if (!is_null($logEntryLimit) &&
                 (count($logEntries) > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
 
-            return $logEntries;
+            return array('logEntries' => $logEntries, 'nEntries' => $nEntries);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_game_action_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading log entries';
-            return NULL;
-        }
-    }
-
-    protected function count_game_action_log(BMGame $game) {
-        try {
-            $sqlParameters = array(':game_id' => $game->gameId);
-            $query = 'SELECT COUNT(*) AS num_entries FROM game_action_log ';
-            $query .= $this->build_game_log_query_restrictions($game, FALSE, TRUE, $sqlParameters);
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
-            $fetchResult = $statement->fetchAll();
-            return (int)$fetchResult[0]['num_entries'];
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::count_game_action_log: ' .
-                $e->getMessage()
-            );
-            $this->message = 'Internal error while counting log entries';
             return NULL;
         }
     }
@@ -3215,7 +3198,7 @@ class BMInterface {
                 $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
             }
             $lastChatEntryList = $this->load_game_chat_log($game, 1);
-            $lastActionEntryList = $this->load_game_action_log($game, 1);
+            $lastActionEntryList = $this->load_game_action_log($game, 1)['logEntries'];
 
             if ($editTimestamp) {
                 // player is trying to edit a given chat entry -
