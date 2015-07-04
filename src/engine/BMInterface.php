@@ -3195,8 +3195,10 @@ class BMInterface {
             foreach ($game->playerIdArray as $gamePlayerId) {
                 $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
             }
-            $lastChatEntryList = $this->load_game_chat_log($game, 1)['chatEntries'];
-            $lastActionEntryList = $this->load_game_action_log($game, 1)['logEntries'];
+            $chatArray = $this->load_game_chat_log($game, 1);
+            $lastChatEntryList = $chatArray['chatEntries'];
+            $logArray = $this->load_game_action_log($game, 1);
+            $lastActionEntryList = $logArray['logEntries'];
 
             if ($editTimestamp) {
                 // player is trying to edit a given chat entry -
