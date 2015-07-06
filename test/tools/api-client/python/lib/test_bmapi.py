@@ -124,8 +124,10 @@ class TestBMClient(unittest.TestCase):
 
   def test_load_game_data(self):
     known_keys = [
-      'activePlayerIdx', 'currentPlayerIdx', 'description', 'gameActionLog',
-      'gameChatEditable', 'gameChatLog', 'gameId', 'gameSkillsInfo',
+      'activePlayerIdx', 'currentPlayerIdx', 'description',
+      'gameActionLog', 'gameActionLogCount',
+      'gameChatEditable', 'gameChatLog', 'gameChatLogCount',
+      'gameId', 'gameSkillsInfo',
       'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
       'previousGameId', 'roundNumber', 'timestamp', 'validAttackTypeArray'
     ]
