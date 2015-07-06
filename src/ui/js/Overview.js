@@ -8,6 +8,8 @@ Overview.bodyDivId = 'overview_page';
 Overview.GAME_STATE_END_GAME = 60;
 
 Overview.MONITOR_TIMEOUT = 60;
+Overview.STALENESS_DAYS = 14;
+Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -260,6 +262,7 @@ Overview.pageAddGameTable = function(
   }
 
   var i = 0;
+  var staleGamesExist = false;
   while (i < gamesource.length) {
     var gameInfo = gamesource[i];
     var playerColor = gameInfo.playerColor;
@@ -273,6 +276,12 @@ Overview.pageAddGameTable = function(
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'Play Game ' + gameInfo.gameId,}));
     } else if (gameType == 'awaitingOpponent') {
+      if (gameInfo.inactivityRaw > Overview.STALENESS_SECS) {
+        staleGamesExist = true;
+        gameRow.addClass('staleGame');
+        gameRow.hide();
+      }
+
       gameLinkTd =
         $('<td>', { 'style': 'background-color: ' + opponentColor, });
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
@@ -340,6 +349,33 @@ Overview.pageAddGameTable = function(
     i += 1;
     tableBody.append(gameRow);
   }
+
+  if (staleGamesExist) {
+    var tableFoot = $('<tfoot>');
+    var footRow = $('<tr>');
+    var footCol = $('<td>', {
+      'colspan': '6',
+    });
+    var staleToggle = $('<a>', {
+      'id': 'staleToggle',
+      'href': 'javascript:Overview.toggleStaleGame();',
+      'text': 'Show stale games',
+    });
+
+    footCol.append('[').append(staleToggle).append(']');
+    footRow.append(footCol);
+    tableFoot.append(footRow);
+    tableBody.closest('table').append(tableFoot);
+  }
+};
+
+Overview.toggleStaleGame = function() {
+  $('.staleGame').toggle();
+  $('#staleToggle').text(
+    $('.staleGame').is(':visible') ?
+    'Hide stale games' :
+    'Show stale games'
+  );
 };
 
 Overview.pageAddIntroText = function() {
