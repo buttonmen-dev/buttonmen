@@ -800,19 +800,28 @@ class BMDie extends BMCanHaveSkill {
         }
 
         if ($this->has_flag('JustPerformedTripAttack')) {
-            $actionLogInfo['valueAfterTripAttack'] = $this->flagList['JustPerformedTripAttack']->value();
+            $actionLogInfo['valueAfterTripAttack'] =
+                $this->flagList['JustPerformedTripAttack']->value();
+        }
+
+        if ($this->has_flag('JustPerformedBerserkAttack')) {
+            $actionLogInfo['recipeAfterBerserkAttack'] =
+                $this->flagList['JustPerformedBerserkAttack']->value();
         }
 
         if ($this->has_flag('HasJustGrown')) {
-            $actionLogInfo['recipeBeforeGrowing'] = $this->flagList['HasJustGrown']->value();
+            $actionLogInfo['recipeBeforeGrowing'] =
+                $this->flagList['HasJustGrown']->value();
         }
 
         if ($this->has_flag('HasJustShrunk')) {
-            $actionLogInfo['recipeBeforeShrinking'] = $this->flagList['HasJustShrunk']->value();
+            $actionLogInfo['recipeBeforeShrinking'] =
+                $this->flagList['HasJustShrunk']->value();
         }
 
         if ($this->has_flag('HasJustSplit')) {
-            $actionLogInfo['recipeBeforeSplitting'] = $this->flagList['HasJustSplit']->value();
+            $actionLogInfo['recipeBeforeSplitting'] =
+                $this->flagList['HasJustSplit']->value();
         }
 
         return($actionLogInfo);

@@ -245,6 +245,10 @@ test("test_Overview.pageAddGameTable", function(assert) {
   });
 });
 
+test("test_Overview.toggleStaleGame", function(assert) {
+  // james: currently don't know how to do this testing
+})
+
 test("test_Overview.pageAddIntroText", function(assert) {
   Overview.page = $('<div>');
   Overview.pageAddIntroText();
