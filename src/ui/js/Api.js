@@ -312,6 +312,7 @@ var Api = (function () {
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
         'inactivity': data.inactivityArray[i],
+        'inactivityRaw': data.inactivityRawArray[i],
         'playerColor': data.playerColorArray[i],
         'opponentColor': data.opponentColorArray[i],
       };
@@ -418,7 +419,9 @@ var Api = (function () {
 
     my.game.timestamp = data.timestamp;
     my.game.actionLog = data.gameActionLog;
+    my.game.actionLogCount = data.gameActionLogCount;
     my.game.chatLog = data.gameChatLog;
+    my.game.chatLogCount = data.gameChatLogCount;
     my.game.chatEditable = data.gameChatEditable;
 
     // Do some sanity-checking of the data we have
