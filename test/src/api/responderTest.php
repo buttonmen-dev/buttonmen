@@ -11201,7 +11201,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This game reproduces loggin behavior when a die with a second size-changing power makes a Berserk attack
      */
@@ -11255,7 +11254,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => 13, 'sides' => 20, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(20)', 'description' => 'Value 20-sided die'),
         );
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(4):4, d(6):4, B(10):1, hd(10):2, hB(12):2], responder004 rolled [b(6):2, q(6):2, v(10):4, qb(12):2, v(20):13].'));
-        $expData['gameActionLogCount'] = 1;
+        $expData['gameActionLogCount'] += 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11269,6 +11268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData['activePlayerIdx'] = 1;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(4):4] against [b(6):2]; Defender b(6) was captured; Attacker (4) rerolled 4 => 1'));
+        $expData['gameActionLogCount'] += 1;
         $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 1;
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
         $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "b(6)";
@@ -11282,7 +11282,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -6.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Boom");
-        $expData['gameActionLogCount'] = 2;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11299,6 +11298,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData['activePlayerIdx'] = 0;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Boom attack using [qb(12):2] against [hd(10):2]; Defender hd(10) recipe changed to hd(8), rerolled 2 => 4, was not captured; Attacker qb(12) does not reroll, was taken out of play'));
+        $expData['gameActionLogCount'] += 1;
         $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Weak Stealth 8-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array("HasJustShrunk");
         $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "hd(8)";
@@ -11317,7 +11317,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -9.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Berserk");
-        $expData['gameActionLogCount'] = 3;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11332,6 +11331,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData['activePlayerIdx'] = 1;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1'));
+        $expData['gameActionLogCount'] += 1;
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Weak 4-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array("HasJustSplit", "JustPerformedBerserkAttack", "HasJustShrunk");
@@ -11351,7 +11351,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = -13;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['validAttackTypeArray'] = array("Power");
-        $expData['gameActionLogCount'] = 4;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
