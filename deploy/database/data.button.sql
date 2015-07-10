@@ -647,12 +647,12 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # UNEXPLODED COW (Cheapass Games)   INTRODUCES Boom(b) Dice AND Mad Swing(&) Dice
 # ASSUMED ALL TO BE TL
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(286, 'George',     '(4) (6) b(6) b(20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-(287, 'Violette',   '(8) (8) b(10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-(288, 'Elsie',      '(4) b(4) (10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-(289, 'Kasper',     '(6) b(8) (12) b(20) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-(290, 'Montague',   'b(4) b(10) (12) (20) &(Y)',    0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-(291, 'Neville',    'b(4) (8) b(8) (20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+(286, 'George',     '(4) (6) b(6) b(20) (Y)&',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+(287, 'Violette',   '(8) (8) b(10) b(12) (Y)&',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+(288, 'Elsie',      '(4) b(4) (10) b(12) (Y)&',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+(289, 'Kasper',     '(6) b(8) (12) b(20) (Y)&',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+(290, 'Montague',   'b(4) b(10) (12) (20) (Y)&',    0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+(291, 'Neville',    'b(4) (8) b(8) (20) (Y)&',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 (292, 'Thaddeus',   '(10) (14) (14) (18) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 (293, 'Buckley',    '(4) (4) (18) (X) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow"));
 

@@ -318,20 +318,38 @@ Forum.showThread = function() {
 
   var replyBodyTd = $('<td>', { 'class': 'body' });
   replyTr.append(replyBodyTd);
-  replyBodyTd.append($('<textarea>', {
+  var replyBodyTextArea = $('<textarea>', {
     'placeholder': 'Reply to thread...',
     'maxlength': Forum.FORUM_BODY_MAX_LENGTH,
-  }));
+  });
+  replyBodyTextArea.on('change keyup paste', function() {
+    if ('' === $(this).val().trim()) {
+      if ('disabled' == $('#markReadButton').attr('disabled')) {
+        $('#markReadButton').removeAttr('disabled');
+        $('#markReadButton').removeAttr('title');
+      }
+    } else {
+      if ('disabled' != $('#markReadButton').attr('disabled')) {
+        $('#markReadButton').attr('disabled', 'disabled');
+        $('#markReadButton').attr('title',
+          'Disabled because there is text in the reply box');
+      }
+    }
+  });
+  replyBodyTd.append(replyBodyTextArea);
+
   var replyButton = $('<input>', {
     'type': 'button',
     'value': 'Post reply',
   });
   replyBodyTd.append(replyButton);
+
   replyButton.click(Forum.formReplyToThread);
 
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
   table.append($('<tr>').append(markReadTd));
   var markReadButton = $('<input>', {
+    'id': 'markReadButton',
     'type': 'button',
     'value': 'Mark thread as read',
   });

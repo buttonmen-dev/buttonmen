@@ -320,7 +320,7 @@ class BMGameAction {
                 $this->message_recipe_change($defenderInfo, $postInfo, FALSE)
             );
 
-            if ($defenderRerollsEarly) {
+            if ($defenderRerollsEarly || !$postInfo['captured']) {
                 $this->message_append(
                     $postEventsDefender,
                     $this->message_value_change($defenderInfo, $postInfo)
@@ -329,6 +329,10 @@ class BMGameAction {
             $this->message_append(
                 $postEventsDefender,
                 $this->message_capture($postInfo)
+            );
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_out_of_play($defenderInfo, $postInfo)
             );
 
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
@@ -360,12 +364,32 @@ class BMGameAction {
 
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $initialAttackerInfo = $attackerInfo;
+
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
 
+            $messageBerserk = $this->message_berserk($attackerInfo, $postInfo);
             $this->message_append(
                 $postEventsAttacker,
-                $this->message_size_change($attackerInfo, $postInfo)
+                $messageBerserk
+            );
+
+            // now report as if the berserk attack were completed
+            if ($messageBerserk) {
+                $attackerInfo['recipe'] = $postInfo['recipeAfterBerserkAttack'];
+                $attackerInfo['max'] = self::max_from_recipe($postInfo['recipeAfterBerserkAttack']);
+            }
+
+            $messageSizeChange = '';
+            if ($messageBerserk) {
+                $messageSizeChange .= 'and then ';
+            }
+            $messageSizeChange .= $this->message_size_change($attackerInfo, $postInfo);
+
+            $this->message_append(
+                $postEventsAttacker,
+                $messageSizeChange
             );
             $this->message_append(
                 $postEventsAttacker,
@@ -375,16 +399,51 @@ class BMGameAction {
                 $postEventsAttacker,
                 $this->message_value_change($attackerInfo, $postInfo)
             );
+            $this->message_append(
+                $postEventsAttacker,
+                $this->message_out_of_play($attackerInfo, $postInfo)
+            );
 
             if (!empty($postEventsAttacker)) {
                 $messageAttackerArray[] =
-                    'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                    'Attacker ' . $initialAttackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
 
         $messageAttacker = implode('; ', $messageAttackerArray);
 
         return $messageAttacker;
+    }
+
+    /**
+     * Extracts the die max from a fully-qualified recipe.
+     *
+     * This has been written this way to work correctly for normal dice,
+     * swing dice, and twin dice. It fails for Wildcard at the moment.
+     *
+     * It would be possible to implement this fully to work with
+     * BMDie->create_from_recipe(), but it's a lot more complicated, and
+     * currently, it's only needed here in the logging.
+     *
+     * @param string $recipe
+     * @return int
+     */
+    protected static function max_from_recipe($recipe) {
+        if (preg_match('/\(.+=.+\)/', $recipe)) {
+            // if there is an equals present, it must be a swing or option die, so play safe and
+            // only look for numbers directly after an equals sign
+            preg_match_all('/=(\d+)/', $recipe, $matches);
+        } elseif (preg_match('/\(.+\/.+\)/', $recipe)) {
+            // if there is an unspecified option die (which shouldn't occur), then return no value
+            $matches = array();
+        } else {
+            preg_match_all('/(\d+)/', $recipe, $matches);
+        }
+        if (count($matches)) {
+            return array_sum($matches[1]);
+        } else {
+            return NULL;
+        }
     }
 
     /**
@@ -458,6 +517,27 @@ class BMGameAction {
     }
 
     /**
+     * Describes the recipe and size change during a berserk attack
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
+    protected function message_berserk(array $preInfo, array $postInfo) {
+        $message = '';
+
+        if (array_key_exists('recipeAfterBerserkAttack', $postInfo) &&
+            ($postInfo['recipe'] != $postInfo['recipeAfterBerserkAttack'])) {
+            $message .= 'changed to ' . $postInfo['recipeAfterBerserkAttack'] .
+                        ' and changed size from ' . $preInfo['max'] . ' to ' .
+                        $this->max_from_recipe($postInfo['recipeAfterBerserkAttack']) .
+                        ' sides because of the Berserk attack';
+        }
+
+        return $message;
+    }
+
+    /**
      * Describes a die size change
      *
      * @param array $preInfo
@@ -511,7 +591,7 @@ class BMGameAction {
      * @return string
      */
     protected function message_value_change($preInfo, $postInfo) {
-        if ($preInfo['doesReroll']) {
+        if ($postInfo['doesReroll']) {
             $message = 'rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
         } else {
             $message = 'does not reroll';
@@ -531,6 +611,28 @@ class BMGameAction {
             $message = 'was captured';
         } else {
             $message = 'was not captured';
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describes whether a die has been taken out of play
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
+    protected function message_out_of_play($preInfo, $postInfo) {
+        $message = '';
+
+        $isOutOfPlayPost = array_key_exists('outOfPlay', $postInfo) &&
+                           $postInfo['outOfPlay'];
+        $isOutOfPlayPre  = array_key_exists('outOfPlay', $preInfo) &&
+                           $preInfo['outOfPlay'];
+
+        if ($isOutOfPlayPost && !$isOutOfPlayPre) {
+            $message = 'was taken out of play';
         }
 
         return $message;

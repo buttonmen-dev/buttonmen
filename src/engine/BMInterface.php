@@ -456,8 +456,24 @@ class BMInterface {
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
             }
 
-            $data['gameActionLog'] = $this->load_game_action_log($game, $logEntryLimit);
-            $data['gameChatLog'] = $this->load_game_chat_log($game, $logEntryLimit);
+            $actionLogArray = $this->load_game_action_log($game, $logEntryLimit);
+            if (empty($actionLogArray)) {
+                $data['gameActionLog'] = NULL;
+                $data['gameActionLogCount'] = 0;
+            } else {
+                $data['gameActionLog'] = $actionLogArray['logEntries'];
+                $data['gameActionLogCount'] = $actionLogArray['nEntries'];
+            }
+
+            $chatLogArray = $this->load_game_chat_log($game, $logEntryLimit);
+            if (empty($actionLogArray)) {
+                $data['gameChatLog'] = NULL;
+                $data['gameChatLogCount'] = 0;
+            } else {
+                $data['gameChatLog'] = $chatLogArray['chatEntries'];
+                $data['gameChatLogCount'] = $chatLogArray['nEntries'];
+            }
+
             $data['timestamp'] = $this->timestamp;
 
             $data['gameChatEditable'] = $this->find_editable_chat_timestamp(
@@ -798,6 +814,7 @@ class BMInterface {
 
         $activeDieArrayArray = array_fill(0, count($game->playerIdArray), array());
         $captDieArrayArray = array_fill(0, count($game->playerIdArray), array());
+        $outOfPlayDieArrayArray = array_fill(0, count($game->playerIdArray), array());
 
         while ($row = $statement3->fetch()) {
             $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
@@ -850,11 +867,15 @@ class BMInterface {
                     $die->captured = TRUE;
                     $captDieArrayArray[$playerIdx][$row['position']] = $die;
                     break;
+                case 'OUT_OF_PLAY':
+                    $outOfPlayDieArrayArray[$playerIdx][$row['position']] = $die;
+                    break;
             }
         }
 
         $game->activeDieArrayArray = $activeDieArrayArray;
         $game->capturedDieArrayArray = $captDieArrayArray;
+        $game->outOfPlayDieArrayArray = $outOfPlayDieArrayArray;
     }
 
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
@@ -954,7 +975,9 @@ class BMInterface {
             $this->save_players_awaiting_action($game);
             $this->regenerate_essential_die_flags($game);
             $this->mark_existing_dice_as_deleted($game);
+            $this->save_active_dice($game);
             $this->save_captured_dice($game);
+            $this->save_out_of_play_dice($game);
             $this->delete_dice_marked_as_deleted($game);
             $this->save_action_log($game);
             $this->save_chat_log($game);
@@ -1363,32 +1386,28 @@ class BMInterface {
                  'WHERE game_id = :game_id;';
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':game_id' => $game->gameId));
+    }
 
-        // add active dice to table 'die'
-        if (isset($game->activeDieArrayArray)) {
-            foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'NORMAL';
-
-                    $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
+    protected function save_dice($game, $dieArrayArray, $status) {
+        if (isset($dieArrayArray)) {
+            foreach ($dieArrayArray as $playerIdx => $dieArray) {
+                foreach ($dieArray as $dieIdx => $die) {
+                    $this->db_insert_die($game, $playerIdx, $die, $status, $dieIdx);
                 }
             }
         }
     }
 
-    protected function save_captured_dice($game) {
-        // add captured dice to table 'die'
-        if (isset($game->capturedDieArrayArray)) {
-            foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'CAPTURED';
+    protected function save_active_dice($game) {
+        $this->save_dice($game, $game->activeDieArrayArray, 'NORMAL');
+    }
 
-                    $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
-                }
-            }
-        }
+    protected function save_captured_dice($game) {
+        $this->save_dice($game, $game->capturedDieArrayArray, 'CAPTURED');
+    }
+
+    protected function save_out_of_play_dice($game) {
+        $this->save_dice($game, $game->outOfPlayDieArrayArray, 'OUT_OF_PLAY');
     }
 
     protected function delete_dice_marked_as_deleted($game) {
@@ -2012,6 +2031,7 @@ class BMInterface {
         $gameStateArray = array();
         $statusArray = array();
         $inactivityArray = array();
+        $inactivityRawArray = array();
         $playerColorArray = array();
         $opponentColorArray = array();
 
@@ -2045,6 +2065,7 @@ class BMInterface {
             $statusArray[]        = $row['status'];
             $inactivityArray[]    =
                 $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
+            $inactivityRawArray[] = (int)$now - $row['last_action_timestamp'];
             $playerColorArray[]   = $gameColors['playerA'];
             $opponentColorArray[] = $gameColors['playerB'];
         }
@@ -2062,6 +2083,7 @@ class BMInterface {
                      'gameStateArray'          => $gameStateArray,
                      'statusArray'             => $statusArray,
                      'inactivityArray'         => $inactivityArray,
+                     'inactivityRawArray'      => $inactivityRawArray,
                      'playerColorArray'        => $playerColorArray,
                      'opponentColorArray'      => $opponentColorArray);
     }
@@ -2683,13 +2705,14 @@ class BMInterface {
 
     protected function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
+            $sqlParameters = array(':game_id' => $game->gameId);
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
                      'game_state,action_type,acting_player,message ' .
-                     'FROM game_action_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC';
+                     'FROM game_action_log ';
+            $query .= $this->build_game_log_query_restrictions($game, FALSE, FALSE, $sqlParameters);
 
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
+            $statement->execute($sqlParameters);
             $logEntries = array();
             $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
@@ -2716,12 +2739,14 @@ class BMInterface {
                 }
             }
 
+            $nEntries = count($logEntries);
+
             if (!is_null($logEntryLimit) &&
-                (count($logEntries) > $logEntryLimit)) {
+                ($nEntries > $logEntryLimit)) {
                 $logEntries = array_slice($logEntries, 0, $logEntryLimit);
             }
 
-            return $logEntries;
+            return array('logEntries' => $logEntries, 'nEntries' => $nEntries);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_game_action_log: ' .
@@ -2730,6 +2755,66 @@ class BMInterface {
             $this->set_message('Internal error while reading log entries');
             return NULL;
         }
+    }
+
+    protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
+        try {
+            $sqlParameters = array(':game_id' => $game->gameId);
+            $query =
+                'SELECT ' .
+                    'UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
+                    'chatting_player, ' .
+                    'message ' .
+                'FROM game_chat_log ';
+            $query .= $this->build_game_log_query_restrictions($game, TRUE, FALSE, $sqlParameters);
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute($sqlParameters);
+            $chatEntries = array();
+            while ($row = $statement->fetch()) {
+                $chatEntries[] = array(
+                    'timestamp' => (int)$row['chat_timestamp'],
+                    'player' => $this->get_player_name_from_id($row['chatting_player']),
+                    'message' => $row['message'],
+                );
+            }
+
+            $nEntries = count($chatEntries);
+
+            if (!is_null($logEntryLimit) &&
+                ($nEntries > $logEntryLimit)) {
+                $chatEntries = array_slice($chatEntries, 0, $logEntryLimit);
+            }
+
+            return array('chatEntries' => $chatEntries, 'nEntries' => $nEntries);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_game_chat_log: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading chat entries');
+            return NULL;
+        }
+    }
+
+    // Build the various different WHERE, ORDER BY and LIMIT clauses for the
+    // different action and chat log SELECT queries
+    protected function build_game_log_query_restrictions(
+        BMGame $game,
+        $isChat,
+        $isCount,
+        array &$sqlParameters
+    ) {
+        $restrictions = 'WHERE game_id = :game_id ';
+        if ($isChat && $game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
+            $restrictions .= 'OR game_id = :previous_game_id ';
+            $sqlParameters[':previous_game_id'] = $game->previousGameId;
+        }
+        if (!$isCount) {
+            $restrictions .= 'ORDER BY id DESC ' ;
+        }
+
+        return $restrictions;
     }
 
     // Create a status message based on recent game actions
@@ -2810,47 +2895,6 @@ class BMInterface {
                                   ':timestamp' => $editTimestamp));
     }
 
-    protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
-        try {
-            $sqlParameters = array(':game_id' => $game->gameId);
-            $query =
-                'SELECT ' .
-                    'UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
-                    'chatting_player, ' .
-                    'message ' .
-                'FROM game_chat_log ' .
-                'WHERE game_id = :game_id ';
-            if ($game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
-                $query .= 'OR game_id = :previous_game_id ';
-                $sqlParameters[':previous_game_id'] = $game->previousGameId;
-            }
-            $query .= 'ORDER BY id DESC ' ;
-            if (!is_null($logEntryLimit)) {
-                $query .= 'LIMIT :log_entry_limit';
-                $sqlParameters[':log_entry_limit'] = $logEntryLimit;
-            }
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute($sqlParameters);
-            $chatEntries = array();
-            while ($row = $statement->fetch()) {
-                $chatEntries[] = array(
-                    'timestamp' => (int)$row['chat_timestamp'],
-                    'player' => $this->get_player_name_from_id($row['chatting_player']),
-                    'message' => $row['message'],
-                );
-            }
-            return $chatEntries;
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::load_game_chat_log: ' .
-                $e->getMessage()
-            );
-            $this->set_message('Internal error while reading chat entries');
-            return NULL;
-        }
-    }
-
    // Can the active player edit the most recent chat entry in this game?
     protected function find_editable_chat_timestamp(
         $game,
@@ -2869,7 +2913,6 @@ class BMInterface {
         if (count($chatLogEntries) == 0) {
             return FALSE;
         }
-
         // Only the most recent chat entry can be modified --- was
         // it made by the active player?
         if ((FALSE === $currentPlayerIdx) ||
@@ -2943,8 +2986,10 @@ class BMInterface {
             foreach ($game->playerIdArray as $gamePlayerId) {
                 $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
             }
-            $lastChatEntryList = $this->load_game_chat_log($game, 1);
-            $lastActionEntryList = $this->load_game_action_log($game, 1);
+            $chatArray = $this->load_game_chat_log($game, 1);
+            $lastChatEntryList = $chatArray['chatEntries'];
+            $logArray = $this->load_game_action_log($game, 1);
+            $lastActionEntryList = $logArray['logEntries'];
 
             if ($editTimestamp) {
                 // player is trying to edit a given chat entry -
