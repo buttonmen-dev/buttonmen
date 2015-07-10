@@ -27,6 +27,7 @@ node default {
 
   # Generic node configuration
   include "apt::client"
+  include "ntp::client"
   include "postfix::base"
   include "user::buttonmen-devs"
   include "sudo::buttonmen-devs"
