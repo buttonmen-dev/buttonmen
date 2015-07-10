@@ -108,6 +108,7 @@ class BMSkill {
     protected static function skill_name_abbreviation_mapping() {
         return array('Auxiliary'    => '+',
                      'Berserk'      => 'B',
+                     'Boom'         => 'b',
                      'Chance'       => 'c',
                      'Doppelganger' => 'D',
                      'Fire'         => 'F',
@@ -131,6 +132,9 @@ class BMSkill {
                      'Stinger'      => 'g',
                      'TimeAndSpace' => '^',
                      'Trip'         => 't',
+// james: Turbo must stay commented so that it remains inactive until the
+//        implementation is complete
+//                     'Turbo'        => '!',
                      'Value'        => 'v',
                      'Warrior'      => '`',
                      'Weak'         => 'h');
@@ -152,6 +156,7 @@ class BMSkill {
      */
     public static function attack_types() {
         return array(// skill related attack types
+                     'Boom',
                      'Berserk',
                      'Konstant',
                      'Null',
@@ -216,6 +221,7 @@ class BMSkill {
                      'BMSkillReserve',
                      'BMSkillChance',
                      'BMSkillFocus',
+                     'BMSkillBoom',
                      'BMSkillSpeed',
                      'BMSkillTrip',
                      'BMSkillQueer',

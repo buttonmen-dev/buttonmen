@@ -32,6 +32,7 @@
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property-read array $capturedDieArrayArray   Captured dice for all players
+ * @property-read array $outOfPlayDieArrayArray  Out-of-play dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
@@ -211,6 +212,13 @@ class BMGame {
      * @var array
      */
     protected $capturedDieArrayArray;
+
+    /**
+     * Out-of-play dice for all players
+     *
+     * @var array
+     */
+    protected $outOfPlayDieArrayArray;
 
     /**
      * Current points score in this round
@@ -662,13 +670,32 @@ class BMGame {
 
         foreach ($this->optValueArrayArray as $playerIdx => $optionValueArray) {
             if (!empty($optionValueArray)) {
+                $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+
                 foreach ($optionValueArray as $dieIdx => $optionValue) {
-                    $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
-                    assert($die instanceof BMDieOption);
+                    $die = $this->activeDieArrayArray[$playerIdx][$dieIndicesWithoutReserve[$dieIdx]];
+                    if (!($die instanceof BMDieOption)) {
+                        throw new LogicException('Die must be an option die.');
+                    }
+
                     $die->set_optionValue($optionValue);
                 }
             }
         }
+    }
+
+    protected function die_indices_without_reserve($playerIdx) {
+        $activeDieArray = $this->activeDieArrayArray[$playerIdx];
+        $hasReserveArray = array_fill(0, count($activeDieArray), FALSE);
+
+        foreach ($activeDieArray as $dieIdx => $die) {
+            if ($die->has_skill('Reserve')) {
+                $hasReserveArray[$dieIdx] = TRUE;
+            }
+        }
+
+        $dieIndicesWithoutReserve = array_keys($hasReserveArray, FALSE, TRUE);
+        return($dieIndicesWithoutReserve);
     }
 
     protected function update_game_state_add_available_dice_to_game() {
@@ -785,6 +812,7 @@ class BMGame {
 
             }
 
+            $this->update_opt_requests_to_ignore_reserve_dice();
             $this->remove_dice_with_skill('Reserve');
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
@@ -814,6 +842,34 @@ class BMGame {
         }
 
         return $areAnyDiceAdded;
+    }
+
+    protected function update_opt_requests_to_ignore_reserve_dice() {
+        if (empty($this->optRequestArrayArray)) {
+            return;
+        }
+
+        $optRequestArrayArray = $this->optRequestArrayArray;
+
+        foreach ($optRequestArrayArray as $playerIdx => $optRequestArray) {
+            if (empty($optRequestArray)) {
+                continue;
+            }
+
+            $newOptRequestArray = array();
+            $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+
+            foreach ($optRequestArray as $dieIdx => $optRequest) {
+                $newDieIdx = array_search($dieIdx, $dieIndicesWithoutReserve, TRUE);
+                if (FALSE !== $newDieIdx) {
+                    $newOptRequestArray[$newDieIdx] = $optRequest;
+                }
+            }
+
+            $optRequestArrayArray[$playerIdx] = $newOptRequestArray;
+        }
+
+        $this->optRequestArrayArray = $optRequestArrayArray;
     }
 
     protected function do_next_step_specify_dice() {
@@ -1662,6 +1718,14 @@ class BMGame {
         }
 
         unset($this->fireCache);
+        $this->gameState = BMGameState::CHOOSE_TURBO_SWING;
+    }
+
+    protected function do_next_step_choose_turbo_swing() {
+
+    }
+
+    protected function update_game_state_choose_turbo_swing() {
         $this->gameState = BMGameState::END_TURN;
     }
 
@@ -2423,6 +2487,7 @@ class BMGame {
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
+        $this->outOfPlayDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $this->swingRequestArrayArray = array_fill(0, $nPlayers, array());
         $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
@@ -3293,6 +3358,7 @@ class BMGame {
                 'button'              => $this->get_buttonInfo($playerIdx),
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
+                'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
                 'swingRequestArray'   => $this->get_swingRequestArray($playerIdx),
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
@@ -3406,11 +3472,32 @@ class BMGame {
                     'value' => $die->value,
                     'sides' => $die->max,
                     'recipe' => $die->recipe,
-                    'properties' => $this->get_capturedDieProps($die),
+                    'properties' => $this->get_dieProps($die),
                 );
             }
         }
         return $capturedDieArray;
+    }
+
+    /**
+     * Array of info about out of play dice
+     *
+     * @param int $playerIdx
+     * @return array
+     */
+    protected function get_outOfPlayDieArray($playerIdx) {
+        $outOfPlayDieArray = array();
+        if (isset($this->outOfPlayDieArrayArray)) {
+            foreach ($this->outOfPlayDieArrayArray[$playerIdx] as $die) {
+                $outOfPlayDieArray[] = array(
+                    'value' => $die->value,
+                    'sides' => $die->max,
+                    'recipe' => $die->recipe,
+                    'properties' => $this->get_dieProps($die),
+                );
+            }
+        }
+        return $outOfPlayDieArray;
     }
 
     /**
@@ -3697,19 +3784,19 @@ class BMGame {
     }
 
     /**
-     * Array of captured die properties
+     * Array of die properties
      *
      * @param BMDie $die
      * @return array
      */
-    protected function get_capturedDieProps($die) {
-        $capturedDieProps = array();
+    protected function get_dieProps($die) {
+        $dieProps = array();
         if (!empty($die->flagList)) {
             foreach (array_keys($die->flagList) as $flag) {
-                $capturedDieProps[] = $flag;
+                $dieProps[] = $flag;
             }
         }
-        return $capturedDieProps;
+        return $dieProps;
     }
 
     /**

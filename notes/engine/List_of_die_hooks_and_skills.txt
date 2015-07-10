@@ -5,7 +5,9 @@ add_skill
   Null
   Value
 pre_roll
+  Mighty
   Mood
+  Weak
 roll
   Maximum
 post_roll
@@ -13,6 +15,7 @@ post_roll
   TimeAndSpace
 attack_list
   Berserk
+  Boom
   Fire
   Konstant
   Queer
@@ -39,6 +42,7 @@ assist_values
   Fire
 capture
   Berserk
+  Boom
   Doppelganger
   Morphing
   Null

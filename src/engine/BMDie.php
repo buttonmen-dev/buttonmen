@@ -20,6 +20,7 @@
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
+ * @property      bool   $outOfPlay             Is the die out of play?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  *
  *  */
@@ -103,6 +104,13 @@ class BMDie extends BMCanHaveSkill {
      * @var bool
      */
     protected $captured = FALSE;
+
+    /**
+     * Flag signalling whether the die is out of play
+     *
+     * @var bool
+     */
+    protected $outOfPlay = FALSE;
 
     /**
      * Array designed to contain various BMFlags
@@ -610,6 +618,7 @@ class BMDie extends BMCanHaveSkill {
             if ($size < $this->max) {
                 $this->add_flag('HasJustShrunk', $this->get_recipe());
                 $this->max = $size;
+                unset($this->value);
                 return;
             }
         }
@@ -627,6 +636,7 @@ class BMDie extends BMCanHaveSkill {
                 $this->add_flag('HasJustGrown', $this->get_recipe());
                 $this->max = $size;
                 $this->min = 1;  // deal explicitly with the possibility of 0-siders
+                unset($this->value);
                 return;
             }
         }
@@ -701,6 +711,9 @@ class BMDie extends BMCanHaveSkill {
     /**
      * helper function to print a die sidecount with or without its swing/option value
      *
+     * @param string $sidecountStr
+     * @param BMDie $dieObj
+     * @param boolean $addMaxval
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
@@ -767,6 +780,7 @@ class BMDie extends BMCanHaveSkill {
             'value' => $this->value,
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
+            'outOfPlay' => $this->outOfPlay,
             'recipeStatus' => $recipe . ':' . $this->value,
         );
 
@@ -786,19 +800,28 @@ class BMDie extends BMCanHaveSkill {
         }
 
         if ($this->has_flag('JustPerformedTripAttack')) {
-            $actionLogInfo['valueAfterTripAttack'] = $this->flagList['JustPerformedTripAttack']->value();
+            $actionLogInfo['valueAfterTripAttack'] =
+                $this->flagList['JustPerformedTripAttack']->value();
+        }
+
+        if ($this->has_flag('JustPerformedBerserkAttack')) {
+            $actionLogInfo['recipeAfterBerserkAttack'] =
+                $this->flagList['JustPerformedBerserkAttack']->value();
         }
 
         if ($this->has_flag('HasJustGrown')) {
-            $actionLogInfo['recipeBeforeGrowing'] = $this->flagList['HasJustGrown']->value();
+            $actionLogInfo['recipeBeforeGrowing'] =
+                $this->flagList['HasJustGrown']->value();
         }
 
         if ($this->has_flag('HasJustShrunk')) {
-            $actionLogInfo['recipeBeforeShrinking'] = $this->flagList['HasJustShrunk']->value();
+            $actionLogInfo['recipeBeforeShrinking'] =
+                $this->flagList['HasJustShrunk']->value();
         }
 
         if ($this->has_flag('HasJustSplit')) {
-            $actionLogInfo['recipeBeforeSplitting'] = $this->flagList['HasJustSplit']->value();
+            $actionLogInfo['recipeBeforeSplitting'] =
+                $this->flagList['HasJustSplit']->value();
         }
 
         return($actionLogInfo);
@@ -818,7 +841,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Determine whether the die skips the swing request phase
      *
-     * @return type
+     * @return boolean
      */
     public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
@@ -985,6 +1008,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the maximum value of the die
+     *
+     *  @param int $value
      */
     protected function set__max($value) {
         if ($value === 0) {
@@ -1010,6 +1035,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the value of the die
+     *
+     * @param int $value
      */
     protected function set__value($value) {
         if (!is_null($value) &&
@@ -1032,6 +1059,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the recipe of the die
+     *
+     * @param string $value
      */
     protected function set__recipe() {
         throw new LogicException(
@@ -1041,6 +1070,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the ownerObject of the die
+     *
+     * @param mixed $value
      */
     protected function set__ownerObject($value) {
         if (!(is_null($value) ||
@@ -1056,6 +1087,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the index value of the player who owns the die
+     *
+     * @param int $value
      */
     protected function set__playerIdx($value) {
         if (!is_null($value) &&
@@ -1169,7 +1202,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Unset
      *
-     * @param type $property
+     * @param mixed $property
      * @return boolean
      */
     public function __unset($property) {
