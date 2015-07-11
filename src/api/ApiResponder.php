@@ -12,17 +12,22 @@
 class ApiResponder {
 
     // properties
-    private $isTest;               // whether this invocation is for testing
+    protected $isTest;               // whether this invocation is for testing
 
     // functions which allow access by unauthenticated users
     // For now, all game functionality should require login: only
     // add things to this list if they are necessary for user
     // creation and/or login.
-    private $unauthFunctions = array(
+    protected $unauthFunctions = array(
         'createUser',
         'verifyUser',
         'loadPlayerName',
         'login',
+    );
+
+    // functions that handle player-related information
+    protected $playerFunctions = array(
+        'createGame',
     );
 
     /**
@@ -44,46 +49,6 @@ class ApiResponder {
             require_once 'api_core.php';
             require_once('../lib/bootstrap.php');
         }
-    }
-
-    // This function looks at the provided arguments and verifies
-    // both that an appropriate interface routine exists and that
-    // the requester has sufficient credentials to access it
-    protected function verify_function_access($args) {
-        if (array_key_exists('type', $args)) {
-            $funcname = 'get_interface_response_' . $args['type'];
-            if (method_exists($this, $funcname)) {
-                if (in_array($args['type'], $this->unauthFunctions)) {
-                    $result = array(
-                        'ok' => TRUE,
-                        'functype' => 'newuser',
-                        'funcname' => $funcname,
-                    );
-                } elseif (auth_session_exists()) {
-                    $result = array(
-                        'ok' => TRUE,
-                        'functype' => 'auth',
-                        'funcname' => $funcname,
-                    );
-                } else {
-                    $result = array(
-                        'ok' => FALSE,
-                        'message' => "You need to login before calling API function " . $args['type'],
-                    );
-                }
-            } else {
-                $result = array(
-                    'ok' => FALSE,
-                    'message' => 'Specified API function does not exist',
-                );
-            }
-        } else {
-            $result = array(
-                'ok' => FALSE,
-                'message' => 'No "type" argument specified',
-            );
-        }
-        return $result;
     }
 
     protected function get_interface_response_createUser($interface, $args) {
@@ -144,7 +109,7 @@ class ApiResponder {
         if (isset($retval)) {
             foreach ($playerIdArray as $playerId) {
                 if (isset($playerId)) {
-                    $interface->update_last_action_time($playerId, $retval['gameId']);
+                    $interface->player()->update_last_action_time($playerId, $retval['gameId']);
                 }
             }
         }
@@ -261,7 +226,8 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadPlayerInfo($interface) {
-        return $interface->get_player_info($_SESSION['user_id']);
+        $result = $interface->player()->get_player_info($_SESSION['user_id']);
+        return $result;
     }
 
     protected function get_interface_response_savePlayerInfo($interface, $args) {
@@ -308,21 +274,22 @@ class ApiResponder {
             $addlInfo['new_email'] = $args['new_email'];
         }
 
-        $retval = $interface->set_player_info(
+        $retval = $interface->player()->set_player_info(
             $_SESSION['user_id'],
             $infoArray,
             $addlInfo
         );
 
         if (isset($retval)) {
-            $interface->update_last_action_time($_SESSION['user_id']);
+            $interface->player()->update_last_action_time($_SESSION['user_id']);
         }
 
         return $retval;
     }
 
-    protected function get_interface_response_loadProfileInfo($interface, $args) {
-        return $interface->get_profile_info($args['playerName']);
+    protected function get_interface_response_loadProfileInfo(&$interface, $args) {
+        $result = $interface->player()->get_profile_info($args['playerName']);
+        return $result;
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {
@@ -349,7 +316,7 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -368,7 +335,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -387,7 +354,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -411,7 +378,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -435,7 +402,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -453,7 +420,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -476,7 +443,7 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
         }
 
         return $retval;
@@ -487,7 +454,7 @@ class ApiResponder {
         if (isset($retval)) {
             // Just update the player's last action time. Don't update the
             // game's, since the game is already over.
-            $interface->update_last_action_time($_SESSION['user_id']);
+            $interface->player()->update_last_action_time($_SESSION['user_id']);
         }
         return $retval;
     }
@@ -604,15 +571,7 @@ class ApiResponder {
                 // As far as we can easily tell, it's safe to call
                 // the function.  Go ahead and create an interface
                 // object, invoke the function, and return the result
-                if ($check['functype'] == 'auth') {
-                    apache_note('BMUserID', $_SESSION['user_id']);
-                    $interface = new BMInterface($this->isTest);
-                    if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
-                        $interface->update_last_access_time($_SESSION['user_id']);
-                    }
-                } else {
-                    $interface = new BMInterfaceNewuser($this->isTest);
-                }
+                $interface = $this->create_interface($args, $check);
                 apache_note('BMAPIMethod', $args['type']);
                 $data = $this->$check['funcname']($interface, $args);
 
@@ -650,6 +609,72 @@ class ApiResponder {
             header('Content-Type: application/json');
             echo json_encode($output);
         }
+    }
+
+    // This function looks at the provided arguments and verifies
+    // both that an appropriate interface routine exists and that
+    // the requester has sufficient credentials to access it
+    protected function verify_function_access($args) {
+        if (array_key_exists('type', $args)) {
+            $funcname = 'get_interface_response_' . $args['type'];
+            if (method_exists($this, $funcname)) {
+                if (in_array($args['type'], $this->unauthFunctions)) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'newuser',
+                        'funcname' => $funcname,
+                    );
+                } elseif (auth_session_exists()) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'auth',
+                        'funcname' => $funcname,
+                    );
+                } else {
+                    $result = array(
+                        'ok' => FALSE,
+                        'message' => "You need to login before calling API function " . $args['type'],
+                    );
+                }
+            } else {
+                $result = array(
+                    'ok' => FALSE,
+                    'message' => 'Specified API function does not exist',
+                );
+            }
+        } else {
+            $result = array(
+                'ok' => FALSE,
+                'message' => 'No "type" argument specified',
+            );
+        }
+        return $result;
+    }
+
+    protected function create_interface($args, $check) {
+        if ($check['functype'] != 'auth') {
+            return new BMInterfaceNewuser($this->isTest);
+        }
+
+        apache_note('BMUserID', $_SESSION['user_id']);
+
+        $interface = $this->select_interface_type($check['funcname']);
+
+        if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
+            $interface->player()->update_last_access_time($_SESSION['user_id']);
+        }
+
+        return $interface;
+    }
+
+    protected function select_interface_type($funcname) {
+        if (array_search($funcname, $this->playerFunctions, TRUE)) {
+            $interface = new BMInterfacePlayer($this->isTest);
+        } else {
+            $interface = new BMInterface($this->isTest);
+        }
+
+        return $interface;
     }
 }
 
