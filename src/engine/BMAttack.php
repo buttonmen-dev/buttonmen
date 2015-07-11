@@ -298,7 +298,11 @@ abstract class BMAttack {
             $att->capture($this->type, $attackers, $defenders);
         }
 
-        foreach ($defenders as &$def) {
+        // james: it's necessary here to copy the $defenders array
+        // because Rage may add dice to $defenders
+        $defendersCopy = $defenders;
+
+        foreach ($defendersCopy as &$def) {
             $def->be_captured($this->type, $attackers, $defenders);
         }
 

@@ -150,4 +150,139 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($defenders[1]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($defenders[1]->has_flag('WasJustCaptured'));
     }
+
+    /**
+     * @covers BMSkillRage::be_captured
+     */
+    public function testBe_captured_multiple() {
+        $game = new BMGame;
+
+        $dummy = BMDie::create(99);
+        $dummy->value = 5;
+        $dummy->ownerObject = $game;
+
+        $dummy1 = clone $dummy;
+        $dummy2 = clone $dummy;
+        $dummy3 = clone $dummy;
+
+        $att = BMDie::create(6);
+        $att->add_skill('Speed');
+        $att->value = 5;
+        $att->ownerObject = $game;
+        $att->playerIdx = 0;
+
+        $def1 = BMDie::create(8);
+        $def1->add_skill('Rage');
+        $def1->value = 2;
+        $def1->ownerObject = $game;
+        $def1->playerIdx = 1;
+        $def1->captured = TRUE;
+        $def1->add_flag('WasJustCaptured');
+
+        $def2 = BMDie::create(10);
+        $def2->add_skill('Rage');
+        $def2->value = 3;
+        $def2->ownerObject = $game;
+        $def2->playerIdx = 1;
+        $def2->captured = TRUE;
+        $def2->add_flag('WasJustCaptured');
+
+        $this->assertInstanceOf('BMDie', $dummy1);
+        $this->assertInstanceOf('BMDie', $dummy2);
+        $this->assertInstanceOf('BMDie', $dummy3);
+        $this->assertInstanceOf('BMDie', $att);
+        $this->assertInstanceOf('BMDie', $def1);
+        $this->assertInstanceOf('BMDie', $def2);
+
+        $game->activeDieArrayArray = array(array($dummy1, $att), array($dummy2, $def1, $def2, $dummy3));
+
+        $attackers = array($att);
+        $defenders = array($def1, $def2);
+
+        $args = array('type' => 'Speed',
+                      'attackers' => &$attackers,
+                      'defenders' => &$defenders,
+                      'caller' => $def1);
+
+        // apply BMSkillRage->be_captured() to the actual target die
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertEquals(99, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals(8, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals(10, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(99, $game->activeDieArrayArray[1][3]->max);
+        $this->assertTrue($def1->has_skill('Rage'));
+        $this->object->be_captured($args);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertEquals(99, $game->activeDieArrayArray[1][0]->max);
+
+        // original captured die
+        $this->assertEquals(8, $game->activeDieArrayArray[1][1]->max);
+        $this->assertTrue($game->activeDieArrayArray[1][1]->captured);
+        $this->assertEquals(2, $game->activeDieArrayArray[1][1]->value);
+        $this->assertTrue($game->activeDieArrayArray[1][1]->has_skill('Rage'));
+        $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('IsRageTargetReplacement'));
+        $this->assertTrue($game->activeDieArrayArray[1][1]->has_flag('WasJustCaptured'));
+
+        // rage replacement die
+        $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
+        $this->assertFalse($game->activeDieArrayArray[1][2]->captured);
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertFalse($game->activeDieArrayArray[1][2]->has_skill('Rage'));
+        $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
+        $this->assertFalse($game->activeDieArrayArray[1][2]->has_flag('WasJustCaptured'));
+
+        $this->assertEquals(10, $game->activeDieArrayArray[1][3]->max);
+        $this->assertTrue($game->activeDieArrayArray[1][3]->has_skill('Rage'));
+
+        $this->assertEquals(99, $game->activeDieArrayArray[1][4]->max);
+
+        $this->assertCount(3, $defenders);
+
+        // initial $def1
+        $this->assertEquals(8, $defenders[0]->max);
+        $this->assertTrue($defenders[0]->captured);
+        $this->assertEquals(2, $defenders[0]->value);
+        $this->assertTrue($defenders[0]->has_skill('Rage'));
+        $this->assertFalse($defenders[0]->has_flag('IsRageTargetReplacement'));
+        $this->assertTrue($defenders[0]->has_flag('WasJustCaptured'));
+
+        // replacement for $def1
+        $this->assertEquals(8, $defenders[1]->max);
+        $this->assertFalse($defenders[1]->captured);
+        $this->assertNotNull($defenders[1]->value);
+        $this->assertFalse($defenders[1]->has_skill('Rage'));
+        $this->assertTrue($defenders[1]->has_flag('IsRageTargetReplacement'));
+        $this->assertFalse($defenders[1]->has_flag('WasJustCaptured'));
+
+        // initial $def2
+        $this->assertEquals(10, $defenders[2]->max);
+        $this->assertTrue($defenders[2]->captured);
+        $this->assertEquals(3, $defenders[2]->value);
+        $this->assertTrue($defenders[2]->has_skill('Rage'));
+        $this->assertTrue($defenders[2]->has_skill('Rage'));
+        $this->assertFalse($defenders[2]->has_flag('IsRageTargetReplacement'));
+        $this->assertTrue($defenders[2]->has_flag('WasJustCaptured'));
+
+        // now check that BMSkillRage->be_captured() doesn't affect the replacement die
+        $rep1 = $defenders[1];
+
+        $args = array('type' => 'Speed',
+                      'attackers' => &$attackers,
+                      'defenders' => &$defenders,
+                      'caller' => $rep1);
+
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertEquals(99, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals(8, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(10, $game->activeDieArrayArray[1][3]->max);
+        $this->assertEquals(99, $game->activeDieArrayArray[1][4]->max);
+        $this->assertFalse($rep1->has_skill('Rage'));
+        $this->object->be_captured($args);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+    }
 }
