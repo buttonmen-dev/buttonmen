@@ -364,7 +364,7 @@ class BMGameAction {
 
         foreach ($postAttackDice as $dieInfo) {
             if (array_key_exists('isRageTargetReplacement', $dieInfo)) {
-                $addedDieRecipes[] = $dieInfo['recipe'];
+                $addedDieRecipes[] = $dieInfo['recipe'] . ':' . $dieInfo['value'];
             }
         }
 
