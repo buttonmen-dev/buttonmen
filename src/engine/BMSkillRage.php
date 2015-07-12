@@ -74,6 +74,10 @@ class BMSkillRage extends BMSkill {
             return;
         }
 
+        if (!$def->captured) {
+            return;
+        }
+
         $game = $def->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
 

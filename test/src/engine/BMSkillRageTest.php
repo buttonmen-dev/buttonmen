@@ -285,4 +285,61 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(2, $game->activeDieArrayArray[0]);
         $this->assertCount(5, $game->activeDieArrayArray[1]);
     }
+
+    /**
+     * @covers BMSkillRage::be_captured
+     */
+    public function testBe_captured_trip_boom_interaction() {
+        $game = new BMGame;
+
+        $att = BMDie::create(6);
+        $att->add_skill('Trip');
+        $att->add_skill('Boom');
+        $att->value = 5;
+        $att->ownerObject = $game;
+        $att->playerIdx = 0;
+
+        $def = BMDie::create(8);
+        $def->add_skill('Rage');
+        $def->value = 2;
+        $def->ownerObject = $game;
+        $def->playerIdx = 1;
+        $def->captured = FALSE;
+
+        $this->assertInstanceOf('BMDie', $att);
+        $this->assertInstanceOf('BMDie', $def);
+
+        $game->activeDieArrayArray = array(array($att), array($def));
+
+        $attackers = array($att);
+        $defenders = array($def);
+
+        // james: note that this trip attack has been unsuccessful because
+        // $def->captured is FALSE (which is set in BMDie->capture())
+        $args = array('type' => 'Trip',
+                      'attackers' => &$attackers,
+                      'defenders' => &$defenders,
+                      'caller' => $def);
+
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertTrue($def->has_skill('Rage'));
+        $this->object->be_captured($args);
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertTrue($def->has_skill('Rage'));
+
+        $args = array('type' => 'Boom',
+                      'attackers' => &$attackers,
+                      'defenders' => &$defenders,
+                      'caller' => $def);
+
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertTrue($def->has_skill('Rage'));
+        $this->object->be_captured($args);
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertTrue($def->has_skill('Rage'));
+    }
 }
