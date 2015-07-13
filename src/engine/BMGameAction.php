@@ -221,31 +221,7 @@ class BMGameAction {
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
 
         if ($defenderRerollsEarly) {
-            // this only triggers for trip attacks, so there can only be one attacker involved
-            $midAttackDice = $preAttackDice;
-
-            if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
-                $midAttackDice['attacker'][0]['value'] =
-                    $postAttackDice['attacker'][0]['valueAfterTripAttack'];
-            }
-
-            if (isset($postAttackDice['attacker'][0]['recipeAfterTripAttack'])) {
-                $midAttackDice['attacker'][0]['recipe'] =
-                    $postAttackDice['attacker'][0]['recipeAfterTripAttack'];
-            }
-
-            $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
-            $message .= '; ' . $messageDefender;
-
-            $splittingAfterTrip = (count($midAttackDice['attacker']) !=
-                                   count($postAttackDice['attacker']));
-            $morphingAfterTrip = (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
-                                 ($postAttackDice['attacker'][0]['hasJustMorphed']));
-
-            // deal with splitting after trip
-            if ($splittingAfterTrip || $morphingAfterTrip) {
-                $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
-            }
+            $message .= $this->trip_message($preAttackDice, $postAttackDice, $messageDefender);
         } else {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
             $message .= $messageDefender . '; ' . $messageAttacker;
@@ -384,6 +360,46 @@ class BMGameAction {
         }
 
         return $msgStart . implode(', ', $addedDieRecipes) . $msgEnd;
+    }
+
+    /**
+     * Describes trip attack details
+     *
+     * @param array $preAttackDice
+     * @param array $postAttackDice
+     * @param string $messageDefender
+     * @return string
+     */
+    protected function trip_message($preAttackDice, $postAttackDice, $messageDefender) {
+        $message = '';
+
+        // this only triggers for trip attacks, so there can only be one attacker involved
+        $midAttackDice = $preAttackDice;
+
+        if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
+            $midAttackDice['attacker'][0]['value'] =
+                $postAttackDice['attacker'][0]['valueAfterTripAttack'];
+        }
+
+        if (isset($postAttackDice['attacker'][0]['recipeAfterTripAttack'])) {
+            $midAttackDice['attacker'][0]['recipe'] =
+                $postAttackDice['attacker'][0]['recipeAfterTripAttack'];
+        }
+
+        $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
+        $message .= '; ' . $messageDefender;
+
+        $splittingAfterTrip = (count($midAttackDice['attacker']) !=
+                               count($postAttackDice['attacker']));
+        $morphingAfterTrip = (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
+                             ($postAttackDice['attacker'][0]['hasJustMorphed']));
+
+        // deal with splitting after trip
+        if ($splittingAfterTrip || $morphingAfterTrip) {
+            $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
+        }
+
+        return $message;
     }
 
     /**
