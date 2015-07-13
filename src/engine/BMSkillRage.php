@@ -17,7 +17,7 @@ class BMSkillRage extends BMSkill {
      */
     public static $hooked_methods = array('initiative_value',
                                           'capture',
-                                          'be_captured');
+                                          'pre_be_captured');
 
     /**
      * Hooked method applied when determining the initiative value of a die
@@ -51,11 +51,11 @@ class BMSkillRage extends BMSkill {
     }
 
     /**
-     * Hooked method applied to defending dice during capture
+     * Hooked method applied to defending dice before capture
      *
      * @param array $args
      */
-    public static function be_captured(&$args) {
+    public static function pre_be_captured(&$args) {
         if (!is_array($args)) {
             return;
         }

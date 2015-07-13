@@ -41,6 +41,8 @@ initiative_value
   Warrior
 assist_values
   Fire
+pre_be_captured
+  Rage
 capture
   Berserk
   Boom
@@ -54,7 +56,6 @@ capture
   Warrior
 be_captured
   Radioactive
-  Rage
 split
   Berserk
 does_skip_swing_request

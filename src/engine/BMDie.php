@@ -514,6 +514,22 @@ class BMDie extends BMCanHaveSkill {
     }
 
     /**
+     * Run die hooks that trigger before capture when the die is an defender.
+     *
+     * This allows rage to clone the die before anything else happens to it.
+     *
+     * @param string $type
+     * @param array $attackers
+     * @param array $defenders
+     */
+    public function pre_be_captured($type, array &$attackers, array &$defenders) {
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
+    }
+
+    /**
      * Run die hooks that trigger at capture when the die is an attacker
      *
      * @param string $type

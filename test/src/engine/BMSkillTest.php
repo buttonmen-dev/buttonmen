@@ -310,21 +310,6 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
                                             'BMSkillWeak'));
     }
 
-    public function test_be_captured_order() {
-        // rage occurs before everything else
-        $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillRage',
-                                            'BMSkillRadioactive'));
-
-        $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillRage',
-                                            'BMSkillNull'));
-
-        $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillRage',
-                                            'BMSkillValue'));
-    }
-
     public function test_describe() {
         $desc = BMSkill::describe('Stinger');
         $this->assertEquals($desc['code'], 'g',

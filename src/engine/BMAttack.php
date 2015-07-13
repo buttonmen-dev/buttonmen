@@ -293,14 +293,18 @@ abstract class BMAttack {
             $def->add_flag('WasJustCaptured');
         }
 
+        // james: it's necessary here to copy the $defenders array
+        // because Rage may add dice to $defenders
+        $defendersCopy = $defenders;
+
+        foreach ($defenders as &$def) {
+            $def->pre_be_captured($this->type, $attackers, $defenders);
+        }
+
         // allow attack type to modify default behaviour
         foreach ($attackers as &$att) {
             $att->capture($this->type, $attackers, $defenders);
         }
-
-        // james: it's necessary here to copy the $defenders array
-        // because Rage may add dice to $defenders
-        $defendersCopy = $defenders;
 
         foreach ($defendersCopy as &$def) {
             $def->be_captured($this->type, $attackers, $defenders);

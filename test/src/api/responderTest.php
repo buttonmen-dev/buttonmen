@@ -11408,28 +11408,28 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(4, 19),
-            'responder004 performed Power attack using [n(30):14] against [G(6):3]; Defender G(6) recipe changed to Gn(6), was captured; Defender n(6):4 was added; Attacker n(30) rerolled 14 => 19. ',
+            'responder004 performed Power attack using [n(30):14] against [G(6):3]; Defender G(6) recipe changed to Gn(6), was captured; Defender (6):4 was added; Attacker n(30) rerolled 14 => 19. ',
             $retval, array(array(1, 4), array(0, 3)),
             $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['activePlayerIdx'] = 0;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [n(30):14] against [G(6):3]; Defender G(6) recipe changed to Gn(6), was captured; Defender n(6):4 was added; Attacker n(30) rerolled 14 => 19'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [n(30):14] against [G(6):3]; Defender G(6) recipe changed to Gn(6), was captured; Defender (6):4 was added; Attacker n(30) rerolled 14 => 19'));
         $expData['gameActionLogCount'] = 2;
-        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Null 6-sided die";
-        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array("IsRageTargetReplacement");
-        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "n(6)";
-        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array("Null");
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = '6-sided die';
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('IsRageTargetReplacement');
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = '(6)';
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 4;
-        $expData['playerDataArray'][0]['roundScore'] = 12;
-        $expData['playerDataArray'][0]['sideScore'] = 0.3;
+        $expData['playerDataArray'][0]['roundScore'] = 15;
+        $expData['playerDataArray'][0]['sideScore'] = 2.3;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 19;
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
         $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "Gn(6)";
         $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 6;
         $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 3;
-        $expData['playerDataArray'][1]['sideScore'] = -0.3;
+        $expData['playerDataArray'][1]['sideScore'] = -2.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -11451,8 +11451,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "h(10)";
         $expData['playerDataArray'][0]['capturedDieArray'][0]['sides'] = 10;
         $expData['playerDataArray'][0]['capturedDieArray'][0]['value'] = 4;
-        $expData['playerDataArray'][0]['roundScore'] = 22;
-        $expData['playerDataArray'][0]['sideScore'] = 10.3;
+        $expData['playerDataArray'][0]['roundScore'] = 25;
+        $expData['playerDataArray'][0]['sideScore'] = 12.3;
         $expData['playerDataArray'][0]['waitingOnAction'] = false;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "Null 20-sided die";
@@ -11467,7 +11467,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][1]['activeDieArray']);
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 6.5;
-        $expData['playerDataArray'][1]['sideScore'] = -10.3;
+        $expData['playerDataArray'][1]['sideScore'] = -12.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);

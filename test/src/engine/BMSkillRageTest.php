@@ -69,9 +69,9 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillRage::be_captured
+     * @covers BMSkillRage::pre_be_captured
      */
-    public function testBe_captured() {
+    public function testPre_be_captured() {
         $game = new BMGame;
 
         $dummy = BMDie::create(99);
@@ -117,7 +117,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(8, $game->activeDieArrayArray[1][1]->max);
         $this->assertEquals(99, $game->activeDieArrayArray[1][2]->max);
         $this->assertTrue($def->has_skill('Rage'));
-        $this->object->be_captured($args);
+        $this->object->pre_be_captured($args);
         $this->assertCount(2, $game->activeDieArrayArray[0]);
         $this->assertCount(4, $game->activeDieArrayArray[1]);
         $this->assertEquals(99, $game->activeDieArrayArray[1][0]->max);
@@ -152,9 +152,9 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillRage::be_captured
+     * @covers BMSkillRage::pre_be_captured
      */
-    public function testBe_captured_multiple() {
+    public function testPre_be_captured_multiple() {
         $game = new BMGame;
 
         $dummy = BMDie::create(99);
@@ -212,7 +212,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $game->activeDieArrayArray[1][2]->max);
         $this->assertEquals(99, $game->activeDieArrayArray[1][3]->max);
         $this->assertTrue($def1->has_skill('Rage'));
-        $this->object->be_captured($args);
+        $this->object->pre_be_captured($args);
         $this->assertCount(2, $game->activeDieArrayArray[0]);
         $this->assertCount(5, $game->activeDieArrayArray[1]);
         $this->assertEquals(99, $game->activeDieArrayArray[1][0]->max);
@@ -281,15 +281,15 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $game->activeDieArrayArray[1][3]->max);
         $this->assertEquals(99, $game->activeDieArrayArray[1][4]->max);
         $this->assertFalse($rep1->has_skill('Rage'));
-        $this->object->be_captured($args);
+        $this->object->pre_be_captured($args);
         $this->assertCount(2, $game->activeDieArrayArray[0]);
         $this->assertCount(5, $game->activeDieArrayArray[1]);
     }
 
     /**
-     * @covers BMSkillRage::be_captured
+     * @covers BMSkillRage::pre_be_captured
      */
-    public function testBe_captured_trip_boom_interaction() {
+    public function testPre_be_captured_trip_boom_interaction() {
         $game = new BMGame;
 
         $att = BMDie::create(6);
@@ -324,7 +324,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $this->assertTrue($def->has_skill('Rage'));
-        $this->object->be_captured($args);
+        $this->object->pre_be_captured($args);
         $this->assertCount(1, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $this->assertTrue($def->has_skill('Rage'));
@@ -337,7 +337,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $this->assertTrue($def->has_skill('Rage'));
-        $this->object->be_captured($args);
+        $this->object->pre_be_captured($args);
         $this->assertCount(1, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $this->assertTrue($def->has_skill('Rage'));
