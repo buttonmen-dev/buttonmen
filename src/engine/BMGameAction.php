@@ -229,6 +229,11 @@ class BMGameAction {
                     $postAttackDice['attacker'][0]['valueAfterTripAttack'];
             }
 
+            if (isset($postAttackDice['attacker'][0]['recipeAfterTripAttack'])) {
+                $midAttackDice['attacker'][0]['recipe'] =
+                    $postAttackDice['attacker'][0]['recipeAfterTripAttack'];
+            }
+
             $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
             $message .= '; ' . $messageDefender;
 

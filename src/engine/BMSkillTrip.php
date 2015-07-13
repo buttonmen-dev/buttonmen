@@ -62,11 +62,17 @@ class BMSkillTrip extends BMSkill {
 
         $attacker = &$args['attackers'][0];
         $attacker->roll(TRUE);
-        $attacker->add_flag('JustPerformedTripAttack', $attacker->value);
+        $attacker->add_flag(
+            'JustPerformedTripAttack',
+            $attacker->get_recipe(TRUE) . ':' . $attacker->value
+        );
 
         if ($attacker instanceof BMDieTwin) {
             foreach ($attacker->dice as $subdie) {
-                $subdie->add_flag('JustPerformedTripAttack', $subdie->value);
+                $subdie->add_flag(
+                    'JustPerformedTripAttack',
+                    $subdie->recipe . ':' . $subdie->value
+                );
             }
         }
 

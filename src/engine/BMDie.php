@@ -814,8 +814,17 @@ class BMDie extends BMCanHaveSkill {
         }
 
         if ($this->has_flag('JustPerformedTripAttack')) {
-            $actionLogInfo['valueAfterTripAttack'] =
-                $this->flagList['JustPerformedTripAttack']->value();
+            // the value in the flag should now look something like 'B(10):6', but
+            // old log entries may still have just the value, so deal with both options
+            $postTripRecipeAndValue = $this->flagList['JustPerformedTripAttack']->value();
+            $postTripDetails = explode(':', $postTripRecipeAndValue);
+
+            if (1 == count($postTripDetails)) {
+                $actionLogInfo['valueAfterTripAttack'] = $postTripDetails[0];
+            } else {
+                $actionLogInfo['recipeAfterTripAttack'] = $postTripDetails[0];
+                $actionLogInfo['valueAfterTripAttack'] = $postTripDetails[1];
+            }
         }
 
         if ($this->has_flag('JustPerformedBerserkAttack')) {

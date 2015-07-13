@@ -14,12 +14,12 @@ class BMFlagJustPerformedTripAttack extends BMFlagJustPerformedTypeOfAttack {
     /**
      * Constructor
      *
-     * @param int $dieValue
+     * @param string $dieRecipeAndValue
      */
-    public function __construct($dieValue) {
+    public function __construct($dieRecipeAndValue) {
         parent::__construct();
-        if (isset($dieValue)) {
-            $this->postAttackInfo = (int)$dieValue;
+        if (isset($dieRecipeAndValue)) {
+            $this->postAttackInfo = $dieRecipeAndValue;
         }
     }
 }
