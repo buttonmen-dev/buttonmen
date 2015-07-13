@@ -1514,8 +1514,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
-     *
      * As a side effect, this test actually enables autopass for
      * players responder003 and responder004, which some of the game
      * tests need
