@@ -34,6 +34,7 @@ score_value
   Value
   Warrior
 initiative_value
+  Rage
   Slow
   Stinger
   Trip
@@ -47,11 +48,13 @@ capture
   Morphing
   Null
   Radioactive
+  Rage
   Trip
   Value
   Warrior
 be_captured
   Radioactive
+  Rage
 split
   Berserk
 does_skip_swing_request
