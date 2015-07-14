@@ -132,7 +132,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         // rage replacement die
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertFalse($game->activeDieArrayArray[1][2]->captured);
-        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][2]->value));
         $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($game->activeDieArrayArray[1][2]->has_flag('WasJustCaptured'));
 
@@ -146,7 +146,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($defenders[0]->has_flag('WasJustCaptured'));
         $this->assertEquals(8, $defenders[1]->max);
         $this->assertFalse($defenders[1]->captured);
-        $this->assertNotNull($defenders[1]->value);
+        $this->assertFalse(isset($defenders[1]->value));
         $this->assertTrue($defenders[1]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($defenders[1]->has_flag('WasJustCaptured'));
     }
@@ -228,7 +228,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         // rage replacement die
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertFalse($game->activeDieArrayArray[1][2]->captured);
-        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][2]->value));
         $this->assertFalse($game->activeDieArrayArray[1][2]->has_skill('Rage'));
         $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($game->activeDieArrayArray[1][2]->has_flag('WasJustCaptured'));
@@ -251,7 +251,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         // replacement for $def1
         $this->assertEquals(8, $defenders[1]->max);
         $this->assertFalse($defenders[1]->captured);
-        $this->assertNotNull($defenders[1]->value);
+        $this->assertFalse(isset($defenders[1]->value));
         $this->assertFalse($defenders[1]->has_skill('Rage'));
         $this->assertTrue($defenders[1]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($defenders[1]->has_flag('WasJustCaptured'));
