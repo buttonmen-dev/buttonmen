@@ -143,7 +143,7 @@ class BMSkillRage extends BMSkill {
         $newDie->captured = FALSE;
         $newDie->remove_flag('WasJustCaptured');
         $newDie->add_flag('IsRageTargetReplacement');
-        $newDie->roll(FALSE);
+//        $newDie->roll(FALSE);
 
         return $newDie;
     }

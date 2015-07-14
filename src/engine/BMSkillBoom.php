@@ -43,28 +43,30 @@ class BMSkillBoom extends BMSkill {
 
         assert(array_key_exists('attackers', $args));
         assert(array_key_exists('defenders', $args));
-        assert(1 == count($args['attackers']));
-        assert(1 == count($args['defenders']));
 
-        $att = &$args['attackers'][0];
-        $def = &$args['defenders'][0];
+        if (1 != count($args['attackers'])) {
+            throw new LogicException('Only one attacker for a boom attack');
+        }
+
+        $attacker = &$args['attackers'][0];
+        $defender = self::get_single_defender($args['defenders'], TRUE);
 
         // ensure that attacker doesn't reroll (because it's going out
         // of the game)
-        $att->doesReroll = FALSE;
+        $attacker->doesReroll = FALSE;
 
         // add attacker to the out-of-game dice, and remove it from the
         // active dice
-        $att->outOfPlay = TRUE;
-        $game = $att->ownerObject;
+        $attacker->outOfPlay = TRUE;
+        $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
         $outOfPlayDieArrayArray = $game->outOfPlayDieArrayArray;
 
-        $outOfPlayDieArrayArray[$att->playerIdx][] = $att;
+        $outOfPlayDieArrayArray[$attacker->playerIdx][] = $attacker;
 
         array_splice(
-            $activeDieArrayArray[$att->playerIdx],
-            $att->activeDieIdx,
+            $activeDieArrayArray[$attacker->playerIdx],
+            $attacker->activeDieIdx,
             1
         );
 
@@ -72,9 +74,9 @@ class BMSkillBoom extends BMSkill {
         $game->outOfPlayDieArrayArray = $outOfPlayDieArrayArray;
 
         // reroll defender
-        $def->roll(TRUE);
-        $def->captured = FALSE;
-        $def->remove_flag('WasJustCaptured');
+        $defender->roll(TRUE);
+        $defender->captured = FALSE;
+        $defender->remove_flag('WasJustCaptured');
     }
 
     /**

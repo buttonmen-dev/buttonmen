@@ -57,10 +57,16 @@ class BMSkillTrip extends BMSkill {
             return;
         }
 
-        assert(1 == count($args['attackers']));
-        assert(1 == count($args['defenders']));
+        assert(array_key_exists('attackers', $args));
+        assert(array_key_exists('defenders', $args));
+
+        if (1 != count($args['attackers'])) {
+            throw new LogicException('Only one attacker for a trip attack');
+        }
 
         $attacker = &$args['attackers'][0];
+        $defender = self::get_single_defender($args['defenders'], TRUE);
+
         $attacker->roll(TRUE);
         $attacker->add_flag(
             'JustPerformedTripAttack',
@@ -76,7 +82,6 @@ class BMSkillTrip extends BMSkill {
             }
         }
 
-        $defender = &$args['defenders'][0];
         $defender->roll(TRUE);
 
         $defender->captured = ($defender->value <= $attacker->value);

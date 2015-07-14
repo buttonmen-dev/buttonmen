@@ -316,6 +316,14 @@ abstract class BMAttack {
             $att->roll(TRUE);
         }
 
+        // give defenders a value if they don't already have one,
+        // like for a rage replacement die
+        foreach ($defenders as &$def) {
+            if (empty($def->value)) {
+                $def->roll(FALSE);
+            }
+        }
+
         $this->process_captured_dice($game, $defenders);
 
         return TRUE;
