@@ -1514,6 +1514,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
+     *
      * As a side effect, this test actually enables autopass for
      * players responder003 and responder004, which some of the game
      * tests need
@@ -11354,7 +11356,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * This game reproduces a bug in which a null attack against a
      * rage die causes the newly-introduced replacement die to be null too
      */

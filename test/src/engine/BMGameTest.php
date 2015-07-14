@@ -10547,7 +10547,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @coversNothing
      */
     public function test_multiple_rage_capture() {
