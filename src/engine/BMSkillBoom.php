@@ -15,7 +15,7 @@ class BMSkillBoom extends BMSkill {
      *
      * @var array
      */
-    public static $hooked_methods = array('attack_list', 'capture');
+    public static $hooked_methods = array('attack_list', 'pre_capture');
 
     /**
      * Hooked method applied when determining possible attack types
@@ -32,11 +32,11 @@ class BMSkillBoom extends BMSkill {
     }
 
     /**
-     * Hooked method applied during capture
+     * Hooked method applied before capture
      *
      * @param array $args
      */
-    public static function capture($args) {
+    public static function pre_capture($args) {
         if ($args['type'] != 'Boom') {
             return;
         }

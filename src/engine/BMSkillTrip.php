@@ -17,7 +17,7 @@ class BMSkillTrip extends BMSkill {
      */
     public static $hooked_methods = array('attack_list',
                                           'initiative_value',
-                                          'capture');
+                                          'pre_capture');
 
     /**
      * Hooked method applied when determining possible attack types
@@ -48,11 +48,11 @@ class BMSkillTrip extends BMSkill {
     }
 
     /**
-     * Hooked method applied during capture
+     * Hooked method applied before capture
      *
      * @param array $args
      */
-    public static function capture(&$args) {
+    public static function pre_capture(&$args) {
         if ($args['type'] != 'Trip') {
             return;
         }

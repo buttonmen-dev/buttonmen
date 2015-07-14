@@ -293,10 +293,17 @@ abstract class BMAttack {
             $def->add_flag('WasJustCaptured');
         }
 
+        // this logic is here to allow attacks that might not capture 
+        // like trip and boom to trigger before rage
+        foreach ($attackers as &$att) {
+            $att->pre_capture($this->type, $attackers, $defenders);
+        }
+
         // james: it's necessary here to copy the $defenders array
         // because Rage may add dice to $defenders
         $defendersCopy = $defenders;
 
+        // this logic is here to allow rage to trigger at the right time
         foreach ($defendersCopy as &$def) {
             $def->pre_be_captured($this->type, $attackers, $defenders);
         }

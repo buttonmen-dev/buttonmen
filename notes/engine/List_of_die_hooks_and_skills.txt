@@ -41,17 +41,18 @@ initiative_value
   Warrior
 assist_values
   Fire
+pre_capture
+  Boom
+  Trip
 pre_be_captured
   Rage
 capture
   Berserk
-  Boom
   Doppelganger
   Morphing
   Null
   Radioactive
   Rage
-  Trip
   Value
   Warrior
 be_captured
