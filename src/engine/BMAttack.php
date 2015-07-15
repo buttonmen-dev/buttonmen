@@ -293,7 +293,7 @@ abstract class BMAttack {
             $def->add_flag('WasJustCaptured');
         }
 
-        // this logic is here to allow attacks that might not capture 
+        // this logic is here to allow attacks that might not capture
         // like trip and boom to trigger before rage
         foreach ($attackers as &$att) {
             $att->pre_capture($this->type, $attackers, $defenders);
@@ -323,17 +323,25 @@ abstract class BMAttack {
             $att->roll(TRUE);
         }
 
-        // give defenders a value if they don't already have one,
-        // like for a rage replacement die
+        $this->ensure_defenders_have_value($defenders);
+
+        $this->process_captured_dice($game, $defenders);
+
+        return TRUE;
+    }
+
+    /**
+     * Give defenders a value if they don't already have one,
+     * like for a rage replacement die
+     *
+     * @param array $defenders
+     */
+    protected function ensure_defenders_have_value(array $defenders) {
         foreach ($defenders as &$def) {
             if (empty($def->value)) {
                 $def->roll(FALSE);
             }
         }
-
-        $this->process_captured_dice($game, $defenders);
-
-        return TRUE;
     }
 
     /**
