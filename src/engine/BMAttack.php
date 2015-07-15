@@ -380,7 +380,6 @@ abstract class BMAttack {
     // cut then. (It'd _work_, but the words "combinatoric explosion"
     // are deeply relevant.)
 
-
     /**
      * Search for a valid one-vs-one attack
      *
