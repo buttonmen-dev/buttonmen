@@ -124,6 +124,7 @@ class BMSkill {
                      'Poison'       => 'p',
                      'Queer'        => 'q',
                      'Radioactive'  => '%',
+                     'Rage'         => 'G',
                      'Reserve'      => 'r',
                      'Shadow'       => 's',
                      'Slow'         => 'w',
@@ -222,6 +223,7 @@ class BMSkill {
                      'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillBoom',
+                     'BMSkillRage',
                      'BMSkillSpeed',
                      'BMSkillTrip',
                      'BMSkillQueer',
@@ -313,5 +315,38 @@ class BMSkill {
      */
     public static function prevents_win_determination() {
         return FALSE;
+    }
+
+    /**
+     * Return the single defender die, taking into account that rage may add
+     * an extra die that is not captured
+     *
+     * @param array $defenderArray
+     * @param boolean $allowOnlyOneDef
+     * @return BMDie
+     */
+    protected static function get_single_defender(array $defenderArray, $allowOnlyOneDef) {
+        if (1 != count($defenderArray)) {
+            // rage may add an extra defender, but it won't be captured
+            $defCount = 0;
+            foreach ($defenderArray as &$def) {
+                if ($def->captured) {
+                    $defender = &$def;
+                    $defCount++;
+
+                    if (!$allowOnlyOneDef) {
+                        break;
+                    }
+                }
+            }
+
+            if (1 != $defCount) {
+                throw new LogicException('Exactly one defender expected');
+            }
+        } else {
+            $defender = &$defenderArray[0];
+        }
+
+        return $defender;
     }
 }

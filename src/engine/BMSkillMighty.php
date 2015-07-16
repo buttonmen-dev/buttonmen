@@ -42,6 +42,11 @@ class BMSkillMighty extends BMSkill {
             return;
         }
 
+        // don't trigger skill if the die is a rage replacement die
+        if ($die->has_flag('IsRageTargetReplacement')) {
+            return;
+        }
+
         // don't trigger skill if the die has already left play
         if ($die->outOfPlay) {
             return;
