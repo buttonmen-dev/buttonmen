@@ -221,26 +221,7 @@ class BMGameAction {
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
 
         if ($defenderRerollsEarly) {
-            // this only triggers for trip attacks, so there can only be one attacker involved
-            $midAttackDice = $preAttackDice;
-
-            if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
-                $midAttackDice['attacker'][0]['value'] =
-                    $postAttackDice['attacker'][0]['valueAfterTripAttack'];
-            }
-
-            $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
-            $message .= '; ' . $messageDefender;
-
-            $splittingAfterTrip = (count($midAttackDice['attacker']) !=
-                                   count($postAttackDice['attacker']));
-            $morphingAfterTrip = (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
-                                 ($postAttackDice['attacker'][0]['hasJustMorphed']));
-
-            // deal with splitting after trip
-            if ($splittingAfterTrip || $morphingAfterTrip) {
-                $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
-            }
+            $message .= $this->trip_message($preAttackDice, $postAttackDice, $messageDefender);
         } else {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
             $message .= $messageDefender . '; ' . $messageAttacker;
@@ -310,9 +291,16 @@ class BMGameAction {
      */
     protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
         $messageDefenderArray = array();
+        $nExtraDice = 0;
+
         // Report what happened to each defending die
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-            $postInfo = $postAttackDice['defender'][$idx];
+            // Skip extra dice for the moment
+            while (array_key_exists('isRageTargetReplacement', $postAttackDice['defender'][$idx + $nExtraDice])) {
+                $nExtraDice++;
+            }
+
+            $postInfo = $postAttackDice['defender'][$idx + $nExtraDice];
             $postEventsDefender = array();
 
             $this->message_append(
@@ -338,9 +326,80 @@ class BMGameAction {
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
 
+        $nExtraDice = count($postAttackDice['defender']) - count($preAttackDice['defender']);
+        // now report on added dice
+        if ($nExtraDice > 0) {
+            $this->message_append(
+                $messageDefenderArray,
+                $this->message_defender_added_dice($postAttackDice['defender'])
+            );
+        }
+
         $messageDefender = implode('; ', $messageDefenderArray);
 
         return $messageDefender;
+    }
+
+    protected function message_defender_added_dice($postAttackDice) {
+        $addedDieRecipes = array();
+
+        foreach ($postAttackDice as $dieInfo) {
+            if (array_key_exists('isRageTargetReplacement', $dieInfo)) {
+                $addedDieRecipes[] = $dieInfo['recipe'] . ':' . $dieInfo['value'];
+            }
+        }
+
+        if (empty($addedDieRecipes)) {
+            return '';
+        } elseif (1 == count($addedDieRecipes)) {
+            $msgStart = 'Defender ';
+            $msgEnd = ' was added';
+        } else {
+            $msgStart = 'Defenders ';
+            $msgEnd = ' were added';
+        }
+
+        return $msgStart . implode(', ', $addedDieRecipes) . $msgEnd;
+    }
+
+    /**
+     * Describes trip attack details
+     *
+     * @param array $preAttackDice
+     * @param array $postAttackDice
+     * @param string $messageDefender
+     * @return string
+     */
+    protected function trip_message($preAttackDice, $postAttackDice, $messageDefender) {
+        $message = '';
+
+        // this only triggers for trip attacks, so there can only be one attacker involved
+        $midAttackDice = $preAttackDice;
+
+        if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
+            $midAttackDice['attacker'][0]['value'] =
+                $postAttackDice['attacker'][0]['valueAfterTripAttack'];
+        }
+
+        if (isset($postAttackDice['attacker'][0]['recipeAfterTripAttack'])) {
+            $midAttackDice['attacker'][0]['recipe'] =
+                $postAttackDice['attacker'][0]['recipeAfterTripAttack'];
+        }
+
+        $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
+        $message .= '; ' . $messageDefender;
+
+        $splittingAfterTrip = (count($midAttackDice['attacker']) !=
+                               count($postAttackDice['attacker']));
+        $morphingAfterTrip = (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
+                             ($postAttackDice['attacker'][0]['hasJustMorphed']));
+
+        // deal with splitting after trip
+        if ($splittingAfterTrip || $morphingAfterTrip) {
+            $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
+        }
+
+        return $message;
     }
 
     /**

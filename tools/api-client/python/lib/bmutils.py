@@ -23,6 +23,7 @@ SkillName = {
   'p': 'Poison',
   'q': 'Queer',
   '%': 'Radioactive',
+  'G': 'Rage',
   'r': 'Reserve',
   's': 'Shadow',
   'w': 'Slow',

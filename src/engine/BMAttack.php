@@ -293,8 +293,22 @@ abstract class BMAttack {
             $def->add_flag('WasJustCaptured');
         }
 
+        // this logic is here to allow attacks that might not capture
+        // like trip and boom to trigger before rage
+        foreach ($attackers as &$att) {
+            $att->pre_capture($this->type, $attackers, $defenders);
+        }
+
+        // james: it's necessary here to copy the $defenders array
+        // because Rage may add dice to $defenders
+        $defendersCopy = $defenders;
+
+        // this logic is here to allow rage to trigger at the right time
+        foreach ($defendersCopy as &$def) {
+            $def->pre_be_captured($this->type, $attackers, $defenders);
+        }
+
         // allow attack type to modify default behaviour
-        $activeDiceNew = array();
         foreach ($attackers as &$att) {
             $att->capture($this->type, $attackers, $defenders);
         }
@@ -309,13 +323,25 @@ abstract class BMAttack {
             $att->roll(TRUE);
         }
 
-        if (isset($activeDiceNew)) {
-            $this->assign_new_active_dice($game, $activeDiceNew);
-        }
+        $this->ensure_defenders_have_value($defenders);
 
         $this->process_captured_dice($game, $defenders);
 
         return TRUE;
+    }
+
+    /**
+     * Give defenders a value if they don't already have one,
+     * like for a rage replacement die
+     *
+     * @param array $defenders
+     */
+    protected function ensure_defenders_have_value(array $defenders) {
+        foreach ($defenders as &$def) {
+            if (empty($def->value)) {
+                $def->roll(FALSE);
+            }
+        }
     }
 
     /**
@@ -348,28 +374,11 @@ abstract class BMAttack {
         }
     }
 
-    /**
-     * Assign a new array of arrays of active dice to a game
-     *
-     * @param BMGame $game
-     * @param array $activeDiceNew
-     */
-    protected function assign_new_active_dice($game, array $activeDiceNew) {
-        $activeDiceCopy = $game->activeDieArrayArray;
-        foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
-            foreach ($activeDieArray as $dieIdx => $newDie) {
-                $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
-            }
-        }
-        $game->activeDieArrayArray = $activeDiceCopy;
-    }
-
     // methods to find that there is a valid attack
     //
     // If anybody wants to add a many dice vs many dice attack, I will
     // cut then. (It'd _work_, but the words "combinatoric explosion"
     // are deeply relevant.)
-
 
     /**
      * Search for a valid one-vs-one attack

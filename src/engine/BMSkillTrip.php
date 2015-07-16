@@ -17,7 +17,7 @@ class BMSkillTrip extends BMSkill {
      */
     public static $hooked_methods = array('attack_list',
                                           'initiative_value',
-                                          'capture');
+                                          'pre_capture');
 
     /**
      * Hooked method applied when determining possible attack types
@@ -48,29 +48,40 @@ class BMSkillTrip extends BMSkill {
     }
 
     /**
-     * Hooked method applied during capture
+     * Hooked method applied before capture
      *
      * @param array $args
      */
-    public static function capture(&$args) {
+    public static function pre_capture(&$args) {
         if ($args['type'] != 'Trip') {
             return;
         }
 
-        assert(1 == count($args['attackers']));
-        assert(1 == count($args['defenders']));
+        assert(array_key_exists('attackers', $args));
+        assert(array_key_exists('defenders', $args));
+
+        if (1 != count($args['attackers'])) {
+            throw new LogicException('Only one attacker for a trip attack');
+        }
 
         $attacker = &$args['attackers'][0];
+        $defender = self::get_single_defender($args['defenders'], TRUE);
+
         $attacker->roll(TRUE);
-        $attacker->add_flag('JustPerformedTripAttack', $attacker->value);
+        $attacker->add_flag(
+            'JustPerformedTripAttack',
+            $attacker->get_recipe(TRUE) . ':' . $attacker->value
+        );
 
         if ($attacker instanceof BMDieTwin) {
             foreach ($attacker->dice as $subdie) {
-                $subdie->add_flag('JustPerformedTripAttack', $subdie->value);
+                $subdie->add_flag(
+                    'JustPerformedTripAttack',
+                    $subdie->recipe . ':' . $subdie->value
+                );
             }
         }
 
-        $defender = &$args['defenders'][0];
         $defender->roll(TRUE);
 
         $defender->captured = ($defender->value <= $attacker->value);

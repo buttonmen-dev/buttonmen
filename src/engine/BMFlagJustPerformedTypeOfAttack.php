@@ -14,7 +14,7 @@ class BMFlagJustPerformedTypeOfAttack extends BMFlag {
     /**
      * Post-attack information, stored in flag
      *
-     * @var int
+     * @var mixed
      */
     protected $postAttackInfo;
 
