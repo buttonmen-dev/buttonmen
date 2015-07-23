@@ -41,6 +41,9 @@ module("Forum", {
     // Page elements
     $('#forum_page').remove();
     $('#forum_page').empty();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
