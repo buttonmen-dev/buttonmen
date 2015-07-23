@@ -57,7 +57,7 @@ class BMSkillRadioactive extends BMSkill {
             return;
         }
 
-        if (count($args['defenders']) != 1) {
+        if (!self::has_single_defender($args['defenders'])) {
             return;
         }
 

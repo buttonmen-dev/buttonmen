@@ -11207,7 +11207,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_request_savePlayerInfo
      *
-     * This game reproduces loggin behavior when a die with a second size-changing power makes a Berserk attack
+     * This game reproduces logging behavior when a die with a second size-changing power makes a Berserk attack
      */
     public function test_interface_game_036() {
 
@@ -11630,6 +11630,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
      * This game reproduces a bug in which a die which attacks a radioactive rage die does not split
      */
     public function test_interface_game_039() {
@@ -11742,28 +11743,37 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-        // BUG: this attack should cause the (X=17):8 to split
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(8, 7, 4),
-            'responder004 performed Power attack using [(X=17):8] against [pG%(7):3]; Defender pG%(7) was captured; Defender p%(7):7 was added; Attacker (X=17) rerolled 8 => 8. responder004\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 4. ',
+            array(8, 7, 4, 1),
+            'responder004 performed Power attack using [(X=17):8] against [pG%(7):3]; Defender pG%(7) was captured; Defender p%(7):4 was added; Attacker (X=17) showing 8 split into: (X=9) showing 8, and (X=8) showing 7. responder004\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1. ',
             $retval, array(array(1, 4), array(0, 1)),
             $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['activePlayerIdx'] = 0;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(X=17):8] against [pG%(7):3]; Defender pG%(7) was captured; Defender p%(7):7 was added; Attacker (X=17) rerolled 8 => 8'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(X=17):8] against [pG%(7):3]; Defender pG%(7) was captured; Defender p%(7):4 was added; Attacker (X=17) showing 8 split into: (X=9) showing 8, and (X=8) showing 7'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1'));
         $expData['gameActionLogCount'] = 6;
+        $dieDataCache = $expData['playerDataArray'][1]['activeDieArray'][4];
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 4, 1, array($dieDataCache, $dieDataCache));
         $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Poison Radioactive 7-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("IsRageTargetReplacement");
         $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "p%(7)";
         $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Poison", "Radioactive");
-        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 4;
         $expData['playerDataArray'][0]['sideScore'] = -11.3;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
         $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array("HasJustRerolledOrnery");
-        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = 'X Swing Die (with 9 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array('HasJustSplit');
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['description'] = 'X Swing Die (with 8 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][5]['properties'] = array('HasJustSplit');
+        $expData['playerDataArray'][1]['activeDieArray'][5]['sides'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 7;
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
         $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "pG%(7)";
         $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 7;
