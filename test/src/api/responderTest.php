@@ -11630,7 +11630,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * This game reproduces a bug in which a die which attacks a radioactive rage die does not split
      */
     public function test_interface_game_039() {
@@ -11755,8 +11754,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(X=17):8] against [pG%(7):3]; Defender pG%(7) was captured; Defender p%(7):4 was added; Attacker (X=17) showing 8 split into: (X=9) showing 8, and (X=8) showing 7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1'));
         $expData['gameActionLogCount'] = 6;
-        $dieDataCache = $expData['playerDataArray'][1]['activeDieArray'][4];
-        array_splice($expData['playerDataArray'][1]['activeDieArray'], 4, 1, array($dieDataCache, $dieDataCache));
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 4, 0, array($expData['playerDataArray'][1]['activeDieArray'][4]));
         $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Poison Radioactive 7-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("IsRageTargetReplacement");
         $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "p%(7)";
