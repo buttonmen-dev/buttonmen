@@ -10,46 +10,16 @@
  * trip attack. It stores the post-attack die value, in case the attacking die
  * changes again afterwards.
  */
-class BMFlagJustPerformedTripAttack extends BMFlag {
-    /**
-     * Post-trip-attack die value, stored in flag
-     *
-     * @var int
-     */
-    protected $postAttackValue;
-
-    /**
-     * Value stored in flag
-     *
-     * @return mixed
-     */
-    public function value() {
-        return $this->postAttackValue;
-    }
-
+class BMFlagJustPerformedTripAttack extends BMFlagJustPerformedTypeOfAttack {
     /**
      * Constructor
      *
-     * @param int $dieValue
+     * @param string $dieRecipeAndValue
      */
-    public function __construct($dieValue) {
-        $this->postAttackValue = NULL;
-        if (isset($dieValue)) {
-            $this->postAttackValue = (int)$dieValue;
+    public function __construct($dieRecipeAndValue) {
+        parent::__construct();
+        if (isset($dieRecipeAndValue)) {
+            $this->postAttackInfo = $dieRecipeAndValue;
         }
-    }
-
-    /**
-     * Convert to string.
-     *
-     * @return string
-     */
-    public function __toString() {
-        $string = $this->type();
-        if (is_integer($this->postAttackValue)) {
-            $string .= '__' . $this->postAttackValue;
-        }
-
-        return $string;
     }
 }

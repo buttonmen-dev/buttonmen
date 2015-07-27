@@ -37,6 +37,21 @@ class BMSkillWeak extends BMSkill {
             return;
         }
 
+        // don't trigger skill when the die has just performed a trip attack
+        if ($die->has_flag('JustPerformedTripAttack')) {
+            return;
+        }
+
+        // don't trigger skill if the die is a rage replacement die
+        if ($die->has_flag('IsRageTargetReplacement')) {
+            return;
+        }
+
+        // don't trigger skill if the die has already left play
+        if ($die->outOfPlay) {
+            return;
+        }
+
         $die->shrink();
     }
 

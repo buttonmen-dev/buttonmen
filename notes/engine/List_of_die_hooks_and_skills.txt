@@ -15,6 +15,7 @@ post_roll
   TimeAndSpace
 attack_list
   Berserk
+  Boom
   Fire
   Konstant
   Queer
@@ -33,19 +34,25 @@ score_value
   Value
   Warrior
 initiative_value
+  Rage
   Slow
   Stinger
   Trip
   Warrior
 assist_values
   Fire
+pre_capture
+  Boom
+  Trip
+pre_be_captured
+  Rage
 capture
   Berserk
   Doppelganger
   Morphing
   Null
   Radioactive
-  Trip
+  Rage
   Value
   Warrior
 be_captured

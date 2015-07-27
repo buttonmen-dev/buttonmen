@@ -7,6 +7,7 @@ import bmapi
 SkillName = {
   '+': 'Auxiliary',
   'B': 'Berserk',
+  'b': 'Boom',
   'c': 'Chance',
   'D': 'Doppelganger',
   'F': 'Fire',
@@ -22,6 +23,7 @@ SkillName = {
   'p': 'Poison',
   'q': 'Queer',
   '%': 'Radioactive',
+  'G': 'Rage',
   'r': 'Reserve',
   's': 'Shadow',
   'w': 'Slow',

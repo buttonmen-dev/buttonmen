@@ -20,6 +20,7 @@
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
+ * @property      bool   $outOfPlay             Is the die out of play?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  *
  *  */
@@ -103,6 +104,13 @@ class BMDie extends BMCanHaveSkill {
      * @var bool
      */
     protected $captured = FALSE;
+
+    /**
+     * Flag signalling whether the die is out of play
+     *
+     * @var bool
+     */
+    protected $outOfPlay = FALSE;
 
     /**
      * Array designed to contain various BMFlags
@@ -506,6 +514,39 @@ class BMDie extends BMCanHaveSkill {
     }
 
     /**
+     * Run die hooks that trigger before capture when the die is an attacker.
+     *
+     * This allows attacks that have a possibility of not capturing to add
+     * various flags before rage triggers.
+     *
+     * @param string $type
+     * @param array $attackers
+     * @param array $defenders
+     */
+    public function pre_capture($type, array &$attackers, array &$defenders) {
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
+    }
+
+    /**
+     * Run die hooks that trigger before capture when the die is an defender.
+     *
+     * This allows rage to clone the die before anything else happens to it.
+     *
+     * @param string $type
+     * @param array $attackers
+     * @param array $defenders
+     */
+    public function pre_be_captured($type, array &$attackers, array &$defenders) {
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
+    }
+
+    /**
      * Run die hooks that trigger at capture when the die is an attacker
      *
      * @param string $type
@@ -530,7 +571,8 @@ class BMDie extends BMCanHaveSkill {
     public function be_captured($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => &$attackers,
-                                             'defenders' => &$defenders));
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
     }
 
     /**
@@ -703,6 +745,9 @@ class BMDie extends BMCanHaveSkill {
     /**
      * helper function to print a die sidecount with or without its swing/option value
      *
+     * @param string $sidecountStr
+     * @param BMDie $dieObj
+     * @param boolean $addMaxval
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
@@ -769,38 +814,58 @@ class BMDie extends BMCanHaveSkill {
             'value' => $this->value,
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
+            'outOfPlay' => $this->outOfPlay,
             'recipeStatus' => $recipe . ':' . $this->value,
         );
 
-        $forceReportDieSize = $this->forceReportDieSize();
-        if ($forceReportDieSize) {
-            $actionLogInfo['forceReportDieSize'] = $forceReportDieSize;
+        if ($this->forceReportDieSize()) {
+            $actionLogInfo['forceReportDieSize'] = TRUE;
         }
 
-        $hasJustMorphed = $this->has_flag('HasJustMorphed');
-        if ($hasJustMorphed) {
-            $actionLogInfo['hasJustMorphed'] = $hasJustMorphed;
+        if ($this->has_flag('HasJustMorphed')) {
+            $actionLogInfo['hasJustMorphed'] = TRUE;
         }
 
-        $hasJustRerolledOrnery = $this->has_flag('HasJustRerolledOrnery');
-        if ($hasJustRerolledOrnery) {
-            $actionLogInfo['hasJustRerolledOrnery'] = $hasJustRerolledOrnery;
+        if ($this->has_flag('HasJustRerolledOrnery')) {
+            $actionLogInfo['hasJustRerolledOrnery'] = TRUE;
         }
 
         if ($this->has_flag('JustPerformedTripAttack')) {
-            $actionLogInfo['valueAfterTripAttack'] = $this->flagList['JustPerformedTripAttack']->value();
+            // the value in the flag should now look something like 'B(10):6', but
+            // old log entries may still have just the value, so deal with both options
+            $postTripRecipeAndValue = $this->flagList['JustPerformedTripAttack']->value();
+            $postTripDetails = explode(':', $postTripRecipeAndValue);
+
+            if (1 == count($postTripDetails)) {
+                $actionLogInfo['valueAfterTripAttack'] = $postTripDetails[0];
+            } else {
+                $actionLogInfo['recipeAfterTripAttack'] = $postTripDetails[0];
+                $actionLogInfo['valueAfterTripAttack'] = $postTripDetails[1];
+            }
+        }
+
+        if ($this->has_flag('JustPerformedBerserkAttack')) {
+            $actionLogInfo['recipeAfterBerserkAttack'] =
+                $this->flagList['JustPerformedBerserkAttack']->value();
         }
 
         if ($this->has_flag('HasJustGrown')) {
-            $actionLogInfo['recipeBeforeGrowing'] = $this->flagList['HasJustGrown']->value();
+            $actionLogInfo['recipeBeforeGrowing'] =
+                $this->flagList['HasJustGrown']->value();
         }
 
         if ($this->has_flag('HasJustShrunk')) {
-            $actionLogInfo['recipeBeforeShrinking'] = $this->flagList['HasJustShrunk']->value();
+            $actionLogInfo['recipeBeforeShrinking'] =
+                $this->flagList['HasJustShrunk']->value();
         }
 
         if ($this->has_flag('HasJustSplit')) {
-            $actionLogInfo['recipeBeforeSplitting'] = $this->flagList['HasJustSplit']->value();
+            $actionLogInfo['recipeBeforeSplitting'] =
+                $this->flagList['HasJustSplit']->value();
+        }
+
+        if ($this->has_flag('IsRageTargetReplacement')) {
+            $actionLogInfo['isRageTargetReplacement'] = TRUE;
         }
 
         return($actionLogInfo);
@@ -820,7 +885,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Determine whether the die skips the swing request phase
      *
-     * @return type
+     * @return boolean
      */
     public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
@@ -987,6 +1052,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the maximum value of the die
+     *
+     *  @param int $value
      */
     protected function set__max($value) {
         if ($value === 0) {
@@ -1012,6 +1079,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the value of the die
+     *
+     * @param int $value
      */
     protected function set__value($value) {
         if (!is_null($value) &&
@@ -1034,6 +1103,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the recipe of the die
+     *
+     * @param string $value
      */
     protected function set__recipe() {
         throw new LogicException(
@@ -1043,6 +1114,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the ownerObject of the die
+     *
+     * @param mixed $value
      */
     protected function set__ownerObject($value) {
         if (!(is_null($value) ||
@@ -1058,6 +1131,8 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Set the index value of the player who owns the die
+     *
+     * @param int $value
      */
     protected function set__playerIdx($value) {
         if (!is_null($value) &&
@@ -1171,7 +1246,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Unset
      *
-     * @param type $property
+     * @param mixed $property
      * @return boolean
      */
     public function __unset($property) {
