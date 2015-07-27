@@ -44,7 +44,6 @@ module("Overview", {
 
     // Page elements
     $('#overview_page').remove();
-    $('#overview_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

@@ -36,9 +36,7 @@ module("History", {
 
     // Page elements
     $('#history_page').remove();
-    $('#history_page').empty();
     $('#ui-datepicker-div').remove();
-    $('#ui-datepicker-div').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
