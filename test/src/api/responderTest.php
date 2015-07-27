@@ -4730,6 +4730,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'CHOOSE_AUXILIARY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Focus', 'Shadow'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Crane', 'recipe' => '(4) f(6) f(8) (10) (12)', 'artFilename' => 'crane.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -4752,6 +4753,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+        // the courtesy die is no longer offered after this
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
 
         ////////////////////
         // Move 01 - responder004 chose to use auxiliary die +s(X) in this game
@@ -8964,7 +8967,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'CHOOSE_AUXILIARY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Focus', 'Shadow', 'Trip'));
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Ein', 'recipe' => '(8) (8) f(8) t(8) (X) +(Y)', 'artFilename' => 'ein.png');
@@ -8992,6 +8995,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder001');
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
+
+        // the courtesy die is not available after this
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
 
         ////////////////////
         // Move 01 - responder003 chose to use auxiliary die +s(X) in this game
