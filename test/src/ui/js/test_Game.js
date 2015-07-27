@@ -1251,6 +1251,10 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
   });
 });
 
+test("test_Game.swingRangeTable", function(assert) {
+// james: this is currently empty, pending an appropriate test
+});
+
 test("test_Game.dieTableEntry", function(assert) {
   stop();
   BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
