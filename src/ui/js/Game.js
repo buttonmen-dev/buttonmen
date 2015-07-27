@@ -331,6 +331,8 @@ Game.actionSpecifyDiceActive = function() {
       diespecifytable.append(swingrow);
     });
 
+
+
   // Add option dice to table
   $.each(
     Api.game.player.optRequestArray,
@@ -2081,18 +2083,14 @@ Game.dieRecipeTable = function(table_action, active) {
   }
 
   if (active) {
-    var swingRangeStr = $('<p>', {});
-    var swingRangeArray = [];
     $.each(
       Api.game.player.swingRequestArray,
       function(letter, range) {
-        var swingtext = letter + ': ' + range.min + '-' + range.max;
-        swingRangeArray.push(swingtext);
+        var swingrow = $('<tr>', {});
+        var swingtext = letter + ' (' + range.min + '-' + range.max + ')';
+        swingrow.append($('<td>', { 'text': swingtext, }));
+        dietable.append(swingrow);
       });
-    swingRangeArray.sort();
-    swingRangeStr.append(swingRangeArray.join(', '));
-
-    dietable.append(swingRangeStr);
   }
 
   return dietable;
