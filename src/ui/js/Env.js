@@ -91,6 +91,11 @@ Env.removeParameterByName = function(name) {
 // Make sure that the page body contains a div for displaying status
 // messages
 Env.setupEnvStub = function() {
+  if ($('#container').length === 0) {
+    $('body').append($('<div>', {'id': 'container', }));
+    $('#container').append($('<div>', {'id': 'c_body'}));
+  }
+
   if ($('#env_message').length === 0) {
     $('#c_body').append($('<div>', {'id': 'env_message', }));
   }
