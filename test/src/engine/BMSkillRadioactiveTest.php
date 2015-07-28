@@ -63,6 +63,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $att->add_skill('Radioactive');
         $att->value = 9;
         $def = BMDie::create(8);
+        $def->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
@@ -108,6 +109,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $att->set_swingValue(array('X' => 17));
         $att->value = 9;
         $def = BMDie::create(8);
+        $def->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
@@ -185,10 +187,11 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $dieRight = BMDie::create(30);
 
         $att = BMDie::create(17);
+        $att->value = 9;
 
         $def = BMDie::create(8);
         $def->add_skill('Radioactive');
-        $att->value = 9;
+        $def->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
@@ -235,6 +238,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
         $def = BMDie::create(8);
         $def->add_skill('Radioactive');
+        $def->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
@@ -285,10 +289,11 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
         $att = BMDie::create(17);
         $att->add_skill('Radioactive');
+        $att->value = 9;
 
         $def = BMDie::create(8);
         $def->add_skill('Radioactive');
-        $att->value = 9;
+        $def->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));

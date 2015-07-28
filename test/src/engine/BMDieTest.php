@@ -515,6 +515,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $attDie = BMDie::create(8);
         $attDie->add_skill('Morphing');
         $defDie = BMDie::create_from_recipe('(6,6)');
+        $defDie->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($attDie), array($defDie));
