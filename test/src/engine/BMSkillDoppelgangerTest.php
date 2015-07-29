@@ -32,6 +32,7 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $att->add_skill('Trip');
         $def = BMDie::create(17);
         $def->add_skill('Konstant');
+        $def->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($att), array($def));
@@ -84,6 +85,7 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $att1->add_skill('Trip');
         $def1 = BMDieTwin::create(array(5,13));
         $def1->add_skill('Konstant');
+        $def1->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($att1), array($def1));
@@ -116,6 +118,7 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $att2->add_skill('Trip');
         $def2 = BMDie::create(15);
         $def2->add_skill('Konstant');
+        $def2->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($att2), array($def2));
@@ -152,6 +155,7 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def1 = BMDie::create_from_recipe('(X)');
         $def1->add_skill('Konstant');
         $def1->set_swingValue(array('X' => 5));
+        $def1->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($att1), array($def1));
@@ -183,6 +187,7 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $att2->set_swingValue(array('X' => 7));
         $def2 = BMDie::create(11);
         $def2->add_skill('Konstant');
+        $def2->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($att2), array($def2));
@@ -213,6 +218,7 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
         $def3 = BMDie::create_from_recipe('(X,X)');
         $def3->add_skill('Konstant');
         $def3->set_swingValue(array('X' => 5));
+        $def3->captured = TRUE;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($att3), array($def3));

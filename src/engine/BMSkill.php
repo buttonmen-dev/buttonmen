@@ -326,27 +326,35 @@ class BMSkill {
      * @return BMDie
      */
     protected static function get_single_defender(array $defenderArray, $allowOnlyOneDef) {
-        if (1 != count($defenderArray)) {
-            // rage may add an extra defender, but it won't be captured
-            $defCount = 0;
-            foreach ($defenderArray as &$def) {
-                if ($def->captured) {
-                    $defender = &$def;
-                    $defCount++;
+        if ($allowOnlyOneDef && !self::has_single_defender($defenderArray)) {
+            throw new LogicException('Exactly one defender expected');
+        }
 
-                    if (!$allowOnlyOneDef) {
-                        break;
-                    }
-                }
-            }
+        $defender = NULL;
 
-            if (1 != $defCount) {
-                throw new LogicException('Exactly one defender expected');
+        foreach ($defenderArray as &$def) {
+            if ($def->captured) {
+                $defender = &$def;
+                break;
             }
-        } else {
-            $defender = &$defenderArray[0];
+        }
+
+        if (is_null($defender)) {
+            throw new LogicException('No defender found');
         }
 
         return $defender;
+    }
+
+    protected static function has_single_defender(array $defenderArray) {
+        // rage may add an extra defender, but it won't be captured
+        $defCount = 0;
+        foreach ($defenderArray as &$def) {
+            if ($def->captured) {
+                $defCount++;
+            }
+        }
+
+        return (1 == $defCount);
     }
 }
