@@ -26,7 +26,6 @@ module("OpenGames", {
 
     // Page elements
     $('#opengames_page').remove();
-    $('#opengames_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

@@ -32,7 +32,6 @@ module("Newgame", {
 
     // Page elements
     $('#newgame_page').remove();
-    $('#newgame_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

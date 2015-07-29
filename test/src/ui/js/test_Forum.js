@@ -40,7 +40,6 @@ module("Forum", {
 
     // Page elements
     $('#forum_page').remove();
-    $('#forum_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

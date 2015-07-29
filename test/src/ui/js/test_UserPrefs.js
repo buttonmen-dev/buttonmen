@@ -30,7 +30,6 @@ module("UserPrefs", {
 
     // Page elements
     $('#userprefs_page').remove();
-    $('#userprefs_page').empty();
     // Controls added to the page by the color picker library we use
     $('.sp-container').remove();
 
