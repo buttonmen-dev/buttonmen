@@ -28,14 +28,12 @@ module("Login", {
 
     // Page elements
     $('#login_header').remove();
-    $('#login_header').empty();
     $('#header_separator').remove();
 
     Login.pageModule = null;
 
     // Page elements
     $('#login_header').remove();
-    $('#login_header').empty();
 
     BMTestUtils.deleteEnvMessage();
 
@@ -97,7 +95,6 @@ test("test_Login.arrangeHeader", function(assert) {
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
-  bodyDiv.empty();
 
   assert.equal($('#env_message').length, 1,
     "Env message div should be created");
@@ -139,7 +136,6 @@ test("test_Login.arrangePage", function(assert) {
 
   if (Login.pageModule) {
     $('#' + Login.pageModule.bodyDivId).remove();
-    $('#' + Login.pageModule.bodyDivId).empty();
   }
 });
 

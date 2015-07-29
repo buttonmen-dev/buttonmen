@@ -37,7 +37,6 @@ module("Api", {
 
     // Page elements (for test use only)
     $('#api_page').remove();
-    $('#api_page').empty();
 
     // Fail if any other elements were added or removed
     BMTestUtils.ApiPost = BMTestUtils.getAllElements();

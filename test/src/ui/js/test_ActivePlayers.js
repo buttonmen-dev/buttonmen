@@ -24,7 +24,6 @@
 
     // Page elements
     $('#activeplayers_page').remove();
-    $('#activeplayers_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
