@@ -45,10 +45,7 @@ module("Game", {
     Game.activity = {};
 
     // Page elements
-    // FIXME: why do we have to remove this twice?
     $('#game_page').remove();
-    $('#game_page').remove();
-    $('#game_page').empty();
 
     BMTestUtils.restoreGetParameterByName();
 

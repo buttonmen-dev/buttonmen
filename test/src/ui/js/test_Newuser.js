@@ -27,7 +27,6 @@ module("Newuser", {
 
     // Page elements
     $('#newuser_page').remove();
-    $('#newuser_page').empty();
 
     BMTestUtils.deleteEnvMessage();
 

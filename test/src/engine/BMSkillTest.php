@@ -268,6 +268,10 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillBoom',
+                                            'BMSkillRage'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBoom',
                                             'BMSkillOrnery'));
 
         // doppelganger occurs before null
@@ -304,6 +308,16 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillRadioactive',
                                             'BMSkillWeak'));
+
+        // rage occurs before trip
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillRage',
+                                            'BMSkillTrip'));
+
+        // rage occurs before radioactive
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillRage',
+                                            'BMSkillRadioactive'));
     }
 
     public function test_describe() {

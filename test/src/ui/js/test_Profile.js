@@ -25,7 +25,6 @@ module("Profile", {
 
     // Page elements
     $('#profile_page').remove();
-    $('#profile_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

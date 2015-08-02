@@ -44,7 +44,6 @@ module("Overview", {
 
     // Page elements
     $('#overview_page').remove();
-    $('#overview_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
@@ -244,6 +243,10 @@ test("test_Overview.pageAddGameTable", function(assert) {
     start();
   });
 });
+
+test("test_Overview.toggleStaleGame", function(assert) {
+  // james: currently don't know how to do this testing
+})
 
 test("test_Overview.pageAddIntroText", function(assert) {
   Overview.page = $('<div>');
