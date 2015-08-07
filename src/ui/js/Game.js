@@ -354,7 +354,6 @@ Game.actionSpecifyDiceActive = function() {
     'opponent_swing',
     false
   );
-  var opponentswing = $('<table>', { 'id': 'opponent_swing', });
   $.each(
     Api.game.opponent.swingRequestArray,
     function(letter, range) {
@@ -2143,7 +2142,7 @@ Game.swingRangeTable = function(swingRequestArray, id, allowInput) {
     });
 
   return swingrangetable;
-}
+};
 
 
 Game.dieTableEntry = function(i, activeDieArray) {
