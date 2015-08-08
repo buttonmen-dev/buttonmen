@@ -11662,7 +11662,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Berserk', 'Ornery', 'Morphing', 'Radioactive', 'Rage', 'Reserve', 'Shadow', 'Slow', 'Stinger', 'Poison'));
         $expData['playerDataArray'][0]['button'] = array('name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'artFilename' => 'BMdefaultRound.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('W' => array(4, 12), 'X' => array(4, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array('Poison'), 'properties' => array(), 'recipe' => 'p(4)', 'description' => 'Poison 4-sided die'),
@@ -11689,6 +11689,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'responder003 chose not to use auxiliary dice in this game: neither player will get an auxiliary die. ',
             $gameId, 'decline');
 
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose not to use auxiliary dice in this game: neither player will get an auxiliary die'));
         $expData['gameActionLogCount'] = 1;
         $expData['gameSkillsInfo'] =  $this->get_skill_info(array('Berserk', 'Morphing', 'Ornery', 'Poison', 'Radioactive', 'Rage', 'Reserve', 'Shadow', 'Slow', 'Stinger'));
