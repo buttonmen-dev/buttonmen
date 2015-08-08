@@ -42,4 +42,13 @@ class BMBtnSkillRandomBMAnime extends BMBtnSkillRandomBM {
 
         return TRUE;
     }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return '4 normal dice and 4 reserve dice, chosen from standard die sizes.';
+    }
 }

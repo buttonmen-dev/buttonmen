@@ -25,4 +25,13 @@ class BMBtnSkillGiant extends BMBtnSkill {
     public static function is_button_slow() {
         return array('is_button_slow' => TRUE);
     }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return 'Cannot win initiative.';
+    }
 }

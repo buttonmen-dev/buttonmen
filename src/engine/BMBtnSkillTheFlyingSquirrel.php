@@ -51,6 +51,6 @@ class BMBtnSkillTheFlyingSquirrel extends BMBtnSkill {
      * @return string
      */
     public static function get_description() {
-        return 'The Flying Squirrel cannot perform skill attacks.';
+        return 'Cannot perform skill attacks.';
     }
 }
