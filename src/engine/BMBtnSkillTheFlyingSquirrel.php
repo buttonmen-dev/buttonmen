@@ -44,4 +44,13 @@ class BMBtnSkillTheFlyingSquirrel extends BMBtnSkill {
     public static function incompatible_attack_types() {
         return array('Skill');
     }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return 'The Flying Squirrel cannot perform skill attacks.';
+    }
 }

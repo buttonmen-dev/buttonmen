@@ -114,10 +114,10 @@ class BMButton extends BMCanHaveSkill {
         if (!is_null($name)) {
             $this->name = $name;
             $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $name);
-        }
-
-        if (class_exists("BMBtnSkill$standardName")) {
-            $this->add_skill($standardName);
+        
+            if (class_exists("BMBtnSkill$standardName")) {
+                $this->add_skill($standardName);
+            }
         }
 
         $this->validate_recipe($recipe);
