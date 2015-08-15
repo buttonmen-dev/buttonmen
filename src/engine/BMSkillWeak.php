@@ -52,6 +52,10 @@ class BMSkillWeak extends BMSkill {
             return;
         }
 
+        if (!$die->doesReroll) {
+            return;
+        }
+
         $die->shrink();
     }
 
