@@ -10346,21 +10346,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(9),
-            'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9. ',
+            'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) does not reroll; Attacker (12) rerolled 7 => 9. ',
             $retval, array(array(1, 0), array(1, 3), array(0, 3)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill'),
-            array(8, 15, -4.7, 4.7),
-            array(array(1, 0, array('value' => 2, 'sides' => 2, 'recipe' => 'Mkh(2)', 'description' => 'Maximum Konstant Weak 2-sided die', 'properties' => array('HasJustShrunk'))),
-                  array(1, 3, array('value' => 9))),
+            array(8, 16, -5.3, 5.3),
+            array(array(1, 3, array('value' => 9))),
             array(array(0, 3)),
             array(array(0, 0)),
             array(array(1, array('value' => 3, 'sides' => 10, 'recipe' => 'n(10)', 'properties' => array('WasJustCaptured'))))
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) does not reroll; Attacker (12) rerolled 7 => 9'));
         $expData['gameActionLogCount'] = 3;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
