@@ -1149,6 +1149,6 @@ SET flavor_text='This button gets a different random recipe in each game, with a
 WHERE name='RandomBMMixed';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with a fixed anime formula'
+SET flavor_text='This button gets a different random recipe in each game, with an anime formula'
 WHERE name='RandomBMAnime';
 
