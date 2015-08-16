@@ -51,7 +51,7 @@ class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
      * @return string
      */
     public static function get_description() {
-        return '5 dice, no swing dice, two of them having a single skill' .
+        return '5 dice, no swing dice, two of them having a single skill ' .
                'chosen from c, f, and d (the same skill on both).';
     }
 }
