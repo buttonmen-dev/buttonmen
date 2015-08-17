@@ -354,14 +354,6 @@ Game.actionSpecifyDiceActive = function() {
     'opponent_swing',
     false
   );
-  $.each(
-    Api.game.opponent.swingRequestArray,
-    function(letter, range) {
-      var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
-      swingrow.append($('<td>', { 'text': swingtext, }));
-      opponentswing.append(swingrow);
-    });
 
   // Don't bother making a table for opponent's option dice, because
   // those possible values are shown in the recipe already
@@ -2116,7 +2108,11 @@ Game.swingRangeTable = function(swingRequestArray, id, allowInput) {
     swingRequestArray,
     function(letter, range) {
       var swingrow = $('<tr>', {});
-      var swingtext = letter + ' (' + range.min + '-' + range.max + ')';
+      var swingtext = letter;
+      if (!allowInput) {
+        swingtext += ':';
+      }
+      swingtext += ' (' + range.min + '-' + range.max + ')';
       if (allowInput) {
         swingtext += ':';
       }
@@ -2136,8 +2132,8 @@ Game.swingRangeTable = function(swingRequestArray, id, allowInput) {
       if (letter in Api.game.player.prevSwingValueArray) {
         swingprevtext =
           '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+        swingrow.append($('<td>', { 'text': swingprevtext, }));
       }
-      swingrow.append($('<td>', { 'text': swingprevtext, }));
       swingrangetable.append(swingrow);
     });
 
