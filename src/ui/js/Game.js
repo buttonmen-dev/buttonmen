@@ -308,6 +308,7 @@ Game.actionSpecifyDiceActive = function() {
   var diespecifytable = Game.swingRangeTable(
     Api.game.player.swingRequestArray,
     'die_specify_table',
+    true,
     true
   );
 
@@ -352,6 +353,7 @@ Game.actionSpecifyDiceActive = function() {
   var opponentswing = Game.swingRangeTable(
     Api.game.opponent.swingRequestArray,
     'opponent_swing',
+    false,
     false
   );
 
@@ -428,12 +430,14 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   var swingrangetable = Game.swingRangeTable(
     Api.game.player.swingRequestArray,
     'swing_range_table',
+    false,
     false
   );
 
   var opponentswing = Game.swingRangeTable(
     Api.game.opponent.swingRequestArray,
     'opponent_swing',
+    false,
     false
   );
 
@@ -545,7 +549,8 @@ Game.actionChooseReserveDiceActive = function() {
   var swingrangetable = Game.swingRangeTable(
     Api.game.player.swingRequestArray,
     'swing_range_table',
-    false
+    false,
+    true
   );
 
   // Add the swing die form to the left column of the die table
@@ -2102,7 +2107,7 @@ Game.dieRecipeTable = function(table_action, active) {
 };
 
 // Generate and return a table of the swing ranges for the player's swing dice
-Game.swingRangeTable = function(swingRequestArray, id, allowInput) {
+Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrevious) {
   var swingrangetable = $('<table>', { 'id': id, });
   $.each(
     swingRequestArray,
@@ -2128,11 +2133,13 @@ Game.swingRangeTable = function(swingRequestArray, id, allowInput) {
         }));
         swingrow.append(swinginput);
       }
-      var swingprevtext = '';
-      if (letter in Api.game.player.prevSwingValueArray) {
-        swingprevtext =
-          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
-        swingrow.append($('<td>', { 'text': swingprevtext, }));
+      if (showPrevious) {
+        var swingprevtext = '';
+        if (letter in Api.game.player.prevSwingValueArray) {
+          swingprevtext =
+            '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+          swingrow.append($('<td>', { 'text': swingprevtext, }));
+        }
       }
       swingrangetable.append(swingrow);
     });
