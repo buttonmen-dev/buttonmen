@@ -2107,7 +2107,7 @@ Game.dieRecipeTable = function(table_action, active) {
 };
 
 // Generate and return a table of the swing ranges for the player's swing dice
-Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrevious) {
+Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrev) {
   var swingrangetable = $('<table>', { 'id': id, });
   $.each(
     swingRequestArray,
@@ -2133,7 +2133,7 @@ Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrevious)
         }));
         swingrow.append(swinginput);
       }
-      if (showPrevious) {
+      if (showPrev) {
         var swingprevtext = '';
         if (letter in Api.game.player.prevSwingValueArray) {
           swingprevtext =
