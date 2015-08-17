@@ -65,8 +65,6 @@ BMTestUtils.getAllElements = function() {
 BMTestUtils.deleteEnvMessage = function() {
   delete Env.message;
   $('#env_message').remove();
-  $('#c_body').remove();
-  $('#container').remove();
 }
 
 // Fake player login information for other functions to use
