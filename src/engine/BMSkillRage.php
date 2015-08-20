@@ -170,7 +170,10 @@ class BMSkillRage extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Doppelganger' => 'A Doppelganger die that captures a Rage die with a Power attack will ' .
+                              'retain Rage after it transforms',
+        );
     }
 
     /**

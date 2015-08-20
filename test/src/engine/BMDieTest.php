@@ -303,18 +303,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(($this->object === $newDie), "make_play_die returned the same object.");
     }
 
-    /*
-     * @covers BMDie::attack_list
-     */
-
-    public function testAttack_list() {
-        $this->assertNotEmpty($this->object->attack_list());
-        $this->assertContains("Skill", $this->object->attack_list());
-        $this->assertContains("Power", $this->object->attack_list());
-        $this->assertNotEmpty($this->object->attack_list());
-        $this->assertEquals(2, count($this->object->attack_list()));
-    }
-
     /**
      * @covers BMDie::attack_values
      *

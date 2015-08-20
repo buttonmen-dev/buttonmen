@@ -1,0 +1,16 @@
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a vanilla random formula'
+WHERE name='RandomBMVanilla';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a fixed random formula'
+WHERE name='RandomBMFixed';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with a mixed random formula'
+WHERE name='RandomBMMixed';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with an anime formula'
+WHERE name='RandomBMAnime';
+

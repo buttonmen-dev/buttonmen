@@ -310,7 +310,7 @@ class BMInterface {
         $arePreviousPlayersValid =
             $this->validate_previous_game_players($previousGameId, $playerIdArray);
         if (!$arePreviousPlayersValid) {
-            return NULL;
+            return FALSE;
         }
 
         return TRUE;
@@ -335,30 +335,34 @@ class BMInterface {
             $previousPlayerIds = array();
             while ($row = $statement->fetch()) {
                 if ($row['status'] != 'COMPLETE') {
-                    $this->message =
-                        'Game create failed because the previous game has not been completed yet.';
+                    $this->set_message(
+                        'Game create failed because the previous game has not been completed yet.'
+                    );
                     return FALSE;
                 }
                 $previousPlayerIds[] = (int)$row['player_id'];
             }
 
             if (count($previousPlayerIds) == 0) {
-                $this->message =
-                    'Game create failed because the previous game was not found.';
+                $this->set_message(
+                    'Game create failed because the previous game was not found.'
+                );
                 return FALSE;
             }
 
             foreach ($playerIdArray as $newPlayerId) {
                 if (!in_array($newPlayerId, $previousPlayerIds)) {
-                    $this->message =
-                        'Game create failed because the previous game does not contain the same players.';
+                    $this->set_message(
+                        'Game create failed because the previous game does not contain the same players.'
+                    );
                     return FALSE;
                 }
             }
             foreach ($previousPlayerIds as $oldPlayerId) {
                 if (!in_array($oldPlayerId, $playerIdArray)) {
-                    $this->message =
-                        'Game create failed because the previous game does not contain the same players.';
+                    $this->set_message(
+                        'Game create failed because the previous game does not contain the same players.'
+                    );
                     return FALSE;
                 }
             }

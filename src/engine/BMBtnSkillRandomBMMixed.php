@@ -58,4 +58,15 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
 
         return TRUE;
     }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return '5 dice, no swing dice, three skills chosen from all ' .
+               'existing skills, with each skill dealt out twice ' .
+               'randomly and independently over all dice.';
+    }
 }
