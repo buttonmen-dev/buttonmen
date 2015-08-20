@@ -3705,6 +3705,11 @@ class BMInterface {
 
             switch ($action) {
                 case 'turndown':
+                    if (0 == count($dieIdxArray)) {
+                        $this->set_message('At least one fire value must be turned down for a turndown action');
+                        return FALSE;
+                    }
+
                     if (count($dieIdxArray) != count($dieValueArray)) {
                         $this->set_message('Mismatch in number of indices and values');
                         return FALSE;
