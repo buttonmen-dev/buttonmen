@@ -36,8 +36,8 @@ class BMBtnSkill {
                 return NULL;
             }
 
-            $skill = new $skillClass;
-            if ($skill instanceof BMBtnSkillArtificialReenable) {
+            $skillInstance = new $skillClass;
+            if ($skillInstance instanceof BMBtnSkillArtificialReenable) {
                 return NULL;
             }
         }
