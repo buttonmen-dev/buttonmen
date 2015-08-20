@@ -3895,7 +3895,10 @@ class BMGame {
         $gameSkillsInfo = array();
         if (!empty($gameBtnSkillsList)) {
             foreach ($gameBtnSkillsList as $btnSkillType) {
-                $gameSkillsInfo[$btnSkillType] = BMBtnSkill::describe($btnSkillType);
+                $btnSkillDescription = BMBtnSkill::describe($btnSkillType, FALSE);
+                if (!empty($btnSkillDescription)) {
+                    $gameSkillsInfo[$btnSkillType] = $btnSkillDescription;
+                }
             }
         }
         if (!empty($gameSkillsList)) {
@@ -3903,7 +3906,7 @@ class BMGame {
                 $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
             }
         }
-        
+
         return $gameSkillsInfo;
     }
 

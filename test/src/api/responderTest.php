@@ -156,6 +156,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Konstant' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
                 ),
             ),
+            'Giant' => array(
+                'code' => 'Giant',
+                'description' => 'Cannot win initiative.',
+                'interacts' => array(),
+            ),
             'Konstant' => array(
                 'code' => 'k',
                 'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
@@ -241,6 +246,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
                     'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the size of the captured die, and then decay',
                 ),
+            ),
+            'RandomBMMixed' => array(
+                'code' => 'RandomBMMixed',
+                'description' => '5 dice, no swing dice, three skills chosen from all existing skills, with each skill dealt out twice randomly and independently over all dice.',
+                'interacts' => array(),
             ),
             'Rage' => array(
                 'code' => 'G',
