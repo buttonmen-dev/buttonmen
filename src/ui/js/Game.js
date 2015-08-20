@@ -1300,6 +1300,8 @@ Game.formAdjustFireDiceActive = function() {
         if (value != Api.game.player.activeDieArray[i].value) {
           error = 'Chose not to adjust fire dice, but modified a die value';
           formValid = false;
+          Game.activity.fireDieIdxArray.push(i);
+          Game.activity.fireDieValueArray.push(value);
         }
       }
     });
