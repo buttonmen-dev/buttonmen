@@ -4456,6 +4456,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This scenario tests unsuccessful and successful morphing trip attacks, and also basic regression tests of adjusting fire dice
@@ -4686,6 +4687,43 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder001');
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
+
+        ////////////////////
+        // Move 07 - responder003 abandons the Fire-assisted Skill attack and gets another attack
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_adjustFire(
+            array(),
+            'Cancelled fire attack.',
+            $retval, $gameId, 1, 'cancel', NULL, NULL);
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to abandon this attack and start over'));
+        $expData['gameActionLogCount'] = 8;
+        $expData['gameState'] = 'START_TURN';
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow', 'Trip');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 08 - responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 may turn down fire dice to complete t
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_submitTurn(
+            array(),
+// BUG: the API message should be something informative
+//            'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 may turn down fire dice to complete this at
+            'Loaded data for game ' . $gameId . '.',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 1, 'Power', 0, 1, '');
+// BUG: something like this should be appended to the action log.
+//        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to
+//        $expData['gameActionLogCount'] = 9;
+        $expData['gameState'] = 'ADJUST_FIRE_DICE';
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('IsAttackTarget');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
     /**
