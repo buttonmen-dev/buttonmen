@@ -1623,7 +1623,7 @@ Game.pageAddGameNavigationFooter = function() {
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
   var gameSkillDiv = $('<div>', {
-    'text': 'Die skills in this game: ',
+    'text': 'Skills in this game: ',
   });
 
   var firstSkill = true;

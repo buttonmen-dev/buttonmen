@@ -20,4 +20,21 @@ class BMBtnSkill {
     public static function get_description() {
         return NULL;
     }
+
+    /**
+     * Complete description of skill, packaged for front end
+     *
+     * @param string $skill
+     * @return array
+     */
+    public static function describe($skill) {
+        $skillClass = "BMBtnSkill$skill";
+        $skillDescription = array(
+            'code' => $skill,
+            'description' => $skillClass::get_description(),
+            'interacts' => array(),
+        );
+
+        return $skillDescription;
+    }
 }
