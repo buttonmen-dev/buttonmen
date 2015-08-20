@@ -4456,7 +4456,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This scenario tests unsuccessful and successful morphing trip attacks, and also basic regression tests of adjusting fire dice
