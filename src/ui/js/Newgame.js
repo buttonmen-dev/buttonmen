@@ -572,7 +572,7 @@ Newgame.updateButtonList = function(player, limitid) {
   } else {
     Newgame.activity.buttonList[player] = {};
   }
-  
+
   var choiceid;
   var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {
