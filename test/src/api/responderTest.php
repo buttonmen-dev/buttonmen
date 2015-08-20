@@ -4710,14 +4710,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
         $this->verify_api_submitTurn(
             array(),
-// BUG: the API message should be something informative
-//            'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 may turn down fire dice to complete this at
-            'Loaded data for game ' . $gameId . '.',
+            'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 must decide whether to turn down fire dice. ',
             $retval, array(array(0, 0), array(1, 0)),
             $gameId, 1, 'Power', 0, 1, '');
-// BUG: something like this should be appended to the action log.
-//        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to
-//        $expData['gameActionLogCount'] = 9;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 must decide whether to turn down fire dice'));
+        $expData['gameActionLogCount'] = 9;
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
         $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');

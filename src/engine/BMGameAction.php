@@ -140,6 +140,25 @@ class BMGameAction {
      * @return string
      */
     protected function friendly_message_needs_firing() {
+        return $this->fire_prep_message(FALSE);
+    }
+
+    /**
+     * Describes the situation when fire dice may be turned down
+     *
+     * @return string
+     */
+    protected function friendly_message_allows_firing() {
+        return $this->fire_prep_message(TRUE);
+    }
+
+    /**
+     * Describes the situation when fire dice need to be turned down
+     *
+     * @param bool $isZeroFireValid
+     * @return string
+     */
+    protected function fire_prep_message($isZeroFireValid) {
         $attackType = $this->params['attackType'];
         $attackDice = $this->params['attackDice'];
 
@@ -156,7 +175,12 @@ class BMGameAction {
             $defenders[] = $defenderInfo['recipeStatus'];
         }
         $message .= $this->preAttackMessage($attackers, $defenders) . '; ';
-        $message .= $actingPlayerName . ' must turn down fire dice to complete this attack';
+
+        if ($isZeroFireValid) {
+            $message .= $actingPlayerName . ' must decide whether to turn down fire dice';
+        } else {
+            $message .= $actingPlayerName . ' must turn down fire dice to complete this attack';
+        }
 
         return $message;
     }

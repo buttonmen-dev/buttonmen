@@ -1443,6 +1443,18 @@ class BMGame {
             $defenderDieArray,
             max(1, $defenderDie->value - $attackerDie->value + 1)
         )) {
+            $this->log_action(
+                'allows_firing',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'attackType' => $this->attack['attackType'],
+                    'attackDice' => $this->get_action_log_data(
+                        $attackerDieArray,
+                        $defenderDieArray
+                    ),
+                )
+            );
+
             return TRUE;
         }
 
