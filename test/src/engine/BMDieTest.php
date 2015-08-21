@@ -307,7 +307,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @covers BMDie::attack_values
      *
      * @depends testInit
-     * @depends testAttack_list
      */
     public function testAttack_values() {
         $this->object->init(15);
@@ -336,7 +335,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      *
      * @depends testInit
      * @depends testRoll
-     * @depends testAttack_list
      */
     public function testDefense_value() {
         $this->object->init(6, array());
@@ -380,8 +378,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::assist_values
-     *
-     * @depends testAttack_list
      */
     public function testAssist_values() {
         $attDie = new BMDie;
@@ -428,7 +424,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMDie::attack_contribute
      *
-     * @depends testAttack_list
      * @depends testAssist_values
      */
     public function testAttack_contribute() {
@@ -443,8 +438,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::is_valid_attacker
-     *
-     * @depends testAttack_list
      */
     public function testIs_valid_attacker() {
         $attDie = new BMDie;
@@ -459,8 +452,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::is_valid_target
-     *
-     * @depends testAttack_list
      */
     public function testIs_valid_target() {
         $defDie = new BMDie;
@@ -479,8 +470,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::capture
-     *
-     * @depends testAttack_list
      */
     public function testCapture_normal() {
         $attDie = BMDie::create(7);
@@ -496,8 +485,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::capture
-     *
-     * @depends testAttack_list
      */
     public function testCapture_morphing() {
         $attDie = BMDie::create(8);
@@ -527,8 +514,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::be_captured
-     *
-     * @depends testAttack_list
      */
     public function testBe_captured() {
         $attDie = new BMDie;
