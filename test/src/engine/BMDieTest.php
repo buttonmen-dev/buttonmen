@@ -460,9 +460,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($this->object->is_valid_target(array($defDie)));
         $this->assertTrue($this->object->is_valid_target(array($this->object)));
         $this->assertTrue($this->object->is_valid_target(array($this->object, $defDie)));
-
-        $this->object->add_skill('Warrior');
-        $this->assertFalse($this->object->is_valid_target(array($this->object)));
     }
 
     /**
