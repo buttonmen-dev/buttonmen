@@ -31,8 +31,10 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
             return FALSE;
         }
 
-        $skillCharArray = array_merge(array_diff(BMSkill::all_skill_chars(),
-                                                 self::excluded_skill_char_array()));
+        $skillCharArray = array_merge(array_diff(
+            BMSkill::all_skill_chars(),
+            self::excluded_skill_char_array()
+        ));
 
         $button = $args['button'];
         $nDice = 5;
@@ -85,8 +87,10 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
      * @return array
      */
     protected static function excluded_skill_char_array() {
-        $skillCharArray = array_map('BMSkill::abbreviate_skill_name',
-                                    self::excluded_skill_array());
+        $skillCharArray = array_map(
+            'BMSkill::abbreviate_skill_name',
+            self::excluded_skill_array()
+        );
         sort($skillCharArray);
         return $skillCharArray;
     }

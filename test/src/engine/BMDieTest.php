@@ -341,9 +341,13 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     public function testDefense_value() {
         $this->object->init(6, array());
 
-        for ($i = 0; $i < 10; $i++) {
-            $this->object->roll(FALSE);
-            $this->assertEquals($this->object->value, $this->object->defense_value($att), "Defense value fails to equal value for $att.");
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
+            for ($i = 0; $i < 10; $i++) {
+                $this->object->roll(FALSE);
+                $this->assertEquals($this->object->value, $this->object->defense_value($att), "Defense value fails to equal value for $att.");
+            }
         }
     }
 
