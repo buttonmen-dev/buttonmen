@@ -4,7 +4,9 @@ module("Login", {
 
     // Create the login_header div so functions have something to modify
     if (document.getElementById('login_header') == null) {
-      $('body').append($('<div>', {'id': 'login_header', }));
+      $('body').append($('<div>', {'id': 'container', }));
+      $('#container').append($('<div>', {'id': 'c_body'}));
+      $('#c_body').append($('<div>', {'id': 'login_header', }));
     }
   },
   'teardown': function(assert) {
@@ -23,6 +25,7 @@ module("Login", {
     delete Env.window.location.search;
     delete Env.window.location.hash;
     delete Env.history.state;
+    $('#container').remove();
 
     Api.automatedApiCall = false;
 

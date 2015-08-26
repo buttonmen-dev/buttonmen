@@ -10,6 +10,7 @@ module("Buttons", {
 
     // Create the buttons_page div so functions have something to modify
     if (document.getElementById('buttons_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'buttons_page', }));
     }
 

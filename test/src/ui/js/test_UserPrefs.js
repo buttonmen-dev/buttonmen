@@ -5,6 +5,7 @@ module("UserPrefs", {
 
     // Create the userprefs_page div so functions have something to modify
     if (document.getElementById('userprefs_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'userprefs_page', }));
     }
 
