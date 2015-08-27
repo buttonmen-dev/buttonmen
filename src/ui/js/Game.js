@@ -1630,7 +1630,11 @@ Game.pageAddSkillListFooter = function() {
   var firstInteract;
   var skillDesc;
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
-    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+    skillDesc = skill;
+    if (info.code) {
+      skillDesc += ' (' + info.code + ')';
+    }
+    skillDesc += ': ' + info.description;
 
     firstInteract = true;
     $.each(info.interacts, function(otherSkill, interactDesc) {

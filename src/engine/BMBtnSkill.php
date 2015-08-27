@@ -43,7 +43,7 @@ class BMBtnSkill {
         }
 
         $skillDescription = array(
-            'code' => $skill,
+            'code' => '',
             'description' => $description,
             'interacts' => array(),
         );
