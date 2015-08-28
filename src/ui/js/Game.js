@@ -1623,14 +1623,18 @@ Game.pageAddGameNavigationFooter = function() {
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
   var gameSkillDiv = $('<div>', {
-    'text': 'Die skills in this game: ',
+    'text': 'Skills in this game: ',
   });
 
   var firstSkill = true;
   var firstInteract;
   var skillDesc;
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
-    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+    skillDesc = skill;
+    if (info.code) {
+      skillDesc += ' (' + info.code + ')';
+    }
+    skillDesc += ': ' + info.description;
 
     firstInteract = true;
     $.each(info.interacts, function(otherSkill, interactDesc) {

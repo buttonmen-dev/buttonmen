@@ -56,6 +56,7 @@
  * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
  *
+ * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
  * @SuppressWarnings(PMD.UnusedPrivateField)
@@ -3870,10 +3871,13 @@ class BMGame {
      */
     protected function get_gameSkillsInfo() {
         $gameSkillsWithKeysList = array();
+        $gameBtnSkillsWithKeysList = array();
 
         if (isset($this->buttonArray)) {
             foreach ($this->buttonArray as $playerButton) {
                 if (!is_null($playerButton) && count($playerButton->dieArray) > 0) {
+                    $gameBtnSkillsWithKeysList += $playerButton->skillList;
+
                     foreach ($playerButton->dieArray as $buttonDie) {
                         if (count($buttonDie->skillList) > 0) {
                             $gameSkillsWithKeysList += $buttonDie->skillList;
@@ -3886,10 +3890,24 @@ class BMGame {
         $gameSkillsList = array_keys($gameSkillsWithKeysList);
         sort($gameSkillsList);
 
+        $gameBtnSkillsList = array_keys($gameBtnSkillsWithKeysList);
+        sort($gameBtnSkillsList);
+
         $gameSkillsInfo = array();
-        foreach ($gameSkillsList as $skillType) {
-            $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
+        if (!empty($gameBtnSkillsList)) {
+            foreach ($gameBtnSkillsList as $btnSkillType) {
+                $btnSkillDescription = BMBtnSkill::describe($btnSkillType, FALSE);
+                if (!empty($btnSkillDescription)) {
+                    $gameSkillsInfo[$btnSkillType] = $btnSkillDescription;
+                }
+            }
         }
+        if (!empty($gameSkillsList)) {
+            foreach ($gameSkillsList as $skillType) {
+                $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
+            }
+        }
+
         return $gameSkillsInfo;
     }
 
