@@ -92,7 +92,7 @@ Env.removeParameterByName = function(name) {
 // messages
 Env.setupEnvStub = function() {
   if ($('#env_message').length === 0) {
-    $('body').append($('<div>', {'id': 'env_message', }));
+    $('#c_body').append($('<div>', {'id': 'env_message', }));
   }
 };
 

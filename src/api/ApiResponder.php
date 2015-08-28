@@ -25,11 +25,6 @@ class ApiResponder {
         'login',
     );
 
-    // functions that handle player-related information
-    protected $playerFunctions = array(
-        'createGame',
-    );
-
     /**
      * Constructor
      * For live invocation:
@@ -97,7 +92,7 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
-        $retval = $interface->create_game(
+        $retval = $interface->player()->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
@@ -657,21 +652,11 @@ class ApiResponder {
         }
 
         apache_note('BMUserID', $_SESSION['user_id']);
-
-        $interface = $this->select_interface_type($check['funcname']);
+        
+        $interface = new BMInterface($this->isTest);
 
         if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
             $interface->player()->update_last_access_time($_SESSION['user_id']);
-        }
-
-        return $interface;
-    }
-
-    protected function select_interface_type($funcname) {
-        if (array_search($funcname, $this->playerFunctions, TRUE)) {
-            $interface = new BMInterfacePlayer($this->isTest);
-        } else {
-            $interface = new BMInterface($this->isTest);
         }
 
         return $interface;

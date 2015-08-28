@@ -37,4 +37,13 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLettersArray);
         return TRUE;
     }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return '5 dice, no swing dice, no skills.';
+    }
 }

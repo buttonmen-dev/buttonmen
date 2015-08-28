@@ -40,7 +40,7 @@ class BMSkillQueer extends BMSkill {
             $attackTypeArray['Shadow'] = 'Shadow';
         }
 
-        foreach (BMSkillQueer::incompatible_attack_types(array('value' => $value)) as $attackType) {
+        foreach (self::incompatible_attack_types(array('value' => $value)) as $attackType) {
             if (array_key_exists($attackType, $attackTypeArray)) {
                 unset($attackTypeArray[$attackType]);
             }
