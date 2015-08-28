@@ -249,7 +249,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'RandomBMMixed' => array(
                 'code' => '',
-                'description' => '5 dice, no swing dice, three skills chosen from all existing skills, with each skill dealt out twice randomly and independently over all dice.',
+                'description' => '5 dice, no swing dice, three skills chosen from all existing skills except %&+?DF`mrw, with each skill dealt out twice randomly and independently over all dice.',
                 'interacts' => array(),
             ),
             'Rage' => array(
