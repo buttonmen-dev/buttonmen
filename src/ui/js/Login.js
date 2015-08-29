@@ -71,9 +71,15 @@ Login.showLoginHeader = function(pageModule) {
   }
 
   // Make sure div elements that we will need exist in the page body
-  if ($('#login_header').length === 0) {
-    $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>', { 'id': 'header_separator', }));
+  if ($('#container').length === 0) {
+    // create a container that will have 100% height, to allow correct
+    // positioning of the page elements, especially the footer
+    $('body').append($('<div>', {'id': 'container', }));
+    $('#container').append($('<div>', {'id': 'c_header'}));
+    $('#container').append($('<div>', {'id': 'c_body'}));
+    $('#container').append($('<div>', {'id': 'c_footer'}));
+    $('#c_header').append($('<div>', {'id': 'login_header', }));
+    $('#c_header').append($('<hr>', { 'id': 'header_separator', }));
   }
 
   // Find the current login header contents and display them followed by
@@ -96,7 +102,7 @@ Login.arrangeHeader = function() {
   // Make sure the div element that we will need exists in the page body
   if (Login.pageModule && Login.pageModule.bodyDivId) {
     if ($('#' + Login.pageModule.bodyDivId).length === 0) {
-      $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
+      $('#c_body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
     }
   } else {
     Env.message = {

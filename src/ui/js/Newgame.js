@@ -563,9 +563,16 @@ Newgame.updateButtonList = function(player, limitid) {
     });
   }
 
-  Newgame.activity.buttonList[player] = {
-    '__random': 'Random button',
-  };
+  if (Newgame.activity.buttonLimits[player].button_sets.ANY &&
+      Newgame.activity.buttonLimits[player].tourn_legal.ANY &&
+      Newgame.activity.buttonLimits[player].die_skills.ANY) {
+    Newgame.activity.buttonList[player] = {
+      '__random': 'Random button',
+    };
+  } else {
+    Newgame.activity.buttonList[player] = {};
+  }
+
   var choiceid;
   var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {

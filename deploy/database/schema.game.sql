@@ -43,7 +43,8 @@ CREATE TABLE game_player_map (
     last_action_time   TIMESTAMP DEFAULT 0,
     was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL,
     is_button_random   BOOLEAN DEFAULT FALSE NOT NULL,
-    has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL
+    has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL,
+    INDEX (game_id, player_id)
 );
 
 CREATE TABLE game_swing_map (
