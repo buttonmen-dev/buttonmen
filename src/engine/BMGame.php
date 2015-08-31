@@ -1469,7 +1469,7 @@ class BMGame {
         $this->gameState = BMGameState::COMMIT_ATTACK;
     }
 
-    // turn_down_fire_dice expects one of the following two input arrays:
+    // turn_down_fire_dice expects one of the following input arrays:
     //
     //   1.  array('action' => 'cancel',
     //             'playerIdx' => $playerIdx,
@@ -1478,7 +1478,14 @@ class BMGame {
     //       where $dieIdxArray and $dieValueArray are the raw inputs to
     //       BMInterface->adjust_fire()
     //
-    //   2.  array('action' => 'turndown',
+    //   2.  array('action' => 'no_turndown',
+    //             'playerIdx' => $playerIdx,
+    //             'dieIdxArray' => $dieIdxArray,
+    //             'dieValueArray' => $dieValueArray)
+    //       where $dieIdxArray and $dieValueArray are the raw inputs to
+    //       BMInterface->adjust_fire()
+    //
+    //   3.  array('action' => 'turndown',
     //             'playerIdx' => $playerIdx,
     //             'fireValueArray' => array($dieIdx1 => $dieValue1,
     //                                       $dieIdx2 => $dieValue2))
@@ -1614,6 +1621,10 @@ class BMGame {
 
         $this->firingAmount = 0;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        $this->fireCache = array(
+            'action' => 'zero_firing',
+        );
 
         $this->message = 'Successfully attacked without turning down fire dice.';
         return TRUE;

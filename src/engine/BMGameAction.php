@@ -262,6 +262,11 @@ class BMGameAction {
      * @return string
      */
     protected function fire_turndown_message($fireCache, $actingPlayerName) {
+        if (array_key_exists('action', $fireCache)) {
+            assert('zero_firing' == $fireCache['action']);
+            return $actingPlayerName . ' chose not to turn down fire dice; ';
+        }
+
         $fireRecipes = $fireCache['fireRecipes'];
         $oldValues = $fireCache['oldValues'];
         $newValues = $fireCache['newValues'];
