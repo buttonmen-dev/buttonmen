@@ -211,16 +211,21 @@ Env.addClickKeyboardHandlers = function(
   // behavior, install a keydown handler.
   if (spaceHandlerCallback || returnHandlerCallback) {
     element.keydown(function(eventData) {
+      doSwallowKeypress = false;
+
+      // if a space handler was specified, invoke it on spacebar
+      if (spaceHandlerCallback && eventData.which == Env.KEYCODE_SPACEBAR) {
+        spaceHandlerCallback.call(element, eventData);
+        doSwallowKeypress = true; // actively swallow the space event to stop scrolling
+      }
 
       // if a return handler was specified, invoke it on return
       if (returnHandlerCallback && eventData.which == Env.KEYCODE_RETURN) {
         returnHandlerCallback.call(element, eventData);
       }
 
-      // if a space handler was specified, invoke it on spacebar
-      if (spaceHandlerCallback && eventData.which == Env.KEYCODE_SPACEBAR) {
-        spaceHandlerCallback.call(element, eventData);
-        return false; // actively swallow the space event to stop scrolling
+      if (doSwallowKeypress) {
+        return false;
       }
     });
   }
