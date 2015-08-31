@@ -212,14 +212,15 @@ Env.addClickKeyboardHandlers = function(
   if (spaceHandlerCallback || returnHandlerCallback) {
     element.keydown(function(eventData) {
 
-      // if a space handler was specified, invoke it on spacebar
-      if (spaceHandlerCallback && eventData.which == Env.KEYCODE_SPACEBAR) {
-        spaceHandlerCallback.call(element, eventData);
-      }
-
       // if a return handler was specified, invoke it on return
       if (returnHandlerCallback && eventData.which == Env.KEYCODE_RETURN) {
         returnHandlerCallback.call(element, eventData);
+      }
+
+      // if a space handler was specified, invoke it on spacebar
+      if (spaceHandlerCallback && eventData.which == Env.KEYCODE_SPACEBAR) {
+        spaceHandlerCallback.call(element, eventData);
+        return false; // actively swallow the space event to stop scrolling
       }
     });
   }
