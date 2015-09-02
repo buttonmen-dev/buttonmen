@@ -9,6 +9,7 @@ module("Game", {
 
     // Create the game_page div so functions have something to modify
     if (document.getElementById('game_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'game_page', }));
     }
 
@@ -1127,7 +1128,7 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    assert.ok(htmlout.match('<div>Die skills in this game: '),
+    assert.ok(htmlout.match('<div>Skills in this game: '),
       "Die skills footer text is present");
     assert.ok(htmlout.match('Focus'),
       "Die skills footer text lists the Focus skill");

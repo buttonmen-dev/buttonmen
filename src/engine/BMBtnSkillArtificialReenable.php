@@ -17,4 +17,13 @@ class BMBtnSkillArtificialReenable extends BMBtnSkill {
      * @var array
      */
     public static $hooked_methods = array();
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return 'The special button skills for this button have not yet been implemented.';
+    }
 }

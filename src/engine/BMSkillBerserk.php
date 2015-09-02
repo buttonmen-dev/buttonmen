@@ -29,7 +29,7 @@ class BMSkillBerserk extends BMSkill {
 
         $attackTypeArray = &$args['attackTypeArray'];
 
-        foreach (BMSkillBerserk::incompatible_attack_types() as $attackType) {
+        foreach (self::incompatible_attack_types() as $attackType) {
             if (array_key_exists($attackType, $attackTypeArray)) {
                 unset($attackTypeArray[$attackType]);
             }

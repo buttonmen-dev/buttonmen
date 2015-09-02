@@ -22,6 +22,7 @@ attack_list
   Shadow
   Speed
   Stealth
+  TheFlyingSquirrel
   Trip
   Warrior
 attack_values
