@@ -14,6 +14,7 @@ module("Overview", {
 
     // Create the overview_page div so functions have something to modify
     if (document.getElementById('overview_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'overview_page', }));
     }
 

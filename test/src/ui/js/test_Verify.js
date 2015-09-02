@@ -7,6 +7,7 @@ module("Verify", {
 
     // Create the verify_page div so functions have something to modify
     if (document.getElementById('verify_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'verify_page', }));
     }
   },

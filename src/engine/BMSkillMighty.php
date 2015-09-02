@@ -52,6 +52,10 @@ class BMSkillMighty extends BMSkill {
             return;
         }
 
+        if (!$die->doesReroll) {
+            return;
+        }
+
         $die->grow();
     }
 

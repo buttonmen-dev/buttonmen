@@ -20,4 +20,34 @@ class BMBtnSkill {
     public static function get_description() {
         return NULL;
     }
+
+    /**
+     * Complete description of skill, packaged for front end
+     *
+     * @param string $skill
+     * @return array|NULL
+     */
+    public static function describe($skill, $includeEmpty = TRUE) {
+        $skillClass = "BMBtnSkill$skill";
+        $description = $skillClass::get_description();
+
+        if (!$includeEmpty) {
+            if (empty($description)) {
+                return NULL;
+            }
+
+            $skillInstance = new $skillClass;
+            if ($skillInstance instanceof BMBtnSkillArtificialReenable) {
+                return NULL;
+            }
+        }
+
+        $skillDescription = array(
+            'code' => '',
+            'description' => $description,
+            'interacts' => array(),
+        );
+
+        return $skillDescription;
+    }
 }
