@@ -854,8 +854,10 @@ Game.actionAdjustFireDiceActive = function() {
     'Your turn to complete an attack by adjusting fire dice');
 
   var attackerSum = 0;
+  var attackerDiffFromMax = 0;
   $.each(Api.game.player.activeDieArray, function(i, die) {
     if (die.properties.indexOf('IsAttacker') >= 0) {
+      attackerDiffFromMax += die.sides - die.value;
       attackerSum += die.value;
     }
   });
@@ -867,12 +869,24 @@ Game.actionAdjustFireDiceActive = function() {
     }
   });
 
+  var fireMessage = '';
+  var attackType = Api.game.validAttackTypeArray[0];
+  var exactFiringAmount = defenderSum - attackerSum;
+
+  fireMessage += 'Turn down Fire dice by a total of ';
+
+  if (('Power' == attackType) &&
+    (attackerDiffFromMax > exactFiringAmount)) {
+    fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
+                   ' and ' + attackerDiffFromMax;
+  } else {
+    fireMessage += exactFiringAmount;
+  }
+
+  fireMessage += '.';
+
   Game.page.append($('<div>', {
-    'text': 'Turn down Fire dice by a total of ' +
-            (defenderSum - attackerSum) +
-            ' to make up the difference between the sum of your attacking' +
-            ' dice (' + attackerSum + ') and the defending die value (' +
-            defenderSum + ').',
+    'text': fireMessage,
   }));
 
   // Create a form for adjusting fire dice
@@ -892,18 +906,24 @@ Game.actionAdjustFireDiceActive = function() {
     'name': 'fire_action_select',
   });
 
-  var fireoptions = {
-    'turndown': 'Turn down fire dice',
-    'cancel':
-      'Don\'t turn down fire dice (cancelling the attack in progress)',
-  };
+  var allows_zero_turndown = (exactFiringAmount <= 0);
+
+  var fireoptions = {};
+  if (allows_zero_turndown) {
+    fireoptions.no_turndown = 'Submit attack without turning down fire dice';
+  }
+  fireoptions.turndown = 'Turn down fire dice';
+  fireoptions.cancel =
+    'Don\'t turn down fire dice (cancelling the attack in progress)';
+
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
       'value': actionname,
       'label': actiontext,
       'text': actiontext,
     };
-    if (actionname == 'turndown') {
+    if ((actionname == 'no_turndown') ||
+        (!allows_zero_turndown && (actionname == 'turndown'))) {
       fireactionopts.selected = 'selected';
     }
     fireactionselect.append($('<option>', fireactionopts));
@@ -1272,13 +1292,16 @@ Game.formAdjustFireDiceActive = function() {
   switch (Game.activity.fireActionType) {
 
   // valid action, nothing special to do, but validate selections just in case
-  case 'cancel':
+  case 'cancel':    // fallthrough to allow multiple cases with the same logic
+  case 'no_turndown':
     $.each(Api.game.player.fireOptions, function(i, vals) {
       if (vals.length > 0) {
         var value = $('#fire_adjust_' + i).val();
         if (value != Api.game.player.activeDieArray[i].value) {
           error = 'Chose not to adjust fire dice, but modified a die value';
           formValid = false;
+          Game.activity.fireDieIdxArray.push(i);
+          Game.activity.fireDieValueArray.push(value);
         }
       }
     });

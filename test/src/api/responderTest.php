@@ -4686,7 +4686,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack'));
         $expData['gameActionLogCount'] = 7;
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
-        $expData['validAttackTypeArray'] = array();
+        $expData['validAttackTypeArray'] = array('Skill');
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
         $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('IsAttackTarget');
 
@@ -4696,6 +4696,40 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder001');
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
+
+        ////////////////////
+        // Move 07 - responder003 abandons the Fire-assisted Skill attack and gets another attack
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_adjustFire(
+            array(),
+            'Cancelled fire attack.',
+            $retval, $gameId, 1, 'cancel', NULL, NULL);
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to abandon this attack and start over'));
+        $expData['gameActionLogCount'] = 8;
+        $expData['gameState'] = 'START_TURN';
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow', 'Trip');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 08 - responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 may turn down fire dice to complete t
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_submitTurn(
+            array(),
+            'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 must decide whether to turn down fire dice. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 1, 'Power', 0, 1, '');
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 must decide whether to turn down fire dice'));
+        $expData['gameActionLogCount'] = 9;
+        $expData['gameState'] = 'ADJUST_FIRE_DICE';
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('IsAttackTarget');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
     /**
@@ -9618,7 +9652,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
-        $expData['validAttackTypeArray'] = array();
+        $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('ValueRelevantToScore', 'IsAttackTarget');
         $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('IsAttacker');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 chose to perform a Power attack using [(12):3] against [vz(20):5]; responder004 must turn down fire dice to complete this attack'));
