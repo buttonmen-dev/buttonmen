@@ -1,5 +1,6 @@
 class user::buttonmen-devs {
   include "user::username::chaos"
+  include "user::username::irilyth"
   include "user::username::james"
 }
 
@@ -52,6 +53,39 @@ class user::username::chaos {
       content => template("user/chaos_install_rcfiles.erb"),
       mode => 0544,
       require => User["chaos"];
+  }
+}
+
+class user::username::irilyth {
+  group {
+    "irilyth": ensure => present, gid => 1103;
+  }
+
+  user {
+    "irilyth":
+      ensure => present,
+      uid => 1103,
+      comment => "Josh Smift",
+      gid => "irilyth",
+      groups => [ "adm", "admin", ],
+      shell => "/bin/bash",
+      managehome => true,
+      require => Group["irilyth"];
+  }
+
+  file {
+    "/home/irilyth/.ssh/":
+      ensure => directory,
+      owner => "irilyth",
+      group => "irilyth",
+      require => User["irilyth"];
+
+    "/home/irilyth/.ssh/authorized_keys":
+      ensure => file,
+      owner => "irilyth",
+      group => "irilyth",
+      content => "# SSH keys for irilyth - managed by puppet\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDfbVpekKuthQ7sHa0yuSMYy8vIuL4veMuCToOlp31BnyKUOakA2h+gVq6ToQODYIqGEhiODKV7WwJGOhk5vnifEgjl2CS4nyNZ+hjhDAEknU4iKDFDOlxx9UtygCV5w1UnSO3JlXpD7/Vc8QGJLhv1i+I2P46sSzvblSm0fpkpYhWiDIUEjhYD3hykUrkzELq4tYiQ7o3g5TokkKId7Bs+8PdOyBACVGaxR3q+3g5oMkSBlAUJlKIFdcFRO0NayyfMz8t1JbvcMjgFQwkmEeRTkvU9VEoQrSlH2aij531UDXosyuXGd37P4hec+41UWvgyFlzUXNe7VgnZ/hX+9+w/ jsmift_login\n",
+      require => User["irilyth"];
   }
 }
 

@@ -72,4 +72,13 @@ class BMBtnSkillEcho extends BMBtnSkill {
         $button->recipe = $newRecipe;
         $button->hasAlteredRecipe = TRUE;
     }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return 'Copies the opponent\'s button recipe.';
+    }
 }

@@ -92,7 +92,7 @@ Env.removeParameterByName = function(name) {
 // messages
 Env.setupEnvStub = function() {
   if ($('#env_message').length === 0) {
-    $('body').append($('<div>', {'id': 'env_message', }));
+    $('#c_body').append($('<div>', {'id': 'env_message', }));
   }
 };
 
@@ -211,15 +211,22 @@ Env.addClickKeyboardHandlers = function(
   // behavior, install a keydown handler.
   if (spaceHandlerCallback || returnHandlerCallback) {
     element.keydown(function(eventData) {
+      var doSwallowKeypress = false;
 
       // if a space handler was specified, invoke it on spacebar
       if (spaceHandlerCallback && eventData.which == Env.KEYCODE_SPACEBAR) {
         spaceHandlerCallback.call(element, eventData);
+        // actively swallow the space event to stop scrolling
+        doSwallowKeypress = true;
       }
 
       // if a return handler was specified, invoke it on return
       if (returnHandlerCallback && eventData.which == Env.KEYCODE_RETURN) {
         returnHandlerCallback.call(element, eventData);
+      }
+
+      if (doSwallowKeypress) {
+        return false;
       }
     });
   }

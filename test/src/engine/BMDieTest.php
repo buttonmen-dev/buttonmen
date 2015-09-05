@@ -303,29 +303,18 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(($this->object === $newDie), "make_play_die returned the same object.");
     }
 
-    /*
-     * @covers BMDie::attack_list
-     */
-
-    public function testAttack_list() {
-        $this->assertNotEmpty($this->object->attack_list());
-        $this->assertContains("Skill", $this->object->attack_list());
-        $this->assertContains("Power", $this->object->attack_list());
-        $this->assertNotEmpty($this->object->attack_list());
-        $this->assertEquals(2, count($this->object->attack_list()));
-    }
-
     /**
      * @covers BMDie::attack_values
      *
      * @depends testInit
-     * @depends testAttack_list
      */
     public function testAttack_values() {
         $this->object->init(15);
         $this->object->value = 7;
 
-        foreach ($this->object->attack_list() as $att) {
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
             $this->assertNotEmpty($this->object->attack_values($att));
             $this->assertContains(7, $this->object->attack_values($att));
             $this->assertEquals(1, count($this->object->attack_values($att)));
@@ -336,7 +325,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($this->object->attack_values("Bob")));
 
         $this->object->value = 4;
-        foreach ($this->object->attack_list() as $att) {
+        foreach ($attackList as $att) {
             $this->assertNotEmpty($this->object->attack_values($att));
             $this->assertContains(4, $this->object->attack_values($att));
             $this->assertEquals(1, count($this->object->attack_values($att)));
@@ -348,12 +337,13 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      *
      * @depends testInit
      * @depends testRoll
-     * @depends testAttack_list
      */
     public function testDefense_value() {
         $this->object->init(6, array());
 
-        foreach ($this->object->attack_list() as $att) {
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
             for ($i = 0; $i < 10; $i++) {
                 $this->object->roll(FALSE);
                 $this->assertEquals($this->object->value, $this->object->defense_value($att), "Defense value fails to equal value for $att.");
@@ -392,14 +382,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::assist_values
-     *
-     * @depends testAttack_list
      */
     public function testAssist_values() {
         $attDie = new BMDie;
         $defDie = new BMDie;
 
-        foreach ($this->object->attack_list() as $att) {
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
             $assistVals = $this->object->assist_values($att, array($attDie), array($defDie));
             $this->assertNotEmpty($assistVals);
             $this->assertEquals(1, count($assistVals));
@@ -440,14 +430,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMDie::attack_contribute
      *
-     * @depends testAttack_list
      * @depends testAssist_values
      */
     public function testAttack_contribute() {
         $attDie = new BMDie;
         $defDie = new BMDie;
 
-        foreach ($this->object->attack_list() as $att) {
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
             $this->assertFalse($this->object->attack_contribute($att, array($attDie), array($defDie), 1));
             $this->assertFalse($this->object->attack_contribute($att, array($attDie), array($defDie), 0));
         }
@@ -455,44 +446,28 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::is_valid_attacker
-     *
-     * @depends testAttack_list
      */
     public function testIs_valid_attacker() {
         $attDie = new BMDie;
 
-        foreach ($this->object->attack_list() as $att) {
-
-            $this->assertFalse($this->object->is_valid_attacker(array($attDie)));
-            $this->assertTrue($this->object->is_valid_attacker(array($this->object)));
-            $this->assertTrue($this->object->is_valid_attacker(array($this->object, $attDie)));
-        }
+        $this->assertFalse($this->object->is_valid_attacker(array($attDie)));
+        $this->assertTrue($this->object->is_valid_attacker(array($this->object)));
+        $this->assertTrue($this->object->is_valid_attacker(array($this->object, $attDie)));
     }
 
     /**
      * @covers BMDie::is_valid_target
-     *
-     * @depends testAttack_list
      */
     public function testIs_valid_target() {
         $defDie = new BMDie;
 
-        foreach ($this->object->attack_list() as $att) {
-
-            $this->assertFalse($this->object->is_valid_target(array($defDie)));
-            $this->assertTrue($this->object->is_valid_target(array($this->object)));
-            $this->assertTrue($this->object->is_valid_target(array($this->object, $defDie)));
-        }
-
-        // james: test needs to be reactivated when Warrior skill is added
-//        $this->object->add_skill('Warrior') = TRUE;
-//        $this->assertFalse($this->object->is_valid_target(array($this->object)));
+        $this->assertFalse($this->object->is_valid_target(array($defDie)));
+        $this->assertTrue($this->object->is_valid_target(array($this->object)));
+        $this->assertTrue($this->object->is_valid_target(array($this->object, $defDie)));
     }
 
     /**
      * @covers BMDie::capture
-     *
-     * @depends testAttack_list
      */
     public function testCapture_normal() {
         $attDie = BMDie::create(7);
@@ -500,7 +475,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $attackers = array($attDie);
         $defenders = array($defDie);
 
-        foreach ($this->object->attack_list() as $att) {
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
             $this->object->capture($att, $attackers, $defenders);
             $this->assertEquals(7, $attDie->max);
         }
@@ -508,8 +485,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::capture
-     *
-     * @depends testAttack_list
      */
     public function testCapture_morphing() {
         $attDie = BMDie::create(8);
@@ -539,8 +514,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDie::be_captured
-     *
-     * @depends testAttack_list
      */
     public function testBe_captured() {
         $attDie = new BMDie;
@@ -549,7 +522,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $attackers = array($attDie);
         $defenders = array($this->object);
 
-        foreach ($this->object->attack_list() as $att) {
+        $attackList = array('Power', 'Skill');
+
+        foreach ($attackList as $att) {
             $this->object->be_captured($att, $attackers, $defenders);
         }
     }

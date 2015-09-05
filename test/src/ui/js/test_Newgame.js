@@ -6,6 +6,7 @@ module("Newgame", {
 
     // Create the newgame_page div so functions have something to modify
     if (document.getElementById('newgame_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'newgame_page', }));
     }
 

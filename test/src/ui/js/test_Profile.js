@@ -6,6 +6,7 @@ module("Profile", {
 
     // Create the profile_page div so functions have something to modify
     if (document.getElementById('profile_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'profile_page', }));
     }
   },
