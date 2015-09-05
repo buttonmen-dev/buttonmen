@@ -8957,6 +8957,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This game provides examples of auxiliary with different dice,
@@ -9011,9 +9012,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
 
-        // the courtesy die is not available after this
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-
         ////////////////////
         // Move 01 - responder003 chose to use auxiliary die +s(X) in this game
         // no dice are rolled when the first player chooses auxiliary
@@ -9021,6 +9019,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(),
             'Chose to add auxiliary die',
             $gameId, 'add', 5);
+
+        // the courtesy die is not available after this
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'][5]['properties'] = array('AddAuxiliary');

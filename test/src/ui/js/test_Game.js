@@ -1250,7 +1250,29 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
 });
 
 test("test_Game.swingRangeTable", function(assert) {
-// james: this is currently empty, pending an appropriate test
+  stop();
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_player';
+  Game.getCurrentGame(function() {
+
+    // First test without allowInput or showPrev
+    var htmlobj = Game.swingRangeTable(
+      Api.game.player.swingRequestArray, 'swing_range_table', false, false
+    );
+    var html = $('<div>').append(htmlobj.clone()).remove().html();
+
+    assert.deepEqual(html, '<table id="swing_range_table"><tbody><tr><td>X: (4-20)</td></tr><tr><td>Y: (1-20)</td></tr></tbody></table>',
+      "Swing range table has the expected contents without allowInput or showPrev");
+
+    // Second test with allowInput
+    htmlobj = Game.swingRangeTable(
+      Api.game.player.swingRequestArray, 'swing_range_table', true, false
+    );
+    html = $('<div>').append(htmlobj.clone()).remove().html();
+    assert.deepEqual(html, '<table id="swing_range_table"><tbody><tr><td>X (4-20):</td><td><input maxlength="2" id="swing_X" class="swing" type="text"></td></tr><tr><td>Y (1-20):</td><td><input maxlength="2" id="swing_Y" class="swing" type="text"></td></tr></tbody></table>',
+      "Swing range table has the expected contents with allowInput and not showPrev");
+
+    start();
+  });
 });
 
 test("test_Game.dieTableEntry", function(assert) {
