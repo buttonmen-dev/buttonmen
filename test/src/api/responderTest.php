@@ -4699,7 +4699,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This scenario tests some simple auxiliary, swing, and focus functionality
@@ -4806,9 +4805,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_loadGameData($initialExpData[1], $gameId, 10);
 
         $_SESSION = $this->mock_test_user_login('responder003');
-
-        // BUG: this is a change to responder003's view of the game
-        $initialExpData[0]['playerDataArray'][1]['swingRequestArray'] = array();
 
         // The API should lie about whether another player has responded to auxiliary
         // to avoid information leaks - load the game from responder003's point of view
