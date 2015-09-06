@@ -126,7 +126,7 @@ UPDATE button SET flavor_text="Bun-Bun isn't your typical mini-lop rabbit. He ha
 UPDATE button SET flavor_text="Kiki is the friendliest ferret around. She loves lights, and games, and candy, and never means to beat people up." WHERE name="Kiki";
 UPDATE button SET flavor_text="Riff is a freelance inventor whose desire to build nifty toys is exceeded only by his joy in building big guns (which sometimes beat people up)." WHERE name="Riff";
 UPDATE button SET flavor_text="Torg is a freelance webpage designer. He makes occasional trips to alternate dimensions or past history, where he sometimes beats people up." WHERE name="Torg";
-UPDATE button SET flavor_text="ZoÃ« is a college co-ed, but spends most of her time trying to survive her friends' adventures. Luckily, ZoÃ« can take care of herself and beat people up." WHERE name="Zoe";
+UPDATE button SET flavor_text="Zoe is a college co-ed, but spends most of her time trying to survive her friends' adventures. Luckily, Zoe can take care of herself and beat people up." WHERE name="Zoe";
 UPDATE button SET flavor_text="Avis is an expert chainsaw dueler and ice sculptor, and she likes to beat people up." WHERE name="Avis";
 UPDATE button SET flavor_text="Bauer is an enthusiastic supporter of global human rights and a first-class sushi chef. And he likes to beat people up." WHERE name="Bauer";
 UPDATE button SET flavor_text="Clare is an international spelling and thumb wrestling champion. She enjoys hiking, fishing, and beating people up." WHERE name="Clare";
