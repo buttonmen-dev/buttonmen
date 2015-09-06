@@ -761,7 +761,7 @@ class DummyApiResponder {
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
             'tags' => array(),
-            'flavorText' => NULL,
+            'flavorText' => 'Avis is an expert chainsaw dueler and ice sculptor, and she likes to beat people up.',
             'specialText' => NULL,
         );
     }
