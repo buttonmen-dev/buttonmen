@@ -328,6 +328,15 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        if ($def->ownerObject instanceof BMGame) {
+            $ownerButton = $def->ownerObject->buttonArray[$def->playerIdx];
+            if ($ownerButton->has_skill('TheJapaneseBeetle')) {
+                $this->validationMessage =
+                    'Dice owned by The Japanese Beetle cannot be attacked by skill attacks.';
+                return FALSE;
+            }
+        }
+
         foreach ($attArray as $att) {
             if ($att->has_skill('Berserk')) {
                 $this->validationMessage = 'Berserk dice cannot perform skill attacks.';
