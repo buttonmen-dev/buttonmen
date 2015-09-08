@@ -253,9 +253,8 @@ test("test_Overview.pageAddIntroText", function(assert) {
   Overview.page = $('<div>');
   Overview.pageAddIntroText();
   var htmlout = Overview.page.html();
-  assert.ok(htmlout.match(
-    'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games'),
-    'Page intro text contains the Button Men copyright');
+  assert.ok(htmlout.match('Buttonweavers implementation of'),
+    'Preamble should be visible');
 });
 
 test("test_Overview.formDismissGame", function(assert) {

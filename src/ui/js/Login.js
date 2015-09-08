@@ -214,8 +214,8 @@ Login.arrangeBody = function(page, form, submitSelector) {
 
 Login.arrangeFooter = function() {
   if ($('#footer').length === 0) {
-    $('body').append($('<hr>', { 'id': 'footer_separator', }));
-    $('body').append($('<div>', {'id': 'footer', }));
+    $('c_footer').append($('<hr>', { 'id': 'footer_separator', }));
+    $('c_footer').append($('<div>', {'id': 'footer', }));
   }
   $('#footer').empty();
   $('#footer').append(Login.footer);

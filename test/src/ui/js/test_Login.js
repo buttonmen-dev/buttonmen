@@ -79,7 +79,23 @@ test("test_Login.showLoginHeader_auto", function(assert) {
 });
 
 test("test_Login.arrangeHeader", function(assert) {
-  expect(5); // tests + 2 teardown
+  expect(3); // tests + 2 teardown
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  assert.equal($('#login_header').length, 1,
+    "Login header div should be created");
+});
+
+test("test_Login.arrangeBody", function(assert) {
+  expect(3);
 
   Login.message = 'Hello.';
   Login.pageModule = {
@@ -91,16 +107,13 @@ test("test_Login.arrangeHeader", function(assert) {
   };
 
   BMTestUtils.setupFakeLogin();
-  Login.arrangeHeader();
+  Login.arrangeBody();
   BMTestUtils.cleanupFakeLogin();
 
   var bodyDiv = $('#' + Login.pageModule.bodyDivId);
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
-
-  assert.equal($('#env_message').length, 1,
-    "Env message div should be created");
 });
 
 test("test_Login.arrangePage", function(assert) {
