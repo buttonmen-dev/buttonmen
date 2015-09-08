@@ -7,6 +7,7 @@ module("Login", {
       $('body').append($('<div>', {'id': 'container', }));
       $('#container').append($('<div>', {'id': 'c_body'}));
       $('#c_body').append($('<div>', {'id': 'login_header', }));
+      $('#container').append($('<div>', {'id': 'c_footer'}));
     }
   },
   'teardown': function(assert) {
@@ -55,6 +56,14 @@ test("test_Login_is_loaded", function(assert) {
 
 test("test_Login.getLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.getLoginHeader not implemented");
+});
+
+test("test_Login.getFooter", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Login.getFooter not implemented");
+});
+
+test("test_Login.getBody", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Login.getBody not implemented");
 });
 
 test("test_Login.showLoginHeader", function(assert) {
@@ -114,6 +123,26 @@ test("test_Login.arrangeBody", function(assert) {
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
+});
+
+test("test_Login.arrangeFooter", function(assert) {
+  expect(3);
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  BMTestUtils.setupFakeLogin();
+  Login.arrangeFooter();
+  BMTestUtils.cleanupFakeLogin();
+
+  assert.equal($('#footer').length, 1,
+    "Login footer div should be created");
 });
 
 test("test_Login.arrangePage", function(assert) {
