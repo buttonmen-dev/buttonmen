@@ -370,7 +370,7 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
-	return TRUE;
+        return TRUE;
     }
 
     /**
