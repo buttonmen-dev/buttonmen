@@ -369,6 +369,8 @@ class BMAttackSkill extends BMAttack {
                 return FALSE;
             }
         }
+
+	return TRUE;
     }
 
     /**
