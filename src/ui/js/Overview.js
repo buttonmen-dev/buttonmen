@@ -441,35 +441,7 @@ Overview.pageAddIntroText = function() {
     }));
     infopar.append('.');
     Overview.page.append(infopar);
-
-    infopar = $('<p>');
-    infopar.append(
-      'We wanted to make this site publically available as soon as possible, ' +
-      'so there are still a lot of bugs!  If you find anything broken or ' +
-      'hard to use, or if you have any questions, please get in touch, ' +
-      'either by opening a ticket at ');
-    infopar.append($('<a>', {
-      'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
-      'text': 'the buttonweavers issue tracker',
-    }));
-    infopar.append(' or by e-mailing us at help@buttonweavers.com.');
-    Overview.page.append(infopar);
   }
-
-  infopar = $('<p>');
-  infopar.append(
-    'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games: ');
-  infopar.append($('<a>', {
-    'href': 'http://www.cheapass.com',
-    'text': 'www.cheapass.com',
-  }));
-  infopar.append(' and ');
-  infopar.append($('<a>', {
-    'href': 'http://www.beatpeopleup.com',
-    'text': 'www.beatpeopleup.com',
-  }));
-  infopar.append(', and is used with permission.');
-  Overview.page.append(infopar);
 };
 
 Overview.formDismissGame = function(e) {
