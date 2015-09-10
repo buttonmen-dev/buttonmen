@@ -4686,7 +4686,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Skill attack using [tm(8):3] against [(8):7]; responder003 must turn down fire dice to complete this attack'));
         $expData['gameActionLogCount'] = 7;
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
-        $expData['validAttackTypeArray'] = array();
+        $expData['validAttackTypeArray'] = array('Skill');
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
         $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('IsAttackTarget');
 
@@ -4696,6 +4696,40 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder001');
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
+
+        ////////////////////
+        // Move 07 - responder003 abandons the Fire-assisted Skill attack and gets another attack
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_adjustFire(
+            array(),
+            'Cancelled fire attack.',
+            $retval, $gameId, 1, 'cancel', NULL, NULL);
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to abandon this attack and start over'));
+        $expData['gameActionLogCount'] = 8;
+        $expData['gameState'] = 'START_TURN';
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow', 'Trip');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 08 - responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 may turn down fire dice to complete t
+        // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
+        $this->verify_api_submitTurn(
+            array(),
+            'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 must decide whether to turn down fire dice. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 1, 'Power', 0, 1, '');
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Power attack using [tm(8):3] against [(4):1]; responder003 must decide whether to turn down fire dice'));
+        $expData['gameActionLogCount'] = 9;
+        $expData['gameState'] = 'ADJUST_FIRE_DICE';
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('IsAttackTarget');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
     /**
@@ -9641,7 +9675,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameState'] = 'ADJUST_FIRE_DICE';
-        $expData['validAttackTypeArray'] = array();
+        $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('ValueRelevantToScore', 'IsAttackTarget');
         $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('IsAttacker');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 chose to perform a Power attack using [(12):3] against [vz(20):5]; responder004 must turn down fire dice to complete this attack'));
@@ -11813,6 +11847,107 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 11.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Berserk", "Shadow");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @group fulltest_deps
+     *
+     * This game regression-tests and fixes the behavior of trip attacks against size-changing Maximum opponents
+     */
+    public function test_interface_game_040() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 40;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        $gameId = $this->verify_api_createGame(
+            array(
+                3, 0, 2, 5, 3,          // die sizes for r3: 6, 8, 10, 10, 20
+                5, 6, 18,               // die skills for r3: H, M, v
+                0, 3, 2, 0, 0, 1,       // distribution of skills onto dice for r3
+                0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
+                18, 0, 18, 17,          // die skills for r4: B, t, v
+                2, 4, 2, 2, 2, 1, 2, 1, // distribution of skills onto dice for r4
+                7, 10, 20,              // initial die rolls for r3 (note: Maximum dice don't use random values)
+                3, 1, 1, 1, 3           // initial die rolls for r4
+            ),
+            'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
+        );
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('RandomBMMixed', 'Berserk', 'Maximum', 'Mighty', 'Trip', 'Value'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'vHM(4) v(8) H(10) M(10) (20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => '(4) tB(4) tBv(6) (10) v(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerWithInitiativeIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Skill', 'Trip');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 25.5;
+        $expData['playerDataArray'][1]['roundScore'] = 11;
+        $expData['playerDataArray'][0]['sideScore'] = 9.7;
+        $expData['playerDataArray'][1]['sideScore'] = -9.7;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 4, 'sides' => 4, 'skills' => array('Value', 'Mighty', 'Maximum'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'vHM(4)', 'description' => 'Value Mighty Maximum 4-sided die'),
+            array('value' => 7, 'sides' => 8, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(8)', 'description' => 'Value 8-sided die'),
+            array('value' => 10, 'sides' => 10, 'skills' => array('Mighty'), 'properties' => array(), 'recipe' => 'H(10)', 'description' => 'Mighty 10-sided die'),
+            array('value' => 10, 'sides' => 10, 'skills' => array('Maximum'), 'properties' => array(), 'recipe' => 'M(10)', 'description' => 'Maximum 10-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 3, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => 1, 'sides' => 4, 'skills' => array('Trip', 'Berserk'), 'properties' => array(), 'recipe' => 'tB(4)', 'description' => 'Trip Berserk 4-sided die'),
+            array('value' => 1, 'sides' => 6, 'skills' => array('Trip', 'Berserk', 'Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'tBv(6)', 'description' => 'Trip Berserk Value 6-sided die'),
+            array('value' => 1, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
+            array('value' => 3, 'sides' => 20, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(20)', 'description' => 'Value 20-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [vHM(4):4, v(8):7, H(10):10, M(10):10, (20):20], responder004 rolled [(4):3, tB(4):1, tBv(6):1, (10):1, v(20):3]. responder004 has dice which are not counted for initiative due to die skills: [tB(4), tBv(6)].'));
+        $expData['gameActionLogCount'] = 1;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        // Verify that a Trip attack vHM(4):4 <= tB(4) is rejected because tB(4) won't be able to roll high enough once vHM(4) grows
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn_failure(
+            array(),
+            'The attacking die cannot roll high enough to capture the target die',
+            $retval, array(array(1, 1), array(0, 0)),
+            $gameId, 1, 'Trip', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        // Verify that a Trip attack vHM(4):4 <= tBv(6) is allowed because tBv(6) will still be able to roll high enough once vHM(4) grows
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(5),
+            'responder004 performed Trip attack using [tBv(6):1] against [vHM(4):4]; Attacker tBv(6) rerolled 1 => 5; Defender vHM(4) recipe changed to vHM(6), rerolled 4 => 6, was not captured. ',
+            $retval, array(array(1, 2), array(0, 0)),
+            $gameId, 1, 'Trip', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Trip attack using [tBv(6):1] against [vHM(4):4]; Attacker tBv(6) rerolled 1 => 5; Defender vHM(4) recipe changed to vHM(6), rerolled 4 => 6, was not captured'));
+        $expData['gameActionLogCount'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Value Mighty Maximum 6-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array("ValueRelevantToScore", "HasJustGrown");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "vHM(6)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 6;
+        $expData['playerDataArray'][0]['roundScore'] = 26.5;
+        $expData['playerDataArray'][0]['sideScore'] = 9.0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array("ValueRelevantToScore", "JustPerformedTripAttack", "JustPerformedUnsuccessfulAttack");
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
+        $expData['playerDataArray'][1]['roundScore'] = 13;
+        $expData['playerDataArray'][1]['sideScore'] = -9.0;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power");
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }

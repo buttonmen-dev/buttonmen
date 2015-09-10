@@ -217,6 +217,18 @@ abstract class BMAttack {
     }
 
     /**
+     * Determine the help bounds for a specific attack in a current BMGame
+     *
+     * @return array
+     */
+    public function help_bounds_specific($game, array $attackers, array $defenders) {
+        return $this->help_bounds(
+            $this->collect_helpers($game, $attackers, $defenders),
+            $this->collect_firing_maxima($attackers)
+        );
+    }
+
+    /**
      * Determine if there is at least one valid attack of this type from
      * the set of all possible attackers and defenders.
      *

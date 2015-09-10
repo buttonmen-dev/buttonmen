@@ -190,14 +190,47 @@ class BMAttackTrip extends BMAttack {
         if ($att->has_skill('Konstant')) {
             $attMaxVal = $att->value;
         } else {
-            $attMaxVal = $att->max;
+            $attMaxVal = self::post_trip_roll_max($att);
         }
 
-        if ($def->has_skill('Maximum') && ($attMaxVal < $def->max)) {
+        $defMaxVal = self::post_trip_roll_max($def);
+
+        if (is_null($attMaxVal) || is_null($defMaxVal)) {
+            return FALSE;
+        }
+
+        if ($def->has_skill('Maximum') && ($attMaxVal < $defMaxVal)) {
             $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
             return TRUE;
         }
 
         return FALSE;
+    }
+
+    /**
+     * Calculates the die max after rolling a die because of a trip attack
+     *
+     * @param BMDie $die
+     * @return int
+     */
+    public static function post_trip_roll_max($die) {
+        $clone = clone $die;
+        $postRollMax = $clone->max;
+
+        if ($clone->has_skill('Weak')) {
+            $clone->shrink();
+            $postRollMax = $clone->max;
+        }
+
+        if ($clone->has_skill('Mighty')) {
+            $clone->grow();
+            $postRollMax = $clone->max;
+        }
+
+        if ($clone->has_skill('Mood') || $clone->has_skill('Mad')) {
+            $postRollMax = NULL;
+        }
+
+        return $postRollMax;
     }
 }
