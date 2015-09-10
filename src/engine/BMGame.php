@@ -3872,9 +3872,6 @@ class BMGame {
             }
         }
 
-//        var_dump('final');
-//        var_dump($swingRequestArray);
-
         return $swingRequestArray;
     }
 
