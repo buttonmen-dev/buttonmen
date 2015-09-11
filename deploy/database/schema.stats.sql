@@ -2,14 +2,16 @@ DROP TABLE IF EXISTS dhs_player;
 CREATE TABLE dhs_player (
     dhs_player_id   SMALLINT UNSIGNED NOT NULL,
     dhs_player_name VARCHAR(40) NOT NULL,
-    bw_player_id    SMALLINT UNSIGNED
+    bw_player_id    SMALLINT UNSIGNED,
+    INDEX (bw_player_id)
 );
 
 DROP TABLE IF EXISTS dhs_button;
 CREATE TABLE dhs_button (
     dhs_button_id   SMALLINT UNSIGNED NOT NULL,
     dhs_button_name VARCHAR(40) NOT NULL,
-    bw_button_id    SMALLINT UNSIGNED
+    bw_button_id    SMALLINT UNSIGNED,
+    INDEX (bw_button_id)
 );
 
 
