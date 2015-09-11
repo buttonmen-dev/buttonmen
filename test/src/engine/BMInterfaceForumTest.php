@@ -11,16 +11,12 @@ class BMInterfaceForumTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceForum::
-     */
-
-    /**
-     * @covers BMInterface::load_forum_overview
-     * @covers BMInterface::load_forum_board
-     * @covers BMInterface::load_forum_thread
-     * @covers BMInterface::create_forum_thread
-     * @covers BMInterface::create_forum_post
-     * @covers BMInterface::edit_forum_post
+     * @covers BMInterfaceForum::load_forum_overview
+     * @covers BMInterfaceForum::load_forum_board
+     * @covers BMInterfaceForum::load_forum_thread
+     * @covers BMInterfaceForum::create_forum_thread
+     * @covers BMInterfaceForum::create_forum_post
+     * @covers BMInterfaceForum::edit_forum_post
      */
     public function test_create_load_forum_posts() {
         $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
@@ -85,10 +81,12 @@ class BMInterfaceForumTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @covers BMInterface::mark_forum_read
-     * @covers BMInterface::mark_forum_board_read
-     * @covers BMInterface::mark_forum_thread_read
-     * @covers BMInterface::get_next_new_post
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceForum::mark_forum_read
+     * @covers BMInterfaceForum::mark_forum_board_read
+     * @covers BMInterfaceForum::mark_forum_thread_read
+     * @covers BMInterfaceForum::get_next_new_post
      */
     public function test_mark_forum_posts_read() {
         // First, the first player views the forum. Then the second player makes
