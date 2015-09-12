@@ -116,12 +116,12 @@ Forum.showOverview = function() {
 
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
   table.append($('<tr>').append(markReadTd));
-  var markReadButton = $('<input>', {
+  var markAllBoardsReadButton = $('<input>', {
     'type': 'button',
     'value': 'Mark all boards as read',
   });
-  markReadTd.append(markReadButton);
-  markReadButton.click(function() {
+  markReadTd.append(markAllBoardsReadButton);
+  markAllBoardsReadButton.click(function() {
     Forum.parseFormPost(
       {
         'type': 'markForumRead',
@@ -229,12 +229,13 @@ Forum.showBoard = function() {
 
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
   table.append($('<tr>').append(markReadTd));
-  var markReadButton = $('<input>', {
+  var markBoardReadButton = $('<input>', {
+    'id': 'markBoardReadButton',
     'type': 'button',
     'value': 'Mark board as read',
   });
-  markReadTd.append(markReadButton);
-  markReadButton.click(function() {
+  markReadTd.append(markBoardReadButton);
+  markBoardReadButton.click(function() {
     Forum.parseFormPost(
       {
         'type': 'markForumBoardRead',
@@ -324,14 +325,14 @@ Forum.showThread = function() {
   });
   replyBodyTextArea.on('change keyup paste', function() {
     if ('' === $(this).val().trim()) {
-      if ('disabled' == $('#markReadButton').attr('disabled')) {
-        $('#markReadButton').removeAttr('disabled');
-        $('#markReadButton').removeAttr('title');
+      if ('disabled' == $('#markThreadReadButton').attr('disabled')) {
+        $('#markThreadReadButton').removeAttr('disabled');
+        $('#markThreadReadButton').removeAttr('title');
       }
     } else {
-      if ('disabled' != $('#markReadButton').attr('disabled')) {
-        $('#markReadButton').attr('disabled', 'disabled');
-        $('#markReadButton').attr('title',
+      if ('disabled' != $('#markThreadReadButton').attr('disabled')) {
+        $('#markThreadReadButton').attr('disabled', 'disabled');
+        $('#markThreadReadButton').attr('title',
           'Disabled because there is text in the reply box');
       }
     }
@@ -348,13 +349,13 @@ Forum.showThread = function() {
 
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
   table.append($('<tr>').append(markReadTd));
-  var markReadButton = $('<input>', {
-    'id': 'markReadButton',
+  var markThreadReadButton = $('<input>', {
+    'id': 'markThreadReadButton',
     'type': 'button',
     'value': 'Mark thread as read',
   });
-  markReadTd.append(markReadButton);
-  markReadButton.click(function() {
+  markReadTd.append(markThreadReadButton);
+  markThreadReadButton.click(function() {
     Forum.parseFormPost(
       {
         'type': 'markForumThreadRead',
@@ -412,6 +413,7 @@ Forum.toggleNewThreadForm = function() {
   // Using visibility rather than display: hidden so we don't reflow the table
   if ($('#newThreadButton').css('visibility') == 'visible') {
     $('#newThreadButton').css('visibility', 'hidden');
+    $('#markBoardReadButton').css('visibility', 'hidden');
     $('tr.writePost textarea').val('');
     $('tr.writePost input.title').val('');
     $('tr.thread').hide();
@@ -421,6 +423,7 @@ Forum.toggleNewThreadForm = function() {
     $('tr.writePost').hide();
     $('tr.thread').show();
     $('#newThreadButton').css('visibility', 'visible');
+    $('#markBoardReadButton').css('visibility', 'visible');
     Env.message = null;
     Env.showStatusMessage();
   }
