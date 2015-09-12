@@ -490,6 +490,9 @@ Forum.quotePost = function() {
 };
 
 Forum.editPost = function() {
+  $('#markThreadReadButton').attr('disabled', 'disabled');
+  $('#markThreadReadButton').attr('title', 'Disabled when editing a reply');
+
   var postRow = $(this).closest('tr');
   var oldText = postRow.find('td.body').attr('data-rawPost');
   var postId = $(this).attr('data-postId');
@@ -522,6 +525,11 @@ Forum.editPost = function() {
 };
 
 Forum.cancelEditPost = function() {
+  if ('disabled' == $('#markThreadReadButton').attr('disabled')) {
+    $('#markThreadReadButton').removeAttr('disabled');
+    $('#markThreadReadButton').removeAttr('title');
+  }
+
   var postRow = $(this).closest('tr');
   postRow.find('td.editBody').remove();
   postRow.find('td.body').show();
