@@ -15,6 +15,7 @@ AS SELECT
     i.dob_day,
     i.gender,
     i.autopass,
+    i.fire_overshooting,
     i.monitor_redirects_to_game,
     i.monitor_redirects_to_forum,
     i.automatically_monitor,
