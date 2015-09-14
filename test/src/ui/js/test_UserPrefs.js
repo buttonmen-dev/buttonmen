@@ -99,7 +99,7 @@ test("test_UserPrefs.actionFailed", function(assert) {
   assert.equal(UserPrefs.form, null, "The failing action does not set a form");
 });
 
-test("test_UserPrefs.actionSetPrefs", function(assert) {
+test("test_UserPrefs.actionSetPrefsAutopass", function(assert) {
   stop();
   Env.callAsyncInParallel([
     { 'func': Api.getButtonData, 'args': [ null ] },
@@ -109,6 +109,20 @@ test("test_UserPrefs.actionSetPrefs", function(assert) {
     var autopass_checked = $('#userprefs_autopass').prop('checked');
     assert.ok(autopass_checked,
        "The autopass button should be checked in the prefs table");
+    start();
+  });
+});
+
+test("test_UserPrefs.actionSetPrefsFireOvershooting", function(assert) {
+  stop();
+  Env.callAsyncInParallel([
+    { 'func': Api.getButtonData, 'args': [ null ] },
+    Api.getUserPrefsData,
+  ], function() {
+    UserPrefs.actionSetPrefs();
+    var fire_overshooting_checked = $('#userprefs_fire_overshooting').prop('checked');
+    assert.ok(fire_overshooting_checked,
+       "The fire overshooting button should be checked in the prefs table");
     start();
   });
 });

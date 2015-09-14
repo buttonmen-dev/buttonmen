@@ -1509,6 +1509,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->markTestIncomplete("No test for loadPlayerName using session and cookies");
     }
 
+    /**
+     * @group fulltest_deps
+     */
     public function test_request_loadPlayerInfo() {
         $this->verify_login_required('loadPlayerInfo');
 
@@ -1551,6 +1554,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'comment' => '',
             'homepage' => '',
             'autopass' => 'true',
+            'fire_overshooting' => 'true',
             'uses_gravatar' => 'false',
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',

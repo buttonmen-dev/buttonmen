@@ -346,6 +346,14 @@ test("test_Api.parseUserPrefsData", function(assert) {
   });
 });
 
+test("test_Api.parseUserPrefsDataFireOvershooting", function(assert) {
+  stop();
+  Api.getUserPrefsData(function() {
+    assert.equal(Api.user_prefs.fire_overshooting, true, "Successfully parsed fire overshooting value");
+    start();
+  });
+});
+
 test("test_Api.getGameData", function(assert) {
   stop();
   var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
