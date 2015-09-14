@@ -1430,6 +1430,11 @@ class BMGame {
         }
 
         $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+
+        if (!$this->fireOvershootingArray[$attackerPlayerIdx]) {
+            return FALSE;
+        }
+
         $attackerDieIdx = $this->attack['attackerAttackDieIdxArray'][0];
         $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
         $attackerDieArray = array($attackerDie);
