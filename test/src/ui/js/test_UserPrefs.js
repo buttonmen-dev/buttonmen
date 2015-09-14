@@ -99,7 +99,7 @@ test("test_UserPrefs.actionFailed", function(assert) {
   assert.equal(UserPrefs.form, null, "The failing action does not set a form");
 });
 
-test("test_UserPrefs.actionSetPrefsAutopass", function(assert) {
+test("test_UserPrefs.actionSetPrefs", function(assert) {
   stop();
   Env.callAsyncInParallel([
     { 'func': Api.getButtonData, 'args': [ null ] },
