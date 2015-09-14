@@ -577,7 +577,7 @@ class BMInterface {
         $query = 'SELECT g.*,'.
                  'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
                  's.name AS status_name,'.
-                 'v.player_id, v.position, v.autopass,'.
+                 'v.player_id, v.position, v.autopass, v.fire_overshooting,'.
                  'v.button_name, v.alt_recipe,'.
                  'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                  'v.did_win_initiative,'.
@@ -608,6 +608,7 @@ class BMInterface {
             if (isset($pos)) {
                 $game->setArrayPropEntry('playerIdArray', $pos, $row['player_id']);
                 $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
+                $game->setArrayPropEntry('fireOvershootingArray', $pos, (bool)$row['fire_overshooting']);
                 $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);
             }
 
@@ -661,6 +662,7 @@ class BMInterface {
         $game->isButtonChoiceRandom = array_fill(0, $nPlayers, FALSE);
         $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
+        $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
         $game->hasPlayerDismissedGameArray = array_fill(0, $nPlayers, FALSE);
         $game->hasPlayerAcceptedGameArray = array_fill(0, $nPlayers, FALSE);

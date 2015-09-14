@@ -178,6 +178,11 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
     },
+    'fire_overshooting': {
+      'text': 'Enable fire overshooting for power attacks',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.fire_overshooting,
+    },
     'monitor_redirects_to_game': {
       'text': 'Redirect to waiting games when in Monitor mode',
       'type': 'checkbox',
@@ -359,6 +364,7 @@ UserPrefs.formSetPrefs = function() {
   var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
+  var fire_overshooting = $('#userprefs_fire_overshooting').prop('checked');
   var monitor_redirects_to_game =
     $('#userprefs_monitor_redirects_to_game').prop('checked');
   var monitor_redirects_to_forum =
@@ -464,6 +470,7 @@ UserPrefs.formSetPrefs = function() {
       'homepage': homepage,
       'comment': comment,
       'autopass': autopass,
+      'fire_overshooting': fire_overshooting,
       'monitor_redirects_to_game': monitor_redirects_to_game,
       'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'automatically_monitor': automatically_monitor,

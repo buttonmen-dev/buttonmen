@@ -40,6 +40,7 @@
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
+ * @property      array $fireOvershootingArray   Boolean array whether each player has enabled fire overshooting
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
@@ -270,6 +271,13 @@ class BMGame {
     protected $autopassArray;
 
     /**
+     * Boolean array whether each player has enabled fire overshooting
+     *
+     * @var array
+     */
+    protected $fireOvershootingArray;
+
+    /**
      * Amount of firing that has been submitted
      *
      * @var int
@@ -477,6 +485,7 @@ class BMGame {
         $this->gameState = BMGameState::APPLY_HANDICAPS;
         $this->nRecentPasses = 0;
         $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->fireOvershootingArray = array_fill(0, $this->nPlayers, FALSE);
         $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
     }
 
@@ -3267,6 +3276,28 @@ class BMGame {
             }
         }
         $this->autopassArray = $value;
+    }
+
+    /**
+     * Allow setting the array of whether fire overshooting is allowed
+     *
+     * @param array $value
+     */
+    protected function set__fireOvershootingArray($value) {
+        if (!is_array($value) ||
+            count($value) !== count($this->playerIdArray)) {
+            throw new InvalidArgumentException(
+                'Number of settings must equal the number of players.'
+            );
+        }
+        foreach ($value as $tempValueElement) {
+            if (!is_bool($tempValueElement)) {
+                throw new InvalidArgumentException(
+                    'Input must be an array of booleans.'
+                );
+            }
+        }
+        $this->fireOvershootingArray = $value;
     }
 
     /**
