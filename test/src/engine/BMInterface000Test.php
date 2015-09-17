@@ -64,7 +64,7 @@ class BMInterface000Test extends BMInterfaceTestAbstract {
             'monitor_redirects_to_forum' => 0,
             'automatically_monitor' => 0,
             'autopass' => 1,
-            'fire_overshooting' => 1
+            'fire_overshooting' => 0
         );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
 

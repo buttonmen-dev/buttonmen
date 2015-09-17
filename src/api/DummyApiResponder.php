@@ -1085,7 +1085,7 @@ class DummyApiResponder {
                                 'gender' => '',
                                 'image_size' => NULL,
                                 'autopass' => TRUE,
-                                'fire_overshooting' => TRUE,
+                                'fire_overshooting' => FALSE,
                                 'uses_gravatar' => FALSE,
                                 'monitor_redirects_to_game' => FALSE,
                                 'monitor_redirects_to_forum' => FALSE,

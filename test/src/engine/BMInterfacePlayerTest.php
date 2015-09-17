@@ -76,7 +76,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
             'gender' => '',
             'comment' => '',
             'autopass' => 1,
-            'fire_overshooting' => 1,
+            'fire_overshooting' => 0,
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',
             'neutral_color_a' => '#cccccc',
@@ -93,14 +93,14 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
-        $this->assertEquals(TRUE, $playerInfoArray['fire_overshooting']);
+        $this->assertEquals(FALSE, $playerInfoArray['fire_overshooting']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_forum']);
         $this->assertEquals(TRUE, $playerInfoArray['automatically_monitor']);
         $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
 
         $infoArray['autopass'] = 0;
-        $infoArray['fire_overshooting'] = 0;
+        $infoArray['fire_overshooting'] = 1;
         $infoArray['monitor_redirects_to_game'] = 0;
         $infoArray['monitor_redirects_to_forum'] = 0;
         $infoArray['automatically_monitor'] = 0;
@@ -110,7 +110,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
-        $this->assertEquals(FALSE, $playerInfoArray['fire_overshooting']);
+        $this->assertEquals(TRUE, $playerInfoArray['fire_overshooting']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_forum']);
         $this->assertEquals(FALSE, $playerInfoArray['automatically_monitor']);
