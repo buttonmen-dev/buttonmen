@@ -349,7 +349,7 @@ test("test_Api.parseUserPrefsData", function(assert) {
 test("test_Api.parseUserPrefsDataFireOvershooting", function(assert) {
   stop();
   Api.getUserPrefsData(function() {
-    assert.equal(Api.user_prefs.fire_overshooting, true, "Successfully parsed fire overshooting value");
+    assert.equal(Api.user_prefs.fire_overshooting, false, "Successfully parsed fire overshooting value");
     start();
   });
 });

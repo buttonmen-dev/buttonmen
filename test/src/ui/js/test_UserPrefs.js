@@ -121,8 +121,8 @@ test("test_UserPrefs.actionSetPrefsFireOvershooting", function(assert) {
   ], function() {
     UserPrefs.actionSetPrefs();
     var fire_overshooting_checked = $('#userprefs_fire_overshooting').prop('checked');
-    assert.ok(fire_overshooting_checked,
-       "The fire overshooting button should be checked in the prefs table");
+    assert.ok(!fire_overshooting_checked,
+       "The fire overshooting button should not be checked in the prefs table");
     start();
   });
 });
