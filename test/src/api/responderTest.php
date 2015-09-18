@@ -4702,7 +4702,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // [tm(8):3, sF(20):7] => [(4):1, (8):7, (12):11, z(20):17]
         $this->verify_api_adjustFire(
             array(),
-            'Cancelled fire attack.',
+            'responder003 chose to abandon this attack and start over. ',
             $retval, $gameId, 1, 'cancel', NULL, NULL);
 
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to abandon this attack and start over'));
@@ -9665,7 +9665,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_adjustFire(
             array(4),
-            'Successfully turned down fire dice.',
+            'responder004 turned down fire dice: F(6) from 4 to 1; Defender vz(20) was captured; Attacker (12) rerolled 3 => 4. ',
             $retval, $gameId, 1, 'turndown', array(2), array('1'));
         $_SESSION = $this->mock_test_user_login('responder003');
 

@@ -1593,7 +1593,6 @@ class BMGame {
             'newValues' => $newValues,
         );
 
-        $this->message = 'Successfully turned down fire dice.';
         return TRUE;
     }
 
@@ -1626,7 +1625,6 @@ class BMGame {
             'action' => 'zero_firing',
         );
 
-        $this->message = 'Successfully attacked without turning down fire dice.';
         return TRUE;
     }
 
@@ -1655,7 +1653,6 @@ class BMGame {
             )
         );
 
-        $this->message = 'Cancelled fire attack.';
         return TRUE;
     }
 
