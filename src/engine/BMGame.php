@@ -1352,14 +1352,10 @@ class BMGame {
             return FALSE;
         }
 
-        $attackerValueSum = 0;
-        $defenderValueSum = 0;
-
         $attackerDieArray = array();
         $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
         foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerDieIdx) {
             $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
-            $attackerValueSum += $attackerDie->value;
             $attackerDieArray[] = $attackerDie;
         }
 
@@ -1367,13 +1363,22 @@ class BMGame {
         $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
         foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderDieIdx) {
             $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
-            $defenderValueSum += $defenderDie->value;
             $defenderDieArray[] = $defenderDie;
         }
 
         // check for need for firing:
-        // sum of attacker values is less than defender value
-        $needsFiring = $attackerValueSum < $defenderValueSum;
+        $attack = BMAttack::create($attackType);
+
+        foreach ($attackerDieArray as $attackDie) {
+            $attack->add_die($attackDie);
+        }
+
+        $needsFiring = !($attack->validate_attack(
+            $this,
+            $attackerDieArray,
+            $defenderDieArray,
+            0
+        ));
 
         if ($needsFiring) {
             // Do rudimentary sanity check that the attacker actually has fire dice

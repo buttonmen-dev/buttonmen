@@ -11928,8 +11928,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
-     *
      * This game reproduces a bug affecting the interaction of Konstant and Fire dice
      */
     public function test_interface_game_041() {
@@ -12002,32 +12000,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-
         /////
-        // Move 2: responder003 performed Skill attack using [k(8):3,d(Y=18):4] against [(20):4]; Defender (20) was captured; Attacker k(8) does not reroll; Attacker d(Y=18) rerolled 4 => 14
-        // BUG - this attack should not simply work, the player should be taken to the fire turndown screen
+        // Move 2: responder003 chose to perform a Skill attack using [k(8):3,d(Y=18):4] against [(20):4]; responder003 must turn down fire dice to complete this attack.
         $this->verify_api_submitTurn(
-            array(14),
-            'responder003 performed Skill attack using [k(8):3,d(Y=18):4] against [(20):4]; Defender (20) was captured; Attacker k(8) does not reroll; Attacker d(Y=18) rerolled 4 => 14. ',
+            array(),
+            'responder003 chose to perform a Skill attack using [k(8):3,d(Y=18):4] against [(20):4]; responder003 must turn down fire dice to complete this attack. ',
             $retval, array(array(0, 2), array(0, 4), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
 
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [k(8):3,d(Y=18):4] against [(20):4]; Defender (20) was captured; Attacker k(8) does not reroll; Attacker d(Y=18) rerolled 4 => 14'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose to perform a Skill attack using [k(8):3,d(Y=18):4] against [(20):4]; responder003 must turn down fire dice to complete this attack'));
         $expData['gameActionLogCount'] += 1;
-        $expData['activePlayerIdx'] = 1;
-        $expData['validAttackTypeArray'] = array('Power');
-        array_splice($expData['playerDataArray'][1]['activeDieArray'], 0, 1);
-        $expData['playerDataArray'][0]['roundScore'] = 42;
-        $expData['playerDataArray'][1]['roundScore'] = 50;
-        $expData['playerDataArray'][0]['sideScore'] = -5.3;
-        $expData['playerDataArray'][1]['sideScore'] = 5.3;
-        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
-        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 14;
-        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
-        $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "(20)";
-        $expData['playerDataArray'][0]['capturedDieArray'][0]['sides'] = 20;
-        $expData['playerDataArray'][0]['capturedDieArray'][0]['value'] = 4;
+        $expData['gameState'] = 'ADJUST_FIRE_DICE';
+        $expData['validAttackTypeArray'] = array('Skill');
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('IsAttacker');
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('IsAttacker');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('IsAttackTarget');
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
