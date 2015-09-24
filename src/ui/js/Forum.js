@@ -198,18 +198,18 @@ Forum.showBoard = function() {
   contentTd.append($('<textarea>', {
     'maxlength': Forum.FORUM_BODY_MAX_LENGTH
   }));
-  var cancelButton = $('<input>', {
-    'type': 'button',
-    'value': 'Cancel',
-  });
-  contentTd.append(cancelButton);
-  cancelButton.click(Forum.toggleNewThreadForm);
   var replyButton = $('<input>', {
     'type': 'button',
     'value': 'Post new thread',
   });
   contentTd.append(replyButton);
   replyButton.click(Forum.formPostNewThread);
+  var cancelButton = $('<input>', {
+    'type': 'button',
+    'value': 'Cancel',
+  });
+  contentTd.append(cancelButton);
+  cancelButton.click(Forum.toggleNewThreadForm);
 
   var notesTd = $('<td>', {
     'class': 'attribution',
@@ -499,12 +499,6 @@ Forum.editPost = function() {
     'maxlength': Forum.FORUM_BODY_MAX_LENGTH,
   }));
 
-  var cancelButton = $('<input>', {
-    'type': 'button',
-    'value': 'Cancel',
-  });
-  editTd.append(cancelButton);
-  cancelButton.click(Forum.cancelEditPost);
 
   var saveButton = $('<input>', {
     'type': 'button',
@@ -513,6 +507,13 @@ Forum.editPost = function() {
   });
   editTd.append(saveButton);
   saveButton.click(Forum.formSaveEditPost);
+
+  var cancelButton = $('<input>', {
+    'type': 'button',
+    'value': 'Cancel',
+  });
+  editTd.append(cancelButton);
+  cancelButton.click(Forum.cancelEditPost);
 
   bodyTd.hide();
   postRow.append(editTd);

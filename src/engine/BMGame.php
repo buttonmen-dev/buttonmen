@@ -1607,7 +1607,6 @@ class BMGame {
             'newValues' => $newValues,
         );
 
-        $this->message = 'Successfully turned down fire dice.';
         return TRUE;
     }
 
@@ -1640,7 +1639,6 @@ class BMGame {
             'action' => 'zero_firing',
         );
 
-        $this->message = 'Successfully attacked without turning down fire dice.';
         return TRUE;
     }
 
@@ -1669,7 +1667,6 @@ class BMGame {
             )
         );
 
-        $this->message = 'Cancelled fire attack.';
         return TRUE;
     }
 
@@ -3418,7 +3415,7 @@ class BMGame {
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
-                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx),
+                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
@@ -3864,12 +3861,26 @@ class BMGame {
      * @param int $playerIdx
      * @return array
      */
-    protected function get_swingRequestArray($playerIdx) {
+    protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
         $swingRequestArray = array();
 
+        if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests(TRUE);
+            // only show true swingRequestArrayArray if the player is requesting his/her own
+            // information
+            if (!$this->waitingOnActionArray[$playerIdx] &&
+                ($playerIdx == $requestingPlayerIdx)) {
+                $swingRequestArrayArray[$playerIdx] = $this->swingRequestArrayArray[$playerIdx];
+            }
+        } elseif ($this->gameState <= BMGameState::CHOOSE_RESERVE_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests(FALSE);
+        } else {
+            $swingRequestArrayArray = $this->swingRequestArrayArray;
+        }
+
         if (isset($this->activeDieArrayArray) &&
-            isset($this->swingRequestArrayArray[$playerIdx])) {
-            foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+            isset($swingRequestArrayArray[$playerIdx])) {
+            foreach ($swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
                 if ($swingdice[0] instanceof BMDieTwin) {
                     if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
                         $swingdie = $swingdice[0]->dice[0];
@@ -3895,6 +3906,43 @@ class BMGame {
         }
 
         return $swingRequestArray;
+    }
+
+    protected function get_all_swing_requests($includeCourtesyDice = FALSE) {
+        $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+
+        if (!isset($this->buttonArray)) {
+            return $swingRequestArrayArray;
+        }
+
+        $courtesySwingArray = array();
+
+        foreach ($this->buttonArray as $playerIdx => $button) {
+            if (isset($button->dieArray)) {
+                foreach ($button->dieArray as $die) {
+                    if (isset($die->swingType)) {
+                        $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+
+                        if ($includeCourtesyDice &&
+                            $die->has_skill('Auxiliary')) {
+                            $courtesySwingArray[$die->swingType][] = $die;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($includeCourtesyDice) {
+            foreach ($swingRequestArrayArray as &$swingRequestArray) {
+                foreach ($courtesySwingArray as $courtesySwingType => $swingDie) {
+                    if (!array_key_exists($courtesySwingType, $swingRequestArray)) {
+                        $swingRequestArray[$courtesySwingType] = $swingDie;
+                    }
+                }
+            }
+        }
+
+        return $swingRequestArrayArray;
     }
 
     /**

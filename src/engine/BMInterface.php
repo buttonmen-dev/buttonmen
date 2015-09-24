@@ -3736,7 +3736,6 @@ class BMInterface {
             if ($isSuccessful) {
                 $this->save_game($game);
             }
-            $this->set_message($game->message);
 
             return $isSuccessful;
         } catch (Exception $e) {

@@ -113,6 +113,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'blackomega_thefool_reacttoinitiative') { return '2302'; }
   if (gameDesc == 'blackomega_thefool_captured_value_die') { return '2306'; }
 
+  if (gameDesc == 'merlin_ein_reacttoauxiliary_player') { return '2401'; }
   if (gameDesc == 'merlin_ein_reacttoauxiliary_nonplayer') { return '2402'; }
   if (gameDesc == 'merlin_ein_reacttoauxiliary_inactive') { return '2403'; }
 
