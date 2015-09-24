@@ -178,11 +178,6 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
     },
-    'fire_overshooting': {
-      'text': 'Enable fire overshooting for power attacks',
-      'type': 'checkbox',
-      'checked': Api.user_prefs.fire_overshooting,
-    },
     'monitor_redirects_to_game': {
       'text': 'Redirect to waiting games when in Monitor mode',
       'type': 'checkbox',
@@ -197,6 +192,16 @@ UserPrefs.actionSetPrefs = function() {
       'text': 'Automatically Monitor after "Next game" runs out',
       'type': 'checkbox',
       'checked': Api.user_prefs.automatically_monitor,
+    },
+  };
+
+  var gameplayBlurb = 'These preferences make advanced Button Men attacks ' +
+    'available to your player, at the expense of a more complex user experience.';
+  var gameplayPrefs = {
+    'fire_overshooting': {
+      'text': 'Enable fire overshooting for power attacks',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.fire_overshooting,
     },
   };
 
@@ -283,6 +288,8 @@ UserPrefs.actionSetPrefs = function() {
     profileBlurb, profileSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
     autoBlurb, autoPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Gameplay Preferences',
+    gameplayBlurb, gameplayPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Color Preferences',
     colorBlurb, colorPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
