@@ -75,4 +75,4 @@ ON m.player_id = p.id
 LEFT JOIN button AS b
 ON m.button_id = b.id
 LEFT JOIN game AS g
-ON m.game_id = g.id;DROP VIEW IF EXISTS game_player_view;
+ON m.game_id = g.id;
