@@ -40,6 +40,7 @@
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
+ * @property      array $fireOvershootingArray   Boolean array whether each player has enabled fire overshooting
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
@@ -270,6 +271,13 @@ class BMGame {
     protected $autopassArray;
 
     /**
+     * Boolean array whether each player has enabled fire overshooting
+     *
+     * @var array
+     */
+    protected $fireOvershootingArray;
+
+    /**
      * Amount of firing that has been submitted
      *
      * @var int
@@ -477,6 +485,7 @@ class BMGame {
         $this->gameState = BMGameState::APPLY_HANDICAPS;
         $this->nRecentPasses = 0;
         $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->fireOvershootingArray = array_fill(0, $this->nPlayers, FALSE);
         $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
     }
 
@@ -1421,6 +1430,11 @@ class BMGame {
         }
 
         $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+
+        if (!$this->fireOvershootingArray[$attackerPlayerIdx]) {
+            return FALSE;
+        }
+
         $attackerDieIdx = $this->attack['attackerAttackDieIdxArray'][0];
         $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
         $attackerDieArray = array($attackerDie);
@@ -1593,7 +1607,6 @@ class BMGame {
             'newValues' => $newValues,
         );
 
-        $this->message = 'Successfully turned down fire dice.';
         return TRUE;
     }
 
@@ -1626,7 +1639,6 @@ class BMGame {
             'action' => 'zero_firing',
         );
 
-        $this->message = 'Successfully attacked without turning down fire dice.';
         return TRUE;
     }
 
@@ -1655,7 +1667,6 @@ class BMGame {
             )
         );
 
-        $this->message = 'Cancelled fire attack.';
         return TRUE;
     }
 
@@ -3270,6 +3281,28 @@ class BMGame {
     }
 
     /**
+     * Allow setting the array of whether fire overshooting is allowed
+     *
+     * @param array $value
+     */
+    protected function set__fireOvershootingArray($value) {
+        if (!is_array($value) ||
+            count($value) !== count($this->playerIdArray)) {
+            throw new InvalidArgumentException(
+                'Number of settings must equal the number of players.'
+            );
+        }
+        foreach ($value as $tempValueElement) {
+            if (!is_bool($tempValueElement)) {
+                throw new InvalidArgumentException(
+                    'Input must be an array of booleans.'
+                );
+            }
+        }
+        $this->fireOvershootingArray = $value;
+    }
+
+    /**
      * Prevent setting the firing amount
      */
     protected function set__firingAmount() {
@@ -3382,7 +3415,7 @@ class BMGame {
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
-                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx),
+                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
@@ -3828,12 +3861,26 @@ class BMGame {
      * @param int $playerIdx
      * @return array
      */
-    protected function get_swingRequestArray($playerIdx) {
+    protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
         $swingRequestArray = array();
 
+        if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests(TRUE);
+            // only show true swingRequestArrayArray if the player is requesting his/her own
+            // information
+            if (!$this->waitingOnActionArray[$playerIdx] &&
+                ($playerIdx == $requestingPlayerIdx)) {
+                $swingRequestArrayArray[$playerIdx] = $this->swingRequestArrayArray[$playerIdx];
+            }
+        } elseif ($this->gameState <= BMGameState::CHOOSE_RESERVE_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests(FALSE);
+        } else {
+            $swingRequestArrayArray = $this->swingRequestArrayArray;
+        }
+
         if (isset($this->activeDieArrayArray) &&
-            isset($this->swingRequestArrayArray[$playerIdx])) {
-            foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+            isset($swingRequestArrayArray[$playerIdx])) {
+            foreach ($swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
                 if ($swingdice[0] instanceof BMDieTwin) {
                     if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
                         $swingdie = $swingdice[0]->dice[0];
@@ -3859,6 +3906,43 @@ class BMGame {
         }
 
         return $swingRequestArray;
+    }
+
+    protected function get_all_swing_requests($includeCourtesyDice = FALSE) {
+        $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+
+        if (!isset($this->buttonArray)) {
+            return $swingRequestArrayArray;
+        }
+
+        $courtesySwingArray = array();
+
+        foreach ($this->buttonArray as $playerIdx => $button) {
+            if (isset($button->dieArray)) {
+                foreach ($button->dieArray as $die) {
+                    if (isset($die->swingType)) {
+                        $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+
+                        if ($includeCourtesyDice &&
+                            $die->has_skill('Auxiliary')) {
+                            $courtesySwingArray[$die->swingType][] = $die;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($includeCourtesyDice) {
+            foreach ($swingRequestArrayArray as &$swingRequestArray) {
+                foreach ($courtesySwingArray as $courtesySwingType => $swingDie) {
+                    if (!array_key_exists($courtesySwingType, $swingRequestArray)) {
+                        $swingRequestArray[$courtesySwingType] = $swingDie;
+                    }
+                }
+            }
+        }
+
+        return $swingRequestArrayArray;
     }
 
     /**

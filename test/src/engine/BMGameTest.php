@@ -55,6 +55,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
                             $this->object->gameScoreArrayArray);
         $this->assertEquals(array(FALSE, FALSE), $this->object->autopassArray);
+        $this->assertEquals(array(FALSE, FALSE), $this->object->fireOvershootingArray);
     }
 
     /**
