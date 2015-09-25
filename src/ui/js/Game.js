@@ -906,7 +906,7 @@ Game.actionAdjustFireDiceActive = function() {
     fireMessage += exactFiringAmount;
   }
 
-  fireMessage += '.';
+  fireMessage += ' to complete your ' + attackType + ' attack.';
 
   Game.page.append($('<div>', {
     'text': fireMessage,
