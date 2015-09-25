@@ -1249,6 +1249,48 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
   });
 });
 
+test("test_Game.swingRangeTable", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_player';
+  Game.getCurrentGame(function() {
+
+    // First test without allowInput or showPrev
+    var htmlobj = Game.swingRangeTable(
+      Api.game.player.swingRequestArray, 'swing_range_table', false, false
+    );
+    var html = $('<div>').append(htmlobj.clone()).remove().html();
+
+    assert.deepEqual(html, '<table id="swing_range_table"><tbody><tr><td>X: (4-20)</td></tr><tr><td>Y: (1-20)</td></tr></tbody></table>',
+      "Swing range table has the expected contents without allowInput or showPrev");
+
+    // Second test with allowInput
+    htmlobj = Game.swingRangeTable(
+      Api.game.player.swingRequestArray, 'swing_range_table', true, false
+    );
+
+    // two rows
+    assert.equal(2, htmlobj[0].rows.length);
+
+    // first row deals with X swing
+    assert.equal(2, htmlobj[0].rows[0].cells.length);
+    assert.equal('X (4-20):', htmlobj[0].rows[0].cells[0].innerHTML);
+    assert.equal(2, htmlobj[0].rows[0].cells[1].firstChild.getAttribute('maxlength'));
+    assert.equal('swing_X', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('id'));
+    assert.equal('swing', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('class'));
+    assert.equal('text', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('type'));
+
+    // second row deals with Y swing
+    assert.equal(2, htmlobj[0].rows[1].cells.length);
+    assert.equal('Y (1-20):', htmlobj[0].rows[1].cells[0].innerHTML);
+    assert.equal(2, htmlobj[0].rows[1].cells[1].firstChild.getAttribute('maxlength'));
+    assert.equal('swing_Y', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('id'));
+    assert.equal('swing', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('class'));
+    assert.equal('text', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('type'));
+
+    start();
+  });
+});
+
 test("test_Game.dieTableEntry", function(assert) {
   stop();
   BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';

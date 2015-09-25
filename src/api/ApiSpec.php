@@ -506,6 +506,7 @@ class ApiSpec {
                     'maxlength' => 100,
                 ),
                 'autopass' => 'boolean',
+                'fire_overshooting' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
                 'automatically_monitor' => 'boolean',

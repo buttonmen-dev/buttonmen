@@ -195,6 +195,16 @@ UserPrefs.actionSetPrefs = function() {
     },
   };
 
+  var gameplayBlurb = 'These preferences make advanced Button Men attacks ' +
+    'available to you, at the expense of a more complex user experience.';
+  var gameplayPrefs = {
+    'fire_overshooting': {
+      'text': 'Enable fire overshooting for power attacks',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.fire_overshooting,
+    },
+  };
+
   var colorBlurb = 'These the colors used to represent each player in a game.';
   var colorPrefs = {
     'player_color': {
@@ -278,6 +288,8 @@ UserPrefs.actionSetPrefs = function() {
     profileBlurb, profileSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
     autoBlurb, autoPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Gameplay Preferences',
+    gameplayBlurb, gameplayPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Color Preferences',
     colorBlurb, colorPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
@@ -359,6 +371,7 @@ UserPrefs.formSetPrefs = function() {
   var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
+  var fire_overshooting = $('#userprefs_fire_overshooting').prop('checked');
   var monitor_redirects_to_game =
     $('#userprefs_monitor_redirects_to_game').prop('checked');
   var monitor_redirects_to_forum =
@@ -464,6 +477,7 @@ UserPrefs.formSetPrefs = function() {
       'homepage': homepage,
       'comment': comment,
       'autopass': autopass,
+      'fire_overshooting': fire_overshooting,
       'monitor_redirects_to_game': monitor_redirects_to_game,
       'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'automatically_monitor': automatically_monitor,

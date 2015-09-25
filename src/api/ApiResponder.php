@@ -234,6 +234,7 @@ class ApiResponder {
         $infoArray['comment'] = $args['comment'];
         $infoArray['gender'] = $args['gender'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
+        $infoArray['fire_overshooting'] = ('true' == $args['fire_overshooting']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = ('true' == $args['automatically_monitor']);
