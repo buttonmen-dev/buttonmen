@@ -196,8 +196,7 @@ UserPrefs.actionSetPrefs = function() {
   };
 
   var gameplayBlurb = 'These preferences make advanced Button Men attacks ' +
-    'available to your player, at the expense of a more complex ' + 
-    'user experience.';
+    'available to you, at the expense of a more complex user experience.';
   var gameplayPrefs = {
     'fire_overshooting': {
       'text': 'Enable fire overshooting for power attacks',
