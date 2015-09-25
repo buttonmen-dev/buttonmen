@@ -157,10 +157,10 @@ class BMDieSwing extends BMDie {
      *
      * Clones the die and returns the clone.
      */
-    public function activate() {
+    public function activate($forceSwingRequest = FALSE) {
         $newDie = clone $this;
 
-        if (!$this->does_skip_swing_request()) {
+        if (!$this->does_skip_swing_request() || $forceSwingRequest) {
             // The clone is the one going into the game, so it's the one
             // that needs a swing value to be set.
             $this->ownerObject->request_swing_values(
