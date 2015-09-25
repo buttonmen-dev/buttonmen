@@ -72,6 +72,7 @@ class BMInterfacePlayer extends BMInterface {
             'gender' => $infoArray['gender'],
             'image_size' => $image_size,
             'autopass' => (bool)$infoArray['autopass'],
+            'fire_overshooting' => (bool)$infoArray['fire_overshooting'],
             'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
             'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
             'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
@@ -98,6 +99,7 @@ class BMInterfacePlayer extends BMInterface {
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
+        $infoArray['fire_overshooting'] = (int)($infoArray['fire_overshooting']);
         $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);

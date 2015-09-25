@@ -113,6 +113,20 @@ test("test_UserPrefs.actionSetPrefs", function(assert) {
   });
 });
 
+test("test_UserPrefs.actionSetPrefsFireOvershooting", function(assert) {
+  stop();
+  Env.callAsyncInParallel([
+    { 'func': Api.getButtonData, 'args': [ null ] },
+    Api.getUserPrefsData,
+  ], function() {
+    UserPrefs.actionSetPrefs();
+    var fire_overshooting_checked = $('#userprefs_fire_overshooting').prop('checked');
+    assert.ok(!fire_overshooting_checked,
+       "The fire overshooting button should not be checked in the prefs table");
+    start();
+  });
+});
+
 // The logic here is a little hairy: since Api.getUserPrefsData()
 // takes a callback, we can use the normal asynchronous logic there.
 // However, the POST done by our forms doesn't take a callback (it

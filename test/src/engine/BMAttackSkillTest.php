@@ -261,6 +261,40 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMAttackSkill::validate_attack
+     */
+    public function testValidate_attack_TheJapaneseBeetle() {
+        $game = new BMGame;
+
+        $sk = $this->object;
+
+        $die1 = BMDie::create(6);
+        $die1 = $die1->make_play_die();
+        $die1->ownerObject = $game;
+        $die1->playerIdx = 0;
+
+        $die2 = BMDie::create(6);
+        $die2->value = $die1->value;
+        $die2->ownerObject = $game;
+        $die2->playerIdx = 1;
+
+        $button1 = new BMButton;
+        $button1->load('(4) (4) (10) (12) (X)', 'Avis');
+        $button2 = new BMButton;
+        $button2->load('(6) (8) (12) (X)', 'TheJapaneseBeetle');
+        $game->buttonArray = array($button1, $button2);
+
+        // Naturally created during the flow of the game, need to make
+        // by hand here
+        $sk->reset();
+        $sk->add_die($die1);
+        $game->attackerAllDieArray = array($die1);
+        $sk->make_hit_table();
+
+        $this->assertFalse($sk->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
      * @covers BMAttackSkill::find_attack
      * @depends testValidate_attack
      */

@@ -21,6 +21,7 @@ AS SELECT
     m.has_player_accepted,
     p.name_ingame AS player_name,
     p.autopass,
+    p.fire_overshooting,
     b.name AS button_name,
     g.n_target_wins
 FROM game_player_map AS m
