@@ -191,6 +191,11 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        if (!$this->are_button_skills_compatible($defenders)) {
+            // validation message set within $this->are_button_skills_compatible()
+            return FALSE;
+        }
+
         $dval = $defenders[0]->defense_value($this->type);
 
         if (!($this->hitTable instanceof BMUtilityHitTable)) {
@@ -338,6 +343,31 @@ class BMAttackSkill extends BMAttack {
         if ($this->is_invalid_warrior_attack($attArray)) {
             // validation message set within $this->is_invalid_warrior_attack()
             return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Check if button skills are compatible with this type of attack.
+     *
+     * @param array $defArray
+     * @return boolean
+     */
+    protected function are_button_skills_compatible(array $defArray) {
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
+        $def = $defArray[0];
+    
+        if ($def->ownerObject instanceof BMGame) {
+            $ownerButton = $def->ownerObject->buttonArray[$def->playerIdx];
+            if ($ownerButton->has_skill('TheJapaneseBeetle')) {
+                $this->validationMessage =
+                    'Dice owned by The Japanese Beetle cannot be attacked by skill attacks.';
+                return FALSE;
+            }
         }
 
         return TRUE;
