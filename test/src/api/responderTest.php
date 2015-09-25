@@ -12058,7 +12058,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['validAttackTypeArray'] = array('Skill');
         $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('IsAttacker');
         $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('IsAttacker');
-=======
+
+    /**
      * @depends test_request_savePlayerInfo
      *
      * This test is a copy of test_interface_game_008, modified to work with a player who has fire overshooting enabled.
