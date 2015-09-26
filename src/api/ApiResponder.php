@@ -140,6 +140,10 @@ class ApiResponder {
         return $interface->get_all_open_games($_SESSION['user_id']);
     }
 
+    protected function get_interface_response_loadNewGames($interface) {
+        return $interface->get_all_new_games($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_loadActiveGames($interface) {
         // Once we return to the list of active games, we no longer need to remember
         // which ones we were skipping.

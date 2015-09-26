@@ -116,7 +116,12 @@ Game.showStatePage = function() {
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
-    if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
+    if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+      Game.page =
+        $('<p>', {'text': 'This game hasn\'t started yet.', });
+      Game.form = null;
+      includeFooter = false;
+    } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionSpecifyDiceActive();

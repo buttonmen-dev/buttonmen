@@ -23,6 +23,7 @@ class ApiSpec {
     private $automatableApiCalls = array(
         'loadNextPendingGame',
         'loadNextNewPost',
+        'loadNewGames',
         'loadActiveGames',
         'loadCompletedGames',
         'loadPlayerInfo',
@@ -343,6 +344,10 @@ class ApiSpec {
             'permitted' => array(
                 'logEntryLimit' => 'number',
             ),
+        ),
+        'loadNewGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
         ),
         'loadNextPendingGame' => array(
             'mandatory' => array(),

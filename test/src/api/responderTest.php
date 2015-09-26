@@ -1252,6 +1252,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy game lists should have matching structures");
     }
 
+    public function test_request_loadNewGames() {
+        $this->verify_login_required('loadNewGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNewGames');
+
+        $args = array('type' => 'loadNewGames');
+        $retval = $this->verify_api_success($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of new games should succeed');
+    }
+
     public function test_request_loadActiveGames() {
         $this->verify_login_required('loadActiveGames');
 

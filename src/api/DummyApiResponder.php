@@ -272,6 +272,34 @@ class DummyApiResponder {
         return $game;
     }
 
+    protected function get_interface_response_loadNewGames() {
+        $data = array(
+            'gameIdArray' => array(),
+            'opponentIdArray' => array(),
+            'opponentNameArray' => array(),
+            'myButtonNameArray' => array(),
+            'opponentButtonNameArray' => array(),
+            'nWinsArray' => array(),
+            'nLossesArray' => array(),
+            'nDrawsArray' => array(),
+            'nTargetWinsArray' => array(),
+            'isAwaitingActionArray' => array(),
+            'gameStateArray' => array(),
+            'statusArray' => array(),
+            'inactivityArray' => array(),
+            'inactivityRawArray' => array(),
+            'playerColorArray' => array(),
+            'opponentColorArray' => array(),
+        );
+
+//        for ($gameIdx = 1; $gameIdx <= 25; $gameIdx++) {
+//            $funcname = 'add_active_game_data_'.$gameIdx;
+//            $this->$funcname($data);
+//        }
+
+        return array($data, "All game details retrieved successfully.");
+    }
+
     protected function get_interface_response_loadActiveGames() {
         // Use the same fake games here which were described in loadGameData
         $data = array(
