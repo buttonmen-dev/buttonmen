@@ -1564,6 +1564,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'gender' => '',
             'comment' => '',
             'homepage' => '',
+            'autoaccept' => 'true',
             'autopass' => 'true',
             'fire_overshooting' => 'false',
             'uses_gravatar' => 'false',
