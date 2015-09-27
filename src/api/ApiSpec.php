@@ -158,6 +158,18 @@ class ApiSpec {
                 'previousGameId' => 'number',
             ),
         ),
+        'acceptGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        'rejectGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'dismissGame' => array(
             'mandatory' => array(
                 'gameId' => 'number',

@@ -429,6 +429,10 @@ class BMInterface {
         $decisionFlag = ('accept' == $decision);
         $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
 
+        if (!$decisionFlag) {
+            $game->gameState = BMGameState::REJECTED;
+        }
+
         $this->save_game($game);
 
         if ($decisionFlag) {
@@ -1114,6 +1118,8 @@ class BMInterface {
     protected function get_game_status($game) {
         if (BMGameState::END_GAME == $game->gameState) {
             $status = 'COMPLETE';
+        } elseif (BMGameState::REJECTED == $game->gameState) {
+            $status = 'REJECTED';
         } elseif (in_array(NULL, $game->playerIdArray) ||
                   in_array(NULL, $game->buttonArray)) {
             $status = 'OPEN';

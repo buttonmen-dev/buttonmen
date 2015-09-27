@@ -1909,6 +1909,12 @@ class BMGame {
     protected function update_game_state_end_game() {
     }
 
+    protected function do_next_step_rejected() {
+    }
+
+    protected function update_game_state_rejected() {
+    }
+
     // The variable $gameStateBreakpoint is used for debugging purposes only.
     // If used, the game will stop as soon as the game state becomes
 

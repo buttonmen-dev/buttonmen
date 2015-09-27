@@ -441,13 +441,13 @@ Overview.pageAddGameTableNew = function() {
       'href': '#',
       'data-gameId': gameInfo.gameId,
     });
-    acceptLink.click();
+    acceptLink.click(Overview.formAcceptGame);
     rejectLink = $('<a>', {
       'text': '[Reject]',
       'href': '#',
       'data-gameId': gameInfo.gameId,
     });
-    rejectLink.click();
+    rejectLink.click(Overview.formRejectGame);
     decideTd.append(acceptLink).append(' / ').append(rejectLink);
 
     i += 1;
@@ -556,6 +556,28 @@ Overview.pageAddIntroText = function() {
   }));
   infopar.append(', and is used with permission.');
   Overview.page.append(infopar);
+};
+
+Overview.formAcceptGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'acceptGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully accepted game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
+    Overview.showLoggedInPage);
+};
+
+Overview.formRejectGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'rejectGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully rejected game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
+    Overview.showLoggedInPage);
 };
 
 Overview.formDismissGame = function(e) {

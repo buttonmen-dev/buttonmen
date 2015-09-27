@@ -92,13 +92,14 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
-        $retval = $interface->player()->create_game(
+        $retval = $interface->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
             $description,
             $previousGameId,
-            (int)$_SESSION['user_id']
+            (int)$_SESSION['user_id'],
+            FALSE
         );
 
         if (isset($retval)) {
@@ -444,6 +445,34 @@ class ApiResponder {
 
         if (isset($retval)) {
             $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
+    }
+
+    protected function get_interface_response_acceptGame($interface, $args) {
+        $retval = $interface->save_join_game_decision(
+            $_SESSION['user_id'],
+            $args['gameId'],
+            'accept'
+        );
+
+        if (isset($retval)) {
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['gameId']);
+        }
+
+        return $retval;
+    }
+
+    protected function get_interface_response_rejectGame($interface, $args) {
+        $retval = $interface->save_join_game_decision(
+            $_SESSION['user_id'],
+            $args['gameId'],
+            'reject'
+        );
+
+        if (isset($retval)) {
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['gameId']);
         }
 
         return $retval;

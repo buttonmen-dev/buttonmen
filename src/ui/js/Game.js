@@ -26,6 +26,8 @@ Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
 
+Game.GAME_STATE_REJECTED = 'REJECTED';
+
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
@@ -119,6 +121,11 @@ Game.showStatePage = function() {
     if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
       Game.page =
         $('<p>', {'text': 'This game hasn\'t started yet.', });
+      Game.form = null;
+      includeFooter = false;
+    } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
+      Game.page =
+        $('<p>', {'text': 'This game has been rejected.', });
       Game.form = null;
       includeFooter = false;
     } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
