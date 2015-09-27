@@ -136,7 +136,7 @@ class BMInterface {
                     $playerId,
                     $buttonIdArray[$position],
                     $position,
-                    (0 == $position) || $autoAccept
+                    (0 == $position) || $autoAccept || $this->retrieve_player_autoaccept($playerId)
                 );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
@@ -223,7 +223,7 @@ class BMInterface {
         }
     }
 
-    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted = TRUE) {
+    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
                  '(game_id, player_id, button_id, position, has_player_accepted) '.
@@ -405,6 +405,19 @@ class BMInterface {
         return $buttonIdArray;
     }
 
+    protected function retrieve_player_autoaccept($playerId) {
+        $query = 'SELECT autoaccept FROM player '.
+                 'WHERE id = :player_id';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $playerId));
+        $fetchData = $statement->fetch();
+        if (FALSE === $fetchData) {
+            $this->set_message('Game create failed because a player id was not valid.');
+            return NULL;
+        }
+        return $fetchData[0];
+    }
+
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (('accept' != $decision) && ('reject' != $decision)) {
             throw new InvalidArgumentException('decision must be either accept or reject');
@@ -426,6 +439,7 @@ class BMInterface {
             return;
         }
 
+        $game->setArrayPropEntry('waitingOnActionArray', $playerIdx, FALSE);
         $decisionFlag = ('accept' == $decision);
         $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
 

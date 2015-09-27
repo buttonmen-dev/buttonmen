@@ -522,6 +522,7 @@ class ApiSpec {
                     'arg_type' => 'string',
                     'maxlength' => 100,
                 ),
+                'autoaccept' => 'boolean',
                 'autopass' => 'boolean',
                 'fire_overshooting' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',

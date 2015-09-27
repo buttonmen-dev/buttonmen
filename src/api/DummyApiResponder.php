@@ -1112,6 +1112,7 @@ class DummyApiResponder {
                                 'dob_day' => 0,
                                 'gender' => '',
                                 'image_size' => NULL,
+                                'autoaccept' => TRUE,
                                 'autopass' => TRUE,
                                 'fire_overshooting' => FALSE,
                                 'uses_gravatar' => FALSE,

@@ -238,6 +238,7 @@ class ApiResponder {
         $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
         $infoArray['gender'] = $args['gender'];
+        $infoArray['autoaccept'] = ('true' == $args['autoaccept']);
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['fire_overshooting'] = ('true' == $args['fire_overshooting']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
