@@ -3735,6 +3735,8 @@ class BMInterface {
             $isSuccessful = $game->react_to_firing($argArray);
             if ($isSuccessful) {
                 $this->save_game($game);
+            } else {
+                $this->set_message('Invalid fire turndown');
             }
 
             return $isSuccessful;
