@@ -293,7 +293,7 @@ class DummyApiResponder {
         );
 
 //        for ($gameIdx = 1; $gameIdx <= 25; $gameIdx++) {
-//            $funcname = 'add_active_game_data_'.$gameIdx;
+//            $funcname = 'add_new_game_data_'.$gameIdx;
 //            $this->$funcname($data);
 //        }
 

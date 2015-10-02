@@ -30,6 +30,7 @@ module("Overview", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
+    delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
     delete Api.gameNavigation;
