@@ -761,7 +761,7 @@ class DummyApiResponder {
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
             'tags' => array(),
-            'flavorText' => NULL,
+            'flavorText' => 'Avis is an expert chainsaw dueler and ice sculptor, and she likes to beat people up.',
             'specialText' => NULL,
         );
     }
@@ -1085,6 +1085,7 @@ class DummyApiResponder {
                                 'gender' => '',
                                 'image_size' => NULL,
                                 'autopass' => TRUE,
+                                'fire_overshooting' => FALSE,
                                 'uses_gravatar' => FALSE,
                                 'monitor_redirects_to_game' => FALSE,
                                 'monitor_redirects_to_forum' => FALSE,

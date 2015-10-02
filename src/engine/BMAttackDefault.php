@@ -156,7 +156,7 @@ class BMAttackDefault extends BMAttack {
             }
 
             $this->validationMessage = $messageRoot .
-                'It is not clear whether or not you want to fire your attacking die.';
+                'It is not clear if you wish to use your Fire die to assist in the attack.';
             return FALSE;
         }
 

@@ -304,32 +304,13 @@ Game.actionSpecifyDiceActive = function() {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var diespecifytable = $('<table>', { 'id': 'die_specify_table', });
 
-  // Add swing dice to table
-  $.each(
+  var diespecifytable = Game.swingRangeTable(
     Api.game.player.swingRequestArray,
-    function(letter, range) {
-      var swingrow = $('<tr>', {});
-      var swingtext = letter + ' (' + range.min + '-' + range.max + '):';
-      swingrow.append($('<td>', { 'text': swingtext, }));
-      var swinginput = $('<td>', {});
-      swinginput.append($('<input>', {
-        'type': 'text',
-        'class': 'swing',
-        'id': 'swing_' + letter,
-        'size': '2',
-        'maxlength': '2',
-      }));
-      swingrow.append(swinginput);
-      var swingprevtext = '';
-      if (letter in Api.game.player.prevSwingValueArray) {
-        swingprevtext =
-          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
-      }
-      swingrow.append($('<td>', { 'text': swingprevtext, }));
-      diespecifytable.append(swingrow);
-    });
+    'die_specify_table',
+    true,
+    true
+  );
 
   // Add option dice to table
   $.each(
@@ -369,15 +350,12 @@ Game.actionSpecifyDiceActive = function() {
   }));
 
   // If the opponent has any swing dice to set, make a table for those
-  var opponentswing = $('<table>', { 'id': 'opponent_swing', });
-  $.each(
+  var opponentswing = Game.swingRangeTable(
     Api.game.opponent.swingRequestArray,
-    function(letter, range) {
-      var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
-      swingrow.append($('<td>', { 'text': swingtext, }));
-      opponentswing.append(swingrow);
-    });
+    'opponent_swing',
+    false,
+    false
+  );
 
   // Don't bother making a table for opponent's option dice, because
   // those possible values are shown in the recipe already
@@ -445,9 +423,37 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   });
 
   // Get a table containing the existing die recipes
-  var dietable = Game.dieRecipeTable(false, false);
+  var dietable = Game.dieRecipeTable(false, true);
 
   auxform.append(dietable);
+
+  var swingrangetable = Game.swingRangeTable(
+    Api.game.player.swingRequestArray,
+    'swing_range_table',
+    false,
+    false
+  );
+
+  var opponentswing = Game.swingRangeTable(
+    Api.game.opponent.swingRequestArray,
+    'opponent_swing',
+    false,
+    false
+  );
+
+  // Add the swing die form to the left column of the die table
+  var formtd = $('<td>', { 'class': 'showswing', });
+  formtd.append($('<br>'));
+  formtd.append(swingrangetable);
+  var opponenttd = $('<td>', { 'class': 'showswing', });
+  opponenttd.append($('<br>'));
+  opponenttd.append(opponentswing);
+  var formrow = $('<tr>', {});
+  formrow.append(formtd);
+  formrow.append(opponenttd);
+  formrow.append($('<td>', {}));
+  dietable.append(formrow);
+
   auxform.append($('<br>'));
 
   var yestext = 'Use auxiliary dice this game: keep ' +
@@ -539,6 +545,23 @@ Game.actionChooseReserveDiceActive = function() {
   var dietable = Game.dieRecipeTable('choose_reserve', true);
 
   reserveform.append(dietable);
+
+  var swingrangetable = Game.swingRangeTable(
+    Api.game.player.swingRequestArray,
+    'swing_range_table',
+    false,
+    true
+  );
+
+  // Add the swing die form to the left column of the die table
+  var formtd = $('<td>', { 'class': 'showswing', });
+  formtd.append($('<br>'));
+  formtd.append(swingrangetable);
+  var formrow = $('<tr>', {});
+  formrow.append(formtd);
+  formrow.append($('<td>', {}));
+  dietable.append(formrow);
+
   reserveform.append($('<br>'));
 
   var yestext = 'Add one reserve die to button';
@@ -854,8 +877,10 @@ Game.actionAdjustFireDiceActive = function() {
     'Your turn to complete an attack by adjusting fire dice');
 
   var attackerSum = 0;
+  var attackerDiffFromMax = 0;
   $.each(Api.game.player.activeDieArray, function(i, die) {
     if (die.properties.indexOf('IsAttacker') >= 0) {
+      attackerDiffFromMax += die.sides - die.value;
       attackerSum += die.value;
     }
   });
@@ -867,12 +892,24 @@ Game.actionAdjustFireDiceActive = function() {
     }
   });
 
+  var fireMessage = '';
+  var attackType = Api.game.validAttackTypeArray[0];
+  var exactFiringAmount = defenderSum - attackerSum;
+
+  fireMessage += 'Turn down Fire dice by a total of ';
+
+  if (('Power' == attackType) &&
+    (attackerDiffFromMax > exactFiringAmount)) {
+    fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
+                   ' and ' + attackerDiffFromMax;
+  } else {
+    fireMessage += exactFiringAmount;
+  }
+
+  fireMessage += ' to complete your ' + attackType + ' attack.';
+
   Game.page.append($('<div>', {
-    'text': 'Turn down Fire dice by a total of ' +
-            (defenderSum - attackerSum) +
-            ' to make up the difference between the sum of your attacking' +
-            ' dice (' + attackerSum + ') and the defending die value (' +
-            defenderSum + ').',
+    'text': fireMessage,
   }));
 
   // Create a form for adjusting fire dice
@@ -892,18 +929,24 @@ Game.actionAdjustFireDiceActive = function() {
     'name': 'fire_action_select',
   });
 
-  var fireoptions = {
-    'turndown': 'Turn down fire dice',
-    'cancel':
-      'Don\'t turn down fire dice (cancelling the attack in progress)',
-  };
+  var allows_zero_turndown = (exactFiringAmount <= 0);
+
+  var fireoptions = {};
+  if (allows_zero_turndown) {
+    fireoptions.no_turndown = 'Submit attack without turning down fire dice';
+  }
+  fireoptions.turndown = 'Turn down fire dice';
+  fireoptions.cancel =
+    'Don\'t turn down fire dice (cancelling the attack in progress)';
+
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
       'value': actionname,
       'label': actiontext,
       'text': actiontext,
     };
-    if (actionname == 'turndown') {
+    if ((actionname == 'no_turndown') ||
+        (!allows_zero_turndown && (actionname == 'turndown'))) {
       fireactionopts.selected = 'selected';
     }
     fireactionselect.append($('<option>', fireactionopts));
@@ -1272,13 +1315,16 @@ Game.formAdjustFireDiceActive = function() {
   switch (Game.activity.fireActionType) {
 
   // valid action, nothing special to do, but validate selections just in case
-  case 'cancel':
+  case 'cancel':    // fallthrough to allow multiple cases with the same logic
+  case 'no_turndown':
     $.each(Api.game.player.fireOptions, function(i, vals) {
       if (vals.length > 0) {
         var value = $('#fire_adjust_' + i).val();
         if (value != Api.game.player.activeDieArray[i].value) {
           error = 'Chose not to adjust fire dice, but modified a die value';
           formValid = false;
+          Game.activity.fireDieIdxArray.push(i);
+          Game.activity.fireDieValueArray.push(value);
         }
       }
     });
@@ -2083,8 +2129,51 @@ Game.dieRecipeTable = function(table_action, active) {
     subrow.append(subRTd);
     dietable.append(subrow);
   }
+
   return dietable;
 };
+
+// Generate and return a table of the swing ranges for the player's swing dice
+Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrev) {
+  var swingrangetable = $('<table>', { 'id': id, });
+  $.each(
+    swingRequestArray,
+    function(letter, range) {
+      var swingrow = $('<tr>', {});
+      var swingtext = letter;
+      if (!allowInput) {
+        swingtext += ':';
+      }
+      swingtext += ' (' + range.min + '-' + range.max + ')';
+      if (allowInput) {
+        swingtext += ':';
+      }
+      swingrow.append($('<td>', { 'text': swingtext, }));
+      if (allowInput) {
+        var swinginput = $('<td>', {});
+        swinginput.append($('<input>', {
+          'type': 'text',
+          'class': 'swing',
+          'id': 'swing_' + letter,
+          'size': '2',
+          'maxlength': '2',
+        }));
+        swingrow.append(swinginput);
+      }
+      if (showPrev) {
+        var swingprevtext = '';
+        if (letter in Api.game.player.prevSwingValueArray) {
+          swingprevtext =
+            '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+          swingrow.append($('<td>', { 'text': swingprevtext, }));
+        }
+      }
+      swingrangetable.append(swingrow);
+    });
+
+  return swingrangetable;
+};
+
 
 Game.dieTableEntry = function(i, activeDieArray) {
   if (i < activeDieArray.length) {

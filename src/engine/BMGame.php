@@ -40,6 +40,7 @@
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
+ * @property      array $fireOvershootingArray   Boolean array whether each player has enabled fire overshooting
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
@@ -270,6 +271,13 @@ class BMGame {
     protected $autopassArray;
 
     /**
+     * Boolean array whether each player has enabled fire overshooting
+     *
+     * @var array
+     */
+    protected $fireOvershootingArray;
+
+    /**
      * Amount of firing that has been submitted
      *
      * @var int
@@ -477,6 +485,7 @@ class BMGame {
         $this->gameState = BMGameState::APPLY_HANDICAPS;
         $this->nRecentPasses = 0;
         $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->fireOvershootingArray = array_fill(0, $this->nPlayers, FALSE);
         $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
     }
 
@@ -1339,7 +1348,7 @@ class BMGame {
     }
 
     protected function do_next_step_adjust_fire_dice() {
-        if ($this->needs_firing()) {
+        if ($this->needs_firing() || $this->allows_fire_overshooting()) {
             $this->waitingOnActionArray[$this->attack['attackerPlayerIdx']] = TRUE;
         }
     }
@@ -1408,6 +1417,64 @@ class BMGame {
         return $needsFiring;
     }
 
+    /**
+     * This checks for the special case of a Power attack where the attacker is
+     * already able to capture the defender without help, but where there is
+     * fire support possible, and the attacker is not yet at maximum value.
+     *
+     * @return boolean
+     */
+    protected function allows_fire_overshooting() {
+        if ('Power' != $this->attack['attackType']) {
+            return FALSE;
+        }
+
+        $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+
+        if (!$this->fireOvershootingArray[$attackerPlayerIdx]) {
+            return FALSE;
+        }
+
+        $attackerDieIdx = $this->attack['attackerAttackDieIdxArray'][0];
+        $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
+        $attackerDieArray = array($attackerDie);
+
+        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        $defenderDieIdx = $this->attack['defenderAttackDieIdxArray'][0];
+        $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
+        $defenderDieArray = array($defenderDie);
+
+        $attack = BMAttack::create('Power');
+
+        $bounds = $attack->help_bounds_specific($this, $attackerDieArray, $defenderDieArray);
+        if (0 == $bounds[1]) {
+            return FALSE;
+        }
+
+        if ($attack->validate_attack(
+            $this,
+            $attackerDieArray,
+            $defenderDieArray,
+            max(1, $defenderDie->value - $attackerDie->value + 1)
+        )) {
+            $this->log_action(
+                'allows_firing',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'attackType' => $this->attack['attackType'],
+                    'attackDice' => $this->get_action_log_data(
+                        $attackerDieArray,
+                        $defenderDieArray
+                    ),
+                )
+            );
+
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
     protected function update_game_state_adjust_fire_dice() {
         if (FALSE !== array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
             return;
@@ -1416,7 +1483,7 @@ class BMGame {
         $this->gameState = BMGameState::COMMIT_ATTACK;
     }
 
-    // turn_down_fire_dice expects one of the following two input arrays:
+    // turn_down_fire_dice expects one of the following input arrays:
     //
     //   1.  array('action' => 'cancel',
     //             'playerIdx' => $playerIdx,
@@ -1425,7 +1492,14 @@ class BMGame {
     //       where $dieIdxArray and $dieValueArray are the raw inputs to
     //       BMInterface->adjust_fire()
     //
-    //   2.  array('action' => 'turndown',
+    //   2.  array('action' => 'no_turndown',
+    //             'playerIdx' => $playerIdx,
+    //             'dieIdxArray' => $dieIdxArray,
+    //             'dieValueArray' => $dieValueArray)
+    //       where $dieIdxArray and $dieValueArray are the raw inputs to
+    //       BMInterface->adjust_fire()
+    //
+    //   3.  array('action' => 'turndown',
     //             'playerIdx' => $playerIdx,
     //             'fireValueArray' => array($dieIdx1 => $dieValue1,
     //                                       $dieIdx2 => $dieValue2))
@@ -1450,9 +1524,9 @@ class BMGame {
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
 
-        if (!in_array($args['action'], array('turndown', 'cancel'))) {
+        if (!in_array($args['action'], array('turndown', 'no_turndown', 'cancel'))) {
             throw new InvalidArgumentException(
-                'Reaction must be turndown or cancel.'
+                'Reaction must be turndown, no_turndown, or cancel.'
             );
         }
 
@@ -1533,7 +1607,38 @@ class BMGame {
             'newValues' => $newValues,
         );
 
-        $this->message = 'Successfully turned down fire dice.';
+        return TRUE;
+    }
+
+    protected function react_to_firing_no_turndown() {
+        if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            $this->message = 'Wrong game state to react to firing.';
+            return FALSE;
+        }
+
+        $instance = $this->create_attack_instance();
+        if (FALSE === $instance) {
+            $this->message = 'Invalid attack.';
+            return FALSE;
+        }
+
+        if (!$instance['attack']->validate_attack(
+            $this,
+            $instance['attAttackDieArray'],
+            $instance['defAttackDieArray'],
+            0
+        )) {
+            $this->message = $instance['attack']->validationMessage;
+            return FALSE;
+        }
+
+        $this->firingAmount = 0;
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        $this->fireCache = array(
+            'action' => 'zero_firing',
+        );
+
         return TRUE;
     }
 
@@ -1562,7 +1667,6 @@ class BMGame {
             )
         );
 
-        $this->message = 'Cancelled fire attack.';
         return TRUE;
     }
 
@@ -3177,6 +3281,28 @@ class BMGame {
     }
 
     /**
+     * Allow setting the array of whether fire overshooting is allowed
+     *
+     * @param array $value
+     */
+    protected function set__fireOvershootingArray($value) {
+        if (!is_array($value) ||
+            count($value) !== count($this->playerIdArray)) {
+            throw new InvalidArgumentException(
+                'Number of settings must equal the number of players.'
+            );
+        }
+        foreach ($value as $tempValueElement) {
+            if (!is_bool($tempValueElement)) {
+                throw new InvalidArgumentException(
+                    'Input must be an array of booleans.'
+                );
+            }
+        }
+        $this->fireOvershootingArray = $value;
+    }
+
+    /**
      * Prevent setting the firing amount
      */
     protected function set__firingAmount() {
@@ -3289,7 +3415,7 @@ class BMGame {
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
-                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx),
+                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
@@ -3735,12 +3861,26 @@ class BMGame {
      * @param int $playerIdx
      * @return array
      */
-    protected function get_swingRequestArray($playerIdx) {
+    protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
         $swingRequestArray = array();
 
+        if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests(TRUE);
+            // only show true swingRequestArrayArray if the player is requesting his/her own
+            // information
+            if (!$this->waitingOnActionArray[$playerIdx] &&
+                ($playerIdx == $requestingPlayerIdx)) {
+                $swingRequestArrayArray[$playerIdx] = $this->swingRequestArrayArray[$playerIdx];
+            }
+        } elseif ($this->gameState <= BMGameState::CHOOSE_RESERVE_DICE) {
+            $swingRequestArrayArray = $this->get_all_swing_requests(FALSE);
+        } else {
+            $swingRequestArrayArray = $this->swingRequestArrayArray;
+        }
+
         if (isset($this->activeDieArrayArray) &&
-            isset($this->swingRequestArrayArray[$playerIdx])) {
-            foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+            isset($swingRequestArrayArray[$playerIdx])) {
+            foreach ($swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
                 if ($swingdice[0] instanceof BMDieTwin) {
                     if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
                         $swingdie = $swingdice[0]->dice[0];
@@ -3766,6 +3906,43 @@ class BMGame {
         }
 
         return $swingRequestArray;
+    }
+
+    protected function get_all_swing_requests($includeCourtesyDice = FALSE) {
+        $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+
+        if (!isset($this->buttonArray)) {
+            return $swingRequestArrayArray;
+        }
+
+        $courtesySwingArray = array();
+
+        foreach ($this->buttonArray as $playerIdx => $button) {
+            if (isset($button->dieArray)) {
+                foreach ($button->dieArray as $die) {
+                    if (isset($die->swingType)) {
+                        $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+
+                        if ($includeCourtesyDice &&
+                            $die->has_skill('Auxiliary')) {
+                            $courtesySwingArray[$die->swingType][] = $die;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($includeCourtesyDice) {
+            foreach ($swingRequestArrayArray as &$swingRequestArray) {
+                foreach ($courtesySwingArray as $courtesySwingType => $swingDie) {
+                    if (!array_key_exists($courtesySwingType, $swingRequestArray)) {
+                        $swingRequestArray[$courtesySwingType] = $swingDie;
+                    }
+                }
+            }
+        }
+
+        return $swingRequestArrayArray;
     }
 
     /**
@@ -3835,8 +4012,25 @@ class BMGame {
     protected function get_validAttackTypeArray() {
         // If it's someone's turn to attack, report the valid attack
         // types as part of the game data
-        if ($this->gameState == BMGameState::START_TURN) {
+        if (BMGameState::START_TURN == $this->gameState) {
             $validAttackTypeArray = array_keys($this->valid_attack_types());
+        } elseif (BMGameState::ADJUST_FIRE_DICE == $this->gameState) {
+            $attackType = '';
+
+            // need to reconstruct attack type from die flag BMFlagIsAttacker
+            foreach ($this->activeDieArrayArray as $activeDieArray) {
+                foreach ($activeDieArray as $die) {
+                    if ($die->has_flag('IsAttacker')) {
+                        foreach ($die->flagList as $flag) {
+                            if ($flag instanceof BMFlagIsAttacker) {
+                                $attackType = $flag->value();
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            }
+            $validAttackTypeArray = array($attackType);
         } else {
             $validAttackTypeArray = array();
         }
