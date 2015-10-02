@@ -1112,6 +1112,92 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @group fulltest_deps
+     *
+     * As a side effect, this test actually enables preferences which some other tests need:
+     * * turn on autopass for responder003, responder004, and responder005
+     * * turn on fire_overshooting for responder005
+     */
+    public function test_request_savePlayerInfo() {
+        $this->verify_login_required('savePlayerInfo');
+
+        $args = array(
+            'type' => 'savePlayerInfo',
+            'name_irl' => 'Test User',
+            'is_email_public' => 'False',
+            'dob_month' => '2',
+            'dob_day' => '29',
+            'gender' => '',
+            'comment' => '',
+            'homepage' => '',
+            'autoaccept' => 'true',
+            'autopass' => 'false',
+            'fire_overshooting' => 'false',
+            'uses_gravatar' => 'false',
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
+            'monitor_redirects_to_game' => 'false',
+            'monitor_redirects_to_forum' => 'false',
+            'automatically_monitor' => 'false',
+        );
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $retval = $this->verify_api_success($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_success($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_invalid_arg_rejected('savePlayerInfo');
+
+        $args = array(
+            'type' => 'savePlayerInfo',
+            'name_irl' => 'Test User',
+            'is_email_public' => 'False',
+            'dob_month' => '2',
+            'dob_day' => '29',
+            'gender' => '',
+            'comment' => '',
+            'homepage' => '',
+            'autoaccept' => 'true',
+            'autopass' => 'true',
+            'fire_overshooting' => 'false',
+            'uses_gravatar' => 'false',
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
+            'monitor_redirects_to_game' => 'false',
+            'monitor_redirects_to_forum' => 'false',
+            'automatically_monitor' => 'false',
+        );
+        $retval = $this->verify_api_success($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy player data update return values should have matching structures");
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $retval = $this->verify_api_success($args);
+
+        $args['fire_overshooting'] = 'true';
+        $_SESSION = $this->mock_test_user_login('responder005');
+        $retval = $this->verify_api_success($args);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     */
     public function test_request_createGame() {
         $this->verify_login_required('createGame');
 
@@ -1158,6 +1244,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy game creation return values should have matching structures");
     }
 
+    /**
+     * @depends test_request_savePlayerInfo
+     */
     public function test_request_searchGameHistory() {
         $this->verify_login_required('searchGameHistory');
 
@@ -1265,6 +1354,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('ok', $dummyval['status'], 'Dummy load of new games should succeed');
     }
 
+    /**
+     * @depends test_request_savePlayerInfo
+     */
     public function test_request_loadActiveGames() {
         $this->verify_login_required('loadActiveGames');
 
@@ -1458,6 +1550,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /**
+     * @depends test_request_savePlayerInfo
+     */
     public function test_request_loadGameData() {
         $this->verify_login_required('loadGameData');
 
@@ -1540,89 +1635,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
             "Real and dummy player data should have matching structures");
-    }
-
-    /**
-     * @group fulltest_deps
-     *
-     * As a side effect, this test actually enables preferences which some other tests need:
-     * * turn on autopass for responder003, responder004, and responder005
-     * * turn on fire_overshooting for responder005
-     */
-    public function test_request_savePlayerInfo() {
-        $this->verify_login_required('savePlayerInfo');
-
-        $args = array(
-            'type' => 'savePlayerInfo',
-            'name_irl' => 'Test User',
-            'is_email_public' => 'False',
-            'dob_month' => '2',
-            'dob_day' => '29',
-            'gender' => '',
-            'comment' => '',
-            'homepage' => '',
-            'autoaccept' => 'true',
-            'autopass' => 'false',
-            'fire_overshooting' => 'false',
-            'uses_gravatar' => 'false',
-            'player_color' => '#dd99dd',
-            'opponent_color' => '#ddffdd',
-            'neutral_color_a' => '#cccccc',
-            'neutral_color_b' => '#dddddd',
-            'monitor_redirects_to_game' => 'false',
-            'monitor_redirects_to_forum' => 'false',
-            'automatically_monitor' => 'false',
-        );
-        $_SESSION = $this->mock_test_user_login('responder001');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $_SESSION = $this->mock_test_user_login('responder002');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $_SESSION = $this->mock_test_user_login('responder003');
-        $this->verify_invalid_arg_rejected('savePlayerInfo');
-
-        $args = array(
-            'type' => 'savePlayerInfo',
-            'name_irl' => 'Test User',
-            'is_email_public' => 'False',
-            'dob_month' => '2',
-            'dob_day' => '29',
-            'gender' => '',
-            'comment' => '',
-            'homepage' => '',
-            'autoaccept' => 'true',
-            'autopass' => 'true',
-            'fire_overshooting' => 'false',
-            'uses_gravatar' => 'false',
-            'player_color' => '#dd99dd',
-            'opponent_color' => '#ddffdd',
-            'neutral_color_a' => '#cccccc',
-            'neutral_color_b' => '#dddddd',
-            'monitor_redirects_to_game' => 'false',
-            'monitor_redirects_to_forum' => 'false',
-            'automatically_monitor' => 'false',
-        );
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy player data update return values should have matching structures");
-
-        $_SESSION = $this->mock_test_user_login('responder004');
-        $retval = $this->verify_api_success($args);
-
-        $args['fire_overshooting'] = 'true';
-        $_SESSION = $this->mock_test_user_login('responder005');
-        $retval = $this->verify_api_success($args);
     }
 
     public function test_request_loadProfileInfo() {
