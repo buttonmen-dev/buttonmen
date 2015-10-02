@@ -1552,6 +1552,37 @@ class responderTest extends PHPUnit_Framework_TestCase {
     public function test_request_savePlayerInfo() {
         $this->verify_login_required('savePlayerInfo');
 
+        $args = array(
+            'type' => 'savePlayerInfo',
+            'name_irl' => 'Test User',
+            'is_email_public' => 'False',
+            'dob_month' => '2',
+            'dob_day' => '29',
+            'gender' => '',
+            'comment' => '',
+            'homepage' => '',
+            'autoaccept' => 'true',
+            'autopass' => 'false',
+            'fire_overshooting' => 'false',
+            'uses_gravatar' => 'false',
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
+            'monitor_redirects_to_game' => 'false',
+            'monitor_redirects_to_forum' => 'false',
+            'automatically_monitor' => 'false',
+        );
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $retval = $this->verify_api_success($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_success($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('savePlayerInfo');
 
@@ -2182,6 +2213,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
+     *
      * This is the same game setup as in
      * BMInterfaceTest::test_option_reset_bug(), but tested from
      * the API point of view, and we play long enough to set option dice in two consecutive rounds.

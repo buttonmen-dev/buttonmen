@@ -1,4 +1,4 @@
-ALTER TABLE player ADD COLUMN autoaccept BOOLEAN DEFAULT 1 AFTER gender;
+ALTER TABLE player ADD COLUMN autoaccept BOOLEAN DEFAULT 0 AFTER gender;
 
 DROP VIEW IF EXISTS player_view;
 CREATE VIEW player_view

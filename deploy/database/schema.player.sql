@@ -14,7 +14,7 @@ CREATE TABLE player (
     dob_month           INT DEFAULT 0 NOT NULL,
     dob_day             INT DEFAULT 0 NOT NULL,
     gender              VARCHAR(100) DEFAULT '' NOT NULL,
-    autoaccept          BOOLEAN DEFAULT 1,
+    autoaccept          BOOLEAN DEFAULT 0,
     autopass            BOOLEAN DEFAULT 0,
     fire_overshooting   BOOLEAN DEFAULT 0,
     monitor_redirects_to_game   BOOLEAN DEFAULT 0 NOT NULL,
