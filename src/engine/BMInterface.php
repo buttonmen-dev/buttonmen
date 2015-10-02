@@ -3116,6 +3116,7 @@ class BMInterface {
                                       ':id'         => $gameId));
 
             $game = $this->load_game($gameId);
+            $game->hasPlayerAcceptedGameArray[$emptyPlayerIdx] = TRUE;
             $this->save_game($game);
 
             return TRUE;

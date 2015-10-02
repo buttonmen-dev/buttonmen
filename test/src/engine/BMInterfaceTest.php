@@ -602,7 +602,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
 
         $retval = $this->object->create_game(
-            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array(self::$userId5WithoutAutoaccept, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4,
             '',
@@ -618,9 +618,9 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
-        
+
         $retval = $this->object->create_game(
-            array(self::$userId5WithoutAutoaccept, self::$userId2WithoutAutopass),
+            array(self::$userId1WithoutAutopass, self::$userId5WithoutAutoaccept),
             array('Bauer', 'Stark'),
             4,
             '',
