@@ -270,11 +270,35 @@ test("test_Overview.pageAddIntroText", function(assert) {
 });
 
 test("test_Overview.formAcceptGame", function(assert) {
-  // james: currently not tested
+  stop();
+  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(Env.message.text, 'Successfully accepted game',
+      'Accept game should succeed');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formAcceptGame.call(link, $.Event());
 })
 
 test("test_Overview.formRejectGame", function(assert) {
-  // james: currently not tested
+  stop();
+  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(Env.message.text, 'Successfully rejected game',
+      'Reject game should succeed');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formRejectGame.call(link, $.Event());
 })
 
 test("test_Overview.formDismissGame", function(assert) {

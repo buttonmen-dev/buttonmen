@@ -1233,6 +1233,14 @@ class DummyApiResponder {
         return array(NULL, "function not implemented");
     }
 
+    protected function get_interface_response_acceptGame() {
+        return array(TRUE, 'Successfully accepted game');
+    }
+
+    protected function get_interface_response_rejectGame() {
+        return array(TRUE, 'Successfully rejected game');
+    }
+
     protected function get_interface_response_dismissGame() {
         return array(TRUE, 'Dismissing game succeeded');
     }
