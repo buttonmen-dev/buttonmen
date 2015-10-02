@@ -2213,8 +2213,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
-     *
      * This is the same game setup as in
      * BMInterfaceTest::test_option_reset_bug(), but tested from
      * the API point of view, and we play long enough to set option dice in two consecutive rounds.
