@@ -183,6 +183,16 @@ test("test_Overview.pageAddGameTables", function(assert) {
   });
 });
 
+test("test_Overview.pageAddGameTableNew", function(assert) {
+  stop();
+  Overview.getOverview(function() {
+    Overview.page = $('<div>');
+    Overview.pageAddGameTableNew();
+    assert.ok(true, "No special testing of pageAddGameTableNew() as a whole is done");
+    start();
+  });
+});
+
 // The default overview data contains games awaiting both the player and the opponent
 test("test_Overview.pageAddNewgameLink", function(assert) {
   stop();
@@ -258,6 +268,14 @@ test("test_Overview.pageAddIntroText", function(assert) {
     'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games'),
     'Page intro text contains the Button Men copyright');
 });
+
+test("test_Overview.formAcceptGame", function(assert) {
+  // james: currently not tested
+})
+
+test("test_Overview.formRejectGame", function(assert) {
+  // james: currently not tested
+})
 
 test("test_Overview.formDismissGame", function(assert) {
   stop();
