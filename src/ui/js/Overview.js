@@ -436,21 +436,28 @@ Overview.pageAddGameTableNew = function() {
 
     decideTd = $('<td>');
     gameRow.append(decideTd);
-    acceptLink = $('<a>', {
-      'text': 'Accept',
-      'href': '#',
-      'data-gameId': gameInfo.gameId,
-    });
-    acceptLink.click(Overview.formAcceptGame);
+
+    if (Api.new_games.games[0].isAwaitingAction) {
+      acceptLink = $('<a>', {
+        'text': 'Accept',
+        'href': '#',
+        'data-gameId': gameInfo.gameId,
+      });
+      acceptLink.click(Overview.formAcceptGame);
+
+      decideTd.append('[')
+              .append(acceptLink)
+              .append('] / ');
+    }
+
     rejectLink = $('<a>', {
       'text': 'Reject',
       'href': '#',
       'data-gameId': gameInfo.gameId,
     });
     rejectLink.click(Overview.formRejectGame);
+
     decideTd.append('[')
-            .append(acceptLink)
-            .append('] / [')
             .append(rejectLink)
             .append(']');
 
