@@ -454,6 +454,8 @@ class BMInterface {
         } else {
             $this->set_message("Rejected game $gameId");
         }
+
+        return TRUE;
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
