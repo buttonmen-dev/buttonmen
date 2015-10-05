@@ -459,11 +459,11 @@ class ApiResponder {
     // Forum-related methods
 
     protected function get_interface_response_loadForumOverview($interface) {
-        return $interface->load_forum_overview($_SESSION['user_id']);
+        return $interface->forum()->load_forum_overview($_SESSION['user_id']);
     }
 
     protected function get_interface_response_loadForumBoard($interface, $args) {
-        return $interface->load_forum_board($_SESSION['user_id'], (int)$args['boardId']);
+        return $interface->forum()->load_forum_board($_SESSION['user_id'], (int)$args['boardId']);
     }
 
     protected function get_interface_response_loadForumThread($interface, $args) {
@@ -472,7 +472,7 @@ class ApiResponder {
         } else {
             $currentPostId = NULL;
         }
-        return $interface->load_forum_thread(
+        return $interface->forum()->load_forum_thread(
             $_SESSION['user_id'],
             (int)$args['threadId'],
             $currentPostId
@@ -480,18 +480,18 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadNextNewPost($interface) {
-        return $interface->get_next_new_post($_SESSION['user_id']);
+        return $interface->forum()->get_next_new_post($_SESSION['user_id']);
     }
 
     protected function get_interface_response_markForumRead($interface, $args) {
-        return $interface->mark_forum_read(
+        return $interface->forum()->mark_forum_read(
             $_SESSION['user_id'],
             (int)$args['timestamp']
         );
     }
 
     protected function get_interface_response_markForumBoardRead($interface, $args) {
-        return $interface->mark_forum_board_read(
+        return $interface->forum()->mark_forum_board_read(
             $_SESSION['user_id'],
             (int)$args['boardId'],
             (int)$args['timestamp']
@@ -499,7 +499,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_markForumThreadRead($interface, $args) {
-        return $interface->mark_forum_thread_read(
+        return $interface->forum()->mark_forum_thread_read(
             $_SESSION['user_id'],
             (int)$args['threadId'],
             (int)$args['boardId'],
@@ -508,7 +508,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_createForumThread($interface, $args) {
-        return $interface->create_forum_thread(
+        return $interface->forum()->create_forum_thread(
             $_SESSION['user_id'],
             (int)$args['boardId'],
             $args['title'],
@@ -517,7 +517,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_createForumPost($interface, $args) {
-        return $interface->create_forum_post(
+        return $interface->forum()->create_forum_post(
             $_SESSION['user_id'],
             (int)$args['threadId'],
             $args['body']
@@ -525,7 +525,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_editForumPost($interface, $args) {
-        return $interface->edit_forum_post(
+        return $interface->forum()->edit_forum_post(
             $_SESSION['user_id'],
             (int)$args['postId'],
             $args['body']
