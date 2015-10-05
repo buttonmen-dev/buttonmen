@@ -2316,17 +2316,19 @@ class BMInterface {
     protected function execute_button_data_query($buttonName, $setName) {
         $parameters = array();
         $query =
-            'SELECT id, name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
-            'FROM button_view v ';
+            'SELECT b.id, b.name, b.recipe, b.btn_special, b.tourn_legal, b.flavor_text, ' .
+            '       s.name AS set_name ' .
+            'FROM button AS b ' .
+            'LEFT JOIN buttonset AS s ON b.set_id = s.id ';
         if ($buttonName !== NULL) {
-            $query .= 'WHERE v.name = :button_name ';
+            $query .= 'WHERE b.name = :button_name ';
             $parameters[':button_name'] = $buttonName;
         } elseif ($setName !== NULL) {
-            $query .= 'WHERE v.set_name = :set_name ';
+            $query .= 'WHERE s.name = :set_name ';
             $parameters[':set_name'] = $setName;
         }
         $query .=
-            'ORDER BY v.set_sort_order ASC, v.name ASC;';
+            'ORDER BY s.sort_order ASC, b.name ASC;';
 
         $statement = self::$conn->prepare($query);
         $statement->execute($parameters);
