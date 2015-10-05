@@ -12058,6 +12058,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['validAttackTypeArray'] = array('Skill');
         $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('IsAttacker');
         $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('IsAttacker');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
     /**
