@@ -1229,10 +1229,8 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_reactToNewGame($args) {
-        if ('accept' == $args['action']) {
-            return array(TRUE, 'Successfully accepted game');
-        } elseif ('reject' == $args['action']) {
-            return array(TRUE, 'Successfully rejected game');
+        if (array_key_exists('action', $args)) {
+            return array(TRUE, 'Successfully ' . $args['action'] . 'ed game');
         } else {
             return FALSE;
         }
