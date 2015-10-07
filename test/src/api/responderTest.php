@@ -1124,9 +1124,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Since user IDs are sequential, this is a good time to test the behavior of
         // to verify the behavior of loadProfileInfo() on an invalid player name.
         // However, mock_test_user_login() ensures that users 1-5 are created, so skip those
-        // (If you create real user responder006, increment badUserNum's minimum)
+        // (If you create real user responder007, increment badUserNum's minimum)
         $_SESSION = $this->mock_test_user_login();
-        $badUserNum = max(6, $trynum);
+        $badUserNum = max(7, $trynum);
         $args = array(
            'type' => 'loadProfileInfo',
            'playerName' =>  'responder' . sprintf('%03d', $badUserNum),
