@@ -1942,7 +1942,7 @@ class BMGame {
 
             $this->do_next_step();
 
-            if (BMGameState::END_GAME === $this->gameState) {
+            if ($this->gameState >= BMGameState::END_GAME) {
                 return;
             }
 
