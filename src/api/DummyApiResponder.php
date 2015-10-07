@@ -292,11 +292,6 @@ class DummyApiResponder {
             'opponentColorArray' => array(),
         );
 
-//        for ($gameIdx = 1; $gameIdx <= 25; $gameIdx++) {
-//            $funcname = 'add_new_game_data_'.$gameIdx;
-//            $this->$funcname($data);
-//        }
-
         return array($data, "All game details retrieved successfully.");
     }
 
@@ -1233,12 +1228,14 @@ class DummyApiResponder {
         return array(NULL, "function not implemented");
     }
 
-    protected function get_interface_response_acceptGame() {
-        return array(TRUE, 'Successfully accepted game');
-    }
-
-    protected function get_interface_response_rejectGame() {
-        return array(TRUE, 'Successfully rejected game');
+    protected function get_interface_response_reactToNewGame($args) {
+        if ('accept' == $args['action']) {
+            return array(TRUE, 'Successfully accepted game');
+        } elseif ('reject' == $args['action']) {
+            return array(TRUE, 'Successfully rejected game');
+        } else {
+            return FALSE;
+        }
     }
 
     protected function get_interface_response_dismissGame() {

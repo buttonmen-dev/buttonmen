@@ -571,7 +571,11 @@ Overview.pageAddIntroText = function() {
 
 Overview.formAcceptGame = function(e) {
   e.preventDefault();
-  var args = { 'type': 'acceptGame', 'gameId': $(this).attr('data-gameId'), };
+  var args = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'accept',
+  };
   var messages = {
     'ok': { 'type': 'fixed', 'text': 'Successfully accepted game', },
     'notok': { 'type': 'server' },
@@ -582,7 +586,11 @@ Overview.formAcceptGame = function(e) {
 
 Overview.formRejectGame = function(e) {
   e.preventDefault();
-  var args = { 'type': 'rejectGame', 'gameId': $(this).attr('data-gameId'), };
+  var args = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'reject',
+  };
   var messages = {
     'ok': { 'type': 'fixed', 'text': 'Successfully rejected game', },
     'notok': { 'type': 'server' },
