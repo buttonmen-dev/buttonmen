@@ -269,7 +269,7 @@ test("test_Overview.pageAddIntroText", function(assert) {
     'Page intro text contains the Button Men copyright');
 });
 
-test("test_Overview.formReactToNewGame", function(assert) {
+test("test_Overview.formAcceptGame", function(assert) {
   stop();
   expect(3);
   // Temporarily back up Overview.showLoggedInPage and replace it with
@@ -285,7 +285,7 @@ test("test_Overview.formReactToNewGame", function(assert) {
   Overview.formAcceptGame.call(link, $.Event());
 })
 
-test("test_Overview.formReactToNewGameReject", function(assert) {
+test("test_Overview.formRejectGame", function(assert) {
   stop();
   expect(3);
   // Temporarily back up Overview.showLoggedInPage and replace it with
