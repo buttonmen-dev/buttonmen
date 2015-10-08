@@ -2831,7 +2831,7 @@ class BMInterface {
         array &$sqlParameters
     ) {
         $restrictions = 'WHERE game_id = :game_id ';
-        if ($isChat && $game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
+        if ($isChat && $game->gameState < BMGameState::END_GAME && !is_null($game->previousGameId)) {
             $restrictions .= 'OR game_id = :previous_game_id ';
             $sqlParameters[':previous_game_id'] = $game->previousGameId;
         }
