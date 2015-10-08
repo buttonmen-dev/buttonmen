@@ -142,7 +142,7 @@ class BMInterface {
                     $playerId,
                     $buttonIdArray[$position],
                     $position,
-                    (0 == $position) || $autoAccept
+                    (0 == $position) || $autoAccept || $this->retrieve_player_autoaccept($playerId)
                 );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
@@ -229,7 +229,7 @@ class BMInterface {
         }
     }
 
-    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted = TRUE) {
+    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
                  '(game_id, player_id, button_id, position, has_player_accepted) '.
@@ -411,6 +411,19 @@ class BMInterface {
         return $buttonIdArray;
     }
 
+    protected function retrieve_player_autoaccept($playerId) {
+        $query = 'SELECT autoaccept FROM player '.
+                 'WHERE id = :player_id';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $playerId));
+        $fetchData = $statement->fetch();
+        if (FALSE === $fetchData) {
+            $this->set_message('Game create failed because a player id was not valid.');
+            return NULL;
+        }
+        return $fetchData[0];
+    }
+
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (('accept' != $decision) && ('reject' != $decision)) {
             throw new InvalidArgumentException('decision must be either accept or reject');
@@ -432,8 +445,13 @@ class BMInterface {
             return;
         }
 
+        $game->setArrayPropEntry('waitingOnActionArray', $playerIdx, FALSE);
         $decisionFlag = ('accept' == $decision);
         $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
+
+        if (!$decisionFlag) {
+            $game->gameState = BMGameState::REJECTED;
+        }
 
         $this->save_game($game);
 
@@ -442,6 +460,8 @@ class BMInterface {
         } else {
             $this->set_message("Rejected game $gameId");
         }
+
+        return TRUE;
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
@@ -1030,8 +1050,9 @@ class BMInterface {
             $this->choose_button($game, $buttonId, $buttonIdx);
         }
 
-        // ensure that the chat has also been cached
+        // ensure that the chat and game acceptance have also been cached
         $this->save_chat_log($game);
+        $this->save_player_game_decisions($game);
 
         $game = $this->load_game($game->gameId);
         $game->proceed_to_next_user_action();
@@ -1120,6 +1141,8 @@ class BMInterface {
     protected function get_game_status($game) {
         if (BMGameState::END_GAME == $game->gameState) {
             $status = 'COMPLETE';
+        } elseif (BMGameState::REJECTED == $game->gameState) {
+            $status = 'REJECTED';
         } elseif (in_array(NULL, $game->playerIdArray) ||
                   in_array(NULL, $game->buttonArray)) {
             $status = 'OPEN';
@@ -1989,43 +2012,55 @@ class BMInterface {
         }
     }
 
-    // Get all player games (either active or inactive) from the database
-    // No error checking - caller must do it
-    protected function get_all_games($playerId, $getActiveGames) {
+    // Get all player games of a certain type (new, active, or inactive) from
+    // the database.
+    protected function get_all_games($playerId, $type) {
+        try {
+            $this->set_message('All game details retrieved successfully.');
 
-        // the following SQL logic assumes that there are only two players per game
-        $query = 'SELECT v1.game_id,'.
-                 'v1.player_id AS opponent_id,'.
-                 'v1.player_name AS opponent_name,'.
-                 'v2.button_name AS my_button_name,'.
-                 'v1.button_name AS opponent_button_name,'.
-                 'v2.n_rounds_won AS n_wins,'.
-                 'v2.n_rounds_drawn AS n_draws,'.
-                 'v1.n_rounds_won AS n_losses,'.
-                 'v1.n_target_wins,'.
-                 'v2.is_awaiting_action,'.
-                 'g.game_state,'.
-                 's.name AS status, '.
-                 'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp '.
-                 'FROM game_player_view AS v1 '.
-                 'LEFT JOIN game_player_view AS v2 '.
-                 'ON v1.game_id = v2.game_id '.
-                 'LEFT JOIN game AS g '.
-                 'ON g.id = v1.game_id '.
-                 'LEFT JOIN game_status AS s '.
-                 'ON g.status_id = s.id '.
-                 'WHERE v2.player_id = :player_id '.
-                 'AND v1.player_id != v2.player_id ';
-        if ($getActiveGames) {
-            $query .= 'AND s.name = "ACTIVE" ';
-        } else {
-            $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
+            // the following SQL logic assumes that there are only two players per game
+            $query = 'SELECT v1.game_id,'.
+                     'v1.player_id AS opponent_id,'.
+                     'v1.player_name AS opponent_name,'.
+                     'v2.button_name AS my_button_name,'.
+                     'v1.button_name AS opponent_button_name,'.
+                     'v2.n_rounds_won AS n_wins,'.
+                     'v2.n_rounds_drawn AS n_draws,'.
+                     'v1.n_rounds_won AS n_losses,'.
+                     'v1.n_target_wins,'.
+                     'v2.is_awaiting_action,'.
+                     'g.game_state,'.
+                     's.name AS status, '.
+                     'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp '.
+                     'FROM game_player_view AS v1 '.
+                     'LEFT JOIN game_player_view AS v2 '.
+                     'ON v1.game_id = v2.game_id '.
+                     'LEFT JOIN game AS g '.
+                     'ON g.id = v1.game_id '.
+                     'LEFT JOIN game_status AS s '.
+                     'ON g.status_id = s.id '.
+                     'WHERE v2.player_id = :player_id '.
+                     'AND v1.player_id != v2.player_id ';
+            if ('ACTIVE' == $type) {
+                $query .= 'AND s.name = "ACTIVE" AND g.game_state > 13 ';
+            } elseif ('NEW' == $type) {
+                $query .= 'AND s.name = "ACTIVE" AND g.game_state <= 13 ';
+            } elseif ('COMPLETE' == $type) {
+                $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
+            }
+            $query .= 'ORDER BY g.last_action_time ASC;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $playerId));
+
+            return self::read_game_list_from_db_results($playerId, $statement);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_all_games: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Game detail get failed.');
+            return NULL;
         }
-        $query .= 'ORDER BY g.last_action_time ASC;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':player_id' => $playerId));
-
-        return self::read_game_list_from_db_results($playerId, $statement);
     }
 
     protected function read_game_list_from_db_results($playerId, $results) {
@@ -2100,32 +2135,16 @@ class BMInterface {
                      'opponentColorArray'      => $opponentColorArray);
     }
 
+    public function get_all_new_games($playerId) {
+        return $this->get_all_games($playerId, 'NEW');
+    }
+
     public function get_all_active_games($playerId) {
-        try {
-            $this->set_message('All game details retrieved successfully.');
-            return $this->get_all_games($playerId, TRUE);
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::get_all_active_games: ' .
-                $e->getMessage()
-            );
-            $this->set_message('Game detail get failed.');
-            return NULL;
-        }
+        return $this->get_all_games($playerId, 'ACTIVE');
     }
 
     public function get_all_completed_games($playerId) {
-        try {
-            $this->set_message('All game details retrieved successfully.');
-            return $this->get_all_games($playerId, FALSE);
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::get_all_active_games: ' .
-                $e->getMessage()
-            );
-            $this->set_message('Game detail get failed.');
-            return NULL;
-        }
+        return $this->get_all_games($playerId, 'COMPLETE');
     }
 
     public function get_all_open_games($currentPlayerId) {
@@ -2820,7 +2839,7 @@ class BMInterface {
         array &$sqlParameters
     ) {
         $restrictions = 'WHERE game_id = :game_id ';
-        if ($isChat && $game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
+        if ($isChat && $game->gameState < BMGameState::END_GAME && !is_null($game->previousGameId)) {
             $restrictions .= 'OR game_id = :previous_game_id ';
             $sqlParameters[':previous_game_id'] = $game->previousGameId;
         }
@@ -3108,6 +3127,7 @@ class BMInterface {
                                       ':id'         => $gameId));
 
             $game = $this->load_game($gameId);
+            $game->hasPlayerAcceptedGameArray[$emptyPlayerIdx] = TRUE;
             $this->save_game($game);
 
             return TRUE;

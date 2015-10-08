@@ -41,6 +41,9 @@ class BMGameState {
     // end game
     const END_GAME = 60;
 
+    // special states
+    const REJECTED = 251;
+
     /**
      * All possible game state strings
      *
@@ -65,7 +68,8 @@ class BMGameState {
                      'CHOOSE_TURBO_SWING',
                      'END_TURN',
                      'END_ROUND',
-                     'END_GAME');
+                     'END_GAME',
+                     'REJECTED');
     }
 
     /**

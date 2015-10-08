@@ -41,11 +41,38 @@ class BMInterface000Test extends BMInterfaceTestAbstract {
 
         $this->assertTrue($created_real,
             "Creation of $username user should be reported as success");
+
+        $infoArray = array(
+            'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
+            'comment' => '',
+            'monitor_redirects_to_game' => 0,
+            'monitor_redirects_to_forum' => 0,
+            'automatically_monitor' => 0,
+            'autoaccept' => 1,
+            'autopass' => 0,
+            'fire_overshooting' => 0
+        );
+        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
+
+        $this->interfacePlayer->set_player_info(
+            $createResult['playerId'],
+            $infoArray,
+            $addlInfo
+        );
         self::$userId1WithoutAutopass = (int)$createResult['playerId'];
 
         $username = 'interface' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
         $createResult = $this->newuserObject->create_user($username, 't', $email);
+        $this->interfacePlayer->set_player_info(
+            $createResult['playerId'],
+            $infoArray,
+            $addlInfo
+        );
         self::$userId2WithoutAutopass = (int)$createResult['playerId'];
 
         $trynum++;
@@ -63,6 +90,7 @@ class BMInterface000Test extends BMInterfaceTestAbstract {
             'monitor_redirects_to_game' => 0,
             'monitor_redirects_to_forum' => 0,
             'automatically_monitor' => 0,
+            'autoaccept' => 1,
             'autopass' => 1,
             'fire_overshooting' => 0
         );
@@ -85,5 +113,33 @@ class BMInterface000Test extends BMInterfaceTestAbstract {
             $addlInfo
         );
         self::$userId4WithAutopass = (int)$createResult['playerId'];
+
+        $trynum++;
+        $username = 'interface' . sprintf('%03d', $trynum);
+        $email = $username . '@example.com';
+        $createResult = $this->newuserObject->create_user($username, 't', $email);
+
+        $infoArray = array(
+            'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
+            'comment' => '',
+            'monitor_redirects_to_game' => 0,
+            'monitor_redirects_to_forum' => 0,
+            'automatically_monitor' => 0,
+            'autoaccept' => 0,
+            'autopass' => 1,
+            'fire_overshooting' => 0
+        );
+        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
+
+        $this->interfacePlayer->set_player_info(
+            $createResult['playerId'],
+            $infoArray,
+            $addlInfo
+        );
+        self::$userId5WithoutAutoaccept = (int)$createResult['playerId'];
     }
 }

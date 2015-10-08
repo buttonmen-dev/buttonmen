@@ -92,13 +92,14 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
-        $retval = $interface->player()->create_game(
+        $retval = $interface->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
             $description,
             $previousGameId,
-            (int)$_SESSION['user_id']
+            (int)$_SESSION['user_id'],
+            FALSE
         );
 
         if (isset($retval)) {
@@ -138,6 +139,10 @@ class ApiResponder {
 
     protected function get_interface_response_loadOpenGames($interface) {
         return $interface->get_all_open_games($_SESSION['user_id']);
+    }
+
+    protected function get_interface_response_loadNewGames($interface) {
+        return $interface->get_all_new_games($_SESSION['user_id']);
     }
 
     protected function get_interface_response_loadActiveGames($interface) {
@@ -233,6 +238,7 @@ class ApiResponder {
         $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
         $infoArray['gender'] = $args['gender'];
+        $infoArray['autoaccept'] = ('true' == $args['autoaccept']);
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['fire_overshooting'] = ('true' == $args['fire_overshooting']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
@@ -440,6 +446,20 @@ class ApiResponder {
 
         if (isset($retval)) {
             $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
+    }
+
+    protected function get_interface_response_reactToNewGame($interface, $args) {
+        $retval = $interface->save_join_game_decision(
+            $_SESSION['user_id'],
+            $args['gameId'],
+            $args['action']
+        );
+
+        if (isset($retval)) {
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['gameId']);
         }
 
         return $retval;

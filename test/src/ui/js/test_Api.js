@@ -14,6 +14,7 @@ module("Api", {
     delete Api.button;
     delete Api.buttonSet;
     delete Api.player;
+    delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
     delete Api.user_prefs;
