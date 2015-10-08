@@ -276,6 +276,39 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
+  // Load and parse the current player's list of new games
+
+  my.getNewGamesData = function(callbackfunc) {
+    my.apiParsePost(
+      {'type': 'loadNewGames', },
+      'new_games',
+      my.parseNewGamesData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseNewGamesData = function(data) {
+    my.new_games.games = [];
+    my.new_games.nGames = data.gameIdArray.length;
+    var i = 0;
+    while (i < my.new_games.nGames) {
+      var gameInfo = {
+        'gameId': data.gameIdArray[i],
+        'opponentId': data.opponentIdArray[i],
+        'opponentName': data.opponentNameArray[i],
+        'playerButtonName': data.myButtonNameArray[i],
+        'opponentButtonName': data.opponentButtonNameArray[i],
+        'isAwaitingAction': data.isAwaitingActionArray[i],
+        'maxWins': data.nTargetWinsArray[i],
+      };
+      my.new_games.games.push(gameInfo);
+      i += 1;
+    }
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
   // Load and parse the current player's list of active games
 
   my.getActiveGamesData = function(callbackfunc) {
@@ -327,7 +360,7 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse the current player's list of active games
+  // Load and parse the current player's list of completed games
 
   my.getCompletedGamesData = function(callbackfunc) {
     my.apiParsePost(

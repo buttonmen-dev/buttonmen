@@ -272,6 +272,29 @@ class DummyApiResponder {
         return $game;
     }
 
+    protected function get_interface_response_loadNewGames() {
+        $data = array(
+            'gameIdArray' => array(),
+            'opponentIdArray' => array(),
+            'opponentNameArray' => array(),
+            'myButtonNameArray' => array(),
+            'opponentButtonNameArray' => array(),
+            'nWinsArray' => array(),
+            'nLossesArray' => array(),
+            'nDrawsArray' => array(),
+            'nTargetWinsArray' => array(),
+            'isAwaitingActionArray' => array(),
+            'gameStateArray' => array(),
+            'statusArray' => array(),
+            'inactivityArray' => array(),
+            'inactivityRawArray' => array(),
+            'playerColorArray' => array(),
+            'opponentColorArray' => array(),
+        );
+
+        return array($data, "All game details retrieved successfully.");
+    }
+
     protected function get_interface_response_loadActiveGames() {
         // Use the same fake games here which were described in loadGameData
         $data = array(
@@ -1084,6 +1107,7 @@ class DummyApiResponder {
                                 'dob_day' => 0,
                                 'gender' => '',
                                 'image_size' => NULL,
+                                'autoaccept' => TRUE,
                                 'autopass' => TRUE,
                                 'fire_overshooting' => FALSE,
                                 'uses_gravatar' => FALSE,
@@ -1202,6 +1226,14 @@ class DummyApiResponder {
 //                $data = NULL;
 //            }
         return array(NULL, "function not implemented");
+    }
+
+    protected function get_interface_response_reactToNewGame($args) {
+        if (array_key_exists('action', $args)) {
+            return array(TRUE, 'Successfully ' . $args['action'] . 'ed game');
+        } else {
+            return FALSE;
+        }
     }
 
     protected function get_interface_response_dismissGame() {

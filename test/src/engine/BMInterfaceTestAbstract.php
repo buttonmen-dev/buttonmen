@@ -10,6 +10,7 @@ class BMInterfaceTestAbstract extends PHPUnit_Framework_TestCase {
     protected static $userId2WithoutAutopass;
     protected static $userId3WithAutopass;
     protected static $userId4WithAutopass;
+    protected static $userId5WithoutAutoaccept;
 
     /**
      * Sets up the fixture, for example, opens a network connection.

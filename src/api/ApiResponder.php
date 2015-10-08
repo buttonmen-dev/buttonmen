@@ -92,13 +92,14 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
-        $retval = $interface->player()->create_game(
+        $retval = $interface->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
             $description,
             $previousGameId,
-            (int)$_SESSION['user_id']
+            (int)$_SESSION['user_id'],
+            FALSE
         );
 
         if (isset($retval)) {
@@ -138,6 +139,10 @@ class ApiResponder {
 
     protected function get_interface_response_loadOpenGames($interface) {
         return $interface->get_all_open_games($_SESSION['user_id']);
+    }
+
+    protected function get_interface_response_loadNewGames($interface) {
+        return $interface->get_all_new_games($_SESSION['user_id']);
     }
 
     protected function get_interface_response_loadActiveGames($interface) {
@@ -233,6 +238,7 @@ class ApiResponder {
         $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
         $infoArray['gender'] = $args['gender'];
+        $infoArray['autoaccept'] = ('true' == $args['autoaccept']);
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['fire_overshooting'] = ('true' == $args['fire_overshooting']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
@@ -445,6 +451,20 @@ class ApiResponder {
         return $retval;
     }
 
+    protected function get_interface_response_reactToNewGame($interface, $args) {
+        $retval = $interface->save_join_game_decision(
+            $_SESSION['user_id'],
+            $args['gameId'],
+            $args['action']
+        );
+
+        if (isset($retval)) {
+            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['gameId']);
+        }
+
+        return $retval;
+    }
+
     protected function get_interface_response_dismissGame($interface, $args) {
         $retval = $interface->dismiss_game($_SESSION['user_id'], $args['gameId']);
         if (isset($retval)) {
@@ -459,11 +479,11 @@ class ApiResponder {
     // Forum-related methods
 
     protected function get_interface_response_loadForumOverview($interface) {
-        return $interface->load_forum_overview($_SESSION['user_id']);
+        return $interface->forum()->load_forum_overview($_SESSION['user_id']);
     }
 
     protected function get_interface_response_loadForumBoard($interface, $args) {
-        return $interface->load_forum_board($_SESSION['user_id'], (int)$args['boardId']);
+        return $interface->forum()->load_forum_board($_SESSION['user_id'], (int)$args['boardId']);
     }
 
     protected function get_interface_response_loadForumThread($interface, $args) {
@@ -472,7 +492,7 @@ class ApiResponder {
         } else {
             $currentPostId = NULL;
         }
-        return $interface->load_forum_thread(
+        return $interface->forum()->load_forum_thread(
             $_SESSION['user_id'],
             (int)$args['threadId'],
             $currentPostId
@@ -480,18 +500,18 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadNextNewPost($interface) {
-        return $interface->get_next_new_post($_SESSION['user_id']);
+        return $interface->forum()->get_next_new_post($_SESSION['user_id']);
     }
 
     protected function get_interface_response_markForumRead($interface, $args) {
-        return $interface->mark_forum_read(
+        return $interface->forum()->mark_forum_read(
             $_SESSION['user_id'],
             (int)$args['timestamp']
         );
     }
 
     protected function get_interface_response_markForumBoardRead($interface, $args) {
-        return $interface->mark_forum_board_read(
+        return $interface->forum()->mark_forum_board_read(
             $_SESSION['user_id'],
             (int)$args['boardId'],
             (int)$args['timestamp']
@@ -499,7 +519,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_markForumThreadRead($interface, $args) {
-        return $interface->mark_forum_thread_read(
+        return $interface->forum()->mark_forum_thread_read(
             $_SESSION['user_id'],
             (int)$args['threadId'],
             (int)$args['boardId'],
@@ -508,7 +528,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_createForumThread($interface, $args) {
-        return $interface->create_forum_thread(
+        return $interface->forum()->create_forum_thread(
             $_SESSION['user_id'],
             (int)$args['boardId'],
             $args['title'],
@@ -517,7 +537,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_createForumPost($interface, $args) {
-        return $interface->create_forum_post(
+        return $interface->forum()->create_forum_post(
             $_SESSION['user_id'],
             (int)$args['threadId'],
             $args['body']
@@ -525,7 +545,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_editForumPost($interface, $args) {
-        return $interface->edit_forum_post(
+        return $interface->forum()->edit_forum_post(
             $_SESSION['user_id'],
             (int)$args['postId'],
             $args['body']
