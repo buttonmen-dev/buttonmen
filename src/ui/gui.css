@@ -892,3 +892,10 @@ div.forum div.splitRight {
 #buttons_page table.skills p.interaction {
     font-style: italic;
 }
+
+div.ui-tooltip {
+    background-color: #ffffcc;
+    border: 1px solid grey;
+    margin: 10px;
+    padding: 10px;
+}

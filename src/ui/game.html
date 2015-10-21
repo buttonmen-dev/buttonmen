@@ -22,7 +22,7 @@
     <script>
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
-            Loader.loadScripts([ 'js/Game.js' ], function() {
+            Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Game.js' ], function() {
                 Login.showLoginHeader(Game);
             });
           });

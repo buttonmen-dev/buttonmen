@@ -1687,6 +1687,7 @@ Game.pageAddSkillListFooter = function() {
   var firstSkill = true;
   var firstInteract;
   var skillDesc;
+  var indivSkillSpan;
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
     skillDesc = skill;
     if (info.code) {
@@ -1706,16 +1707,31 @@ Game.pageAddSkillListFooter = function() {
     if (!(firstSkill)) {
       gameSkillDiv.append('&nbsp;&nbsp;');
     }
-    gameSkillDiv.append($('<span>', {
-      'text': skill,
-      'title': skillDesc,
-      'class': 'skill_desc',
-    }));
-    gameSkillDiv.append($('<span>', {
+
+    indivSkillSpan = $('<span>');
+
+    indivSkillSpan.append(
+      $('<span>', {
+        'text': skill,
+        'class': 'skill_desc',
+      })
+    );
+    indivSkillSpan.append($('<span>', {
       'text': 'i',
-      'title': skillDesc,
       'class': 'info_icon',
     }));
+    indivSkillSpan
+      .tooltip({
+        content: skillDesc,
+        items: 'span'
+      })
+      .on('click', function() {
+        $(this).tooltip('open');
+        return false;
+      });
+
+    gameSkillDiv.append(indivSkillSpan);
+
     firstSkill = false;
   });
 
