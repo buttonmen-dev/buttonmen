@@ -1161,7 +1161,8 @@ test("test_Game.skillSpan", function(assert) {
   );
 });
 
-test("test_Game.pageAddLogFooter_actionlog", function(assert) {
+// this test checks the footer for action log entries
+test("test_Game.pageAddLogFooter", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
