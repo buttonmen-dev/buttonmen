@@ -1136,16 +1136,29 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
   });
 });
 
-test("test_Game.pageAddLogFooter", function(assert) {
+test("test_Game.pageAddSkillListFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddLogFooter();
+    Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
-    assert.deepEqual(htmlout, "", "Action log footer for a new game should be empty");
+    assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
+    assert.ok(htmlout.match('<div>Skills in this game: '),
+      "Die skills footer text is present");
+    assert.ok(htmlout.match('Focus'),
+      "Die skills footer text lists the Focus skill");
     start();
   });
+});
+
+test("test_Game.skillSpan", function(assert) {
+  var skillSpan = Game.skillSpan('DummySkill', 'description');
+  assert.ok(skillSpan.is('span'));
+  assert.equal(skillSpan.html(),
+    '<span class="skill_desc">DummySkill</span>' +
+    '<span class="info_icon">i</span>'
+  );
 });
 
 test("test_Game.pageAddLogFooter_actionlog", function(assert) {
