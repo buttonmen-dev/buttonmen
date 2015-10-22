@@ -1774,7 +1774,7 @@ Game.skillSpan = function(skill, skillDesc) {
     });
 
   return skillSpan;
-}
+};
 
 // Display links to create new games similar to this one
 Game.pageAddNewGameLinkFooter = function() {
