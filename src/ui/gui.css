@@ -894,5 +894,6 @@ div.forum div.splitRight {
 }
 
 div.ui-tooltip {
-    max-width: 400px;
+    font-size: 1em;
+    max-width: 80%;
 }

@@ -1707,10 +1707,10 @@ Game.pageAddSkillListFooter = function() {
       isFirstInteraction = true;
       $.each(info.interacts, function(otherSkill, interactDesc) {
         if (isFirstInteraction) {
-          skillDesc += '\n\nInteraction with other skills in this game:';
+          skillDesc += '<br/><br/>Interaction with other skills in this game:';
           isFirstInteraction = false;
         }
-        skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+        skillDesc += '<br/> * ' + otherSkill + ': ' + interactDesc;
       });
 
       if (isFirstDieSkill) {
@@ -1762,7 +1762,8 @@ Game.skillSpan = function(skill, skillDesc) {
   skillSpan
     .tooltip({
       content: skillDesc,
-      items: 'span'
+      items: 'span',
+      position: { my: 'bottom', at: 'top-5', collision: 'flipfit'},
     })
     .on('click', function() {
       // james: without closing other tooltips, it's possible that
