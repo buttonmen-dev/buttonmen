@@ -1726,8 +1726,11 @@ Game.pageAddSkillListFooter = function() {
         items: 'span'
       })
       .on('click', function() {
+        // james: without closing other tooltips, it's possible that
+        // the same tooltip might occur twice on a browser page due
+        // to the combination of hover and click
+        $('.ui-tooltip').hide();
         $(this).tooltip('open');
-        return false;
       });
 
     gameSkillDiv.append(indivSkillSpan);
