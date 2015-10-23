@@ -254,10 +254,11 @@ Overview.pageAddGameTable = function(
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
-    headerRow.append($('<th>', {'text': 'Your Button', }));
-    headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+    headerRow.append($('<th>', {'text': 'Description', }))
+    headerRow.append($('<th>', {'html': 'Your<br\>Button', }));
+    headerRow.append($('<th>', {'html': 'Opponent\'s<br\>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
-    headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
+    headerRow.append($('<th>', {'html': 'Score<br\>(W/L/T (Max))', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
     } else {
@@ -315,6 +316,9 @@ Overview.pageAddGameTable = function(
       }
     }
     gameRow.append(gameLinkTd);
+    gameRow.append($('<td>', {
+      'text': gameInfo.gameDescription
+    }));
     gameRow.append($('<td>').append(
       Env.buildButtonLink(gameInfo.playerButtonName)
     ));
@@ -396,6 +400,7 @@ Overview.pageAddGameTableNew = function() {
   var tableHead = $('<thead>');
   var headerRow = $('<tr>');
   headerRow.append($('<th>', {'text': 'Game #', }));
+  headerRow.append($('<th>', {'text': 'Description', }));
   headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
@@ -420,6 +425,9 @@ Overview.pageAddGameTableNew = function() {
     gameRow = $('<tr>');
     gameRow.append($('<td>', {
       'text': 'Game ' + gameInfo.gameId,
+    }));
+    gameRow.append($('<td>', {
+      'text': gameInfo.gameDescription,
     }));
     gameRow.append($('<td>').append(
       Env.buildButtonLink(gameInfo.playerButtonName)
