@@ -78,7 +78,8 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_active_games()
     self.assertEqual(r.status, 'ok', 'loadActiveGames returns successfully')
     known_keys = [
-      'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray',
+      'gameIdArray', 'gameDescriptionArray','gameStateArray', 
+      'inactivityArray', 'inactivityRawArray',
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
@@ -95,7 +96,8 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_completed_games()
     self.assertEqual(r.status, 'ok', 'loadCompletedGames returns successfully')
     known_keys = [
-      'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray',
+      'gameIdArray', 'gameDescriptionArray', 'gameStateArray', 
+      'inactivityArray', 'inactivityRawArray',
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
