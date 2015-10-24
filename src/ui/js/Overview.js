@@ -254,11 +254,11 @@ Overview.pageAddGameTable = function(
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
-    headerRow.append($('<th>', {'text': 'Description', }))
-    headerRow.append($('<th>', {'html': 'Your<br\>Button', }));
-    headerRow.append($('<th>', {'html': 'Opponent\'s<br\>Button', }));
+    headerRow.append($('<th>', {'text': 'Description', }));
+    headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
+    headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
-    headerRow.append($('<th>', {'html': 'Score<br\>(W/L/T (Max))', }));
+    headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
     } else {
