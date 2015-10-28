@@ -325,7 +325,6 @@ Overview.pageAddGameTable = function(
     gameRow.append($('<td>', {
       'style': 'background-color: ' + opponentColor,
     }).append(Env.buildProfileLink(gameInfo.opponentName)));
-    console.log(gameInfo.gameDescription);
     gameRow.append($('<td>', {
       'class': 'gameDescDisplay',
       'text': gameInfo.gameDescription.substring(0, 30) +
