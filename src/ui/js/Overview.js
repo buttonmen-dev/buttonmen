@@ -254,10 +254,10 @@ Overview.pageAddGameTable = function(
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
-    headerRow.append($('<th>', {'text': 'Description', }));
     headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
     headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
+    headerRow.append($('<th>', {'text': 'Description', }));
     headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
@@ -316,9 +316,6 @@ Overview.pageAddGameTable = function(
       }
     }
     gameRow.append(gameLinkTd);
-    gameRow.append($('<td>', {
-      'text': gameInfo.gameDescription
-    }));
     gameRow.append($('<td>').append(
       Env.buildButtonLink(gameInfo.playerButtonName)
     ));
@@ -328,6 +325,12 @@ Overview.pageAddGameTable = function(
     gameRow.append($('<td>', {
       'style': 'background-color: ' + opponentColor,
     }).append(Env.buildProfileLink(gameInfo.opponentName)));
+    console.log(gameInfo.gameDescription);
+    gameRow.append($('<td>', {
+      'class': 'gameDescDisplay',
+      'text': gameInfo.gameDescription.substring(0, 30) +
+              ((gameInfo.gameDescription.length > 30) ? '...' : ''),
+    }));
 
     var wldColor = '#ffffff';
     if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
@@ -400,10 +403,10 @@ Overview.pageAddGameTableNew = function() {
   var tableHead = $('<thead>');
   var headerRow = $('<tr>');
   headerRow.append($('<th>', {'text': 'Game #', }));
-  headerRow.append($('<th>', {'text': 'Description', }));
   headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
+  headerRow.append($('<th>', {'text': 'Description', }));
   headerRow.append($('<th>', {'text': 'Max wins', }));
   headerRow.append($('<th>', {'text': 'Action', 'colspan': '2', }));
 
@@ -426,9 +429,6 @@ Overview.pageAddGameTableNew = function() {
     gameRow.append($('<td>', {
       'text': 'Game ' + gameInfo.gameId,
     }));
-    gameRow.append($('<td>', {
-      'text': gameInfo.gameDescription,
-    }));
     gameRow.append($('<td>').append(
       Env.buildButtonLink(gameInfo.playerButtonName)
     ));
@@ -438,6 +438,10 @@ Overview.pageAddGameTableNew = function() {
     gameRow.append($('<td>').append(
       Env.buildProfileLink(gameInfo.opponentName)
     ));
+    gameRow.append($('<td>', {
+      'class': 'gameDescDisplay',
+      'text': gameInfo.gameDescription,
+    }));
     gameRow.append($('<td>', {
       'text': gameInfo.maxWins,
     }));
