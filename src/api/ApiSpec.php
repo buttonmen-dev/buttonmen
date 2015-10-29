@@ -26,6 +26,7 @@ class ApiSpec {
         'loadNewGames',
         'loadActiveGames',
         'loadCompletedGames',
+        'loadRejectedGames',
         'loadPlayerInfo',
         'loadForumThread',
         'countPendingGames',
@@ -275,6 +276,10 @@ class ApiSpec {
             ),
         ),
         'loadCompletedGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        'loadRejectedGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
         ),

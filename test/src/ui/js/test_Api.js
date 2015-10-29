@@ -331,6 +331,20 @@ test("test_Api.parseCompletedGamesData", function(assert) {
   });
 });
 
+test("test_Api.getRejectedGamesData", function(assert) {
+  stop();
+  Api.getRejectedGamesData(function() {
+    assert.equal(Api.rejected_games.load_status, 'ok',
+         'Successfully loaded rejected games data');
+    assert.equal(Api.rejected_games.nGames, 0, 'Got expected number of rejected games');
+    start();
+  });
+});
+
+test("test_Api.parseRejectedGamesData", function(assert) {
+  // james: this is currently not tested
+});
+
 test("test_Api.getUserPrefsData", function(assert) {
   stop();
   Api.getUserPrefsData(function() {

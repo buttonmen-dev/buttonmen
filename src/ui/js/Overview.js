@@ -20,10 +20,11 @@ Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
 // * Overview.showLoggedInPage() is the landing function.  Always call this
 //   first when logged out. This calls Overview.pageAddIntroText()
 // * Overview.getOverview() asks the API for information about the
-//   player's overview status (currently, the lists of new, active, and
-//   completed games, and potentially the user's preferences).
-//   It sets Api.new_games, Api.active_games, Api.completed_games and
-//   potentially Api.user_prefs.  If successful, it calls Overview.showPage().
+//   player's overview status (currently, the lists of new, active, completed,
+//   and rejected games, and potentially the user's preferences).
+//   It sets Api.new_games, Api.active_games, Api.completed_games,
+//   Api.rejected_games, and potentially Api.user_prefs. If successful, it
+//   calls Overview.showPage().
 // * Overview.showPage() assembles the page contents as a variable.
 //
 // N.B. There is no form submission on this page (aside from the [Dismiss]
@@ -86,6 +87,7 @@ Overview.getOverview = function(callback) {
     Api.getNewGamesData,
     Api.getActiveGamesData,
     Api.getCompletedGamesData,
+    Api.getRejectedGamesData,
   ], callback);
 };
 
@@ -116,7 +118,8 @@ Overview.showPage = function() {
 
   if ((Api.new_games.nGames === 0) &&
       (Api.active_games.nGames === 0) &&
-      (Api.completed_games.nGames === 0)) {
+      (Api.completed_games.nGames === 0) &&
+      (Api.rejected_games.nGames === 0)) {
     Env.message = {
       'type': 'none',
       'text': 'You have no games',
@@ -168,6 +171,7 @@ Overview.completeMonitor = function() {
 Overview.pageAddGameTables = function() {
   Overview.pageAddGameTable('new', 'New games', false);
   Overview.pageAddGameTable('finished', 'Completed games', false);
+  Overview.pageAddGameTable('rejected', 'Rejected games', false);
   Overview.pageAddGameTable('awaitingPlayer', 'Active games', false);
   Overview.pageAddGameTable('awaitingOpponent', 'Active games', true);
 };
@@ -223,6 +227,9 @@ Overview.pageAddGameTable = function(
   if (gameType == 'finished') {
     gamesource = Api.completed_games.games;
     tableClass = 'finishedGames';
+  } else if (gameType == 'rejected') {
+    gamesource = Api.rejected_games.games;
+    tableClass = 'rejectedGames';
   } else {
     gamesource = Api.active_games.games[gameType];
     tableClass = 'activeGames';
@@ -258,9 +265,13 @@ Overview.pageAddGameTable = function(
     headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Description', }));
-    headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
+    if (gameType != 'rejected') {
+      headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
+    }
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
+    } else if (gameType == 'rejected') {
+      headerRow.append($('<th>', {'text': 'Rejected', 'colspan': '2', }));
     } else {
       headerRow.append($('<th>', {'text': 'Inactivity', 'colspan': '2', }));
     }
@@ -296,6 +307,12 @@ Overview.pageAddGameTable = function(
         $('<td>', { 'style': 'background-color: ' + opponentColor, });
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'View Game ' + gameInfo.gameId,}));
+    } else if (gameType == 'rejected') {
+      gameLinkTd = $('<td>');
+      gameLinkTd.append($('<a>', {
+        'href': 'game.html?game=' + gameInfo.gameId,
+        'text': 'Game ' + gameInfo.gameId,
+      }))
     } else {
       gameLinkTd = $('<td>');
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
@@ -331,23 +348,26 @@ Overview.pageAddGameTable = function(
               ((gameInfo.gameDescription.length > 30) ? '...' : ''),
     }));
 
-    var wldColor = '#ffffff';
-    if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-      wldColor = playerColor;
-    } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-      wldColor = opponentColor;
+    if (gameType != 'rejected') {
+      var wldColor = '#ffffff';
+      if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
+        wldColor = playerColor;
+      } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
+        wldColor = opponentColor;
+      }
+      gameRow.append($('<td>', {
+        'text': gameInfo.gameScoreDict.W + '/' +
+                gameInfo.gameScoreDict.L + '/' +
+                gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
+        'style': 'background-color: ' + wldColor,
+      }));
+
+      var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
+      gameRow.append(inactivityTd);
     }
-    gameRow.append($('<td>', {
-      'text': gameInfo.gameScoreDict.W + '/' +
-              gameInfo.gameScoreDict.L + '/' +
-              gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
-      'style': 'background-color: ' + wldColor,
-    }));
 
-    var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
-    gameRow.append(inactivityTd);
-
-    if (gameType == 'finished') {
+    if ((gameType == 'finished') ||
+        (gameType == 'rejected')) {
       var dismissTd = $('<td>');
       gameRow.append(dismissTd);
       var dismissLink = $('<a>', {
