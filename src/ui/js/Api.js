@@ -432,8 +432,6 @@ var Api = (function () {
         'opponentButtonName': data.opponentButtonNameArray[i],
         'isAwaitingAction': data.isAwaitingActionArray[i],
         'maxWins': data.nTargetWinsArray[i],
-        'playerColor': data.playerColorArray[i],
-        'opponentColor': data.opponentColorArray[i],
       };
       my.rejected_games.games.push(gameInfo);
       i += 1;
