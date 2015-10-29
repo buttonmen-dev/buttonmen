@@ -2232,7 +2232,9 @@ class BMInterface {
                      'FROM game_player_map AS gpm '.
                         'LEFT JOIN game AS g ON g.id = gpm.game_id '.
                      'WHERE gpm.player_id = :player_id '.
-                        'AND gpm.is_awaiting_action = 1 ';
+                        'AND gpm.is_awaiting_action = 1 '.
+                        'AND g.status_id = '.
+                           '(SELECT id FROM game_status WHERE name = \'ACTIVE\') ';
             foreach ($skippedGames as $index => $skippedGameId) {
                 $parameterName = ':skipped_game_id_' . $index;
                 $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
