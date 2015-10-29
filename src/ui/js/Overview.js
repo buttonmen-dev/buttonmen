@@ -312,7 +312,7 @@ Overview.pageAddGameTable = function(
       gameLinkTd.append($('<a>', {
         'href': 'game.html?game=' + gameInfo.gameId,
         'text': 'Game ' + gameInfo.gameId,
-      }))
+      }));
     } else {
       gameLinkTd = $('<td>');
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
@@ -348,6 +348,8 @@ Overview.pageAddGameTable = function(
               ((gameInfo.gameDescription.length > 30) ? '...' : ''),
     }));
 
+    var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
+
     if (gameType != 'rejected') {
       var wldColor = '#ffffff';
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
@@ -362,7 +364,6 @@ Overview.pageAddGameTable = function(
         'style': 'background-color: ' + wldColor,
       }));
 
-      var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
       gameRow.append(inactivityTd);
     }
 
