@@ -33,6 +33,7 @@ module("Overview", {
     delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.rejected_games;
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Api.user_prefs;
