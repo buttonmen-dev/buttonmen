@@ -437,7 +437,7 @@ Overview.pageAddGameTableNew = function() {
     decideTd = $('<td>');
     gameRow.append(decideTd);
 
-    if (Api.new_games.games[0].isAwaitingAction) {
+    if (Api.new_games.games[i].isAwaitingAction) {
       acceptLink = $('<a>', {
         'text': 'Accept',
         'href': '#',
