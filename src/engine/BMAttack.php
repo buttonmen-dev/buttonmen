@@ -291,7 +291,9 @@ abstract class BMAttack {
         }
 
         if ('Surrender' == $game->attack['attackType']) {
-            $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+            foreach ($game->playerArray as $player) {
+                $player->waitingOnAction = FALSE;
+            }
             $winnerArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
             $game->forceRoundResult = $winnerArray;

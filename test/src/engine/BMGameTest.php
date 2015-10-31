@@ -36,18 +36,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // both players must be set before advancing the game
         $this->object->gameState = BMGameState::START_GAME;
-        $Button1 = new BMButton;
-        $Button2 = new BMButton;
-        $this->object->buttonArray = array($Button1, $Button2);
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $this->object->buttonArray = array($button1, $button2);
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::START_GAME, $this->object->gameState);
 
         $this->object->gameState = BMGameState::START_GAME;
         $this->object->playerIdArray = array(12345, 54321);
-        $Button1 = new BMButton;
-        $Button2 = new BMButton;
-        $this->object->buttonArray = array($Button1, $Button2);
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $this->object->buttonArray = array($button1, $button2);
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::APPLY_HANDICAPS, $this->object->gameState);
@@ -1589,6 +1589,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     public function test_update_game_state_start_turn() {
         $this->object->gameState = BMGameState::START_TURN;
+        $this->object->activePlayerIdx = 0;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
 
@@ -1732,6 +1733,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                                    array($die2));
         $this->object->nRecentPasses = 0;
         $this->object->gameState = BMGameState::END_TURN;
+        $this->object->activePlayerIdx = 0;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
@@ -2820,10 +2822,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__isset
      */
     public function test__isset() {
-        $button1 = new BMButton;
-        $button2 = new BMButton;
-        $this->object->buttonArray = array($button1, $button2);
-        $this->assertTrue(isset($this->object->buttonArray));
+        $player1 = new BMPlayer;
+        $player2 = new BMPlayer;
+        $this->object->playerArray = array($player1, $player2);
+        $this->assertTrue(isset($this->object->playerArray));
     }
 
     /**
