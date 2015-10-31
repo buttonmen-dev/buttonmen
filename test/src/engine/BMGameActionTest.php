@@ -827,6 +827,17 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_play_another_turn()
+     */
+    public function test_friendly_message_play_another_turn() {
+        $this->object = new BMGameAction(BMGameState::END_TURN, 'play_another_turn', 1, array('cause' => 'TimeAndSpace'));
+        $this->assertEquals(
+            'gameaction01 gets another turn because a Time and Space die rolled odd',
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_ornery_reroll()
      */
     public function test_friendly_message_ornery_no_reroll() {
@@ -846,6 +857,25 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             '',
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
+    }
+
+    /**
+     * @covers BMGameAction::max_from_recipe()
+     */
+    public function test_max_from_recipe() {
+        $method = new ReflectionMethod('BMGameAction', 'max_from_recipe');
+        $method->setAccessible(TRUE);
+
+        $this->assertEquals(4, $method->invoke(NULL, '(4)'));
+        $this->assertEquals(0, $method->invoke(NULL, '(X)'));
+        $this->assertEquals(4, $method->invoke(NULL, '(X=4)'));
+        $this->assertEquals(4, $method->invoke(NULL, '(X=4)?'));
+        $this->assertEquals(4, $method->invoke(NULL, 'bcdGHz(X=4)&'));
+        $this->assertEquals(9, $method->invoke(NULL, '(4,5)'));
+        $this->assertEquals(9, $method->invoke(NULL, 'fhkmnp(X=4,Y=5)?'));
+        $this->assertEquals(0, $method->invoke(NULL, '(4/16)'));
+        $this->assertEquals(16, $method->invoke(NULL, '(4/16=16)'));
+        $this->assertEquals(4, $method->invoke(NULL, 'sz`(4/16=4)'));
     }
 }
 

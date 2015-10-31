@@ -125,10 +125,15 @@ class BMSkillKonstant extends BMSkill {
      */
     protected static function get_description() {
         return 'These dice do not reroll after an attack; they keep ' .
-               'their current value. Konstant Dice can not Power Attack, ' .
+               'their current value. Konstant dice can not Power Attack, ' .
                'and cannot perform a Skill Attack by themselves, but they ' .
                'can add OR subtract their value in a multi-dice Skill ' .
-               'Attack.';
+               'Attack. If another skill causes a Konstant die to reroll ' .
+               '(e.g., Chance, Trip, Ornery), ' .
+               'it continues to show the same value. If another skill ' .
+               'causes the die to change its value without rerolling ' .
+               '(e.g., Focus, Fire), the die\'s value does change and then ' .
+               'continues to show that new value.';
     }
 
     /**
@@ -141,7 +146,12 @@ class BMSkillKonstant extends BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array(
-            'Chance' => 'Dice with both Chance and Konstant skills always retain their current value',
+            'Chance' => 'Dice with both Chance and Konstant skills retain their current value ' .
+                        'when rerolled due to Chance',
+            'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
+            'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
+            'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+            'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
         );
     }
 }

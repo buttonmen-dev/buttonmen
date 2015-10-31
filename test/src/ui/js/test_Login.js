@@ -4,7 +4,9 @@ module("Login", {
 
     // Create the login_header div so functions have something to modify
     if (document.getElementById('login_header') == null) {
-      $('body').append($('<div>', {'id': 'login_header', }));
+      $('body').append($('<div>', {'id': 'container', }));
+      $('#container').append($('<div>', {'id': 'c_body'}));
+      $('#c_body').append($('<div>', {'id': 'login_header', }));
     }
   },
   'teardown': function(assert) {
@@ -23,19 +25,18 @@ module("Login", {
     delete Env.window.location.search;
     delete Env.window.location.hash;
     delete Env.history.state;
+    $('#container').remove();
 
     Api.automatedApiCall = false;
 
     // Page elements
     $('#login_header').remove();
-    $('#login_header').empty();
     $('#header_separator').remove();
 
     Login.pageModule = null;
 
     // Page elements
     $('#login_header').remove();
-    $('#login_header').empty();
 
     BMTestUtils.deleteEnvMessage();
 
@@ -97,7 +98,6 @@ test("test_Login.arrangeHeader", function(assert) {
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
-  bodyDiv.empty();
 
   assert.equal($('#env_message').length, 1,
     "Env message div should be created");
@@ -139,7 +139,6 @@ test("test_Login.arrangePage", function(assert) {
 
   if (Login.pageModule) {
     $('#' + Login.pageModule.bodyDivId).remove();
-    $('#' + Login.pageModule.bodyDivId).empty();
   }
 });
 

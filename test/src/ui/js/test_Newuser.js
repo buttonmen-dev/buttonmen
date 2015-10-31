@@ -4,6 +4,7 @@ module("Newuser", {
 
     // Create the newuser_page div so functions have something to modify
     if (document.getElementById('newuser_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'newuser_page', }));
     }
 
@@ -27,7 +28,6 @@ module("Newuser", {
 
     // Page elements
     $('#newuser_page').remove();
-    $('#newuser_page').empty();
 
     BMTestUtils.deleteEnvMessage();
 

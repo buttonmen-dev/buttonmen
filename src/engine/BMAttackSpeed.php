@@ -9,8 +9,21 @@
  * This class contains code specific to speed attacks
  */
 class BMAttackSpeed extends BMAttack {
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type = 'Speed';
 
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     public function validate_attack($game, array $attackers, array $defenders) {
         $this->validationMessage = '';
 
@@ -70,7 +83,18 @@ class BMAttackSpeed extends BMAttack {
         return TRUE;
     }
 
-    public function find_attack($game) {
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->search_onevmany(
             $game,
             $game->attackerAllDieArray,
@@ -78,6 +102,13 @@ class BMAttackSpeed extends BMAttack {
         );
     }
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
@@ -95,6 +126,12 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform ' .
+                                       strtolower($this->type). ' attacks.';
+            return FALSE;
+        }
+
         if (!$att->has_skill($this->type)) {
             $this->validationMessage = 'Dice without ' .
                                        strtolower($this->type). ' cannot perform ' .
@@ -106,6 +143,11 @@ class BMAttackSpeed extends BMAttack {
             if ($def->has_skill('Stealth')) {
                 $this->validationMessage = 'Stealth dice cannot be attacked by ' .
                                            strtolower($this->type). ' attacks.';
+                return FALSE;
+            }
+
+            if ($def->has_skill('Warrior')) {
+                $this->validationMessage = 'Warrior dice cannot be attacked.';
                 return FALSE;
             }
         }

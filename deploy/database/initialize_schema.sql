@@ -5,4 +5,5 @@ source schema.config.sql;
 source schema.button.sql;
 source schema.player.sql;
 source schema.game.sql;
+source schema.stats.sql;
 source schema.forum.sql;

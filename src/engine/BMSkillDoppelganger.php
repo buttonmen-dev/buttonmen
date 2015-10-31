@@ -31,12 +31,14 @@ class BMSkillDoppelganger extends BMSkillMorphing {
             return;
         }
 
-        // replace the attacking die here in place to allow radioactive to trigger correctly
         $attacker = $args['caller'];
+        $defender = self::get_single_defender($args['defenders'], TRUE);
+
+        // replace the attacking die here in place to allow radioactive to trigger correctly
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
 
-        $newAttackDie = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
+        $newAttackDie = self::create_morphing_clone_target($args['caller'], $defender);
 
         $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
@@ -73,6 +75,8 @@ class BMSkillDoppelganger extends BMSkillMorphing {
             'Radioactive' => 'Dice with both Radioactive and Doppelganger first decay, then ' .
                              'each of the "decay products" are replaced by exact copies of the ' .
                              'die they captured',
+            'Rage' => 'A Doppelganger die that captures a Rage die with a Power attack will ' .
+                      'retain Rage after it transforms',
         );
     }
 

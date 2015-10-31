@@ -10,10 +10,32 @@
  * there is no ambiguity about the type of attack that is desired
  */
 class BMAttackDefault extends BMAttack {
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type = 'Default';
+
+    /**
+     * Resolved type of attack, if the attack is unambiguous
+     *
+     * @var string
+     */
     protected $resolvedType = '';
 
-    public function find_attack($game) {
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
+    public function find_attack($game, $includeOptional = TRUE) {
         return $this->validate_attack(
             $game,
             $this->attackerAttackDieArray,
@@ -21,6 +43,14 @@ class BMAttackDefault extends BMAttack {
         );
     }
 
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     public function validate_attack($game, array $attackers, array $defenders) {
         $this->validationMessage = '';
         $this->resolvedType = '';
@@ -29,7 +59,7 @@ class BMAttackDefault extends BMAttack {
         $validAttackTypeArray = array();
 
         foreach ($possibleAttackTypeArray as $attackType) {
-            $attack = BMAttack::get_instance($attackType);
+            $attack = BMAttack::create($attackType);
             if (!empty($this->validDice)) {
                 foreach ($this->validDice as &$die) {
                     $attack->add_die($die);
@@ -57,6 +87,15 @@ class BMAttackDefault extends BMAttack {
         }
     }
 
+    /**
+     * Check whether the specified attack is one-vs-one and unambiguous
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @param array $validAttackTypes
+     * @return boolean
+     */
     protected function is_one_on_one_no_frills_attack(
         BMGame $game,
         array $attackers,
@@ -100,6 +139,12 @@ class BMAttackDefault extends BMAttack {
             return FALSE;
         }
 
+        if (in_array('Boom', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'It is not clear whether or not you want to perform a boom attack.';
+            return FALSE;
+        }
+
         if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
             // deal with the case where the only possibilities are power and skill, and
             // then choose power, since this allows both exact firing and overfiring
@@ -111,13 +156,23 @@ class BMAttackDefault extends BMAttack {
             }
 
             $this->validationMessage = $messageRoot .
-                'It is not clear whether or not you want to fire your attacking die.';
+                'It is not clear if you wish to use your Fire die to assist in the attack.';
             return FALSE;
         }
 
         return TRUE;
     }
 
+    /**
+     * Check whether fire assistance is possible for the specified combination of
+     * attacker and defender
+     *
+     * @param BMGame $game
+     * @param BMDie $attacker
+     * @param BMDie $defender
+     * @param array $validAttackTypes
+     * @return boolean
+     */
     protected function is_fire_assistance_possible(
         BMGame $game,
         BMDie $attacker,
@@ -151,10 +206,22 @@ class BMAttackDefault extends BMAttack {
         return FALSE;
     }
 
+    /**
+     * Accessor for the attack type, used by logging code
+     *
+     * @return string
+     */
     public function type_for_log() {
         return $this->resolvedType;
     }
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         return TRUE;
     }

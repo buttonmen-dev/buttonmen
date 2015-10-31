@@ -7,4 +7,5 @@ source data.config.sql;
 source data.button.sql;
 source data.game.sql;
 source data.player.sql;
+source data.stats.sql;
 source data.forum.sql;

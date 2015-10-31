@@ -14,7 +14,9 @@ AS SELECT
     i.dob_month,
     i.dob_day,
     i.gender,
+    i.autoaccept,
     i.autopass,
+    i.fire_overshooting,
     i.monitor_redirects_to_game,
     i.monitor_redirects_to_forum,
     i.automatically_monitor,
@@ -34,7 +36,10 @@ AS SELECT
     i.creation_time,
     i.fanatic_button_id,
     i.n_games_won,
-    i.n_games_lost
+    i.n_games_lost,
+    d.dhs_player_id,
+    d.dhs_player_name
 FROM player AS i
     LEFT JOIN player_auth AS a ON i.id = a.id
-    LEFT JOIN player_status AS ps ON ps.id = i.status_id;
+    LEFT JOIN player_status AS ps ON ps.id = i.status_id
+    LEFT JOIN dhs_player AS d ON d.bw_player_id = i.id;

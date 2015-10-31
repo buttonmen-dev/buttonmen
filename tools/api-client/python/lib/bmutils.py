@@ -7,6 +7,7 @@ import bmapi
 SkillName = {
   '+': 'Auxiliary',
   'B': 'Berserk',
+  'b': 'Boom',
   'c': 'Chance',
   'D': 'Doppelganger',
   'F': 'Fire',
@@ -22,15 +23,18 @@ SkillName = {
   'p': 'Poison',
   'q': 'Queer',
   '%': 'Radioactive',
+  'G': 'Rage',
   'r': 'Reserve',
   's': 'Shadow',
   'w': 'Slow',
   'z': 'Speed',
   'd': 'Stealth',
   'g': 'Stinger',
+  '^': 'TimeAndSpace',
   't': 'Trip',
   'v': 'Value',
   'h': 'Weak',
+  '`': 'Warrior',
 }
 
 class BMClientParser(bmapi.BMClient):

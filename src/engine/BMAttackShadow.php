@@ -9,8 +9,21 @@
  * This class contains code specific to shadow attacks
  */
 class BMAttackShadow extends BMAttackPower {
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type = 'Shadow';
 
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     public function validate_attack($game, array $attackers, array $defenders) {
         $this->validationMessage = '';
 
@@ -71,6 +84,13 @@ class BMAttackShadow extends BMAttackPower {
         return TRUE;
     }
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
@@ -90,8 +110,18 @@ class BMAttackShadow extends BMAttackPower {
             return FALSE;
         }
 
+        if ($att->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot perform shadow attacks.';
+            return FALSE;
+        }
+
         if ($def->has_skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be attacked by shadow attacks.';
+            return FALSE;
+        }
+
+        if ($def->has_skill('Warrior')) {
+            $this->validationMessage = 'Warrior dice cannot be attacked.';
             return FALSE;
         }
 

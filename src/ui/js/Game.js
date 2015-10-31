@@ -21,9 +21,12 @@ Game.GAME_STATE_START_ROUND = 'START_ROUND';
 Game.GAME_STATE_START_TURN = 'START_TURN';
 Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
 Game.GAME_STATE_COMMIT_ATTACK = 'COMMIT_ATTACK';
+Game.GAME_STATE_CHOOSE_TURBO_SWING = 'CHOOSE_TURBO_SWING';
 Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
+
+Game.GAME_STATE_REJECTED = 'REJECTED';
 
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
@@ -115,7 +118,17 @@ Game.showStatePage = function() {
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
-    if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
+    if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+      Game.page =
+        $('<p>', {'text': 'This game hasn\'t started yet.', });
+      Game.form = null;
+      includeFooter = false;
+    } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
+      Game.page =
+        $('<p>', {'text': 'This game has been rejected.', });
+      Game.form = null;
+      includeFooter = false;
+    } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionSpecifyDiceActive();
@@ -303,32 +316,13 @@ Game.actionSpecifyDiceActive = function() {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var diespecifytable = $('<table>', { 'id': 'die_specify_table', });
 
-  // Add swing dice to table
-  $.each(
+  var diespecifytable = Game.swingRangeTable(
     Api.game.player.swingRequestArray,
-    function(letter, range) {
-      var swingrow = $('<tr>', {});
-      var swingtext = letter + ' (' + range.min + '-' + range.max + '):';
-      swingrow.append($('<td>', { 'text': swingtext, }));
-      var swinginput = $('<td>', {});
-      swinginput.append($('<input>', {
-        'type': 'text',
-        'class': 'swing',
-        'id': 'swing_' + letter,
-        'size': '2',
-        'maxlength': '2',
-      }));
-      swingrow.append(swinginput);
-      var swingprevtext = '';
-      if (letter in Api.game.player.prevSwingValueArray) {
-        swingprevtext =
-          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
-      }
-      swingrow.append($('<td>', { 'text': swingprevtext, }));
-      diespecifytable.append(swingrow);
-    });
+    'die_specify_table',
+    true,
+    true
+  );
 
   // Add option dice to table
   $.each(
@@ -368,15 +362,12 @@ Game.actionSpecifyDiceActive = function() {
   }));
 
   // If the opponent has any swing dice to set, make a table for those
-  var opponentswing = $('<table>', { 'id': 'opponent_swing', });
-  $.each(
+  var opponentswing = Game.swingRangeTable(
     Api.game.opponent.swingRequestArray,
-    function(letter, range) {
-      var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
-      swingrow.append($('<td>', { 'text': swingtext, }));
-      opponentswing.append(swingrow);
-    });
+    'opponent_swing',
+    false,
+    false
+  );
 
   // Don't bother making a table for opponent's option dice, because
   // those possible values are shown in the recipe already
@@ -444,9 +435,37 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   });
 
   // Get a table containing the existing die recipes
-  var dietable = Game.dieRecipeTable(false, false);
+  var dietable = Game.dieRecipeTable(false, true);
 
   auxform.append(dietable);
+
+  var swingrangetable = Game.swingRangeTable(
+    Api.game.player.swingRequestArray,
+    'swing_range_table',
+    false,
+    false
+  );
+
+  var opponentswing = Game.swingRangeTable(
+    Api.game.opponent.swingRequestArray,
+    'opponent_swing',
+    false,
+    false
+  );
+
+  // Add the swing die form to the left column of the die table
+  var formtd = $('<td>', { 'class': 'showswing', });
+  formtd.append($('<br>'));
+  formtd.append(swingrangetable);
+  var opponenttd = $('<td>', { 'class': 'showswing', });
+  opponenttd.append($('<br>'));
+  opponenttd.append(opponentswing);
+  var formrow = $('<tr>', {});
+  formrow.append(formtd);
+  formrow.append(opponenttd);
+  formrow.append($('<td>', {}));
+  dietable.append(formrow);
+
   auxform.append($('<br>'));
 
   var yestext = 'Use auxiliary dice this game: keep ' +
@@ -538,6 +557,23 @@ Game.actionChooseReserveDiceActive = function() {
   var dietable = Game.dieRecipeTable('choose_reserve', true);
 
   reserveform.append(dietable);
+
+  var swingrangetable = Game.swingRangeTable(
+    Api.game.player.swingRequestArray,
+    'swing_range_table',
+    false,
+    true
+  );
+
+  // Add the swing die form to the left column of the die table
+  var formtd = $('<td>', { 'class': 'showswing', });
+  formtd.append($('<br>'));
+  formtd.append(swingrangetable);
+  var formrow = $('<tr>', {});
+  formrow.append(formtd);
+  formrow.append($('<td>', {}));
+  dietable.append(formrow);
+
   reserveform.append($('<br>'));
 
   var yestext = 'Add one reserve die to button';
@@ -853,8 +889,10 @@ Game.actionAdjustFireDiceActive = function() {
     'Your turn to complete an attack by adjusting fire dice');
 
   var attackerSum = 0;
+  var attackerDiffFromMax = 0;
   $.each(Api.game.player.activeDieArray, function(i, die) {
     if (die.properties.indexOf('IsAttacker') >= 0) {
+      attackerDiffFromMax += die.sides - die.value;
       attackerSum += die.value;
     }
   });
@@ -866,12 +904,24 @@ Game.actionAdjustFireDiceActive = function() {
     }
   });
 
+  var fireMessage = '';
+  var attackType = Api.game.validAttackTypeArray[0];
+  var exactFiringAmount = defenderSum - attackerSum;
+
+  fireMessage += 'Turn down Fire dice by a total of ';
+
+  if (('Power' == attackType) &&
+    (attackerDiffFromMax > exactFiringAmount)) {
+    fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
+                   ' and ' + attackerDiffFromMax;
+  } else {
+    fireMessage += exactFiringAmount;
+  }
+
+  fireMessage += ' to complete your ' + attackType + ' attack.';
+
   Game.page.append($('<div>', {
-    'text': 'Turn down Fire dice by a total of ' +
-            (defenderSum - attackerSum) +
-            ' to make up the difference between the sum of your attacking' +
-            ' dice (' + attackerSum + ') and the defending die value (' +
-            defenderSum + ').',
+    'text': fireMessage,
   }));
 
   // Create a form for adjusting fire dice
@@ -891,18 +941,24 @@ Game.actionAdjustFireDiceActive = function() {
     'name': 'fire_action_select',
   });
 
-  var fireoptions = {
-    'turndown': 'Turn down fire dice',
-    'cancel':
-      'Don\'t turn down fire dice (cancelling the attack in progress)',
-  };
+  var allows_zero_turndown = (exactFiringAmount <= 0);
+
+  var fireoptions = {};
+  if (allows_zero_turndown) {
+    fireoptions.no_turndown = 'Submit attack without turning down fire dice';
+  }
+  fireoptions.turndown = 'Turn down fire dice';
+  fireoptions.cancel =
+    'Don\'t turn down fire dice (cancelling the attack in progress)';
+
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
       'value': actionname,
       'label': actiontext,
       'text': actiontext,
     };
-    if (actionname == 'turndown') {
+    if ((actionname == 'no_turndown') ||
+        (!allows_zero_turndown && (actionname == 'turndown'))) {
       fireactionopts.selected = 'selected';
     }
     fireactionselect.append($('<option>', fireactionopts));
@@ -1271,13 +1327,16 @@ Game.formAdjustFireDiceActive = function() {
   switch (Game.activity.fireActionType) {
 
   // valid action, nothing special to do, but validate selections just in case
-  case 'cancel':
+  case 'cancel':    // fallthrough to allow multiple cases with the same logic
+  case 'no_turndown':
     $.each(Api.game.player.fireOptions, function(i, vals) {
       if (vals.length > 0) {
         var value = $('#fire_adjust_' + i).val();
         if (value != Api.game.player.activeDieArray[i].value) {
           error = 'Chose not to adjust fire dice, but modified a die value';
           formValid = false;
+          Game.activity.fireDieIdxArray.push(i);
+          Game.activity.fireDieValueArray.push(value);
         }
       }
     });
@@ -1431,7 +1490,7 @@ Game.formDismissGame = function(e) {
     messages,
     $(this),
     function() {
-      window.location.href = Env.ui_root;
+      window.location.href = Env.ui_root + 'index.html?mode=preference';
       return false;
     },
     Game.showLoggedInPage
@@ -1622,14 +1681,18 @@ Game.pageAddGameNavigationFooter = function() {
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
   var gameSkillDiv = $('<div>', {
-    'text': 'Die skills in this game: ',
+    'text': 'Skills in this game: ',
   });
 
   var firstSkill = true;
   var firstInteract;
   var skillDesc;
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
-    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+    skillDesc = skill;
+    if (info.code) {
+      skillDesc += ' (' + info.code + ')';
+    }
+    skillDesc += ': ' + info.description;
 
     firstInteract = true;
     $.each(info.interacts, function(otherSkill, interactDesc) {
@@ -1677,7 +1740,7 @@ Game.pageAddNewGameLinkFooter = function() {
     Game.page.append($('<div>', {
       'text':
         'Challenge ' + Api.game.opponent.playerName +
-        ' to a another game, preserving chat:',
+        ' to another game, preserving chat:',
     }));
 
     linkDiv = $('<div>');
@@ -1700,6 +1763,14 @@ Game.pageAddNewGameLinkFooter = function() {
       Api.game.gameId
       ));
     }
+
+    linkDiv.append(Game.buildNewGameLink(
+      'random buttons',
+      Api.game.opponent.playerName,
+      '__random',
+      '__random',
+      Api.game.gameId
+    ));
 
     linkDiv.append(Game.buildNewGameLink(
       'new buttons',
@@ -1748,7 +1819,7 @@ Game.pageAddNewGameLinkFooter = function() {
   Game.page.append($('<br>'));
 };
 
-// Contstructs a span containing a link to the Create Game page
+// Constructs a span containing a link to the Create Game page
 Game.buildNewGameLink = function(text, opponent, button, opponentButton,
     previousGameId) {
   var holder = $('<span>');
@@ -1885,7 +1956,9 @@ Game.pageAddLogFooter = function() {
       }
     }
 
-    if (Game.logEntryLimit !== undefined) {
+    if (Game.logEntryLimit !== undefined &&
+        ((Api.game.actionLogCount > Api.game.actionLog.length) ||
+         (Api.game.chatLogCount > Api.game.chatLog.length))) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
       var historytd = $('<td>');
       if ((Api.game.actionLog.length > 0) && (Api.game.chatLog.length > 0)) {
@@ -2068,8 +2141,51 @@ Game.dieRecipeTable = function(table_action, active) {
     subrow.append(subRTd);
     dietable.append(subrow);
   }
+
   return dietable;
 };
+
+// Generate and return a table of the swing ranges for the player's swing dice
+Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrev) {
+  var swingrangetable = $('<table>', { 'id': id, });
+  $.each(
+    swingRequestArray,
+    function(letter, range) {
+      var swingrow = $('<tr>', {});
+      var swingtext = letter;
+      if (!allowInput) {
+        swingtext += ':';
+      }
+      swingtext += ' (' + range.min + '-' + range.max + ')';
+      if (allowInput) {
+        swingtext += ':';
+      }
+      swingrow.append($('<td>', { 'text': swingtext, }));
+      if (allowInput) {
+        var swinginput = $('<td>', {});
+        swinginput.append($('<input>', {
+          'type': 'text',
+          'class': 'swing',
+          'id': 'swing_' + letter,
+          'size': '2',
+          'maxlength': '2',
+        }));
+        swingrow.append(swinginput);
+      }
+      if (showPrev) {
+        var swingprevtext = '';
+        if (letter in Api.game.player.prevSwingValueArray) {
+          swingprevtext =
+            '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+          swingrow.append($('<td>', { 'text': swingprevtext, }));
+        }
+      }
+      swingrangetable.append(swingrow);
+    });
+
+  return swingrangetable;
+};
+
 
 Game.dieTableEntry = function(i, activeDieArray) {
   if (i < activeDieArray.length) {
@@ -2225,6 +2341,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
 
   var capturedDiceDiv;
+  var outOfPlayDiceDiv;
   if (game_active) {
 
     // Round score, only applicable in active games
@@ -2255,11 +2372,30 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     capturedDiceDiv.append($('<span>', {
       'text': 'Dice captured: ' + capturedDieText,
     }));
+
+    // Dice that are out of play, only applicable in active games
+    var outOfPlayDieText;
+    if (('outOfPlayDieArray' in Api.game[player]) &&
+        Api.game[player].outOfPlayDieArray.length > 0) {
+      var outOfPlayDieDescs = [];
+
+      $.each(Api.game[player].outOfPlayDieArray, function(i, die) {
+        outOfPlayDieDescs.push(Game.dieRecipeText(die, true));
+      });
+      outOfPlayDieText = outOfPlayDieDescs.join(', ');
+      outOfPlayDiceDiv = $('<div>');
+      outOfPlayDiceDiv.append($('<span>', {
+        'text': 'Dice out of play: ' + outOfPlayDieText,
+      }));
+    }
   }
 
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
+      if (undefined !== outOfPlayDiceDiv) {
+        statusDiv.append(outOfPlayDiceDiv);
+      }
       statusDiv.append(capturedDiceDiv);
     }
     statusDiv.append(gameScoreDiv);
@@ -2268,6 +2404,9 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     statusDiv.append(gameScoreDiv);
     if (game_active) {
       statusDiv.append(capturedDiceDiv);
+      if (undefined !== outOfPlayDiceDiv) {
+        statusDiv.append(outOfPlayDiceDiv);
+      }
     }
   }
   return statusDiv;
@@ -2299,6 +2438,8 @@ Game.gamePlayerDice = function(player, player_active) {
     var clickable;
     if (player_active) {
       if (die.properties.indexOf('Dizzy') >= 0) {
+        clickable = false;
+      } else if ((player != 'player') && (die.skills.indexOf('Warrior') >= 0)) {
         clickable = false;
       } else {
         clickable = true;
@@ -2355,9 +2496,14 @@ Game.gamePlayerDice = function(player, player_active) {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       divOpts['class'] = 'die_img die_greyed';
       if (player_active) {
-        containerDivOpts.title +=
-          '. (This die is dizzy because it was turned ' +
-          'down.  It can\'t be used during this attack.)';
+        if (player == 'player') {
+          containerDivOpts.title +=
+            '. (This die is dizzy because it was turned ' +
+            'down.  It can\'t be used during this attack.)';
+        } else {
+          containerDivOpts.title +=
+            '. (This die is a Warrior die and can\'t be targeted.)';
+        }
       }
       containerDivOpts['class'] = 'die_container die_alive';
       dieContainerDiv = $('<div>', containerDivOpts);

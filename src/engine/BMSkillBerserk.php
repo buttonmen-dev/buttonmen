@@ -29,7 +29,7 @@ class BMSkillBerserk extends BMSkill {
 
         $attackTypeArray = &$args['attackTypeArray'];
 
-        foreach (BMSkillBerserk::incompatible_attack_types() as $attackType) {
+        foreach (self::incompatible_attack_types() as $attackType) {
             if (array_key_exists($attackType, $attackTypeArray)) {
                 unset($attackTypeArray[$attackType]);
             }
@@ -82,6 +82,7 @@ class BMSkillBerserk extends BMSkill {
         // halve number of sides
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
+        $newAttackDie->add_flag('JustPerformedBerserkAttack', $newAttackDie->get_recipe(TRUE));
         $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
@@ -99,8 +100,7 @@ class BMSkillBerserk extends BMSkill {
                'of dice which add up exactly to its value. Once a Berserk ' .
                'Die performs a Berserk Attack, it is replaced with a ' .
                'non-berserk die with half the number of sides it previously ' .
-               'had, rounding up. It also loses any Swing/Mood Swing/Mad Swing ' .
-               'characteristics it may have had.';
+               'had, rounding up.';
     }
 
     /**

@@ -9,6 +9,7 @@ module("Game", {
 
     // Create the game_page div so functions have something to modify
     if (document.getElementById('game_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'game_page', }));
     }
 
@@ -45,10 +46,7 @@ module("Game", {
     Game.activity = {};
 
     // Page elements
-    // FIXME: why do we have to remove this twice?
     $('#game_page').remove();
-    $('#game_page').remove();
-    $('#game_page').empty();
 
     BMTestUtils.restoreGetParameterByName();
 
@@ -351,11 +349,11 @@ test("test_Game.parseValidFireOptions", function(assert) {
 
 test("test_Game.parseValidFireOptions_fire_active", function(assert) {
   stop();
-  BMTestUtils.GameType = 'fire_active';
+  BMTestUtils.GameType = 'blackomega_tamiya_adjustfire_active';
   Game.getCurrentGame(function() {
     Game.parseValidFireOptions();
     assert.deepEqual(Api.game.player.fireOptions,
-      {'0': [1, ], },
+      {'1': [6, 5, 4, 3, 2, 1, ], },
       "One valid fire die option during adjust fire phase");
     start();
   });
@@ -634,23 +632,23 @@ test("test_Game.actionPlayTurnActive", function(assert) {
 
 test("test_Game.actionAdjustFireDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'fire_active';
+  BMTestUtils.GameType = 'blackomega_tamiya_adjustfire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var htmlout = Game.page.html();
-    assert.ok(htmlout.match('Turn down Fire dice by a total of 1'),
+    assert.ok(htmlout.match('Turn down Fire dice by a total of 4'),
       'Page describes the necessary Fire die turndown');
-    var item = document.getElementById('fire_adjust_0');
-    assert.ok(item, "#fire_adjust_0 select is set");
+    var item = document.getElementById('fire_adjust_1');
+    assert.ok(item, "#fire_adjust_1 select is set");
     $.each(item.childNodes, function(childid, child) {
-      if (child.getAttribute('label') == '2') {
+      if (child.getAttribute('label') == '7') {
         assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Fire die is initially set to current (maximum) value');
       }
     });
-    item = document.getElementById('fire_adjust_1');
-    assert.ok(!item, "#fire_adjust_1 select is not set");
+    item = document.getElementById('fire_adjust_0');
+    assert.ok(!item, "#fire_adjust_0 select is not set");
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -658,14 +656,14 @@ test("test_Game.actionAdjustFireDiceActive", function(assert) {
 
 test("test_Game.actionAdjustFireDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'fire_inactive';
+  BMTestUtils.GameType = 'beatnikturtle_firebreather_adjustfire_inactive';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
-    item = document.getElementById('fire_adjust_0');
-    assert.equal(item, null, "#fire_adjust_0 select is not set");
+    item = document.getElementById('fire_adjust_2');
+    assert.equal(item, null, "#fire_adjust_2 select is not set");
     assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
@@ -673,14 +671,14 @@ test("test_Game.actionAdjustFireDiceInactive", function(assert) {
 
 test("test_Game.actionAdjustFireDiceNonplayer", function(assert) {
   stop();
-  BMTestUtils.GameType = 'fire_nonplayer';
+  BMTestUtils.GameType = 'blackomega_tamiya_adjustfire_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceNonplayer();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
-    item = document.getElementById('fire_adjust_0');
-    assert.equal(item, null, "#fire_adjust_0 select is not set");
+    item = document.getElementById('fire_adjust_1');
+    assert.equal(item, null, "#fire_adjust_1 select is not set");
     assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
@@ -904,12 +902,12 @@ test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
 
 test("test_Game.formAdjustFireDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'fire_active';
+  BMTestUtils.GameType = 'blackomega_tamiya_adjustfire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#fire_action_select').val('turndown');
-    $('#fire_adjust_0').val('1');
+    $('#fire_adjust_1').val('3');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -1130,7 +1128,7 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    assert.ok(htmlout.match('<div>Die skills in this game: '),
+    assert.ok(htmlout.match('<div>Skills in this game: '),
       "Die skills footer text is present");
     assert.ok(htmlout.match('Focus'),
       "Die skills footer text lists the Focus skill");
@@ -1251,6 +1249,48 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
   });
 });
 
+test("test_Game.swingRangeTable", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'merlin_ein_reacttoauxiliary_player';
+  Game.getCurrentGame(function() {
+
+    // First test without allowInput or showPrev
+    var htmlobj = Game.swingRangeTable(
+      Api.game.player.swingRequestArray, 'swing_range_table', false, false
+    );
+    var html = $('<div>').append(htmlobj.clone()).remove().html();
+
+    assert.deepEqual(html, '<table id="swing_range_table"><tbody><tr><td>X: (4-20)</td></tr><tr><td>Y: (1-20)</td></tr></tbody></table>',
+      "Swing range table has the expected contents without allowInput or showPrev");
+
+    // Second test with allowInput
+    htmlobj = Game.swingRangeTable(
+      Api.game.player.swingRequestArray, 'swing_range_table', true, false
+    );
+
+    // two rows
+    assert.equal(2, htmlobj[0].rows.length);
+
+    // first row deals with X swing
+    assert.equal(2, htmlobj[0].rows[0].cells.length);
+    assert.equal('X (4-20):', htmlobj[0].rows[0].cells[0].innerHTML);
+    assert.equal(2, htmlobj[0].rows[0].cells[1].firstChild.getAttribute('maxlength'));
+    assert.equal('swing_X', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('id'));
+    assert.equal('swing', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('class'));
+    assert.equal('text', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('type'));
+
+    // second row deals with Y swing
+    assert.equal(2, htmlobj[0].rows[1].cells.length);
+    assert.equal('Y (1-20):', htmlobj[0].rows[1].cells[0].innerHTML);
+    assert.equal(2, htmlobj[0].rows[1].cells[1].firstChild.getAttribute('maxlength'));
+    assert.equal('swing_Y', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('id'));
+    assert.equal('swing', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('class'));
+    assert.equal('text', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('type'));
+
+    start();
+  });
+});
+
 test("test_Game.dieTableEntry", function(assert) {
   stop();
   BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
@@ -1333,16 +1373,16 @@ test("test_Game.gamePlayerStatus", function(assert) {
 
 test("test_Game.gamePlayerStatusWithValue", function(assert) {
   stop();
-  BMTestUtils.GameType = 'value';
+  BMTestUtils.GameType = 'blackomega_thefool_captured_value_die';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.page.append(Game.gamePlayerStatus('player', false, true));
+    Game.page.append(Game.gamePlayerStatus('opponent', false, true));
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
     assert.ok(htmlout.match('Dice captured'),
       "game player status should report captured dice");
-    assert.ok(htmlout.match(/v\(20\):6/),
-      "status should report that player captured an v(20) showing a value of 6");
+    assert.ok(htmlout.match(/tmv\(R=8,R=8\):6/),
+      "status should report that player captured a tmv(R=8,R=8) showing a value of 6");
     start();
   });
 });
@@ -1381,6 +1421,32 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
     Game.page.append(Game.gamePlayerDice('player', true));
     assert.ok(Game.page.find('.die_dead').length > 0,
       "dice should include one that's been captured");
+    start();
+  });
+});
+
+test("test_Game.gamePlayerDice_warrior", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'shadowwarriors_fernworthy_newgame_active';
+  Game.getCurrentGame(function() {
+    // opponent should have greyed warriors
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('opponent', true));
+    assert.ok(Game.page.find('.die_greyed').length == 4,
+      "four of opponent's dice should be greyed out");
+    var htmlout = Game.page.html();
+    assert.ok(htmlout.match('This die is a Warrior die'),
+      "Opponent title text reports greyed warriors");
+
+    // player should have not greyed warriors
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('player', true));
+    assert.ok(Game.page.find('.die_greyed').length == 0,
+      "none of player's dice should be greyed out");
+    var htmlout = Game.page.html();
+    assert.ok(!htmlout.match('This die is a Warrior die'),
+      "Player title text does not report any greyed warriors");
+
     start();
   });
 });

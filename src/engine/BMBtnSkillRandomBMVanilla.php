@@ -7,7 +7,7 @@
 
 /**
  * This class currently supports the special skills of RandomBMVanilla, which has
- * vanilla random recipes (5 dice, no swing dice, no skills)
+ * vanilla random recipes: 5 dice, no swing dice, no skills
  */
 class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
     /**
@@ -36,5 +36,14 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
 
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLettersArray);
         return TRUE;
+    }
+
+    /**
+     * Description of skill
+     *
+     * @return string
+     */
+    public static function get_description() {
+        return '5 dice, no swing dice, no skills.';
     }
 }

@@ -173,6 +173,11 @@ UserPrefs.actionSetPrefs = function() {
   var autoBlurb = 'These preferences configure things that the site can do ' +
     'automatically for you.';
   var autoPrefs = {
+    'autoaccept': {
+      'text': 'Automatically accept challenges from other players',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.autoaccept,
+    },
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
@@ -192,6 +197,16 @@ UserPrefs.actionSetPrefs = function() {
       'text': 'Automatically Monitor after "Next game" runs out',
       'type': 'checkbox',
       'checked': Api.user_prefs.automatically_monitor,
+    },
+  };
+
+  var gameplayBlurb = 'These preferences make advanced Button Men attacks ' +
+    'available to you, at the expense of a more complex user experience.';
+  var gameplayPrefs = {
+    'fire_overshooting': {
+      'text': 'Enable fire overshooting for power attacks',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.fire_overshooting,
     },
   };
 
@@ -278,6 +293,8 @@ UserPrefs.actionSetPrefs = function() {
     profileBlurb, profileSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
     autoBlurb, autoPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Gameplay Preferences',
+    gameplayBlurb, gameplayPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Color Preferences',
     colorBlurb, colorPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
@@ -358,7 +375,9 @@ UserPrefs.formSetPrefs = function() {
   var image_size = $('#userprefs_image_size').val();
   var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
+  var autoaccept = $('#userprefs_autoaccept').prop('checked');
   var autopass = $('#userprefs_autopass').prop('checked');
+  var fire_overshooting = $('#userprefs_fire_overshooting').prop('checked');
   var monitor_redirects_to_game =
     $('#userprefs_monitor_redirects_to_game').prop('checked');
   var monitor_redirects_to_forum =
@@ -463,7 +482,9 @@ UserPrefs.formSetPrefs = function() {
       'uses_gravatar': uses_gravatar,
       'homepage': homepage,
       'comment': comment,
+      'autoaccept': autoaccept,
       'autopass': autopass,
+      'fire_overshooting': fire_overshooting,
       'monitor_redirects_to_game': monitor_redirects_to_game,
       'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'automatically_monitor': automatically_monitor,

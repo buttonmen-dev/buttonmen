@@ -23,6 +23,7 @@ class ApiSpec {
     private $automatableApiCalls = array(
         'loadNextPendingGame',
         'loadNextNewPost',
+        'loadNewGames',
         'loadActiveGames',
         'loadCompletedGames',
         'loadPlayerInfo',
@@ -156,6 +157,13 @@ class ApiSpec {
                 ),
                 'previousGameId' => 'number',
             ),
+        ),
+        'reactToNewGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+                'action' => 'string',
+            ),
+            'permitted' => array(),
         ),
         'dismissGame' => array(
             'mandatory' => array(
@@ -344,6 +352,10 @@ class ApiSpec {
                 'logEntryLimit' => 'number',
             ),
         ),
+        'loadNewGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         'loadNextPendingGame' => array(
             'mandatory' => array(),
             'permitted' => array(
@@ -505,7 +517,9 @@ class ApiSpec {
                     'arg_type' => 'string',
                     'maxlength' => 100,
                 ),
+                'autoaccept' => 'boolean',
                 'autopass' => 'boolean',
+                'fire_overshooting' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
                 'automatically_monitor' => 'boolean',

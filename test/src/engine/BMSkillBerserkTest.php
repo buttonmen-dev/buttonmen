@@ -116,6 +116,7 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($newDie->value));
         $this->assertFalse($newDie->has_skill('Berserk'));
         $this->assertTrue($att === $newDie);
+        $this->assertTrue($newDie->has_flag('JustPerformedBerserkAttack'));
 
         $this->assertTrue($newDie === $parArray['attackers'][0]);
     }

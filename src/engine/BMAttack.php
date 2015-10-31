@@ -9,52 +9,63 @@
  * This class is the parent class for all attack types
  */
 abstract class BMAttack {
-    protected static $instance = array();
-
-    // True for attacks that do something besides simple capture,
-    // because the player may have to choose which attack type to
-    // use. Captures are indistinguishable among attacks with no
-    // side effects
+    /**
+     * True for attacks that do something besides simple capture,
+     * because the player may have to choose which attack type to
+     * use. Captures are indistinguishable among attacks with no
+     * side effects
+     *
+     * @var bool
+     */
     public $sideEffect = FALSE;
 
+    /**
+     * Type of attack
+     *
+     * @var string
+     */
     public $type;
 
+    /**
+     * Error message shown to the user when the attack parameters are invalid
+     *
+     * @var string
+     */
     public $validationMessage = '';
 
-    // Dice that effect or affect this attack
+    /**
+     * Dice that effect or affect this attack
+     *
+     * @var array
+     */
     protected $validDice = array();
 
     /**
-     * Constructor
+     * The standard factory method that generates all BMAttack* objects
      *
-     * This is private, thus disabled, since this is a Singleton.
+     * @param string $type
+     * @return BMAttack*
      */
-    private function __construct() {
-    }
-
-    public static function get_instance($type = NULL) {
+    public static function create($type = NULL) {
         if ($type) {
             $cname = "BMAttack" . ucfirst(strtolower($type));
             if (class_exists($cname)) {
-                return $cname::get_instance();
+                return $cname::create();
             } else {
                 return NULL;
             }
         }
 
         $class = get_called_class();
-        if (!isset(static::$instance[$class])) {
-            static::$instance[$class] = new $class;
-        }
-        static::$instance[$class]->validDice = array();
-
-        if (!empty(static::$instance[$class]->resolvedType)) {
-            static::$instance[$class]->resolvedType = '';
-        }
-
-        return static::$instance[$class];
+        return new $class;
     }
 
+    /**
+     * Array of all attack types that are possible with these particular attackers
+     *
+     * @param array $attackers
+     * @return array
+     */
     public static function possible_attack_types(array $attackers) {
         $allAttackTypesArray = array();
 
@@ -62,6 +73,15 @@ abstract class BMAttack {
             $attackTypeArray = array();
             $attackTypeArray['Power'] = 'Power';
             $attackTypeArray['Skill'] = 'Skill';
+
+            if ($attacker->ownerObject instanceof BMGame) {
+                $ownerButton = $attacker->ownerObject->buttonArray[$attacker->playerIdx];
+                $ownerButton->run_hooks(
+                    'attack_list',
+                    array('attackTypeArray' => &$attackTypeArray)
+                );
+            }
+
             $attacker->run_hooks(
                 'attack_list',
                 array('attackTypeArray' => &$attackTypeArray,
@@ -82,7 +102,14 @@ abstract class BMAttack {
         return $allAttackTypesArray;
     }
 
-    protected static function display_cmp($str1, $str2) {
+    /**
+     * Comparator used for ordering attack types
+     *
+     * @param string $str1
+     * @param string $str2
+     * @return int
+     */
+    public static function display_cmp($str1, $str2) {
         if ($str1 == $str2) {
             return 0;
         }
@@ -101,9 +128,21 @@ abstract class BMAttack {
             return 1;
         }
 
+        // force Pass attacks to be displayed last
+        if ('Pass' == $str1) {
+            return 1;
+        } elseif ('Pass' == $str2) {
+            return -1;
+        }
+
         return strcasecmp($str1, $str2);
     }
 
+    /**
+     * Add a die that is involved (directly or indirectly) in this attack
+     *
+     * @param BMDie $die
+     */
     public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
         // objects matching
@@ -119,14 +158,19 @@ abstract class BMAttack {
         }
     }
 
-    // Figure out what help can be added to the total
-    //
-    // Returns the minimum and maximum values that can be contributed.
-    //
-    // $helpers is an array of the sets of returned values from
-    // assist_values; we don't need to know which die contributes what
-    // here.
-
+    /**
+     * Figure out what help can be added to the total
+     *
+     * Returns the minimum and maximum values that can be contributed.
+     *
+     * $helpers is an array of the sets of returned values from
+     * assist_values; we don't need to know which die contributes what
+     * here.
+     *
+     * @param array $helpers
+     * @param array $firingTargetMaxima
+     * @return array
+     */
     public function help_bounds(array $helpers, array $firingTargetMaxima) {
         $helpMin = $helpMax = 0;
 
@@ -172,15 +216,56 @@ abstract class BMAttack {
         return array($helpMin, $helpMax);
     }
 
-    // uses the dice in validDice to find a single valid attack within the game
-    abstract public function find_attack($game);
+    /**
+     * Determine the help bounds for a specific attack in a current BMGame
+     *
+     * @return array
+     */
+    public function help_bounds_specific($game, array $attackers, array $defenders) {
+        return $this->help_bounds(
+            $this->collect_helpers($game, $attackers, $defenders),
+            $this->collect_firing_maxima($attackers)
+        );
+    }
 
-    // confirm that an attack is legal
+    /**
+     * Determine if there is at least one valid attack of this type from
+     * the set of all possible attackers and defenders.
+     *
+     * If $includeOptional is FALSE, then optional attacks are excluded.
+     * These include skill attacks involving warrior dice.
+     *
+     * @param BMGame $game
+     * @param boolean $includeOptional
+     * @return boolean
+     */
+    abstract public function find_attack($game, $includeOptional = TRUE);
+
+    /**
+     * Determine if specified attack is valid.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     abstract public function validate_attack($game, array $attackers, array $defenders);
 
+    /**
+     * Check if skills are compatible with this type of attack.
+     *
+     * @param array $attArray
+     * @param array $defArray
+     * @return boolean
+     */
     abstract protected function are_skills_compatible(array $attArray, array $defArray);
 
-    // check if any of the attackers is dizzy
+    /**
+     * Determine if any of the attackers is dizzy
+     *
+     * @param array $attackers
+     * @return boolean
+     */
     public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
             if ($attacker->has_flag('Dizzy')) {
@@ -191,8 +276,14 @@ abstract class BMAttack {
         return FALSE;
     }
 
-    // actually make the attack
-    // Some of this should perhaps be in the game, rather than here.
+    /**
+     * Actually commit the attack
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     public function commit_attack(&$game, array &$attackers, array &$defenders) {
         // Paranoia
         if (!$this->validate_attack($game, $attackers, $defenders, $game->firingAmount)) {
@@ -223,8 +314,22 @@ abstract class BMAttack {
             $def->add_flag('WasJustCaptured');
         }
 
+        // this logic is here to allow attacks that might not capture
+        // like trip and boom to trigger before rage
+        foreach ($attackers as &$att) {
+            $att->pre_capture($this->type, $attackers, $defenders);
+        }
+
+        // james: it's necessary here to copy the $defenders array
+        // because Rage may add dice to $defenders
+        $defendersCopy = $defenders;
+
+        // this logic is here to allow rage to trigger at the right time
+        foreach ($defendersCopy as &$def) {
+            $def->pre_be_captured($this->type, $attackers, $defenders);
+        }
+
         // allow attack type to modify default behaviour
-        $activeDiceNew = array();
         foreach ($attackers as &$att) {
             $att->capture($this->type, $attackers, $defenders);
         }
@@ -239,15 +344,33 @@ abstract class BMAttack {
             $att->roll(TRUE);
         }
 
-        if (isset($activeDiceNew)) {
-            $this->assign_new_active_dice($game, $activeDiceNew);
-        }
+        $this->ensure_defenders_have_value($defenders);
 
         $this->process_captured_dice($game, $defenders);
 
         return TRUE;
     }
 
+    /**
+     * Give defenders a value if they don't already have one,
+     * like for a rage replacement die
+     *
+     * @param array $defenders
+     */
+    protected function ensure_defenders_have_value(array $defenders) {
+        foreach ($defenders as &$def) {
+            if (empty($def->value)) {
+                $def->roll(FALSE);
+            }
+        }
+    }
+
+    /**
+     * Change the attack type specified in $game->attack from 'default' into
+     * the actual attack type
+     *
+     * @param type $game
+     */
     public function resolve_default_attack(&$game) {
         if ('Default' == $game->attack['attackType'] &&
             !empty($this->resolvedType)) {
@@ -257,6 +380,12 @@ abstract class BMAttack {
         }
     }
 
+    /**
+     * Deal with changes that need to occur for captured dice
+     *
+     * @param BMGame $game
+     * @param array $defenders
+     */
     protected function process_captured_dice($game, array $defenders) {
         // james: currently only defenders, but could conceivably also include attackers
         foreach ($defenders as &$def) {
@@ -266,23 +395,20 @@ abstract class BMAttack {
         }
     }
 
-    protected function assign_new_active_dice($game, array $activeDiceNew) {
-        $activeDiceCopy = $game->activeDieArrayArray;
-        foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
-            foreach ($activeDieArray as $dieIdx => $newDie) {
-                $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
-            }
-        }
-        $game->activeDieArrayArray = $activeDiceCopy;
-    }
-
     // methods to find that there is a valid attack
     //
     // If anybody wants to add a many dice vs many dice attack, I will
     // cut then. (It'd _work_, but the words "combinatoric explosion"
     // are deeply relevant.)
 
-
+    /**
+     * Search for a valid one-vs-one attack
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     protected function search_onevone($game, $attackers, $defenders) {
         // Sanity check
 
@@ -304,8 +430,16 @@ abstract class BMAttack {
         return FALSE;
     }
 
-    // Combine the logic for onevmany and manyvone by use of a
-    // comparison function.
+    /**
+     * Combine the logic for one-vs-many and many-vs-one by use of a
+     * comparison function
+     *
+     * @param BMGame $game
+     * @param array $one
+     * @param array $many
+     * @param function $compare
+     * @return boolean
+     */
     protected function search_ovm_helper($game, $one, $many, $compare) {
         // Sanity check
 
@@ -338,7 +472,16 @@ abstract class BMAttack {
         return FALSE;
     }
 
-    // $this may not be used in anonymous functions in PHP 5.3. Bastards.
+    /**
+     * Search for a valid one-vs-many attack
+     *
+     * Note: $this may not be used in anonymous functions in PHP 5.3. Bastards.
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     protected function search_onevmany($game, array $attackers, array $defenders) {
         $myself = $this;
         $compare = function ($gameVar, $att, $def) use ($myself) {
@@ -348,9 +491,18 @@ abstract class BMAttack {
         return $this->search_ovm_helper($game, $attackers, $defenders, $compare);
     }
 
-    // It is entirely possible this method will never be used, since
-    // skill attacks build a hit table instead. (For hopefully
-    // improved efficiency.)
+    /**
+     * Search for a valid many-vs-one attack
+     *
+     * It is entirely possible this method will never be used, since
+     * skill attacks build a hit table instead. (For hopefully
+     * improved efficiency.)
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return boolean
+     */
     protected function search_manyvone($game, array $attackers, array $defenders) {
         $myself = $this;
         $compare = function ($gameVar, $def, $att) use ($myself) {
@@ -360,7 +512,15 @@ abstract class BMAttack {
         return $this->search_ovm_helper($game, $defenders, $attackers, $compare);
     }
 
-    // returns a list of possible values that can aid an attack
+    /**
+     * Returns an array of possible values that can aid an attack
+     *
+     *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
+     * @return array
+     */
     protected function collect_helpers($game, array $attackers, array $defenders) {
         if (is_null($game->attackerAllDieArray)) {
             return array();
@@ -376,7 +536,12 @@ abstract class BMAttack {
         return $helpers;
     }
 
-    // returns a list of maximum values that each die can be fired
+    /**
+     * Returns a list of maximum values that each die can be fired
+     *
+     * @param array $attackers
+     * @return array
+     */
     protected function collect_firing_maxima(array $attackers) {
         $firingMaxima = array();
 
@@ -391,6 +556,11 @@ abstract class BMAttack {
         return $firingMaxima;
     }
 
+    /**
+     * Accessor for the attack type, used by logging code
+     *
+     * @return string
+     */
     public function type_for_log() {
         return $this->type;
     }

@@ -5,6 +5,7 @@ module("UserPrefs", {
 
     // Create the userprefs_page div so functions have something to modify
     if (document.getElementById('userprefs_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'userprefs_page', }));
     }
 
@@ -30,7 +31,6 @@ module("UserPrefs", {
 
     // Page elements
     $('#userprefs_page').remove();
-    $('#userprefs_page').empty();
     // Controls added to the page by the color picker library we use
     $('.sp-container').remove();
 
@@ -109,6 +109,20 @@ test("test_UserPrefs.actionSetPrefs", function(assert) {
     var autopass_checked = $('#userprefs_autopass').prop('checked');
     assert.ok(autopass_checked,
        "The autopass button should be checked in the prefs table");
+    start();
+  });
+});
+
+test("test_UserPrefs.actionSetPrefsFireOvershooting", function(assert) {
+  stop();
+  Env.callAsyncInParallel([
+    { 'func': Api.getButtonData, 'args': [ null ] },
+    Api.getUserPrefsData,
+  ], function() {
+    UserPrefs.actionSetPrefs();
+    var fire_overshooting_checked = $('#userprefs_fire_overshooting').prop('checked');
+    assert.ok(!fire_overshooting_checked,
+       "The fire overshooting button should not be checked in the prefs table");
     start();
   });
 });

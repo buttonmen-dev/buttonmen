@@ -15,9 +15,32 @@
  */
 class BMGameAction {
 
+    /**
+     * BMGameState of the game when the action occurred
+     *
+     * @var int
+     */
     private $gameState;
+
+    /**
+     * Type of action which was taken
+     *
+     * @var string
+     */
     private $actionType;
+
+    /**
+     * Database ID of player who took the action
+     *
+     * @var int
+     */
     private $actingPlayerId;
+
+    /**
+     * Array of information about the action, format depends on actionType
+     *
+     * @var array
+     */
     private $params;
 
     /**
@@ -43,6 +66,17 @@ class BMGameAction {
         $this->params = $params;
     }
 
+    /**
+     * Creates human-readable action log message
+     *
+     * This function is the main function, which calls subfunctions
+     * friendly_message_*() as required
+     *
+     * @param array $playerIdNames
+     * @param int $roundNumber
+     * @param int $gameState
+     * @return string
+     */
     public function friendly_message($playerIdNames, $roundNumber, $gameState) {
         $this->outputPlayerIdNames = $playerIdNames;
         $this->outputRoundNumber = $roundNumber;
@@ -70,6 +104,11 @@ class BMGameAction {
         }
     }
 
+    /**
+     * Describes a draw at the end of a round
+     *
+     * @return string
+     */
     protected function friendly_message_end_draw() {
         $message = 'Round ' . $this->params['roundNumber'] .
                    ' ended in a draw (' .
@@ -78,6 +117,11 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the end of a round when there is a winner
+     *
+     * @return string
+     */
     protected function friendly_message_end_winner() {
         $message = 'End of round: ' . $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' won round ' . $this->params['roundNumber'];
@@ -90,7 +134,31 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the situation when fire dice need to be turned down
+     *
+     * @return string
+     */
     protected function friendly_message_needs_firing() {
+        return $this->fire_prep_message(FALSE);
+    }
+
+    /**
+     * Describes the situation when fire dice may be turned down
+     *
+     * @return string
+     */
+    protected function friendly_message_allows_firing() {
+        return $this->fire_prep_message(TRUE);
+    }
+
+    /**
+     * Describes the situation when fire dice need to be turned down
+     *
+     * @param bool $isZeroFireValid
+     * @return string
+     */
+    protected function fire_prep_message($isZeroFireValid) {
         $attackType = $this->params['attackType'];
         $attackDice = $this->params['attackDice'];
 
@@ -107,16 +175,31 @@ class BMGameAction {
             $defenders[] = $defenderInfo['recipeStatus'];
         }
         $message .= $this->preAttackMessage($attackers, $defenders) . '; ';
-        $message .= $actingPlayerName . ' must turn down fire dice to complete this attack';
+
+        if ($isZeroFireValid) {
+            $message .= $actingPlayerName . ' must decide whether to turn down fire dice';
+        } else {
+            $message .= $actingPlayerName . ' must turn down fire dice to complete this attack';
+        }
 
         return $message;
     }
 
+    /**
+     * Describes the situation when a player abandons a attack that needs firing
+     *
+     * @return string
+     */
     protected function friendly_message_fire_cancel() {
         return $this->outputPlayerIdNames[$this->actingPlayerId] .
                ' chose to abandon this attack and start over';
     }
 
+    /**
+     * Describes an attack
+     *
+     * @return string
+     */
     protected function friendly_message_attack() {
         $attackType = $this->params['attackType'];
         $preAttackDice = $this->params['preAttackDice'];
@@ -162,22 +245,7 @@ class BMGameAction {
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
 
         if ($defenderRerollsEarly) {
-            // this only triggers for trip attacks, so there can only be one attacker involved
-            $midAttackDice = $preAttackDice;
-
-            if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
-                $midAttackDice['attacker'][0]['value'] =
-                    $postAttackDice['attacker'][0]['valueAfterTripAttack'];
-            }
-
-            $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
-            $message .= '; ' . $messageDefender;
-
-            // now deal with morphing after trip
-            if (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
-                ($postAttackDice['attacker'][0]['hasJustMorphed'])) {
-                $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
-            }
+            $message .= $this->trip_message($preAttackDice, $postAttackDice, $messageDefender);
         } else {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
             $message .= $messageDefender . '; ' . $messageAttacker;
@@ -186,7 +254,19 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes how fire dice have been turned down
+     *
+     * @param array $fireCache
+     * @param string $actingPlayerName
+     * @return string
+     */
     protected function fire_turndown_message($fireCache, $actingPlayerName) {
+        if (array_key_exists('action', $fireCache)) {
+            assert('zero_firing' == $fireCache['action']);
+            return $actingPlayerName . ' chose not to turn down fire dice; ';
+        }
+
         $fireRecipes = $fireCache['fireRecipes'];
         $oldValues = $fireCache['oldValues'];
         $newValues = $fireCache['newValues'];
@@ -209,6 +289,13 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the attackers and defenders at the beginning of an attack
+     *
+     * @param array $preAttackAttackers
+     * @param array $preAttackDefenders
+     * @return string
+     */
     protected function preAttackMessage($preAttackAttackers, $preAttackDefenders) {
         $message = '';
 
@@ -223,11 +310,26 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes what happens to each defending die
+     *
+     * @param array $preAttackDice
+     * @param array $postAttackDice
+     * @param bool $defenderRerollsEarly
+     * @return string
+     */
     protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
         $messageDefenderArray = array();
+        $nExtraDice = 0;
+
         // Report what happened to each defending die
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-            $postInfo = $postAttackDice['defender'][$idx];
+            // Skip extra dice for the moment
+            while (array_key_exists('isRageTargetReplacement', $postAttackDice['defender'][$idx + $nExtraDice])) {
+                $nExtraDice++;
+            }
+
+            $postInfo = $postAttackDice['defender'][$idx + $nExtraDice];
             $postEventsDefender = array();
 
             $this->message_append(
@@ -235,7 +337,7 @@ class BMGameAction {
                 $this->message_recipe_change($defenderInfo, $postInfo, FALSE)
             );
 
-            if ($defenderRerollsEarly) {
+            if ($defenderRerollsEarly || !$postInfo['captured']) {
                 $this->message_append(
                     $postEventsDefender,
                     $this->message_value_change($defenderInfo, $postInfo)
@@ -245,8 +347,21 @@ class BMGameAction {
                 $postEventsDefender,
                 $this->message_capture($postInfo)
             );
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_out_of_play($defenderInfo, $postInfo)
+            );
 
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+        }
+
+        $nExtraDice = count($postAttackDice['defender']) - count($preAttackDice['defender']);
+        // now report on added dice
+        if ($nExtraDice > 0) {
+            $this->message_append(
+                $messageDefenderArray,
+                $this->message_defender_added_dice($postAttackDice['defender'])
+            );
         }
 
         $messageDefender = implode('; ', $messageDefenderArray);
@@ -254,6 +369,75 @@ class BMGameAction {
         return $messageDefender;
     }
 
+    protected function message_defender_added_dice($postAttackDice) {
+        $addedDieRecipes = array();
+
+        foreach ($postAttackDice as $dieInfo) {
+            if (array_key_exists('isRageTargetReplacement', $dieInfo)) {
+                $addedDieRecipes[] = $dieInfo['recipe'] . ':' . $dieInfo['value'];
+            }
+        }
+
+        if (empty($addedDieRecipes)) {
+            return '';
+        } elseif (1 == count($addedDieRecipes)) {
+            $msgStart = 'Defender ';
+            $msgEnd = ' was added';
+        } else {
+            $msgStart = 'Defenders ';
+            $msgEnd = ' were added';
+        }
+
+        return $msgStart . implode(', ', $addedDieRecipes) . $msgEnd;
+    }
+
+    /**
+     * Describes trip attack details
+     *
+     * @param array $preAttackDice
+     * @param array $postAttackDice
+     * @param string $messageDefender
+     * @return string
+     */
+    protected function trip_message($preAttackDice, $postAttackDice, $messageDefender) {
+        $message = '';
+
+        // this only triggers for trip attacks, so there can only be one attacker involved
+        $midAttackDice = $preAttackDice;
+
+        if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
+            $midAttackDice['attacker'][0]['value'] =
+                $postAttackDice['attacker'][0]['valueAfterTripAttack'];
+        }
+
+        if (isset($postAttackDice['attacker'][0]['recipeAfterTripAttack'])) {
+            $midAttackDice['attacker'][0]['recipe'] =
+                $postAttackDice['attacker'][0]['recipeAfterTripAttack'];
+        }
+
+        $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
+        $message .= '; ' . $messageDefender;
+
+        $splittingAfterTrip = (count($midAttackDice['attacker']) !=
+                               count($postAttackDice['attacker']));
+        $morphingAfterTrip = (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
+                             ($postAttackDice['attacker'][0]['hasJustMorphed']));
+
+        // deal with splitting after trip
+        if ($splittingAfterTrip || $morphingAfterTrip) {
+            $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describes what happens to each attacking die
+     *
+     * @param array $preAttackDice
+     * @param array $postAttackDice
+     * @return string
+     */
     protected function messageAttacker($preAttackDice, $postAttackDice) {
         $messageAttackerArray = array();
 
@@ -268,12 +452,32 @@ class BMGameAction {
 
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $initialAttackerInfo = $attackerInfo;
+
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
 
+            $messageBerserk = $this->message_berserk($attackerInfo, $postInfo);
             $this->message_append(
                 $postEventsAttacker,
-                $this->message_size_change($attackerInfo, $postInfo)
+                $messageBerserk
+            );
+
+            // now report as if the berserk attack were completed
+            if ($messageBerserk) {
+                $attackerInfo['recipe'] = $postInfo['recipeAfterBerserkAttack'];
+                $attackerInfo['max'] = self::max_from_recipe($postInfo['recipeAfterBerserkAttack']);
+            }
+
+            $messageSizeChange = '';
+            if ($messageBerserk) {
+                $messageSizeChange .= 'and then ';
+            }
+            $messageSizeChange .= $this->message_size_change($attackerInfo, $postInfo);
+
+            $this->message_append(
+                $postEventsAttacker,
+                $messageSizeChange
             );
             $this->message_append(
                 $postEventsAttacker,
@@ -283,10 +487,14 @@ class BMGameAction {
                 $postEventsAttacker,
                 $this->message_value_change($attackerInfo, $postInfo)
             );
+            $this->message_append(
+                $postEventsAttacker,
+                $this->message_out_of_play($attackerInfo, $postInfo)
+            );
 
             if (!empty($postEventsAttacker)) {
                 $messageAttackerArray[] =
-                    'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                    'Attacker ' . $initialAttackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
 
@@ -295,6 +503,44 @@ class BMGameAction {
         return $messageAttacker;
     }
 
+    /**
+     * Extracts the die max from a fully-qualified recipe.
+     *
+     * This has been written this way to work correctly for normal dice,
+     * swing dice, and twin dice. It fails for Wildcard at the moment.
+     *
+     * It would be possible to implement this fully to work with
+     * BMDie->create_from_recipe(), but it's a lot more complicated, and
+     * currently, it's only needed here in the logging.
+     *
+     * @param string $recipe
+     * @return int
+     */
+    protected static function max_from_recipe($recipe) {
+        if (preg_match('/\(.+=.+\)/', $recipe)) {
+            // if there is an equals present, it must be a swing or option die, so play safe and
+            // only look for numbers directly after an equals sign
+            preg_match_all('/=(\d+)/', $recipe, $matches);
+        } elseif (preg_match('/\(.+\/.+\)/', $recipe)) {
+            // if there is an unspecified option die (which shouldn't occur), then return no value
+            $matches = array();
+        } else {
+            preg_match_all('/(\d+)/', $recipe, $matches);
+        }
+        if (count($matches)) {
+            return array_sum($matches[1]);
+        } else {
+            return NULL;
+        }
+    }
+
+    /**
+     * Describes what happens when an attacker splits into two
+     *
+     * @param array $preAttackAttackers
+     * @param array $postAttackAttackers
+     * @return string
+     */
     protected function message_split(array $preAttackAttackers, array $postAttackAttackers) {
         assert(count($preAttackAttackers) < count($postAttackAttackers));
 
@@ -328,6 +574,12 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes a die growing or shrinking
+     *
+     * @param array $diePropertyArray
+     * @return string
+     */
     protected function message_grow_shrink(array $diePropertyArray) {
         if (array_key_exists('recipeBeforeGrowing', $diePropertyArray) &&
             $diePropertyArray['recipeBeforeGrowing']) {
@@ -340,12 +592,46 @@ class BMGameAction {
         }
     }
 
+    /**
+     * Appends a message to an array of messages
+     *
+     * @param array $messageArray
+     * @param string $messageIncrement
+     */
     protected function message_append(array &$messageArray, $messageIncrement) {
         if (!empty($messageIncrement)) {
             $messageArray[] = $messageIncrement;
         }
     }
 
+    /**
+     * Describes the recipe and size change during a berserk attack
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
+    protected function message_berserk(array $preInfo, array $postInfo) {
+        $message = '';
+
+        if (array_key_exists('recipeAfterBerserkAttack', $postInfo) &&
+            ($postInfo['recipe'] != $postInfo['recipeAfterBerserkAttack'])) {
+            $message .= 'changed to ' . $postInfo['recipeAfterBerserkAttack'] .
+                        ' and changed size from ' . $preInfo['max'] . ' to ' .
+                        $this->max_from_recipe($postInfo['recipeAfterBerserkAttack']) .
+                        ' sides because of the Berserk attack';
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describes a die size change
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
     protected function message_size_change($preInfo, $postInfo) {
         $message = '';
 
@@ -361,6 +647,14 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes a die recipe change
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @param bool $showFrom
+     * @return string
+     */
     protected function message_recipe_change($preInfo, $postInfo, $showFrom = TRUE) {
         $message = '';
 
@@ -377,8 +671,15 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes a die value change or if the die doesn't reroll
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
     protected function message_value_change($preInfo, $postInfo) {
-        if ($preInfo['doesReroll']) {
+        if ($postInfo['doesReroll']) {
             $message = 'rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
         } else {
             $message = 'does not reroll';
@@ -387,6 +688,12 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes whether the defender was captured
+     *
+     * @param array $postInfo
+     * @return string
+     */
     protected function message_capture($postInfo) {
         if ($postInfo['captured']) {
             $message = 'was captured';
@@ -397,6 +704,33 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes whether a die has been taken out of play
+     *
+     * @param array $preInfo
+     * @param array $postInfo
+     * @return string
+     */
+    protected function message_out_of_play($preInfo, $postInfo) {
+        $message = '';
+
+        $isOutOfPlayPost = array_key_exists('outOfPlay', $postInfo) &&
+                           $postInfo['outOfPlay'];
+        $isOutOfPlayPre  = array_key_exists('outOfPlay', $preInfo) &&
+                           $preInfo['outOfPlay'];
+
+        if ($isOutOfPlayPost && !$isOutOfPlayPre) {
+            $message = 'was taken out of play';
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describes choice of option or swing values
+     *
+     * @return string
+     */
     protected function friendly_message_choose_die_values() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set';
 
@@ -427,10 +761,16 @@ class BMGameAction {
         return $message;
     }
 
-    // Since the addition of option dice, new choose_swing log
-    // entries are no longer added to the DB.  However, this code
-    // must be retained to parse old log entries until/unless those
-    // are converted.
+    /**
+     * Describes choice of swing values
+     *
+     * Since the addition of option dice, new choose_swing log
+     * entries are no longer added to the DB.  However, this code
+     * must be retained to parse old log entries until/unless those
+     * are converted.
+     *
+     * @return string
+     */
     protected function friendly_message_choose_swing() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set swing values';
 
@@ -448,6 +788,11 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the effect of rerolling a chance die
+     *
+     * @return string
+     */
     protected function friendly_message_reroll_chance() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' rerolled a chance die';
         if ($this->params['gainedInitiative']) {
@@ -460,6 +805,11 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the effect of turning down focus dice
+     *
+     * @return string
+     */
     protected function friendly_message_turndown_focus() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' gained initiative by turning down focus dice';
         $focusStrs = array();
@@ -471,24 +821,44 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the action of declining an initiative action
+     *
+     * @return string
+     */
     protected function friendly_message_init_decline() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' chose not to try to gain initiative using chance or focus dice';
         return $message;
     }
 
+    /**
+     * Describes the action of adding a reserve die
+     *
+     * @return string
+     */
     protected function friendly_message_add_reserve() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' added a reserve die: ' . $this->params['die']['recipe'];
         return $message;
     }
 
+    /**
+     * Describes the action of declining extra reserve dice
+     *
+     * @return string
+     */
     protected function friendly_message_decline_reserve() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' chose not to add a reserve die';
         return $message;
     }
 
+    /**
+     * Describes the action of choosing to add auxiliary dice
+     *
+     * @return string
+     */
     protected function friendly_message_add_auxiliary() {
         // If the round is later than the one in which this action
         // log entry was recorded, or we're no longer in auxiliary selection
@@ -506,6 +876,11 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the action of declining auxiliary dice
+     *
+     * @return string
+     */
     protected function friendly_message_decline_auxiliary() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' chose not to use auxiliary dice in this game: ' .
@@ -513,6 +888,11 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes initiative result
+     *
+     * @return string
+     */
     protected function friendly_message_determine_initiative() {
         $messageArray = array();
 
@@ -567,11 +947,33 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Describes the case when a player gets another turn
+     *
+     * @return string
+     */
+    protected function friendly_message_play_another_turn() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   ' gets another turn';
+
+        if ('TimeAndSpace' == $this->params['cause']) {
+            $message .= ' because a Time and Space die rolled odd';
+        }
+
+        return $message;
+    }
+
+    /**
+     * Describes ornery die rerolls at the end of each turn
+     *
+     * @return string
+     */
     protected function friendly_message_ornery_reroll() {
         $messageArray = array();
         // Report what happened to each rerolling die
         foreach ($this->params['postRerollDieInfo'] as $idx => $postInfo) {
-            if (!$postInfo['hasJustRerolledOrnery']) {
+            if (!isset($postInfo['hasJustRerolledOrnery']) ||
+                !$postInfo['hasJustRerolledOrnery']) {
                 continue;
             }
 

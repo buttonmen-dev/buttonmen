@@ -10,6 +10,7 @@ module("Forum", {
 
     // Create the forum_page div so functions have something to modify
     if (document.getElementById('forum_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'forum_page', }));
     }
 
@@ -40,7 +41,6 @@ module("Forum", {
 
     // Page elements
     $('#forum_page').remove();
-    $('#forum_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

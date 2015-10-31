@@ -43,7 +43,8 @@ CREATE TABLE game_player_map (
     last_action_time   TIMESTAMP DEFAULT 0,
     was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL,
     is_button_random   BOOLEAN DEFAULT FALSE NOT NULL,
-    has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL
+    has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL,
+    INDEX (game_id, player_id)
 );
 
 CREATE TABLE game_swing_map (
@@ -69,7 +70,8 @@ CREATE TABLE game_action_log (
     game_state         TINYINT UNSIGNED DEFAULT 10,
     action_type        VARCHAR(20),
     acting_player      SMALLINT UNSIGNED NOT NULL,
-    message            TEXT
+    message            TEXT,
+    INDEX (game_id)
 );
 
 CREATE TABLE game_chat_log (
@@ -80,7 +82,8 @@ CREATE TABLE game_chat_log (
     -- A chat message is limited to 2000 Unicode characters (see
     -- GAME_CHAT_MAX_LENGTH in ApiSpec.php and Game.js). Since a Unicode
     -- character can be up to four bytes, this requires a varchar(8000).
-    message            VARCHAR(8000)
+    message            VARCHAR(8000),
+    INDEX (game_id)
 );
 
 CREATE TABLE die (

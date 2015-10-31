@@ -6,6 +6,7 @@ module("OpenGames", {
 
     // Create the opengames_page div so functions have something to modify
     if (document.getElementById('opengames_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'opengames_page', }));
     }
   },
@@ -26,7 +27,6 @@ module("OpenGames", {
 
     // Page elements
     $('#opengames_page').remove();
-    $('#opengames_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

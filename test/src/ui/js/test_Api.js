@@ -14,6 +14,7 @@ module("Api", {
     delete Api.button;
     delete Api.buttonSet;
     delete Api.player;
+    delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
     delete Api.user_prefs;
@@ -37,7 +38,6 @@ module("Api", {
 
     // Page elements (for test use only)
     $('#api_page').remove();
-    $('#api_page').empty();
 
     // Fail if any other elements were added or removed
     BMTestUtils.ApiPost = BMTestUtils.getAllElements();
@@ -343,6 +343,14 @@ test("test_Api.parseUserPrefsData", function(assert) {
   stop();
   Api.getUserPrefsData(function() {
     assert.equal(Api.user_prefs.autopass, true, "Successfully parsed autopass value");
+    start();
+  });
+});
+
+test("test_Api.parseUserPrefsDataFireOvershooting", function(assert) {
+  stop();
+  Api.getUserPrefsData(function() {
+    assert.equal(Api.user_prefs.fire_overshooting, false, "Successfully parsed fire overshooting value");
     start();
   });
 });

@@ -21,18 +21,47 @@
 class BMEmail {
 
     // properties
+
+    /**
+     * Subject line
+     *
+     * @var string
+     */
     private $subject;
+
+    /**
+     * Email address of recipient
+     *
+     * @var string
+     */
     private $recipient;
+
+    /**
+     * Array containing lines to be used as the body of the message
+     *
+     * @var array
+     */
     private $bodypars;
 
-    // constructor
+    /**
+     * Constructor
+     *
+     * @param string $recipient
+     * @param boolean $isTest
+     */
     public function __construct($recipient, $isTest) {
         $this->recipient = $recipient;
         $this->bodypars = array();
         $this->isTest = $isTest;
     }
 
-    // send an e-mail verification link to a player
+    /**
+     * Send an e-mail verification link to a player
+     *
+     * @param int $playerId
+     * @param string $username
+     * @param string $playerKey
+     */
     public function send_verification_link($playerId, $username, $playerKey) {
         $this->subject = 'Please verify your Button Men account';
         $this->bodypars[] = 'Welcome to Button Men, ' . $username . '!';
@@ -42,7 +71,9 @@ class BMEmail {
         $this->send_message();
     }
 
-    // this function actually sends the message, and should only be called from within this class
+    /**
+     * This function actually sends the message, and should only be called from within this class
+     */
     protected function send_message() {
         $headers = array();
         $headers[] = "From: site-notifications@buttonweavers.com";
@@ -60,6 +91,13 @@ class BMEmail {
         }
     }
 
+    /**
+     * URL to be used to verify player on first login
+     *
+     * @param int $playerId
+     * @param string $playerKey
+     * @return string
+     */
     protected function encoded_verification_link($playerId, $playerKey) {
         $link = $this->get_server_url_prefix() . 'ui/verify.html?' .
                 'id=' . urlencode($playerId) . '&' .
@@ -67,7 +105,11 @@ class BMEmail {
         return $link;
     }
 
-    // What does the site believe its own full URL is?
+    /**
+     * What does the site believe its own full URL is?
+     *
+     * @return string
+     */
     protected function get_server_url_prefix() {
         if (isset($_SERVER) && array_key_exists('SERVER_NAME', $_SERVER)) {
             $port = '';

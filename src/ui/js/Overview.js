@@ -8,6 +8,8 @@ Overview.bodyDivId = 'overview_page';
 Overview.GAME_STATE_END_GAME = 60;
 
 Overview.MONITOR_TIMEOUT = 60;
+Overview.STALENESS_DAYS = 14;
+Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -18,10 +20,10 @@ Overview.MONITOR_TIMEOUT = 60;
 // * Overview.showLoggedInPage() is the landing function.  Always call this
 //   first when logged out. This calls Overview.pageAddIntroText()
 // * Overview.getOverview() asks the API for information about the
-//   player's overview status (currently, the lists of active and completed
-//   games, and potentially the user's preferences).
-//   It sets Api.active_games, Api.completed_games and potentially
-//   Api.user_prefs.  If successful, it calls Overview.showPage().
+//   player's overview status (currently, the lists of new, active, and
+//   completed games, and potentially the user's preferences).
+//   It sets Api.new_games, Api.active_games, Api.completed_games and
+//   potentially Api.user_prefs.  If successful, it calls Overview.showPage().
 // * Overview.showPage() assembles the page contents as a variable.
 //
 // N.B. There is no form submission on this page (aside from the [Dismiss]
@@ -81,6 +83,7 @@ Overview.showPreferredOverview = function() {
 
 Overview.getOverview = function(callback) {
   Env.callAsyncInParallel([
+    Api.getNewGamesData,
     Api.getActiveGamesData,
     Api.getCompletedGamesData,
   ], callback);
@@ -111,7 +114,9 @@ Overview.showPage = function() {
     setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
   }
 
-  if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
+  if ((Api.new_games.nGames === 0) &&
+      (Api.active_games.nGames === 0) &&
+      (Api.completed_games.nGames === 0)) {
     Env.message = {
       'type': 'none',
       'text': 'You have no games',
@@ -161,6 +166,7 @@ Overview.completeMonitor = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
+  Overview.pageAddGameTable('new', 'New games', false);
   Overview.pageAddGameTable('finished', 'Completed games', false);
   Overview.pageAddGameTable('awaitingPlayer', 'Active games', false);
   Overview.pageAddGameTable('awaitingOpponent', 'Active games', true);
@@ -203,6 +209,11 @@ Overview.pageAddGameTable = function(
     sectionHeader,
     reverseSortOrder
   ) {
+  if (gameType == 'new') {
+    Overview.pageAddGameTableNew();
+    return;
+  }
+
   if (typeof reverseSortOrder === 'undefined') {
     reverseSortOrder = false;
   }
@@ -260,6 +271,7 @@ Overview.pageAddGameTable = function(
   }
 
   var i = 0;
+  var staleGamesExist = false;
   while (i < gamesource.length) {
     var gameInfo = gamesource[i];
     var playerColor = gameInfo.playerColor;
@@ -273,6 +285,12 @@ Overview.pageAddGameTable = function(
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'Play Game ' + gameInfo.gameId,}));
     } else if (gameType == 'awaitingOpponent') {
+      if (gameInfo.inactivityRaw > Overview.STALENESS_SECS) {
+        staleGamesExist = true;
+        gameRow.addClass('staleGame');
+        gameRow.hide();
+      }
+
       gameLinkTd =
         $('<td>', { 'style': 'background-color: ' + opponentColor, });
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
@@ -340,6 +358,121 @@ Overview.pageAddGameTable = function(
     i += 1;
     tableBody.append(gameRow);
   }
+
+  if (staleGamesExist) {
+    var tableFoot = $('<tfoot>');
+    var footRow = $('<tr>');
+    var footCol = $('<td>', {
+      'colspan': '6',
+    });
+    var staleToggle = $('<a>', {
+      'id': 'staleToggle',
+      'href': 'javascript:Overview.toggleStaleGame();',
+      'text': 'Show stale games',
+    });
+
+    footCol.append('[').append(staleToggle).append(']');
+    footRow.append(footCol);
+    tableFoot.append(footRow);
+    tableBody.closest('table').append(tableFoot);
+  }
+};
+
+Overview.pageAddGameTableNew = function() {
+  var gamesource = Api.new_games.games;
+  var tableClass = 'newGames';
+
+  if (gamesource.length === 0) {
+    return;
+  }
+
+  var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
+  var tableDiv = $('<div>');
+  tableDiv.append($('<h2>', {'text': 'New games', }));
+  var table = $('<table>', { 'class': 'gameList ' + tableClass, });
+  tableDiv.append(table);
+  Overview.page.append(tableDiv);
+
+  var tableHead = $('<thead>');
+  var headerRow = $('<tr>');
+  headerRow.append($('<th>', {'text': 'Game #', }));
+  headerRow.append($('<th>', {'text': 'Your Button', }));
+  headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+  headerRow.append($('<th>', {'text': 'Opponent', }));
+  headerRow.append($('<th>', {'text': 'Max wins', }));
+  headerRow.append($('<th>', {'text': 'Action', 'colspan': '2', }));
+
+  tableHead.append(headerRow);
+  table.append(tableHead);
+
+  tableBody = $('<tbody>');
+  table.append(tableBody);
+
+  var i = 0;
+  var gameInfo;
+  var gameRow;
+  var decideTd;
+  var acceptLink;
+  var rejectLink;
+  while (i < gamesource.length) {
+    gameInfo = gamesource[i];
+
+    gameRow = $('<tr>');
+    gameRow.append($('<td>', {
+      'text': 'Game ' + gameInfo.gameId,
+    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.playerButtonName)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.opponentButtonName)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildProfileLink(gameInfo.opponentName)
+    ));
+    gameRow.append($('<td>', {
+      'text': gameInfo.maxWins,
+    }));
+
+    decideTd = $('<td>');
+    gameRow.append(decideTd);
+
+    if (Api.new_games.games[0].isAwaitingAction) {
+      acceptLink = $('<a>', {
+        'text': 'Accept',
+        'href': '#',
+        'data-gameId': gameInfo.gameId,
+      });
+      acceptLink.click(Overview.formAcceptGame);
+
+      decideTd.append('[')
+              .append(acceptLink)
+              .append('] / ');
+    }
+
+    rejectLink = $('<a>', {
+      'text': 'Reject',
+      'href': '#',
+      'data-gameId': gameInfo.gameId,
+    });
+    rejectLink.click(Overview.formRejectGame);
+
+    decideTd.append('[')
+            .append(rejectLink)
+            .append(']');
+
+    i += 1;
+    tableBody.append(gameRow);
+  }
+};
+
+Overview.toggleStaleGame = function() {
+  $('.staleGame').toggle();
+  $('#staleToggle').text(
+    $('.staleGame').is(':visible') ?
+    'Hide stale games' :
+    'Show stale games'
+  );
 };
 
 Overview.pageAddIntroText = function() {
@@ -434,6 +567,36 @@ Overview.pageAddIntroText = function() {
   }));
   infopar.append(', and is used with permission.');
   Overview.page.append(infopar);
+};
+
+Overview.formAcceptGame = function(e) {
+  e.preventDefault();
+  var args = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'accept',
+  };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully accepted game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
+    Overview.showLoggedInPage);
+};
+
+Overview.formRejectGame = function(e) {
+  e.preventDefault();
+  var args = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'reject',
+  };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully rejected game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
+    Overview.showLoggedInPage);
 };
 
 Overview.formDismissGame = function(e) {

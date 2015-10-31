@@ -6,6 +6,7 @@
 
     // Create the activeplayers_page div so functions have something to modify
     if (document.getElementById('activeplayers_page') == null) {
+      $('body').append($('<div>', {'id': 'env_message', }));
       $('body').append($('<div>', {'id': 'activeplayers_page', }));
     }
   },
@@ -24,7 +25,6 @@
 
     // Page elements
     $('#activeplayers_page').remove();
-    $('#activeplayers_page').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

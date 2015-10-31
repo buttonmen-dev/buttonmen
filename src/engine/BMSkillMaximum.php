@@ -15,20 +15,25 @@ class BMSkillMaximum extends BMSkill {
      *
      * @var array
      */
-    public static $hooked_methods = array('post_roll');
+    public static $hooked_methods = array('roll');
 
     /**
-     * Hooked method applied after rolling a die
+     * Hooked method applied while rolling a die
      *
      * @param array $args
      * @return boolean
      */
-    public static function post_roll(&$args) {
+    public static function roll(&$args) {
         if (!($args['die'] instanceof BMDie)) {
             return FALSE;
         }
 
         $die = $args['die'];
+
+        if (!$die->doesReroll && isset($die->value)) {
+            return FALSE;
+        }
+
         $die->value = $die->max;
         return TRUE;
     }
@@ -51,6 +56,8 @@ class BMSkillMaximum extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Konstant' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
+        );
     }
 }

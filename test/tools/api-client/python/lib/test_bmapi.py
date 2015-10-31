@@ -78,7 +78,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_active_games()
     self.assertEqual(r.status, 'ok', 'loadActiveGames returns successfully')
     known_keys = [
-      'gameIdArray', 'gameStateArray', 'inactivityArray',
+      'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray',
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
@@ -95,7 +95,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_completed_games()
     self.assertEqual(r.status, 'ok', 'loadCompletedGames returns successfully')
     known_keys = [
-      'gameIdArray', 'gameStateArray', 'inactivityArray',
+      'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray',
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
@@ -124,8 +124,10 @@ class TestBMClient(unittest.TestCase):
 
   def test_load_game_data(self):
     known_keys = [
-      'activePlayerIdx', 'currentPlayerIdx', 'description', 'gameActionLog',
-      'gameChatEditable', 'gameChatLog', 'gameId', 'gameSkillsInfo',
+      'activePlayerIdx', 'currentPlayerIdx', 'description',
+      'gameActionLog', 'gameActionLogCount',
+      'gameChatEditable', 'gameChatLog', 'gameChatLogCount',
+      'gameId', 'gameSkillsInfo',
       'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
       'previousGameId', 'roundNumber', 'timestamp', 'validAttackTypeArray'
     ]
@@ -139,7 +141,8 @@ class TestBMClient(unittest.TestCase):
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
       'gameScoreArray', 'hasDismissedGame', 'lastActionTime',
-      'optRequestArray', 'playerColor', 'playerId', 'playerName',
+      'optRequestArray', 'outOfPlayDieArray',
+      'playerColor', 'playerId', 'playerName',
       'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',
       'swingRequestArray', 'waitingOnAction'
     ]

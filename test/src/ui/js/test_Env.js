@@ -3,6 +3,10 @@ module("Env", {
     BMTestUtils.EnvPre = BMTestUtils.getAllElements();
 
     BMTestUtils.setupFakeLogin();
+
+    // Create an empty #c_body for use by these tests, because they don't create a normal page
+    $('body').append($('<div>', {'id': 'container', }));
+    $('#container').append($('<div>', {'id': 'c_body'}));
 },
   'teardown': function(assert) {
 
@@ -14,6 +18,7 @@ module("Env", {
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
+    $('#container').remove();
 
     delete Env.window.location.origin;
     delete Env.window.location.pathname;

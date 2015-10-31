@@ -1,240 +1,16 @@
 <?php
 
-class BMInterfaceTest extends PHPUnit_Framework_TestCase {
+require_once 'BMInterfaceTestAbstract.php';
 
-    /**
-     * @var BMInterface
-     */
-    protected $object;
-    private static $userId1WithoutAutopass;
-    private static $userId2WithoutAutopass;
-    private static $userId3WithAutopass;
-    private static $userId4WithAutopass;
+class BMInterfaceTest extends BMInterfaceTestAbstract {
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp() {
-        if (file_exists('../test/src/database/mysql.test.inc.php')) {
-            require_once '../test/src/database/mysql.test.inc.php';
-        } else {
-            require_once 'test/src/database/mysql.test.inc.php';
-        }
+    protected function init() {
         $this->object = new BMInterface(TRUE);
-        $this->newuserObject = new BMInterfaceNewuser(TRUE);
+        $this->interfacePlayer = new BMInterfacePlayer(TRUE);
     }
 
     /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
-
-    }
-
-    protected static function getMethod($name) {
-        $class = new ReflectionClass('BMInterface');
-        $method = $class->getMethod($name);
-        $method->setAccessible(true);
-        return $method;
-    }
-
-    protected function load_game($gameId) {
-        $load_game = self::getMethod('load_game');
-        return $load_game->invokeArgs($this->object, array($gameId));
-    }
-
-    protected function save_game($game) {
-        $save_game = self::getMethod('save_game');
-        return $save_game->invokeArgs($this->object, array($game));
-    }
-
-    /**
-     * @covers BMInterfaceNewuser::create_user
-     */
-    public function test_create_user() {
-        $created_real = False;
-        $maxtries = 999;
-        $trynum = 1;
-
-        // Tests may be run multiple times.  Find a user of the
-        // form interfaceNNN which hasn't been created yet and
-        // create it in the test DB.  The dummy interface will claim
-        // success for any username of this form.
-        while (!($created_real)) {
-            $this->assertTrue($trynum < $maxtries,
-                "Internal test error: too many interfaceNNN users in the test database. " .
-                "Clean these out by hand.");
-            $username = 'interface' . sprintf('%03d', $trynum);
-            $email = $username . '@example.com';
-            $createResult = $this->newuserObject->create_user($username, 't', $email);
-            if (isset($createResult)) {
-                $created_real = True;
-            }
-            $trynum++;
-        }
-
-        $this->assertTrue($created_real,
-            "Creation of $username user should be reported as success");
-        self::$userId1WithoutAutopass = (int)$createResult['playerId'];
-
-        $username = 'interface' . sprintf('%03d', $trynum);
-        $email = $username . '@example.com';
-        $createResult = $this->newuserObject->create_user($username, 't', $email);
-        self::$userId2WithoutAutopass = (int)$createResult['playerId'];
-
-        $trynum++;
-        $username = 'interface' . sprintf('%03d', $trynum);
-        $email = $username . '@example.com';
-        $createResult = $this->newuserObject->create_user($username, 't', $email);
-
-        $infoArray = array(
-            'name_irl' => '',
-            'is_email_public' => FALSE,
-            'dob_month' => 0,
-            'dob_day' => 0,
-            'gender' => '',
-            'comment' => '',
-            'monitor_redirects_to_game' => 0,
-            'monitor_redirects_to_forum' => 0,
-            'automatically_monitor' => 0,
-            'autopass' => 1
-        );
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
-
-        $this->object->set_player_info($createResult['playerId'],
-                                       $infoArray,
-                                       $addlInfo);
-        self::$userId3WithAutopass = (int)$createResult['playerId'];
-
-        $trynum++;
-        $username = 'interface' . sprintf('%03d', $trynum);
-        $email = $username . '@example.com';
-        $createResult = $this->newuserObject->create_user($username, 't', $email);
-        $this->object->set_player_info($createResult['playerId'],
-                                       $infoArray,
-                                       $addlInfo);
-        self::$userId4WithAutopass = (int)$createResult['playerId'];
-    }
-
-    /**
-     * @depends test_create_user
-     *
-     * @covers BMInterface::get_player_info
-     */
-    public function test_get_player_info() {
-        $data = $this->object->get_player_info(self::$userId3WithAutopass);
-        $resultArray = $data['user_prefs'];
-        $this->assertTrue(is_array($resultArray));
-
-        $this->assertArrayHasKey('id', $resultArray);
-        $this->assertArrayHasKey('name_ingame', $resultArray);
-        $this->assertArrayNotHasKey('password_hashed', $resultArray);
-        $this->assertArrayHasKey('name_irl', $resultArray);
-        $this->assertArrayHasKey('email', $resultArray);
-        $this->assertArrayHasKey('is_email_public', $resultArray);
-        $this->assertArrayHasKey('dob_month', $resultArray);
-        $this->assertArrayHasKey('dob_day', $resultArray);
-        $this->assertArrayHasKey('gender', $resultArray);
-        $this->assertArrayHasKey('image_size', $resultArray);
-        $this->assertArrayHasKey('image_size', $resultArray);
-        $this->assertArrayHasKey('uses_gravatar', $resultArray);
-        $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
-        $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
-        $this->assertArrayHasKey('automatically_monitor', $resultArray);
-        $this->assertArrayHasKey('comment', $resultArray);
-        $this->assertArrayHasKey('player_color', $resultArray);
-        $this->assertArrayHasKey('opponent_color', $resultArray);
-        $this->assertArrayHasKey('neutral_color_a', $resultArray);
-        $this->assertArrayHasKey('neutral_color_b', $resultArray);
-        $this->assertArrayHasKey('homepage', $resultArray);
-        $this->assertArrayHasKey('favorite_button', $resultArray);
-        $this->assertArrayHasKey('favorite_buttonset', $resultArray);
-        $this->assertArrayHasKey('last_action_time', $resultArray);
-        $this->assertArrayHasKey('creation_time', $resultArray);
-        $this->assertArrayHasKey('fanatic_button_id', $resultArray);
-        $this->assertArrayHasKey('n_games_won', $resultArray);
-        $this->assertArrayHasKey('n_games_lost', $resultArray);
-
-        $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
-
-        $this->assertTrue(is_bool($resultArray['autopass']));
-        $this->assertTrue(is_bool($resultArray['monitor_redirects_to_game']));
-        $this->assertTrue(is_bool($resultArray['monitor_redirects_to_forum']));
-        $this->assertTrue(is_bool($resultArray['automatically_monitor']));
-
-        $this->assertTrue(is_int($resultArray['fanatic_button_id']));
-        $this->assertEquals(0, $resultArray['fanatic_button_id']);
-        $this->assertTrue(is_int($resultArray['n_games_won']));
-        $this->assertTrue(is_int($resultArray['n_games_lost']));
-    }
-
-    /**
-     * @depends test_create_user
-     *
-     * @covers BMInterface::get_player_info
-     * @covers BMInterface::set_player_info
-     */
-    public function test_set_player_info() {
-        $infoArray = array(
-            'name_irl' => '',
-            'is_email_public' => FALSE,
-            'dob_month' => 0,
-            'dob_day' => 0,
-            'gender' => '',
-            'comment' => '',
-            'autopass' => 1,
-            'player_color' => '#dd99dd',
-            'opponent_color' => '#ddffdd',
-            'neutral_color_a' => '#cccccc',
-            'neutral_color_b' => '#dddddd',
-            'monitor_redirects_to_game' => 1,
-            'monitor_redirects_to_forum' => 1,
-            'automatically_monitor' => 1,
-        );
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => 'google.com');
-
-        $this->object->set_player_info(self::$userId1WithoutAutopass,
-                                       $infoArray,
-                                       $addlInfo);
-        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
-        $playerInfoArray = $data['user_prefs'];
-        $this->assertEquals(TRUE, $playerInfoArray['autopass']);
-        $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
-        $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_forum']);
-        $this->assertEquals(TRUE, $playerInfoArray['automatically_monitor']);
-        $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
-
-        $infoArray['autopass'] = 0;
-        $infoArray['monitor_redirects_to_game'] = 0;
-        $infoArray['monitor_redirects_to_forum'] = 0;
-        $infoArray['automatically_monitor'] = 0;
-        $this->object->set_player_info(self::$userId1WithoutAutopass,
-                                       $infoArray,
-                                       $addlInfo);
-        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
-        $playerInfoArray = $data['user_prefs'];
-        $this->assertEquals(FALSE, $playerInfoArray['autopass']);
-        $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
-        $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_forum']);
-        $this->assertEquals(FALSE, $playerInfoArray['automatically_monitor']);
-
-        $addlInfo['homepage'] = 'javascript:alert(\"Evil\");';
-        $response =
-            $this->object->set_player_info(
-                self::$userId1WithoutAutopass,
-                $infoArray,
-                $addlInfo
-            );
-        $this->assertEquals(NULL, $response);
-        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
-        $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
-    }
-
-    /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -346,7 +122,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -497,7 +273,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -517,7 +293,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -553,7 +329,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -573,7 +349,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -593,7 +369,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -664,7 +440,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -733,7 +509,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
@@ -823,9 +599,45 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
         $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+
+        $retval = $this->object->create_game(
+            array(self::$userId5WithoutAutoaccept, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+
+        $retval = $this->object->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId5WithoutAutoaccept),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
 
-        $this->object->save_join_game_decision(self::$userId2WithoutAutopass, $gameId, 'accept');
+        $this->object->save_join_game_decision(self::$userId5WithoutAutoaccept, $gameId, 'accept');
         $game = self::load_game($gameId);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
@@ -871,7 +683,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      */
@@ -886,7 +698,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      */
@@ -925,7 +737,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1045,7 +857,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1100,7 +912,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::load_game
      */
@@ -1159,7 +971,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      */
@@ -1328,7 +1140,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      */
@@ -1399,7 +1211,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * even when the swing dice have been changed to normal dice,
      *   e.g., by a berserk attack.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1475,7 +1287,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * The following unit tests ensure that the number of passes is updated
      * correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1558,7 +1370,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that autopass works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1633,7 +1445,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that twin dice work correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
      * @covers BMInterface::save_game
@@ -1735,7 +1547,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that konstant works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1822,7 +1634,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that konstant works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -1933,7 +1745,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that surrender attacks work correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2029,7 +1841,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that the autoplay bug doesn't occur.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2183,7 +1995,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that a decline of an auxiliary die works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      * @covers BMInterface::save_game
@@ -2246,7 +2058,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that courtesy auxiliary dice are given correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      * @covers BMInterface::save_game
@@ -2321,7 +2133,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that courtesy auxiliary dice are given correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      * @covers BMInterface::save_game
@@ -2397,7 +2209,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that a bad action is handled gracefully.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_auxiliary
      */
@@ -2408,7 +2220,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that a decline of a reserve die works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_reserve
      * @covers BMInterface::save_game
@@ -2489,7 +2301,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that a decline of a reserve die works correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::react_to_reserve
      * @covers BMInterface::save_game
@@ -2555,7 +2367,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that the reserve swing setting bug is fixed.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      */
     public function test_reserve_swing_setting() {
@@ -2610,7 +2422,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that Echo games can be created and played correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2653,7 +2465,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      *
      * @coversNothing
@@ -2685,7 +2497,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that declined courtesy auxiliary swing dice work correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -2725,7 +2537,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * Check that option dice are loaded and saved correctly.
      *
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -2925,7 +2737,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -2945,7 +2757,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -3058,7 +2870,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -3193,51 +3005,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
-     *
-     * @covers BMInterface::update_last_action_time
-     */
-    public function test_update_last_action_time() {
-        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
-                                                   self::$userId2WithoutAutopass),
-                                                   array('Avis', 'Hammer'), 4);
-        $gameId = $retval['gameId'];
-
-        $game = self::load_game($gameId);
-        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
-
-        $this->object->update_last_action_time(self::$userId1WithoutAutopass);
-        $game = self::load_game($gameId);
-        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
-
-        $this->object->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
-        $game = self::load_game($gameId);
-        $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
-        $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
-        $this->assertEquals(0, $game->lastActionTimeArray[1]);
-    }
-
-    /**
-     * @depends test_create_user
-     *
-     * @covers BMInterface::update_last_access_time
-     */
-    public function test_update_last_access_time() {
-        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
-        $playerInfoArray = $retval['user_prefs'];
-        $preTime = $playerInfoArray['last_access_time'];
-
-        $this->object->update_last_access_time(self::$userId1WithoutAutopass);
-
-        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
-        $playerInfoArray = $retval['user_prefs'];
-        $postTime = $playerInfoArray['last_access_time'];
-
-        $this->assertGreaterThan($preTime, $postTime);
-    }
-
-    /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -3352,7 +3120,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends test_create_user
+     * @depends BMInterface000Test::test_create_user
      *
      * @coversNothing
      */
@@ -3474,188 +3242,5 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->gameScoreArrayArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
     }
-
-
-    ////////////////////////////////////////////////////////////
-    // Forum-related methods
-
-    /**
-     * @covers BMInterface::load_forum_overview
-     * @covers BMInterface::load_forum_board
-     * @covers BMInterface::load_forum_thread
-     * @covers BMInterface::create_forum_thread
-     * @covers BMInterface::create_forum_post
-     * @covers BMInterface::edit_forum_post
-     */
-    public function test_create_load_forum_posts() {
-        $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
-        $boardId = $overview['boards'][0]['boardId'];
-        $originalThreadsOnBoard = $overview['boards'][0]['numberOfThreads'];
-
-        $title = uniqid();
-        $body1 = uniqid();
-        $this->object->create_forum_thread(self::$userId1WithoutAutopass,
-            $boardId, $title, $body1);
-
-        $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
-        $this->assertEquals(
-            $originalThreadsOnBoard + 1,
-            $overview['boards'][0]['numberOfThreads'],
-            'Adding a new thread should increase the number of threads on the board by one.'
-        );
-
-        $board = $this->object->load_forum_board(self::$userId1WithoutAutopass,
-            $boardId);
-        $this->assertEquals($title, $board['threads'][0]['threadTitle'],
-            'Newly-added thread should appear first on the board.');
-        $threadId = $board['threads'][0]['threadId'];
-        $originalPostsInThread = $board['threads'][0]['numberOfPosts'];
-
-        $body2 = uniqid();
-        $this->object->create_forum_post(self::$userId1WithoutAutopass,
-            $threadId, $body2);
-
-        $board = $this->object->load_forum_board(self::$userId1WithoutAutopass,
-            $boardId);
-        $this->assertEquals($title, $board['threads'][0]['threadTitle'],
-            'Newly-updated thread should appear first on the board.');
-        $this->assertEquals(
-            $originalPostsInThread + 1,
-            $board['threads'][0]['numberOfPosts'],
-            'Adding a new post should increase the number of posts in the thread by one.'
-        );
-
-        $thread = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $threadId, 2);
-        $this->assertEquals(2, $thread['currentPostId'],
-            'Requested post ID should be returned.');
-        $this->assertEquals($title, $thread['threadTitle'],
-            'Thread should have the correct title.');
-        $this->assertEquals($body1, $thread['posts'][0]['body'],
-            'First post should have the correct body.');
-        $this->assertEquals($body2, $thread['posts'][1]['body'],
-            'Followup post should have the correct body.');
-
-        $firstPostId = $thread['posts'][0]['postId'];
-        $body3 = uniqid();
-        $this->object->edit_forum_post(self::$userId1WithoutAutopass,
-            $firstPostId, $body3);
-
-        $thread = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $threadId, 2);
-        $this->assertNotEquals($body1, $thread['posts'][0]['body'],
-            'First post should not have the old body.');
-        $this->assertEquals($body3, $thread['posts'][0]['body'],
-            'First post should have the new body.');
-    }
-
-    /**
-     * @covers BMInterface::mark_forum_read
-     * @covers BMInterface::mark_forum_board_read
-     * @covers BMInterface::mark_forum_thread_read
-     * @covers BMInterface::get_next_new_post
-     */
-    public function test_mark_forum_posts_read() {
-        // First, the first player views the forum. Then the second player makes
-        // several new threads: two on one board and one on another.
-        $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
-        $boardId1 = $overview['boards'][0]['boardId'];
-        $boardId2 = $overview['boards'][1]['boardId'];
-
-        $thread1 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
-            $boardId1, 'Test Title 1', 'Test Body 1');
-        // Separate the posts slightly, so that the first one is measurably first
-        // (This is just because the DB timestamp granularity is only one second.)
-        sleep(1);
-        $thread2 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
-            $boardId1, 'Test Title 2', 'Test Body 2');
-        $thread3 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
-            $boardId2, 'Test Title 3', 'Test Body 3');
-
-        // Wait a moment, to ensure that the server's timestamp has a chance to
-        // tick over.
-        sleep(1);
-
-        // Then the first player marks all boards as read, using the timestamp
-        // from before the posts were made. Verify that, for the first player,
-        // all three threads still start with a new post.
-        $this->object->mark_forum_read(self::$userId1WithoutAutopass,
-            $overview['timestamp']);
-
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertTrue($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertTrue($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertTrue($thread3['posts'][0]['isNew']);
-
-        // Also, verify that none of these posts are new to the second player,
-        // as they're the one who created them.
-        $thread1 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertFalse($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertFalse($thread3['posts'][0]['isNew']);
-
-        // And verify that the first new post is indeed recognized as the
-        // first new post
-        $nextNewPost = $this->object->get_next_new_post(self::$userId1WithoutAutopass);
-        $this->assertEquals($thread1['threadId'], $nextNewPost['nextNewPostThreadId']);
-        $this->assertEquals($thread1['posts'][0]['postId'], $nextNewPost['nextNewPostId']);
-
-        // The first player marks the first thread read. Verify that its first
-        // post is no longer new, but that the first posts of the other two
-        // threads are unaffected.
-        $this->object->mark_forum_thread_read(self::$userId1WithoutAutopass,
-            $thread1['threadId'], $boardId1, $thread1['timestamp']);
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertTrue($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertTrue($thread3['posts'][0]['isNew']);
-
-        // The first player marks the first board read. Verify that the first
-        // posts on both threads on that board are no longer new, but that
-        // the first post of the thread on the other board is unaffected.
-        $this->object->mark_forum_board_read(self::$userId1WithoutAutopass,
-            $boardId1, $thread1['timestamp']);
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertFalse($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertTrue($thread3['posts'][0]['isNew']);
-
-        // The first player marks all boards read. Verify that the first posts
-        // of all three threads are no longer new.
-        $this->object->mark_forum_read(self::$userId1WithoutAutopass,
-            $thread1['timestamp']);
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertFalse($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertFalse($thread3['posts'][0]['isNew']);
-    }
-
-    // End of Forum-related methods
-    ////////////////////////////////////////////////////////////
 
 }

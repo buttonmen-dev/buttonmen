@@ -57,11 +57,16 @@ class BMSkillRadioactive extends BMSkill {
             return;
         }
 
-        if (count($args['defenders']) != 1) {
+        if (!self::has_single_defender($args['defenders'])) {
             return;
         }
 
         $attacker = &$args['attackers'][0];
+
+        if ($attacker->outOfPlay) {
+            return;
+        }
+
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
 
@@ -101,7 +106,7 @@ class BMSkillRadioactive extends BMSkill {
                'single attacking die and a single target die, the attacking die splits, or "decays", ' .
                'into two as-close-to-equal-sized-as-possible dice that add up to its original size. All ' .
                'dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood ' .
-               'Swing(?), [and, not yet implemented: Jolt(J), and Time and Space(^)]. For example, ' .
+               'Swing(?), Time and Space(^), [and, not yet implemented: Jolt(J)]. For example, ' .
                'a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die ' .
                'would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a ' .
                'power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.';

@@ -24,24 +24,11 @@ class BMSkillMood extends BMSkill {
      * @return boolean
      */
     public static function pre_roll(&$args) {
-        if (!($args['die'] instanceof BMDie)) {
+        if (!self::does_skill_trigger_on_pre_roll($args)) {
             return FALSE;
         }
 
-        if (empty($args['die']->value)) {
-            return FALSE;
-        }
-
-        if (array_key_exists('isSubdie', $args) && $args['isSubdie']) {
-            return FALSE;
-        }
-
-        // do nothing if the die is not a swing die or a
-        // twin die with swing components
         $die = $args['die'];
-        if (!static::can_have_mood($die)) {
-            return FALSE;
-        }
 
         $swingRange = BMDieSwing::swing_range($die->swingType);
         $validSwingValueArray = static::valid_die_sizes($swingRange);
@@ -59,6 +46,38 @@ class BMSkillMood extends BMSkill {
             $die->recalc_max_min();
         } else {
             throw new LogicException('Mood applied to non-swing die.');
+        }
+
+        return TRUE;
+    }
+
+    protected static function does_skill_trigger_on_pre_roll($args) {
+        if (!($args['die'] instanceof BMDie)) {
+            return FALSE;
+        }
+
+        $die = $args['die'];
+
+        if (empty($die->value) && !$die->has_flag('HasJustSplit')) {
+            return FALSE;
+        }
+
+        if (array_key_exists('isSubdie', $args) && $args['isSubdie']) {
+            return FALSE;
+        }
+
+        if (!$die->doesReroll) {
+            return FALSE;
+        }
+
+        if ($die->outOfPlay) {
+            return FALSE;
+        }
+
+        // do nothing if the die is not a swing die or a
+        // twin die with swing components
+        if (!static::can_have_mood($die)) {
+            return FALSE;
         }
 
         return TRUE;

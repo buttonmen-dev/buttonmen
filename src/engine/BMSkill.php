@@ -108,6 +108,7 @@ class BMSkill {
     protected static function skill_name_abbreviation_mapping() {
         return array('Auxiliary'    => '+',
                      'Berserk'      => 'B',
+                     'Boom'         => 'b',
                      'Chance'       => 'c',
                      'Doppelganger' => 'D',
                      'Fire'         => 'F',
@@ -123,17 +124,28 @@ class BMSkill {
                      'Poison'       => 'p',
                      'Queer'        => 'q',
                      'Radioactive'  => '%',
+                     'Rage'         => 'G',
                      'Reserve'      => 'r',
                      'Shadow'       => 's',
                      'Slow'         => 'w',
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
                      'Stinger'      => 'g',
+                     'TimeAndSpace' => '^',
                      'Trip'         => 't',
+// james: Turbo must stay commented so that it remains inactive until the
+//        implementation is complete
+//                     'Turbo'        => '!',
                      'Value'        => 'v',
+                     'Warrior'      => '`',
                      'Weak'         => 'h');
     }
 
+    /**
+     * All possible skill characters
+     *
+     * @return array
+     */
     public static function all_skill_chars() {
         return array_values(self::skill_name_abbreviation_mapping());
     }
@@ -145,6 +157,7 @@ class BMSkill {
      */
     public static function attack_types() {
         return array(// skill related attack types
+                     'Boom',
                      'Berserk',
                      'Konstant',
                      'Null',
@@ -209,6 +222,8 @@ class BMSkill {
                      'BMSkillReserve',
                      'BMSkillChance',
                      'BMSkillFocus',
+                     'BMSkillBoom',
+                     'BMSkillRage',
                      'BMSkillSpeed',
                      'BMSkillTrip',
                      'BMSkillQueer',
@@ -216,6 +231,7 @@ class BMSkill {
                      'BMSkillShadow',
                      'BMSkillSlow',
                      'BMSkillStinger',
+                     'BMSkillFire',
                      'BMSkillStealth',
                      'BMSkillOrnery',
                      'BMSkillMood',
@@ -229,9 +245,9 @@ class BMSkill {
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
-                     'BMSkillKonstant',
-                     'BMSkillMorphing',
-                     'BMSkillMaximum');
+                     'BMSkillMaximum',
+                     'BMSkillTimeAndSpace',
+                     'BMSkillWarrior');
         // fires last
     }
 
@@ -299,5 +315,46 @@ class BMSkill {
      */
     public static function prevents_win_determination() {
         return FALSE;
+    }
+
+    /**
+     * Return the single defender die, taking into account that rage may add
+     * an extra die that is not captured
+     *
+     * @param array $defenderArray
+     * @param boolean $allowOnlyOneDef
+     * @return BMDie
+     */
+    protected static function get_single_defender(array $defenderArray, $allowOnlyOneDef) {
+        if ($allowOnlyOneDef && !self::has_single_defender($defenderArray)) {
+            throw new LogicException('Exactly one defender expected');
+        }
+
+        $defender = NULL;
+
+        foreach ($defenderArray as &$def) {
+            if ($def->captured) {
+                $defender = &$def;
+                break;
+            }
+        }
+
+        if (is_null($defender)) {
+            throw new LogicException('No defender found');
+        }
+
+        return $defender;
+    }
+
+    protected static function has_single_defender(array $defenderArray) {
+        // rage may add an extra defender, but it won't be captured
+        $defCount = 0;
+        foreach ($defenderArray as &$def) {
+            if ($def->captured) {
+                $defCount++;
+            }
+        }
+
+        return (1 == $defCount);
     }
 }

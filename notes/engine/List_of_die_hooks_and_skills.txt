@@ -5,39 +5,57 @@ add_skill
   Null
   Value
 pre_roll
+  Mighty
   Mood
-post_roll
+  Weak
+roll
   Maximum
+post_roll
+  Warrior
+  TimeAndSpace
 attack_list
   Berserk
+  Boom
   Fire
   Konstant
   Queer
   Shadow
   Speed
   Stealth
+  TheFlyingSquirrel
   Trip
+  Warrior
 attack_values
   Konstant
   Stinger
+  Warrior
 score_value
   Null
   Poison
   Value
+  Warrior
 initiative_value
+  Rage
   Slow
   Stinger
   Trip
+  Warrior
 assist_values
   Fire
+pre_capture
+  Boom
+  Trip
+pre_be_captured
+  Rage
 capture
   Berserk
   Doppelganger
   Morphing
   Null
   Radioactive
-  Trip
+  Rage
   Value
+  Warrior
 be_captured
   Radioactive
 split
@@ -48,6 +66,7 @@ does_skip_swing_request
 react_to_initiative
   Chance
   Focus
+  Warrior
 perform_end_of_turn_die_actions
   Ornery
 is_button_slow
