@@ -295,6 +295,7 @@ var Api = (function () {
     while (i < my.new_games.nGames) {
       var gameInfo = {
         'gameId': data.gameIdArray[i],
+        'gameDescription': data.gameDescriptionArray[i],
         'opponentId': data.opponentIdArray[i],
         'opponentName': data.opponentNameArray[i],
         'playerButtonName': data.myButtonNameArray[i],
@@ -331,6 +332,7 @@ var Api = (function () {
     while (i < my.active_games.nGames) {
       var gameInfo = {
         'gameId': data.gameIdArray[i],
+        'gameDescription': data.gameDescriptionArray[i],
         'opponentId': data.opponentIdArray[i],
         'opponentName': data.opponentNameArray[i],
         'playerButtonName': data.myButtonNameArray[i],
@@ -379,6 +381,7 @@ var Api = (function () {
     while (i < my.completed_games.nGames) {
       var gameInfo = {
         'gameId': data.gameIdArray[i],
+        'gameDescription': data.gameDescriptionArray[i],
         'opponentId': data.opponentIdArray[i],
         'opponentName': data.opponentNameArray[i],
         'playerButtonName': data.myButtonNameArray[i],
