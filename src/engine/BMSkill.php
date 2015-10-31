@@ -248,7 +248,8 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillMaximum',
                      'BMSkillTimeAndSpace',
-                     'BMSkillWarrior');
+                     'BMSkillWarrior',
+                     'BMSkillInsult');
         // fires last
     }
 
