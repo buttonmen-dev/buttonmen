@@ -113,6 +113,7 @@ class BMSkill {
                      'Doppelganger' => 'D',
                      'Fire'         => 'F',
                      'Focus'        => 'f',
+                     'Insult'       => 'I',
                      'Konstant'     => 'k',
                      'Mad'          => '&',
                      'Maximum'      => 'M',
