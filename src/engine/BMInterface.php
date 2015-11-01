@@ -3135,6 +3135,7 @@ class BMInterface {
             $game = $this->load_game($gameId);
             $game->hasPlayerAcceptedGameArray[$emptyPlayerIdx] = TRUE;
             $this->save_game($game);
+            $this->set_message('Successfully joined game ' . $gameId);
 
             return TRUE;
         } catch (Exception $e) {
