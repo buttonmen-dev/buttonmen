@@ -473,7 +473,7 @@ Overview.pageAddGameTableNew = function() {
             .append(']');
 
     } else {
-      var cancelLink = $('<a>', {
+      cancelLink = $('<a>', {
         'text': 'Cancel',
         'href': '#',
         'data-gameId': gameInfo.gameId,
