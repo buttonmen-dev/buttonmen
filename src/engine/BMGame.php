@@ -726,7 +726,6 @@ class BMGame {
                         $player->button->update_button_recipe();
                     }
                 }
-
             }
 
             $this->gameState = BMGameState::CHOOSE_RESERVE_DICE;
