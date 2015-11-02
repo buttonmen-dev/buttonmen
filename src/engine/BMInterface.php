@@ -848,9 +848,9 @@ class BMInterface {
         $statement3 = self::$conn->prepare($query);
         $statement3->execute(array(':game_id' => $game->gameId));
 
-        $activeDieArrayArray = array_fill(0, count($game->playerIdArray), array());
-        $captDieArrayArray = array_fill(0, count($game->playerIdArray), array());
-        $outOfPlayDieArrayArray = array_fill(0, count($game->playerIdArray), array());
+        $activeDieArrayArray = array_fill(0, $game->nPlayers, array());
+        $captDieArrayArray = array_fill(0, $game->nPlayers, array());
+        $outOfPlayDieArrayArray = array_fill(0, $game->nPlayers, array());
 
         while ($row = $statement3->fetch()) {
             $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
@@ -1385,14 +1385,12 @@ class BMInterface {
     }
 
     protected function regenerate_essential_die_flags($game) {
-        if (!empty($game->activeDieArrayArray)) {
-            foreach ($game->activeDieArrayArray as $activeDieArray) {
-                if (!empty($activeDieArray)) {
-                    foreach ($activeDieArray as $activeDie) {
-                        if ($activeDie instanceof BMDieTwin) {
-                            // force regeneration of max, min, and BMFlagTwin
-                            $activeDie->recalc_max_min();
-                        }
+        foreach ($game->playerArray as $player) {
+            if (!empty($player->activeDieArray)) {
+                foreach ($player->activeDieArray as $activeDie) {
+                    if ($activeDie instanceof BMDieTwin) {
+                        // force regeneration of max, min, and BMFlagTwin
+                        $activeDie->recalc_max_min();
                     }
                 }
             }
@@ -3493,7 +3491,6 @@ class BMInterface {
                     return FALSE;
             }
             $this->save_game($game);
-
             return TRUE;
         } catch (Exception $e) {
             error_log(

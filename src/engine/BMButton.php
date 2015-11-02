@@ -251,7 +251,7 @@ class BMButton extends BMCanHaveSkill {
             return;
         }
 
-        foreach ($this->ownerObject->activeDieArrayArray[$playerIdx] as $die) {
+        foreach ($this->ownerObject->playerArray[$playerIdx]->activeDieArray as $die) {
             $recipe .= ' ' . $die->recipe;
         }
 

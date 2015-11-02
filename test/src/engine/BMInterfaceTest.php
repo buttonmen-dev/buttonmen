@@ -46,7 +46,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
         $expectedRecipes = array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
@@ -158,7 +157,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('o(V)? o(W)? o(X)? o(Y)? o(Z)?', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
         $expectedRecipes = array(array('o(V)?', 'o(W)?', 'o(X)?', 'o(Y)?', 'o(Z)?'),
@@ -404,7 +402,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
         $this->assertEquals(array(array(), array()), $game->activeDieArrayArray);
 
@@ -473,7 +470,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertNull($game->buttonArray[1]);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
         $this->assertEquals(array(array(), array()), $game->activeDieArrayArray);
 
@@ -542,7 +538,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertNull($game->buttonArray[1]);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
         $this->assertEquals(array(array(), array()), $game->activeDieArrayArray);
 
@@ -777,7 +772,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
         $expectedRecipes = array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
@@ -1522,6 +1516,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $dieArrayArray[1][0]->value = 4;
         $dieArrayArray[1][1]->value = 12;
         $dieArrayArray[1][2]->value = 5;
+        $dieArrayArray[1][3]->dice[0]->value = 2;
+        $dieArrayArray[1][3]->dice[1]->value = 4;
         $dieArrayArray[1][3]->value = 6;
 
         // perform valid attack
@@ -2240,6 +2236,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        $playerArray = $game->playerArray;
+        $playerArray[0]->activeDieArray = array();
+        $playerArray[1]->activeDieArray = array();
+        $game->playerArray = $playerArray;
 
         self::save_game($game);
         $game = self::load_game($game->gameId);
@@ -2321,6 +2321,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        $playerArray = $game->playerArray;
+        $playerArray[0]->activeDieArray = array();
+        $playerArray[1]->activeDieArray = array();
+        $game->playerArray = $playerArray;
 
         self::save_game($game);
         $game = self::load_game($game->gameId);

@@ -293,11 +293,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     public function test_update_game_state_add_available_dice_to_game() {
         $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
-        $this->object->update_game_state();
-        $this->assertEquals(BMGameState::ADD_AVAILABLE_DICE_TO_GAME,
-                            $this->object->gameState);
-
-        $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
         $die1 = new BMDie;
         $die2 = new BMDie;
         $die3 = new BMDie;
@@ -1736,7 +1731,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activePlayerIdx = 0;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(0, $this->object->nRecentPasses);
 
         $this->object->playerIdArray = array(12345, 54321);
@@ -1746,7 +1740,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::END_TURN;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(1, $this->object->nRecentPasses);
 
         $this->object->playerIdArray = array(12345, 54321);
@@ -1756,7 +1749,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::END_TURN;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(1, $this->object->nRecentPasses);
 
         // both players have passed
@@ -1955,15 +1947,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::add_die
      */
     public function test_add_die() {
-        $die1 = new BMDie;
-        try {
-            $this->object->add_die($die1);
-            $this->fail('activeDieArrayArray must be set before a die can be added.');
-        }
-        catch (LogicException $expected) {
-        }
-
-        $this->object->activeDieArrayArray = array(array(), array());
         $die2 = new BMDie;
         $die2->ownerObject = $this->object;
         $die2->playerIdx = 1;
@@ -4301,7 +4284,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $game->gameScoreArrayArray);
         $this->assertEquals(BMGameState::END_GAME, $game->gameState);
         $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
-        $this->assertTrue(is_null($game->activeDieArrayArray));
+        $this->assertTrue(empty($game->activeDieArrayArray[0]));
+        $this->assertTrue(empty($game->activeDieArrayArray[1]));
     }
 
     /**
@@ -9012,7 +8996,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['value']);
         $this->assertEquals('Option Die (with 20 sides)',
                             $out1['playerDataArray'][0]['activeDieArray'][4]['description']);
-
         $out2 = $game->getJsonData(456);
         $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][2]['sides']);
         $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][3]['sides']);

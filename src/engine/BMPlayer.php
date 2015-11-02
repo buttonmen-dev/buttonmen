@@ -12,6 +12,7 @@
  * @property      int      $id                     Player ID number in the database
  * @property      int      $position               Position index of this player in this game
  * @property      BMButton $button                 Button used by this player in this game
+ * @property      array    $activeDieArray         Array of active dice owned by this player
  * @property      bool     $waitingOnAction        Does this player need to perform an action?
  * @property      bool     $isPrevRoundWinner      Has this player just won the previous round?
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
@@ -40,6 +41,13 @@ class BMPlayer {
      * @var BMButton
      */
     protected $button;
+
+    /**
+     * Array of active dice owned by this player
+     *
+     * @var array
+     */
+    public $activeDieArray;
 
     /**
      * Boolean specifying if this player needs to perform an action at this time
