@@ -1977,18 +1977,16 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // valid capture
         $die = new BMDie;
         $this->object->activeDieArrayArray = array(array(new BMDie), array($die));
-        $this->object->capture_die($die);
+        $this->object->capture_die($die, 0);
 
         // invalid capture
         $this->object->activeDieArrayArray = array(array(new BMDie), array(new BMDie));
         try {
-            $this->object->capture_die(new BMDie);
+            $this->object->capture_die(new BMDie, 0);
             $this->fail('Captured die does not exist for the defender.');
         }
         catch (LogicException $expected) {
         }
-
-
     }
 
     /**

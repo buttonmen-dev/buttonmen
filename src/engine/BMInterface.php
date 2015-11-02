@@ -1394,16 +1394,12 @@ class BMInterface {
                     }
                 }
             }
-        }
 
-        if (!empty($game->capturedDieArrayArray)) {
-            foreach ($game->capturedDieArrayArray as $capturedDieArray) {
-                if (!empty($capturedDieArray)) {
-                    foreach ($capturedDieArray as $capturedDie) {
-                        if ($capturedDie instanceof BMDieTwin) {
-                            // force regeneration of max, min, and BMFlagTwin
-                            $capturedDie->recalc_max_min();
-                        }
+            if (!empty($player->capturedDieArray)) {
+                foreach ($player->capturedDieArray as $capturedDie) {
+                    if ($capturedDie instanceof BMDieTwin) {
+                        // force regeneration of max, min, and BMFlagTwin
+                        $capturedDie->recalc_max_min();
                     }
                 }
             }

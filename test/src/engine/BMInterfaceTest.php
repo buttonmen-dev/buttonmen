@@ -802,7 +802,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
-        $this->assertTrue(isset($game->capturedDieArrayArray));
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
 
         // check swing details

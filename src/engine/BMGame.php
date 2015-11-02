@@ -1699,12 +1699,12 @@ class BMGame {
             }
         }
 
-        foreach ($this->capturedDieArrayArray as $capturedDieArray) {
-            if (empty($capturedDieArray)) {
+        foreach ($this->playerArray as $player) {
+            if (empty($player->capturedDieArray)) {
                 continue;
             }
 
-            foreach ($capturedDieArray as $die) {
+            foreach ($player->capturedDieArray as $die) {
                 $die->remove_all_flags();
             }
         }
@@ -2259,7 +2259,7 @@ class BMGame {
         if (is_null($newOwnerIdx)) {
             $newOwnerIdx = $this->attack['attackerPlayerIdx'];
         }
-        $this->capturedDieArrayArray[$newOwnerIdx][] = $player->activeDieArray[$dieIdx];
+        $this->playerArray[$newOwnerIdx]->capturedDieArray[] = $player->activeDieArray[$dieIdx];
         // remove captured die from active die array
         array_splice($player->activeDieArray, $dieIdx, 1);
     }
@@ -2484,12 +2484,12 @@ class BMGame {
         $this->playerWithInitiativeIdx = NULL;
         foreach ($this->playerArray as $player) {
             $player->activeDieArray = array();
+            $player->capturedDieArray = array();
         }
         $this->attack = NULL;
 
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
-        $this->capturedDieArrayArray = array_fill(0, $this->nPlayers, array());
         $this->outOfPlayDieArrayArray = array_fill(0, $this->nPlayers, array());
         $this->setAllToNotWaiting();
         $this->swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
@@ -2774,12 +2774,14 @@ class BMGame {
             $roundScoreX10Array[$playerIdx] = $activeDieScoreX10;
         }
 
-        foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-            $capturedDieScoreX10 = 0;
-            foreach ($capturedDieArray as $capturedDie) {
-                $capturedDieScoreX10 += $capturedDie->get_scoreValueTimesTen();
+        foreach ($this->playerArray as $playerIdx => $player) {
+            if (!empty($player->capturedDieArray)) {
+                $capturedDieScoreX10 = 0;
+                foreach ($player->capturedDieArray as $capturedDie) {
+                    $capturedDieScoreX10 += $capturedDie->get_scoreValueTimesTen();
+                }
+                $roundScoreX10Array[$playerIdx] += $capturedDieScoreX10;
             }
-            $roundScoreX10Array[$playerIdx] += $capturedDieScoreX10;
         }
 
         foreach ($roundScoreX10Array as $playerIdx => $roundScoreX10) {
@@ -3030,33 +3032,6 @@ class BMGame {
         $this->nRecentPasses = $value;
     }
 
-    /**
-     * Allow setting the array of arrays of captured dice
-     *
-     * @param array $value
-     */
-    protected function set__capturedDieArrayArray($value) {
-        if (!is_array($value)) {
-            throw new InvalidArgumentException(
-                'Captured die array array must be an array.'
-            );
-        }
-        foreach ($value as $tempValueElement) {
-            if (!is_array($tempValueElement)) {
-                throw new InvalidArgumentException(
-                    'Individual captured die arrays must be arrays.'
-                );
-            }
-            foreach ($tempValueElement as $tempDie) {
-                if (!($tempDie instanceof BMDie)) {
-                    throw new InvalidArgumentException(
-                        'Elements of captured die arrays must be BMDice.'
-                    );
-                }
-            }
-        }
-        $this->capturedDieArrayArray = $value;
-    }
 
     /**
      * Prevent setting of the round number
@@ -3404,8 +3379,8 @@ class BMGame {
      */
     protected function get_capturedDieArray($playerIdx) {
         $capturedDieArray = array();
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray[$playerIdx] as $die) {
+        if (!empty($this->playerArray[$playerIdx]->capturedDieArray)) {
+            foreach ($this->playerArray[$playerIdx]->capturedDieArray as $die) {
                 $capturedDieArray[] = array(
                     'value' => $die->value,
                     'sides' => $die->max,
@@ -4066,6 +4041,21 @@ class BMGame {
     }
 
     /**
+     * Array of captured dice
+     */
+    protected function get__capturedDieArrayArray() {
+        $capturedDieArrayArray = array();
+
+        if (!empty($this->playerArray)) {
+            foreach ($this->playerArray as $player) {
+                $capturedDieArrayArray[] = $player->capturedDieArray;
+            }
+        }
+
+        return $capturedDieArrayArray;
+    }
+
+    /**
      * Array of buttons
      */
     protected function get__waitingOnActionArray() {
@@ -4179,6 +4169,45 @@ class BMGame {
         if (!empty($this->playerArray)) {
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->activeDieArray = $value[$playerIdx];
+            }
+        }
+    }
+
+    /**
+     * Allow setting the array of captured die arrays
+     *
+     * @param array $value
+     */
+    protected function set__capturedDieArrayArray($value) {
+        if (empty($value) ||
+            !is_array($value) ||
+            (count($value) != $this->nPlayers)) {
+            throw new InvalidArgumentException(
+                'The number of active die arrays must match the number of players.'
+            );
+        }
+
+        foreach ($value as $capturedDieArray) {
+            if (!is_array($capturedDieArray)) {
+                throw new InvalidArgumentException(
+                    'Captured die arrays must be arrays.'
+                );
+            }
+
+            if (!empty($capturedDieArray)) {
+                foreach ($capturedDieArray as $die) {
+                    if (!($die instanceof BMDie)) {
+                        throw new InvalidArgumentException(
+                            'Captured die arrays must be made up of BMDie objects.'
+                        );
+                    }
+                }
+            }
+        }
+
+        if (!empty($this->playerArray)) {
+            foreach ($this->playerArray as $playerIdx => $player) {
+                $player->capturedDieArray = $value[$playerIdx];
             }
         }
     }
