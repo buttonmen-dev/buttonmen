@@ -12383,4 +12383,123 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test reproduces a trip mood bug, and standardizes the
+     * behavior of trip mood dice during successful trip attacks.
+     */
+    public function test_interface_game_043() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 43;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+
+        // 0 of JennieGirl's dice, and 6 of Giant's dice, are initially rolled
+        $gameId = $this->verify_api_createGame(
+            array(13, 2, 7, 4, 6, 20),
+            'responder003', 'responder004', 'JennieGirl', 'Giant', 3);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Chance', 'Mood', 'Ornery', 'Rage', 'Reserve', 'Shadow', 'TimeAndSpace', 'Trip'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => null, 'sides' => null, 'skills' => array('Rage', 'Shadow', 'Trip'), 'properties' => array(), 'recipe' => 'Gst(S)', 'description' => 'Rage Shadow Trip S Swing Die'),
+            array('value' => null, 'sides' => null, 'skills' => array('Rage', 'Shadow', 'Trip', 'Mood'), 'properties' => array(), 'recipe' => 'Gst(S)?', 'description' => 'Rage Shadow Trip S Mood Swing Die'),
+            array('value' => null, 'sides' => null, 'skills' => array('Rage', 'Shadow', 'Trip', 'TimeAndSpace'), 'properties' => array(), 'recipe' => 'Gst^(S)', 'description' => 'Rage Shadow Trip TimeAndSpace S Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder003 specifies swing dice
+        // this causes 3 of JennieGirl's dice to be rolled
+
+        $this->verify_api_submitDieValues(
+            array(2, 1, 2),
+            $gameId, 1, array('S' => 6), NULL);
+
+        $expData['validAttackTypeArray'] = array('Skill', 'Shadow', 'Trip');
+        $expData['gameState'] = 'START_TURN';
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['playerDataArray'][0]['roundScore'] = 9;
+        $expData['playerDataArray'][1]['roundScore'] = 60;
+        $expData['playerDataArray'][0]['sideScore'] = -34.0;
+        $expData['playerDataArray'][1]['sideScore'] = 34.0;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 13;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 7;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 20;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: S=6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [Gst(S=6):2, Gst(S=6)?:1, Gst^(S=6):2], responder004 rolled [(20):13, (20):2, (20):7, (20):4, (20):6, (20):20]. responder004\'s button has the "slow" button special, and cannot win initiative normally.'));
+        $expData['gameActionLogCount'] += 2;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 02 - responder003 performs a trip attack using Gst(S=6)?:1 against (20):20
+        $this->verify_api_submitTurn(
+            array(
+                4,  // resize attacker to index 4 (20 sides)
+                15, // attacker rolls 15
+                4,  // defender rolls 4
+            ),
+            'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured. ',
+            $retval, array(array(0, 1), array(1, 5)),
+            $gameId, 1, 'Trip', 0, 1, '');
+
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 36;
+        $expData['playerDataArray'][1]['roundScore'] = 50;
+        $expData['playerDataArray'][0]['sideScore'] = -9.3;
+        $expData['playerDataArray'][1]['sideScore'] = 9.3;
+        $expData['playerDataArray'][0]['capturedDieArray'][] = array('value' => 4, 'sides' => 20, 'recipe' => '(20)', 'properties' => array('WasJustCaptured'));
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 5, 1);
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 20;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 15;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array('Shadow', 'Trip', 'Mood');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('JustPerformedTripAttack');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = 'st(S)?';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Shadow Trip S Mood Swing Die (with 20 sides)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured'));
+        $expData['gameActionLogCount'] += 1;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
 }
