@@ -42,6 +42,10 @@ class BMSkillTimeAndSpace extends BMSkill {
             return;
         }
 
+        if (!$die->doesReroll) {
+            return;
+        }
+
         if ($die->value & 1) {
             $game->nextPlayerIdx = $game->activePlayerIdx;
         }

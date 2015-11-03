@@ -2026,6 +2026,7 @@ class BMInterface {
                      'v1.n_target_wins,'.
                      'v2.is_awaiting_action,'.
                      'g.game_state,'.
+                     'g.description,'.
                      's.name AS status, '.
                      'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp '.
                      'FROM game_player_view AS v1 '.
@@ -2062,6 +2063,7 @@ class BMInterface {
     protected function read_game_list_from_db_results($playerId, $results) {
         // Initialize the arrays
         $gameIdArray = array();
+        $gameDescriptionArray = array();
         $opponentIdArray = array();
         $opponentNameArray = array();
         $myButtonNameArray = array();
@@ -2095,6 +2097,7 @@ class BMInterface {
             );
 
             $gameIdArray[]        = (int)$row['game_id'];
+            $gameDescriptionArray[] = $row['description'];
             $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
             $myButtonNameArray[]  = $row['my_button_name'];
@@ -2114,6 +2117,7 @@ class BMInterface {
         }
 
         return array('gameIdArray'             => $gameIdArray,
+                     'gameDescriptionArray'    => $gameDescriptionArray,
                      'opponentIdArray'         => $opponentIdArray,
                      'opponentNameArray'       => $opponentNameArray,
                      'myButtonNameArray'       => $myButtonNameArray,
@@ -3127,6 +3131,7 @@ class BMInterface {
             $game = $this->load_game($gameId);
             $game->hasPlayerAcceptedGameArray[$emptyPlayerIdx] = TRUE;
             $this->save_game($game);
+            $this->set_message('Successfully joined game ' . $gameId);
 
             return TRUE;
         } catch (Exception $e) {
