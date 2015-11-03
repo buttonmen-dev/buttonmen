@@ -2624,6 +2624,9 @@ Game.playerOpponentHeaderRow = function(label, field) {
   if (field == 'playerName') {
     playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
     opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
+  } else if (field == 'buttonName') {
+    playerInfo.append(Env.buildButtonLink(Api.game.player[field]));
+    opponentInfo.append(Env.buildButtonLink(Api.game.opponent[field]));
   } else {
     playerInfo.append(Api.game.player[field]);
     opponentInfo.append(Api.game.opponent[field]);
