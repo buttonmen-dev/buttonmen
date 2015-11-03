@@ -786,8 +786,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'gameId' => $gameId,
         );
         $retval = $this->verify_api_success($args);
-        // FIXME: once #1274 is resolved, actually test the message here
-        // $this->assertEquals('foobar', $retval['message']);
+        $this->assertEquals('Successfully joined game ' . $gameId, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
         return $retval['data'];
     }
