@@ -743,7 +743,7 @@ class DummyApiResponder {
             'opponentColorArray' => array(),
         );
 
-        // game 5
+        // game 505
         $data['gameIdArray'][] = 505;
         $data['gameDescriptionArray'][] = 'Game 505';
         $data['opponentIdArray'][] = 2;

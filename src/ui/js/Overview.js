@@ -169,9 +169,9 @@ Overview.completeMonitor = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
-  Overview.pageAddGameTable('new', 'New games', false);
-  Overview.pageAddGameTable('finished', 'Completed games', false);
   Overview.pageAddGameTable('rejected', 'Rejected games', false);
+  Overview.pageAddGameTable('finished', 'Completed games', false);
+  Overview.pageAddGameTable('new', 'New games', false);
   Overview.pageAddGameTable('awaitingPlayer', 'Active games', false);
   Overview.pageAddGameTable('awaitingOpponent', 'Active games', true);
 };
@@ -247,15 +247,12 @@ Overview.pageAddGameTable = function(
   if (tableBody.length > 0) {
     var spacerRow = $('<tr>', { 'class': 'spacer' });
     tableBody.append(spacerRow);
-    spacerRow.append($('<td>', { 'html': '&nbsp;', 'colspan': '6', }));
+    spacerRow.append($('<td>', { 'html': '&nbsp;', 'colspan': '7', }));
   } else {
     var tableDiv = $('<div>');
     tableDiv.append($('<h2>', {'text': sectionHeader, }));
     var table = $('<table>', { 'class': 'gameList ' + tableClass, });
     tableDiv.append(table);
-    if (gameType == 'finished') {
-      tableDiv.append($('<hr>'));
-    }
     Overview.page.append(tableDiv);
 
     var tableHead = $('<thead>');
@@ -265,7 +262,9 @@ Overview.pageAddGameTable = function(
     headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Description', }));
-    if (gameType != 'rejected') {
+    if (gameType == 'rejected') {
+      headerRow.append($('<th>', {'text': 'Max wins'}));
+    } else {
       headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
     }
     if (gameType == 'finished') {
@@ -350,7 +349,11 @@ Overview.pageAddGameTable = function(
 
     var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
 
-    if (gameType != 'rejected') {
+    if (gameType == 'rejected') {
+      gameRow.append($('<td>', {
+        'text': gameInfo.maxWins,
+      }));
+    } else {
       var wldColor = '#ffffff';
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
         wldColor = playerColor;
@@ -390,7 +393,7 @@ Overview.pageAddGameTable = function(
     var tableFoot = $('<tfoot>');
     var footRow = $('<tr>');
     var footCol = $('<td>', {
-      'colspan': '6',
+      'colspan': '7',
     });
     var staleToggle = $('<a>', {
       'id': 'staleToggle',
@@ -423,8 +426,8 @@ Overview.pageAddGameTableNew = function() {
   var tableHead = $('<thead>');
   var headerRow = $('<tr>');
   headerRow.append($('<th>', {'text': 'Game #', }));
-  headerRow.append($('<th>', {'text': 'Your Button', }));
-  headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+  headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
+  headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
   headerRow.append($('<th>', {'text': 'Description', }));
   headerRow.append($('<th>', {'text': 'Max wins', }));
@@ -499,7 +502,7 @@ Overview.pageAddGameTableNew = function() {
         'href': '#',
         'data-gameId': gameInfo.gameId,
       });
-      cancelLink.click(Overview.formRejectGame);
+      cancelLink.click(Overview.formCancelGame);
 
       decideTd.append('[')
             .append(cancelLink)
@@ -626,6 +629,36 @@ Overview.formAcceptGame = function(e) {
   };
   Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
     Overview.showLoggedInPage);
+};
+
+Overview.formCancelGame = function(e) {
+  e.preventDefault();
+  var argsCancel = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'reject',
+  };
+  var argsDismiss = {
+    'type': 'dismissGame',
+    'gameId': $(this).attr('data-gameId'),
+  };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully cancelled game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    argsCancel,
+    messages,
+    $(this),
+    Api.apiFormPost(
+      argsDismiss,      // auto-dismiss on cancel
+      messages,
+      $(this),
+      Overview.showLoggedInPage,
+      Overview.showLoggedInPage
+    ),
+    Overview.showLoggedInPage
+  );
 };
 
 Overview.formRejectGame = function(e) {
