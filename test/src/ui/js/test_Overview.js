@@ -288,7 +288,7 @@ test("test_Overview.formAcceptGame", function(assert) {
 
 test("test_Overview.formCancelGame", function(assert) {
   stop();
-//  expect(3);
+  expect(3);
   // Temporarily back up Overview.showLoggedInPage and replace it with
   // a mocked version for testing
   var showLoggedInPage = Overview.showLoggedInPage;
