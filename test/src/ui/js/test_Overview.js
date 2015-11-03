@@ -33,6 +33,7 @@ module("Overview", {
     delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.rejected_games;
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Api.user_prefs;
@@ -283,6 +284,25 @@ test("test_Overview.formAcceptGame", function(assert) {
   };
   var link = $('<a>', { 'data-gameId': 5, 'action': 'accept' });
   Overview.formAcceptGame.call(link, $.Event());
+})
+
+test("test_Overview.formCancelGame", function(assert) {
+  stop();
+  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(
+      Env.message.text,
+      'Successfully cancelled game',
+      'Cancel game should succeed'
+    );
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formCancelGame.call(link, $.Event());
 })
 
 test("test_Overview.formRejectGame", function(assert) {

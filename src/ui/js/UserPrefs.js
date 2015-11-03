@@ -210,7 +210,8 @@ UserPrefs.actionSetPrefs = function() {
     },
   };
 
-  var colorBlurb = 'These the colors used to represent each player in a game.';
+  var colorBlurb =
+    'These are the colors used to represent each player in a game.';
   var colorPrefs = {
     'player_color': {
       'text': 'Your color',

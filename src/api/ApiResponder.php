@@ -157,6 +157,10 @@ class ApiResponder {
         return $interface->get_all_completed_games($_SESSION['user_id']);
     }
 
+    protected function get_interface_response_loadRejectedGames($interface) {
+        return $interface->get_all_rejected_games($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_loadNextPendingGame($interface, $args) {
         if (isset($args['currentGameId'])) {
             if (isset($_SESSION['skipped_games'])) {
