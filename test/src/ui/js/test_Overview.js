@@ -286,6 +286,25 @@ test("test_Overview.formAcceptGame", function(assert) {
   Overview.formAcceptGame.call(link, $.Event());
 })
 
+test("test_Overview.formCancelGame", function(assert) {
+  stop();
+//  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(
+      Env.message.text,
+      'Successfully cancelled game',
+      'Cancel game should succeed'
+    );
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formCancelGame.call(link, $.Event());
+})
+
 test("test_Overview.formRejectGame", function(assert) {
   stop();
   expect(3);

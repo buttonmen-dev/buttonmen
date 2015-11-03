@@ -650,13 +650,15 @@ Overview.formCancelGame = function(e) {
     argsCancel,
     messages,
     $(this),
-    Api.apiFormPost(
-      argsDismiss,      // auto-dismiss on cancel
-      messages,
-      $(this),
-      Overview.showLoggedInPage,
-      Overview.showLoggedInPage
-    ),
+    function() {
+      Api.apiFormPost(
+        argsDismiss,      // auto-dismiss on cancel
+        messages,
+        $(this),
+        Overview.showLoggedInPage,
+        Overview.showLoggedInPage
+      );
+    },
     Overview.showLoggedInPage
   );
 };
