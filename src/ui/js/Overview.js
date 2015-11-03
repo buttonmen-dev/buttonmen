@@ -421,6 +421,7 @@ Overview.pageAddGameTableNew = function() {
   var decideTd;
   var acceptLink;
   var rejectLink;
+  var cancelLink;
   while (i < gamesource.length) {
     gameInfo = gamesource[i];
 
@@ -459,19 +460,30 @@ Overview.pageAddGameTableNew = function() {
       decideTd.append('[')
               .append(acceptLink)
               .append('] / ');
-    }
 
-    rejectLink = $('<a>', {
-      'text': 'Reject',
-      'href': '#',
-      'data-gameId': gameInfo.gameId,
-    });
-    rejectLink.click(Overview.formRejectGame);
+      rejectLink = $('<a>', {
+        'text': 'Reject',
+        'href': '#',
+        'data-gameId': gameInfo.gameId,
+      });
+      rejectLink.click(Overview.formRejectGame);
 
-    decideTd.append('[')
+      decideTd.append('[')
             .append(rejectLink)
             .append(']');
 
+    } else {
+      cancelLink = $('<a>', {
+        'text': 'Cancel',
+        'href': '#',
+        'data-gameId': gameInfo.gameId,
+      });
+      cancelLink.click(Overview.formRejectGame);
+
+      decideTd.append('[')
+            .append(cancelLink)
+            .append(']');
+    }
     i += 1;
     tableBody.append(gameRow);
   }
