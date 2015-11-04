@@ -789,6 +789,18 @@ test("test_Game.actionShowFinishedGame", function(assert) {
   });
 });
 
+test("test_Game.formCancelGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
+test("test_Game.formAcceptGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
+test("test_Game.formRejectGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
 // The logic here is a little hairy: since Game.getCurrentGame()
 // takes a callback, we can use the normal asynchronous logic there.
 // However, the POST done by our forms doesn't take a callback (it
