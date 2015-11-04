@@ -261,12 +261,12 @@ Overview.pageAddGameTable = function(
     headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
     headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
-    headerRow.append($('<th>', {'text': 'Description', }));
     if (gameType == 'rejected') {
       headerRow.append($('<th>', {'text': 'Max wins'}));
     } else {
       headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
     }
+    headerRow.append($('<th>', {'text': 'Description', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
     } else if (gameType == 'rejected') {
@@ -341,11 +341,6 @@ Overview.pageAddGameTable = function(
     gameRow.append($('<td>', {
       'style': 'background-color: ' + opponentColor,
     }).append(Env.buildProfileLink(gameInfo.opponentName)));
-    gameRow.append($('<td>', {
-      'class': 'gameDescDisplay',
-      'text': gameInfo.gameDescription.substring(0, 30) +
-              ((gameInfo.gameDescription.length > 30) ? '...' : ''),
-    }));
 
     var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
 
@@ -369,6 +364,11 @@ Overview.pageAddGameTable = function(
 
       gameRow.append(inactivityTd);
     }
+    gameRow.append($('<td>', {
+      'class': 'gameDescDisplay',
+      'text': gameInfo.gameDescription.substring(0, 30) +
+              ((gameInfo.gameDescription.length > 30) ? '...' : ''),
+    }));
 
     if ((gameType == 'finished') ||
         (gameType == 'rejected')) {
@@ -429,8 +429,8 @@ Overview.pageAddGameTableNew = function() {
   headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
   headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
-  headerRow.append($('<th>', {'text': 'Description', }));
   headerRow.append($('<th>', {'text': 'Max wins', }));
+  headerRow.append($('<th>', {'text': 'Description', }));
   headerRow.append($('<th>', {'text': 'Action', 'colspan': '2', }));
 
   tableHead.append(headerRow);
@@ -463,11 +463,11 @@ Overview.pageAddGameTableNew = function() {
       Env.buildProfileLink(gameInfo.opponentName)
     ));
     gameRow.append($('<td>', {
-      'class': 'gameDescDisplay',
-      'text': gameInfo.gameDescription,
+      'text': gameInfo.maxWins,
     }));
     gameRow.append($('<td>', {
-      'text': gameInfo.maxWins,
+      'class': 'gameDescDisplay',
+      'text': gameInfo.gameDescription,
     }));
 
     decideTd = $('<td>');
