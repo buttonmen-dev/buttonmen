@@ -815,6 +815,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * verify_api_countPendingGames() - helper routine which calls
+     * the API routine countPendingGames and returns the count
+     */
+    protected function verify_api_countPendingGames() {
+        $retval = $this->verify_api_success(array('type' => 'countPendingGames'));
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Pending game count succeeded.');
+        return $retval['data']['count'];
+    }
+
+    /*
      * verify_api_loadGameData() - helper routine which calls the API
      * loadGameData method, makes standard assertions about its
      * return value which shouldn't change, and compares its return
@@ -1147,7 +1158,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * As a side effect, this test actually enables preferences which some other tests need:
      * * turn on autopass for responder003-006
      * * turn on fire_overshooting for responder005
-     * * turn off autoaccept for responder006
+     * * turn off autoaccept for responder006 (and turn it on for all other players)
      */
     public function test_request_savePlayerInfo() {
         $this->verify_login_required('savePlayerInfo');
@@ -1448,6 +1459,47 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($retdata, $dummydata,
             "Real and dummy game joining return values should both be true");
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @group fulltest_deps
+     *
+     * This reproduces a bug in which cancelling a game causes the
+     * target player to gain an additional pending game.
+     */
+    public function test_request_reactToNewGameCancel() {
+
+        // count each player's pending games before doing anything, so the test doesn't rely on DB state
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $creatorPendingCountPrecreate = $this->verify_api_countPendingGames();
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $targetPendingCountPrecreate = $this->verify_api_countPendingGames();
+
+	// after the game is created, the creator should have the same number of
+        // pending games as before, and the target should now have one more
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder004', 'responder006', 'Avis', 'Avis', '3'
+        );
+        $creatorPendingCountPostcreate = $this->verify_api_countPendingGames();
+        $this->assertEquals($creatorPendingCountPrecreate, $creatorPendingCountPostcreate);
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $targetPendingCountPostcreate = $this->verify_api_countPendingGames();
+        $this->assertEquals($targetPendingCountPrecreate + 1, $targetPendingCountPostcreate);
+
+	// after the game is cancelled (rejected by the player who created it),
+        // both creator and target should have the same number of pending games as before this started
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $retdata = $this->verify_api_reactToNewGame(
+            array(), $gameId, 'reject'
+        );
+        $creatorPendingCountPostcancel = $this->verify_api_countPendingGames();
+        $this->assertEquals($creatorPendingCountPrecreate, $creatorPendingCountPostcancel);
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $targetPendingCountPostcancel = $this->verify_api_countPendingGames();
+        $this->assertEquals($targetPendingCountPrecreate, $targetPendingCountPostcancel);
     }
 
     /**
