@@ -361,8 +361,6 @@ Overview.pageAddGameTable = function(
                 gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
         'style': 'background-color: ' + wldColor,
       }));
-
-      gameRow.append(inactivityTd);
     }
     gameRow.append($('<td>', {
       'class': 'gameDescDisplay',
@@ -382,6 +380,7 @@ Overview.pageAddGameTable = function(
       dismissLink.click(Overview.formDismissGame);
       dismissTd.append(dismissLink);
     } else {
+      gameRow.append(inactivityTd);
       inactivityTd.attr('colspan', '2');
     }
 
