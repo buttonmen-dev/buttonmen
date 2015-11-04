@@ -401,6 +401,18 @@ test("test_Game.parseAuxiliaryDieOptions", function(assert) {
   });
 });
 
+test("test_Game.actionChooseJoinGameActive", function(assert) {
+//  james: incomplete for the moment
+});
+
+test("test_Game.actionChooseJoinGameInactive", function(assert) {
+//  james: incomplete for the moment
+});
+
+test("test_Game.actionChooseJoinGameNonplayer", function(assert) {
+//  james: incomplete for the moment
+});
+
 test("test_Game.actionSpecifyDiceActive", function(assert) {
   stop();
   BMTestUtils.GameType = 'jellybean_dirgo_specifydice';
@@ -775,6 +787,18 @@ test("test_Game.actionShowFinishedGame", function(assert) {
     start();
     Game.logEntryLimit = 10;
   });
+});
+
+test("test_Game.formCancelGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
+test("test_Game.formAcceptGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
+test("test_Game.formRejectGame", function(assert) {
+  //  james: incomplete for the moment
 });
 
 // The logic here is a little hairy: since Game.getCurrentGame()
