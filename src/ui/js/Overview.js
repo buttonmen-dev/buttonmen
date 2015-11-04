@@ -264,7 +264,7 @@ Overview.pageAddGameTable = function(
     if (gameType == 'rejected') {
       headerRow.append($('<th>', {'text': 'Max wins'}));
     } else {
-      headerRow.append($('<th>', {'html': 'Score<br/>W/L/T (Max)', }));
+      headerRow.append($('<th>', {'html': 'Score<br/>W/L/T&nbsp;(Max)', }));
     }
     headerRow.append($('<th>', {'text': 'Description', }));
     if (gameType == 'finished') {
