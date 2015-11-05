@@ -1910,6 +1910,7 @@ class BMGame {
     }
 
     protected function do_next_step_rejected() {
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
     }
 
     protected function update_game_state_rejected() {
@@ -2523,14 +2524,13 @@ class BMGame {
         $this->activeDieArrayArray = NULL;
         $this->attack = NULL;
 
-        $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
-        $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
-        $this->outOfPlayDieArrayArray = array_fill(0, $nPlayers, array());
-        $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
-        $this->swingRequestArrayArray = array_fill(0, $nPlayers, array());
-        $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
+        $this->capturedDieArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->outOfPlayDieArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
         unset($this->forceRoundResult);
     }
 
