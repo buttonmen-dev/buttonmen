@@ -30,8 +30,10 @@ module("Overview", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
+    delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.rejected_games;
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Api.user_prefs;
@@ -182,6 +184,16 @@ test("test_Overview.pageAddGameTables", function(assert) {
   });
 });
 
+test("test_Overview.pageAddGameTableNew", function(assert) {
+  stop();
+  Overview.getOverview(function() {
+    Overview.page = $('<div>');
+    Overview.pageAddGameTableNew();
+    assert.ok(true, "No special testing of pageAddGameTableNew() as a whole is done");
+    start();
+  });
+});
+
 // The default overview data contains games awaiting both the player and the opponent
 test("test_Overview.pageAddNewgameLink", function(assert) {
   stop();
@@ -257,6 +269,57 @@ test("test_Overview.pageAddIntroText", function(assert) {
     'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games'),
     'Page intro text contains the Button Men copyright');
 });
+
+test("test_Overview.formAcceptGame", function(assert) {
+  stop();
+  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(Env.message.text, 'Successfully accepted game',
+      'Accept game should succeed');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5, 'action': 'accept' });
+  Overview.formAcceptGame.call(link, $.Event());
+})
+
+test("test_Overview.formCancelGame", function(assert) {
+  stop();
+  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(
+      Env.message.text,
+      'Successfully cancelled game',
+      'Cancel game should succeed'
+    );
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formCancelGame.call(link, $.Event());
+})
+
+test("test_Overview.formRejectGame", function(assert) {
+  stop();
+  expect(3);
+  // Temporarily back up Overview.showLoggedInPage and replace it with
+  // a mocked version for testing
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
+    assert.equal(Env.message.text, 'Successfully rejected game',
+      'Reject game should succeed');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formRejectGame.call(link, $.Event());
+})
 
 test("test_Overview.formDismissGame", function(assert) {
   stop();

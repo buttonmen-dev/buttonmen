@@ -14,8 +14,10 @@ module("Api", {
     delete Api.button;
     delete Api.buttonSet;
     delete Api.player;
+    delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.rejected_games;
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
@@ -326,6 +328,25 @@ test("test_Api.parseCompletedGamesData", function(assert) {
   Api.getCompletedGamesData(function() {
     assert.equal(Api.completed_games.games[0].gameId, 5,
           "expected completed game ID exists");
+    start();
+  });
+});
+
+test("test_Api.getRejectedGamesData", function(assert) {
+  stop();
+  Api.getRejectedGamesData(function() {
+    assert.equal(Api.rejected_games.load_status, 'ok',
+         'Successfully loaded rejected games data');
+    assert.equal(Api.rejected_games.nGames, 1, 'Got expected number of rejected games');
+    start();
+  });
+});
+
+test("test_Api.parseRejectedGamesData", function(assert) {
+  stop();
+  Api.getRejectedGamesData(function() {
+    assert.equal(Api.rejected_games.games[0].gameId, 505,
+          "expected rejected game ID exists");
     start();
   });
 });

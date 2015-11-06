@@ -1909,6 +1909,13 @@ class BMGame {
     protected function update_game_state_end_game() {
     }
 
+    protected function do_next_step_rejected() {
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+    }
+
+    protected function update_game_state_rejected() {
+    }
+
     // The variable $gameStateBreakpoint is used for debugging purposes only.
     // If used, the game will stop as soon as the game state becomes
 
@@ -1936,7 +1943,7 @@ class BMGame {
 
             $this->do_next_step();
 
-            if (BMGameState::END_GAME === $this->gameState) {
+            if ($this->gameState >= BMGameState::END_GAME) {
                 return;
             }
 
@@ -2517,14 +2524,13 @@ class BMGame {
         $this->activeDieArrayArray = NULL;
         $this->attack = NULL;
 
-        $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
-        $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
-        $this->outOfPlayDieArrayArray = array_fill(0, $nPlayers, array());
-        $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
-        $this->swingRequestArrayArray = array_fill(0, $nPlayers, array());
-        $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
+        $this->capturedDieArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->outOfPlayDieArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
         unset($this->forceRoundResult);
     }
 

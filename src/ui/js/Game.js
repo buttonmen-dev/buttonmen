@@ -26,6 +26,8 @@ Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
 
+Game.GAME_STATE_REJECTED = 'REJECTED';
+
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
@@ -116,7 +118,22 @@ Game.showStatePage = function() {
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
-    if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
+    if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+      if (Api.game.isParticipant) {
+        if (Api.game.player.waitingOnAction) {
+          Game.actionChooseJoinGameActive();
+        } else {
+          Game.actionChooseJoinGameInactive();
+        }
+      } else {
+        Game.actionChooseJoinGameNonplayer();
+      }
+    } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
+      Game.page =
+        $('<p>', {'text': 'This game has been rejected.', });
+      Game.form = null;
+      includeFooter = false;
+    } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionSpecifyDiceActive();
@@ -286,6 +303,49 @@ Game.parseAuxiliaryDieOptions = function() {
 
 ////////////////////////////////////////////////////////////////////////
 // Routines for each type of game action that could be taken
+
+Game.actionChooseJoinGameActive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Your turn to decide whether to join the game');
+
+  var dietable = Game.dieRecipeTable(false);
+  Game.page.append(dietable);
+};
+
+Game.actionChooseJoinGameInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Opponent\'s turn to decide whether to join the game');
+
+  var dietable = Game.dieRecipeTable(false);
+  Game.page.append(dietable);
+};
+
+Game.actionChooseJoinGameNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to decide whether to join the game ' +
+    '(you are not in this game)'
+  );
+
+  var dietable = Game.dieRecipeTable(false);
+  Game.page.append(dietable);
+  Game.page.append($('<br>'));
+};
 
 // It is time to choose swing dice, and the current player has dice to choose
 Game.actionSpecifyDiceActive = function() {
@@ -1465,6 +1525,82 @@ Game.formPlayTurnInactive = function() {
   );
 };
 
+// "Form" for cancelling a game
+Game.formCancelGame = function(e) {
+  e.preventDefault();
+  var argsCancel = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'reject',
+  };
+  var argsDismiss = {
+    'type': 'dismissGame',
+    'gameId': $(this).attr('data-gameId'),
+  };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully cancelled game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    argsCancel,
+    messages,
+    $(this),
+    function() {
+      Api.apiFormPost(
+        argsDismiss,      // auto-dismiss on cancel
+        messages,
+        $(this),
+        function() {
+          window.location.href = Env.ui_root + 'index.html?mode=preference';
+          return false;
+        },
+        Game.showLoggedInPage
+      );
+    },
+    Game.showLoggedInPage
+  );
+};
+
+// "Form" for accepting a game
+Game.formAcceptGame = function(e) {
+  e.preventDefault();
+  var args = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'accept',
+  };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully accepted game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Game.showLoggedInPage,
+    Game.showLoggedInPage);
+};
+
+// "Form" for rejecting a game
+Game.formRejectGame = function(e) {
+  e.preventDefault();
+  var args = {
+    'type': 'reactToNewGame',
+    'gameId': $(this).attr('data-gameId'),
+    'action': 'reject',
+  };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully rejected game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    args,
+    messages,
+    $(this),
+    function() {
+      window.location.href = Env.ui_root + 'index.html?mode=preference';
+      return false;
+    },
+    Game.showLoggedInPage
+  );
+};
+
 // "Form" for dismissing a game after it's completed
 Game.formDismissGame = function(e) {
   e.preventDefault();
@@ -1583,6 +1719,42 @@ Game.pageAddGameHeader = function(action_desc) {
     });
     dismissLink.click(Game.formDismissGame);
     dismissDiv.append(dismissLink);
+    Game.page.append($('<br>'));
+  }
+
+  if (Api.game.isParticipant &&
+      Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+    var acceptRejectDiv = $('<div>');
+    Game.page.append(acceptRejectDiv);
+
+    if (Api.game.player.waitingOnAction) {
+      var acceptLink = $('<a>', {
+        'text': '[Accept Game]',
+        'href': '#',
+        'data-gameId': Api.game.gameId,
+      });
+      acceptLink.click(Game.formAcceptGame);
+      acceptRejectDiv.append(acceptLink);
+
+      acceptRejectDiv.append(' ');
+
+      var rejectLink = $('<a>', {
+        'text': '[Reject Game]',
+        'href': '#',
+        'data-gameId': Api.game.gameId,
+      });
+      rejectLink.click(Game.formRejectGame);
+      acceptRejectDiv.append(rejectLink);
+    } else {
+      var cancelLink = $('<a>', {
+        'text': '[Cancel Game]',
+        'href': '#',
+        'data-gameId': Api.game.gameId,
+      });
+      cancelLink.click(Game.formCancelGame);
+      acceptRejectDiv.append(cancelLink);
+    }
+
     Game.page.append($('<br>'));
   }
 
@@ -2612,6 +2784,9 @@ Game.playerOpponentHeaderRow = function(label, field) {
   if (field == 'playerName') {
     playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
     opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
+  } else if (field == 'buttonName') {
+    playerInfo.append(Env.buildButtonLink(Api.game.player[field]));
+    opponentInfo.append(Env.buildButtonLink(Api.game.opponent[field]));
   } else {
     playerInfo.append(Api.game.player[field]);
     opponentInfo.append(Api.game.opponent[field]);

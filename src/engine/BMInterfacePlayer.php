@@ -71,6 +71,7 @@ class BMInterfacePlayer extends BMInterface {
             'dob_day' => (int)$infoArray['dob_day'],
             'gender' => $infoArray['gender'],
             'image_size' => $image_size,
+            'autoaccept' => (bool)$infoArray['autoaccept'],
             'autopass' => (bool)$infoArray['autopass'],
             'fire_overshooting' => (bool)$infoArray['fire_overshooting'],
             'uses_gravatar' => (bool)$infoArray['uses_gravatar'],

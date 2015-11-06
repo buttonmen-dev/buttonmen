@@ -173,6 +173,11 @@ UserPrefs.actionSetPrefs = function() {
   var autoBlurb = 'These preferences configure things that the site can do ' +
     'automatically for you.';
   var autoPrefs = {
+    'autoaccept': {
+      'text': 'Automatically accept challenges from other players',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.autoaccept,
+    },
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
@@ -205,7 +210,8 @@ UserPrefs.actionSetPrefs = function() {
     },
   };
 
-  var colorBlurb = 'These the colors used to represent each player in a game.';
+  var colorBlurb =
+    'These are the colors used to represent each player in a game.';
   var colorPrefs = {
     'player_color': {
       'text': 'Your color',
@@ -370,6 +376,7 @@ UserPrefs.formSetPrefs = function() {
   var image_size = $('#userprefs_image_size').val();
   var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
+  var autoaccept = $('#userprefs_autoaccept').prop('checked');
   var autopass = $('#userprefs_autopass').prop('checked');
   var fire_overshooting = $('#userprefs_fire_overshooting').prop('checked');
   var monitor_redirects_to_game =
@@ -476,6 +483,7 @@ UserPrefs.formSetPrefs = function() {
       'uses_gravatar': uses_gravatar,
       'homepage': homepage,
       'comment': comment,
+      'autoaccept': autoaccept,
       'autopass': autopass,
       'fire_overshooting': fire_overshooting,
       'monitor_redirects_to_game': monitor_redirects_to_game,

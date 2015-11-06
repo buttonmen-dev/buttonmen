@@ -272,10 +272,34 @@ class DummyApiResponder {
         return $game;
     }
 
+    protected function get_interface_response_loadNewGames() {
+        $data = array(
+            'gameIdArray' => array(),
+            'opponentIdArray' => array(),
+            'opponentNameArray' => array(),
+            'myButtonNameArray' => array(),
+            'opponentButtonNameArray' => array(),
+            'nWinsArray' => array(),
+            'nLossesArray' => array(),
+            'nDrawsArray' => array(),
+            'nTargetWinsArray' => array(),
+            'isAwaitingActionArray' => array(),
+            'gameStateArray' => array(),
+            'statusArray' => array(),
+            'inactivityArray' => array(),
+            'inactivityRawArray' => array(),
+            'playerColorArray' => array(),
+            'opponentColorArray' => array(),
+        );
+
+        return array($data, "All game details retrieved successfully.");
+    }
+
     protected function get_interface_response_loadActiveGames() {
         // Use the same fake games here which were described in loadGameData
         $data = array(
             'gameIdArray' => array(),
+            'gameDescriptionArray' => array(),
             'opponentIdArray' => array(),
             'opponentNameArray' => array(),
             'myButtonNameArray' => array(),
@@ -303,6 +327,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_1(&$data) {
         $data['gameIdArray'][] = 1;
+        $data['gameDescriptionArray'][] = 'Game 1';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
@@ -322,6 +347,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_2(&$data) {
         $data['gameIdArray'][] = 2;
+        $data['gameDescriptionArray'][] = 'Game 2';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
@@ -341,6 +367,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_3(&$data) {
         $data['gameIdArray'][] = 3;
+        $data['gameDescriptionArray'][] = 'Game 3';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
@@ -360,6 +387,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_4(&$data) {
         $data['gameIdArray'][] = 4;
+        $data['gameDescriptionArray'][] = 'Game 4';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
@@ -383,6 +411,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_6(&$data) {
         $data['gameIdArray'][] = 6;
+        $data['gameDescriptionArray'][] = 'Game 6';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Buck Godot";
@@ -402,6 +431,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_7(&$data) {
         $data['gameIdArray'][] = 7;
+        $data['gameDescriptionArray'][] = 'Game 7';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Crab";
@@ -421,6 +451,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_8(&$data) {
         $data['gameIdArray'][] = 8;
+        $data['gameDescriptionArray'][] = 'Game 8';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "John Kovalic";
@@ -440,6 +471,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_9(&$data) {
         $data['gameIdArray'][] = 9;
+        $data['gameDescriptionArray'][] = 'Game 9';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "John Kovalic";
@@ -471,6 +503,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_13(&$data) {
         $data['gameIdArray'][] = 13;
+        $data['gameDescriptionArray'][] = 'Game 13';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "King Arthur";
@@ -490,6 +523,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_14(&$data) {
         $data['gameIdArray'][] = 14;
+        $data['gameDescriptionArray'][] = 'Game 14';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "King Arthur";
@@ -513,6 +547,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_16(&$data) {
         $data['gameIdArray'][] = 16;
+        $data['gameDescriptionArray'][] = 'Game 16';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Cammy Neko";
@@ -532,6 +567,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_17(&$data) {
         $data['gameIdArray'][] = 17;
+        $data['gameDescriptionArray'][] = 'Game 17';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Cammy Neko";
@@ -555,6 +591,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_19(&$data) {
         $data['gameIdArray'][] = 19;
+        $data['gameDescriptionArray'][] = 'Game 19';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Apples";
@@ -582,6 +619,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_22(&$data) {
         $data['gameIdArray'][] = 22;
+        $data['gameDescriptionArray'][] = 'Game 22';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Adam Spam";
@@ -601,6 +639,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_23(&$data) {
         $data['gameIdArray'][] = 23;
+        $data['gameDescriptionArray'][] = 'Game 23';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Adam Spam";
@@ -624,6 +663,7 @@ class DummyApiResponder {
 
     protected function add_active_game_data_25(&$data) {
         $data['gameIdArray'][] = 25;
+        $data['gameDescriptionArray'][] = 'Game 25';
         $data['opponentIdArray'][] = 1;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Miser";
@@ -644,6 +684,7 @@ class DummyApiResponder {
     protected function get_interface_response_loadCompletedGames() {
         $data = array(
             'gameIdArray' => array(),
+            'gameDescriptionArray' => array(),
             'opponentIdArray' => array(),
             'opponentNameArray' => array(),
             'myButtonNameArray' => array(),
@@ -662,6 +703,7 @@ class DummyApiResponder {
 
         // game 5
         $data['gameIdArray'][] = 5;
+        $data['gameDescriptionArray'][] = 'Game 5';
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
@@ -673,6 +715,48 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "END_GAME";
         $data['statusArray'][] = "COMPLETE";
+        $data['inactivityArray'][] = "8 days";
+        $data['inactivityRawArray'][] = 8*60*60*24;
+        $data['playerColorArray'][] = "#dd99dd";
+        $data['opponentColorArray'][] = "#ddffdd";
+
+        return array($data, "All game details retrieved successfully.");
+    }
+
+    protected function get_interface_response_loadRejectedGames() {
+        $data = array(
+            'gameIdArray' => array(),
+            'gameDescriptionArray' => array(),
+            'opponentIdArray' => array(),
+            'opponentNameArray' => array(),
+            'myButtonNameArray' => array(),
+            'opponentButtonNameArray' => array(),
+            'nWinsArray' => array(),
+            'nLossesArray' => array(),
+            'nDrawsArray' => array(),
+            'nTargetWinsArray' => array(),
+            'isAwaitingActionArray' => array(),
+            'gameStateArray' => array(),
+            'statusArray' => array(),
+            'inactivityArray' => array(),
+            'playerColorArray' => array(),
+            'opponentColorArray' => array(),
+        );
+
+        // game 505
+        $data['gameIdArray'][] = 505;
+        $data['gameDescriptionArray'][] = 'Game 505';
+        $data['opponentIdArray'][] = 2;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Avis";
+        $data['opponentButtonNameArray'][] = "Avis";
+        $data['nWinsArray'][] = 3;
+        $data['nLossesArray'][] = 2;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
+        $data['gameStateArray'][] = "REJECTED";
+        $data['statusArray'][] = "REJECTED";
         $data['inactivityArray'][] = "8 days";
         $data['inactivityRawArray'][] = 8*60*60*24;
         $data['playerColorArray'][] = "#dd99dd";
@@ -1084,6 +1168,7 @@ class DummyApiResponder {
                                 'dob_day' => 0,
                                 'gender' => '',
                                 'image_size' => NULL,
+                                'autoaccept' => TRUE,
                                 'autopass' => TRUE,
                                 'fire_overshooting' => FALSE,
                                 'uses_gravatar' => FALSE,
@@ -1202,6 +1287,14 @@ class DummyApiResponder {
 //                $data = NULL;
 //            }
         return array(NULL, "function not implemented");
+    }
+
+    protected function get_interface_response_reactToNewGame($args) {
+        if (array_key_exists('action', $args)) {
+            return array(TRUE, 'Successfully ' . $args['action'] . 'ed game');
+        } else {
+            return FALSE;
+        }
     }
 
     protected function get_interface_response_dismissGame() {
