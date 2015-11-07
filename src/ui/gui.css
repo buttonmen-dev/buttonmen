@@ -892,3 +892,8 @@ div.forum div.splitRight {
 #buttons_page table.skills p.interaction {
     font-style: italic;
 }
+
+div.ui-tooltip {
+    font-size: 1em;
+    max-width: 80%;
+}

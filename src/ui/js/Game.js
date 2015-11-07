@@ -1840,51 +1840,100 @@ Game.pageAddGameNavigationFooter = function() {
 
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
-  var gameSkillDiv = $('<div>', {
+  var hasButtonSpecial = false;
+  var hasDieSkill = false;
+  var isFirstButtonSpecial = true;
+  var isFirstDieSkill = true;
+  var isFirstInteraction;
+  var skillDesc;
+
+  var buttonSpecialDiv = $('<div>', {
+    'text': 'Button specials in this game: ',
+  });
+  var dieSkillDiv = $('<div>', {
     'text': 'Skills in this game: ',
   });
 
-  var firstSkill = true;
-  var firstInteract;
-  var skillDesc;
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
     skillDesc = skill;
+
     if (info.code) {
+      // add a die skill ...
+      skill += ' (' + info.code + ')';
       skillDesc += ' (' + info.code + ')';
-    }
-    skillDesc += ': ' + info.description;
+      skillDesc += ': ' + info.description;
 
-    firstInteract = true;
-    $.each(info.interacts, function(otherSkill, interactDesc) {
-      if (firstInteract) {
-        skillDesc += '\n\nInteraction with other skills in this game:';
+      // ... with interactions
+      isFirstInteraction = true;
+      $.each(info.interacts, function(otherSkill, interactDesc) {
+        if (isFirstInteraction) {
+          skillDesc += '<br/><br/>Interaction with other skills in this game:';
+          isFirstInteraction = false;
+        }
+        skillDesc += '<br/> * ' + otherSkill + ': ' + interactDesc;
+      });
+
+      if (isFirstDieSkill) {
+        hasDieSkill = true;
+        isFirstDieSkill = false;
+      } else {
+        dieSkillDiv.append('&nbsp;&nbsp;');
       }
-      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
-    });
+      dieSkillDiv.append(Game.skillSpan(skill, skillDesc));
+    } else {
+      // add a button special
+      skillDesc += ': ' + info.description;
 
-    if (!(firstSkill)) {
-      gameSkillDiv.append('&nbsp;&nbsp;');
+      if (isFirstButtonSpecial) {
+        hasButtonSpecial = true;
+        isFirstButtonSpecial = false;
+      } else {
+        buttonSpecialDiv.append('&nbsp;&nbsp;');
+      }
+      buttonSpecialDiv.append(Game.skillSpan(skill, skillDesc));
     }
-    gameSkillDiv.append($('<span>', {
-      'text': skill,
-      'title': skillDesc,
-      'class': 'skill_desc',
-    }));
-    gameSkillDiv.append($('<span>', {
-      'text': 'i',
-      'title': skillDesc,
-      'class': 'info_icon',
-    }));
-    firstSkill = false;
   });
 
-  if (firstSkill) {
-    gameSkillDiv.append('none');
+  if (!hasDieSkill) {
+    dieSkillDiv.append('none');
   }
 
   Game.page.append($('<br>'));
-  Game.page.append(gameSkillDiv);
+  if (hasButtonSpecial) {
+    Game.page.append(buttonSpecialDiv).append($('<br>'));
+  }
+  Game.page.append(dieSkillDiv);
   return true;
+};
+
+Game.skillSpan = function(skill, skillDesc) {
+  var skillSpan = $('<span>');
+
+  skillSpan.append(
+    $('<span>', {
+      'text': skill,
+      'class': 'skill_desc',
+    })
+  );
+  skillSpan.append($('<span>', {
+    'text': 'i',
+    'class': 'info_icon',
+  }));
+  skillSpan
+    .tooltip({
+      content: skillDesc,
+      items: 'span',
+      position: { my: 'bottom', at: 'top-5', collision: 'flipfit'},
+    })
+    .on('click', function() {
+      // james: without closing other tooltips, it's possible that
+      // the same tooltip might occur twice on a browser page due
+      // to the combination of hover and click
+      $('.ui-tooltip').hide();
+      $(this).tooltip('open');
+    });
+
+  return skillSpan;
 };
 
 // Display links to create new games similar to this one
