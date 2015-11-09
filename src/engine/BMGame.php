@@ -2485,12 +2485,12 @@ class BMGame {
         foreach ($this->playerArray as $player) {
             $player->activeDieArray = array();
             $player->capturedDieArray = array();
+            $player->outOfPlayDieArray = array();
         }
         $this->attack = NULL;
 
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
-        $this->outOfPlayDieArrayArray = array_fill(0, $this->nPlayers, array());
         $this->setAllToNotWaiting();
         $this->swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
         $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
@@ -3400,8 +3400,8 @@ class BMGame {
      */
     protected function get_outOfPlayDieArray($playerIdx) {
         $outOfPlayDieArray = array();
-        if (isset($this->outOfPlayDieArrayArray)) {
-            foreach ($this->outOfPlayDieArrayArray[$playerIdx] as $die) {
+        if (!empty($this->playerArray[$playerIdx]->outOfPlayDieArray)) {
+            foreach ($this->playerArray[$playerIdx]->outOfPlayDieArray as $die) {
                 $outOfPlayDieArray[] = array(
                     'value' => $die->value,
                     'sides' => $die->max,
@@ -4056,6 +4056,21 @@ class BMGame {
     }
 
     /**
+     * Array of out of play dice
+     */
+    protected function get__outOfPlayDieArrayArray() {
+        $outOfPlayDieArrayArray = array();
+
+        if (!empty($this->playerArray)) {
+            foreach ($this->playerArray as $player) {
+                $outOfPlayDieArrayArray[] = $player->outOfPlayDieArray;
+            }
+        }
+
+        return $outOfPlayDieArrayArray;
+    }
+
+    /**
      * Array of buttons
      */
     protected function get__waitingOnActionArray() {
@@ -4208,6 +4223,45 @@ class BMGame {
         if (!empty($this->playerArray)) {
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->capturedDieArray = $value[$playerIdx];
+            }
+        }
+    }
+
+    /**
+     * Allow setting the array of out of play die arrays
+     *
+     * @param array $value
+     */
+    protected function set__outOfPlayDieArrayArray($value) {
+        if (empty($value) ||
+            !is_array($value) ||
+            (count($value) != $this->nPlayers)) {
+            throw new InvalidArgumentException(
+                'The number of active die arrays must match the number of players.'
+            );
+        }
+
+        foreach ($value as $outOfPlayDieArray) {
+            if (!is_array($outOfPlayDieArray)) {
+                throw new InvalidArgumentException(
+                    'Out of play die arrays must be arrays.'
+                );
+            }
+
+            if (!empty($outOfPlayDieArray)) {
+                foreach ($outOfPlayDieArray as $die) {
+                    if (!($die instanceof BMDie)) {
+                        throw new InvalidArgumentException(
+                            'Out of play die arrays must be made up of BMDie objects.'
+                        );
+                    }
+                }
+            }
+        }
+
+        if (!empty($this->playerArray)) {
+            foreach ($this->playerArray as $playerIdx => $player) {
+                $player->outOfPlayDieArray = $value[$playerIdx];
             }
         }
     }

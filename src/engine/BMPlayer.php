@@ -14,6 +14,7 @@
  * @property      BMButton $button                 Button used by this player in this game
  * @property      array    $activeDieArray         Array of active dice owned by this player
  * @property      array    $capturedDieArray       Array of dice captured by this player
+ * @property      array    $outOfPlayDieArray      Array of dice out of play
  * @property      bool     $waitingOnAction        Does this player need to perform an action?
  * @property      bool     $isPrevRoundWinner      Has this player just won the previous round?
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
@@ -62,6 +63,16 @@ class BMPlayer {
      * @var array
      */
     public $capturedDieArray;
+
+    /**
+     * Array of dice out of play, but nominally belonging to this player
+     *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
+     * @var array
+     */
+    public $outOfPlayDieArray;
 
     /**
      * Boolean specifying if this player needs to perform an action at this time
