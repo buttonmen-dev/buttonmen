@@ -541,7 +541,9 @@ class BMInterface {
                 'FROM game_player_map AS gpm '.
                    'LEFT JOIN game AS g ON g.id = gpm.game_id '.
                 'WHERE gpm.player_id = :player_id '.
-                   'AND gpm.is_awaiting_action = 1 ';
+                   'AND gpm.is_awaiting_action = 1 '.
+                   'AND g.status_id = '.
+                       '(SELECT id FROM game_status WHERE name = \'ACTIVE\') ';
 
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
@@ -2044,6 +2046,8 @@ class BMInterface {
                 $query .= 'AND s.name = "ACTIVE" AND g.game_state <= 13 ';
             } elseif ('COMPLETE' == $type) {
                 $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
+            } elseif ('REJECTED' == $type) {
+                $query .= 'AND s.name = "REJECTED" AND v2.was_game_dismissed = 0 ';
             }
             $query .= 'ORDER BY g.last_action_time ASC;';
             $statement = self::$conn->prepare($query);
@@ -2145,6 +2149,10 @@ class BMInterface {
 
     public function get_all_completed_games($playerId) {
         return $this->get_all_games($playerId, 'COMPLETE');
+    }
+
+    public function get_all_rejected_games($playerId) {
+        return $this->get_all_games($playerId, 'REJECTED');
     }
 
     public function get_all_open_games($currentPlayerId) {
@@ -3801,7 +3809,8 @@ class BMInterface {
                 $this->set_message("Game $gameId does not exist");
                 return NULL;
             }
-            if ($fetchResult[0]['status'] != 'COMPLETE') {
+            if (($fetchResult[0]['status'] != 'COMPLETE') &&
+                ($fetchResult[0]['status'] != 'REJECTED')) {
                 $this->set_message("Game $gameId isn't complete");
                 return NULL;
             }

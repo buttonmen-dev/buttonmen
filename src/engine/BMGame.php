@@ -1884,6 +1884,7 @@ class BMGame {
     }
 
     protected function do_next_step_rejected() {
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
     }
 
     protected function update_game_state_rejected() {

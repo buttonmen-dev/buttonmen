@@ -815,6 +815,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * verify_api_countPendingGames() - helper routine which calls
+     * the API routine countPendingGames and returns the count
+     */
+    protected function verify_api_countPendingGames() {
+        $retval = $this->verify_api_success(array('type' => 'countPendingGames'));
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Pending game count succeeded.');
+        return $retval['data']['count'];
+    }
+
+    /*
      * verify_api_loadGameData() - helper routine which calls the API
      * loadGameData method, makes standard assertions about its
      * return value which shouldn't change, and compares its return
@@ -1147,7 +1158,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * As a side effect, this test actually enables preferences which some other tests need:
      * * turn on autopass for responder003-006
      * * turn on fire_overshooting for responder005
-     * * turn off autoaccept for responder006
+     * * turn off autoaccept for responder006 (and turn it on for all other players)
      */
     public function test_request_savePlayerInfo() {
         $this->verify_login_required('savePlayerInfo');
@@ -1448,6 +1459,47 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($retdata, $dummydata,
             "Real and dummy game joining return values should both be true");
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @group fulltest_deps
+     *
+     * This reproduces a bug in which cancelling a game causes the
+     * target player to gain an additional pending game.
+     */
+    public function test_request_reactToNewGameCancel() {
+
+        // count each player's pending games before doing anything, so the test doesn't rely on DB state
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $creatorPendingCountPrecreate = $this->verify_api_countPendingGames();
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $targetPendingCountPrecreate = $this->verify_api_countPendingGames();
+
+	// after the game is created, the creator should have the same number of
+        // pending games as before, and the target should now have one more
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder004', 'responder006', 'Avis', 'Avis', '3'
+        );
+        $creatorPendingCountPostcreate = $this->verify_api_countPendingGames();
+        $this->assertEquals($creatorPendingCountPrecreate, $creatorPendingCountPostcreate);
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $targetPendingCountPostcreate = $this->verify_api_countPendingGames();
+        $this->assertEquals($targetPendingCountPrecreate + 1, $targetPendingCountPostcreate);
+
+	// after the game is cancelled (rejected by the player who created it),
+        // both creator and target should have the same number of pending games as before this started
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $retdata = $this->verify_api_reactToNewGame(
+            array(), $gameId, 'reject'
+        );
+        $creatorPendingCountPostcancel = $this->verify_api_countPendingGames();
+        $this->assertEquals($creatorPendingCountPrecreate, $creatorPendingCountPostcancel);
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $targetPendingCountPostcancel = $this->verify_api_countPendingGames();
+        $this->assertEquals($targetPendingCountPrecreate, $targetPendingCountPostcancel);
     }
 
     /**
@@ -9424,10 +9476,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                2, 7, 17,          // die skills for r3: c, n, t
+                2, 8, 18,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                12, 5, 8,          // die skills for r4: s, M, o
+                13, 6, 9,          // die skills for r4: s, M, o
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 5, 7,           // initial die rolls for r4
@@ -10523,10 +10575,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
-                4, 9, 7,           // die skills for r3: k, p, n
+                5, 10, 8,          // die skills for r3: k, p, n
                 0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
                 4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
-                19, 4, 5,          // die skills for r4: h, k, M
+                20, 5, 6,          // die skills for r4: h, k, M
                 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
                 1, 3, 6, 3, 3,     // initial die rolls for r3
                 5, 2, 7,           // initial die rolls for r4
@@ -11461,10 +11513,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
-                0, 14, 19,            // die skills for r3: B, d, h
+                0, 15, 20,            // die skills for r3: B, d, h
                 2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
                 5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
-                18, 1, 1, 10,         // die skills for r4: v, b, q
+                19, 1, 1, 11,         // die skills for r4: v, b, q
                 4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
                 4, 4, 1, 2, 2,        // initial die rolls for r3
                 2, 2, 4, 2, 13,       // initial die rolls for r4
@@ -12040,10 +12092,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 3, 0, 2, 5, 3,          // die sizes for r3: 6, 8, 10, 10, 20
-                5, 6, 18,               // die skills for r3: H, M, v
+                6, 7, 19,               // die skills for r3: H, M, v
                 0, 3, 2, 0, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                18, 0, 18, 17,          // die skills for r4: B, t, v
+                19, 0, 19, 18,          // die skills for r4: B, t, v
                 2, 4, 2, 2, 2, 1, 2, 1, // distribution of skills onto dice for r4
                 7, 10, 20,              // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 1, 1, 1, 3           // initial die rolls for r4
@@ -12380,6 +12432,125 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['validAttackTypeArray'] = array('Power');
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IsAttacker');
         $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('IsAttackTarget');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test reproduces a trip mood bug, and standardizes the
+     * behavior of trip mood dice during successful trip attacks.
+     */
+    public function test_interface_game_043() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 43;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+
+        // 0 of JennieGirl's dice, and 6 of Giant's dice, are initially rolled
+        $gameId = $this->verify_api_createGame(
+            array(13, 2, 7, 4, 6, 20),
+            'responder003', 'responder004', 'JennieGirl', 'Giant', 3);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Chance', 'Mood', 'Ornery', 'Rage', 'Reserve', 'Shadow', 'TimeAndSpace', 'Trip'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => null, 'sides' => null, 'skills' => array('Rage', 'Shadow', 'Trip'), 'properties' => array(), 'recipe' => 'Gst(S)', 'description' => 'Rage Shadow Trip S Swing Die'),
+            array('value' => null, 'sides' => null, 'skills' => array('Rage', 'Shadow', 'Trip', 'Mood'), 'properties' => array(), 'recipe' => 'Gst(S)?', 'description' => 'Rage Shadow Trip S Mood Swing Die'),
+            array('value' => null, 'sides' => null, 'skills' => array('Rage', 'Shadow', 'Trip', 'TimeAndSpace'), 'properties' => array(), 'recipe' => 'Gst^(S)', 'description' => 'Rage Shadow Trip TimeAndSpace S Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => null, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder003 specifies swing dice
+        // this causes 3 of JennieGirl's dice to be rolled
+
+        $this->verify_api_submitDieValues(
+            array(2, 1, 2),
+            $gameId, 1, array('S' => 6), NULL);
+
+        $expData['validAttackTypeArray'] = array('Skill', 'Shadow', 'Trip');
+        $expData['gameState'] = 'START_TURN';
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['playerDataArray'][0]['roundScore'] = 9;
+        $expData['playerDataArray'][1]['roundScore'] = 60;
+        $expData['playerDataArray'][0]['sideScore'] = -34.0;
+        $expData['playerDataArray'][1]['sideScore'] = 34.0;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 13;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 7;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 20;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: S=6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [Gst(S=6):2, Gst(S=6)?:1, Gst^(S=6):2], responder004 rolled [(20):13, (20):2, (20):7, (20):4, (20):6, (20):20]. responder004\'s button has the "slow" button special, and cannot win initiative normally.'));
+        $expData['gameActionLogCount'] += 2;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 02 - responder003 performs a trip attack using Gst(S=6)?:1 against (20):20
+        $this->verify_api_submitTurn(
+            array(
+                4,  // resize attacker to index 4 (20 sides)
+                15, // attacker rolls 15
+                4,  // defender rolls 4
+            ),
+            'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured. ',
+            $retval, array(array(0, 1), array(1, 5)),
+            $gameId, 1, 'Trip', 0, 1, '');
+
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 36;
+        $expData['playerDataArray'][1]['roundScore'] = 50;
+        $expData['playerDataArray'][0]['sideScore'] = -9.3;
+        $expData['playerDataArray'][1]['sideScore'] = 9.3;
+        $expData['playerDataArray'][0]['capturedDieArray'][] = array('value' => 4, 'sides' => 20, 'recipe' => '(20)', 'properties' => array('WasJustCaptured'));
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 5, 1);
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 20;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 15;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array('Shadow', 'Trip', 'Mood');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('JustPerformedTripAttack');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = 'st(S)?';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Shadow Trip S Mood Swing Die (with 20 sides)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured'));
+        $expData['gameActionLogCount'] += 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }

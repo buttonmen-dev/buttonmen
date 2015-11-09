@@ -62,6 +62,10 @@ class BMSkillMood extends BMSkill {
             return FALSE;
         }
 
+        if ($die->has_flag('JustPerformedTripAttack')) {
+            return FALSE;
+        }
+
         if (array_key_exists('isSubdie', $args) && $args['isSubdie']) {
             return FALSE;
         }
