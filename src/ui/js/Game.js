@@ -1882,7 +1882,7 @@ Game.pageAddSkillListFooter = function() {
     }
   });
 
-  if (0 == (dieSkillSpanArray.length + buttonSkillSpanArray.length)) {
+  if (0 === (dieSkillSpanArray.length + buttonSkillSpanArray.length)) {
     gameSkillDiv.append('none');
   } else {
     if (buttonSkillSpanArray.length > 0) {
@@ -1919,7 +1919,7 @@ Game.createSkillDiv = function(spanArray, divTitle) {
   });
 
   return skillDiv;
-}
+};
 
 // Display links to create new games similar to this one
 Game.pageAddNewGameLinkFooter = function() {
