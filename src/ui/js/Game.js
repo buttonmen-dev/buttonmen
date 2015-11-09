@@ -1840,13 +1840,14 @@ Game.pageAddGameNavigationFooter = function() {
 
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
-  var gameSkillDiv = $('<div>', {
-    'text': 'Skills in this game: ',
-  });
+  var gameSkillDiv = $('<div>');
 
-  var firstSkill = true;
-  var firstInteract;
+  var dieSkillSpanArray = [];
+  var buttonSkillSpanArray = [];
+  var interactDescArray;
   var skillDesc;
+  var skillSpan;
+
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
     skillDesc = skill;
     if (info.code) {
@@ -1854,38 +1855,71 @@ Game.pageAddSkillListFooter = function() {
     }
     skillDesc += ': ' + info.description;
 
-    firstInteract = true;
+    interactDescArray = [];
     $.each(info.interacts, function(otherSkill, interactDesc) {
-      if (firstInteract) {
-        skillDesc += '\n\nInteraction with other skills in this game:';
-      }
-      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+      interactDescArray.push(' * ' + otherSkill + ': ' + interactDesc);
     });
 
-    if (!(firstSkill)) {
-      gameSkillDiv.append('&nbsp;&nbsp;');
+    if (interactDescArray.length > 0) {
+      skillDesc += '\n\nInteraction with other skills in this game: \n';
+      skillDesc += interactDescArray.join('\n');
     }
-    gameSkillDiv.append($('<span>', {
+
+    skillSpan = $('<span>').append($('<span>', {
       'text': skill,
       'title': skillDesc,
       'class': 'skill_desc',
-    }));
-    gameSkillDiv.append($('<span>', {
+    })).append($('<span>', {
       'text': 'i',
       'title': skillDesc,
       'class': 'info_icon',
     }));
-    firstSkill = false;
+
+    if (info.code) {
+      dieSkillSpanArray.push(skillSpan);
+    } else {
+      buttonSkillSpanArray.push(skillSpan);
+    }
   });
 
-  if (firstSkill) {
+  if (0 == (dieSkillSpanArray.length + buttonSkillSpanArray.length)) {
     gameSkillDiv.append('none');
+  } else {
+    if (buttonSkillSpanArray.length > 0) {
+      gameSkillDiv.append(
+        Game.createSkillDiv(
+          buttonSkillSpanArray,
+          'Button specials in this game'
+        )
+      );
+    }
+    if (dieSkillSpanArray.length > 0) {
+      gameSkillDiv.append(
+        Game.createSkillDiv(
+          dieSkillSpanArray,
+          'Die skills in this game'
+        )
+      );
+    }
   }
 
   Game.page.append($('<br>'));
   Game.page.append(gameSkillDiv);
   return true;
 };
+
+Game.createSkillDiv = function(spanArray, divTitle) {
+  var skillDiv = $('<div>', {'text': divTitle + ': ',});
+
+  $.each(spanArray, function(index, value) {
+    skillDiv = skillDiv.append(value);
+    if (index < spanArray.length - 1) {
+      skillDiv.append('&nbsp;&nbsp;');
+    }
+  });
+
+  return skillDiv;
+}
 
 // Display links to create new games similar to this one
 Game.pageAddNewGameLinkFooter = function() {

@@ -1152,12 +1152,20 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    assert.ok(htmlout.match('<div>Skills in this game: '),
+    assert.ok(htmlout.match('<div>Die skills in this game: '),
       "Die skills footer text is present");
     assert.ok(htmlout.match('Focus'),
       "Die skills footer text lists the Focus skill");
     start();
   });
+});
+
+test("test_game.createSkillDiv", function(assert) {
+  var skillDiv = Game.createSkillDiv(['1', '23', ' 4 5 '], 'hello');
+  assert.ok(skillDiv.is('div'));
+  assert.equal(skillDiv.html(),
+    'hello: 1&nbsp;&nbsp;23&nbsp;&nbsp; 4 5 '
+  );
 });
 
 test("test_Game.pageAddLogFooter", function(assert) {
