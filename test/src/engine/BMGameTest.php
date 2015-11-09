@@ -2528,7 +2528,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->activeDieArrayArray = 'abc';
             $this->fail('Active die array array must be an array.');
-        } catch (InvalidArgumentException $expected) {
+        } catch (PHPUnit_Framework_Error $expected) {
         }
 
         try {
@@ -2705,19 +2705,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // invalid set
         try {
             $this->object->capturedDieArrayArray = 'abc';
-            $this->fail('Active die array array must be an array.');
-        } catch (InvalidArgumentException $expected) {
+            $this->fail('Captured die array array must be an array.');
+        } catch (PHPUnit_Framework_Error $expected) {
         }
 
         try {
             $this->object->capturedDieArrayArray = array(1, 2);
-            $this->fail('Active die arrays must be arrays.');
+            $this->fail('Captured die arrays must be arrays.');
         } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->capturedDieArrayArray = array(array(1), array(2));
-            $this->fail('Active die arrays must be arrays of BM dice.');
+            $this->fail('Captured die arrays must be arrays of BM dice.');
         } catch (InvalidArgumentException $expected) {
         }
     }

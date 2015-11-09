@@ -3993,6 +3993,13 @@ class BMGame {
     }
 
     // convenience getters to make refactoring to BMPlayer easier
+
+    /**
+     * This is the generic getter to access BMPlayer properties
+     *
+     * @param string $property
+     * @return array
+     */
     protected function getBMPlayerProps($property) {
         $resultArray = array();
 
@@ -4063,25 +4070,58 @@ class BMGame {
     }
 
     // convenience setters to make refactoring to BMPlayer easier
+
+    /**
+     * This is the generic setter to set BMPlayer properties
+     *
+     * $subtype allows type checking of the contents of subArrays.
+     *
+     * @param string $property
+     * @param array  $value
+     * @param string $subclass
+     */
+    protected function setBMPlayerProps($property, array $value, $subclass = '') {
+        if (empty($value) ||
+            (count($value) != $this->nPlayers)) {
+            throw new InvalidArgumentException(
+                "Array length must equal the number of players"
+            );
+        }
+
+        if ('Array' == substr($property, -5)) {
+            foreach ($value as $subArray) {
+                if (!is_array($subArray)) {
+                    throw new InvalidArgumentException(
+                        'Subarrays must be arrays.'
+                    );
+                }
+
+                if (!empty($subArray) && ('' != $subclass)) {
+                    foreach ($subArray as $obj) {
+                        if (!($obj instanceof $subclass)) {
+                            throw new InvalidArgumentException(
+                                "Subarrays must be made up of $subclass objects."
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!empty($this->playerArray)) {
+            foreach ($this->playerArray as $playerIdx => $player) {
+                $player->$property = $value[$playerIdx];
+            }
+        }
+    }
+
     /**
      * Allow setting the player ID array
      *
      * @param array $value
      */
     protected function set__playerIdArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'The number of players cannot change during a game.'
-            );
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->id = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('id', $value);
     }
 
     /**
@@ -4090,19 +4130,7 @@ class BMGame {
      * @param array $value
      */
     protected function set__buttonArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'The number of buttons must match the number of players.'
-            );
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->button = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('button', $value);
     }
 
     /**
@@ -4111,37 +4139,7 @@ class BMGame {
      * @param array $value
      */
     protected function set__activeDieArrayArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'The number of active die arrays must match the number of players.'
-            );
-        }
-
-        foreach ($value as $activeDieArray) {
-            if (!is_array($activeDieArray)) {
-                throw new InvalidArgumentException(
-                    'Active die arrays must be arrays.'
-                );
-            }
-
-            if (!empty($activeDieArray)) {
-                foreach ($activeDieArray as $die) {
-                    if (!($die instanceof BMDie)) {
-                        throw new InvalidArgumentException(
-                            'Active die arrays must be made up of BMDie objects.'
-                        );
-                    }
-                }
-            }
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->activeDieArray = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('activeDieArray', $value, 'BMDie');
     }
 
     /**
@@ -4150,37 +4148,7 @@ class BMGame {
      * @param array $value
      */
     protected function set__capturedDieArrayArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'The number of active die arrays must match the number of players.'
-            );
-        }
-
-        foreach ($value as $capturedDieArray) {
-            if (!is_array($capturedDieArray)) {
-                throw new InvalidArgumentException(
-                    'Captured die arrays must be arrays.'
-                );
-            }
-
-            if (!empty($capturedDieArray)) {
-                foreach ($capturedDieArray as $die) {
-                    if (!($die instanceof BMDie)) {
-                        throw new InvalidArgumentException(
-                            'Captured die arrays must be made up of BMDie objects.'
-                        );
-                    }
-                }
-            }
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->capturedDieArray = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('capturedDieArray', $value, 'BMDie');
     }
 
     /**
@@ -4189,37 +4157,7 @@ class BMGame {
      * @param array $value
      */
     protected function set__outOfPlayDieArrayArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'The number of active die arrays must match the number of players.'
-            );
-        }
-
-        foreach ($value as $outOfPlayDieArray) {
-            if (!is_array($outOfPlayDieArray)) {
-                throw new InvalidArgumentException(
-                    'Out of play die arrays must be arrays.'
-                );
-            }
-
-            if (!empty($outOfPlayDieArray)) {
-                foreach ($outOfPlayDieArray as $die) {
-                    if (!($die instanceof BMDie)) {
-                        throw new InvalidArgumentException(
-                            'Out of play die arrays must be made up of BMDie objects.'
-                        );
-                    }
-                }
-            }
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->outOfPlayDieArray = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('outOfPlayDieArray', $value, 'BMDie');
     }
 
     /**
@@ -4228,19 +4166,7 @@ class BMGame {
      * @param array $value
      */
     protected function set__waitingOnActionArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'The action array must match the number of players.'
-            );
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->waitingOnAction = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('waitingOnAction', $value);
     }
 
     /**
@@ -4258,18 +4184,6 @@ class BMGame {
      * @param array $value
      */
     protected function set__isPrevRoundWinnerArray($value) {
-        if (empty($value) ||
-            !is_array($value) ||
-            (count($value) != $this->nPlayers)) {
-            throw new InvalidArgumentException(
-                'isPrevRoundwinnerArray must match the number of players.'
-            );
-        }
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                $player->isPrevRoundWinner = $value[$playerIdx];
-            }
-        }
+        $this->setBMPlayerProps('isPrevRoundWinner', $value);
     }
 }
