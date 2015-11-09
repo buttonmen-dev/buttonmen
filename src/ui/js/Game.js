@@ -1851,6 +1851,7 @@ Game.pageAddSkillListFooter = function() {
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
     skillDesc = skill;
     if (info.code) {
+      skill += ' (' + info.code + ')';
       skillDesc += ' (' + info.code + ')';
     }
     skillDesc += ': ' + info.description;
