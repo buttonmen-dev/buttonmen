@@ -3993,96 +3993,60 @@ class BMGame {
     }
 
     // convenience getters to make refactoring to BMPlayer easier
+    protected function getBMPlayerProps($property) {
+        $resultArray = array();
+
+        if (!empty($this->playerArray)) {
+            foreach ($this->playerArray as $player) {
+                $resultArray[] = $player->$property;
+            }
+        }
+
+        return $resultArray;
+    }
+
     /**
      * Array of player IDs
      *
      * @return array
      */
     protected function get__playerIdArray() {
-        $playerIdArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $playerIdArray[] = $player->id;
-            }
-        }
-
-        return $playerIdArray;
+        return $this->getBMPlayerProps('id');
     }
 
     /**
      * Array of buttons
      */
     protected function get__buttonArray() {
-        $buttonArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $buttonArray[] = $player->button;
-            }
-        }
-
-        return $buttonArray;
+        return $this->getBMPlayerProps('button');
     }
 
     /**
      * Array of active dice
      */
     protected function get__activeDieArrayArray() {
-        $activeDieArrayArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $activeDieArrayArray[] = $player->activeDieArray;
-            }
-        }
-
-        return $activeDieArrayArray;
+        return $this->getBMPlayerProps('activeDieArray');
     }
 
     /**
      * Array of captured dice
      */
     protected function get__capturedDieArrayArray() {
-        $capturedDieArrayArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $capturedDieArrayArray[] = $player->capturedDieArray;
-            }
-        }
-
-        return $capturedDieArrayArray;
+        return $this->getBMPlayerProps('capturedDieArray');
     }
 
     /**
      * Array of out of play dice
      */
     protected function get__outOfPlayDieArrayArray() {
-        $outOfPlayDieArrayArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $outOfPlayDieArrayArray[] = $player->outOfPlayDieArray;
-            }
-        }
-
-        return $outOfPlayDieArrayArray;
+        return $this->getBMPlayerProps('outOfPlayDieArray');
     }
 
     /**
      * Array of buttons
      */
     protected function get__waitingOnActionArray() {
-        $waitingOnActionArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $waitingOnActionArray[] = $player->waitingOnAction;
-            }
-        }
-
-        return $waitingOnActionArray;
+        return $this->getBMPlayerProps('waitingOnAction');
     }
 
     /**
@@ -4095,15 +4059,7 @@ class BMGame {
     }
 
     protected function get__isPrevRoundWinnerArray() {
-        $isPrevRoundWinnerArray = array();
-
-        if (!empty($this->playerArray)) {
-            foreach ($this->playerArray as $player) {
-                $isPrevRoundWinnerArray[] = $player->isPrevRoundWinner;
-            }
-        }
-
-        return $isPrevRoundWinnerArray;
+        return $this->getBMPlayerProps('isPrevRoundWinner');
     }
 
     // convenience setters to make refactoring to BMPlayer easier
