@@ -1160,7 +1160,7 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
   });
 });
 
-test("test_game.createSkillDiv", function(assert) {
+test("test_Game.createSkillDiv", function(assert) {
   var skillDiv = Game.createSkillDiv(['1', '23', ' 4 5 '], 'hello');
   assert.ok(skillDiv.is('div'));
   assert.equal(skillDiv.html(),
