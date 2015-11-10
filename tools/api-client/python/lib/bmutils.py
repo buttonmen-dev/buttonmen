@@ -12,6 +12,7 @@ SkillName = {
   'D': 'Doppelganger',
   'F': 'Fire',
   'f': 'Focus',
+  'I': 'Insult',
   'k': 'Konstant',
   '&': 'Mad',
   'M': 'Maximum',
