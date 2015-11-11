@@ -148,6 +148,8 @@ Forum.showBoard = function() {
     return;
   }
 
+  $('title').html('Button Men Online &mdash; Forum: ' + Api.forum_board.boardName);
+
   var table = $('<table>', {
     'class': 'threads'
   });
@@ -262,6 +264,12 @@ Forum.showThread = function() {
   if (!Api.verifyApiData('forum_thread', Forum.arrangePage)) {
     return;
   }
+
+  // Don't display special characters (such as "&auml;") in page title
+  var tempDiv = $('<div>', { 'text': Api.forum_thread.threadTitle});
+  var pageTitle = tempDiv.html();
+
+  $('title').html('Button Men Online &mdash; ' + pageTitle);
 
   var table = $('<table>', { 'class': 'posts' });
   Forum.page.append(table);
