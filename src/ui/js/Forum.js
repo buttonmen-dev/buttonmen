@@ -148,7 +148,9 @@ Forum.showBoard = function() {
     return;
   }
 
-  $('title').html('Button Men Online &mdash; Forum: ' + Api.forum_board.boardName);
+  var pageTitle='Button Men Online &mdash; Forum: ';
+  pageTitle += Api.forum_board.boardName;
+  $('title').html(pageTitle);
 
   var table = $('<table>', {
     'class': 'threads'
