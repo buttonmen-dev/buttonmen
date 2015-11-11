@@ -1862,7 +1862,7 @@ Game.pageAddSkillListFooter = function() {
     });
 
     if (interactDescArray.length > 0) {
-      skillDesc += '\n\nInteraction with other skills in this game: \n';
+      skillDesc += '\n\nInteraction with other skills: \n';
       skillDesc += interactDescArray.join('\n');
     }
 
@@ -1890,7 +1890,7 @@ Game.pageAddSkillListFooter = function() {
       gameSkillDiv.append(
         Game.createSkillDiv(
           buttonSkillSpanArray,
-          'Button specials in this game'
+          'Button specials'
         )
       );
     }
@@ -1898,7 +1898,7 @@ Game.pageAddSkillListFooter = function() {
       gameSkillDiv.append(
         Game.createSkillDiv(
           dieSkillSpanArray,
-          'Die skills in this game'
+          'Die skills'
         )
       );
     }
@@ -1910,7 +1910,11 @@ Game.pageAddSkillListFooter = function() {
 };
 
 Game.createSkillDiv = function(spanArray, divTitle) {
-  var skillDiv = $('<div>', {'text': divTitle + ': ',});
+  var skillDiv = $('<div>');
+  skillDiv = skillDiv.append($('<span>', {
+    'text': divTitle + ': ',
+    'class': 'skill_title',
+  }));
 
   $.each(spanArray, function(index, value) {
     skillDiv = skillDiv.append(value);
