@@ -10,15 +10,12 @@
  *
  * @property      int   $gameId                  Game ID number in the database
  * @property      array $playerArray             Array of BMPlayer objects
- * @property      array $playerIdArray           Array of player IDs
  * @property-read array $nPlayers                Number of players in the game
  * @property-read int   $roundNumber;            Current round number
  * @property      int   $turnNumberInRound;      Current turn number in current round
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
  * @property      int   $nextPlayerIdx           Index of the next player to take a turn in playerIdxArray
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
- * @property      array $buttonArray             Buttons for all players
- * @property      array $activeDieArrayArray     Active dice for all players
  * @property      array $attack                  array('attackerPlayerIdx',<br>
                                                        'defenderPlayerIdx',<br>
                                                        'attackerAttackDieIdxArray',<br>
@@ -32,14 +29,10 @@
  * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
- * @property-read array $capturedDieArrayArray   Captured dice for all players
- * @property-read array $outOfPlayDieArrayArray  Out-of-play dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
- * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
- * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
  * @property      array $fireOvershootingArray   Boolean array whether each player has enabled fire overshooting
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
@@ -57,6 +50,15 @@
  * @property      array $lastActionTimeArray     Times of last actions for each player
  * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
+ *
+ * Convenience accessors for BMPlayer properties:
+ * @property      array $playerIdArray           Array of player IDs
+ * @property      array $buttonArray             Buttons for all players
+ * @property      array $activeDieArrayArray     Active dice for all players
+ * @property      array $capturedDieArrayArray   Captured dice for all players
+ * @property      array $outOfPlayDieArrayArray  Out-of-play dice for all players
+ * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
+ * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
@@ -81,12 +83,6 @@ class BMGame {
      */
     protected $playerArray;
 
-    /**
-     * Array of player IDs
-     *
-     * @var array
-     */
-    protected $playerIdArray;
 
     /**
      * Number of players in the game
@@ -129,20 +125,6 @@ class BMGame {
      * @var int
      */
     protected $playerWithInitiativeIdx;
-
-    /**
-     * Buttons for all players
-     *
-     * @var array
-     */
-    protected $buttonArray;
-
-    /**
-     * Active dice for all players
-     *
-     * @var type
-     */
-    protected $activeDieArrayArray;
 
     /**
      * Details of attack
@@ -216,20 +198,6 @@ class BMGame {
     protected $nRecentPasses;
 
     /**
-     * Captured dice for all players
-     *
-     * @var array
-     */
-    protected $capturedDieArrayArray;
-
-    /**
-     * Out-of-play dice for all players
-     *
-     * @var array
-     */
-    protected $outOfPlayDieArrayArray;
-
-    /**
      * Current points score in this round
      *
      * @var array
@@ -242,13 +210,6 @@ class BMGame {
      * @var array
      */
     protected $gameScoreArrayArray;
-
-    /**
-     * Boolean array whether each player won the previous round
-     *
-     * @var array
-     */
-    protected $isPrevRoundWinnerArray;
 
     /**
      * The game ends when a player has this many wins
@@ -264,12 +225,12 @@ class BMGame {
      */
     protected $gameState;
 
-    /**
-     * Boolean array whether each player needs to perform an action
-     *
-     * @var array
-     */
-    protected $waitingOnActionArray;
+//    /**
+//     * Boolean array whether each player needs to perform an action
+//     *
+//     * @var array
+//     */
+//    protected $waitingOnActionArray;
 
     /**
      * Boolean array whether each player has enabled autopass
@@ -447,7 +408,7 @@ class BMGame {
 
         // if player is unspecified, wait for player to accept game
         foreach ($this->playerArray as $player) {
-            if (!isset($player->id)) {
+            if (!isset($player->playerId)) {
                 $player->waitingOnAction = TRUE;
                 $allPlayersSet = FALSE;
             }
@@ -779,7 +740,7 @@ class BMGame {
     protected function do_next_step_choose_reserve_dice() {
         $this->setAllToNotWaiting();
 
-        if (array_sum($this->get__isPrevRoundWinnerArray()) > 0) {
+        if (array_sum($this->getBMPlayerProps('isPrevRoundWinner')) > 0) {
             $haveReserveDice = $this->do_players_have_dice_with_skill('Reserve');
 
             if (array_sum($haveReserveDice) > 0) {
@@ -986,8 +947,8 @@ class BMGame {
     protected function do_next_step_determine_initiative() {
         $response =
             BMGame::does_player_have_initiative_array(
-                $this->get__activeDieArrayArray(),
-                $this->get__buttonArray(),
+                $this->getBMPlayerProps('activeDieArray'),
+                $this->getBMPlayerProps('button'),
                 TRUE
             );
         $hasInitiativeArray = $response['hasPlayerInitiative'];
@@ -996,7 +957,7 @@ class BMGame {
             'playerData' => array(),
         );
         foreach ($response['actionLogInfo'] as $playerIdx => $playerActionLogData) {
-            $actionLogInfo['playerData'][$this->playerArray[$playerIdx]->id] = $playerActionLogData;
+            $actionLogInfo['playerData'][$this->playerArray[$playerIdx]->playerId] = $playerActionLogData;
         }
 
         if (array_sum($hasInitiativeArray) > 1) {
@@ -1005,7 +966,7 @@ class BMGame {
             foreach ($hasInitiativeArray as $playerIdx => $tempHasInitiative) {
                 if ($tempHasInitiative) {
                     $playersWithInit[] = $playerIdx;
-                    $actionLogInfo['tiedPlayerIds'][] = $this->playerArray[$playerIdx]->id;
+                    $actionLogInfo['tiedPlayerIds'][] = $this->playerArray[$playerIdx]->playerId;
                 }
             }
             $randIdx = bm_rand(0, count($playersWithInit) - 1);
@@ -1016,7 +977,7 @@ class BMGame {
         }
 
         $this->playerWithInitiativeIdx = $tempInitiativeIdx;
-        $actionLogInfo['initiativeWinnerId'] = $this->playerArray[$this->playerWithInitiativeIdx]->id;
+        $actionLogInfo['initiativeWinnerId'] = $this->playerArray[$this->playerWithInitiativeIdx]->playerId;
 
         // if this is an initiative redetermination following a focus turndown or chance reroll,
         // we don't need to make another log entry.  Inspect any previous log entries made during
@@ -1059,7 +1020,7 @@ class BMGame {
                 $hookResultArray =
                     $activeDie->run_hooks(
                         'react_to_initiative',
-                        array('activeDieArrayArray' => $this->get__activeDieArrayArray(),
+                        array('activeDieArrayArray' => $this->getBMPlayerProps('activeDieArray'),
                               'playerIdx' => $playerIdx)
                     );
 
@@ -1377,7 +1338,7 @@ class BMGame {
 
             $this->log_action(
                 'needs_firing',
-                $this->playerArray[$this->attackerPlayerIdx]->id,
+                $this->playerArray[$this->attackerPlayerIdx]->playerId,
                 array(
                     'attackType' => $this->attack['attackType'],
                     'attackDice' => $this->get_action_log_data(
@@ -1435,7 +1396,7 @@ class BMGame {
         )) {
             $this->log_action(
                 'allows_firing',
-                $this->playerArray[$this->attackerPlayerIdx]->id,
+                $this->playerArray[$this->attackerPlayerIdx]->playerId,
                 array(
                     'attackType' => $this->attack['attackType'],
                     'attackDice' => $this->get_action_log_data(
@@ -1635,7 +1596,7 @@ class BMGame {
 
         $this->log_action(
             'fire_cancel',
-            $this->playerArray[$this->activePlayerIdx]->id,
+            $this->playerArray[$this->activePlayerIdx]->playerId,
             array(
                 'action' => 'cancel',
             )
@@ -1674,7 +1635,7 @@ class BMGame {
 
         $this->log_action(
             'attack',
-            $this->playerArray[$this->attackerPlayerIdx]->id,
+            $this->playerArray[$this->attackerPlayerIdx]->playerId,
             array(
                 'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
@@ -1764,7 +1725,7 @@ class BMGame {
         if ($hasRerolled) {
             $this->log_action(
                 'ornery_reroll',
-                $this->playerArray[$this->attackerPlayerIdx]->id,
+                $this->playerArray[$this->attackerPlayerIdx]->playerId,
                 array(
                     'preRerollDieInfo' => $preRerollDieInfo,
                     'postRerollDieInfo' => $postRerollDieInfo,
@@ -1774,7 +1735,7 @@ class BMGame {
     }
 
     protected function update_game_state_end_turn() {
-        $nDice = array_map('count', $this->get__activeDieArrayArray());
+        $nDice = array_map('count', $this->getBMPlayerProps('activeDieArray'));
         // check if any player has no dice, or if everyone has passed
         if ((0 === min($nDice)) ||
             ($this->nPlayers == $this->nRecentPasses) ||
@@ -1841,7 +1802,7 @@ class BMGame {
             }
             $this->log_action(
                 'end_winner',
-                $this->playerArray[$winnerIdx]->id,
+                $this->playerArray[$winnerIdx]->playerId,
                 array(
                     'roundNumber' => $this->get_prevRoundNumber(),
                     'roundScoreArray' => $roundScoreArray,
@@ -2032,7 +1993,7 @@ class BMGame {
         $postRerollData = $die->get_action_log_data();
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
-            $this->get__activeDieArrayArray()
+            $this->getBMPlayerProps('activeDieArray')
         );
 
         if ($newInitiativeArray[$playerIdx] && (1 == array_sum($newInitiativeArray))) {
@@ -2051,7 +2012,7 @@ class BMGame {
 
         $this->log_action(
             'reroll_chance',
-            $this->playerArray[$playerIdx]->id,
+            $this->playerArray[$playerIdx]->playerId,
             array(
                 'preReroll' => $preRerollData,
                 'postReroll' => $postRerollData,
@@ -2094,7 +2055,7 @@ class BMGame {
 
         $this->log_action(
             'init_decline',
-            $this->playerArray[$playerIdx]->id,
+            $this->playerArray[$playerIdx]->playerId,
             array('initDecline' => TRUE)
         );
 
@@ -2147,7 +2108,7 @@ class BMGame {
                                        ->activeDieArray[$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
-            $this->get__activeDieArrayArray()
+            $this->getBMPlayerProps('activeDieArray')
         );
 
         // if the change is successful, disable focus dice that changed
@@ -2172,7 +2133,7 @@ class BMGame {
 
         $this->log_action(
             'turndown_focus',
-            $this->playerArray[$playerIdx]->id,
+            $this->playerArray[$playerIdx]->playerId,
             array(
                 'preTurndown' => $preTurndownData,
                 'postTurndown' => $postTurndownData,
@@ -2512,7 +2473,7 @@ class BMGame {
                 //        so hard code it for the moment
                 $this->log_action(
                     'play_another_turn',
-                    $this->playerArray[$this->activePlayerIdx]->id,
+                    $this->playerArray[$this->activePlayerIdx]->playerId,
                     array('cause' => 'TimeAndSpace')
                 );
             }
@@ -2646,11 +2607,26 @@ class BMGame {
      * @return mixed
      */
     public function __get($property) {
+        // support explicit accessor methods
         $funcName = 'get__'.$property;
         if (method_exists($this, $funcName)) {
             return $this->$funcName();
-        } elseif (property_exists($this, $property)) {
+        }
+
+        // support direct access to explicitly defined properties
+        if (property_exists($this, $property)) {
             return $this->$property;
+        }
+
+        // support accessors for arrays of BMPlayer properties
+        if ('Array' != substr($property, -5)) {
+            return;
+        }
+
+        $subProperty = substr($property, 0, strlen($property) - 5);
+
+        if (property_exists('BMPlayer', $subProperty)) {
+            return $this->getBMPlayerProps($subProperty);
         }
     }
 
@@ -3236,7 +3212,7 @@ class BMGame {
     }
 
     public function getJsonData($requestingPlayerId) {
-        $requestingPlayerIdx = array_search($requestingPlayerId, $this->get__playerIdArray());
+        $requestingPlayerIdx = array_search($requestingPlayerId, $this->getBMPlayerProps('playerId'));
 
         $dataArray = array(
             'gameId'                     => $this->gameId,
@@ -3268,7 +3244,7 @@ class BMGame {
         $sideScoreArray = $this->get_sideScoreArray();
         $canStillWinArray = $this->get_canStillWinArray();
 
-        foreach ($this->get__playerIdArray() as $playerIdx => $playerId) {
+        foreach ($this->getBMPlayerProps('playerId') as $playerIdx => $playerId) {
             $playerData = array(
                 'playerId'            => $playerId,
                 'button'              => $this->get_buttonInfo($playerIdx),
@@ -4014,61 +3990,14 @@ class BMGame {
     }
 
     /**
-     * Array of player IDs
-     *
-     * @return array
-     */
-    protected function get__playerIdArray() {
-        return $this->getBMPlayerProps('id');
-    }
-
-    /**
-     * Array of buttons
-     */
-    protected function get__buttonArray() {
-        return $this->getBMPlayerProps('button');
-    }
-
-    /**
-     * Array of active dice
-     */
-    protected function get__activeDieArrayArray() {
-        return $this->getBMPlayerProps('activeDieArray');
-    }
-
-    /**
-     * Array of captured dice
-     */
-    protected function get__capturedDieArrayArray() {
-        return $this->getBMPlayerProps('capturedDieArray');
-    }
-
-    /**
-     * Array of out of play dice
-     */
-    protected function get__outOfPlayDieArrayArray() {
-        return $this->getBMPlayerProps('outOfPlayDieArray');
-    }
-
-    /**
-     * Array of buttons
-     */
-    protected function get__waitingOnActionArray() {
-        return $this->getBMPlayerProps('waitingOnAction');
-    }
-
-    /**
      * Is the game waiting on any player actions?
      *
      * @return bool
      */
     protected function isWaitingOnAnyAction() {
-        return array_sum($this->get__waitingOnActionArray()) > 0;
+        return array_sum($this->getBMPlayerProps('waitingOnAction')) > 0;
     }
 
-    protected function get__isPrevRoundWinnerArray() {
-        return $this->getBMPlayerProps('isPrevRoundWinner');
-    }
 
     // convenience setters to make refactoring to BMPlayer easier
 
@@ -4122,7 +4051,7 @@ class BMGame {
      * @param array $value
      */
     protected function set__playerIdArray($value) {
-        $this->setBMPlayerProps('id', $value);
+        $this->setBMPlayerProps('playerId', $value);
     }
 
     /**

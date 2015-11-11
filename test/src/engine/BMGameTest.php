@@ -9831,7 +9831,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(0, $game->activePlayerIdx);
-        $this->assertEquals(0, $game->playerWithInitiative);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
         $this->assertEquals(1, $game->activeDieArrayArray[0][0]->max);
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals(1, $game->activeDieArrayArray[0][2]->max);

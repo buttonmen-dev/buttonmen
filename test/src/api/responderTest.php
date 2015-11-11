@@ -1463,7 +1463,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This reproduces a bug in which cancelling a game causes the
      * target player to gain an additional pending game.
@@ -11343,6 +11342,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This demonstrates some basic Boom die functionality, including

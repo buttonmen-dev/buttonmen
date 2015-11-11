@@ -9,7 +9,7 @@
 /**
  * This class contains all the player-related attributes of a game
  *
- * @property      int      $id                     Player ID number in the database
+ * @property      int      $playerId               Player ID number in the database
  * @property      int      $position               Position index of this player in this game
  * @property      BMButton $button                 Button used by this player in this game
  * @property      array    $activeDieArray         Array of active dice owned by this player
@@ -28,7 +28,7 @@ class BMPlayer {
      *
      * @var int
      */
-    protected $id;
+    protected $playerId;
 
     /**
      * Position index of this player in this game
@@ -102,9 +102,9 @@ class BMPlayer {
      *
      * @param int|null $value
      */
-    protected function set__id($value) {
+    protected function set__playerId($value) {
         if (!is_null($value)) {
-            $this->id = intval($value);
+            $this->playerId = intval($value);
         }
     }
 
@@ -197,7 +197,7 @@ class BMPlayer {
         $buttonRecipe = '',
         $position = NULL
     ) {
-        $this->set__id($playerId);
+        $this->set__playerId($playerId);
         $this->set__position($position);
         $this->waitingOnAction = FALSE;
         if (strlen($buttonRecipe) > 0) {
