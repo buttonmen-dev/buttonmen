@@ -324,6 +324,7 @@ select.center {
 
 span.skill_title {
     font-weight: bold;
+    line-height: 1.5;
 }
 
 span.skill_desc {

@@ -1152,7 +1152,7 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    assert.ok(htmlout.match('<div>Die skills in this game: '),
+    assert.ok(htmlout.match('<div><span class="skill_title">Die skills: </span>'),
       "Die skills footer text is present");
     assert.ok(htmlout.match('Focus'),
       "Die skills footer text lists the Focus skill");
@@ -1164,7 +1164,7 @@ test("test_Game.createSkillDiv", function(assert) {
   var skillDiv = Game.createSkillDiv(['1', '23', ' 4 5 '], 'hello');
   assert.ok(skillDiv.is('div'));
   assert.equal(skillDiv.html(),
-    'hello: 1&nbsp;&nbsp;23&nbsp;&nbsp; 4 5 '
+    '<span class="skill_title">hello: </span>1&nbsp;&nbsp;23&nbsp;&nbsp; 4 5 '
   );
 });
 
