@@ -93,6 +93,8 @@ Forum.showOverview = function() {
     return;
   }
 
+  $('title').html('Button Men Online &mdash; Forum');
+
   var table = $('<table>', { 'class': 'boards' });
   Forum.page.append(table);
 
