@@ -3733,10 +3733,8 @@ class BMGame {
     protected function get_all_swing_requests($includeCourtesyDice = FALSE) {
         $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
-        foreach ($this->playerArray as $player) {
-            if (empty($player->button)) {
-                return $swingRequestArrayArray;
-            }
+        if (!$this->are_buttons_specified()) {
+            return $swingRequestArrayArray;
         }
 
         $courtesySwingArray = array();
@@ -3767,6 +3765,16 @@ class BMGame {
         }
 
         return $swingRequestArrayArray;
+    }
+
+    protected function are_buttons_specified() {
+        foreach ($this->playerArray as $player) {
+            if (empty($player->button)) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
     }
 
     /**
