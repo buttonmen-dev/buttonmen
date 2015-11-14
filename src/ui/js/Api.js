@@ -405,7 +405,7 @@ var Api = (function () {
       }
     }
     return true;
-  }
+  };
 
   my.getUserPrefsData = function(callbackfunc) {
     my.apiParsePost(
