@@ -294,6 +294,16 @@ test("test_Api.parsePlayerData_failure", function(assert) {
   assert.equal(retval, false, "Api.parsePlayerData({}) returns false");
 });
 
+test("test_Api.getNewGamesData", function(assert) {
+  stop();
+  Api.getNewGamesData(function() {
+    assert.equal(Api.new_games.load_status, 'ok',
+         'Successfully loaded new games data');
+    assert.equal(Api.new_games.nGames, 0, 'Got expected number of new games');
+    start();
+  });
+});
+
 test("test_Api.getActiveGamesData", function(assert) {
   stop();
   Api.getActiveGamesData(function() {
