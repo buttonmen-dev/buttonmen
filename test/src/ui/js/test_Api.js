@@ -300,13 +300,6 @@ test("test_Api.getActiveGamesData", function(assert) {
     assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
     assert.equal(Api.active_games.nGames, 16, 'Got expected number of active games');
-    start();
-  });
-});
-
-test("test_Api.parseActiveGamesData", function(assert) {
-  stop();
-  Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.games.awaitingPlayer.length, 10,
           "expected number of games parsed as waiting for the active player");
     start();
@@ -319,13 +312,6 @@ test("test_Api.getCompletedGamesData", function(assert) {
     assert.equal(Api.completed_games.load_status, 'ok',
          'Successfully loaded completed games data');
     assert.equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
-    start();
-  });
-});
-
-test("test_Api.parseCompletedGamesData", function(assert) {
-  stop();
-  Api.getCompletedGamesData(function() {
     assert.equal(Api.completed_games.games[0].gameId, 5,
           "expected completed game ID exists");
     start();
@@ -338,13 +324,6 @@ test("test_Api.getRejectedGamesData", function(assert) {
     assert.equal(Api.rejected_games.load_status, 'ok',
          'Successfully loaded rejected games data');
     assert.equal(Api.rejected_games.nGames, 1, 'Got expected number of rejected games');
-    start();
-  });
-});
-
-test("test_Api.parseRejectedGamesData", function(assert) {
-  stop();
-  Api.getRejectedGamesData(function() {
     assert.equal(Api.rejected_games.games[0].gameId, 505,
           "expected rejected game ID exists");
     start();
