@@ -217,34 +217,34 @@ Overview.pageAddGameTable = function(
   var tableClass;
 
   switch(gameType) {
-    case 'closed':
-      // closed games comprise completed games and rejected games
-      var gamesourceCompleted = Api.completed_games.games;
-      Overview.addTypeToGameSource(gamesourceCompleted, 'completed');
+  case 'closed':
+    // closed games comprise completed games and rejected games
+    var gamesourceCompleted = Api.completed_games.games;
+    Overview.addTypeToGameSource(gamesourceCompleted, 'completed');
 
-      var gamesourceRejected = Api.rejected_games.games;
-      Overview.addTypeToGameSource(gamesourceRejected, 'rejected');
+    var gamesourceRejected = Api.rejected_games.games;
+    Overview.addTypeToGameSource(gamesourceRejected, 'rejected');
 
-      gamesource = gamesourceCompleted.concat(gamesourceRejected);
-      gamesource.sort(function(a, b) {
-        return a.gameId - b.gameId;
-      });
+    gamesource = gamesourceCompleted.concat(gamesourceRejected);
+    gamesource.sort(function(a, b) {
+      return a.gameId - b.gameId;
+    });
 
-      tableClass = 'closedGames';
-      break;
-    default:
-      // show both active and new games under 'Active' games
-      var gamesourceActive = Api.active_games.games[gameType];
-      Overview.addTypeToGameSource(gamesourceActive, 'active');
+    tableClass = 'closedGames';
+    break;
+  default:
+    // show both active and new games under 'Active' games
+    var gamesourceActive = Api.active_games.games[gameType];
+    Overview.addTypeToGameSource(gamesourceActive, 'active');
 
-      var gamesourceNew = Api.new_games.games[gameType];
-      Overview.addTypeToGameSource(gamesourceNew, 'new');
+    var gamesourceNew = Api.new_games.games[gameType];
+    Overview.addTypeToGameSource(gamesourceNew, 'new');
 
-      gamesource = gamesourceActive.concat(gamesourceNew);
-      gamesource.sort(function(a, b) {
-        return b.inactivityRaw - a.inactivityRaw;
-      });
-      tableClass = 'activeGames';
+    gamesource = gamesourceActive.concat(gamesourceNew);
+    gamesource.sort(function(a, b) {
+      return b.inactivityRaw - a.inactivityRaw;
+    });
+    tableClass = 'activeGames';
   }
 
   if (gamesource.length === 0) {
@@ -266,7 +266,7 @@ Overview.addTypeToGameSource = function(gamesource, gameType) {
   for (var gameIdx = 0; gameIdx < gamesource.length; gameIdx++) {
     gamesource[gameIdx].gameType = gameType;
   }
-}
+};
 
 Overview.tableBody = function(tableClass, sectionHeader) {
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
@@ -490,7 +490,7 @@ Overview.linkTextStub = function(gameInfo, gameType) {
   } else if (gameType == 'awaitingOpponent') {
     return 'View';
   }
-}
+};
 
 Overview.staleGameFooter = function(gameRow) {
   var tableFoot = $('<tfoot>');
@@ -509,7 +509,7 @@ Overview.staleGameFooter = function(gameRow) {
   tableFoot.append(footRow);
 
   return tableFoot;
-}
+};
 
 Overview.toggleStaleGame = function() {
   $('.staleGame').toggle();
