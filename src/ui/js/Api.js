@@ -290,7 +290,7 @@ var Api = (function () {
     my.new_games = {};
     var parserargs = [];
     parserargs.target = my.new_games;
-    parserargs.isSplit = false;
+    parserargs.isSplit = true;
     my.apiParsePost(
       {'type': 'loadNewGames', },
       'new_games',
