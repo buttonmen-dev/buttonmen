@@ -255,7 +255,7 @@ Overview.pageAddGameTable = function(
     gamesource.reverse();
   }
 
-  var tableBody = Overview.tableBody(tableClass, sectionHeader, gameType);
+  var tableBody = Overview.tableBody(tableClass, sectionHeader);
   Overview.addTableRows(tableBody, gamesource, gameType);
 };
 
@@ -265,12 +265,19 @@ Overview.addTypeToGameSource = function(gamesource, gameType) {
   }
 }
 
-Overview.tableBody = function(tableClass, sectionHeader, gameType) {
+Overview.tableBody = function(tableClass, sectionHeader) {
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
   if (tableBody.length > 0) {
     var spacerRow = $('<tr>', { 'class': 'spacer' });
     tableBody.append(spacerRow);
-    spacerRow.append($('<td>', { 'html': '&nbsp;', 'colspan': '7', }));
+    spacerRow.append($('<td>', {
+      'html': '&nbsp;',
+      'colspan': tableBody.closest('table')
+                          .children('thead')
+                          .children('tr:first')
+                          .children()
+                          .length,
+    }));
   } else {
     var tableDiv = $('<div>');
     tableDiv.append($('<h2>', {'text': sectionHeader, }));
@@ -286,11 +293,8 @@ Overview.tableBody = function(tableClass, sectionHeader, gameType) {
     headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'html': 'Score<br/>W/L/T&nbsp;(Max)', }));
     headerRow.append($('<th>', {'text': 'Description', }));
-    if (gameType == 'closed') {
-      headerRow.append($('<th>', {'text': 'Action', 'colspan': '2', }));
-    } else {
-      headerRow.append($('<th>', {'text': 'Inactivity', 'colspan': '2', }));
-    }
+    headerRow.append($('<th>', {'text': 'Inactivity', }));
+    headerRow.append($('<th>', {'text': 'Action', }));
     tableHead.append(headerRow);
     table.append(tableHead);
 
@@ -312,7 +316,6 @@ Overview.addTableRows = function(tableBody, gamesource, gameType) {
 
   for (var i = 0; i < gamesource.length; i++) {
     gameInfo = gamesource[i];
-    console.log(gameInfo);
     playerColor = gameInfo.playerColor;
     opponentColor = gameInfo.opponentColor;
 
@@ -337,7 +340,6 @@ Overview.addTableRows = function(tableBody, gamesource, gameType) {
     } else {
       gameLinkTd = $('<td>');
 
-  console.log(gameInfo);
       if (gameInfo.gameType == 'rejected') {
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
@@ -397,20 +399,18 @@ Overview.addTableRows = function(tableBody, gamesource, gameType) {
       'text': gameInfo.gameDescription.substring(0, 30) +
               ((gameInfo.gameDescription.length > 30) ? '...' : ''),
     }));
+    gameRow.append(inactivityTd);
+    var actionTd = $('<td>');
+    gameRow.append(actionTd);
 
     if (gameType == 'closed') {
-      var dismissTd = $('<td>');
-      gameRow.append(dismissTd);
-      var dismissLink = $('<a>', {
+      var actionLink = $('<a>', {
         'text': '[Dismiss]',
         'href': '#',
         'data-gameId': gameInfo.gameId,
       });
-      dismissLink.click(Overview.formDismissGame);
-      dismissTd.append(dismissLink);
-    } else {
-      gameRow.append(inactivityTd);
-      inactivityTd.attr('colspan', '2');
+      actionLink.click(Overview.formDismissGame);
+      actionTd.append(actionLink);
     }
 
     tableBody.append(gameRow);
@@ -420,7 +420,7 @@ Overview.addTableRows = function(tableBody, gamesource, gameType) {
     var tableFoot = $('<tfoot>');
     var footRow = $('<tr>');
     var footCol = $('<td>', {
-      'colspan': '7',
+      'colspan': gameRow.children().length,
     });
     var staleToggle = $('<a>', {
       'id': 'staleToggle',
