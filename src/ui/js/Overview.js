@@ -98,7 +98,7 @@ Overview.showPage = function() {
   var numGames=Api.new_games.nGames;
   numGames+=Api.active_games.games.awaitingPlayer.length;
   if (numGames > 0) {
-    gameCountText="("+numGames+") ";
+    gameCountText='('+numGames+') ';
   }
   $('title').html(gameCountText+'Button Men Online');
 
@@ -142,6 +142,14 @@ Overview.showPage = function() {
 
 Overview.executeMonitor = function() {
   Api.automatedApiCall = true;
+
+  $('head').append(
+     $('<link>', {
+       'type': 'image/x-icon',
+       'rel': 'shortcut icon',
+       'href': '/favicon_monitor.ico',
+      }));
+
   if (Api.user_prefs.monitor_redirects_to_game &&
       Api.user_prefs.monitor_redirects_to_forum) {
     Env.callAsyncInParallel([
