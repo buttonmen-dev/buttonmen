@@ -256,7 +256,7 @@ Overview.pageAddGameTable = function(
   }
 
   Overview.addTableRows(
-    Overview.tableBody(tableClass, sectionHeader),
+    Overview.addTableStructure(tableClass, sectionHeader),
     gamesource,
     gameType
   );
@@ -268,26 +268,18 @@ Overview.addTypeToGameSource = function(gamesource, gameType) {
   }
 };
 
-Overview.tableBody = function(tableClass, sectionHeader) {
+Overview.addTableStructure = function(tableClass, sectionHeader) {
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
-  if (tableBody.length > 0) {
-    var spacerRow = $('<tr>', { 'class': 'spacer' });
-    tableBody.append(spacerRow);
-    spacerRow.append($('<td>', {
-      'html': '&nbsp;',
-      'colspan': tableBody.closest('table')
-                          .children('thead')
-                          .children('tr:first')
-                          .children()
-                          .length,
-    }));
-  } else {
+
+  if (tableBody.length === 0) {
+    // create table
     var tableDiv = $('<div>');
     tableDiv.append($('<h2>', {'text': sectionHeader, }));
     var table = $('<table>', { 'class': 'gameList ' + tableClass, });
     tableDiv.append(table);
     Overview.page.append(tableDiv);
 
+    // add table header
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
@@ -301,8 +293,21 @@ Overview.tableBody = function(tableClass, sectionHeader) {
     tableHead.append(headerRow);
     table.append(tableHead);
 
+    // add table body
     tableBody = $('<tbody>');
     table.append(tableBody);
+  } else {
+    // add spacer row
+    var spacerRow = $('<tr>', { 'class': 'spacer' });
+    tableBody.append(spacerRow);
+    spacerRow.append($('<td>', {
+      'html': '&nbsp;',
+      'colspan': tableBody.closest('table')
+                          .children('thead')
+                          .children('tr:first')
+                          .children()
+                          .length,
+    }));
   }
 
   return tableBody;
@@ -316,24 +321,25 @@ Overview.addTableRows = function(tableBody, gamesource, gameType) {
     gameInfo = gamesource[gameIdx];
 
     gameRow = $('<tr>');
-    gameRow = Overview.addGameCol(gameRow, gameInfo, gameType);
-    gameRow = Overview.addButtonCol(gameRow, gameInfo.playerButtonName);
-    gameRow = Overview.addButtonCol(gameRow, gameInfo.opponentButtonName);
-    gameRow = Overview.addPlayerCol(
+    Overview.addGameCol(gameRow, gameInfo, gameType);
+    Overview.addButtonCol(gameRow, gameInfo.playerButtonName);
+    Overview.addButtonCol(gameRow, gameInfo.opponentButtonName);
+    Overview.addPlayerCol(
       gameRow,
       gameInfo.opponentName,
       gameInfo.opponentColor
     );
-    gameRow = Overview.addScoreCol(gameRow, gameInfo);
-    gameRow = Overview.addDescCol(gameRow, gameInfo.gameDescription);
-    gameRow = Overview.addInactiveCol(gameRow, gameInfo.inactivity);
-    gameRow = Overview.addDecisionCol(gameRow, gameInfo, gameType);
+    Overview.addScoreCol(gameRow, gameInfo);
+    Overview.addDescCol(gameRow, gameInfo.gameDescription);
+    Overview.addInactiveCol(gameRow, gameInfo.inactivity);
+    Overview.addDecisionCol(gameRow, gameInfo, gameType);
 
     tableBody.append(gameRow);
   }
 
   if (tableBody.children('tr.staleGame').length > 0) {
-    tableBody.closest('table').append(Overview.staleGameFooter(gameRow));
+    var nCol = gameRow.children().length;
+    tableBody.closest('table').append(Overview.staleGameFooter(nCol));
   }
 };
 
@@ -364,21 +370,18 @@ Overview.addGameCol = function(gameRow, gameInfo, gameType) {
   }));
 
   gameRow.append(gameLinkTd);
-  return gameRow;
 };
 
 Overview.addButtonCol = function(gameRow, buttonName) {
   gameRow.append($('<td>').append(
     Env.buildButtonLink(buttonName)
   ));
-  return gameRow;
 };
 
 Overview.addPlayerCol = function(gameRow, playerName, playerColor) {
   gameRow.append($('<td>', {
       'style': 'background-color: ' + playerColor,
     }).append(Env.buildProfileLink(playerName)));
-  return gameRow;
 };
 
 Overview.addScoreCol = function(gameRow, gameInfo) {
@@ -402,8 +405,6 @@ Overview.addScoreCol = function(gameRow, gameInfo) {
       'style': 'background-color: ' + wldColor,
     }));
   }
-
-  return gameRow;
 };
 
 Overview.addDescCol = function(gameRow, description) {
@@ -412,12 +413,10 @@ Overview.addDescCol = function(gameRow, description) {
     'text': description.substring(0, 30) +
             ((description.length > 30) ? '...' : ''),
   }));
-  return gameRow;
 };
 
 Overview.addInactiveCol = function(gameRow, inactivity) {
   gameRow.append($('<td>', { 'text': inactivity, }));
-  return gameRow;
 };
 
 Overview.addDecisionCol = function(gameRow, gameInfo, gameType) {
@@ -433,28 +432,27 @@ Overview.addDecisionCol = function(gameRow, gameInfo, gameType) {
     actionLink.click(Overview.formDismissGame);
     decisionTd.append(actionLink);
   } else if ((gameType == 'awaitingPlayer') &&
-             (gameInfo.gameType == 'new')) {
-    if (gameInfo.isAwaitingAction) {
-      var acceptLink = $('<a>', {
-        'text': 'Accept',
-        'href': '#',
-        'data-gameId': gameInfo.gameId,
-      });
-      acceptLink.click(Overview.formAcceptGame);
-      decisionTd.append('[')
-                .append(acceptLink)
-                .append('] / ');
+             (gameInfo.gameType == 'new') &&
+             gameInfo.isAwaitingAction) {
+    var acceptLink = $('<a>', {
+      'text': 'Accept',
+      'href': '#',
+      'data-gameId': gameInfo.gameId,
+    });
+    acceptLink.click(Overview.formAcceptGame);
+    decisionTd.append('[')
+              .append(acceptLink)
+              .append('] / ');
 
-      var rejectLink = $('<a>', {
-        'text': 'Reject',
-        'href': '#',
-        'data-gameId': gameInfo.gameId,
-      });
-      rejectLink.click(Overview.formRejectGame);
-      decisionTd.append('[')
-                .append(rejectLink)
-                .append(']');
-    }
+    var rejectLink = $('<a>', {
+      'text': 'Reject',
+      'href': '#',
+      'data-gameId': gameInfo.gameId,
+    });
+    rejectLink.click(Overview.formRejectGame);
+    decisionTd.append('[')
+              .append(rejectLink)
+              .append(']');
   } else if ((gameType == 'awaitingOpponent') &&
              (gameInfo.gameType == 'new')) {
     var cancelLink = $('<a>', {
@@ -468,8 +466,6 @@ Overview.addDecisionCol = function(gameRow, gameInfo, gameType) {
               .append(cancelLink)
               .append(']');
   }
-
-  return gameRow;
 };
 
 Overview.linkTextStub = function(gameInfo, gameType) {
@@ -492,12 +488,10 @@ Overview.linkTextStub = function(gameInfo, gameType) {
   }
 };
 
-Overview.staleGameFooter = function(gameRow) {
+Overview.staleGameFooter = function(nCol) {
   var tableFoot = $('<tfoot>');
   var footRow = $('<tr>');
-  var footCol = $('<td>', {
-    'colspan': gameRow.children().length,
-  });
+  var footCol = $('<td>', {'colspan': nCol,});
   var staleToggle = $('<a>', {
     'id': 'staleToggle',
     'href': 'javascript:Overview.toggleStaleGame();',
