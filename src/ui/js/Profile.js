@@ -21,6 +21,8 @@ Profile.showLoggedInPage = function() {
 Profile.getProfile = function(callback) {
   var playerName = Env.getParameterByName('player');
 
+  $('title').html(playerName+ ' &mdash; Button Men Online');
+
   Api.loadProfileInfo(playerName, callback);
 };
 
@@ -37,6 +39,7 @@ Profile.showPage = function() {
   } else {
     Profile.page.append(Profile.buildProfileTable());
   }
+
 
   // Actually layout the page
   Login.arrangePage(Profile.page);

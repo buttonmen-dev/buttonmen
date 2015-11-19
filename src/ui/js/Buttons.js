@@ -37,6 +37,7 @@ Buttons.showLoggedInPage = function() {
 Buttons.showButton = function() {
   Buttons.page = $('<div>');
 
+
   if (Api.button.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
@@ -49,11 +50,14 @@ Buttons.showButton = function() {
     return;
   }
 
+
   // Assume that the version of the button name from the API is canonical
   for (var buttonName in Api.button.list) {
     Buttons.buttonName = buttonName;
     break;
   }
+
+  $('title').html(buttonName + '&mdash; Button Men Online');
 
   if (Api.button.list[Buttons.buttonName] === undefined) {
     Env.message = {
@@ -176,6 +180,8 @@ Buttons.showSet = function() {
     break;
   }
 
+  $('title').html(setName + '&mdash; Button Men Online');
+
   if (Api.buttonSet.list[Buttons.setName] === undefined) {
     Env.message = {
       'type': 'none',
@@ -223,6 +229,8 @@ Buttons.showSetList = function() {
     Login.arrangePage(Buttons.page);
     return;
   }
+
+  $('title').html('Buttons &mdash; Button Men Online');
 
   var mainDiv = $('<div>', { 'class': 'allSets' });
 

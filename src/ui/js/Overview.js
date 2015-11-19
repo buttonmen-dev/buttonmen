@@ -94,6 +94,14 @@ Overview.getOverview = function(callback) {
 Overview.showPage = function() {
   Overview.page = $('<div>');
 
+  var gameCountText;
+  var numGames=Api.new_games.nGames;
+  numGames+=Api.active_games.games.awaitingPlayer.length;
+  if (numGames > 0) {
+    gameCountText="("+numGames+") ";
+  }
+  $('title').html(gameCountText+'Button Men Online');
+
   Overview.pageAddNewgameLink();
 
   if (Overview.monitorIsOn) {

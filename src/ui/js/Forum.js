@@ -63,7 +63,7 @@ Forum.showLoggedInPage = function() {
     'threadId': Env.getParameterByName('threadId'),
     'postId': Env.getParameterByName('postId'),
   };
-  Env.history.replaceState(state, 'Button Men Online &mdash; Forum',
+  Env.history.replaceState(state, 'Forum &mdash; Button Men Online',
     Env.window.location.hash);
   Forum.showPage(state);
 };
@@ -92,6 +92,8 @@ Forum.showOverview = function() {
   if (!Api.verifyApiData('forum_overview', Forum.arrangePage)) {
     return;
   }
+
+  $('title').html('Forum &mdash; Button Men Online');
 
   var table = $('<table>', { 'class': 'boards' });
   Forum.page.append(table);
@@ -147,6 +149,10 @@ Forum.showBoard = function() {
   if (!Api.verifyApiData('forum_board', Forum.arrangePage)) {
     return;
   }
+
+  var pageTitle = Api.forum_board.boardName;
+  pageTitle += ' &mdash; Button Men Online';
+  $('title').html(pageTitle);
 
   var table = $('<table>', {
     'class': 'threads'
@@ -262,6 +268,12 @@ Forum.showThread = function() {
   if (!Api.verifyApiData('forum_thread', Forum.arrangePage)) {
     return;
   }
+
+  // Don't display special characters (such as "&auml;") in page title
+  var tempDiv = $('<div>', { 'text': Api.forum_thread.threadTitle});
+  var pageTitle = tempDiv.html();
+
+  $('title').html(pageTitle + ' &mdash; Button Men Online');
 
   var table = $('<table>', { 'class': 'posts' });
   Forum.page.append(table);
@@ -403,7 +415,7 @@ Forum.arrangePage = function() {
 Forum.formLinkToSubPage = function(e) {
   e.preventDefault();
   var state = Forum.readStateFromElement(this);
-  Env.history.pushState(state, 'Button Men Online &mdash; Forum',
+  Env.history.pushState(state, 'Forum &mdash; Button Men Online',
     Forum.buildUrlHash(state));
   Env.message = null;
   Forum.showPage(state);
@@ -686,7 +698,7 @@ Forum.buildPostRow = function(post) {
   postAnchor.click(function(e) {
     e.preventDefault();
     var state = Forum.readStateFromElement(this);
-    Env.history.pushState(state, 'Button Men Online &mdash; Forum',
+    Env.history.pushState(state, 'Forum &mdash; Button Men Online',
       Forum.buildUrlHash(state));
     $('.postAnchor').html(Forum.OPEN_STAR);
     $(this).html(Forum.SOLID_STAR);
