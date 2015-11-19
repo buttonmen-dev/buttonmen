@@ -193,7 +193,7 @@ test("test_Overview.addTypeToGameSource", function(assert) {
   assert.equal(gamesource[2].gameType, 'testType', 'Third element is assigned type');
 });
 
-test("test_Overview.tableStructure", function(assert) {
+test("test_Overview.addTableStructure", function(assert) {
   stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
