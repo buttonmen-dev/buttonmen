@@ -283,8 +283,8 @@ Overview.addTableStructure = function(tableClass, sectionHeader) {
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
-    headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
-    headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
+    headerRow.append($('<th>', {'html': 'Your Button', }));
+    headerRow.append($('<th>', {'html': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append( $('<th>', {'html': 
       'Score<br/><span style="white-space: nowrap;">W/L/T (Max)</span>', 

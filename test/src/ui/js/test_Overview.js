@@ -207,8 +207,8 @@ test("test_Overview.addTableStructure", function(assert) {
           '<thead>' +
             '<tr>' +
               '<th>Game #</th>' +
-              '<th>Your<br>Button</th>' +
-              '<th>Opponent\'s<br>Button</th>' +
+              '<th>Your Button</th>' +
+              '<th>Opponent\'s Button</th>' +
               '<th>Opponent</th>' +
               '<th>Score<br><span style="white-space: nowrap;">W/L/T (Max)</span></th>' +
               '<th>Description</th>' +
