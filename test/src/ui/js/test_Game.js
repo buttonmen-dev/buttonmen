@@ -413,6 +413,10 @@ test("test_Game.actionChooseJoinGameNonplayer", function(assert) {
 //  james: incomplete for the moment
 });
 
+test("test_Game.actionShowRejectedGame", function(assert) {
+//  james: incomplete for the moment
+});
+
 test("test_Game.actionSpecifyDiceActive", function(assert) {
   stop();
   BMTestUtils.GameType = 'jellybean_dirgo_specifydice';

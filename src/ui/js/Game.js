@@ -129,10 +129,7 @@ Game.showStatePage = function() {
         Game.actionChooseJoinGameNonplayer();
       }
     } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
-      Game.page =
-        $('<p>', {'text': 'This game has been rejected.', });
-      Game.form = null;
-      includeFooter = false;
+      Game.actionShowRejectedGame();
     } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
@@ -345,6 +342,27 @@ Game.actionChooseJoinGameNonplayer = function() {
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
   Game.page.append($('<br>'));
+};
+
+Game.actionShowRejectedGame = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
+  Game.page = $('<div>');
+  Game.pageAddGameHeader('This game has been rejected');
+
+  var dieEndgameTable = $('<table>');
+  var dieEndgameTr = $('<tr>');
+
+  var playerButtonTd = Game.buttonImageDisplay('player');
+  var opponentButtonTd = Game.buttonImageDisplay('opponent');
+
+  dieEndgameTr.append(playerButtonTd);
+  dieEndgameTr.append(opponentButtonTd);
+  dieEndgameTable.append(dieEndgameTr);
+  Game.page.append(dieEndgameTable);
+  Game.logEntryLimit = undefined;
 };
 
 // It is time to choose swing dice, and the current player has dice to choose
@@ -1889,7 +1907,8 @@ Game.pageAddSkillListFooter = function() {
 
 // Display links to create new games similar to this one
 Game.pageAddNewGameLinkFooter = function() {
-  if (Api.game.gameState != Game.GAME_STATE_END_GAME) {
+  if ((Api.game.gameState != Game.GAME_STATE_END_GAME) &&
+      (Api.game.gameState != Game.GAME_STATE_REJECTED)) {
     return;
   }
 
