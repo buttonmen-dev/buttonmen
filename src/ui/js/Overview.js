@@ -286,8 +286,8 @@ Overview.addTableStructure = function(tableClass, sectionHeader) {
     headerRow.append($('<th>', {'html': 'Your Button', }));
     headerRow.append($('<th>', {'html': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
-    headerRow.append( $('<th>', {'html': 
-      'Score<br/><span style="white-space: nowrap;">W/L/T (Max)</span>', 
+    headerRow.append( $('<th>', {'html':
+      'Score<br/><span style="white-space: nowrap;">W/L/T (Max)</span>',
     }));
     headerRow.append($('<th>', {'text': 'Description', }));
     headerRow.append($('<th>', {'text': 'Inactivity', }));
