@@ -210,7 +210,7 @@ test("test_Overview.addTableStructure", function(assert) {
               '<th>Your<br>Button</th>' +
               '<th>Opponent\'s<br>Button</th>' +
               '<th>Opponent</th>' +
-              '<th>Score<br>W/L/T&nbsp;(Max)</th>' +
+              '<th>Score<br><span style="white-space: nowrap;">W/L/T (Max)</span></th>' +
               '<th>Description</th>' +
               '<th>Inactivity</th>' +
               '<th>Decision</th>' +
@@ -464,7 +464,7 @@ test("test_Overview.addDecisionCol", function(assert) {
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
   assert.equal(
     gameRow.html(),
-    '<td></td>',
+    '<td style="white-space: nowrap;"></td>',
     'No action for active game awaiting player'
   );
 
@@ -477,7 +477,7 @@ test("test_Overview.addDecisionCol", function(assert) {
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
   assert.equal(
     gameRow.html(),
-    '<td></td>',
+    '<td style="white-space: nowrap;"></td>',
     'No action for active game awaiting opponent'
   );
 

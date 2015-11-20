@@ -286,7 +286,9 @@ Overview.addTableStructure = function(tableClass, sectionHeader) {
     headerRow.append($('<th>', {'html': 'Your<br/>Button', }));
     headerRow.append($('<th>', {'html': 'Opponent\'s<br/>Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
-    headerRow.append($('<th>', {'html': 'Score<br/>W/L/T&nbsp;(Max)', }));
+    headerRow.append( $('<th>', {'html': 
+      'Score<br/><span style="white-space: nowrap;">W/L/T (Max)</span>', 
+    }));
     headerRow.append($('<th>', {'text': 'Description', }));
     headerRow.append($('<th>', {'text': 'Inactivity', }));
     headerRow.append($('<th>', {'text': 'Decision', }));
@@ -421,6 +423,7 @@ Overview.addInactiveCol = function(gameRow, inactivity) {
 
 Overview.addDecisionCol = function(gameRow, gameInfo, gameType) {
   var decisionTd = $('<td>');
+  decisionTd.css('white-space', 'nowrap');
   gameRow.append(decisionTd);
 
   if (gameType == 'closed') {
