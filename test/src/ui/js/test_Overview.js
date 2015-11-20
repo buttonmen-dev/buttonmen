@@ -462,9 +462,14 @@ test("test_Overview.addDecisionCol", function(assert) {
   gameRow = $('<tr>');
   gameType = 'awaitingPlayer';
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  col = gameRow.children();
+  assert.ok(
+    col.is('td'),
+    'decision col is correct type for active game awaiting player'
+  );
   assert.equal(
-    gameRow.html(),
-    '<td style="white-space: nowrap;"></td>',
+    col.children().length,
+    0,
     'No action for active game awaiting player'
   );
 
@@ -475,9 +480,14 @@ test("test_Overview.addDecisionCol", function(assert) {
   gameRow = $('<tr>');
   gameType = 'awaitingOpponent';
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  col = gameRow.children();
+  assert.ok(
+    col.is('td'),
+    'decision col is correct type for active game awaiting opponent'
+  );
   assert.equal(
-    gameRow.html(),
-    '<td style="white-space: nowrap;"></td>',
+    col.children().length,
+    0,
     'No action for active game awaiting opponent'
   );
 
