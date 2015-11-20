@@ -630,10 +630,10 @@ Overview.formAcceptGame = function(e) {
     Overview.showLoggedInPage);
 };
 
-Overview.formCancelGame = function(e, args) {
+Overview.formCancelGame = function(e, testArgs) {
   e.preventDefault();
 
-  if ((undefined === args) || !('isTest' in args) || !args.isTest) {
+  if ((undefined === testArgs) || !('isTest' in testArgs) || !testArgs.isTest) {
     var doGameCancel = window.confirm(
       'Are you SURE you want to cancel this game?'
     );
@@ -672,10 +672,10 @@ Overview.formCancelGame = function(e, args) {
   );
 };
 
-Overview.formRejectGame = function(e, args) {
+Overview.formRejectGame = function(e, testArgs) {
   e.preventDefault();
 
-  if ((undefined === args) || !('isTest' in args) || !args.isTest) {
+  if ((undefined === testArgs) || !('isTest' in testArgs) || !testArgs.isTest) {
     var doGameReject = window.confirm(
       'Are you SURE you want to reject this game?'
     );
