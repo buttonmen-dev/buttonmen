@@ -403,6 +403,9 @@ test("test_Overview.addDecisionCol", function(assert) {
   var gameInfo;
   var gameRow;
   var gameType;
+  var column;
+  var links;
+  var linkTextArray;
 
   // closed game
   gameInfo = [];
@@ -411,10 +414,46 @@ test("test_Overview.addDecisionCol", function(assert) {
   gameType = 'closed';
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
   assert.equal(
-    gameRow.html(),
-    '<td><a data-gameid="500" href="#">[Dismiss]</a></td>',
-    'Dismiss link for a closed game'
+    gameRow.children().length,
+    1,
+    'add exactly one decision column for closed games'
   );
+  column = gameRow.children();
+  assert.ok(
+    column.is('td'),
+    'decision column is correct type for closed games'
+  );
+  assert.equal(
+    column.text(),
+    '[Dismiss]',
+    'decision text is correct for closed games'
+  );
+  links = column.children();
+  assert.equal(
+    links.length,
+    1,
+    'add exactly one link for closed games'
+  );
+  assert.ok(
+    links.is('a'),
+    'decision link is correct type for closed games'
+  );
+  assert.equal(
+    links.attr('data-gameid'),
+    '500',
+    'decision data-gameid is correct for closed games'
+  );
+  assert.equal(
+    links.attr('href'),
+    '#',
+    'decision href is correct for closed games'
+  );
+  assert.equal(
+    links.text(),
+    'Dismiss',
+    'decision text is correct for closed games'
+  );
+
 
   // active game awaiting player
   gameInfo = [];
@@ -429,6 +468,7 @@ test("test_Overview.addDecisionCol", function(assert) {
     'No action for active game awaiting player'
   );
 
+
   // active game awaiting opponent
   gameInfo = [];
   gameInfo.gameId = 500;
@@ -441,6 +481,7 @@ test("test_Overview.addDecisionCol", function(assert) {
     'No action for active game awaiting opponent'
   );
 
+
   // new game awaiting player
   gameInfo = [];
   gameInfo.gameId = 500;
@@ -450,14 +491,54 @@ test("test_Overview.addDecisionCol", function(assert) {
   gameType = 'awaitingPlayer';
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
   assert.equal(
-    gameRow.html(),
-    '<td>' +
-      '[' +
-      '<a data-gameid=\"500\" href=\"#\">Accept</a>' +
-      '] / [' +
-      '<a data-gameid=\"500\" href=\"#\">Reject</a>]' +
-    '</td>',
-    'Accept and reject links for a new game awaiting player decision'
+    gameRow.children().length,
+    1,
+    'add exactly one decision column for new games awaiting player'
+  );
+  column = gameRow.children();
+  assert.ok(
+    column.is('td'),
+    'decision column is correct type for new games awaiting player'
+  );
+  assert.equal(
+    column.text(),
+    '[Accept] / [Reject]',
+    'decision text is correct for new games awaiting player'
+  );
+  links = column.children();
+  assert.equal(
+    links.length,
+    2,
+    'add exactly two links for new games awaiting player'
+  );
+  assert.ok(
+    links.is('a'),
+    'decision links are correct type for new games awaiting player'
+  );
+  linkTextArray = [];
+  links.each(function() {
+    assert.equal(
+      $(this).attr('data-gameid'),
+      '500',
+      'decision data-gameid is correct for new games awaiting player'
+    );
+
+    assert.equal(
+      $(this).attr('href'),
+      '#',
+      'decision href is correct for new games awaiting player'
+    );
+    linkTextArray.push($(this).text());
+  });
+  assert.equal(
+    linkTextArray[0],
+    'Accept',
+    'Accept text is correct'
+  );
+  assert.equal(
+    linkTextArray[1],
+    'Reject',
+    'Reject text is correct'
   );
 
   // new game awaiting opponent
@@ -468,10 +549,40 @@ test("test_Overview.addDecisionCol", function(assert) {
   gameRow = $('<tr>');
   gameType = 'awaitingOpponent';
   Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  column = gameRow.children();
+  assert.ok(
+    column.is('td'),
+    'decision column is correct type for new games awaiting opponent'
+  );
   assert.equal(
-    gameRow.html(),
-    '<td>[<a data-gameid="500" href="#">Cancel</a>]</td>',
-    'Cancel link for a new game awaiting opponent decision'
+    column.text(),
+    '[Cancel]',
+    'decision text is correct for new games awaiting opponent'
+  );
+  links = column.children();
+  assert.equal(
+    links.length,
+    1,
+    'add exactly one link for new games awaiting opponent'
+  );
+  assert.ok(
+    links.is('a'),
+    'decision link is correct type for new games awaiting opponent'
+  );
+  assert.equal(
+    links.attr('data-gameid'),
+    '500',
+    'decision data-gameid is correct for new games awaiting opponent'
+  );
+  assert.equal(
+    links.attr('href'),
+    '#',
+    'decision href is correct for new games awaiting opponent'
+  );
+  assert.equal(
+    links.text(),
+    'Cancel',
+    'decision text is correct for new games awaiting opponent'
   );
 });
 
@@ -538,18 +649,57 @@ test("test_Overview.linkTextStub", function(assert) {
 test("test_Overview.staleGameFooter", function(assert) {
   var tableFoot = Overview.staleGameFooter(8);
 
-  assert.ok(tableFoot.is('tfoot'))
-  assert.equal(tableFoot.html(),
-  '<tr>' +
-    '<td colspan="8">' +
-      '[' +
-      '<a href="javascript:Overview.toggleStaleGame();" id="staleToggle">' +
-        'Show stale games' +
-      '</a>' +
-      ']' +
-    '</td>' +
-  '</tr>',
-  'stale game footer');
+  assert.ok(tableFoot.is('tfoot'), 'tableFoot is correct type');
+  var row = tableFoot.children();
+  assert.ok(
+    row.is('tr'),
+    'stale games footer row is correct type'
+  );
+  var col = row.children();
+  assert.ok(
+    col.is('td'),
+    'stale games footer col is correct type'
+  );
+  assert.equal(
+    col.length,
+    1,
+    'exactly one col in the stale games footer row'
+  );
+  assert.equal(
+    col.text(),
+    '[Show stale games]',
+    'stale games footer has correct text'
+  );
+  assert.equal(
+    col.attr('colspan'),
+    '8',
+    'stale games footer col has correct colspan'
+  );
+  var link = col.children();
+  assert.ok(
+    link.is('a'),
+    'stale games link is correct type'
+  );
+  assert.equal(
+    link.length,
+    1,
+    'exactly one link in the stale games footer row'
+  );
+  assert.equal(
+    link.text(),
+    'Show stale games',
+    'stale games footer link has correct text'
+  );
+  assert.equal(
+    link.attr('href'),
+    'javascript:Overview.toggleStaleGame();',
+    'stale games footer has correct href'
+  );
+  assert.equal(
+    link.attr('id'),
+    'staleToggle',
+    'stale games footer has correct id'
+  );
 });
 
 // The default overview data contains games awaiting both the player and the opponent

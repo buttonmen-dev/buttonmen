@@ -424,13 +424,15 @@ Overview.addDecisionCol = function(gameRow, gameInfo, gameType) {
   gameRow.append(decisionTd);
 
   if (gameType == 'closed') {
-    var actionLink = $('<a>', {
-      'text': '[Dismiss]',
+    var dismissLink = $('<a>', {
+      'text': 'Dismiss',
       'href': '#',
       'data-gameId': gameInfo.gameId,
     });
-    actionLink.click(Overview.formDismissGame);
-    decisionTd.append(actionLink);
+    dismissLink.click(Overview.formDismissGame);
+    decisionTd.append('[')
+              .append(dismissLink)
+              .append(']');
   } else if ((gameType == 'awaitingPlayer') &&
              (gameInfo.gameType == 'new') &&
              gameInfo.isAwaitingAction) {
