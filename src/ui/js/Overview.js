@@ -630,8 +630,18 @@ Overview.formAcceptGame = function(e) {
     Overview.showLoggedInPage);
 };
 
-Overview.formCancelGame = function(e) {
+Overview.formCancelGame = function(e, args) {
   e.preventDefault();
+
+  if ((undefined === args) || !('isTest' in args) || !args.isTest) {
+    var doGameCancel = window.confirm(
+      'Are you SURE you want to cancel this game?'
+    );
+    if (!doGameCancel) {
+      return;
+    }
+  }
+
   var argsCancel = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
@@ -662,8 +672,18 @@ Overview.formCancelGame = function(e) {
   );
 };
 
-Overview.formRejectGame = function(e) {
+Overview.formRejectGame = function(e, args) {
   e.preventDefault();
+
+  if ((undefined === args) || !('isTest' in args) || !args.isTest) {
+    var doGameReject = window.confirm(
+      'Are you SURE you want to reject this game?'
+    );
+    if (!doGameReject) {
+      return;
+    }
+  }
+
   var args = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
