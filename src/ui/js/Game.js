@@ -350,7 +350,7 @@ Game.actionShowRejectedGame = function() {
   Game.form = null;
 
   Game.page = $('<div>');
-  Game.pageAddGameHeader('This game has been rejected');
+  Game.pageAddGameHeader('This game has been rejected or cancelled');
 
   var dieEndgameTable = $('<table>');
   var dieEndgameTr = $('<tr>');
