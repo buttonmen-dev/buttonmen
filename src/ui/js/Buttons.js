@@ -37,7 +37,6 @@ Buttons.showLoggedInPage = function() {
 Buttons.showButton = function() {
   Buttons.page = $('<div>');
 
-
   if (Api.button.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
@@ -49,7 +48,6 @@ Buttons.showButton = function() {
     Login.arrangePage(Buttons.page);
     return;
   }
-
 
   // Assume that the version of the button name from the API is canonical
   for (var buttonName in Api.button.list) {
