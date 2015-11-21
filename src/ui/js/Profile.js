@@ -40,7 +40,6 @@ Profile.showPage = function() {
     Profile.page.append(Profile.buildProfileTable());
   }
 
-
   // Actually layout the page
   Login.arrangePage(Profile.page);
 };
