@@ -143,7 +143,7 @@ Overview.showPage = function() {
 Overview.executeMonitor = function() {
   Api.automatedApiCall = true;
 
-  $("#favicon").attr("href","/favicon_monitor.ico");
+  $('#favicon').attr('href','/favicon_monitor.ico');
   
   if (Api.user_prefs.monitor_redirects_to_game &&
       Api.user_prefs.monitor_redirects_to_forum) {
