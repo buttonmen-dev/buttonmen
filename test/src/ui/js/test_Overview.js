@@ -47,7 +47,8 @@ module("Overview", {
 
     // Page elements
     $('#overview_page').remove();
-
+    $("#favicon").attr("href","/favicon.ico");
+    
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
 
