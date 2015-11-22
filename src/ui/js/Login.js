@@ -34,12 +34,7 @@ Login.getLoginHeader = function() {
       var welcomeText = 'Welcome to Button Men';
       if (Config.siteType == 'development') {
         $('#login_header').css('background-color', '#cccccc');
-        $('head').append(
-          $('<link>', {
-            'type': 'image/x-icon',
-            'rel': 'shortcut icon',
-            'href': '/dev_favicon.ico',
-          }));
+        $('#favicon').attr('href','/dev_favicon.ico');
         welcomeText += ' Dev Site';
       } else if (Config.siteType != 'production') {
         $('#login_header').css('background-color', '#ff7777');
