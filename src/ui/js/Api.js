@@ -569,10 +569,17 @@ var Api = (function () {
   };
 
   my.playerWLTText = function(player) {
-    var text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
-               '/' + Api.game[player].gameScoreArray.L +
-               '/' + Api.game[player].gameScoreArray.D +
-               ' (' + Api.game.maxWins + ')';
+    var text;
+    if ((Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) ||
+        (Api.game.gameState == Game.GAME_STATE_REJECTED)) {
+      text = 'W/L/T: –/–/–';
+    } else {
+      text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
+             '/' + Api.game[player].gameScoreArray.L +
+             '/' + Api.game[player].gameScoreArray.D;
+    }
+
+    text += ' (' + Api.game.maxWins + ')';
     return text;
   };
 

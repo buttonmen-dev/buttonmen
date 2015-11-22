@@ -496,6 +496,9 @@ test("test_Api.playerWLTText", function(assert) {
        "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
+
+  // james: we'll need an extra test here of new/rejected game, once we have an
+  //        appropriate test game to use
 });
 
 test("test_Api.disableSubmitButton", function(assert) {

@@ -315,7 +315,21 @@ Game.actionChooseJoinGameActive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
+  Game.page.append(Game.buttonTableWithoutDice());
 };
+
+Game.buttonTableWithoutDice = function() {
+  var buttonTable = $('<table>');
+  var buttonTr = $('<tr>');
+
+  var playerButtonTd = Game.buttonImageDisplay('player');
+  var opponentButtonTd = Game.buttonImageDisplay('opponent');
+
+  buttonTr.append(playerButtonTd);
+  buttonTr.append(opponentButtonTd);
+  buttonTable.append(buttonTr);
+  return(buttonTable);
+}
 
 Game.actionChooseJoinGameInactive = function() {
 
@@ -328,6 +342,7 @@ Game.actionChooseJoinGameInactive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
+  Game.page.append(Game.buttonTableWithoutDice());
 };
 
 Game.actionChooseJoinGameNonplayer = function() {
@@ -1065,17 +1080,7 @@ Game.actionShowFinishedGame = function() {
 
   Game.page.append(Game.gameWinner());
   Game.page.append($('<br>'));
-
-  var dieEndgameTable = $('<table>');
-  var dieEndgameTr = $('<tr>');
-
-  var playerButtonTd = Game.buttonImageDisplay('player');
-  var opponentButtonTd = Game.buttonImageDisplay('opponent');
-
-  dieEndgameTr.append(playerButtonTd);
-  dieEndgameTr.append(opponentButtonTd);
-  dieEndgameTable.append(dieEndgameTr);
-  Game.page.append(dieEndgameTable);
+  Game.page.append(Game.buttonTableWithoutDice());
   Game.logEntryLimit = undefined;
 };
 
