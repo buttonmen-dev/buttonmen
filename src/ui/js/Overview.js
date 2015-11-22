@@ -169,8 +169,6 @@ Overview.completeMonitor = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
-//  Overview.pageAddGameTable('new', 'New games', false);
-
   Overview.pageAddGameTable('closed', 'Closed games', false);
   Overview.pageAddGameTable('awaitingPlayer', 'Active games', false);
   Overview.pageAddGameTable('awaitingOpponent', 'Active games', true);
