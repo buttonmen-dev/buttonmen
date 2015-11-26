@@ -88,6 +88,7 @@ class ApiResponder {
         }
         if (isset($args['previousGameId'])) {
             $previousGameId = $args['previousGameId'];
+            $interface->dismiss_game($_SESSION['user_id'], $args['previousGameId']);
         } else {
             $previousGameId = NULL;
         }
