@@ -29,7 +29,7 @@ class BMClient():
     self.password = config.get(site, "password")
     self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
     try:
-      self.cachefile = os.path.expanduser(config.get(site, "cachefile"))
+      self.cachedir = os.path.expanduser(config.get(site, "cachedir"))
     except ConfigParser.NoOptionError:
       pass
 
@@ -46,7 +46,7 @@ class BMClient():
     self.username = None
     self.password = None
     self.cookiefile = None
-    self.cachefile = None
+    self.cachedir = None
     self._read_rcfile(rcfile, site)
     self._setup_cookies()
 

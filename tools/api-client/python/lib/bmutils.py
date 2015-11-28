@@ -100,36 +100,40 @@ class BMClientParser(bmapi.BMClient):
     return retval.data
 
   def wrap_load_game_data(self, game):
-    # if we're using a cache file
-    if self.cachefile:
-      # if the cache file exists
-      if os.path.isfile(self.cachefile):
-        # load the cache
-        with open(self.cachefile) as cache_fh:
-          cache = json.load(cache_fh)
-      # otherwise, we want to cache, but have none yet
+    # if we're using a cache directory
+    if self.cachedir:
+      # if the cache directory doesn't exist, create it
+      if not os.path.isdir(self.cachedir):
+        os.makedirs(self.cachedir)
+      # set the path to the cache file for this game
+      cachefile = self.cachedir + "/" + unicode(game) + ".json"
+      # if the cache already has a file for this game
+      if os.path.isfile(cachefile):
+        # get the game data from the cache
+        with open(cachefile) as cache_fh:
+          data = json.load(cache_fh)
+      # otherwise (the cache didn't already have a file for this game)
       else:
-        cache = {}
-      # if the game is in the cache file, use it as the data
-      if unicode(game) in cache:
-        data = cache[unicode(game)]
-      # otherwise, load the game, and cache it if it's completed
-      else:
+        # load the game
         retval = self.load_game_data(game)
+        # if that didn't work, raise an exception
         if not retval.status == 'ok':
           raise ValueError, "Failed to call loadGameData, got: " + retval
+        # if we're still here, we have the game data
         data = retval.data
+        # if the game is completed
         if data['gameState'] == "END_GAME":
-          cache[game] = data
-          with open(self.cachefile, 'w') as cache_fh:
-            json.dump(cache, cache_fh, indent=1, sort_keys=True)
-    # otherwise (we aren't using a cache file), load the game
+          # put the data for this game into the cache
+          with open(cachefile, 'w') as cache_fh:
+            json.dump(data, cache_fh, indent=1, sort_keys=True)
+    # otherwise (we aren't using a cache directory), load the game
     else:
       retval = self.load_game_data(game)
       if not retval.status == 'ok':
         raise ValueError, "Failed to call loadGameData, got: " + retval
       data = retval.data
-    # either way, at this point data is the right stuff, and all caching has happened
+    # either way, at this point we have the game data in 'data', and we're
+    # done doing anything cache-related
     playerIdx = int(data['currentPlayerIdx'])
     opponentIdx = 1 - playerIdx
     data['player'] = data['playerDataArray'][playerIdx]
