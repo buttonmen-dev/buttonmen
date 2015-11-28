@@ -302,7 +302,7 @@ test("test_Overview.formCancelGame", function(assert) {
     start();
   };
   var link = $('<a>', { 'data-gameId': 5 });
-  Overview.formCancelGame.call(link, $.Event(), { isTest: true });
+  Overview.formCancelGame.call(link, $.Event());
 })
 
 test("test_Overview.formRejectGame", function(assert) {
@@ -318,7 +318,7 @@ test("test_Overview.formRejectGame", function(assert) {
     start();
   };
   var link = $('<a>', { 'data-gameId': 5 });
-  Overview.formRejectGame.call(link, $.Event(), { isTest: true });
+  Overview.formRejectGame.call(link, $.Event());
 })
 
 test("test_Overview.formDismissGame", function(assert) {
