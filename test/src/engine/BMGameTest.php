@@ -2494,9 +2494,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->playerIdArray = array(12345, 54321);
         $die1 = new BMDie;
         $die2 = new BMDie;
-        $this->object->dieArrayArray = array(array($die1), array($die2));
-        $this->assertEquals($die1, $this->object->dieArrayArray[0][0]);
-        $this->assertEquals($die2, $this->object->dieArrayArray[1][0]);
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->assertEquals($die1, $this->object->activeDieArrayArray[0][0]);
+        $this->assertEquals($die2, $this->object->activeDieArrayArray[1][0]);
 
         $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2,1));
 

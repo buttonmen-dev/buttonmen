@@ -50,6 +50,7 @@
  * @property      array $lastActionTimeArray     Times of last actions for each player
  * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
+ * @property      int   $logEntryLimit           Number of log entries to display
  *
  * Convenience accessors for BMPlayer properties:
  * @property      array $playerIdArray           Array of player IDs
@@ -370,6 +371,13 @@ class BMGame {
      * @var array
      */
     public $hasPlayerDismissedGameArray;
+
+    /**
+     * Used by BMInterface to store how many log entries to display
+     *
+     * @var int
+     */
+    public $logEntryLimit;
 
     /**
      * Internal cache of fire info, used for logging
@@ -2783,8 +2791,28 @@ class BMGame {
         $funcName = 'set__'.$property;
         if (method_exists($this, $funcName)) {
             $this->$funcName($value);
-        } else {
+            return;
+        }
+
+        if (property_exists('BMGame', $property)) {
             $this->$property = $value;
+            return;
+        }
+
+        // support setters for arrays of BMPlayer properties
+        if ('Array' != substr($property, -5)) {
+            return;
+        }
+
+        $subProperty = substr($property, 0, strlen($property) - 5);
+        $isSubPropertyArray = ('Array' == substr($subProperty, -5));
+
+        if (property_exists('BMPlayer', $subProperty)) {
+            if ($isSubPropertyArray) {
+                $this->setBMPlayerProps($subProperty, $value, 'BMDie');
+            } else {
+                $this->setBMPlayerProps($subProperty, $value);
+            }
         }
     }
 
@@ -4059,74 +4087,11 @@ class BMGame {
     }
 
     /**
-     * Allow setting the player ID array
-     *
-     * @param array $value
-     */
-    protected function set__playerIdArray($value) {
-        $this->setBMPlayerProps('playerId', $value);
-    }
-
-    /**
-     * Allow setting the button array
-     *
-     * @param array $value
-     */
-    protected function set__buttonArray($value) {
-        $this->setBMPlayerProps('button', $value);
-    }
-
-    /**
-     * Allow setting the array of active die arrays
-     *
-     * @param array $value
-     */
-    protected function set__activeDieArrayArray($value) {
-        $this->setBMPlayerProps('activeDieArray', $value, 'BMDie');
-    }
-
-    /**
-     * Allow setting the array of captured die arrays
-     *
-     * @param array $value
-     */
-    protected function set__capturedDieArrayArray($value) {
-        $this->setBMPlayerProps('capturedDieArray', $value, 'BMDie');
-    }
-
-    /**
-     * Allow setting the array of out of play die arrays
-     *
-     * @param array $value
-     */
-    protected function set__outOfPlayDieArrayArray($value) {
-        $this->setBMPlayerProps('outOfPlayDieArray', $value, 'BMDie');
-    }
-
-    /**
-     * Allow setting the array of which players are being waited upon
-     *
-     * @param array $value
-     */
-    protected function set__waitingOnActionArray($value) {
-        $this->setBMPlayerProps('waitingOnAction', $value);
-    }
-
-    /**
      * Set all players' waitingOnAction statuses to FALSE
      */
     protected function setAllToNotWaiting() {
         foreach ($this->playerArray as $player) {
             $player->waitingOnAction = FALSE;
         }
-    }
-
-    /**
-     * Allow setting the array of which players won the previous round
-     *
-     * @param array $value
-     */
-    protected function set__isPrevRoundWinnerArray($value) {
-        $this->setBMPlayerProps('isPrevRoundWinner', $value);
     }
 }
