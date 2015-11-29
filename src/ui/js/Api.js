@@ -361,7 +361,7 @@ var Api = (function () {
   my.packageGameData = function(data, _, parserargs) {
     // the output format is one of the following:
     // - split into games awaiting the player and games awaiting the opponent
-    // - made entirely of completed games
+    // - made entirely of games not awaiting action
     if (parserargs.isSplit) {
       parserargs.target.games = {
         'awaitingPlayer': [],
