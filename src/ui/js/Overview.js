@@ -214,7 +214,7 @@ Overview.pageAddGameTable = function(
   var gamesource;
   var tableClass;
 
-  switch(gameType) {
+  switch (gameType) {
   case 'closed':
     // closed games comprise completed games and rejected games
     var gamesourceCompleted = Api.completed_games.games;
@@ -285,7 +285,7 @@ Overview.addTableStructure = function(tableClass, sectionHeader) {
     headerRow.append($('<th>', {'html': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append( $('<th>', {'html':
-      'Score<br/><span style="white-space: nowrap;">W/L/T (Max)</span>',
+      'Score<br/>W/L/T (Max)',
     }));
     headerRow.append($('<th>', {'text': 'Description', }));
     headerRow.append($('<th>', {'text': 'Inactivity', }));
