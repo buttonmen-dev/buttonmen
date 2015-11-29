@@ -58,10 +58,18 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Generic routine for API POST used to parse data
 
-  my.apiParsePost = function(args, apikey, parser, callback, failcallback) {
-    my[apikey] = {
-      'load_status': 'failed',
-    };
+  my.apiParsePost = function(
+    args,
+    apikey,
+    parser,
+    callback,
+    failcallback,
+    parserargs
+  ) {
+    if (typeof my[apikey] === 'undefined') {
+      my[apikey] = {};
+    }
+    my[apikey].load_status = 'failed';
     args.automatedApiCall = my.automatedApiCall;
     $.post(
       Env.api_location,
@@ -75,7 +83,7 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (parser(rs.data, apikey)) {
+          if (parser(rs.data, apikey, parserargs)) {
             my[apikey].load_status = 'ok';
             return callback();
           } else {
@@ -279,57 +287,92 @@ var Api = (function () {
   // Load and parse the current player's list of new games
 
   my.getNewGamesData = function(callbackfunc) {
+    my.new_games = {};
+    var parserargs = [];
+    parserargs.target = my.new_games;
+    parserargs.isSplit = false;
     my.apiParsePost(
       {'type': 'loadNewGames', },
       'new_games',
-      my.parseNewGamesData,
+      my.packageGameData,
       callbackfunc,
-      callbackfunc
+      callbackfunc,
+      parserargs
     );
-  };
-
-  my.parseNewGamesData = function(data) {
-    my.new_games.games = [];
-    my.new_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.new_games.nGames) {
-      var gameInfo = {
-        'gameId': data.gameIdArray[i],
-        'gameDescription': data.gameDescriptionArray[i],
-        'opponentId': data.opponentIdArray[i],
-        'opponentName': data.opponentNameArray[i],
-        'playerButtonName': data.myButtonNameArray[i],
-        'opponentButtonName': data.opponentButtonNameArray[i],
-        'isAwaitingAction': data.isAwaitingActionArray[i],
-        'maxWins': data.nTargetWinsArray[i],
-      };
-      my.new_games.games.push(gameInfo);
-      i += 1;
-    }
-    return true;
   };
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the current player's list of active games
 
   my.getActiveGamesData = function(callbackfunc) {
+    my.active_games = {};
+    var parserargs = [];
+    parserargs.target = my.active_games;
+    parserargs.isSplit = true;
     my.apiParsePost(
       {'type': 'loadActiveGames', },
       'active_games',
-      my.parseActiveGamesData,
+      my.packageGameData,
       callbackfunc,
-      callbackfunc
+      callbackfunc,
+      parserargs
     );
   };
 
-  my.parseActiveGamesData = function(data) {
-    my.active_games.games = {
-      'awaitingPlayer': [],
-      'awaitingOpponent': [],
-    };
-    my.active_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.active_games.nGames) {
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the current player's list of completed games
+
+  my.getCompletedGamesData = function(callbackfunc) {
+    my.completed_games = {};
+    var parserargs = [];
+    parserargs.target = my.completed_games;
+    parserargs.isSplit = false;
+    my.apiParsePost(
+      {'type': 'loadCompletedGames', },
+      'completed_games',
+      my.packageGameData,
+      callbackfunc,
+      callbackfunc,
+      parserargs
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the current player's list of rejected games
+
+  my.getRejectedGamesData = function(callbackfunc) {
+    my.rejected_games = {};
+    var parserargs = [];
+    parserargs.target = my.rejected_games;
+    parserargs.isSplit = false;
+    my.apiParsePost(
+      {'type': 'loadRejectedGames', },
+      'rejected_games',
+      my.packageGameData,
+      callbackfunc,
+      callbackfunc,
+      parserargs
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Generic parser and repackager of the data returned from the database
+
+  my.packageGameData = function(data, _, parserargs) {
+    // the output format is one of the following:
+    // - split into games awaiting the player and games awaiting the opponent
+    // - made entirely of games not awaiting action
+    if (parserargs.isSplit) {
+      parserargs.target.games = {
+        'awaitingPlayer': [],
+        'awaitingOpponent': [],
+      };
+    } else {
+      parserargs.target.games = [];
+    }
+
+    parserargs.target.nGames = data.gameIdArray.length;
+    for (var i = 0; i < parserargs.target.nGames; i++) {
       var gameInfo = {
         'gameId': data.gameIdArray[i],
         'gameDescription': data.gameDescriptionArray[i],
@@ -351,90 +394,15 @@ var Api = (function () {
         'playerColor': data.playerColorArray[i],
         'opponentColor': data.opponentColorArray[i],
       };
-      if (gameInfo.isAwaitingAction == '1') {
-        my.active_games.games.awaitingPlayer.push(gameInfo);
+      if (parserargs.isSplit) {
+        if (gameInfo.isAwaitingAction == '1') {
+          parserargs.target.games.awaitingPlayer.push(gameInfo);
+        } else {
+          parserargs.target.games.awaitingOpponent.push(gameInfo);
+        }
       } else {
-        my.active_games.games.awaitingOpponent.push(gameInfo);
+        parserargs.target.games.push(gameInfo);
       }
-      i += 1;
-    }
-    return true;
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-  // Load and parse the current player's list of completed games
-
-  my.getCompletedGamesData = function(callbackfunc) {
-    my.apiParsePost(
-      {'type': 'loadCompletedGames', },
-      'completed_games',
-      my.parseCompletedGamesData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.parseCompletedGamesData = function(data) {
-    my.completed_games.games = [];
-    my.completed_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.completed_games.nGames) {
-      var gameInfo = {
-        'gameId': data.gameIdArray[i],
-        'gameDescription': data.gameDescriptionArray[i],
-        'opponentId': data.opponentIdArray[i],
-        'opponentName': data.opponentNameArray[i],
-        'playerButtonName': data.myButtonNameArray[i],
-        'opponentButtonName': data.opponentButtonNameArray[i],
-        'gameScoreDict': {
-          'W': data.nWinsArray[i],
-          'L': data.nLossesArray[i],
-          'D': data.nDrawsArray[i],
-        },
-        'isAwaitingAction': data.isAwaitingActionArray[i],
-        'maxWins': data.nTargetWinsArray[i],
-        'gameState': data.gameStateArray[i],
-        'status': data.statusArray[i],
-        'inactivity': data.inactivityArray[i],
-        'playerColor': data.playerColorArray[i],
-        'opponentColor': data.opponentColorArray[i],
-      };
-      my.completed_games.games.push(gameInfo);
-      i += 1;
-    }
-    return true;
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-  // Load and parse the current player's list of rejected games
-
-  my.getRejectedGamesData = function(callbackfunc) {
-    my.apiParsePost(
-      {'type': 'loadRejectedGames', },
-      'rejected_games',
-      my.parseRejectedGamesData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.parseRejectedGamesData = function(data) {
-    my.rejected_games.games = [];
-    my.rejected_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.rejected_games.nGames) {
-      var gameInfo = {
-        'gameId': data.gameIdArray[i],
-        'gameDescription': data.gameDescriptionArray[i],
-        'opponentId': data.opponentIdArray[i],
-        'opponentName': data.opponentNameArray[i],
-        'playerButtonName': data.myButtonNameArray[i],
-        'opponentButtonName': data.opponentButtonNameArray[i],
-        'isAwaitingAction': data.isAwaitingActionArray[i],
-        'maxWins': data.nTargetWinsArray[i],
-      };
-      my.rejected_games.games.push(gameInfo);
-      i += 1;
     }
     return true;
   };
