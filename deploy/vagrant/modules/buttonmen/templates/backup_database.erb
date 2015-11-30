@@ -4,7 +4,7 @@ BACKUPDIR=/srv/backup
 DBNAME=buttonmen
 TODAY=`date +"%Y%m%d"`
 
-BACKUPFILE="${BACKUPDIR}/${DBNAME}.${TODAY}.sql.bz2"
+BACKUPFILE="${BACKUPDIR}/${DBNAME}.${TODAY}.sql"
 
 # Fail if BACKUPDIR isn't there
 if [ ! -d "$BACKUPDIR" ]; then
@@ -12,9 +12,18 @@ if [ ! -d "$BACKUPDIR" ]; then
   exit 1
 fi
 
-mysqldump -u root $DBNAME | bzip2 > $BACKUPFILE
+mysqldump -u root $DBNAME > $BACKUPFILE
 if [ ! -s "$BACKUPFILE" ]; then
   echo "after backup, backup file is missing or zero size"
+  exit 1
+fi
+
+# Now compress the backup to save disk space
+# This has to be done as a separate step to save site performance
+# while backup/compression are happening
+bzip2 -f $BACKUPFILE
+if [ "$?" != "0" ]; then
+  echo "Bzip2 of successful backup failed"
   exit 1
 fi
 
