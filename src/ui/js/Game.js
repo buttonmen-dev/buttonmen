@@ -2866,8 +2866,6 @@ Game.dieRecipeText = function(die, allowShowValues) {
     dieRecipeText += ':' + die.value;
   }
 
-//  console.log(dieRecipeText);
-
   return dieRecipeText;
 };
 

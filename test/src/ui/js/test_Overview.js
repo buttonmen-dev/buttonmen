@@ -184,14 +184,532 @@ test("test_Overview.pageAddGameTables", function(assert) {
   });
 });
 
-test("test_Overview.pageAddGameTableNew", function(assert) {
+test("test_Overview.addTypeToGameSource", function(assert) {
+  var gamesource = [[], [], []];
+  var gameType = 'testType';
+  Overview.addTypeToGameSource(gamesource, gameType);
+  assert.equal(gamesource[0].gameType, 'testType', 'First element is assigned type');
+  assert.equal(gamesource[1].gameType, 'testType', 'Second element is assigned type');
+  assert.equal(gamesource[2].gameType, 'testType', 'Third element is assigned type');
+});
+
+test("test_Overview.addTableStructure", function(assert) {
   stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
-    Overview.pageAddGameTableNew();
-    assert.ok(true, "No special testing of pageAddGameTableNew() as a whole is done");
+    // check table creation
+    var tableBody = Overview.addTableStructure('testTableClass', 'testHeader');
+    assert.equal(
+      Overview.page.html(),
+      '<div>' +
+        '<h2>testHeader</h2>' +
+        '<table class="gameList testTableClass">' +
+          '<thead>' +
+            '<tr>' +
+              '<th>Game #</th>' +
+              '<th>Your Button</th>' +
+              '<th>Opponent\'s Button</th>' +
+              '<th>Opponent</th>' +
+              '<th>Score<br>W/L/T (Max)</th>' +
+              '<th>Description</th>' +
+              '<th>Inactivity</th>' +
+              '<th>Decision</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>',
+      'Table structure is correct'
+    );
+    assert.ok(tableBody.is('tbody'));
+
+    // check addition of table spacer
+    tableBody = Overview.addTableStructure('testTableClass', 'testHeader');
+    assert.equal(
+      tableBody.html(),
+      '<tr class="spacer">' +
+        '<td colspan="8">&nbsp;</td>' +
+      '</tr>',
+      'Table body spacer is present'
+    );
+
     start();
   });
+});
+
+test("test_Overview.addTableRows", function(assert) {
+  // james: currently a stub
+});
+
+test("test_Overview.addGameCol", function(assert) {
+  var gameInfo;
+  var gameRow;
+  var gameType;
+
+  // active game awaiting player
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameInfo.inactivityRaw = 400000;
+  gameInfo.playerColor = '#fedcba';
+  gameInfo.opponentColor = '#abcdef';
+  gameRow = $('<tr>');
+  gameType = 'awaitingPlayer';
+  Overview.addGameCol(gameRow, gameInfo, gameType);
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #fedcba\">' +
+      '<a href=\"game.html?game=500\">Play Game 500</a>' +
+    '</td>'
+  )
+
+  // active game awaiting opponent, not stale
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameInfo.inactivityRaw = 400;
+  gameInfo.playerColor = '#fedcba';
+  gameInfo.opponentColor = '#abcdef';
+  gameRow = $('<tr>');
+  gameType = 'awaitingOpponent';
+  Overview.addGameCol(gameRow, gameInfo, gameType);
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #abcdef\">' +
+      '<a href=\"game.html?game=500\">View Game 500</a>' +
+    '</td>'
+  )
+  assert.ok(!gameRow.hasClass('staleGame'));
+
+  // active game awaiting opponent, stale
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameInfo.inactivityRaw = Overview.STALENESS_SECS + 1000;
+  gameInfo.playerColor = '#fedcba';
+  gameInfo.opponentColor = '#abcdef';
+  gameRow = $('<tr>');
+  gameType = 'awaitingOpponent';
+  Overview.addGameCol(gameRow, gameInfo, gameType);
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #abcdef\">' +
+      '<a href=\"game.html?game=500\">View Game 500</a>' +
+    '</td>'
+  )
+  assert.ok(gameRow.hasClass('staleGame'));
+});
+
+test("test_Overview.addButtonCol", function(assert) {
+  var gameRow = $('<tr>');
+  Overview.addButtonCol(gameRow, 'testButtonName');
+  assert.equal(
+    gameRow.html(),
+    '<td>' +
+      '<a href=\"buttons.html?button=testButtonName\">testButtonName</a>' +
+    '</td>'
+  )
+});
+
+test("test_Overview.addPlayerCol", function(assert) {
+  var gameRow = $('<tr>');
+  Overview.addPlayerCol(gameRow, 'testPlayerName', '#fdcfff');
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #fdcfff\">' +
+      '<a href=\"profile.html?player=testPlayerName\">testPlayerName</a>' +
+    '</td>'
+  )
+});
+
+test("test_Overview.addScoreCol", function(assert) {
+  var gameInfo = [];
+  gameInfo.maxWins = 5;
+  gameInfo.gameScoreDict = [];
+  gameInfo.gameScoreDict.W = 2;
+  gameInfo.gameScoreDict.L = 1;
+  gameInfo.gameScoreDict.D = 4;
+  gameInfo.playerColor = '#fedcba';
+  gameInfo.opponentColor = '#abcdef';
+  var gameRow;
+
+  gameRow = $('<tr>');
+  gameInfo.gameType = 'rejected';
+  Overview.addScoreCol(gameRow, gameInfo);
+  assert.equal(
+    gameRow.html(),
+    '<td>–/–/– (5)</td>',
+    'Rejected games have a dashed score'
+  );
+
+  gameRow = $('<tr>');
+  gameInfo.gameType = 'new';
+  Overview.addScoreCol(gameRow, gameInfo);
+  assert.equal(
+    gameRow.html(),
+    '<td>–/–/– (5)</td>',
+    'New games have a dashed score'
+  );
+
+  gameRow = $('<tr>');
+  gameInfo.gameType = 'active';
+  Overview.addScoreCol(gameRow, gameInfo);
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #fedcba\">2/1/4 (5)</td>',
+    'Active games show the score on the winner\'s background'
+  );
+
+  gameRow = $('<tr>');
+  gameInfo.gameScoreDict.W = 2;
+  gameInfo.gameScoreDict.L = 3;
+  gameInfo.gameScoreDict.D = 4;
+  gameInfo.gameType = 'active';
+  Overview.addScoreCol(gameRow, gameInfo);
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #abcdef\">2/3/4 (5)</td>',
+    'Active games show the score on the winner\'s background'
+  );
+});
+
+test("test_Overview.addDescCol", function(assert) {
+  var gameRow = $('<tr>');
+  Overview.addDescCol(gameRow, 'short description');
+  assert.equal(
+    gameRow.html(),
+    '<td class="gameDescDisplay">short description</td>',
+    'Description column'
+  );
+
+  gameRow = $('<tr>');
+  Overview.addDescCol(gameRow, '1234567890123456789012345678901234567890');
+  assert.equal(
+    gameRow.html(),
+    '<td class="gameDescDisplay">123456789012345678901234567890...</td>',
+    'Description column truncates correctly'
+  );
+});
+
+test("test_Overview.addInactiveCol", function(assert) {
+  var gameRow = $('<tr>');
+  Overview.addInactiveCol(gameRow, '21 days');
+  assert.equal(
+    gameRow.html(),
+    '<td>21 days</td>',
+    'Inactivity column'
+  );
+});
+
+test("test_Overview.addDecisionCol", function(assert) {
+  var gameInfo;
+  var gameRow;
+  var gameType;
+  var column;
+  var links;
+  var linkTextArray;
+
+  // closed game
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameRow = $('<tr>');
+  gameType = 'closed';
+  Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  assert.equal(
+    gameRow.children().length,
+    1,
+    'add exactly one decision column for closed games'
+  );
+  column = gameRow.children();
+  assert.ok(
+    column.is('td'),
+    'decision column is correct type for closed games'
+  );
+  assert.equal(
+    column.text(),
+    '[Dismiss]',
+    'decision text is correct for closed games'
+  );
+  links = column.children();
+  assert.equal(
+    links.length,
+    1,
+    'add exactly one link for closed games'
+  );
+  assert.ok(
+    links.is('a'),
+    'decision link is correct type for closed games'
+  );
+  assert.equal(
+    links.attr('data-gameid'),
+    '500',
+    'decision data-gameid is correct for closed games'
+  );
+  assert.equal(
+    links.attr('href'),
+    '#',
+    'decision href is correct for closed games'
+  );
+  assert.equal(
+    links.text(),
+    'Dismiss',
+    'decision text is correct for closed games'
+  );
+
+
+  // active game awaiting player
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameInfo.isAwaitingAction = true;
+  gameRow = $('<tr>');
+  gameType = 'awaitingPlayer';
+  Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  col = gameRow.children();
+  assert.ok(
+    col.is('td'),
+    'decision col is correct type for active game awaiting player'
+  );
+  assert.equal(
+    col.children().length,
+    0,
+    'No action for active game awaiting player'
+  );
+
+
+  // active game awaiting opponent
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameRow = $('<tr>');
+  gameType = 'awaitingOpponent';
+  Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  col = gameRow.children();
+  assert.ok(
+    col.is('td'),
+    'decision col is correct type for active game awaiting opponent'
+  );
+  assert.equal(
+    col.children().length,
+    0,
+    'No action for active game awaiting opponent'
+  );
+
+
+  // new game awaiting player
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameInfo.gameType = 'new';
+  gameInfo.isAwaitingAction = true;
+  gameRow = $('<tr>');
+  gameType = 'awaitingPlayer';
+  Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  assert.equal(
+    gameRow.children().length,
+    1,
+    'add exactly one decision column for new games awaiting player'
+  );
+  column = gameRow.children();
+  assert.ok(
+    column.is('td'),
+    'decision column is correct type for new games awaiting player'
+  );
+  assert.equal(
+    column.text(),
+    '[Accept] / [Reject]',
+    'decision text is correct for new games awaiting player'
+  );
+  links = column.children();
+  assert.equal(
+    links.length,
+    2,
+    'add exactly two links for new games awaiting player'
+  );
+  assert.ok(
+    links.is('a'),
+    'decision links are correct type for new games awaiting player'
+  );
+  linkTextArray = [];
+  links.each(function() {
+    assert.equal(
+      $(this).attr('data-gameid'),
+      '500',
+      'decision data-gameid is correct for new games awaiting player'
+    );
+
+    assert.equal(
+      $(this).attr('href'),
+      '#',
+      'decision href is correct for new games awaiting player'
+    );
+    linkTextArray.push($(this).text());
+  });
+  assert.equal(
+    linkTextArray[0],
+    'Accept',
+    'Accept text is correct'
+  );
+  assert.equal(
+    linkTextArray[1],
+    'Reject',
+    'Reject text is correct'
+  );
+
+  // new game awaiting opponent
+  gameInfo = [];
+  gameInfo.gameId = 500;
+  gameInfo.gameType = 'new';
+  gameInfo.isAwaitingAction = false;
+  gameRow = $('<tr>');
+  gameType = 'awaitingOpponent';
+  Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  column = gameRow.children();
+  assert.ok(
+    column.is('td'),
+    'decision column is correct type for new games awaiting opponent'
+  );
+  assert.equal(
+    column.text(),
+    '[Cancel]',
+    'decision text is correct for new games awaiting opponent'
+  );
+  links = column.children();
+  assert.equal(
+    links.length,
+    1,
+    'add exactly one link for new games awaiting opponent'
+  );
+  assert.ok(
+    links.is('a'),
+    'decision link is correct type for new games awaiting opponent'
+  );
+  assert.equal(
+    links.attr('data-gameid'),
+    '500',
+    'decision data-gameid is correct for new games awaiting opponent'
+  );
+  assert.equal(
+    links.attr('href'),
+    '#',
+    'decision href is correct for new games awaiting opponent'
+  );
+  assert.equal(
+    links.text(),
+    'Cancel',
+    'decision text is correct for new games awaiting opponent'
+  );
+});
+
+test("test_Overview.linkTextStub", function(assert) {
+  var gameInfo = [];
+  var gameType = '';
+
+  gameInfo.gameType = 'new';
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'NEW',
+    'new game stub'
+  );
+
+  gameInfo.gameType = 'rejected';
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'REJECTED',
+    'rejected game stub'
+  );
+
+  gameInfo.gameType = 'completed';
+  gameInfo.gameScoreDict = [];
+  gameInfo.gameScoreDict.W = 1;
+  gameInfo.gameScoreDict.L = 0;
+  gameInfo.gameScoreDict.D = 2;
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'WON',
+    'won game stub'
+  );
+
+  gameInfo.gameScoreDict.L = 3;
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'LOST',
+    'lost game stub'
+  );
+
+  gameInfo.gameScoreDict.L = 1;
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'TIED',
+    'tied game stub'
+  );
+
+  gameInfo.gameType = 'active';
+  gameType = 'awaitingPlayer';
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'Play',
+    'active game stub, waiting on player'
+  );
+
+  gameInfo.gameType = 'active';
+  gameType = 'awaitingOpponent';
+  assert.equal(
+    Overview.linkTextStub(gameInfo, gameType),
+    'View',
+    'active game stub, waiting on opponent'
+  );
+});
+
+test("test_Overview.staleGameFooter", function(assert) {
+  var tableFoot = Overview.staleGameFooter(8);
+
+  assert.ok(tableFoot.is('tfoot'), 'tableFoot is correct type');
+  var row = tableFoot.children();
+  assert.ok(
+    row.is('tr'),
+    'stale games footer row is correct type'
+  );
+  var col = row.children();
+  assert.ok(
+    col.is('td'),
+    'stale games footer col is correct type'
+  );
+  assert.equal(
+    col.length,
+    1,
+    'exactly one col in the stale games footer row'
+  );
+  assert.equal(
+    col.text(),
+    '[Show stale games]',
+    'stale games footer has correct text'
+  );
+  assert.equal(
+    col.attr('colspan'),
+    '8',
+    'stale games footer col has correct colspan'
+  );
+  var link = col.children();
+  assert.ok(
+    link.is('a'),
+    'stale games link is correct type'
+  );
+  assert.equal(
+    link.length,
+    1,
+    'exactly one link in the stale games footer row'
+  );
+  assert.equal(
+    link.text(),
+    'Show stale games',
+    'stale games footer link has correct text'
+  );
+  assert.equal(
+    link.attr('href'),
+    'javascript:Overview.toggleStaleGame();',
+    'stale games footer has correct href'
+  );
+  assert.equal(
+    link.attr('id'),
+    'staleToggle',
+    'stale games footer has correct id'
+  );
 });
 
 // The default overview data contains games awaiting both the player and the opponent
