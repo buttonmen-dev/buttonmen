@@ -210,7 +210,7 @@ test("test_Overview.addTableStructure", function(assert) {
               '<th>Your Button</th>' +
               '<th>Opponent\'s Button</th>' +
               '<th>Opponent</th>' +
-              '<th>Score<br><span style="white-space: nowrap;">W/L/T (Max)</span></th>' +
+              '<th>Score<br>W/L/T (Max)</th>' +
               '<th>Description</th>' +
               '<th>Inactivity</th>' +
               '<th>Decision</th>' +
