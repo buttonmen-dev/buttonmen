@@ -197,7 +197,34 @@ test("test_Overview.addTableStructure", function(assert) {
   stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
-    // check table creation
+    // check table creation without dismiss column
+    var tableBody = Overview.addTableStructure('testTableClass', 'testHeader', false);
+    assert.equal(
+      Overview.page.html(),
+      '<div>' +
+        '<h2>testHeader</h2>' +
+        '<table class="gameList testTableClass">' +
+          '<thead>' +
+            '<tr>' +
+              '<th>Game #</th>' +
+              '<th>Your Button</th>' +
+              '<th>Opponent\'s Button</th>' +
+              '<th>Opponent</th>' +
+              '<th>Score<br>W/L/T (Max)</th>' +
+              '<th>Description</th>' +
+              '<th>Inactivity</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>',
+      'Table structure without dismiss column is correct'
+    );
+    assert.ok(tableBody.is('tbody'));
+
+    Overview.page = $('<div>');
+    // check table creation with dismiss column
     var tableBody = Overview.addTableStructure('testTableClass', 'testHeader', true);
     assert.equal(
       Overview.page.html(),
@@ -220,7 +247,7 @@ test("test_Overview.addTableStructure", function(assert) {
           '</tbody>' +
         '</table>' +
       '</div>',
-      'Table structure is correct'
+      'Table structure with dismiss column is correct'
     );
     assert.ok(tableBody.is('tbody'));
 
