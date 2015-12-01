@@ -1248,6 +1248,20 @@ test("test_Game.dieRecipeTable", function(assert) {
   });
 });
 
+test("test_Game.playerWLTText", function(assert) {
+  stop();
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
+  Api.getGameData(gameId, 10, function() {
+    var text = Game.playerWLTText('opponent');
+    assert.ok(text.match('3/1/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
+    start();
+  });
+
+  // james: we'll need an extra test here of new/rejected game, once we have an
+  //        appropriate test game to use
+});
+
 test("test_Game.dieRecipeTable_focus", function(assert) {
   stop();
   BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';

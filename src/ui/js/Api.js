@@ -27,29 +27,6 @@ var Api = (function () {
     'December',
   ];
 
-  // Game states must match those reported by the API
-  my.GAME_STATE_START_GAME = 'START_GAME';
-  my.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
-  my.GAME_STATE_CHOOSE_JOIN_GAME = 'CHOOSE_JOIN_GAME';
-  my.GAME_STATE_SPECIFY_RECIPES = 'SPECIFY_RECIPES';
-  my.GAME_STATE_LOAD_DICE_INTO_BUTTONS = 'LOAD_DICE_INTO_BUTTONS';
-  my.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = 'ADD_AVAILABLE_DICE_TO_GAME';
-  my.GAME_STATE_CHOOSE_AUXILIARY_DICE = 'CHOOSE_AUXILIARY_DICE';
-  my.GAME_STATE_CHOOSE_RESERVE_DICE = 'CHOOSE_RESERVE_DICE';
-  my.GAME_STATE_SPECIFY_DICE = 'SPECIFY_DICE';
-  my.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
-  my.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
-  my.GAME_STATE_START_ROUND = 'START_ROUND';
-  my.GAME_STATE_START_TURN = 'START_TURN';
-  my.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
-  my.GAME_STATE_COMMIT_ATTACK = 'COMMIT_ATTACK';
-  my.GAME_STATE_CHOOSE_TURBO_SWING = 'CHOOSE_TURBO_SWING';
-  my.GAME_STATE_END_TURN = 'END_TURN';
-  my.GAME_STATE_END_ROUND = 'END_ROUND';
-  my.GAME_STATE_END_GAME = 'END_GAME';
-
-  my.GAME_STATE_REJECTED = 'REJECTED';
-
   my.automatedApiCall = false;
 
   // private methods and variables should be defined separately
@@ -544,10 +521,6 @@ var Api = (function () {
                          data.playerDataArray[my.game.opponentIdx],
                          my.game.opponentIdx);
 
-    // Parse game WLT text into a string for convenience
-    my.game.player.gameScoreStr = my.playerWLTText('player');
-    my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
-
     my.game.pendingGameCount = data.pendingGameCount;
 
     return true;
@@ -589,21 +562,6 @@ var Api = (function () {
     }
 
     return data;
-  };
-
-  my.playerWLTText = function(player) {
-    var text;
-    if ((Api.game.gameState == Api.GAME_STATE_CHOOSE_JOIN_GAME) ||
-        (Api.game.gameState == Api.GAME_STATE_REJECTED)) {
-      text = 'W/L/T: –/–/–';
-    } else {
-      text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
-             '/' + Api.game[player].gameScoreArray.L +
-             '/' + Api.game[player].gameScoreArray.D;
-    }
-
-    text += ' (' + Api.game.maxWins + ')';
-    return text;
   };
 
   my.disableSubmitButton = function(button) {

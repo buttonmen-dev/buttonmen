@@ -5,6 +5,29 @@ var Game = {
 
 Game.bodyDivId = 'game_page';
 
+// Game states must match those reported by the API
+Game.GAME_STATE_START_GAME = 'START_GAME';
+Game.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
+Game.GAME_STATE_CHOOSE_JOIN_GAME = 'CHOOSE_JOIN_GAME';
+Game.GAME_STATE_SPECIFY_RECIPES = 'SPECIFY_RECIPES';
+Game.GAME_STATE_LOAD_DICE_INTO_BUTTONS = 'LOAD_DICE_INTO_BUTTONS';
+Game.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = 'ADD_AVAILABLE_DICE_TO_GAME';
+Game.GAME_STATE_CHOOSE_AUXILIARY_DICE = 'CHOOSE_AUXILIARY_DICE';
+Game.GAME_STATE_CHOOSE_RESERVE_DICE = 'CHOOSE_RESERVE_DICE';
+Game.GAME_STATE_SPECIFY_DICE = 'SPECIFY_DICE';
+Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
+Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
+Game.GAME_STATE_START_ROUND = 'START_ROUND';
+Game.GAME_STATE_START_TURN = 'START_TURN';
+Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
+Game.GAME_STATE_COMMIT_ATTACK = 'COMMIT_ATTACK';
+Game.GAME_STATE_CHOOSE_TURBO_SWING = 'CHOOSE_TURBO_SWING';
+Game.GAME_STATE_END_TURN = 'END_TURN';
+Game.GAME_STATE_END_ROUND = 'END_ROUND';
+Game.GAME_STATE_END_GAME = 'END_GAME';
+
+Game.GAME_STATE_REJECTED = 'REJECTED';
+
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
@@ -95,7 +118,7 @@ Game.showStatePage = function() {
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
-    if (Api.game.gameState == Api.GAME_STATE_CHOOSE_JOIN_GAME) {
+    if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionChooseJoinGameActive();
@@ -105,12 +128,12 @@ Game.showStatePage = function() {
       } else {
         Game.actionChooseJoinGameNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_REJECTED) {
+    } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
       Game.page =
         $('<p>', {'text': 'This game has been rejected.', });
       Game.form = null;
       includeFooter = false;
-    } else if (Api.game.gameState == Api.GAME_STATE_SPECIFY_DICE) {
+    } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionSpecifyDiceActive();
@@ -120,7 +143,7 @@ Game.showStatePage = function() {
       } else {
         Game.actionSpecifyDiceNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_CHOOSE_AUXILIARY_DICE) {
+    } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_AUXILIARY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionChooseAuxiliaryDiceActive();
@@ -130,7 +153,7 @@ Game.showStatePage = function() {
       } else {
         Game.actionChooseAuxiliaryDiceNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_CHOOSE_RESERVE_DICE) {
+    } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_RESERVE_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionChooseReserveDiceActive();
@@ -140,7 +163,7 @@ Game.showStatePage = function() {
       } else {
         Game.actionChooseReserveDiceNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_REACT_TO_INITIATIVE) {
+    } else if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionReactToInitiativeActive();
@@ -150,7 +173,7 @@ Game.showStatePage = function() {
       } else {
         Game.actionReactToInitiativeNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_START_TURN) {
+    } else if (Api.game.gameState == Game.GAME_STATE_START_TURN) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionPlayTurnActive();
@@ -161,7 +184,7 @@ Game.showStatePage = function() {
       } else {
         Game.actionPlayTurnNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_ADJUST_FIRE_DICE) {
+    } else if (Api.game.gameState == Game.GAME_STATE_ADJUST_FIRE_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
           Game.actionAdjustFireDiceActive();
@@ -171,9 +194,9 @@ Game.showStatePage = function() {
       } else {
         Game.actionAdjustFireDiceNonplayer();
       }
-    } else if (Api.game.gameState == Api.GAME_STATE_END_GAME) {
+    } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
-    } else if (Api.game.gameState == Api.GAME_STATE_START_GAME) {
+    } else if (Api.game.gameState == Game.GAME_STATE_START_GAME) {
       Game.page =
         $('<p>', {'text': 'The game hasn\'t started yet.', });
       Game.form = null;
@@ -206,7 +229,7 @@ Game.showStatePage = function() {
 // What actions can this player take during the react to initiative phase
 Game.parseValidInitiativeActions = function() {
   Api.game.player.initiativeActions = {};
-  if (Api.game.gameState == Api.GAME_STATE_REACT_TO_INITIATIVE) {
+  if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
     var focus = {};
     var chance = {};
     var hasFocus = false;
@@ -238,7 +261,7 @@ Game.parseValidInitiativeActions = function() {
 // What fire dice can the player adjust?
 Game.parseValidFireOptions = function() {
   Api.game.player.fireOptions = {};
-  if (Api.game.gameState == Api.GAME_STATE_ADJUST_FIRE_DICE) {
+  if (Api.game.gameState == Game.GAME_STATE_ADJUST_FIRE_DICE) {
     $.each(Api.game.player.activeDieArray, function(i, die) {
       if ((die.skills.indexOf('Fire') >= 0) &&
           (die.properties.indexOf('IsAttacker') < 0)) {
@@ -252,7 +275,7 @@ Game.parseValidFireOptions = function() {
 // What reserve dice can the player choose
 Game.parseValidReserveOptions = function() {
   Api.game.player.reserveOptions = {};
-  if (Api.game.gameState == Api.GAME_STATE_CHOOSE_RESERVE_DICE) {
+  if (Api.game.gameState == Game.GAME_STATE_CHOOSE_RESERVE_DICE) {
 
     $.each(Api.game.player.activeDieArray, function(i, die) {
       if (die.skills.indexOf('Reserve') >= 0) {
@@ -1691,7 +1714,7 @@ Game.pageAddGameHeader = function(action_desc) {
   Game.page.append($('<br>'));
 
   if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
-      Api.game.gameState == Api.GAME_STATE_END_GAME) {
+      Api.game.gameState == Game.GAME_STATE_END_GAME) {
     var dismissDiv = $('<div>');
     Game.page.append(dismissDiv);
     var dismissLink = $('<a>', {
@@ -1705,7 +1728,7 @@ Game.pageAddGameHeader = function(action_desc) {
   }
 
   if (Api.game.isParticipant &&
-      Api.game.gameState == Api.GAME_STATE_CHOOSE_JOIN_GAME) {
+      Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
     var acceptRejectDiv = $('<div>');
     Game.page.append(acceptRejectDiv);
 
@@ -1740,7 +1763,7 @@ Game.pageAddGameHeader = function(action_desc) {
     Game.page.append($('<br>'));
   }
 
-  if (Api.game.gameState == Api.GAME_STATE_START_TURN &&
+  if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
       Api.game.isParticipant && Api.game.player.waitingOnAction &&
       Api.game.player.canStillWin === false) {
     var cantWinDiv = $('<div>', {
@@ -1871,7 +1894,7 @@ Game.pageAddSkillListFooter = function() {
 
 // Display links to create new games similar to this one
 Game.pageAddNewGameLinkFooter = function() {
-  if (Api.game.gameState != Api.GAME_STATE_END_GAME) {
+  if (Api.game.gameState != Game.GAME_STATE_END_GAME) {
     return;
   }
 
@@ -2287,6 +2310,21 @@ Game.dieRecipeTable = function(table_action, active) {
   return dietable;
 };
 
+Game.playerWLTText = function(player) {
+  var text;
+  if ((Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) ||
+      (Api.game.gameState == Game.GAME_STATE_REJECTED)) {
+    text = 'W/L/T: –/–/–';
+  } else {
+    text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
+           '/' + Api.game[player].gameScoreArray.L +
+           '/' + Api.game[player].gameScoreArray.D;
+  }
+
+  text += ' (' + Api.game.maxWins + ')';
+  return text;
+};
+
 // Generate and return a table of the swing ranges for the player's swing dice
 Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrev) {
   var swingrangetable = $('<table>', { 'id': id, });
@@ -2340,7 +2378,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
     if ((die.properties.indexOf('Dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
       dieopts['class'] = 'recipe_greyed';
-      if (Api.game.gameState == Api.GAME_STATE_REACT_TO_INITIATIVE) {
+      if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
         dieopts.title += '. (This die is dizzy because it has been turned ' +
           'down. If the owner wins initiative, this die can\'t be used in ' +
           'their first attack.)';
@@ -2424,7 +2462,7 @@ Game.pageAddDieBattleTable = function(clickable) {
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
   var tdClass = 'button_' + player;
-  if (Api.game.gameState == Api.GAME_STATE_END_GAME) {
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     tdClass += ' button_postgame';
   }
   var buttonTd = $('<td>', {
@@ -2436,7 +2474,7 @@ Game.buttonImageDisplay = function(player) {
   });
   playerName.append(Env.buildProfileLink(Api.game[player].playerName));
   var playerWLT = $('<div>', {
-    'text': Api.game[player].gameScoreStr,
+    'text': Game.playerWLTText(player),
   });
   var buttonInfo = $('<div>', {
     'text': 'Button: '
@@ -2446,12 +2484,12 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].button.recipe,
   });
 
-  if (player == 'opponent' && Api.game.gameState != Api.GAME_STATE_END_GAME) {
+  if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
   }
-  if (Api.game.gameState == Api.GAME_STATE_END_GAME) {
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
   if (Env.getCookieNoImages() || Env.getCookieCompactMode()) {
@@ -2463,7 +2501,7 @@ Game.buttonImageDisplay = function(player) {
       'width': '150px',
     }));
   }
-  if (player == 'player' || Api.game.gameState == Api.GAME_STATE_END_GAME) {
+  if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
@@ -2480,7 +2518,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   });
 
   // Game score
-  var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
+  var gameScoreDiv = $('<div>', { 'html': Game.playerWLTText(player), });
 
   var capturedDiceDiv;
   var outOfPlayDiceDiv;
@@ -2769,6 +2807,9 @@ Game.playerOpponentHeaderRow = function(label, field) {
   } else if (field == 'buttonName') {
     playerInfo.append(Env.buildButtonLink(Api.game.player[field]));
     opponentInfo.append(Env.buildButtonLink(Api.game.opponent[field]));
+  } else if (field == 'gameScoreStr') {
+    playerInfo.append(Game.playerWLTText('player'));
+    opponentInfo.append(Game.playerWLTText('opponent'));
   } else {
     playerInfo.append(Api.game.player[field]);
     opponentInfo.append(Api.game.opponent[field]);
@@ -2848,8 +2889,6 @@ Game.dieRecipeText = function(die, allowShowValues) {
     dieRecipeText += ':' + die.value;
   }
 
-//  console.log(dieRecipeText);
-
   return dieRecipeText;
 };
 
@@ -2857,9 +2896,9 @@ Game.dieValidTurndownValues = function(die, gameState) {
   // Focus dice can be turned down during "react to initiative" state
   // Fire dice can be turned down during "adjust fire dice" state
   if (((die.skills.indexOf('Focus') >= 0) &&
-       (gameState == Api.GAME_STATE_REACT_TO_INITIATIVE)) ||
+       (gameState == Game.GAME_STATE_REACT_TO_INITIATIVE)) ||
       ((die.skills.indexOf('Fire') >= 0) &&
-       (gameState == Api.GAME_STATE_ADJUST_FIRE_DICE))) {
+       (gameState == Game.GAME_STATE_ADJUST_FIRE_DICE))) {
     var turndown = [];
     var minval = 1;
     if (die.recipe.match(',')) {

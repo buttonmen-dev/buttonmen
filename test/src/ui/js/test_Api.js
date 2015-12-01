@@ -487,20 +487,6 @@ test("test_Api.parseGamePlayerData_option", function(assert) {
   });
 });
 
-test("test_Api.playerWLTText", function(assert) {
-  stop();
-  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
-  Api.getGameData(gameId, 10, function() {
-    var text = Api.playerWLTText('opponent');
-    assert.ok(text.match('3/1/0'),
-       "opponent WLT text should contain opponent's view of WLT state");
-    start();
-  });
-
-  // james: we'll need an extra test here of new/rejected game, once we have an
-  //        appropriate test game to use
-});
-
 test("test_Api.disableSubmitButton", function(assert) {
   $('body').append($('<div>', {'id': 'api_page', }));
   $('#api_page').append($('<button>', {
