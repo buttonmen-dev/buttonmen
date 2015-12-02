@@ -445,12 +445,12 @@ test("test_Overview.addDismissCol", function(assert) {
   column = gameRow.children();
   assert.ok(
     column.is('td'),
-    'decision column is correct type'
+    'dismiss column is correct type'
   );
   assert.equal(
     column.text(),
     '[Dismiss]',
-    'decision text is correct'
+    'dismiss text is correct'
   );
   links = column.children();
   assert.equal(
@@ -460,22 +460,22 @@ test("test_Overview.addDismissCol", function(assert) {
   );
   assert.ok(
     links.is('a'),
-    'decision link is correct type'
+    'dismiss link is correct type'
   );
   assert.equal(
     links.attr('data-gameid'),
     '500',
-    'decision data-gameid is correct'
+    'dismiss data-gameid is correct'
   );
   assert.equal(
     links.attr('href'),
     '#',
-    'decision href is correct'
+    'dismiss href is correct'
   );
   assert.equal(
     links.text(),
     'Dismiss',
-    'decision text is correct'
+    'dismiss text is correct'
   );
 });
 
