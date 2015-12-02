@@ -315,6 +315,7 @@ Game.actionChooseJoinGameActive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
+  Game.page.append($('<br>'));
   Game.page.append(Game.buttonTableWithoutDice());
 };
 
@@ -342,6 +343,7 @@ Game.actionChooseJoinGameInactive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
+  Game.page.append($('<br>'));
   Game.page.append(Game.buttonTableWithoutDice());
 };
 
@@ -360,6 +362,7 @@ Game.actionChooseJoinGameNonplayer = function() {
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
   Game.page.append($('<br>'));
+  Game.page.append(Game.buttonTableWithoutDice());
 };
 
 // It is time to choose swing dice, and the current player has dice to choose
@@ -2462,8 +2465,9 @@ Game.pageAddDieBattleTable = function(clickable) {
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
   var tdClass = 'button_' + player;
-  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    tdClass += ' button_postgame';
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME ||
+      Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+    tdClass += ' button_prepostgame';
   }
   var buttonTd = $('<td>', {
     'class': tdClass,
@@ -2484,7 +2488,9 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].button.recipe,
   });
 
-  if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
+  if (player == 'opponent' &&
+      Api.game.gameState != Game.GAME_STATE_END_GAME &&
+      Api.game.gameState != Game.GAME_STATE_CHOOSE_JOIN_GAME) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
@@ -2501,7 +2507,9 @@ Game.buttonImageDisplay = function(player) {
       'width': '150px',
     }));
   }
-  if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
+  if (player == 'player' ||
+      Api.game.gameState == Game.GAME_STATE_END_GAME ||
+      Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
