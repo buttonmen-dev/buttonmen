@@ -2484,8 +2484,11 @@ Game.pageAddDieBattleTable = function(clickable) {
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
   var tdClass = 'button_' + player;
-  if (Api.game.gameState == Game.GAME_STATE_END_GAME ||
-      Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+  var isPreOrPostGame = Api.game.gameState == Game.GAME_STATE_END_GAME ||
+                        Api.game.gameState == Game.GAME_STATE_REJECTED ||
+                        Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME;
+
+  if (isPreOrPostGame) {
     tdClass += ' button_prepostgame';
   }
   var buttonTd = $('<td>', {
@@ -2507,9 +2510,7 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].button.recipe,
   });
 
-  if (player == 'opponent' &&
-      Api.game.gameState != Game.GAME_STATE_END_GAME &&
-      Api.game.gameState != Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+  if (player == 'opponent' && isPreOrPostGame) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
@@ -2526,9 +2527,7 @@ Game.buttonImageDisplay = function(player) {
       'width': '150px',
     }));
   }
-  if (player == 'player' ||
-      Api.game.gameState == Game.GAME_STATE_END_GAME ||
-      Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+  if (player == 'player' || isPreOrPostGame) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
