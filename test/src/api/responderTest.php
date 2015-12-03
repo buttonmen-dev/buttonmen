@@ -298,7 +298,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'TimeAndSpace' => array(
                 'code' => '^',
-                'description' => 'If a Time and Space Die is rerolled after it participates in an attack and rolls odd, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
+                'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
                 ),
             ),

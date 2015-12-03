@@ -18,4 +18,13 @@ if [ ! -s "$BACKUPFILE" ]; then
   exit 1
 fi
 
+# Now compress the backup to save disk space
+# This has to be done as a separate step to save site performance
+# while backup/compression are happening
+bzip2 -f $BACKUPFILE
+if [ "$?" != "0" ]; then
+  echo "Bzip2 of successful backup failed"
+  exit 1
+fi
+
 exit 0
