@@ -3,10 +3,6 @@ var Overview = {};
 
 Overview.bodyDivId = 'overview_page';
 
-// We only need one game state for this module, so just reproduce the
-// setting here rather than importing Game.js
-Overview.GAME_STATE_END_GAME = 60;
-
 Overview.MONITOR_TIMEOUT = 60;
 Overview.STALENESS_DAYS = 14;
 Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
