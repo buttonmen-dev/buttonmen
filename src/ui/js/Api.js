@@ -489,10 +489,6 @@ var Api = (function () {
                          data.playerDataArray[my.game.opponentIdx],
                          my.game.opponentIdx);
 
-    // Parse game WLT text into a string for convenience
-    my.game.player.gameScoreStr = my.playerWLTText('player');
-    my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
-
     my.game.pendingGameCount = data.pendingGameCount;
 
     return true;
@@ -534,14 +530,6 @@ var Api = (function () {
     }
 
     return data;
-  };
-
-  my.playerWLTText = function(player) {
-    var text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
-               '/' + Api.game[player].gameScoreArray.L +
-               '/' + Api.game[player].gameScoreArray.D +
-               ' (' + Api.game.maxWins + ')';
-    return text;
   };
 
   my.disableSubmitButton = function(button) {

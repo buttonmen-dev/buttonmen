@@ -197,8 +197,8 @@ test("test_Overview.addTableStructure", function(assert) {
   stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
-    // check table creation
-    var tableBody = Overview.addTableStructure('testTableClass', 'testHeader');
+    // check table creation without dismiss column
+    var tableBody = Overview.addTableStructure('testTableClass', 'testHeader', false);
     assert.equal(
       Overview.page.html(),
       '<div>' +
@@ -213,19 +213,46 @@ test("test_Overview.addTableStructure", function(assert) {
               '<th>Score<br>W/L/T (Max)</th>' +
               '<th>Description</th>' +
               '<th>Inactivity</th>' +
-              '<th>Decision</th>' +
             '</tr>' +
           '</thead>' +
           '<tbody>' +
           '</tbody>' +
         '</table>' +
       '</div>',
-      'Table structure is correct'
+      'Table structure without dismiss column is correct'
+    );
+    assert.ok(tableBody.is('tbody'));
+
+    Overview.page = $('<div>');
+    // check table creation with dismiss column
+    var tableBody = Overview.addTableStructure('testTableClass', 'testHeader', true);
+    assert.equal(
+      Overview.page.html(),
+      '<div>' +
+        '<h2>testHeader</h2>' +
+        '<table class="gameList testTableClass">' +
+          '<thead>' +
+            '<tr>' +
+              '<th>Game #</th>' +
+              '<th>Your Button</th>' +
+              '<th>Opponent\'s Button</th>' +
+              '<th>Opponent</th>' +
+              '<th>Score<br>W/L/T (Max)</th>' +
+              '<th>Description</th>' +
+              '<th>Inactivity</th>' +
+              '<th>Dismiss</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>',
+      'Table structure with dismiss column is correct'
     );
     assert.ok(tableBody.is('tbody'));
 
     // check addition of table spacer
-    tableBody = Overview.addTableStructure('testTableClass', 'testHeader');
+    tableBody = Overview.addTableStructure('testTableClass', 'testHeader', true);
     assert.equal(
       tableBody.html(),
       '<tr class="spacer">' +
@@ -399,200 +426,56 @@ test("test_Overview.addInactiveCol", function(assert) {
   );
 });
 
-test("test_Overview.addDecisionCol", function(assert) {
+test("test_Overview.addDismissCol", function(assert) {
   var gameInfo;
   var gameRow;
-  var gameType;
   var column;
   var links;
-  var linkTextArray;
 
   // closed game
   gameInfo = [];
   gameInfo.gameId = 500;
   gameRow = $('<tr>');
-  gameType = 'closed';
-  Overview.addDecisionCol(gameRow, gameInfo, gameType);
+  Overview.addDismissCol(gameRow, gameInfo);
   assert.equal(
     gameRow.children().length,
     1,
-    'add exactly one decision column for closed games'
+    'add exactly one dismiss column'
   );
   column = gameRow.children();
   assert.ok(
     column.is('td'),
-    'decision column is correct type for closed games'
+    'dismiss column is correct type'
   );
   assert.equal(
     column.text(),
     '[Dismiss]',
-    'decision text is correct for closed games'
+    'dismiss text is correct'
   );
   links = column.children();
   assert.equal(
     links.length,
     1,
-    'add exactly one link for closed games'
+    'add exactly one link'
   );
   assert.ok(
     links.is('a'),
-    'decision link is correct type for closed games'
+    'dismiss link is correct type'
   );
   assert.equal(
     links.attr('data-gameid'),
     '500',
-    'decision data-gameid is correct for closed games'
+    'dismiss data-gameid is correct'
   );
   assert.equal(
     links.attr('href'),
     '#',
-    'decision href is correct for closed games'
+    'dismiss href is correct'
   );
   assert.equal(
     links.text(),
     'Dismiss',
-    'decision text is correct for closed games'
-  );
-
-
-  // active game awaiting player
-  gameInfo = [];
-  gameInfo.gameId = 500;
-  gameInfo.isAwaitingAction = true;
-  gameRow = $('<tr>');
-  gameType = 'awaitingPlayer';
-  Overview.addDecisionCol(gameRow, gameInfo, gameType);
-  col = gameRow.children();
-  assert.ok(
-    col.is('td'),
-    'decision col is correct type for active game awaiting player'
-  );
-  assert.equal(
-    col.children().length,
-    0,
-    'No action for active game awaiting player'
-  );
-
-
-  // active game awaiting opponent
-  gameInfo = [];
-  gameInfo.gameId = 500;
-  gameRow = $('<tr>');
-  gameType = 'awaitingOpponent';
-  Overview.addDecisionCol(gameRow, gameInfo, gameType);
-  col = gameRow.children();
-  assert.ok(
-    col.is('td'),
-    'decision col is correct type for active game awaiting opponent'
-  );
-  assert.equal(
-    col.children().length,
-    0,
-    'No action for active game awaiting opponent'
-  );
-
-
-  // new game awaiting player
-  gameInfo = [];
-  gameInfo.gameId = 500;
-  gameInfo.gameType = 'new';
-  gameInfo.isAwaitingAction = true;
-  gameRow = $('<tr>');
-  gameType = 'awaitingPlayer';
-  Overview.addDecisionCol(gameRow, gameInfo, gameType);
-  assert.equal(
-    gameRow.children().length,
-    1,
-    'add exactly one decision column for new games awaiting player'
-  );
-  column = gameRow.children();
-  assert.ok(
-    column.is('td'),
-    'decision column is correct type for new games awaiting player'
-  );
-  assert.equal(
-    column.text(),
-    '[Accept] / [Reject]',
-    'decision text is correct for new games awaiting player'
-  );
-  links = column.children();
-  assert.equal(
-    links.length,
-    2,
-    'add exactly two links for new games awaiting player'
-  );
-  assert.ok(
-    links.is('a'),
-    'decision links are correct type for new games awaiting player'
-  );
-  linkTextArray = [];
-  links.each(function() {
-    assert.equal(
-      $(this).attr('data-gameid'),
-      '500',
-      'decision data-gameid is correct for new games awaiting player'
-    );
-
-    assert.equal(
-      $(this).attr('href'),
-      '#',
-      'decision href is correct for new games awaiting player'
-    );
-    linkTextArray.push($(this).text());
-  });
-  assert.equal(
-    linkTextArray[0],
-    'Accept',
-    'Accept text is correct'
-  );
-  assert.equal(
-    linkTextArray[1],
-    'Reject',
-    'Reject text is correct'
-  );
-
-  // new game awaiting opponent
-  gameInfo = [];
-  gameInfo.gameId = 500;
-  gameInfo.gameType = 'new';
-  gameInfo.isAwaitingAction = false;
-  gameRow = $('<tr>');
-  gameType = 'awaitingOpponent';
-  Overview.addDecisionCol(gameRow, gameInfo, gameType);
-  column = gameRow.children();
-  assert.ok(
-    column.is('td'),
-    'decision column is correct type for new games awaiting opponent'
-  );
-  assert.equal(
-    column.text(),
-    '[Cancel]',
-    'decision text is correct for new games awaiting opponent'
-  );
-  links = column.children();
-  assert.equal(
-    links.length,
-    1,
-    'add exactly one link for new games awaiting opponent'
-  );
-  assert.ok(
-    links.is('a'),
-    'decision link is correct type for new games awaiting opponent'
-  );
-  assert.equal(
-    links.attr('data-gameid'),
-    '500',
-    'decision data-gameid is correct for new games awaiting opponent'
-  );
-  assert.equal(
-    links.attr('href'),
-    '#',
-    'decision href is correct for new games awaiting opponent'
-  );
-  assert.equal(
-    links.text(),
-    'Cancel',
-    'decision text is correct for new games awaiting opponent'
+    'dismiss text is correct'
   );
 });
 

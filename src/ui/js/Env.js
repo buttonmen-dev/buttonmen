@@ -30,7 +30,10 @@ if ('unit_test' in Env) {
   Env.ui_root = '../ui/';
 
   // We also want to mock the window and history objects in unit tests
-  Env.window = { location: {} };
+  Env.window = {
+    location: {},
+    confirm: function() {return true;},
+  };
   Env.history = {
     pushState: function(state, title, url) {
       Env.history.state = state;

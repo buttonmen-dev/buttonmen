@@ -340,7 +340,8 @@ class BMInterface {
 
             $previousPlayerIds = array();
             while ($row = $statement->fetch()) {
-                if ($row['status'] != 'COMPLETE') {
+                if (($row['status'] != 'COMPLETE') &&
+                    ($row['status'] != 'REJECTED')) {
                     $this->set_message(
                         'Game create failed because the previous game has not been completed yet.'
                     );

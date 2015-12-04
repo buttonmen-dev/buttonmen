@@ -3,10 +3,6 @@ var Overview = {};
 
 Overview.bodyDivId = 'overview_page';
 
-// We only need one game state for this module, so just reproduce the
-// setting here rather than importing Game.js
-Overview.GAME_STATE_END_GAME = 60;
-
 Overview.MONITOR_TIMEOUT = 60;
 Overview.STALENESS_DAYS = 14;
 Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
@@ -213,6 +209,7 @@ Overview.pageAddGameTable = function(
   ) {
   var gamesource;
   var tableClass;
+  var showDismiss = false;
 
   switch (gameType) {
   case 'closed':
@@ -229,6 +226,7 @@ Overview.pageAddGameTable = function(
     });
 
     tableClass = 'closedGames';
+    showDismiss = true;
     break;
   default:
     // show both active and new games under 'Active' games
@@ -254,9 +252,10 @@ Overview.pageAddGameTable = function(
   }
 
   Overview.addTableRows(
-    Overview.addTableStructure(tableClass, sectionHeader),
+    Overview.addTableStructure(tableClass, sectionHeader, showDismiss),
     gamesource,
-    gameType
+    gameType,
+    showDismiss
   );
 };
 
@@ -266,7 +265,7 @@ Overview.addTypeToGameSource = function(gamesource, gameType) {
   }
 };
 
-Overview.addTableStructure = function(tableClass, sectionHeader) {
+Overview.addTableStructure = function(tableClass, sectionHeader, showDismiss) {
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
 
   if (tableBody.length === 0) {
@@ -289,7 +288,9 @@ Overview.addTableStructure = function(tableClass, sectionHeader) {
     }));
     headerRow.append($('<th>', {'text': 'Description', }));
     headerRow.append($('<th>', {'text': 'Inactivity', }));
-    headerRow.append($('<th>', {'text': 'Decision', }));
+    if (showDismiss) {
+      headerRow.append($('<th>', {'text': 'Dismiss', }));
+    }
     tableHead.append(headerRow);
     table.append(tableHead);
 
@@ -313,7 +314,7 @@ Overview.addTableStructure = function(tableClass, sectionHeader) {
   return tableBody;
 };
 
-Overview.addTableRows = function(tableBody, gamesource, gameType) {
+Overview.addTableRows = function(tableBody, gamesource, gameType, showDismiss) {
   var gameInfo;
   var gameRow;
 
@@ -332,7 +333,9 @@ Overview.addTableRows = function(tableBody, gamesource, gameType) {
     Overview.addScoreCol(gameRow, gameInfo);
     Overview.addDescCol(gameRow, gameInfo.gameDescription);
     Overview.addInactiveCol(gameRow, gameInfo.inactivity);
-    Overview.addDecisionCol(gameRow, gameInfo, gameType);
+    if (showDismiss) {
+      Overview.addDismissCol(gameRow, gameInfo);
+    }
 
     tableBody.append(gameRow);
   }
@@ -419,56 +422,20 @@ Overview.addInactiveCol = function(gameRow, inactivity) {
   gameRow.append($('<td>', { 'text': inactivity, }));
 };
 
-Overview.addDecisionCol = function(gameRow, gameInfo, gameType) {
-  var decisionTd = $('<td>');
-  decisionTd.css('white-space', 'nowrap');
-  gameRow.append(decisionTd);
+Overview.addDismissCol = function(gameRow, gameInfo) {
+  var dismissTd = $('<td>');
+  dismissTd.css('white-space', 'nowrap');
+  gameRow.append(dismissTd);
 
-  if (gameType == 'closed') {
-    var dismissLink = $('<a>', {
-      'text': 'Dismiss',
-      'href': '#',
-      'data-gameId': gameInfo.gameId,
-    });
-    dismissLink.click(Overview.formDismissGame);
-    decisionTd.append('[')
-              .append(dismissLink)
-              .append(']');
-  } else if ((gameType == 'awaitingPlayer') &&
-             (gameInfo.gameType == 'new') &&
-             gameInfo.isAwaitingAction) {
-    var acceptLink = $('<a>', {
-      'text': 'Accept',
-      'href': '#',
-      'data-gameId': gameInfo.gameId,
-    });
-    acceptLink.click(Overview.formAcceptGame);
-    decisionTd.append('[')
-              .append(acceptLink)
-              .append('] / ');
-
-    var rejectLink = $('<a>', {
-      'text': 'Reject',
-      'href': '#',
-      'data-gameId': gameInfo.gameId,
-    });
-    rejectLink.click(Overview.formRejectGame);
-    decisionTd.append('[')
-              .append(rejectLink)
-              .append(']');
-  } else if ((gameType == 'awaitingOpponent') &&
-             (gameInfo.gameType == 'new')) {
-    var cancelLink = $('<a>', {
-      'text': 'Cancel',
-      'href': '#',
-      'data-gameId': gameInfo.gameId,
-    });
-    cancelLink.click(Overview.formCancelGame);
-
-    decisionTd.append('[')
-              .append(cancelLink)
-              .append(']');
-  }
+  var dismissLink = $('<a>', {
+    'text': 'Dismiss',
+    'href': '#',
+    'data-gameId': gameInfo.gameId,
+  });
+  dismissLink.click(Overview.formDismissGame);
+  dismissTd.append('[')
+           .append(dismissLink)
+           .append(']');
 };
 
 Overview.linkTextStub = function(gameInfo, gameType) {
