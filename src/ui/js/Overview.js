@@ -595,6 +595,14 @@ Overview.formAcceptGame = function(e) {
 
 Overview.formCancelGame = function(e) {
   e.preventDefault();
+
+  var doGameCancel = Env.window.confirm(
+    'Are you SURE you want to cancel this game?'
+  );
+  if (!doGameCancel) {
+    return;
+  }
+
   var argsCancel = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
@@ -627,6 +635,14 @@ Overview.formCancelGame = function(e) {
 
 Overview.formRejectGame = function(e) {
   e.preventDefault();
+
+  var doGameReject = Env.window.confirm(
+    'Are you SURE you want to reject this game?'
+  );
+  if (!doGameReject) {
+    return;
+  }
+
   var args = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
