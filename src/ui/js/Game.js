@@ -1735,7 +1735,8 @@ Game.pageAddGameHeader = function(action_desc) {
   Game.page.append($('<br>'));
 
   if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
-      Api.game.gameState == Game.GAME_STATE_END_GAME) {
+      (Api.game.gameState == Game.GAME_STATE_END_GAME ||
+       Api.game.gameState == Game.GAME_STATE_REJECTED)) {
     var dismissDiv = $('<div>');
     Game.page.append(dismissDiv);
     var dismissLink = $('<a>', {
