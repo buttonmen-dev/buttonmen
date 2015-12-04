@@ -1834,7 +1834,9 @@ class BMInterface {
             $whereParameters[':status_%%%'] = $searchFilters['status'];
         } else {
             // We'll only display games that have actually started
-            $where .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
+            $where .= 'AND (s.name = "COMPLETE" ' .
+                      'OR s.name = "ACTIVE" ' .
+                      'OR s.name = "REJECTED") ';
         }
     }
 

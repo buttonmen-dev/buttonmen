@@ -75,9 +75,10 @@ History.searchParameterInfo = {
     'source': {
       'COMPLETE': 'Completed',
       'ACTIVE': 'In Progress',
+      'REJECTED': 'Rejected / Cancelled',
     },
     'dataType': 'string',
-    'toolTip': 'Search or sort by whether the game is completed or in progress',
+    'toolTip': 'Search or sort by the game status',
   },
   'sortColumn': {
     'inputType': 'hidden',
@@ -662,6 +663,11 @@ History.buildResultsTableBody = function() {
     if (game.status == 'COMPLETE') {
       gameRow.append($('<td>', {
         'text': 'Completed',
+        'style': 'font-weight: bold;'
+      }));
+    } else if (game.status == 'REJECTED') {
+      gameRow.append($('<td>', {
+        'text': 'Rejected / Cancelled',
         'style': 'font-weight: bold;'
       }));
     } else {
