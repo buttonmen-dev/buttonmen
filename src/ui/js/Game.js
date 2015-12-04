@@ -1554,6 +1554,14 @@ Game.formPlayTurnInactive = function() {
 // "Form" for cancelling a game
 Game.formCancelGame = function(e) {
   e.preventDefault();
+
+  var doGameCancel = Env.window.confirm(
+    'Are you SURE you want to cancel this game?'
+  );
+  if (!doGameCancel) {
+    return;
+  }
+
   var argsCancel = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
@@ -1606,6 +1614,14 @@ Game.formAcceptGame = function(e) {
 // "Form" for rejecting a game
 Game.formRejectGame = function(e) {
   e.preventDefault();
+
+  var doGameReject = Env.window.confirm(
+    'Are you SURE you want to reject this game?'
+  );
+  if (!doGameReject) {
+    return;
+  }
+
   var args = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
