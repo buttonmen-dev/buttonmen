@@ -434,7 +434,7 @@ class BMInterface {
         if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
             if (('reject' == $decision) &&
                 ($playerId == $game->playerIdArray[0])) {
-                $decision = 'cancel';
+                $decision = 'withdraw';
             }
             $this->set_message(
                 'Your decision to ' .

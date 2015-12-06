@@ -1442,7 +1442,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'gameId' => $gameId,
             'action' => 'reject',
         );
-        $retval = $this->verify_api_failure($args, 'Your decision to cancel the game failed because the game has been updated since you loaded the page');
+        $retval = $this->verify_api_failure($args, 'Your decision to withdraw the game failed because the game has been updated since you loaded the page');
     }
 
     public function test_request_reactToNewGameReject() {
