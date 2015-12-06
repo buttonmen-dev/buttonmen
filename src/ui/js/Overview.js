@@ -442,7 +442,7 @@ Overview.linkTextStub = function(gameInfo, gameType) {
   if (gameInfo.gameType == 'new') {
     return 'NEW';
   } else if (gameInfo.gameType == 'rejected') {
-    return 'REJECTED';
+    return 'CANCELLED';
   } else if (gameInfo.gameType == 'completed') {
     if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
       return 'WON';

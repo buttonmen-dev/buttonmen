@@ -493,7 +493,7 @@ test("test_Overview.linkTextStub", function(assert) {
   gameInfo.gameType = 'rejected';
   assert.equal(
     Overview.linkTextStub(gameInfo, gameType),
-    'REJECTED',
+    'CANCELLED',
     'rejected game stub'
   );
 
