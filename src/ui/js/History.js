@@ -70,12 +70,12 @@ History.searchParameterInfo = {
       '(for completed games, this is the player who won)',
   },
   'status': {
-    'text': 'Completed?',
+    'text': 'Game status',
     'inputType': 'select',
     'source': {
       'COMPLETE': 'Completed',
       'ACTIVE': 'In Progress',
-      'REJECTED': 'Rejected / Cancelled',
+      'REJECTED': 'Cancelled',
     },
     'dataType': 'string',
     'toolTip': 'Search or sort by the game status',
@@ -667,8 +667,8 @@ History.buildResultsTableBody = function() {
       }));
     } else if (game.status == 'REJECTED') {
       gameRow.append($('<td>', {
-        'text': 'Rejected / Cancelled',
-        'style': 'font-weight: bold;'
+        'text': 'Cancelled',
+        'style': 'color: #aaaaaa;'
       }));
     } else {
       gameRow.append($('<td>', {
