@@ -439,7 +439,8 @@ class BMInterface {
             $this->set_message(
                 'Your decision to ' .
                 $decision .
-                ' the game failed because the game has been updated in the meanwhile'
+                ' the game failed because the game has been updated ' .
+                'since you loaded the page'
             );
             return;
         }

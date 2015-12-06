@@ -1433,6 +1433,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($retdata, $dummydata,
             "Real and dummy game joining return values should both be true");
+
+       // If the creating player tries to reject the game after the target player
+        // has already accepted it, the API behavior should be reasonable
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $args = array(
+            'type' => 'reactToNewGame',
+            'gameId' => $gameId,
+            'action' => 'reject',
+        );
+        $retval = $this->verify_api_failure($args, 'Your decision to cancel the game failed because the game has been updated since you loaded the page');
     }
 
     public function test_request_reactToNewGameReject() {
