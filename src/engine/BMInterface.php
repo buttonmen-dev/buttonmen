@@ -433,6 +433,16 @@ class BMInterface {
         $game = $this->load_game($gameId);
 
         if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
+            if (('reject' == $decision) &&
+                ($playerId == $game->playerIdArray[0])) {
+                $decision = 'withdraw';
+            }
+            $this->set_message(
+                'Your decision to ' .
+                $decision .
+                ' the game failed because the game has been updated ' .
+                'since you loaded the page'
+            );
             return;
         }
 
