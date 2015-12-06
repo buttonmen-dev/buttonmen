@@ -118,7 +118,7 @@ class BMClientParser(bmapi.BMClient):
         retval = self.load_game_data(game)
         # if that didn't work, raise an exception
         if not retval.status == 'ok':
-          raise ValueError, "Failed to call loadGameData, got: " + retval
+          raise ValueError, "Failed to call loadGameData, got: " + retval.message
         # if we're still here, we have the game data
         data = retval.data
         # if the game is completed
@@ -130,7 +130,7 @@ class BMClientParser(bmapi.BMClient):
     else:
       retval = self.load_game_data(game)
       if not retval.status == 'ok':
-        raise ValueError, "Failed to call loadGameData, got: " + retval
+        raise ValueError, "Failed to call loadGameData, got: " + retval.message
       data = retval.data
     # either way, at this point we have the game data in 'data', and we're
     # done doing anything cache-related
