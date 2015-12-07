@@ -368,7 +368,7 @@ Game.actionShowRejectedGame = function() {
   Game.form = null;
 
   Game.page = $('<div>');
-  Game.pageAddGameHeader('This game has been rejected or cancelled');
+  Game.pageAddGameHeader('This game has been cancelled');
 
   var dieEndgameTable = $('<table>');
   var dieEndgameTr = $('<tr>');
@@ -1554,6 +1554,14 @@ Game.formPlayTurnInactive = function() {
 // "Form" for cancelling a game
 Game.formCancelGame = function(e) {
   e.preventDefault();
+
+  var doGameCancel = Env.window.confirm(
+    'Are you SURE you want to withdraw this game?'
+  );
+  if (!doGameCancel) {
+    return;
+  }
+
   var argsCancel = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
@@ -1564,7 +1572,7 @@ Game.formCancelGame = function(e) {
     'gameId': $(this).attr('data-gameId'),
   };
   var messages = {
-    'ok': { 'type': 'fixed', 'text': 'Successfully cancelled game', },
+    'ok': { 'type': 'fixed', 'text': 'Successfully withdrew game', },
     'notok': { 'type': 'server' },
   };
   Api.apiFormPost(
@@ -1606,6 +1614,14 @@ Game.formAcceptGame = function(e) {
 // "Form" for rejecting a game
 Game.formRejectGame = function(e) {
   e.preventDefault();
+
+  var doGameReject = Env.window.confirm(
+    'Are you SURE you want to reject this game?'
+  );
+  if (!doGameReject) {
+    return;
+  }
+
   var args = {
     'type': 'reactToNewGame',
     'gameId': $(this).attr('data-gameId'),
@@ -1774,7 +1790,7 @@ Game.pageAddGameHeader = function(action_desc) {
       acceptRejectDiv.append(rejectLink);
     } else {
       var cancelLink = $('<a>', {
-        'text': '[Cancel Game]',
+        'text': '[Withdraw Game]',
         'href': '#',
         'data-gameId': Api.game.gameId,
       });
