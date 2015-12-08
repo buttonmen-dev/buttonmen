@@ -95,12 +95,14 @@ Overview.showPage = function() {
   Overview.page = $('<div>');
 
   var gameCountText;
-  var numGames=Api.new_games.nGames;
-  numGames+=Api.active_games.games.awaitingPlayer.length;
-  if (numGames > 0) {
-    gameCountText='('+numGames+') ';
+  var numGames = Api.new_games.nGames;
+  numGames += Api.active_games.games.awaitingPlayer.length;
+  if (numGames > 1) {
+    gameCountText = '(' + numGames + ' games waiting) &mdash; ';
+  } else if (numGames == 1) {
+    gameCountText = '(1 game waiting) &mdash; ';
   }
-  $('title').html(gameCountText+'Button Men Online');
+  $('title').html(gameCountText + 'Button Men Online');
 
   Overview.pageAddNewgameLink();
 
@@ -142,8 +144,6 @@ Overview.showPage = function() {
 
 Overview.executeMonitor = function() {
   Api.automatedApiCall = true;
-
-  $('#favicon').attr('href','/favicon_monitor.ico');
 
   if (Api.user_prefs.monitor_redirects_to_game &&
       Api.user_prefs.monitor_redirects_to_forum) {

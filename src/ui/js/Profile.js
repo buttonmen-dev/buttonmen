@@ -2,6 +2,7 @@
 var Profile = {};
 
 Profile.bodyDivId = 'profile_page';
+Profile.pageTitle = 'Profile &mdash; Button Men Online';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -21,7 +22,7 @@ Profile.showLoggedInPage = function() {
 Profile.getProfile = function(callback) {
   var playerName = Env.getParameterByName('player');
 
-  $('title').html(playerName+ ' &mdash; Button Men Online');
+  $('title').html(playerName + ' &mdash; Profile &mdash; Button Men Online');
 
   Api.loadProfileInfo(playerName, callback);
 };

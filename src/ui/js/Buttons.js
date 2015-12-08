@@ -2,6 +2,7 @@
 var Buttons = {};
 
 Buttons.bodyDivId = 'buttons_page';
+Buttons.pageTitle = 'Buttons &mdash; Button Men Online';
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -55,7 +56,7 @@ Buttons.showButton = function() {
     break;
   }
 
-  $('title').html(buttonName + '&mdash; Button Men Online');
+  $('title').html(buttonName + ' &mdash; ' + Buttons.pageTitle);
 
   if (Api.button.list[Buttons.buttonName] === undefined) {
     Env.message = {
@@ -178,7 +179,7 @@ Buttons.showSet = function() {
     break;
   }
 
-  $('title').html(setName + '&mdash; Button Men Online');
+  $('title').html(setName + ' &mdash; ' + Buttons.pageTitle);
 
   if (Api.buttonSet.list[Buttons.setName] === undefined) {
     Env.message = {
@@ -228,7 +229,7 @@ Buttons.showSetList = function() {
     return;
   }
 
-  $('title').html('Buttons &mdash; Button Men Online');
+  $('title').html(Buttons.pageTitle);
 
   var mainDiv = $('<div>', { 'class': 'allSets' });
 

@@ -4,6 +4,7 @@ var Forum = {
 };
 
 Forum.bodyDivId = 'forum_page';
+Forum.pageTitle = 'Forum &mdash; Button Men Online';
 
 Forum.OPEN_STAR = '&#9734;';
 Forum.SOLID_STAR = '&#9733;';
@@ -63,8 +64,7 @@ Forum.showLoggedInPage = function() {
     'threadId': Env.getParameterByName('threadId'),
     'postId': Env.getParameterByName('postId'),
   };
-  Env.history.replaceState(state, 'Forum &mdash; Button Men Online',
-    Env.window.location.hash);
+  Env.history.replaceState(state, Forum.pageTitle, Env.window.location.hash);
   Forum.showPage(state);
 };
 
@@ -93,7 +93,7 @@ Forum.showOverview = function() {
     return;
   }
 
-  $('title').html('Forum &mdash; Button Men Online');
+  $('title').html(Forum.pageTitle);
 
   var table = $('<table>', { 'class': 'boards' });
   Forum.page.append(table);
@@ -150,9 +150,8 @@ Forum.showBoard = function() {
     return;
   }
 
-  var pageTitle = Api.forum_board.boardName;
-  pageTitle += ' &mdash; Button Men Online';
-  $('title').html(pageTitle);
+  $('title').html(Api.forum_board.boardName +
+    ' &mdash; ' + Forum.pageTitle);
 
   var table = $('<table>', {
     'class': 'threads'
@@ -273,7 +272,7 @@ Forum.showThread = function() {
   var tempDiv = $('<div>', { 'text': Api.forum_thread.threadTitle});
   var pageTitle = tempDiv.html();
 
-  $('title').html(pageTitle + ' &mdash; Button Men Online');
+  $('title').html(pageTitle + ' &mdash; ' + Forum.pageTitle);
 
   var table = $('<table>', { 'class': 'posts' });
   Forum.page.append(table);
@@ -415,8 +414,7 @@ Forum.arrangePage = function() {
 Forum.formLinkToSubPage = function(e) {
   e.preventDefault();
   var state = Forum.readStateFromElement(this);
-  Env.history.pushState(state, 'Forum &mdash; Button Men Online',
-    Forum.buildUrlHash(state));
+  Env.history.pushState(state, Forum.pageTitle, Forum.buildUrlHash(state));
   Env.message = null;
   Forum.showPage(state);
 };
