@@ -103,6 +103,10 @@ class BMPlayer {
      * @param int|null $value
      */
     protected function set__playerId($value) {
+        if (!is_null($value) && !is_int($value)) {
+            throw new InvalidArgumentException('Player ID must be an integer or null');
+        }
+
         if (!is_null($value)) {
             $this->playerId = intval($value);
         }
@@ -214,7 +218,7 @@ class BMPlayer {
      * @return mixed
      */
     public function __get($property) {
-        $funcName = 'get__'.$property;
+        $funcName = 'get__' . $property;
         if (method_exists($this, $funcName)) {
             return $this->$funcName();
         } elseif (property_exists($this, $property)) {
@@ -229,7 +233,7 @@ class BMPlayer {
      * @param mixed $value
      */
     public function __set($property, $value) {
-        $funcName = 'set__'.$property;
+        $funcName = 'set__' . $property;
         if (method_exists($this, $funcName)) {
             $this->$funcName($value);
         } else {

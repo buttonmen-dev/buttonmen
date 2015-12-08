@@ -647,7 +647,11 @@ class BMInterface {
             $pos = $row['position'];
             if (isset($pos)) {
                 $player = $game->playerArray[$pos];
-                $player->playerId = $row['player_id'];
+                if (isset($row['player_id'])) {
+                    $player->playerId = (int)$row['player_id'];
+                } else {
+                    $player->playerId = NULL;
+                }
                 $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
                 $game->setArrayPropEntry('fireOvershootingArray', $pos, (bool)$row['fire_overshooting']);
                 $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);

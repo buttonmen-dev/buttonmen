@@ -26,7 +26,7 @@ class BMPlayerTest extends PHPUnit_Framework_TestCase {
 
     }
 
-    public function test_dummp() {
+    public function test_dummy() {
         // this is here to make PHPUnit happy
     }
 }

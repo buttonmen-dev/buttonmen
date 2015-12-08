@@ -226,13 +226,6 @@ class BMGame {
      */
     protected $gameState;
 
-//    /**
-//     * Boolean array whether each player needs to perform an action
-//     *
-//     * @var array
-//     */
-//    protected $waitingOnActionArray;
-
     /**
      * Boolean array whether each player has enabled autopass
      *

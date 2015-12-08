@@ -89,7 +89,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::APPLY_HANDICAPS,
                             $this->object->gameState);
 
-        $this->object->playerIdArray = array('12345', '54321');
+        $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::APPLY_HANDICAPS;
         $this->object->gameScoreArrayArray = array(array(0, 0, 0),array(0, 0, 0));
         $this->object->maxWins = 3;
@@ -97,7 +97,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::CHOOSE_JOIN_GAME,
                             $this->object->gameState);
 
-        $this->object->playerIdArray = array('12345', '54321');
+        $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::APPLY_HANDICAPS;
         $this->object->gameScoreArrayArray = array(array(3, 0, 0),array(0, 3, 0));
         $this->object->maxWins = 3;
