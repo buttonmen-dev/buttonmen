@@ -106,7 +106,7 @@ class BMClientParser(bmapi.BMClient):
       if not os.path.isdir(self.cachedir):
         os.makedirs(self.cachedir)
       # set the path to the cache file for this game
-      cachefile = self.cachedir + "/{0:010d}.json".format(game)
+      cachefile = self.cachedir + "/{0:010d}.json".format(int(game))
       # if the cache already has a file for this game
       if os.path.isfile(cachefile):
         # get the game data from the cache
