@@ -27,6 +27,51 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::__get
+     */
+    public function test_get_BMPlayer_props() {
+        $player1 = new BMPlayer;
+        $player2 = new BMPlayer;
+
+        $player1->button = new BMButton;
+        $player1->button->load('(1) (2) (4) (X)', 'test1');
+
+        $player2->button = new BMButton;
+        $player2->button->load('(4) (Y)', 'test2');
+
+        $die0_0 = new BMDie;
+        $die0_0->init(5);
+        $die0_1 = new BMDie;
+        $die0_1->init(7);
+        $die0_2 = new BMDie;
+        $die0_2->init(13);
+
+        $die1_0 = new BMDie;
+        $die1_0->init(11);
+
+        $player1->activeDieArray = array($die0_0, $die0_1, $die0_2);
+        $player2->activeDieArray = array($die1_0);
+
+        $this->object->playerArray = array($player1, $player2);
+
+        $buttonArray = $this->object->buttonArray;
+        $this->assertCount(2, $buttonArray);
+        $this->assertEquals('(1) (2) (4) (X)', $this->object->buttonArray[0]->recipe);
+        $this->assertEquals('test1', $this->object->buttonArray[0]->name);
+        $this->assertEquals('(4) (Y)', $this->object->buttonArray[1]->recipe);
+        $this->assertEquals('test2', $this->object->buttonArray[1]->name);
+
+        $activeDieArrayArray = $this->object->activeDieArrayArray;
+        $this->assertCount(2, $activeDieArrayArray);
+        $this->assertCount(3, $activeDieArrayArray[0]);
+        $this->assertCount(1, $activeDieArrayArray[1]);
+        $this->assertEquals(5, $activeDieArrayArray[0][0]->max);
+        $this->assertEquals(7, $activeDieArrayArray[0][1]->max);
+        $this->assertEquals(13, $activeDieArrayArray[0][2]->max);
+        $this->assertEquals(11, $activeDieArrayArray[1][0]->max);
+    }
+
+    /**
      * @covers BMGame::update_game_state_start_game
      */
     public function test_update_game_state_start_game() {
