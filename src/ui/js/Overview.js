@@ -95,11 +95,11 @@ Overview.showPage = function() {
   Overview.page = $('<div>');
 
   var gameCountText;
-  var numGames = Api.new_games.nGames;
-  numGames += Api.active_games.games.awaitingPlayer.length;
-  if (numGames > 1) {
-    gameCountText = '(' + numGames + ' games waiting) &mdash; ';
-  } else if (numGames == 1) {
+  var nGamesAwaitingAction = Api.new_games.nGamesAwaitingAction +
+    Api.active_games.nGamesAwaitingAction;
+  if (nGamesAwaitingAction > 1) {
+    gameCountText = '(' + nGamesAwaitingAction + ' games waiting) &mdash; ';
+  } else if (nGamesAwaitingAction == 1) {
     gameCountText = '(1 game waiting) &mdash; ';
   }
   $('title').html(gameCountText + 'Button Men Online');
