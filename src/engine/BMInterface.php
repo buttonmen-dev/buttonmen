@@ -340,7 +340,8 @@ class BMInterface {
 
             $previousPlayerIds = array();
             while ($row = $statement->fetch()) {
-                if ($row['status'] != 'COMPLETE') {
+                if (($row['status'] != 'COMPLETE') &&
+                    ($row['status'] != 'REJECTED')) {
                     $this->set_message(
                         'Game create failed because the previous game has not been completed yet.'
                     );
@@ -432,6 +433,16 @@ class BMInterface {
         $game = $this->load_game($gameId);
 
         if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
+            if (('reject' == $decision) &&
+                ($playerId == $game->playerIdArray[0])) {
+                $decision = 'withdraw';
+            }
+            $this->set_message(
+                'Your decision to ' .
+                $decision .
+                ' the game failed because the game has been updated ' .
+                'since you loaded the page'
+            );
             return;
         }
 
@@ -1829,7 +1840,9 @@ class BMInterface {
             $whereParameters[':status_%%%'] = $searchFilters['status'];
         } else {
             // We'll only display games that have actually started
-            $where .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
+            $where .= 'AND (s.name = "COMPLETE" ' .
+                      'OR s.name = "ACTIVE" ' .
+                      'OR s.name = "REJECTED") ';
         }
     }
 
