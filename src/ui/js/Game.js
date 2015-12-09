@@ -2527,7 +2527,7 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].button.recipe,
   });
 
-  if (player == 'opponent' && isPreOrPostGame) {
+  if (player == 'opponent' && !isPreOrPostGame) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
