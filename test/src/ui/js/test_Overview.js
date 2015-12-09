@@ -493,7 +493,7 @@ test("test_Overview.linkTextStub", function(assert) {
   gameInfo.gameType = 'rejected';
   assert.equal(
     Overview.linkTextStub(gameInfo, gameType),
-    'REJECTED',
+    'CANCELLED',
     'rejected game stub'
   );
 
@@ -670,57 +670,6 @@ test("test_Overview.pageAddIntroText", function(assert) {
     'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games'),
     'Page intro text contains the Button Men copyright');
 });
-
-test("test_Overview.formAcceptGame", function(assert) {
-  stop();
-  expect(3);
-  // Temporarily back up Overview.showLoggedInPage and replace it with
-  // a mocked version for testing
-  var showLoggedInPage = Overview.showLoggedInPage;
-  Overview.showLoggedInPage = function() {
-    Overview.showLoggedInPage = showLoggedInPage;
-    assert.equal(Env.message.text, 'Successfully accepted game',
-      'Accept game should succeed');
-    start();
-  };
-  var link = $('<a>', { 'data-gameId': 5, 'action': 'accept' });
-  Overview.formAcceptGame.call(link, $.Event());
-})
-
-test("test_Overview.formCancelGame", function(assert) {
-  stop();
-  expect(3);
-  // Temporarily back up Overview.showLoggedInPage and replace it with
-  // a mocked version for testing
-  var showLoggedInPage = Overview.showLoggedInPage;
-  Overview.showLoggedInPage = function() {
-    Overview.showLoggedInPage = showLoggedInPage;
-    assert.equal(
-      Env.message.text,
-      'Successfully cancelled game',
-      'Cancel game should succeed'
-    );
-    start();
-  };
-  var link = $('<a>', { 'data-gameId': 5 });
-  Overview.formCancelGame.call(link, $.Event());
-})
-
-test("test_Overview.formRejectGame", function(assert) {
-  stop();
-  expect(3);
-  // Temporarily back up Overview.showLoggedInPage and replace it with
-  // a mocked version for testing
-  var showLoggedInPage = Overview.showLoggedInPage;
-  Overview.showLoggedInPage = function() {
-    Overview.showLoggedInPage = showLoggedInPage;
-    assert.equal(Env.message.text, 'Successfully rejected game',
-      'Reject game should succeed');
-    start();
-  };
-  var link = $('<a>', { 'data-gameId': 5 });
-  Overview.formRejectGame.call(link, $.Event());
-})
 
 test("test_Overview.formDismissGame", function(assert) {
   stop();

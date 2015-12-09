@@ -70,14 +70,15 @@ History.searchParameterInfo = {
       '(for completed games, this is the player who won)',
   },
   'status': {
-    'text': 'Completed?',
+    'text': 'Game status',
     'inputType': 'select',
     'source': {
       'COMPLETE': 'Completed',
       'ACTIVE': 'In Progress',
+      'REJECTED': 'Cancelled',
     },
     'dataType': 'string',
-    'toolTip': 'Search or sort by whether the game is completed or in progress',
+    'toolTip': 'Search or sort by the game status',
   },
   'sortColumn': {
     'inputType': 'hidden',
@@ -663,6 +664,11 @@ History.buildResultsTableBody = function() {
       gameRow.append($('<td>', {
         'text': 'Completed',
         'style': 'font-weight: bold;'
+      }));
+    } else if (game.status == 'REJECTED') {
+      gameRow.append($('<td>', {
+        'text': 'Cancelled',
+        'style': 'color: #aaaaaa;'
       }));
     } else {
       gameRow.append($('<td>', {

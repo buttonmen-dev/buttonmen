@@ -442,7 +442,7 @@ Overview.linkTextStub = function(gameInfo, gameType) {
   if (gameInfo.gameType == 'new') {
     return 'NEW';
   } else if (gameInfo.gameType == 'rejected') {
-    return 'REJECTED';
+    return 'CANCELLED';
   } else if (gameInfo.gameType == 'completed') {
     if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
       return 'WON';
@@ -576,68 +576,6 @@ Overview.pageAddIntroText = function() {
   }));
   infopar.append(', and is used with permission.');
   Overview.page.append(infopar);
-};
-
-Overview.formAcceptGame = function(e) {
-  e.preventDefault();
-  var args = {
-    'type': 'reactToNewGame',
-    'gameId': $(this).attr('data-gameId'),
-    'action': 'accept',
-  };
-  var messages = {
-    'ok': { 'type': 'fixed', 'text': 'Successfully accepted game', },
-    'notok': { 'type': 'server' },
-  };
-  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
-    Overview.showLoggedInPage);
-};
-
-Overview.formCancelGame = function(e) {
-  e.preventDefault();
-  var argsCancel = {
-    'type': 'reactToNewGame',
-    'gameId': $(this).attr('data-gameId'),
-    'action': 'reject',
-  };
-  var argsDismiss = {
-    'type': 'dismissGame',
-    'gameId': $(this).attr('data-gameId'),
-  };
-  var messages = {
-    'ok': { 'type': 'fixed', 'text': 'Successfully cancelled game', },
-    'notok': { 'type': 'server' },
-  };
-  Api.apiFormPost(
-    argsCancel,
-    messages,
-    $(this),
-    function() {
-      Api.apiFormPost(
-        argsDismiss,      // auto-dismiss on cancel
-        messages,
-        $(this),
-        Overview.showLoggedInPage,
-        Overview.showLoggedInPage
-      );
-    },
-    Overview.showLoggedInPage
-  );
-};
-
-Overview.formRejectGame = function(e) {
-  e.preventDefault();
-  var args = {
-    'type': 'reactToNewGame',
-    'gameId': $(this).attr('data-gameId'),
-    'action': 'reject',
-  };
-  var messages = {
-    'ok': { 'type': 'fixed', 'text': 'Successfully rejected game', },
-    'notok': { 'type': 'server' },
-  };
-  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
-    Overview.showLoggedInPage);
 };
 
 Overview.formDismissGame = function(e) {
