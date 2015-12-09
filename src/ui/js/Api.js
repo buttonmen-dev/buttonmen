@@ -277,6 +277,7 @@ var Api = (function () {
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the current player's list of new games
+
   my.getNewGamesData = function(callbackfunc) {
     my.apiParsePost(
       {'type': 'loadNewGames', },
@@ -290,7 +291,7 @@ var Api = (function () {
   my.parseNewGamesData = function(data) {
     my.new_games.games = [];
     my.new_games.nGames = data.gameIdArray.length;
-    my.new_games.nGamesAwaitingAction = 0;
+    my.new_games.nGamesAwaitingAction=0;
     var i = 0;
     while (i < my.new_games.nGames) {
       var gameInfo = {
@@ -303,7 +304,7 @@ var Api = (function () {
         'isAwaitingAction': data.isAwaitingActionArray[i],
         'maxWins': data.nTargetWinsArray[i],
       };
-      if (gameInfo.isAwaitingAction == '1') {
+      if (data.isAwaitingActionArray[i] == 1) {
         my.new_games.nGamesAwaitingAction++;
       }
       my.new_games.games.push(gameInfo);
@@ -357,7 +358,7 @@ var Api = (function () {
       };
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
-        my.active_games.nGamesAwaitingAction++;
+	my.active_games.nGamesAwaitingAction++;
       } else {
         my.active_games.games.awaitingOpponent.push(gameInfo);
       }

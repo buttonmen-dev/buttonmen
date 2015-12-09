@@ -298,7 +298,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'TimeAndSpace' => array(
                 'code' => '^',
-                'description' => 'If a Time and Space Die is rerolled after it participates in an attack and rolls odd, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
+                'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
                 ),
             ),
@@ -1433,6 +1433,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($retdata, $dummydata,
             "Real and dummy game joining return values should both be true");
+
+       // If the creating player tries to reject the game after the target player
+        // has already accepted it, the API behavior should be reasonable
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $args = array(
+            'type' => 'reactToNewGame',
+            'gameId' => $gameId,
+            'action' => 'reject',
+        );
+        $retval = $this->verify_api_failure($args, 'Your decision to withdraw the game failed because the game has been updated since you loaded the page');
     }
 
     public function test_request_reactToNewGameReject() {
