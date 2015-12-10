@@ -134,6 +134,22 @@ Overview.showPage = function() {
 
   // Actually lay out the page
   Login.arrangePage(Overview.page);
+
+  Overview.updateSectionHeaderCounts('activeGames');
+  Overview.updateSectionHeaderCounts('closedGames');
+};
+
+Overview.updateSectionHeaderCounts = function(tableClass) {
+  var header = Overview.page.find(
+    'div.' + tableClass + 'Holder h2.sectionHeader'
+  );
+  var tableRows = Overview.page.find(
+    'div.' + tableClass +
+    'Holder table.gameList tbody tr:visible:not(.spacer)'
+  );
+  var count = tableRows.size();
+
+  header.text(header.attr('data-text') + ' (' + count + ')');
 };
 
 Overview.executeMonitor = function() {
@@ -278,8 +294,12 @@ Overview.addTableStructure = function(tableClass, sectionHeader, showDismiss) {
 
   if (tableBody.length === 0) {
     // create table
-    var tableDiv = $('<div>');
-    tableDiv.append($('<h2>', {'text': sectionHeader, }));
+    var tableDiv = $('<div>', { 'class': tableClass + 'Holder', });
+    tableDiv.append($('<h2>', {
+      'text': sectionHeader,
+      'class': 'sectionHeader',
+      'data-text': sectionHeader,
+    }));
     var table = $('<table>', { 'class': 'gameList ' + tableClass, });
     tableDiv.append(table);
     Overview.page.append(tableDiv);
@@ -497,6 +517,7 @@ Overview.toggleStaleGame = function() {
     'Hide stale games' :
     'Show stale games'
   );
+  Overview.updateSectionHeaderCounts('activeGames');
 };
 
 Overview.pageAddIntroText = function() {
