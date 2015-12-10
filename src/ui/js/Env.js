@@ -319,6 +319,41 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'closingHtml': '</a>',
       'escapeParameter': true,
     },
+    'button': {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml':
+          '<a class="chatButtonLink" href="buttons.html?button=###">',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
+    'set': {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml':
+          '<a class="chatButtonSetLink" href="buttons.html?set=###">',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
+    'wiki': {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml':
+          '<a class="chatWikiLink" ' +
+          'href="http://buttonweavers.wikia.com/wiki/###">',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
+    'issue': {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml':
+          '<a class="chatIssueLink" ' +
+          'href="https://github.com/buttonmen-dev/buttonmen/issues/###">' +
+          'Issue ',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
     '[': {
       'isAtomic': true,
       'openingHtml': '[',
