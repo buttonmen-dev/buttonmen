@@ -456,7 +456,8 @@ class BMInterface {
             return;
         }
 
-        $game->setArrayPropEntry('waitingOnActionArray', $playerIdx, FALSE);
+        $player = $game->playerArray[$playerIdx];
+        $player->waitingOnAction = FALSE;
         $decisionFlag = ('accept' == $decision);
         $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
 
@@ -645,7 +646,12 @@ class BMInterface {
 
             $pos = $row['position'];
             if (isset($pos)) {
-                $game->setArrayPropEntry('playerIdArray', $pos, $row['player_id']);
+                $player = $game->playerArray[$pos];
+                if (isset($row['player_id'])) {
+                    $player->playerId = (int)$row['player_id'];
+                } else {
+                    $player->playerId = NULL;
+                }
                 $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
                 $game->setArrayPropEntry('fireOvershootingArray', $pos, (bool)$row['fire_overshooting']);
                 $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);
@@ -720,7 +726,8 @@ class BMInterface {
                 if (isset($row['alt_recipe'])) {
                     $button->hasAlteredRecipe = TRUE;
                 }
-                $game->setArrayPropEntry('buttonArray', $pos, $button);
+                $player = $game->playerArray[$pos];
+                $player->button = $button;
             } else {
                 throw new InvalidArgumentException('Invalid button name.');
             }
@@ -732,12 +739,13 @@ class BMInterface {
     }
 
     protected function load_player_attributes($game, $pos, $row) {
+        $player = $game->playerArray[$pos];
         switch ($row['is_awaiting_action']) {
             case 1:
-                $game->setArrayPropEntry('waitingOnActionArray', $pos, TRUE);
+                $player->waitingOnAction = TRUE;
                 break;
             case 0:
-                $game->setArrayPropEntry('waitingOnActionArray', $pos, FALSE);
+                $player->waitingOnAction = FALSE;
                 break;
         }
 
@@ -857,9 +865,9 @@ class BMInterface {
         $statement3 = self::$conn->prepare($query);
         $statement3->execute(array(':game_id' => $game->gameId));
 
-        $activeDieArrayArray = array_fill(0, count($game->playerIdArray), array());
-        $captDieArrayArray = array_fill(0, count($game->playerIdArray), array());
-        $outOfPlayDieArrayArray = array_fill(0, count($game->playerIdArray), array());
+        $activeDieArrayArray = array_fill(0, $game->nPlayers, array());
+        $captDieArrayArray = array_fill(0, $game->nPlayers, array());
+        $outOfPlayDieArrayArray = array_fill(0, $game->nPlayers, array());
 
         while ($row = $statement3->fetch()) {
             $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
@@ -1167,19 +1175,17 @@ class BMInterface {
     }
 
     protected function save_button_recipes($game) {
-        if (isset($game->buttonArray)) {
-            foreach ($game->buttonArray as $playerIdx => $button) {
-                if (($button instanceof BMButton) &&
-                    ($button->hasAlteredRecipe)) {
-                    $query = 'UPDATE game_player_map '.
-                             'SET alt_recipe = :alt_recipe '.
-                             'WHERE game_id = :game_id '.
-                             'AND player_id = :player_id;';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':alt_recipe' => $button->recipe,
-                                              ':game_id' => $game->gameId,
-                                              ':player_id' => $game->playerIdArray[$playerIdx]));
-                }
+        foreach ($game->buttonArray as $playerIdx => $button) {
+            if (($button instanceof BMButton) &&
+                ($button->hasAlteredRecipe)) {
+                $query = 'UPDATE game_player_map '.
+                         'SET alt_recipe = :alt_recipe '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':alt_recipe' => $button->recipe,
+                                          ':game_id' => $game->gameId,
+                                          ':player_id' => $game->playerIdArray[$playerIdx]));
             }
         }
     }
@@ -1396,27 +1402,21 @@ class BMInterface {
     }
 
     protected function regenerate_essential_die_flags($game) {
-        if (!empty($game->activeDieArrayArray)) {
-            foreach ($game->activeDieArrayArray as $activeDieArray) {
-                if (!empty($activeDieArray)) {
-                    foreach ($activeDieArray as $activeDie) {
-                        if ($activeDie instanceof BMDieTwin) {
-                            // force regeneration of max, min, and BMFlagTwin
-                            $activeDie->recalc_max_min();
-                        }
+        foreach ($game->playerArray as $player) {
+            if (!empty($player->activeDieArray)) {
+                foreach ($player->activeDieArray as $activeDie) {
+                    if ($activeDie instanceof BMDieTwin) {
+                        // force regeneration of max, min, and BMFlagTwin
+                        $activeDie->recalc_max_min();
                     }
                 }
             }
-        }
 
-        if (!empty($game->capturedDieArrayArray)) {
-            foreach ($game->capturedDieArrayArray as $capturedDieArray) {
-                if (!empty($capturedDieArray)) {
-                    foreach ($capturedDieArray as $capturedDie) {
-                        if ($capturedDie instanceof BMDieTwin) {
-                            // force regeneration of max, min, and BMFlagTwin
-                            $capturedDie->recalc_max_min();
-                        }
+            if (!empty($player->capturedDieArray)) {
+                foreach ($player->capturedDieArray as $capturedDie) {
+                    if ($capturedDie instanceof BMDieTwin) {
+                        // force regeneration of max, min, and BMFlagTwin
+                        $capturedDie->recalc_max_min();
                     }
                 }
             }
@@ -3517,7 +3517,6 @@ class BMInterface {
                     return FALSE;
             }
             $this->save_game($game);
-
             return TRUE;
         } catch (Exception $e) {
             error_log(

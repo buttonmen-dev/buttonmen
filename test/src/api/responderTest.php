@@ -1473,7 +1473,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This reproduces a bug in which cancelling a game causes the
      * target player to gain an additional pending game.
