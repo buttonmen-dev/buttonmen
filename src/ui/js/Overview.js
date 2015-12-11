@@ -90,6 +90,16 @@ Overview.getOverview = function(callback) {
 Overview.showPage = function() {
   Overview.page = $('<div>');
 
+  var nGamesAwaitingAction = Api.new_games.nGamesAwaitingAction +
+    Api.active_games.nGamesAwaitingAction;
+  var gameCountText='';
+  if (nGamesAwaitingAction > 1) {
+    gameCountText = '(' + nGamesAwaitingAction + ' games waiting) &mdash; ';
+  } else if (nGamesAwaitingAction == 1) {
+    gameCountText = '(1 game waiting) &mdash; ';
+  }
+  $('title').html(gameCountText + 'Button Men Online');
+
   Overview.pageAddNewgameLink();
 
   if (Overview.monitorIsOn) {

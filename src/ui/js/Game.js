@@ -1704,9 +1704,17 @@ Game.pageAddGameHeader = function(action_desc) {
     'Game #' + Api.game.gameId + Game.SPACE_BULLET +
       Api.game.player.playerName + ' (' + Api.game.player.button.name +
       ') vs. ' + Api.game.opponent.playerName + ' (' +
-      Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET +
-      'Round #' + Api.game.roundNumber;
-  $('title').html('Button Men Online &mdash; ' + gameTitle);
+      Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET + ' ';
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    gameTitle += 'Completed';
+  } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
+    gameTitle += 'Cancelled';
+  } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+    gameTitle += 'New Game';
+  } else {
+    gameTitle += 'Round #' + Api.game.roundNumber;
+  }
+  $('title').html(gameTitle + ' &mdash; Button Men Online');
 
   Game.page.append(
     $('<div>', {
