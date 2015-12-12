@@ -434,7 +434,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
         if (replacements[tagName].escapeParameter) {
           // We need to HTML decode the parameter before we URI encode it, 
           // and the easiest way is to pretend we're going to render it
-          var tempDiv = $("<div>");
+          var tempDiv = $('<div>');
           tempDiv.html(tagParameter);
           var decodedTagParameter = tempDiv.text();
           htmlOpeningTag = htmlOpeningTag.replace(
