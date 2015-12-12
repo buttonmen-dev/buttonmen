@@ -322,6 +322,11 @@ select.center {
     outline: 0;
 }
 
+span.skill_title {
+    font-weight: bold;
+    line-height: 1.5;
+}
+
 span.skill_desc {
     border-bottom: 1px dotted #000000;
     text-decoration: none;
