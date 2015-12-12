@@ -414,7 +414,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
         }
       }
       tagName = tagName.toLowerCase();
-      var tagParameter = match[i+1] || '';
+      var tagParameter = match[i + 1] || '';
       var stuffAfterTag = match[match.length - 1];
 
       outputHtml += stuffBeforeTag;
@@ -432,8 +432,15 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
         }
         // Insert things like the game ID into a game.html link
         if (replacements[tagName].escapeParameter) {
-          htmlOpeningTag =
-            htmlOpeningTag.replace('###', encodeURIComponent(tagParameter));
+          // We need to HTML decode the parameter before we URI encode it, 
+          // and the easiest way is to pretend we're going to render it
+          var tempDiv = $("<div>");
+          tempDiv.html(tagParameter);
+          var decodedTagParameter = tempDiv.text();
+          htmlOpeningTag = htmlOpeningTag.replace(
+            '###',
+            encodeURIComponent(decodedTagParameter)
+          );
         } else {
           htmlOpeningTag = htmlOpeningTag.replace('###', tagParameter);
         }

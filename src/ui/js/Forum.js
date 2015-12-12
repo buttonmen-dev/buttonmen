@@ -801,7 +801,9 @@ Forum.buildHelp = function() {
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
-    'html': '[button=Kublai]: <a href="buttons.html?button=Kublai">Kublai</a>',
+    'html': '[button=Luna & Artemis]: ' +
+            '<a href="buttons.html?button=Luna%20%26%20Artemis">' +
+            'Luna & Artemis</a>',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
