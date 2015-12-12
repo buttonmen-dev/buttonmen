@@ -1935,7 +1935,7 @@ Game.pageAddSkillListFooter = function() {
   });
 
   if (0 === (dieSkillSpanArray.length + buttonSkillSpanArray.length)) {
-    gameSkillDiv.append('none');
+    gameSkillDiv.append('Skills in this game: none');
   } else {
     if (buttonSkillSpanArray.length > 0) {
       gameSkillDiv.append(
