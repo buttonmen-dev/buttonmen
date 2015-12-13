@@ -1704,9 +1704,17 @@ Game.pageAddGameHeader = function(action_desc) {
     'Game #' + Api.game.gameId + Game.SPACE_BULLET +
       Api.game.player.playerName + ' (' + Api.game.player.button.name +
       ') vs. ' + Api.game.opponent.playerName + ' (' +
-      Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET +
-      'Round #' + Api.game.roundNumber;
-  $('title').html('Button Men Online &mdash; ' + gameTitle);
+      Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET + ' ';
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    gameTitle += 'Completed';
+  } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
+    gameTitle += 'Cancelled';
+  } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
+    gameTitle += 'New Game';
+  } else {
+    gameTitle += 'Round #' + Api.game.roundNumber;
+  }
+  $('title').html(gameTitle + ' &mdash; Button Men Online');
 
   Game.page.append(
     $('<div>', {
@@ -1883,51 +1891,90 @@ Game.pageAddGameNavigationFooter = function() {
 
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
-  var gameSkillDiv = $('<div>', {
-    'text': 'Skills in this game: ',
-  });
+  var gameSkillDiv = $('<div>');
 
-  var firstSkill = true;
-  var firstInteract;
+  var dieSkillSpanArray = [];
+  var buttonSkillSpanArray = [];
+  var interactDescArray;
   var skillDesc;
+  var skillSpan;
+
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
     skillDesc = skill;
     if (info.code) {
+      skill += ' (' + info.code + ')';
       skillDesc += ' (' + info.code + ')';
     }
     skillDesc += ': ' + info.description;
 
-    firstInteract = true;
+    interactDescArray = [];
     $.each(info.interacts, function(otherSkill, interactDesc) {
-      if (firstInteract) {
-        skillDesc += '\n\nInteraction with other skills in this game:';
-      }
-      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+      interactDescArray.push(' * ' + otherSkill + ': ' + interactDesc);
     });
 
-    if (!(firstSkill)) {
-      gameSkillDiv.append('&nbsp;&nbsp;');
+    if (interactDescArray.length > 0) {
+      skillDesc += '\n\nInteraction with other skills: \n';
+      skillDesc += interactDescArray.join('\n');
     }
-    gameSkillDiv.append($('<span>', {
+
+    skillSpan = $('<span>').append($('<span>', {
       'text': skill,
       'title': skillDesc,
       'class': 'skill_desc',
-    }));
-    gameSkillDiv.append($('<span>', {
+    })).append($('<span>', {
       'text': 'i',
       'title': skillDesc,
       'class': 'info_icon',
     }));
-    firstSkill = false;
+
+    if (info.code) {
+      dieSkillSpanArray.push(skillSpan);
+    } else {
+      buttonSkillSpanArray.push(skillSpan);
+    }
   });
 
-  if (firstSkill) {
-    gameSkillDiv.append('none');
+  if (0 === (dieSkillSpanArray.length + buttonSkillSpanArray.length)) {
+    gameSkillDiv.append('Skills in this game: none');
+  } else {
+    if (buttonSkillSpanArray.length > 0) {
+      gameSkillDiv.append(
+        Game.createSkillDiv(
+          buttonSkillSpanArray,
+          'Button specials'
+        )
+      );
+    }
+    if (dieSkillSpanArray.length > 0) {
+      gameSkillDiv.append(
+        Game.createSkillDiv(
+          dieSkillSpanArray,
+          'Die skills'
+        )
+      );
+    }
   }
 
   Game.page.append($('<br>'));
   Game.page.append(gameSkillDiv);
   return true;
+};
+
+Game.createSkillDiv = function(spanArray, divTitle) {
+  var skillDiv = $('<div>');
+  skillDiv = skillDiv.append($('<span>', {
+    'text': divTitle + ': ',
+    'class': 'skill_title',
+  }));
+
+  $.each(spanArray, function(index, value) {
+    skillDiv = skillDiv.append(value);
+    if (index < spanArray.length - 1) {
+      skillDiv.append('&nbsp;&nbsp;');
+    }
+  });
+
+  return skillDiv;
 };
 
 // Display links to create new games similar to this one

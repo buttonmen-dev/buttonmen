@@ -372,6 +372,7 @@ var Api = (function () {
     }
 
     parserargs.target.nGames = data.gameIdArray.length;
+    parserargs.target.nGamesAwaitingAction = 0;
     for (var i = 0; i < parserargs.target.nGames; i++) {
       var gameInfo = {
         'gameId': data.gameIdArray[i],
@@ -397,6 +398,7 @@ var Api = (function () {
       if (parserargs.isSplit) {
         if (gameInfo.isAwaitingAction == '1') {
           parserargs.target.games.awaitingPlayer.push(gameInfo);
+          parserargs.target.nGamesAwaitingAction++;
         } else {
           parserargs.target.games.awaitingOpponent.push(gameInfo);
         }
