@@ -108,7 +108,7 @@ Login.getLoginHeader = function() {
 Login.getFooter = function() {
   Login.footer = $('<div>');
 
-  var copyright = $('<p>');
+  var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
     'Button Men is copyright 1999, 2015 James Ernest and Cheapass Games: ');
@@ -123,7 +123,7 @@ Login.getFooter = function() {
   }));
   copyright.append(', and is used with permission.');
 
-  var contact = $('<p>');
+  var contact = $('<div>');
   Login.footer.append(contact);
   contact.append(
     'If you have any trouble with this website, you can open a ticket at ');
@@ -208,6 +208,7 @@ Login.arrangeBody = function(page, form, submitSelector) {
 };
 
 Login.arrangeFooter = function() {
+  $('#c_footer').append('<br />');
   $('#c_footer').append($('<hr>', { 'id': 'footer_separator', }));
   $('#c_footer').append($('<div>', {'id': 'footer', }));
 

@@ -5,9 +5,12 @@
     Description: Stylesheet for the GUI for the Button Men Online Game
 */
 
-html,
+html {
+    height:99%;
+}
+
 body {
-    height:100%;
+    height:98%;
 }
 
 div {
