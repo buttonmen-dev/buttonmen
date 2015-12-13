@@ -38,6 +38,8 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
                           BMGameState::END_ROUND);
         $this->assertTrue(BMGameState::END_ROUND <
                           BMGameState::END_GAME);
+        $this->assertTrue(BMGameState::END_GAME <
+                          BMGameState::REJECTED);
     }
 
     /**

@@ -401,6 +401,49 @@ test("test_Game.parseAuxiliaryDieOptions", function(assert) {
   });
 });
 
+test("test_Game.actionChooseJoinGameActive", function(assert) {
+//  james: incomplete for the moment
+});
+
+test("test_Game.buttonTableWithoutDice", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
+  Game.getCurrentGame(function() {
+    var table = Game.buttonTableWithoutDice();
+    assert.ok(table.is('table'), 'button table without dice has correct type');
+    assert.ok(table.children().is('tbody'),'button table has tbody');
+    assert.equal(table.children().length, 1, 'button table has only one tbody');
+    var tbody = table.children();
+    assert.ok(tbody.children().is('tr'),'button table has tr');
+    assert.equal(tbody.children().length, 1, 'button table has only one tr');
+    var tr = tbody.children();
+    assert.ok(tr.children().is('td'),'button table has td');
+    assert.equal(tr.children().length, 2, 'button table has two trs');
+    var tds = tr.children();
+    tds.each(function(idx) {
+      if (idx === 0) {
+        assert.ok($(this).hasClass('button_player'));
+      } else if (idx === 1) {
+        assert.ok($(this).hasClass('button_opponent'));
+      }
+    })
+    // the contents of the tds is further tested in test_Game.buttonImageDisplay
+    start();
+  });
+});
+
+test("test_Game.actionChooseJoinGameInactive", function(assert) {
+//  james: incomplete for the moment
+});
+
+test("test_Game.actionChooseJoinGameNonplayer", function(assert) {
+//  james: incomplete for the moment
+});
+
+test("test_Game.actionShowRejectedGame", function(assert) {
+//  james: incomplete for the moment
+});
+
 test("test_Game.actionSpecifyDiceActive", function(assert) {
   stop();
   BMTestUtils.GameType = 'jellybean_dirgo_specifydice';
@@ -777,6 +820,18 @@ test("test_Game.actionShowFinishedGame", function(assert) {
   });
 });
 
+test("test_Game.formCancelGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
+test("test_Game.formAcceptGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
+test("test_Game.formRejectGame", function(assert) {
+  //  james: incomplete for the moment
+});
+
 // The logic here is a little hairy: since Game.getCurrentGame()
 // takes a callback, we can use the normal asynchronous logic there.
 // However, the POST done by our forms doesn't take a callback (it
@@ -1128,12 +1183,20 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    assert.ok(htmlout.match('<div>Skills in this game: '),
+    assert.ok(htmlout.match('<div><span class="skill_title">Die skills: </span>'),
       "Die skills footer text is present");
     assert.ok(htmlout.match('Focus'),
       "Die skills footer text lists the Focus skill");
     start();
   });
+});
+
+test("test_Game.createSkillDiv", function(assert) {
+  var skillDiv = Game.createSkillDiv(['1', '23', ' 4 5 '], 'hello');
+  assert.ok(skillDiv.is('div'));
+  assert.equal(skillDiv.html(),
+    '<span class="skill_title">hello: </span>1&nbsp;&nbsp;23&nbsp;&nbsp; 4 5 '
+  );
 });
 
 test("test_Game.pageAddLogFooter", function(assert) {
@@ -1195,6 +1258,20 @@ test("test_Game.dieRecipeTable", function(assert) {
       "Die recipe table should contain game state");
     start();
   });
+});
+
+test("test_Game.playerWLTText", function(assert) {
+  stop();
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
+  Api.getGameData(gameId, 10, function() {
+    var text = Game.playerWLTText('opponent');
+    assert.ok(text.match('3/1/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
+    start();
+  });
+
+  // james: we'll need an extra test here of new/rejected game, once we have an
+  //        appropriate test game to use
 });
 
 test("test_Game.dieRecipeTable_focus", function(assert) {

@@ -46,7 +46,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
         $expectedRecipes = array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
@@ -158,7 +157,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('o(V)? o(W)? o(X)? o(Y)? o(Z)?', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
         $expectedRecipes = array(array('o(V)?', 'o(W)?', 'o(X)?', 'o(Y)?', 'o(Z)?'),
@@ -404,7 +402,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
         $this->assertEquals(array(array(), array()), $game->activeDieArrayArray);
 
@@ -473,7 +470,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertNull($game->buttonArray[1]);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
         $this->assertEquals(array(array(), array()), $game->activeDieArrayArray);
 
@@ -542,7 +538,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertNull($game->buttonArray[1]);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
         $this->assertEquals(array(array(), array()), $game->activeDieArrayArray);
 
@@ -599,9 +594,45 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
         $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+
+        $retval = $this->object->create_game(
+            array(self::$userId5WithoutAutoaccept, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+
+        $retval = $this->object->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId5WithoutAutoaccept),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
 
-        $this->object->save_join_game_decision(self::$userId2WithoutAutopass, $gameId, 'accept');
+        $this->object->save_join_game_decision(self::$userId5WithoutAutoaccept, $gameId, 'accept');
         $game = self::load_game($gameId);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
@@ -741,7 +772,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
 
         // check dice
-        $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
         $expectedRecipes = array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
@@ -772,7 +802,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
-        $this->assertTrue(isset($game->capturedDieArrayArray));
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
 
         // check swing details
@@ -1486,6 +1515,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $dieArrayArray[1][0]->value = 4;
         $dieArrayArray[1][1]->value = 12;
         $dieArrayArray[1][2]->value = 5;
+        $dieArrayArray[1][3]->dice[0]->value = 2;
+        $dieArrayArray[1][3]->dice[1]->value = 4;
         $dieArrayArray[1][3]->value = 6;
 
         // perform valid attack
@@ -2204,6 +2235,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        $playerArray = $game->playerArray;
+        $playerArray[0]->activeDieArray = array();
+        $playerArray[1]->activeDieArray = array();
+        $game->playerArray = $playerArray;
 
         self::save_game($game);
         $game = self::load_game($game->gameId);
@@ -2285,6 +2320,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        $playerArray = $game->playerArray;
+        $playerArray[0]->activeDieArray = array();
+        $playerArray[1]->activeDieArray = array();
+        $game->playerArray = $playerArray;
 
         self::save_game($game);
         $game = self::load_game($game->gameId);
@@ -3206,188 +3245,5 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                             $game->gameScoreArrayArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
     }
-
-
-    ////////////////////////////////////////////////////////////
-    // Forum-related methods
-
-    /**
-     * @covers BMInterface::load_forum_overview
-     * @covers BMInterface::load_forum_board
-     * @covers BMInterface::load_forum_thread
-     * @covers BMInterface::create_forum_thread
-     * @covers BMInterface::create_forum_post
-     * @covers BMInterface::edit_forum_post
-     */
-    public function test_create_load_forum_posts() {
-        $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
-        $boardId = $overview['boards'][0]['boardId'];
-        $originalThreadsOnBoard = $overview['boards'][0]['numberOfThreads'];
-
-        $title = uniqid();
-        $body1 = uniqid();
-        $this->object->create_forum_thread(self::$userId1WithoutAutopass,
-            $boardId, $title, $body1);
-
-        $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
-        $this->assertEquals(
-            $originalThreadsOnBoard + 1,
-            $overview['boards'][0]['numberOfThreads'],
-            'Adding a new thread should increase the number of threads on the board by one.'
-        );
-
-        $board = $this->object->load_forum_board(self::$userId1WithoutAutopass,
-            $boardId);
-        $this->assertEquals($title, $board['threads'][0]['threadTitle'],
-            'Newly-added thread should appear first on the board.');
-        $threadId = $board['threads'][0]['threadId'];
-        $originalPostsInThread = $board['threads'][0]['numberOfPosts'];
-
-        $body2 = uniqid();
-        $this->object->create_forum_post(self::$userId1WithoutAutopass,
-            $threadId, $body2);
-
-        $board = $this->object->load_forum_board(self::$userId1WithoutAutopass,
-            $boardId);
-        $this->assertEquals($title, $board['threads'][0]['threadTitle'],
-            'Newly-updated thread should appear first on the board.');
-        $this->assertEquals(
-            $originalPostsInThread + 1,
-            $board['threads'][0]['numberOfPosts'],
-            'Adding a new post should increase the number of posts in the thread by one.'
-        );
-
-        $thread = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $threadId, 2);
-        $this->assertEquals(2, $thread['currentPostId'],
-            'Requested post ID should be returned.');
-        $this->assertEquals($title, $thread['threadTitle'],
-            'Thread should have the correct title.');
-        $this->assertEquals($body1, $thread['posts'][0]['body'],
-            'First post should have the correct body.');
-        $this->assertEquals($body2, $thread['posts'][1]['body'],
-            'Followup post should have the correct body.');
-
-        $firstPostId = $thread['posts'][0]['postId'];
-        $body3 = uniqid();
-        $this->object->edit_forum_post(self::$userId1WithoutAutopass,
-            $firstPostId, $body3);
-
-        $thread = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $threadId, 2);
-        $this->assertNotEquals($body1, $thread['posts'][0]['body'],
-            'First post should not have the old body.');
-        $this->assertEquals($body3, $thread['posts'][0]['body'],
-            'First post should have the new body.');
-    }
-
-    /**
-     * @covers BMInterface::mark_forum_read
-     * @covers BMInterface::mark_forum_board_read
-     * @covers BMInterface::mark_forum_thread_read
-     * @covers BMInterface::get_next_new_post
-     */
-    public function test_mark_forum_posts_read() {
-        // First, the first player views the forum. Then the second player makes
-        // several new threads: two on one board and one on another.
-        $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
-        $boardId1 = $overview['boards'][0]['boardId'];
-        $boardId2 = $overview['boards'][1]['boardId'];
-
-        $thread1 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
-            $boardId1, 'Test Title 1', 'Test Body 1');
-        // Separate the posts slightly, so that the first one is measurably first
-        // (This is just because the DB timestamp granularity is only one second.)
-        sleep(1);
-        $thread2 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
-            $boardId1, 'Test Title 2', 'Test Body 2');
-        $thread3 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
-            $boardId2, 'Test Title 3', 'Test Body 3');
-
-        // Wait a moment, to ensure that the server's timestamp has a chance to
-        // tick over.
-        sleep(1);
-
-        // Then the first player marks all boards as read, using the timestamp
-        // from before the posts were made. Verify that, for the first player,
-        // all three threads still start with a new post.
-        $this->object->mark_forum_read(self::$userId1WithoutAutopass,
-            $overview['timestamp']);
-
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertTrue($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertTrue($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertTrue($thread3['posts'][0]['isNew']);
-
-        // Also, verify that none of these posts are new to the second player,
-        // as they're the one who created them.
-        $thread1 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertFalse($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertFalse($thread3['posts'][0]['isNew']);
-
-        // And verify that the first new post is indeed recognized as the
-        // first new post
-        $nextNewPost = $this->object->get_next_new_post(self::$userId1WithoutAutopass);
-        $this->assertEquals($thread1['threadId'], $nextNewPost['nextNewPostThreadId']);
-        $this->assertEquals($thread1['posts'][0]['postId'], $nextNewPost['nextNewPostId']);
-
-        // The first player marks the first thread read. Verify that its first
-        // post is no longer new, but that the first posts of the other two
-        // threads are unaffected.
-        $this->object->mark_forum_thread_read(self::$userId1WithoutAutopass,
-            $thread1['threadId'], $boardId1, $thread1['timestamp']);
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertTrue($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertTrue($thread3['posts'][0]['isNew']);
-
-        // The first player marks the first board read. Verify that the first
-        // posts on both threads on that board are no longer new, but that
-        // the first post of the thread on the other board is unaffected.
-        $this->object->mark_forum_board_read(self::$userId1WithoutAutopass,
-            $boardId1, $thread1['timestamp']);
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertFalse($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertTrue($thread3['posts'][0]['isNew']);
-
-        // The first player marks all boards read. Verify that the first posts
-        // of all three threads are no longer new.
-        $this->object->mark_forum_read(self::$userId1WithoutAutopass,
-            $thread1['timestamp']);
-        $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread1['threadId'], NULL);
-        $this->assertFalse($thread1['posts'][0]['isNew']);
-        $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread2['threadId'], NULL);
-        $this->assertFalse($thread2['posts'][0]['isNew']);
-        $thread3 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
-            $thread3['threadId'], NULL);
-        $this->assertFalse($thread3['posts'][0]['isNew']);
-    }
-
-    // End of Forum-related methods
-    ////////////////////////////////////////////////////////////
 
 }

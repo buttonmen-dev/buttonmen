@@ -113,6 +113,7 @@ class BMSkill {
                      'Doppelganger' => 'D',
                      'Fire'         => 'F',
                      'Focus'        => 'f',
+                     'Insult'       => 'I',
                      'Konstant'     => 'k',
                      'Mad'          => '&',
                      'Maximum'      => 'M',
@@ -247,7 +248,8 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillMaximum',
                      'BMSkillTimeAndSpace',
-                     'BMSkillWarrior');
+                     'BMSkillWarrior',
+                     'BMSkillInsult');
         // fires last
     }
 

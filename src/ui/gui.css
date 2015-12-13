@@ -180,7 +180,7 @@ td.button_opponent {
     padding-bottom: 20px;
 }
 
-td.button_postgame {
+td.button_prepostgame {
     padding-top: 10px;
     padding-bottom: 10px;
 }
@@ -341,6 +341,11 @@ select.center {
  * default is visible when this class is not present */
 .hide_focus {
     outline: 0;
+}
+
+span.skill_title {
+    font-weight: bold;
+    line-height: 1.5;
 }
 
 span.skill_desc {

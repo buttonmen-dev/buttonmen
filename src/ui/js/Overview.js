@@ -3,10 +3,6 @@ var Overview = {};
 
 Overview.bodyDivId = 'overview_page';
 
-// We only need one game state for this module, so just reproduce the
-// setting here rather than importing Game.js
-Overview.GAME_STATE_END_GAME = 60;
-
 Overview.MONITOR_TIMEOUT = 60;
 Overview.STALENESS_DAYS = 14;
 Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
@@ -20,10 +16,11 @@ Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
 // * Overview.showLoggedInPage() is the landing function.  Always call this
 //   first when logged out. This calls Overview.pageAddIntroText()
 // * Overview.getOverview() asks the API for information about the
-//   player's overview status (currently, the lists of active and completed
-//   games, and potentially the user's preferences).
-//   It sets Api.active_games, Api.completed_games and potentially
-//   Api.user_prefs.  If successful, it calls Overview.showPage().
+//   player's overview status (currently, the lists of new, active, completed,
+//   and rejected games, and potentially the user's preferences).
+//   It sets Api.new_games, Api.active_games, Api.completed_games,
+//   Api.rejected_games, and potentially Api.user_prefs. If successful, it
+//   calls Overview.showPage().
 // * Overview.showPage() assembles the page contents as a variable.
 //
 // N.B. There is no form submission on this page (aside from the [Dismiss]
@@ -83,13 +80,25 @@ Overview.showPreferredOverview = function() {
 
 Overview.getOverview = function(callback) {
   Env.callAsyncInParallel([
+    Api.getNewGamesData,
     Api.getActiveGamesData,
     Api.getCompletedGamesData,
+    Api.getRejectedGamesData,
   ], callback);
 };
 
 Overview.showPage = function() {
   Overview.page = $('<div>');
+
+  var nGamesAwaitingAction = Api.new_games.nGamesAwaitingAction +
+    Api.active_games.nGamesAwaitingAction;
+  var gameCountText='';
+  if (nGamesAwaitingAction > 1) {
+    gameCountText = '(' + nGamesAwaitingAction + ' games waiting) &mdash; ';
+  } else if (nGamesAwaitingAction == 1) {
+    gameCountText = '(1 game waiting) &mdash; ';
+  }
+  $('title').html(gameCountText + 'Button Men Online');
 
   Overview.pageAddNewgameLink();
 
@@ -113,7 +122,10 @@ Overview.showPage = function() {
     setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
   }
 
-  if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
+  if ((Api.new_games.nGames === 0) &&
+      (Api.active_games.nGames === 0) &&
+      (Api.completed_games.nGames === 0) &&
+      (Api.rejected_games.nGames === 0)) {
     Env.message = {
       'type': 'none',
       'text': 'You have no games',
@@ -163,7 +175,7 @@ Overview.completeMonitor = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
-  Overview.pageAddGameTable('finished', 'Completed games', false);
+  Overview.pageAddGameTable('closed', 'Closed games', false);
   Overview.pageAddGameTable('awaitingPlayer', 'Active games', false);
   Overview.pageAddGameTable('awaitingOpponent', 'Active games', true);
 };
@@ -205,17 +217,39 @@ Overview.pageAddGameTable = function(
     sectionHeader,
     reverseSortOrder
   ) {
-  if (typeof reverseSortOrder === 'undefined') {
-    reverseSortOrder = false;
-  }
-
   var gamesource;
   var tableClass;
-  if (gameType == 'finished') {
-    gamesource = Api.completed_games.games;
-    tableClass = 'finishedGames';
-  } else {
-    gamesource = Api.active_games.games[gameType];
+  var showDismiss = false;
+
+  switch (gameType) {
+  case 'closed':
+    // closed games comprise completed games and rejected games
+    var gamesourceCompleted = Api.completed_games.games;
+    Overview.addTypeToGameSource(gamesourceCompleted, 'completed');
+
+    var gamesourceRejected = Api.rejected_games.games;
+    Overview.addTypeToGameSource(gamesourceRejected, 'rejected');
+
+    gamesource = gamesourceCompleted.concat(gamesourceRejected);
+    gamesource.sort(function(a, b) {
+      return a.gameId - b.gameId;
+    });
+
+    tableClass = 'closedGames';
+    showDismiss = true;
+    break;
+  default:
+    // show both active and new games under 'Active' games
+    var gamesourceActive = Api.active_games.games[gameType];
+    Overview.addTypeToGameSource(gamesourceActive, 'active');
+
+    var gamesourceNew = Api.new_games.games[gameType];
+    Overview.addTypeToGameSource(gamesourceNew, 'new');
+
+    gamesource = gamesourceActive.concat(gamesourceNew);
+    gamesource.sort(function(a, b) {
+      return b.inactivityRaw - a.inactivityRaw;
+    });
     tableClass = 'activeGames';
   }
 
@@ -223,150 +257,232 @@ Overview.pageAddGameTable = function(
     return;
   }
 
-  if (reverseSortOrder) {
+  if (reverseSortOrder === true) {
     gamesource.reverse();
   }
 
+  Overview.addTableRows(
+    Overview.addTableStructure(tableClass, sectionHeader, showDismiss),
+    gamesource,
+    gameType,
+    showDismiss
+  );
+};
+
+Overview.addTypeToGameSource = function(gamesource, gameType) {
+  for (var gameIdx = 0; gameIdx < gamesource.length; gameIdx++) {
+    gamesource[gameIdx].gameType = gameType;
+  }
+};
+
+Overview.addTableStructure = function(tableClass, sectionHeader, showDismiss) {
   var tableBody = Overview.page.find('table.' + tableClass + ' tbody');
-  if (tableBody.length > 0) {
-    var spacerRow = $('<tr>', { 'class': 'spacer' });
-    tableBody.append(spacerRow);
-    spacerRow.append($('<td>', { 'html': '&nbsp;', 'colspan': '6', }));
-  } else {
+
+  if (tableBody.length === 0) {
+    // create table
     var tableDiv = $('<div>');
     tableDiv.append($('<h2>', {'text': sectionHeader, }));
     var table = $('<table>', { 'class': 'gameList ' + tableClass, });
     tableDiv.append(table);
-    if (gameType == 'finished') {
-      tableDiv.append($('<hr>'));
-    }
     Overview.page.append(tableDiv);
 
+    // add table header
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
-    headerRow.append($('<th>', {'text': 'Your Button', }));
-    headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+    headerRow.append($('<th>', {'html': 'Your Button', }));
+    headerRow.append($('<th>', {'html': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
-    headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
-    if (gameType == 'finished') {
-      headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
-    } else {
-      headerRow.append($('<th>', {'text': 'Inactivity', 'colspan': '2', }));
+    headerRow.append( $('<th>', {'html':
+      'Score<br/>W/L/T (Max)',
+    }));
+    headerRow.append($('<th>', {'text': 'Description', }));
+    headerRow.append($('<th>', {'text': 'Inactivity', }));
+    if (showDismiss) {
+      headerRow.append($('<th>', {'text': 'Dismiss', }));
     }
     tableHead.append(headerRow);
     table.append(tableHead);
 
+    // add table body
     tableBody = $('<tbody>');
     table.append(tableBody);
+  } else {
+    // add spacer row
+    var spacerRow = $('<tr>', { 'class': 'spacer' });
+    tableBody.append(spacerRow);
+    spacerRow.append($('<td>', {
+      'html': '&nbsp;',
+      'colspan': tableBody.closest('table')
+                          .children('thead')
+                          .children('tr:first')
+                          .children()
+                          .length,
+    }));
   }
 
-  var i = 0;
-  var staleGamesExist = false;
-  while (i < gamesource.length) {
-    var gameInfo = gamesource[i];
-    var playerColor = gameInfo.playerColor;
-    var opponentColor = gameInfo.opponentColor;
+  return tableBody;
+};
 
-    var gameRow = $('<tr>');
-    var gameLinkTd;
-    if (gameType == 'awaitingPlayer') {
-      gameLinkTd =
-        $('<td>', { 'style': 'background-color: ' + playerColor, });
-      gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
-                                  'text': 'Play Game ' + gameInfo.gameId,}));
-    } else if (gameType == 'awaitingOpponent') {
-      if (gameInfo.inactivityRaw > Overview.STALENESS_SECS) {
-        staleGamesExist = true;
-        gameRow.addClass('staleGame');
-        gameRow.hide();
-      }
+Overview.addTableRows = function(tableBody, gamesource, gameType, showDismiss) {
+  var gameInfo;
+  var gameRow;
 
-      gameLinkTd =
-        $('<td>', { 'style': 'background-color: ' + opponentColor, });
-      gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
-                                  'text': 'View Game ' + gameInfo.gameId,}));
-    } else {
-      gameLinkTd = $('<td>');
-      if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-        gameLinkTd.append($('<a>', {
-          'href': 'game.html?game=' + gameInfo.gameId,
-          'text': 'WON Game ' + gameInfo.gameId,
-        }));
-      } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-        gameLinkTd.append($('<a>', {
-          'href': 'game.html?game=' + gameInfo.gameId,
-          'text': 'LOST Game ' + gameInfo.gameId,
-        }));
-      } else {
-        gameLinkTd.append($('<a>', {
-          'href': 'game.html?game=' + gameInfo.gameId,
-          'text': 'TIED Game ' + gameInfo.gameId,
-        }));
-      }
+  for (var gameIdx = 0; gameIdx < gamesource.length; gameIdx++) {
+    gameInfo = gamesource[gameIdx];
+
+    gameRow = $('<tr>');
+    Overview.addGameCol(gameRow, gameInfo, gameType);
+    Overview.addButtonCol(gameRow, gameInfo.playerButtonName);
+    Overview.addButtonCol(gameRow, gameInfo.opponentButtonName);
+    Overview.addPlayerCol(
+      gameRow,
+      gameInfo.opponentName,
+      gameInfo.opponentColor
+    );
+    Overview.addScoreCol(gameRow, gameInfo);
+    Overview.addDescCol(gameRow, gameInfo.gameDescription);
+    Overview.addInactiveCol(gameRow, gameInfo.inactivity);
+    if (showDismiss) {
+      Overview.addDismissCol(gameRow, gameInfo);
     }
-    gameRow.append(gameLinkTd);
-    gameRow.append($('<td>').append(
-      Env.buildButtonLink(gameInfo.playerButtonName)
-    ));
-    gameRow.append($('<td>').append(
-      Env.buildButtonLink(gameInfo.opponentButtonName)
-    ));
+
+    tableBody.append(gameRow);
+  }
+
+  if (tableBody.children('tr.staleGame').length > 0) {
+    var nCol = gameRow.children().length;
+    tableBody.closest('table').append(Overview.staleGameFooter(nCol));
+  }
+};
+
+Overview.addGameCol = function(gameRow, gameInfo, gameType) {
+  var gameLinkTd;
+
+  if (gameType == 'awaitingPlayer') {
+    gameLinkTd = $('<td>', {
+      'style': 'background-color: ' + gameInfo.playerColor,
+    });
+  } else if (gameType == 'awaitingOpponent') {
+    if (gameInfo.inactivityRaw > Overview.STALENESS_SECS) {
+      gameRow.addClass('staleGame');
+      gameRow.hide();
+    }
+
+    gameLinkTd = $('<td>', {
+      'style': 'background-color: ' + gameInfo.opponentColor,
+    });
+  } else {
+    gameLinkTd = $('<td>');
+  }
+
+  gameLinkTd.append($('<a>', {
+    'href': 'game.html?game=' + gameInfo.gameId,
+    'text': Overview.linkTextStub(gameInfo, gameType) +
+            ' Game ' + gameInfo.gameId,
+  }));
+
+  gameRow.append(gameLinkTd);
+};
+
+Overview.addButtonCol = function(gameRow, buttonName) {
+  gameRow.append($('<td>').append(
+    Env.buildButtonLink(buttonName)
+  ));
+};
+
+Overview.addPlayerCol = function(gameRow, playerName, playerColor) {
+  gameRow.append($('<td>', {
+      'style': 'background-color: ' + playerColor,
+    }).append(Env.buildProfileLink(playerName)));
+};
+
+Overview.addScoreCol = function(gameRow, gameInfo) {
+  var wldColor = '#ffffff';
+  if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
+    wldColor = gameInfo.playerColor;
+  } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
+    wldColor = gameInfo.opponentColor;
+  }
+
+  if ((gameInfo.gameType == 'rejected') ||
+      (gameInfo.gameType == 'new')) {
     gameRow.append($('<td>', {
-      'style': 'background-color: ' + opponentColor,
-    }).append(Env.buildProfileLink(gameInfo.opponentName)));
-
-    var wldColor = '#ffffff';
-    if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-      wldColor = playerColor;
-    } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-      wldColor = opponentColor;
-    }
+      'text': '–/–/–' + ' (' + gameInfo.maxWins + ')',
+    }));
+  } else {
     gameRow.append($('<td>', {
       'text': gameInfo.gameScoreDict.W + '/' +
               gameInfo.gameScoreDict.L + '/' +
               gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
       'style': 'background-color: ' + wldColor,
     }));
+  }
+};
 
-    var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
-    gameRow.append(inactivityTd);
+Overview.addDescCol = function(gameRow, description) {
+  gameRow.append($('<td>', {
+    'class': 'gameDescDisplay',
+    'text': description.substring(0, 30) +
+            ((description.length > 30) ? '...' : ''),
+  }));
+};
 
-    if (gameType == 'finished') {
-      var dismissTd = $('<td>');
-      gameRow.append(dismissTd);
-      var dismissLink = $('<a>', {
-        'text': '[Dismiss]',
-        'href': '#',
-        'data-gameId': gameInfo.gameId,
-      });
-      dismissLink.click(Overview.formDismissGame);
-      dismissTd.append(dismissLink);
+Overview.addInactiveCol = function(gameRow, inactivity) {
+  gameRow.append($('<td>', { 'text': inactivity, }));
+};
+
+Overview.addDismissCol = function(gameRow, gameInfo) {
+  var dismissTd = $('<td>');
+  dismissTd.css('white-space', 'nowrap');
+  gameRow.append(dismissTd);
+
+  var dismissLink = $('<a>', {
+    'text': 'Dismiss',
+    'href': '#',
+    'data-gameId': gameInfo.gameId,
+  });
+  dismissLink.click(Overview.formDismissGame);
+  dismissTd.append('[')
+           .append(dismissLink)
+           .append(']');
+};
+
+Overview.linkTextStub = function(gameInfo, gameType) {
+  if (gameInfo.gameType == 'new') {
+    return 'NEW';
+  } else if (gameInfo.gameType == 'rejected') {
+    return 'CANCELLED';
+  } else if (gameInfo.gameType == 'completed') {
+    if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
+      return 'WON';
+    } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
+      return 'LOST';
     } else {
-      inactivityTd.attr('colspan', '2');
+      return 'TIED';
     }
-
-    i += 1;
-    tableBody.append(gameRow);
+  } else if (gameType == 'awaitingPlayer') {
+    return 'Play';
+  } else if (gameType == 'awaitingOpponent') {
+    return 'View';
   }
+};
 
-  if (staleGamesExist) {
-    var tableFoot = $('<tfoot>');
-    var footRow = $('<tr>');
-    var footCol = $('<td>', {
-      'colspan': '6',
-    });
-    var staleToggle = $('<a>', {
-      'id': 'staleToggle',
-      'href': 'javascript:Overview.toggleStaleGame();',
-      'text': 'Show stale games',
-    });
+Overview.staleGameFooter = function(nCol) {
+  var tableFoot = $('<tfoot>');
+  var footRow = $('<tr>');
+  var footCol = $('<td>', {'colspan': nCol,});
+  var staleToggle = $('<a>', {
+    'id': 'staleToggle',
+    'href': 'javascript:Overview.toggleStaleGame();',
+    'text': 'Show stale games',
+  });
 
-    footCol.append('[').append(staleToggle).append(']');
-    footRow.append(footCol);
-    tableFoot.append(footRow);
-    tableBody.closest('table').append(tableFoot);
-  }
+  footCol.append('[').append(staleToggle).append(']');
+  footRow.append(footCol);
+  tableFoot.append(footRow);
+
+  return tableFoot;
 };
 
 Overview.toggleStaleGame = function() {

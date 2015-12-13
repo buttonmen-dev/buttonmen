@@ -23,8 +23,10 @@ class ApiSpec {
     private $automatableApiCalls = array(
         'loadNextPendingGame',
         'loadNextNewPost',
+        'loadNewGames',
         'loadActiveGames',
         'loadCompletedGames',
+        'loadRejectedGames',
         'loadPlayerInfo',
         'loadForumThread',
         'countPendingGames',
@@ -157,6 +159,13 @@ class ApiSpec {
                 'previousGameId' => 'number',
             ),
         ),
+        'reactToNewGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+                'action' => 'string',
+            ),
+            'permitted' => array(),
+        ),
         'dismissGame' => array(
             'mandatory' => array(
                 'gameId' => 'number',
@@ -249,7 +258,7 @@ class ApiSpec {
                 ),
                 'status' => array(
                     'arg_type' => 'exactString',
-                    'values' => array('ACTIVE', 'COMPLETE'),
+                    'values' => array('ACTIVE', 'COMPLETE', 'REJECTED'),
                 ),
             ),
         ),
@@ -267,6 +276,10 @@ class ApiSpec {
             ),
         ),
         'loadCompletedGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        'loadRejectedGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
         ),
@@ -343,6 +356,10 @@ class ApiSpec {
             'permitted' => array(
                 'logEntryLimit' => 'number',
             ),
+        ),
+        'loadNewGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
         ),
         'loadNextPendingGame' => array(
             'mandatory' => array(),
@@ -505,6 +522,7 @@ class ApiSpec {
                     'arg_type' => 'string',
                     'maxlength' => 100,
                 ),
+                'autoaccept' => 'boolean',
                 'autopass' => 'boolean',
                 'fire_overshooting' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
