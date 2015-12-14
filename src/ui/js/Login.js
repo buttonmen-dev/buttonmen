@@ -208,6 +208,7 @@ Login.arrangeBody = function(page, form, submitSelector) {
 };
 
 Login.arrangeFooter = function() {
+  $('#c_footer').empty();
   $('#c_footer').append('<br />');
   $('#c_footer').append($('<hr>', { 'id': 'footer_separator', }));
   $('#c_footer').append($('<div>', {'id': 'footer', }));
