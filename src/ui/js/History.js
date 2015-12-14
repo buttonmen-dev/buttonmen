@@ -667,29 +667,29 @@ History.buildResultsTableBody = function() {
 };
 
 History.scoreCol = function(game) {
-    var score;
-    if (game.status == 'REJECTED') {
-      score = '–/–/–';
-    } else {
-      score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;
-    }
-    score += ' (' + game.targetWins + ')';
+  var score;
+  if (game.status == 'REJECTED') {
+    score = '–/–/–';
+  } else {
+    score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;
+  }
+  score += ' (' + game.targetWins + ')';
 
-    var winnerColor;
-    if (game.roundsWonA >= game.targetWins) {
-      winnerColor = game.colorA;
-    } else if (game.roundsWonB >= game.targetWins) {
-      winnerColor = game.colorB;
-    } else {
-      winnerColor = '#ffffff';
-    }
+  var winnerColor;
+  if (game.roundsWonA >= game.targetWins) {
+    winnerColor = game.colorA;
+  } else if (game.roundsWonB >= game.targetWins) {
+    winnerColor = game.colorB;
+  } else {
+    winnerColor = '#ffffff';
+  }
 
-    var column = $('<td>', {
-      'text': score,
-      'style': 'background-color: ' + winnerColor + ';',
-    });
+  var column = $('<td>', {
+    'text': score,
+    'style': 'background-color: ' + winnerColor + ';',
+  });
 
-    return column;
+  return column;
 };
 
 History.buildResultsTableFooter = function() {
