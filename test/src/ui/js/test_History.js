@@ -257,8 +257,36 @@ test("test_History.scoreCol", function(assert) {
   var game;
   var column;
 
-  // test normal games
+  // test new games
   game = {
+    'gameStart' : 10000,
+    'lastMove' : 10000,
+    'status' : 'ACTIVE',
+    'roundsWonA' : 0,
+    'roundsWonB' : 0,
+    'roundsDrawn' : 0,
+    'targetWins' : 4,
+    'colorA' : '#aaaaaa',
+    'colorB' : '#bbbbbb',
+  };
+
+  column = History.scoreCol(game);
+  assert.ok(column.is('td'), 'new game score column has the correct type');
+  assert.equal(
+    '–/–/– (4)',
+    column.text(),
+    'new game score column has the correct text'
+  );
+  assert.equal(
+    'rgb(255, 255, 255)',
+    column.css('background-color'),
+    'new game score column has the correct color'
+  );
+
+  // test normal active games
+  game = {
+    'gameStart' : 10000,
+    'lastMove' : 15000,
     'status' : 'ACTIVE',
     'roundsWonA' : 1,
     'roundsWonB' : 2,
@@ -269,20 +297,22 @@ test("test_History.scoreCol", function(assert) {
   };
 
   column = History.scoreCol(game);
-  assert.ok(column.is('td'), 'active score column has the correct type');
+  assert.ok(column.is('td'), 'active game score column has the correct type');
   assert.equal(
     '1/2/4 (5)',
     column.text(),
-    'active score column has the correct text'
+    'active game score column has the correct text'
   );
   assert.equal(
     'rgb(255, 255, 255)',
     column.css('background-color'),
-    'active score column has the correct color'
+    'active game score column has the correct color'
   );
 
   // test completed games
   game = {
+    'gameStart' : 10000,
+    'lastMove' : 18000,
     'status' : 'COMPLETED',
     'roundsWonA' : 1,
     'roundsWonB' : 3,
@@ -293,20 +323,25 @@ test("test_History.scoreCol", function(assert) {
   };
 
   column = History.scoreCol(game);
-  assert.ok(column.is('td'), 'completed score column has the correct type');
+  assert.ok(
+    column.is('td'),
+    'completed game score column has the correct type'
+  );
   assert.equal(
     '1/3/2 (3)',
     column.text(),
-    'completed score column has the correct text'
+    'completed game score column has the correct text'
   );
   assert.equal(
     'rgb(0, 255, 0)',
     column.css('background-color'),
-    'completed score column has the correct color'
+    'completed game score column has the correct color'
   );
 
   // test rejected games
   game = {
+    'gameStart' : 10000,
+    'lastMove' : 12000,
     'status' : 'REJECTED',
     'roundsWonA' : 0,
     'roundsWonB' : 0,
@@ -317,16 +352,16 @@ test("test_History.scoreCol", function(assert) {
   };
 
   column = History.scoreCol(game);
-  assert.ok(column.is('td'), 'rejected score column has the correct type');
+  assert.ok(column.is('td'), 'rejected game score column has the correct type');
   assert.equal(
     '–/–/– (4)',
     column.text(),
-    'rejected score column has the correct text'
+    'rejected game score column has the correct text'
   );
   assert.equal(
     'rgb(255, 255, 255)',
     column.css('background-color'),
-    'rejected score column has the correct color'
+    'rejected game score column has the correct color'
   );
 });
 

@@ -667,8 +667,11 @@ History.buildResultsTableBody = function() {
 };
 
 History.scoreCol = function(game) {
+  console.log(game);
+
   var score;
-  if (game.status == 'REJECTED') {
+  if ((game.status == 'REJECTED') ||
+      (game.gameStart == game.lastMove)) {
     score = '–/–/–';
   } else {
     score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;
