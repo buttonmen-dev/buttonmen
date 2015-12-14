@@ -253,6 +253,83 @@ test("test_History.buildResultsTableBody", function(assert) {
   });
 });
 
+test("test_History.scoreCol", function(assert) {
+    var game;
+    var column;
+
+    // test normal games
+    game = {
+      'status' : 'ACTIVE',
+      'roundsWonA' : 1,
+      'roundsWonB' : 2,
+      'roundsDrawn' : 4,
+      'targetWins' : 5,
+      'colorA' : '#aa0000',
+      'colorB' : '#00bb00',
+    }
+
+    column = History.scoreCol(game);
+    assert.ok(column.is('td'), 'active score column has the correct type');
+    assert.equal(
+      '1/2/4 (5)',
+      column.text(),
+      'active score column has the correct text'
+    );
+    assert.equal(
+      'rgb(255, 255, 255)',
+      column.css('background-color'),
+      'active score column has the correct color'
+    );
+
+    // test completed games
+    game = {
+      'status' : 'COMPLETED',
+      'roundsWonA' : 1,
+      'roundsWonB' : 3,
+      'roundsDrawn' : 2,
+      'targetWins' : 3,
+      'colorA' : '#ff0000',
+      'colorB' : '#00ff00',
+    }
+
+    column = History.scoreCol(game);
+    assert.ok(column.is('td'), 'completed score column has the correct type');
+    assert.equal(
+      '1/3/2 (3)',
+      column.text(),
+      'completed score column has the correct text'
+    );
+    assert.equal(
+      'rgb(0, 255, 0)',
+      column.css('background-color'),
+      'completed score column has the correct color'
+    );
+
+    // test rejected games
+    game = {
+      'status' : 'REJECTED',
+      'roundsWonA' : 0,
+      'roundsWonB' : 0,
+      'roundsDrawn' : 0,
+      'targetWins' : 4,
+      'colorA' : '#aaaaaa',
+      'colorB' : '#bbbbbb',
+    }
+
+    column = History.scoreCol(game);
+    assert.ok(column.is('td'), 'rejected score column has the correct type');
+    assert.equal(
+      '–/–/– (4)',
+      column.text(),
+      'rejected score column has the correct text'
+    );
+    assert.equal(
+      'rgb(255, 255, 255)',
+      column.css('background-color'),
+      'rejected score column has the correct color'
+    );
+});
+
 test("test_History.buildResultsTableFooter", function(assert) {
   stop();
   History.searchParameters = {

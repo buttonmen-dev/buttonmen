@@ -643,22 +643,7 @@ History.buildResultsTableBody = function() {
       'text': Env.formatTimestamp(game.lastMove, 'date'),
     }));
 
-    var score = game.roundsWonA + '/' + game.roundsWonB + '/' +
-      game.roundsDrawn + ' (' + game.targetWins + ')';
-
-    var winnerColor;
-    if (game.roundsWonA >= game.targetWins) {
-      winnerColor = game.colorA;
-    } else if (game.roundsWonB >= game.targetWins) {
-      winnerColor = game.colorB;
-    } else {
-      winnerColor = '#ffffff';
-    }
-
-    gameRow.append($('<td>', {
-      'text': score,
-      'style': 'background-color: ' + winnerColor + ';',
-    }));
+    gameRow.append(History.scoreCol(game));
 
     if (game.status == 'COMPLETE') {
       gameRow.append($('<td>', {
@@ -679,6 +664,32 @@ History.buildResultsTableBody = function() {
   });
 
   return body;
+};
+
+History.scoreCol = function(game) {
+    var score;
+    if (game.status == 'REJECTED') {
+      score = '–/–/–';
+    } else {
+      score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;
+    }
+    score += ' (' + game.targetWins + ')';
+
+    var winnerColor;
+    if (game.roundsWonA >= game.targetWins) {
+      winnerColor = game.colorA;
+    } else if (game.roundsWonB >= game.targetWins) {
+      winnerColor = game.colorB;
+    } else {
+      winnerColor = '#ffffff';
+    }
+
+    var column = $('<td>', {
+      'text': score,
+      'style': 'background-color: ' + winnerColor + ';',
+    });
+
+    return column;
 };
 
 History.buildResultsTableFooter = function() {
