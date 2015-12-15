@@ -109,15 +109,15 @@ Game.showStatePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  // Set colors for use in game
-  Game.color = {
-    'player': Api.game.player.playerColor,
-    'opponent': Api.game.opponent.playerColor,
-    'noone': 'white',
-  };
-
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
+    // Set colors for use in game
+    Game.color = {
+      'player': Api.game.player.playerColor,
+      'opponent': Api.game.opponent.playerColor,
+      'noone': 'white',
+    };
+    
     if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
