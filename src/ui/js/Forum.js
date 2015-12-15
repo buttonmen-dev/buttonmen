@@ -809,6 +809,26 @@ Forum.buildHelp = function() {
     'class': 'help',
     'html': '[player=Jota]: <a href="profile.html?player=Jota">Jota</a>',
   }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[button=Avis]: <a href="buttons.html?button=Avis">Avis</a>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[set=Soldiers]: <a href="buttons.html?set=Soldiers">Soldiers</a>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[wiki=UBFC]: ' +
+            '<a href="http://buttonweavers.wikia.com/wiki/UBFC">' +
+            'Wiki: UBFC</a>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[issue=1841]: <a href=' +
+            '"https://github.com/buttonmen-dev/buttonmen/issues/1841"' +
+            '>Issue 1841</a>',
+  }));
   helpDiv.append($('<text>', {
     'text': 'For actual brackets: ',
   }));

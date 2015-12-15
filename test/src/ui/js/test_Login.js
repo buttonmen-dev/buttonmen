@@ -7,6 +7,7 @@ module("Login", {
       $('body').append($('<div>', {'id': 'container', }));
       $('#container').append($('<div>', {'id': 'c_body'}));
       $('#c_body').append($('<div>', {'id': 'login_header', }));
+      $('#container').append($('<div>', {'id': 'c_footer'}));
     }
   },
   'teardown': function(assert) {
@@ -57,6 +58,14 @@ test("test_Login.getLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.getLoginHeader not implemented");
 });
 
+test("test_Login.getFooter", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Login.getFooter not implemented");
+});
+
+test("test_Login.getBody", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Login.getBody not implemented");
+});
+
 test("test_Login.showLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
 });
@@ -79,7 +88,23 @@ test("test_Login.showLoginHeader_auto", function(assert) {
 });
 
 test("test_Login.arrangeHeader", function(assert) {
-  expect(5); // tests + 2 teardown
+  expect(3); // tests + 2 teardown
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  assert.equal($('#login_header').length, 1,
+    "Login header div should be created");
+});
+
+test("test_Login.arrangeBody", function(assert) {
+  expect(3);
 
   Login.message = 'Hello.';
   Login.pageModule = {
@@ -91,16 +116,33 @@ test("test_Login.arrangeHeader", function(assert) {
   };
 
   BMTestUtils.setupFakeLogin();
-  Login.arrangeHeader();
+  Login.arrangeBody();
   BMTestUtils.cleanupFakeLogin();
 
   var bodyDiv = $('#' + Login.pageModule.bodyDivId);
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
+});
 
-  assert.equal($('#env_message').length, 1,
-    "Env message div should be created");
+test("test_Login.arrangeFooter", function(assert) {
+  expect(3);
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  BMTestUtils.setupFakeLogin();
+  Login.arrangeFooter();
+  BMTestUtils.cleanupFakeLogin();
+
+  assert.equal($('#footer').length, 1,
+    "Login footer div should be created");
 });
 
 test("test_Login.arrangePage", function(assert) {
