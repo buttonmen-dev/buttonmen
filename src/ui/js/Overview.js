@@ -93,10 +93,8 @@ Overview.showPage = function() {
   var nGamesAwaitingAction = Api.new_games.nGamesAwaitingAction +
     Api.active_games.nGamesAwaitingAction;
   var gameCountText='';
-  if (nGamesAwaitingAction > 1) {
-    gameCountText = '(' + nGamesAwaitingAction + ' games waiting) &mdash; ';
-  } else if (nGamesAwaitingAction == 1) {
-    gameCountText = '(1 game waiting) &mdash; ';
+  if (nGamesAwaitingAction > 0) {
+    gameCountText = '(' + nGamesAwaitingAction+ ') ';
   }
   $('title').html(gameCountText + 'Button Men Online');
 
