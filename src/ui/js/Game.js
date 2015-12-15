@@ -117,7 +117,7 @@ Game.showStatePage = function() {
       'opponent': Api.game.opponent.playerColor,
       'noone': 'white',
     };
-    
+
     if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
