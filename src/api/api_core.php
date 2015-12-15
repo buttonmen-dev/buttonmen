@@ -55,8 +55,10 @@ function login($username, $password) {
                                   ':auth_key' => $auth_key));
 
             // set authorisation cookie
-            setcookie('auth_userid', $result['id'], 0, '/', '', FALSE);
-            setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
+            // an expiry time of one year in the future should be sufficient
+            $expiry_time = time() + 365 * 24 * 60 * 60;
+            setcookie('auth_userid', $result['id'], $expiry_time, '/', '', FALSE);
+            setcookie('auth_key', $auth_key, $expiry_time, '/', '', FALSE);
             session_regenerate_id(TRUE);
             $_SESSION['user_id'] = $result['id'];
             $_SESSION['user_name'] = $result['name_ingame'];
