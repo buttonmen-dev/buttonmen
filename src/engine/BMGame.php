@@ -508,7 +508,7 @@ class BMGame {
 
     protected function update_game_state_specify_recipes() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->button)) {
+            if (empty($player->button->recipe)) {
                 return;
             }
         }
@@ -1859,7 +1859,7 @@ class BMGame {
 
     // The variable $gameStateBreakpoint is used for debugging purposes only.
     // If used, the game will stop as soon as the game state becomes
-
+    // the value of $gameStateBreakpoint
     public function proceed_to_next_user_action($gameStateBreakpoint = NULL) {
         $repeatCount = 0;
         $initialGameState = $this->gameState;
