@@ -20,6 +20,7 @@ class BMSkillTimeAndSpace extends BMSkill {
     /**
      * Hooked method applied after rolling a die
      *
+     * @param array $args
      * @return string
      */
     public static function post_roll($args) {
