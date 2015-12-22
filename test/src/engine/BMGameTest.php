@@ -97,7 +97,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::APPLY_HANDICAPS, $this->object->gameState);
         $this->assertEquals(0, $this->object->nRecentPasses);
-        $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
                             $this->object->gameScoreArrayArray);
         $this->assertEquals(array(FALSE, FALSE), $this->object->autopassArray);
         $this->assertEquals(array(FALSE, FALSE), $this->object->fireOvershootingArray);
@@ -126,13 +127,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
         catch (LogicException $expected) {
         }
-
-        $this->object->playerIdArray = array(12345, 54321);
-        $this->object->gameState = BMGameState::APPLY_HANDICAPS;
-        $this->object->maxWins = 3;
-        $this->object->update_game_state();
-        $this->assertEquals(BMGameState::APPLY_HANDICAPS,
-                            $this->object->gameState);
 
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::APPLY_HANDICAPS;
@@ -2548,12 +2542,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2));
             $this->fail('W/L/D must be three numbers.');
-        } catch (InvalidArgumentException $expected) {
-        }
-
-        try {
-            $this->object->gameScoreArrayArray = array(array(2,1,1));
-            $this->fail('There must be the same number of players and game scores.');
         } catch (InvalidArgumentException $expected) {
         }
     }

@@ -17,6 +17,7 @@
  * @property      array    $outOfPlayDieArray      Array of dice out of play
  * @property      bool     $waitingOnAction        Does this player need to perform an action?
  * @property      bool     $isPrevRoundWinner      Has this player just won the previous round?
+ * @property      array    $gameScoreArray         Number of games W/L/D
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  */
 class BMPlayer {
@@ -87,6 +88,16 @@ class BMPlayer {
      * @var bool
      */
     protected $isPrevRoundWinner;
+
+    /**
+     * Number of games W/L/D
+     *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
+     * @var array
+     */
+    public $gameScoreArray;
 
     /**
      * BMGame that owns this BMPlayer object
@@ -168,6 +179,36 @@ class BMPlayer {
         }
 
         $this->isPrevRoundWinner = $value;
+    }
+
+    /**
+     * Set gameScoreArray
+     *
+     * @param array $value
+     */
+    public function set_gameScoreArray($value) {
+        if (!is_array($value)) {
+            throw new InvalidArgumentException('gameScoreArray must be an array');
+        }
+
+        // check whether there are three inputs and they are all positive
+        if ((3 != count($value)) || min($value) < 0) {
+            throw new InvalidArgumentException(
+                'Invalid W/L/T array provided.'
+            );
+        }
+
+        if (array_key_exists('W', $value) &&
+            array_key_exists('L', $value) &&
+            array_key_exists('D', $value)) {
+            $this->gameScoreArray = array('W' => (int)$value['W'],
+                                          'L' => (int)$value['L'],
+                                          'D' => (int)$value['D']);
+        } else {
+            $this->gameScoreArray = array('W' => (int)$value[0],
+                                          'L' => (int)$value[1],
+                                          'D' => (int)$value[2]);
+        }
     }
 
     /**

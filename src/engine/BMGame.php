@@ -30,7 +30,6 @@
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property-read array $roundScoreArray         Current points score in this round
- * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
@@ -60,6 +59,7 @@
  * @property      array $outOfPlayDieArrayArray  Out-of-play dice for all players
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
+ * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
@@ -204,13 +204,6 @@ class BMGame {
      * @var array
      */
     protected $roundScoreArray;
-
-    /**
-     * Number of games W/L/D for all players
-     *
-     * @var array
-     */
-    protected $gameScoreArrayArray;
 
     /**
      * The game ends when a player has this many wins
@@ -437,17 +430,17 @@ class BMGame {
         $this->nRecentPasses = 0;
         $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
         $this->fireOvershootingArray = array_fill(0, $this->nPlayers, FALSE);
-        $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
+
+        foreach ($this->playerArray as $player) {
+            $player->gameScoreArray = array('W' => 0, 'L' => 0, 'D' => 0);
+        }
     }
 
     protected function do_next_step_apply_handicaps() {
         // ignore for the moment
-        $this->gameScoreArrayArray =
-            array_fill(
-                0,
-                $this->nPlayers,
-                array('W' => 0, 'L' => 0, 'D' => 0)
-            );
+        foreach ($this->playerArray as $player) {
+            $player->gameScoreArray = array('W' => 0, 'L' => 0, 'D' => 0);
+        }
     }
 
     protected function update_game_state_apply_handicaps() {
@@ -456,18 +449,17 @@ class BMGame {
                 'maxWins must be set before applying handicaps.'
             );
         };
-        if (isset($this->gameScoreArrayArray)) {
-            $nWins = 0;
-            foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
-                if ($nWins < $tempGameScoreArray['W']) {
-                    $nWins = $tempGameScoreArray['W'];
-                }
-            }
-            if ($nWins >= $this->maxWins) {
-                $this->gameState = BMGameState::END_GAME;
-            } else {
-                $this->gameState = BMGameState::CHOOSE_JOIN_GAME;
-            }
+
+        $nWins = 0;
+
+        foreach ($this->playerArray as $player) {
+            $nWins = max($nWins, $player->gameScoreArray['W']);
+        }
+
+        if ($nWins >= $this->maxWins) {
+            $this->gameState = BMGameState::END_GAME;
+        } else {
+            $this->gameState = BMGameState::CHOOSE_JOIN_GAME;
         }
     }
 
@@ -1771,10 +1763,12 @@ class BMGame {
         }
 
         if ($isDraw) {
-            for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
-                $this->gameScoreArrayArray[$playerIdx]['D']++;
-                // james: currently there is no code for three draws in a row
+            foreach ($this->playerArray as $player) {
+                $player->gameScoreArray['D']++;
             }
+
+            // james: currently there is no code for three draws in a row
+
             $this->log_action(
                 'end_draw',
                 0,
@@ -1798,10 +1792,10 @@ class BMGame {
 
             foreach ($this->playerArray as $playerIdx => $player) {
                 if ($playerIdx == $winnerIdx) {
-                    $this->gameScoreArrayArray[$playerIdx]['W']++;
+                    $player->gameScoreArray['W']++;
                     $player->isPrevRoundWinner = TRUE;
                 } else {
-                    $this->gameScoreArrayArray[$playerIdx]['L']++;
+                    $player->gameScoreArray['L']++;
                     $this->swingValueArrayArray[$playerIdx] = array();
                     $this->optValueArrayArray[$playerIdx] = array();
                 }
@@ -1825,8 +1819,8 @@ class BMGame {
         }
 
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
-        foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
-            if ($tempGameScoreArray['W'] >= $this->maxWins) {
+        foreach ($this->playerArray as $player) {
+            if ($player->gameScoreArray['W'] >= $this->maxWins) {
                 $this->gameState = BMGameState::END_GAME;
                 return;
             }
@@ -2543,7 +2537,7 @@ class BMGame {
      * @return int
      */
     protected function get_prevRoundNumber() {
-        return array_sum($this->gameScoreArrayArray[0]);
+        return array_sum($this->playerArray[0]->gameScoreArray);
     }
 
     /**
@@ -2726,9 +2720,10 @@ class BMGame {
      * @return int
      */
     protected function get__roundNumber() {
-        $roundNumber = array_sum($this->gameScoreArrayArray[0]) + 1;
+        $roundNumber = array_sum($this->playerArray[0]->gameScoreArray) + 1;
 
-        if (max($this->gameScoreArrayArray[0]['W'], $this->gameScoreArrayArray[0]['L']) >=
+        if (max($this->playerArray[0]->gameScoreArray['W'],
+                $this->playerArray[0]->gameScoreArray['L']) >=
             $this->maxWins) {
             $roundNumber--;
         }
@@ -2801,7 +2796,11 @@ class BMGame {
         $isSubPropertyArray = ('Array' == substr($subProperty, -5));
 
         if (property_exists('BMPlayer', $subProperty)) {
-            if ($isSubPropertyArray) {
+            if ('gameScoreArray' == $subProperty) {
+                foreach ($this->playerArray as $playerIdx => $player) {
+                    $player->set_gameScoreArray($value[$playerIdx]);
+                }
+            } else if ($isSubPropertyArray) {
                 $this->setBMPlayerProps($subProperty, $value, 'BMDie');
             } else {
                 $this->setBMPlayerProps($subProperty, $value);
@@ -3055,43 +3054,6 @@ class BMGame {
     }
 
     /**
-     * Allow setting the array of arrays of game scores
-     *
-     * @param array $value
-     */
-    protected function set__gameScoreArrayArray($value) {
-        $value = array_values($value);
-        if (!is_array($value) ||
-            $this->nPlayers !== count($value)) {
-            throw new InvalidArgumentException(
-                'There must be one game score for each player.'
-            );
-        }
-        $tempArray = array();
-        for ($playerIdx = 0; $playerIdx < count($value); $playerIdx++) {
-            // check whether there are three inputs and they are all positive
-            if ((3 !== count($value[$playerIdx])) ||
-                min(array_map('min', $value)) < 0) {
-                throw new InvalidArgumentException(
-                    'Invalid W/L/T array provided.'
-                );
-            }
-            if (array_key_exists('W', $value[$playerIdx]) &&
-                array_key_exists('L', $value[$playerIdx]) &&
-                array_key_exists('D', $value[$playerIdx])) {
-                $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx]['W'],
-                                               'L' => (int)$value[$playerIdx]['L'],
-                                               'D' => (int)$value[$playerIdx]['D']);
-            } else {
-                $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
-                                               'L' => (int)$value[$playerIdx][1],
-                                               'D' => (int)$value[$playerIdx][2]);
-            }
-        }
-        $this->gameScoreArrayArray = $tempArray;
-    }
-
-    /**
      * Allow setting the maximum number of wins
      *
      * @param int $value
@@ -3284,7 +3246,7 @@ class BMGame {
                 'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $roundScoreArray[$playerIdx],
                 'sideScore'           => $sideScoreArray[$playerIdx],
-                'gameScoreArray'      => $this->gameScoreArrayArray[$playerIdx],
+                'gameScoreArray'      => $this->playerArray[$playerIdx]->gameScoreArray,
                 'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],
                 'hasDismissedGame'    => $this->hasPlayerDismissedGameArray[$playerIdx],
                 'canStillWin'         => $canStillWinArray[$playerIdx],
@@ -3898,8 +3860,8 @@ class BMGame {
      */
     protected function wereSwingOrOptionValuesReset() {
         // james: need to also consider the case of many multiple draws in a row
-        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
-            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
+        foreach ($this->playerArray as $player) {
+            if ($player->gameScoreArray['W'] > 0 || $player->gameScoreArray['D'] > 0) {
                 return FALSE;
             }
         }

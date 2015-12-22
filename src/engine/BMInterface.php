@@ -661,13 +661,11 @@ class BMInterface {
                 $game->playerWithInitiativeIdx = $pos;
             }
 
-            $game->setArrayPropEntry(
-                'gameScoreArrayArray',
-                $pos,
+            $game->playerArray[$pos]->set_gameScoreArray(
                 array(
-                    'W' => $row['n_rounds_won'],
-                    'L' => $row['n_rounds_lost'],
-                    'D' => $row['n_rounds_drawn']
+                    'W' => (int)$row['n_rounds_won'],
+                    'L' => (int)$row['n_rounds_lost'],
+                    'D' => (int)$row['n_rounds_drawn']
                 )
             );
 
@@ -1211,21 +1209,19 @@ class BMInterface {
     }
 
     protected function save_round_scores($game) {
-        if (isset($game->gameScoreArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                $query = 'UPDATE game_player_map '.
-                         'SET n_rounds_won = :n_rounds_won,'.
-                         '    n_rounds_lost = :n_rounds_lost,'.
-                         '    n_rounds_drawn = :n_rounds_drawn '.
-                         'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':n_rounds_won' => $game->gameScoreArrayArray[$playerIdx]['W'],
-                                          ':n_rounds_lost' => $game->gameScoreArrayArray[$playerIdx]['L'],
-                                          ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
-                                          ':game_id' => $game->gameId,
-                                          ':player_id' => $playerId));
-            }
+        foreach ($game->playerIdArray as $playerIdx => $playerId) {
+            $query = 'UPDATE game_player_map '.
+                     'SET n_rounds_won = :n_rounds_won,'.
+                     '    n_rounds_lost = :n_rounds_lost,'.
+                     '    n_rounds_drawn = :n_rounds_drawn '.
+                     'WHERE game_id = :game_id '.
+                     'AND player_id = :player_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':n_rounds_won' => $game->playerArray[$playerIdx]->gameScoreArray['W'],
+                                      ':n_rounds_lost' => $game->playerArray[$playerIdx]->gameScoreArray['L'],
+                                      ':n_rounds_drawn' => $game->playerArray[$playerIdx]->gameScoreArray['D'],
+                                      ':game_id' => $game->gameId,
+                                      ':player_id' => $playerId));
         }
     }
 
