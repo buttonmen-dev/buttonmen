@@ -29,7 +29,6 @@
  * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
- * @property-read array $roundScoreArray         Current points score in this round
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
@@ -59,6 +58,7 @@
  * @property      array $outOfPlayDieArrayArray  Out-of-play dice for all players
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
+ * @property      array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
@@ -197,13 +197,6 @@ class BMGame {
      * @var int
      */
     protected $nRecentPasses;
-
-    /**
-     * Current points score in this round
-     *
-     * @var array
-     */
-    protected $roundScoreArray;
 
     /**
      * The game ends when a player has this many wins
@@ -1747,7 +1740,7 @@ class BMGame {
     }
 
     protected function do_next_step_end_round() {
-        $roundScoreArray = $this->get__roundScoreArray();
+        $roundScoreArray = $this->get_roundScoreArray();
         if (isset($this->forceRoundResult)) {
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->isPrevRoundWinner = $this->forceRoundResult[$playerIdx];
@@ -2546,7 +2539,7 @@ class BMGame {
      * @return array
      */
     protected function get_sideScoreArray() {
-        $roundScoreArray = $this->get__roundScoreArray();
+        $roundScoreArray = $this->get_roundScoreArray();
 
         if (2 != count($roundScoreArray) ||
             is_null($roundScoreArray[0]) ||
@@ -2732,38 +2725,15 @@ class BMGame {
     }
 
     /**
-     * Current round score
+     * Current round scores for all players
      *
      * @return array
      */
-    protected function get__roundScoreArray() {
-        if ($this->gameState <= BMGameState::SPECIFY_DICE) {
-            return array_fill(0, $this->nPlayers, NULL);
-        }
-
-        $roundScoreX10Array = array_fill(0, $this->nPlayers, 0);
-        $roundScoreArray = array_fill(0, $this->nPlayers, 0);
+    protected function get_roundScoreArray() {
+        $roundScoreArray = array_fill(0, $this->nPlayers, NULL);
 
         foreach ($this->playerArray as $playerIdx => $player) {
-            $activeDieScoreX10 = 0;
-            foreach ($player->activeDieArray as $activeDie) {
-                $activeDieScoreX10 += $activeDie->get_scoreValueTimesTen();
-            }
-            $roundScoreX10Array[$playerIdx] = $activeDieScoreX10;
-        }
-
-        foreach ($this->playerArray as $playerIdx => $player) {
-            if (!empty($player->capturedDieArray)) {
-                $capturedDieScoreX10 = 0;
-                foreach ($player->capturedDieArray as $capturedDie) {
-                    $capturedDieScoreX10 += $capturedDie->get_scoreValueTimesTen();
-                }
-                $roundScoreX10Array[$playerIdx] += $capturedDieScoreX10;
-            }
-        }
-
-        foreach ($roundScoreX10Array as $playerIdx => $roundScoreX10) {
-            $roundScoreArray[$playerIdx] = $roundScoreX10/10;
+            $roundScoreArray[$playerIdx] = $player->roundScore;
         }
 
         return $roundScoreArray;
@@ -3045,15 +3015,6 @@ class BMGame {
     }
 
     /**
-     * Prevent setting of the round score
-     */
-    protected function set__roundScoreArray() {
-        throw new LogicException(
-            'BMGame->roundScoreArray is derived automatically from BMGame.'
-        );
-    }
-
-    /**
      * Allow setting the maximum number of wins
      *
      * @param int $value
@@ -3228,7 +3189,6 @@ class BMGame {
         $playerDataArray = array();
 
         // helper arrays of data that BMGame naturally produces in array form
-        $roundScoreArray = $this->get__roundScoreArray();
         $sideScoreArray = $this->get_sideScoreArray();
         $canStillWinArray = $this->get_canStillWinArray();
 
@@ -3244,7 +3204,7 @@ class BMGame {
                 'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
                 'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
-                'roundScore'          => $roundScoreArray[$playerIdx],
+                'roundScore'          => $this->playerArray[$playerIdx]->roundScore,
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $this->playerArray[$playerIdx]->gameScoreArray,
                 'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],

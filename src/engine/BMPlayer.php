@@ -17,6 +17,7 @@
  * @property      array    $outOfPlayDieArray      Array of dice out of play
  * @property      bool     $waitingOnAction        Does this player need to perform an action?
  * @property      bool     $isPrevRoundWinner      Has this player just won the previous round?
+ * @property      float    $roundScore             Current points score in this round
  * @property      array    $gameScoreArray         Number of games W/L/D
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  */
@@ -88,6 +89,13 @@ class BMPlayer {
      * @var bool
      */
     protected $isPrevRoundWinner;
+
+    /**
+     * Current round score
+     *
+     * @var float
+     */
+    protected $roundScore;
 
     /**
      * Number of games W/L/D
@@ -227,6 +235,34 @@ class BMPlayer {
             $this->button->ownerObject = $value;
             $this->button->playerIdx = $this->position;
         }
+    }
+
+    protected function set__roundScore() {
+        throw new LogicException('Round score cannot be set directly');
+    }
+
+    protected function get__roundScore() {
+        if ($this->ownerObject->gameState <= BMGameState::SPECIFY_DICE) {
+            return NULL;
+        }
+
+        $roundScoreX10 = 0;
+        $activeDieScoreX10 = 0;
+
+        foreach ($this->activeDieArray as $activeDie) {
+            $activeDieScoreX10 += $activeDie->get_scoreValueTimesTen();
+        }
+        $roundScoreX10 = $activeDieScoreX10;
+
+        if (!empty($this->capturedDieArray)) {
+            $capturedDieScoreX10 = 0;
+            foreach ($this->capturedDieArray as $capturedDie) {
+                $capturedDieScoreX10 += $capturedDie->get_scoreValueTimesTen();
+            }
+            $roundScoreX10 += $capturedDieScoreX10;
+        }
+
+        return $roundScoreX10 / 10;
     }
 
     // utility methods
