@@ -2763,14 +2763,14 @@ class BMGame {
         }
 
         $subProperty = substr($property, 0, strlen($property) - 5);
-        $isSubPropertyArray = ('Array' == substr($subProperty, -5));
+        $isDieArray = ('DieArray' == substr($subProperty, -8));
 
         if (property_exists('BMPlayer', $subProperty)) {
             if ('gameScoreArray' == $subProperty) {
                 foreach ($this->playerArray as $playerIdx => $player) {
                     $player->set_gameScoreArray($value[$playerIdx]);
                 }
-            } else if ($isSubPropertyArray) {
+            } else if ($isDieArray) {
                 $this->setBMPlayerProps($subProperty, $value, 'BMDie');
             } else {
                 $this->setBMPlayerProps($subProperty, $value);
