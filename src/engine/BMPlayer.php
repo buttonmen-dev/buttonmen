@@ -225,7 +225,7 @@ class BMPlayer {
         return $roundScoreX10 / 10;
     }
 
-        /**
+    /**
      * Set gameScoreArray
      *
      * @param array $value
@@ -256,6 +256,19 @@ class BMPlayer {
     }
 
     /**
+     * Set hasPlayerDismissedGame
+     *
+     * @param bool $value
+     */
+    protected function set__hasPlayerDismissedGame($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException('hasPlayerDismissedGame must be a boolean');
+        }
+
+        $this->hasPlayerDismissedGame = $value;
+    }
+
+    /**
      * Set ownerObject
      *
      * @param BMGame $value
@@ -273,19 +286,6 @@ class BMPlayer {
         }
     }
 
-    /**
-     * Set hasPlayerDismissedGame
-     *
-     * @param bool $value
-     */
-    protected function hasPlayerDismissedGame($value) {
-        if (!is_bool($value)) {
-            throw new InvalidArgumentException('hasPlayerDismissedGame must be a boolean');
-        }
-
-        $this->hasPlayerDismissedGame = $value;
-    }
-
     // utility methods
     /**
      * Constructor
@@ -301,12 +301,18 @@ class BMPlayer {
     ) {
         $this->set__playerId($playerId);
         $this->set__position($position);
+        $this->activeDieArray = NULL;
+        $this->capturedDieArray = NULL;
+        $this->outOfPlayDieArray = NULL;
         $this->waitingOnAction = FALSE;
+        $this->button = NULL;
         if (strlen($buttonRecipe) > 0) {
             $this->set__button(new BMButton);
             $this->button->load($buttonRecipe);
         }
+        $this->set_gameScoreArray(array('W' => 0, 'L' => 0, 'D' => 0));
         $this->isPrevRoundWinner = FALSE;
+        $this->hasPlayerDismissedGame = FALSE;
     }
 
     /**

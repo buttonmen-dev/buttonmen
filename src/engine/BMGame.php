@@ -84,7 +84,6 @@ class BMGame {
      */
     protected $playerArray;
 
-
     /**
      * Number of players in the game
      *

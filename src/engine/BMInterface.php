@@ -699,16 +699,10 @@ class BMInterface {
 
         // initialise game arrays
         $nPlayers = $row['n_players'];
-        $game->playerIdArray = array_fill(0, $nPlayers, NULL);
-        $game->gameScoreArrayArray =
-            array_fill(0, $nPlayers, array('W' => 0, 'L' => 0, 'D' => 0));
-        $game->buttonArray = array_fill(0, $nPlayers, NULL);
         $game->isButtonChoiceRandom = array_fill(0, $nPlayers, FALSE);
-        $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
-        $game->hasPlayerDismissedGameArray = array_fill(0, $nPlayers, FALSE);
         $game->hasPlayerAcceptedGameArray = array_fill(0, $nPlayers, FALSE);
     }
 
@@ -778,8 +772,6 @@ class BMInterface {
                 $pos,
                 ((int)$row['was_game_dismissed'] == 1)
             );
-        } else {
-            $game->setArrayPropEntry('hasPlayerDismissedGameArray', $pos, 0);
         }
     }
 
