@@ -499,5 +499,5 @@ class BMInterfaceHistory extends BMInterface {
             );
         }
     }
-
 }
+
