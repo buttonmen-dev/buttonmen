@@ -608,6 +608,7 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->set_message("Internal error while loading game.");
+            var_dump($e->getMessage());
             return NULL;
         }
     }

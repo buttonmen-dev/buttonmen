@@ -47,7 +47,6 @@
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
  * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
- * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
  * @property      int   $logEntryLimit           Number of log entries to display
  *
  * Convenience accessors for BMPlayer properties:
@@ -60,6 +59,7 @@
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
+ * @property      array $hasPlayerDismissedGameArray  Whether or not each player has dismissed this game
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
@@ -343,13 +343,6 @@ class BMGame {
      * @var array
      */
     public $hasPlayerAcceptedGameArray;
-
-    /**
-     * Used by the database to record whether each player has dismissed this game
-     *
-     * @var array
-     */
-    public $hasPlayerDismissedGameArray;
 
     /**
      * Used by BMInterface to store how many log entries to display
@@ -3208,7 +3201,7 @@ class BMGame {
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $this->playerArray[$playerIdx]->gameScoreArray,
                 'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],
-                'hasDismissedGame'    => $this->hasPlayerDismissedGameArray[$playerIdx],
+                'hasDismissedGame'    => $this->playerArray[$playerIdx]->hasPlayerDismissedGame,
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
 
