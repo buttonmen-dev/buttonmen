@@ -590,8 +590,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         $gameId = $retval['gameId'];
         $game = self::load_game($gameId);
-        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
-        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
         $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
@@ -608,8 +606,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         $gameId = $retval['gameId'];
         $game = self::load_game($gameId);
-        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
-        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
         $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
@@ -626,8 +622,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         $gameId = $retval['gameId'];
         $game = self::load_game($gameId);
-        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
-        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
         $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
@@ -1006,6 +1000,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $this->assertEquals(2, $game->maxWins);
         $game->buttonArray = array($button1, $button2);
@@ -1156,8 +1151,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 1);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $game->buttonArray = array($button1, $button2);
-
         $game->waitingOnActionArray = array(FALSE, FALSE);
 
         self::save_game($game);
@@ -1236,6 +1231,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $this->assertEquals(2, $game->maxWins);
         $game->buttonArray = array($button1, $button2);
@@ -1303,6 +1299,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);

@@ -446,10 +446,6 @@ class BMInterface {
             return;
         }
 
-        if (!isset($game->hasPlayerAcceptedGameArray)) {
-            throw new LogicException('hasPlayerAcceptedGameArray needs to exist');
-        }
-
         $playerIdx = array_search($playerId, $game->playerIdArray);
 
         if (FALSE === $playerIdx) {
@@ -459,7 +455,7 @@ class BMInterface {
         $player = $game->playerArray[$playerIdx];
         $player->waitingOnAction = FALSE;
         $decisionFlag = ('accept' == $decision);
-        $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
+        $player->hasPlayerAcceptedGame = $decisionFlag;
 
         if (!$decisionFlag) {
             $game->gameState = BMGameState::REJECTED;
@@ -608,7 +604,6 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->set_message("Internal error while loading game.");
-            var_dump($e->getMessage());
             return NULL;
         }
     }
@@ -655,7 +650,7 @@ class BMInterface {
                 }
                 $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
                 $game->setArrayPropEntry('fireOvershootingArray', $pos, (bool)$row['fire_overshooting']);
-                $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);
+                $player->hasPlayerAcceptedGame = (bool)$row['has_player_accepted'];
             }
 
             if (1 == $row['did_win_initiative']) {
@@ -703,7 +698,6 @@ class BMInterface {
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
-        $game->hasPlayerAcceptedGameArray = array_fill(0, $nPlayers, FALSE);
     }
 
     protected function load_button($game, $pos, $row) {
@@ -767,11 +761,8 @@ class BMInterface {
 
     protected function load_hasPlayerDismissedGame($game, $pos, $row) {
         if (isset($row['was_game_dismissed'])) {
-            $game->setArrayPropEntry(
-                'hasPlayerDismissedGameArray',
-                $pos,
-                ((int)$row['was_game_dismissed'] == 1)
-            );
+            $player = $game->playerArray[$pos];
+            $player->hasPlayerDismissedGame = ((int)$row['was_game_dismissed'] == 1);
         }
     }
 
@@ -1333,22 +1324,20 @@ class BMInterface {
     }
 
     protected function save_player_game_decisions($game) {
-        if (isset($game->hasPlayerAcceptedGameArray)) {
-            foreach ($game->hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
-                $query = 'UPDATE game_player_map '.
-                         'SET has_player_accepted = :has_player_accepted '.
-                         'WHERE game_id = :game_id '.
-                         'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-                if ($hasAccepted) {
-                    $hasPlayerAccepted = 1;
-                } else {
-                    $hasPlayerAccepted = 0;
-                }
-                $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
-                                          ':game_id' => $game->gameId,
-                                          ':position' => $playerIdx));
+        foreach ($game->playerArray as $playerIdx => $player) {
+            $query = 'UPDATE game_player_map '.
+                     'SET has_player_accepted = :has_player_accepted '.
+                     'WHERE game_id = :game_id '.
+                     'AND position = :position;';
+            $statement = self::$conn->prepare($query);
+            if ($player->hasPlayerAcceptedGame) {
+                $hasPlayerAccepted = 1;
+            } else {
+                $hasPlayerAccepted = 0;
             }
+            $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
+                                      ':game_id' => $game->gameId,
+                                      ':position' => $playerIdx));
         }
     }
 
@@ -3143,7 +3132,8 @@ class BMInterface {
                                       ':id'         => $gameId));
 
             $game = $this->load_game($gameId);
-            $game->hasPlayerAcceptedGameArray[$emptyPlayerIdx] = TRUE;
+            $player = $game->playerArray[$emptyPlayerIdx];
+            $player->hasPlayerAcceptedGame = TRUE;
             $this->save_game($game);
             $this->set_message('Successfully joined game ' . $gameId);
 

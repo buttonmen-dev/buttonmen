@@ -19,6 +19,7 @@
  * @property      bool     $isPrevRoundWinner      Has this player just won the previous round?
  * @property      float    $roundScore             Current points score in this round
  * @property      array    $gameScoreArray         Number of games W/L/D
+ * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  */
@@ -107,6 +108,13 @@ class BMPlayer {
      * @var array
      */
     public $gameScoreArray;
+
+    /**
+     * Used by the database to record whether this player has accepted this game
+     *
+     * @var bool
+     */
+    protected $hasPlayerAcceptedGame;
 
     /**
      * Used by the database to record whether this player has dismissed this game
@@ -256,6 +264,19 @@ class BMPlayer {
     }
 
     /**
+     * Set hasPlayerAcceptedGame
+     *
+     * @param bool $value
+     */
+    protected function set__hasPlayerAcceptedGame($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException('hasPlayerAcceptedGame must be a boolean');
+        }
+
+        $this->hasPlayerAcceptedGame = $value;
+    }
+
+    /**
      * Set hasPlayerDismissedGame
      *
      * @param bool $value
@@ -312,6 +333,7 @@ class BMPlayer {
         }
         $this->set_gameScoreArray(array('W' => 0, 'L' => 0, 'D' => 0));
         $this->isPrevRoundWinner = FALSE;
+        $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
     }
 

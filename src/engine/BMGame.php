@@ -46,7 +46,6 @@
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
- * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
  * @property      int   $logEntryLimit           Number of log entries to display
  *
  * Convenience accessors for BMPlayer properties:
@@ -59,7 +58,8 @@
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
- * @property      array $hasPlayerDismissedGameArray  Whether or not each player has dismissed this game
+ * @property      array $hasPlayerAcceptedGameArray  Whether each player has accepted this game
+ * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
@@ -337,13 +337,6 @@ class BMGame {
     public $isButtonChoiceRandom;
 
     /**
-     * Used by the database to record whether each player has accepted this game
-     *
-     * @var array
-     */
-    public $hasPlayerAcceptedGameArray;
-
-    /**
      * Used by BMInterface to store how many log entries to display
      *
      * @var int
@@ -453,10 +446,13 @@ class BMGame {
     }
 
     protected function update_game_state_choose_join_game() {
-        if (isset($this->hasPlayerAcceptedGameArray) &&
-            is_array($this->hasPlayerAcceptedGameArray) &&
-            in_array(FALSE, $this->hasPlayerAcceptedGameArray)) {
-            foreach ($this->hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
+        $hasPlayerAcceptedGameArray = array_fill(0, $this->nPlayers, NULL);
+        foreach ($this->playerArray as $playerIdx => $player) {
+            $hasPlayerAcceptedGameArray[$playerIdx] = $player->hasPlayerAcceptedGame;
+        }
+
+        if (in_array(FALSE, $hasPlayerAcceptedGameArray)) {
+            foreach ($hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
                 $player = $this->playerArray[$playerIdx];
                 $player->waitingOnAction = !$hasAccepted;
             }
