@@ -40,7 +40,6 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'dismissGame',
             'editForumPost',
             'joinOpenGame',
             'loadActivePlayers',
@@ -1289,8 +1288,11 @@ class DummyApiResponder {
         }
     }
 
-    protected function get_interface_response_dismissGame() {
-        return array(TRUE, 'Dismissing game succeeded');
+    protected function get_interface_response_dismissGame($args) {
+        return $this->load_json_data_from_file(
+            'dismissGame',
+            $args['gameId'] . '.json'
+        );
     }
 
     ////////////////////////////////////////////////////////////

@@ -67,7 +67,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'loadGameData');
+            'dismissGame', 'loadGameData');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -1029,7 +1029,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'type' => 'submitDieValues',
             'game' => $gameId,
             'roundNumber' => $roundNum,
-            // BUG #1877: this argument will no longer be needed when #1275 is fixed
+            // BUG: this argument will no longer be needed when #1275 is fixed
             'timestamp' => 1234567890,
         );
         if ($swingArray) {
@@ -2074,8 +2074,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('dismissGame');
 
-        $dummy_game_id = '5';
-
         // create and complete a game so we have the ID to dismiss
         $real_game_id = $this->verify_api_createGame(
             array(20, 30),
@@ -2109,12 +2107,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'gameId' => $real_game_id,
         );
         $retval = $this->verify_api_success($args);
-        $args = array(
-            'type' => 'dismissGame',
-            'gameId' => $dummy_game_id,
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($dummyval, $retval, "game dismissal responses should be identical");
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Dismissing game succeeded');
+        $this->assertEquals($retval['data'], TRUE);
+
+        // Hardcode a single fake game number here until we need to test dismissing in a more complex way
+        $fakeGameNumber = 5;
+        $this->cache_json_api_output('dismissGame', $fakeGameNumber, $retval);
     }
 
     ////////////////////////////////////////////////////////////
@@ -2143,7 +2143,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
 
         $this->assertEquals($retval['status'], 'ok');
-        // BUG: this message should be different
+        // BUG #1877: this message should be different
         $this->assertEquals($retval['message'], 'Forum thread loading succeeded');
         $this->assertEquals($retval['data']['boardId'], 1);
         $this->assertEquals($retval['data']['threadTitle'], 'Who likes ice cream?');
