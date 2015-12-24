@@ -1029,7 +1029,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'type' => 'submitDieValues',
             'game' => $gameId,
             'roundNumber' => $roundNum,
-            // BUG: this argument will no longer be needed when #1275 is fixed
+            // BUG #1877: this argument will no longer be needed when #1275 is fixed
             'timestamp' => 1234567890,
         );
         if ($swingArray) {
@@ -1313,6 +1313,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $this->verify_api_failure($args, 'Game create failed because you must be the first player.');
 
+
+        // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
             'responder003', 'responder004', 'Avis', 'Avis', 3, '', NULL, 'data'
@@ -1324,6 +1326,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
 
         $this->cache_json_api_output('createGame', 'Avis_Avis', $retval);
+
+
+        // Successfully create an open game
+        $retval = $this->verify_api_createGame(
+            array(),
+            'responder003', '', 'Avis', '', 3, '', NULL, 'data'
+        );
+
+        $this->assertEquals('ok', $retval['status'], 'Game creation should succeed');
+        $this->assertEquals(array('gameId'), array_keys($retval['data']));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+        $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
+
+        $this->cache_json_api_output('createGame', 'Avis_None', $retval);
     }
 
     /**
