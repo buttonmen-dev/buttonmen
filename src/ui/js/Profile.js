@@ -122,6 +122,13 @@ Profile.buildProfileTable = function() {
     commentHolder.append(cookedComment);
   }
 
+  var vacationHolder = null;
+  if (Api.profile_info.vacation) {
+    vacationHolder = $('<span>');
+    var cookedVacationMessage = Env.prepareRawTextForDisplay(Api.profile_info.vacation);
+    vacationHolder.append(cookedVacationMessage);
+  }
+
   var homepageLink = null;
   if (Api.profile_info.homepage) {
     var homepageUrl = Env.validateUrl(Api.profile_info.homepage);
@@ -207,6 +214,10 @@ Profile.buildProfileTable = function() {
     homepageLink, 'homeless', false));
   tbody.append(Profile.buildProfileTableRow('Comment',
     commentHolder, 'none', false));
+  if (vacationHolder) {
+    tbody.append(Profile.buildProfileTableRow('Vacation Message',
+      vacationHolder, 'none', false));
+  }
 
   if (!Env.getCookieNoImages()) {
     var url;
