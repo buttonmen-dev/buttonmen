@@ -120,6 +120,10 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'shadowwarriors_fernworthy_newgame_active') { return '2701'; }
 
   if (gameDesc == 'beatnikturtle_firebreather_adjustfire_inactive') { return '2803'; }
+  if (gameDesc == 'beatnikturtle_firebreather_adjustfire_active') { return '2805'; }
+
+  // this game number needs to not correspond to any game in the database
+  if (gameDesc == 'NOGAME') { return '10000000'; }
 }
 
 // We don't currently usually test reading the URL bar contents, because
