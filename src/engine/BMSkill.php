@@ -348,6 +348,12 @@ class BMSkill {
         return $defender;
     }
 
+    /**
+     * Checks whether there is exactly one defender
+     *
+     * @param array $defenderArray
+     * @return boolean
+     */
     protected static function has_single_defender(array $defenderArray) {
         // rage may add an extra defender, but it won't be captured
         $defCount = 0;

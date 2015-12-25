@@ -2973,10 +2973,21 @@ class BMInterface {
         if (count($chatLogEntries) == 0) {
             return FALSE;
         }
-        // Only the most recent chat entry can be modified --- was
-        // it made by the active player?
-        if ((FALSE === $currentPlayerIdx) ||
-            ($playerNameArray[$currentPlayerIdx] != $chatLogEntries[0]['player']) ||
+
+        // only a player in this game can modify the last chat message
+        if (FALSE === $currentPlayerIdx) {
+            return FALSE;
+        }
+
+        // only the player who chatted last can modify the last chat message
+        if ($playerNameArray[$currentPlayerIdx] != $chatLogEntries[0]['player']) {
+            return FALSE;
+        }
+
+        // only the player who was last active can modify the last chat message,
+        // unless the game is in a state where the last activity in the game was
+        // an automatic action
+        if (('' != $actionLogEntries[0]['player']) &&
             ($playerNameArray[$currentPlayerIdx] != $actionLogEntries[0]['player'])) {
             return FALSE;
         }

@@ -1026,7 +1026,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Set the maximum value of the die
      *
-     *  @param int $value
+     * @param int $value
      */
     protected function set__max($value) {
         if ($value === 0) {
