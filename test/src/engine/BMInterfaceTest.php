@@ -283,10 +283,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $gameId = $retval['gameId'];
 
         $game = self::load_game($gameId);
-        $this->assertFalse(empty($game->buttonArray[0]));
-        $this->assertEquals('Coil', $game->buttonArray[0]->name);
-        $this->assertFalse(empty($game->buttonArray[1]));
-        $this->assertNotEquals('__random', $game->buttonArray[1]->name);
+
+        $this->assertFalse(empty($game->playerArray[0]->button));
+        $this->assertEquals('Coil', $game->playerArray[0]->button->name);
+        $this->assertFalse(empty($game->playerArray[1]->button));
+        $this->assertNotEquals('__random', $game->playerArray[1]->button->name);
         $this->assertGreaterThan(BMGameState::START_GAME, $game->gameState);
     }
 
@@ -303,26 +304,26 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $gameId = $retval['gameId'];
 
         $game = self::load_game($gameId);
-        $this->assertTrue(empty($game->buttonArray[0]));
-        $this->assertTrue($game->isButtonChoiceRandom[0]);
-        $this->assertTrue(empty($game->buttonArray[1]));
-        $this->assertFalse($game->isButtonChoiceRandom[1]);
+        $this->assertTrue(empty($game->playerArray[0]->button));
+        $this->assertTrue($game->playerArray[0]->isButtonChoiceRandom);
+        $this->assertTrue(empty($game->playerArray[1]->button));
+        $this->assertFalse($game->playerArray[1]->isButtonChoiceRandom);
 
         self::save_game($game);
         $game = self::load_game($gameId);
-        $this->assertTrue(empty($game->buttonArray[0]));
-        $this->assertTrue($game->isButtonChoiceRandom[0]);
-        $this->assertTrue(empty($game->buttonArray[1]));
-        $this->assertFalse($game->isButtonChoiceRandom[1]);
+        $this->assertTrue(empty($game->playerArray[0]->button));
+        $this->assertTrue($game->playerArray[0]->isButtonChoiceRandom);
+        $this->assertTrue(empty($game->playerArray[1]->button));
+        $this->assertFalse($game->playerArray[1]->isButtonChoiceRandom);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
 
         $retval = $this->object->select_button(self::$userId2WithoutAutopass, $gameId, '__random');
         $this->assertTrue($retval);
         $game = self::load_game($gameId);
-        $this->assertFalse(empty($game->buttonArray[0]));
-        $this->assertTrue($game->isButtonChoiceRandom[0]);
-        $this->assertFalse(empty($game->buttonArray[1]));
-        $this->assertTrue($game->isButtonChoiceRandom[1]);
+        $this->assertFalse(empty($game->playerArray[0]->button));
+        $this->assertTrue($game->playerArray[0]->isButtonChoiceRandom);
+        $this->assertFalse(empty($game->playerArray[1]->button));
+        $this->assertTrue($game->playerArray[1]->isButtonChoiceRandom);
         $this->assertGreaterThan(BMGameState::START_GAME, $game->gameState);
     }
 
@@ -360,9 +361,9 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         $game = self::load_game($gameId);
         $this->assertTrue(empty($game->buttonArray[0]));
-        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertTrue($game->playerArray[0]->isButtonChoiceRandom);
         $this->assertTrue(empty($game->buttonArray[1]));
-        $this->assertTrue($game->isButtonChoiceRandom[1]);
+        $this->assertTrue($game->playerArray[1]->isButtonChoiceRandom);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
     }
 

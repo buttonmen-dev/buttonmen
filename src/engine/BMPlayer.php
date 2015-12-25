@@ -124,6 +124,14 @@ class BMPlayer {
     protected $hasPlayerDismissedGame;
 
     /**
+     * Used by the database to record whether the choice of the
+     * button was random or not
+     *
+     * @var bool
+     */
+    protected $isButtonChoiceRandom;
+
+    /**
      * BMGame that owns this BMPlayer object
      *
      * @var BMGame
@@ -335,6 +343,7 @@ class BMPlayer {
         $this->isPrevRoundWinner = FALSE;
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
+        $this->isButtonChoiceRandom = FALSE;
     }
 
     /**

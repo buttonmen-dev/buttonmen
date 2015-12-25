@@ -694,7 +694,6 @@ class BMInterface {
 
         // initialise game arrays
         $nPlayers = $row['n_players'];
-        $game->isButtonChoiceRandom = array_fill(0, $nPlayers, FALSE);
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
@@ -721,7 +720,8 @@ class BMInterface {
         }
 
         if ($row['is_button_random']) {
-            $game->isButtonChoiceRandom[$pos] = TRUE;
+            $player = $game->playerArray[$pos];
+            $player->isButtonChoiceRandom = TRUE;
         }
     }
 
@@ -1033,12 +1033,12 @@ class BMInterface {
         $allButtonData = array();
         $nButtons = 0;
 
-        foreach ($game->buttonArray as $buttonIdx => $button) {
-            if (!empty($button)) {
+        foreach ($game->playerArray as $playerIdx => $player) {
+            if (!empty($player->button)) {
                 continue;
             }
 
-            if (!$game->isButtonChoiceRandom[$buttonIdx]) {
+            if (!$player->isButtonChoiceRandom) {
                 continue;
             }
 
@@ -1050,7 +1050,7 @@ class BMInterface {
             $randIdx = bm_rand(0, $nButtons - 1);
             $buttonId = $allButtonData[$randIdx]['buttonId'];
 
-            $this->choose_button($game, $buttonId, $buttonIdx);
+            $this->choose_button($game, $buttonId, $playerIdx);
         }
 
         // ensure that the chat and game acceptance have also been cached
@@ -1062,27 +1062,31 @@ class BMInterface {
     }
 
     protected function does_need_random_button_selection(BMGame $game) {
+        $hasRandomlyChosenButtons = FALSE;
+        $hasUnresolvedNames = FALSE;
+        foreach ($game->playerArray as $player) {
+            // do not resolve random names unless all players have joined the game
+            if (empty($player->playerId)) {
+                return FALSE;
+            }
+
+            $hasRandomlyChosenButtons |= $player->isButtonChoiceRandom;
+            $hasUnresolvedNames |= is_null($player->button);
+        }
+
         // only resolve random names if there are some randomly chosen buttons
-        if (empty($game->isButtonChoiceRandom) ||
-            !in_array(TRUE, $game->isButtonChoiceRandom)) {
+        if (!$hasRandomlyChosenButtons) {
             return FALSE;
         }
 
         // only resolve random names if there are some left to resolve
-        if (!in_array(NULL, $game->buttonArray, TRUE)) {
+        if (!$hasUnresolvedNames) {
             return FALSE;
         }
 
         // do not resolve random names unless all buttons have been chosen
-        foreach ($game->buttonArray as $buttonIdx => $button) {
-            if (empty($button) && !$game->isButtonChoiceRandom[$buttonIdx]) {
-                return FALSE;
-            }
-        }
-
-        // do not resolve random names unless all players have joined the game
-        foreach ($game->playerIdArray as $playerId) {
-            if (empty($playerId)) {
+        foreach ($game->playerArray as $player) {
+            if (empty($player->button) && !$player->isButtonChoiceRandom) {
                 return FALSE;
             }
         }
@@ -1177,17 +1181,15 @@ class BMInterface {
             return;
         }
 
-        if (isset($game->isButtonChoiceRandom)) {
-            foreach ($game->isButtonChoiceRandom as $position => $isRandomButton) {
-                if ($isRandomButton) {
-                    $query = 'UPDATE game_player_map '.
-                             'SET is_button_random = 1 '.
-                             'WHERE game_id = :game_id '.
-                             'AND position = :position;';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':game_id' => $game->gameId,
-                                              ':position' => $position));
-                }
+        foreach ($game->playerArray as $position => $player) {
+            if ($player->isButtonChoiceRandom) {
+                $query = 'UPDATE game_player_map '.
+                         'SET is_button_random = 1 '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id' => $game->gameId,
+                                          ':position' => $position));
             }
         }
     }

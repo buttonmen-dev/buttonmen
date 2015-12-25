@@ -27,7 +27,9 @@
  * @property-read array $defenderAllDieArray     Array of all defender's dice
  * @property-read array $attackerAttackDieArray  Array of attacker's dice used in attack
  * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
+ *
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
+ *
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
@@ -39,6 +41,7 @@
  * @property      string $description;           Description provided when the game was created
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
+ *
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
@@ -46,6 +49,7 @@
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
+ *
  * @property      int   $logEntryLimit           Number of log entries to display
  *
  * Convenience accessors for BMPlayer properties:
@@ -60,6 +64,7 @@
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property      array $hasPlayerAcceptedGameArray  Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
+ * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
@@ -327,14 +332,6 @@ class BMGame {
      * @var array
      */
     public $lastActionTimeArray;
-
-    /**
-     * Used by the database to record whether the choice of the
-     * button was random or not
-     *
-     * @var array
-     */
-    public $isButtonChoiceRandom;
 
     /**
      * Used by BMInterface to store how many log entries to display

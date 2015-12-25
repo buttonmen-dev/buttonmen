@@ -5,11 +5,11 @@
 <body>
     <?php
 
-        recreate_database('buttonmen');
+        //recreate_database('buttonmen');
         recreate_database('buttonmen_test');
 
-        $conn = db_connect('buttonmen');
-        run_all_sql_files($conn);
+//        $conn = db_connect('buttonmen');
+//        run_all_sql_files($conn);
 
         $conn = db_connect('buttonmen_test');
         run_all_sql_files($conn);
