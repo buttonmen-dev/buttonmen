@@ -696,7 +696,6 @@ class BMInterface {
         $nPlayers = $row['n_players'];
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
-        $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
     }
 
     protected function load_button($game, $pos, $row) {
@@ -749,13 +748,8 @@ class BMInterface {
 
     protected function load_lastActionTime($game, $pos, $row) {
         if (isset($row['player_last_action_timestamp'])) {
-            $game->setArrayPropEntry(
-                'lastActionTimeArray',
-                $pos,
-                (int)$row['player_last_action_timestamp']
-            );
-        } else {
-            $game->setArrayPropEntry('lastActionTimeArray', $pos, 0);
+            $player = $game->playerArray[$pos];
+            $player->lastActionTime = (int)$row['player_last_action_timestamp'];
         }
     }
 

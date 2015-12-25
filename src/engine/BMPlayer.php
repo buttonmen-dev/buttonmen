@@ -21,6 +21,7 @@
  * @property      array    $gameScoreArray         Number of games W/L/D
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
+ * @property      int      $lastActionTime         Time of last action
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  */
 class BMPlayer {
@@ -130,6 +131,13 @@ class BMPlayer {
      * @var bool
      */
     protected $isButtonChoiceRandom;
+
+    /**
+     * The last time that this player performed an action
+     *
+     * @var int
+     */
+    public $lastActionTime;
 
     /**
      * BMGame that owns this BMPlayer object
@@ -344,6 +352,7 @@ class BMPlayer {
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;
+        $this->lastActionTime = NULL;
     }
 
     /**

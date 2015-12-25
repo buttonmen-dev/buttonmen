@@ -48,7 +48,6 @@
  * @property      array $optRequestArrayArray    Option requests for all players
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
- * @property      array $lastActionTimeArray     Times of last actions for each player
  *
  * @property      int   $logEntryLimit           Number of log entries to display
  *
@@ -62,9 +61,10 @@
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
- * @property      array $hasPlayerAcceptedGameArray  Whether each player has accepted this game
+ * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
+ * @property      array $lastActionTimeArray     Times of last actions for each player
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
@@ -325,13 +325,6 @@ class BMGame {
      * @var array
      */
     public $prevOptValueArrayArray;
-
-    /**
-     * Array holding the times that each player performed an action
-     *
-     * @var array
-     */
-    public $lastActionTimeArray;
 
     /**
      * Used by BMInterface to store how many log entries to display
@@ -3192,7 +3185,7 @@ class BMGame {
                 'roundScore'          => $this->playerArray[$playerIdx]->roundScore,
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $this->playerArray[$playerIdx]->gameScoreArray,
-                'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],
+                'lastActionTime'      => $this->playerArray[$playerIdx]->lastActionTime,
                 'hasDismissedGame'    => $this->playerArray[$playerIdx]->hasPlayerDismissedGame,
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
