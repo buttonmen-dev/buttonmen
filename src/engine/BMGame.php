@@ -39,7 +39,6 @@
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  *
- * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
  * @property      array $optValueArrayArray      Option values for current round for all players
@@ -58,6 +57,7 @@
  * @property      array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property      array $swingRequestArrayArray  Swing requests for all players
+ * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -273,13 +273,6 @@ class BMGame {
      * @var array
      */
     protected $forceRoundResult;
-
-    /**
-     * Array of arrays containing chosen swing values
-     *
-     * @var array
-     */
-    public $swingValueArrayArray;
 
     /**
      * Array of arrays containing chosen swing values from last round
@@ -545,12 +538,8 @@ class BMGame {
     }
 
     protected function load_swing_values_from_previous_round() {
-        if (!isset($this->swingValueArrayArray)) {
-            return;
-        }
-
-        foreach ($this->playerArray as $playerIdx => $player) {
-            if (empty($this->swingValueArrayArray[$playerIdx])) {
+        foreach ($this->playerArray as $player) {
+            if (empty($player->swingValueArray)) {
                 continue;
             }
 
@@ -558,10 +547,10 @@ class BMGame {
                 if ($activeDie instanceof BMDieSwing) {
                     if (array_key_exists(
                         $activeDie->swingType,
-                        $this->swingValueArrayArray[$playerIdx]
+                        $player->swingValueArray
                     )) {
                         $activeDie->swingValue =
-                            $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
+                            $player->swingValueArray[$activeDie->swingType];
                     }
                 }
             }
@@ -783,12 +772,7 @@ class BMGame {
     }
 
     protected function initialise_swing_value_array_array() {
-        foreach ($this->playerArray as $playerIdx => $player) {
-            // initialise swingValueArrayArray if necessary
-            if (!isset($this->swingValueArrayArray[$playerIdx])) {
-                $this->swingValueArrayArray[$playerIdx] = array();
-            }
-
+        foreach ($this->playerArray as $player) {
             if (empty($player->swingRequestArray)) {
                 continue;
             }
@@ -798,14 +782,14 @@ class BMGame {
             foreach ($keyArray as $key) {
                 // copy swing request keys to swing value keys if they
                 // do not already exist
-                if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
-                    $this->swingValueArrayArray[$playerIdx][$key] = NULL;
+                if (!array_key_exists($key, $player->swingValueArray)) {
+                    $player->swingValueArray[$key] = NULL;
                 }
 
                 // set waitingOnActionArray based on if there are
                 // unspecified swing dice for that player
-                if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
-                    $this->playerArray[$playerIdx]->waitingOnAction = TRUE;
+                if (is_null($player->swingValueArray[$key])) {
+                    $player->waitingOnAction = TRUE;
                 }
             }
         }
@@ -837,18 +821,16 @@ class BMGame {
     }
 
     protected function set_swing_values() {
-        foreach ($this->playerArray as $playerIdx => $player) {
+        foreach ($this->playerArray as $player) {
             if (!$player->waitingOnAction) {
                 // apply swing values
-                foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
+                foreach ($player->activeDieArray as $die) {
                     if (isset($die->swingType)) {
-                        $isSetSuccessful = $die->set_swingValue(
-                            $this->swingValueArrayArray[$playerIdx]
-                        );
+                        $isSetSuccessful = $die->set_swingValue($player->swingValueArray);
                         // act appropriately if the swing values are invalid
                         if (!$isSetSuccessful) {
                             $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
-                            $this->swingValueArrayArray[$playerIdx] = array();
+                            $player->swingValueArray = array();
                             $player->waitingOnAction = TRUE;
                             return;
                         }
@@ -1749,7 +1731,7 @@ class BMGame {
                     $player->isPrevRoundWinner = TRUE;
                 } else {
                     $player->gameScoreArray['L']++;
-                    $this->swingValueArrayArray[$playerIdx] = array();
+                    $player->swingValueArray = array();
                     $this->optValueArrayArray[$playerIdx] = array();
                 }
             }
@@ -1785,7 +1767,9 @@ class BMGame {
 
         // swingValueArrayArray must be reset to clear entries in the
         // database table game_swing_map
-        $this->swingValueArrayArray = array_fill(0, $this->nPlayers, array());
+        foreach ($this->playerArray as $player) {
+            $player->swingValueArray = array();
+        }
         $this->prevSwingValueArrayArray = NULL;
 
         // optValueArrayArray must be reset to clear entries in the

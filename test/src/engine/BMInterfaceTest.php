@@ -93,7 +93,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->activeDieArrayArray[1][4] ===
                           $game->swingRequestArrayArray[1]['X'][1]);
 
-        $this->assertTrue(isset($game->swingValueArrayArray));
         $this->assertEquals(array(array('X' => NULL), array('X' => NULL)),
                             $game->swingValueArrayArray);
 
@@ -230,7 +229,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->activeDieArrayArray[1][4] ===
                           $game->swingRequestArrayArray[1]['Z'][0]);
 
-        $this->assertTrue(isset($game->swingValueArrayArray));
         $this->assertEquals(array(
                                 array('V' => NULL, 'W' => NULL, 'X' => NULL, 'Y' => NULL, 'Z' => NULL),
                                 array('V' => NULL, 'W' => NULL, 'X' => NULL, 'Y' => NULL, 'Z' => NULL)
@@ -810,7 +808,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertTrue($player->activeDieArray[4] ===
                           $player->swingRequestArray['X'][1]);
 
-        $this->assertTrue(isset($game->swingValueArrayArray));
         $this->assertEquals(array(array('X' => 19), array('X' => 5)),
                             $game->swingValueArrayArray);
 
@@ -822,7 +819,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertFalse(isset($game->attack));
         $this->assertEquals(0, $game->nRecentPasses);
         $this->assertTrue($game->playerArray[$game->activePlayerIdx]->waitingOnAction);
-
 
         // check score
         $this->assertEquals(0, $game->playerArray[0]->gameScoreArray['W']);
@@ -848,7 +844,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
 
         // specify swing dice correctly
-        $game->swingValueArrayArray = array(array('X'=>17), array('X'=>8));
+        $player = $game->playerArray[0];
+        $player->swingValueArray = array('X' => 17);
+        $player = $game->playerArray[1];
+        $player->swingValueArray = array('X' => 8);
+
         self::save_game($game);
         $game = self::load_game($gameId);
 
