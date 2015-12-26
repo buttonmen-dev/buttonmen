@@ -769,7 +769,6 @@ class BMInterface {
     }
 
     protected function load_swing_values_from_last_round($game) {
-        $game->prevSwingValueArrayArray = array_fill(0, $game->nPlayers, array());
         $query = 'SELECT * '.
                  'FROM game_swing_map '.
                  'WHERE game_id = :game_id '.
@@ -779,7 +778,8 @@ class BMInterface {
                                    ':is_expired' => 1));
         while ($row = $statement2->fetch()) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-            $game->prevSwingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            $player = $game->playerArray[$playerIdx];
+            $player->prevSwingValueArray[$row['swing_type']] = $row['swing_value'];
         }
     }
 
@@ -1220,25 +1220,19 @@ class BMInterface {
     }
 
     protected function save_swing_values_from_last_round($game) {
-        if (isset($game->prevSwingValueArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                if (!array_key_exists($playerIdx, $game->prevSwingValueArrayArray)) {
-                    continue;
-                }
-                $swingValueArray = $game->prevSwingValueArrayArray[$playerIdx];
-                if (!empty($swingValueArray)) {
-                    foreach ($swingValueArray as $swingType => $swingValue) {
-                        $query = 'INSERT INTO game_swing_map '.
-                                 '(game_id, player_id, swing_type, swing_value, is_expired) '.
-                                 'VALUES '.
-                                 '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':game_id'     => $game->gameId,
-                                                  ':player_id'   => $playerId,
-                                                  ':swing_type'  => $swingType,
-                                                  ':swing_value' => $swingValue,
-                                                  ':is_expired'  => TRUE));
-                    }
+        foreach ($game->playerArray as $playerIdx => $player) {
+            if (!empty($player->prevSwingValueArray)) {
+                foreach ($player->prevSwingValueArray as $swingType => $swingValue) {
+                    $query = 'INSERT INTO game_swing_map '.
+                             '(game_id, player_id, swing_type, swing_value, is_expired) '.
+                             'VALUES '.
+                             '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':game_id'     => $game->gameId,
+                                              ':player_id'   => $game->playerIdArray[$playerIdx],
+                                              ':swing_type'  => $swingType,
+                                              ':swing_value' => $swingValue,
+                                              ':is_expired'  => TRUE));
                 }
             }
         }

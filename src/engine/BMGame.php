@@ -39,7 +39,6 @@
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  *
- * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
@@ -58,6 +57,7 @@
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
+ * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -273,13 +273,6 @@ class BMGame {
      * @var array
      */
     protected $forceRoundResult;
-
-    /**
-     * Array of arrays containing chosen swing values from last round
-     *
-     * @var array
-     */
-    public $prevSwingValueArrayArray;
 
     /**
      * Array of arrays containing option value requests
@@ -866,7 +859,9 @@ class BMGame {
 
     protected function update_game_state_specify_dice() {
         if (!$this->isWaitingOnAnyAction()) {
-            $this->prevSwingValueArrayArray = NULL;
+            foreach ($this->playerArray as $player) {
+                $player->prevSwingValueArray = array();
+            }
             $this->prevOptValueArrayArray = NULL;
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         }
@@ -1721,11 +1716,11 @@ class BMGame {
                 $forceRoundResult = FALSE;
             }
 
-            $this->prevSwingValueArrayArray = $this->swingValueArrayArray;
             $this->prevOptValueArrayArray = $this->optValueArrayArray;
             $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
             foreach ($this->playerArray as $playerIdx => $player) {
+                $player->prevSwingValueArray = $player->swingValueArray;
                 if ($playerIdx == $winnerIdx) {
                     $player->gameScoreArray['W']++;
                     $player->isPrevRoundWinner = TRUE;
@@ -1769,8 +1764,8 @@ class BMGame {
         // database table game_swing_map
         foreach ($this->playerArray as $player) {
             $player->swingValueArray = array();
+            $player->prevSwingValueArray = array();
         }
-        $this->prevSwingValueArrayArray = NULL;
 
         // optValueArrayArray must be reset to clear entries in the
         // database table game_option_map
@@ -3140,7 +3135,7 @@ class BMGame {
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
                 'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
                 'optRequestArray'     => $this->get_optRequestArray($playerIdx),
-                'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
+                'prevSwingValueArray' => $this->playerArray[$playerIdx]->prevSwingValueArray,
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
                 'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $this->playerArray[$playerIdx]->roundScore,
@@ -3674,22 +3669,6 @@ class BMGame {
         }
 
         return $optRequestArray;
-    }
-
-    /**
-     * Array of previous choice of swing values
-     *
-     * @param int $playerIdx
-     * @return array
-     */
-    protected function get_prevSwingValueArray($playerIdx) {
-        if (empty($this->prevSwingValueArrayArray)) {
-            $prevSwingValueArray = array();
-        } else {
-            $prevSwingValueArray = $this->prevSwingValueArrayArray[$playerIdx];
-        }
-
-        return $prevSwingValueArray;
     }
 
     /**

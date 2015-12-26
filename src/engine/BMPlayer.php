@@ -133,6 +133,16 @@ class BMPlayer {
     public $swingValueArray;
 
     /**
+     * Array containing chosen swing values from last round
+     *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
+     * @var array
+     */
+    public $prevSwingValueArray;
+
+    /**
      * Used by the database to record whether this player has accepted this game
      *
      * @var bool
@@ -373,6 +383,7 @@ class BMPlayer {
         $this->isPrevRoundWinner = FALSE;
         $this->swingRequestArray = array();
         $this->swingValueArray = array();
+        $this->prevSwingValueArray = array();
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;
