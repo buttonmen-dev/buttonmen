@@ -5,12 +5,12 @@
 <body>
     <?php
 
-        //recreate_database('buttonmen');
-        recreate_database('buttonmen_test');
-
+// james: uncomment the following lines to also initialise the interactive database
+//        recreate_database('buttonmen');
 //        $conn = db_connect('buttonmen');
 //        run_all_sql_files($conn);
 
+        recreate_database('buttonmen_test');
         $conn = db_connect('buttonmen_test');
         run_all_sql_files($conn);
 
