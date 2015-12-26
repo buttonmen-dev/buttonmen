@@ -8990,7 +8990,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($game, $game->buttonArray[1]->dieArray[4]->ownerObject);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
+        var_dump('test start');
         $game->proceed_to_next_user_action();
+        var_dump('test end');
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);

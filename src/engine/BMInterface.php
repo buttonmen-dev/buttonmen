@@ -970,8 +970,8 @@ class BMInterface {
     }
 
     protected function recreate_optRequestArrayArray($game) {
-        foreach ($game->activeDieArrayArray as $activeDieArray) {
-            foreach ($activeDieArray as $activeDie) {
+        foreach ($game->playerArray as $player) {
+            foreach ($player->activeDieArray as $activeDie) {
                 if ($activeDie instanceof BMDieOption) {
                     $game->request_option_values(
                         $activeDie,

@@ -20,7 +20,9 @@
  * @property      float    $roundScore             Current points score in this round
  * @property      array    $gameScoreArray         Number of games W/L/D
  * @property      array    $swingRequestArray      Swing requests
- * @property      array    $swingValueArrayArray   Swing values
+ * @property      array    $swingValueArray        Swing values
+ * @property      array    $prevSwingValueArray    Swing values for previous round
+ * @property      array    $optRequestArray        Option requests
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
@@ -141,6 +143,13 @@ class BMPlayer {
      * @var array
      */
     public $prevSwingValueArray;
+
+    /**
+     * Array containing option value requests
+     *
+     * @var array
+     */
+    public $optRequestArray;
 
     /**
      * Used by the database to record whether this player has accepted this game
@@ -384,6 +393,7 @@ class BMPlayer {
         $this->swingRequestArray = array();
         $this->swingValueArray = array();
         $this->prevSwingValueArray = array();
+        $this->optRequestArray = array();
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;

@@ -39,7 +39,6 @@
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  *
- * @property      array $optRequestArrayArray    Option requests for all players
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  *
@@ -58,6 +57,7 @@
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
+ * @property      array $optRequestArrayArray    Option requests for all players
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -273,13 +273,6 @@ class BMGame {
      * @var array
      */
     protected $forceRoundResult;
-
-    /**
-     * Array of arrays containing option value requests
-     *
-     * @var array
-     */
-    public $optRequestArrayArray;
 
     /**
      * Array of arrays containing chosen option values
@@ -729,31 +722,23 @@ class BMGame {
     }
 
     protected function update_opt_requests_to_ignore_reserve_dice() {
-        if (empty($this->optRequestArrayArray)) {
-            return;
-        }
-
-        $optRequestArrayArray = $this->optRequestArrayArray;
-
-        foreach ($optRequestArrayArray as $playerIdx => $optRequestArray) {
-            if (empty($optRequestArray)) {
+        foreach ($this->playerArray as $playerIdx => $player) {
+            if (empty($player->optRequestArray)) {
                 continue;
             }
 
             $newOptRequestArray = array();
             $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
 
-            foreach ($optRequestArray as $dieIdx => $optRequest) {
+            foreach ($player->optRequestArray as $dieIdx => $optRequest) {
                 $newDieIdx = array_search($dieIdx, $dieIndicesWithoutReserve, TRUE);
                 if (FALSE !== $newDieIdx) {
                     $newOptRequestArray[$newDieIdx] = $optRequest;
                 }
             }
 
-            $optRequestArrayArray[$playerIdx] = $newOptRequestArray;
+            $player->optRequestArray = $newOptRequestArray;
         }
-
-        $this->optRequestArrayArray = $optRequestArrayArray;
     }
 
     protected function do_next_step_specify_dice() {
@@ -789,24 +774,23 @@ class BMGame {
     }
 
     protected function set_option_values() {
-        if (!isset($this->optRequestArrayArray)) {
-            return;
-        }
+        foreach ($this->playerArray as $playerIdx => $player) {
+            if (empty($player->optRequestArray)) {
+                continue;
+            }
 
-        foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
-            foreach (array_keys($optionRequestArray) as $dieIdx) {
+            foreach (array_keys($player->optRequestArray) as $dieIdx) {
                 if (isset($this->optValueArrayArray[$playerIdx]) &&
                     (count($this->optValueArrayArray[$playerIdx]) > 0)) {
                     $optValue = $this->optValueArrayArray[$playerIdx][$dieIdx];
                     if (isset($optValue)) {
-                        $this->playerArray[$playerIdx]
-                             ->activeDieArray[$dieIdx]
-                             ->set_optionValue($optValue);
+                        $player->activeDieArray[$dieIdx]
+                               ->set_optionValue($optValue);
                     }
                 }
 
-                if (!isset($this->playerArray[$playerIdx]->activeDieArray[$dieIdx]->max)) {
-                    $this->playerArray[$playerIdx]->waitingOnAction = TRUE;
+                if (!isset($player->activeDieArray[$dieIdx]->max)) {
+                    $player->waitingOnAction = TRUE;
                     continue 2;
                 }
             }
@@ -1717,7 +1701,6 @@ class BMGame {
             }
 
             $this->prevOptValueArrayArray = $this->optValueArrayArray;
-            $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->prevSwingValueArray = $player->swingValueArray;
@@ -2165,14 +2148,10 @@ class BMGame {
     }
 
     public function request_option_values($die, $optionArray, $playerIdx) {
-        if (!isset($this->optRequestArrayArray)) {
-            $this->optRequestArrayArray =
-                array_fill(0, $this->nPlayers, array());
-        }
-
-        $dieIdx = array_search($die, $this->playerArray[$playerIdx]->activeDieArray, TRUE);
+        $player = $this->playerArray[$playerIdx];
+        $dieIdx = array_search($die, $player->activeDieArray, TRUE);
         assert(FALSE !== $dieIdx);
-        $this->optRequestArrayArray[$playerIdx][$dieIdx] = $optionArray;
+        $player->optRequestArray[$dieIdx] = $optionArray;
     }
 
     public static function does_player_have_initiative_array(
@@ -2376,13 +2355,13 @@ class BMGame {
             $player->capturedDieArray = array();
             $player->outOfPlayDieArray = array();
             $player->swingRequestArray = array();
+            $player->optRequestArray = array();
         }
         $this->attack = NULL;
 
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->setAllToNotWaiting();
-        $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
         unset($this->forceRoundResult);
     }
 
@@ -3134,7 +3113,7 @@ class BMGame {
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
                 'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
-                'optRequestArray'     => $this->get_optRequestArray($playerIdx),
+                'optRequestArray'     => $this->playerArray[$playerIdx]->optRequestArray,
                 'prevSwingValueArray' => $this->playerArray[$playerIdx]->prevSwingValueArray,
                 'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
                 'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
@@ -3653,22 +3632,6 @@ class BMGame {
         }
 
         return TRUE;
-    }
-
-    /**
-     * Array of option requests
-     *
-     * @param int $playerIdx
-     * @return array
-     */
-    protected function get_optRequestArray($playerIdx) {
-        if (is_null($this->optRequestArrayArray)) {
-            $optRequestArray = array();
-        } else {
-            $optRequestArray = $this->optRequestArrayArray[$playerIdx];
-        }
-
-        return $optRequestArray;
     }
 
     /**
