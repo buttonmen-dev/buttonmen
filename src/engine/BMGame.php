@@ -27,9 +27,6 @@
  * @property-read array $defenderAllDieArray     Array of all defender's dice
  * @property-read array $attackerAttackDieArray  Array of attacker's dice used in attack
  * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
- *
- * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
- *
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
@@ -187,13 +184,6 @@ class BMGame {
      * @var array
      */
     protected $defenderAttackDieArray;
-
-    /**
-     * Array storing player decisions about auxiliary dice
-     *
-     * @var array
-     */
-    protected $auxiliaryDieDecisionArrayArray;
 
     /**
      * Number of consecutive passes
