@@ -7677,6 +7677,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This test reproduces a bug in which, when a morphing die captures a swing die, that player is prompted to set swing dice at the end of the round.
@@ -7970,7 +7971,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'responder003 performed Power attack using [wm(6):5] against [(8):1]; Defender (8) was captured; Attacker wm(6) changed size from 6 to 8 sides, recipe changed from wm(6) to wm(8), rerolled 5 => 1. End of round: responder003 won round 1 (50 vs. 19). ',
             $retval, array(array(0, 1), array(1, 0)),
             $gameId, 1, 'Power', 0, 1, '');
-
         $expData['roundNumber'] = 2;
         $expData['gameState'] = 'SPECIFY_DICE';
         $expData['activePlayerIdx'] = NULL;

@@ -3297,9 +3297,9 @@ class BMInterface {
 
     protected function set_swing_values($swingValueArray, $currentPlayerIdx, $game) {
         $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
-        $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
+        $swingRequestArray = $game->playerArray[$currentPlayerIdx]->swingRequestArray;
         if (is_array($swingRequestArray)) {
-            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            $swingRequested = array_keys($game->playerArray[$currentPlayerIdx]->swingRequestArray);
             sort($swingRequested);
         } else {
             $swingRequested = array();

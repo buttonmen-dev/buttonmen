@@ -665,12 +665,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $recipe2 = '(6) (12) (20) (20)';
         $button1->load($recipe1);
         $button2->load($recipe2);
-        $this->object->activeDieArrayArray = array($button1->dieArray,
-                                                   $button2->dieArray);
-        $this->object->swingRequestArrayArray = array(array(), array());
-        $this->object->gameScoreArrayArray = array_fill(0, $this->object->nPlayers, array(0, 0, 0));
+        $player = $this->object->playerArray[0];
+        $player->activeDieArray = $button1->dieArray;
+        $player = $this->object->playerArray[1];
+        $player->activeDieArray = $button2->dieArray;
         $this->object->do_next_step();
-        $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
+        $this->assertFalse($this->object->playerArray[0]->waitingOnAction);
+        $this->assertFalse($this->object->playerArray[1]->waitingOnAction);
         $this->assertEquals(array(array(), array()), $this->object->swingValueArrayArray);
 
         // with swing dice

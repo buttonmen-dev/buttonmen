@@ -39,7 +39,6 @@
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  *
- * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
@@ -58,6 +57,7 @@
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
+ * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -273,13 +273,6 @@ class BMGame {
      * @var array
      */
     protected $forceRoundResult;
-
-    /**
-     * Array of arrays containing swing value requests
-     *
-     * @var array
-     */
-    public $swingRequestArrayArray;
 
     /**
      * Array of arrays containing chosen swing values
@@ -732,7 +725,6 @@ class BMGame {
     protected function add_selected_reserve_dice() {
         $areAnyDiceAdded = array_fill(0, $this->nPlayers, FALSE);
 
-
         foreach ($this->playerArray as $playerIdx => $player) {
             foreach ($player->activeDieArray as $die) {
                 if ($die->has_flag('AddReserve')) {
@@ -791,27 +783,29 @@ class BMGame {
     }
 
     protected function initialise_swing_value_array_array() {
-        if (isset($this->swingRequestArrayArray)) {
-            foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
-                $keyArray = array_keys($swingRequestArray);
+        foreach ($this->playerArray as $playerIdx => $player) {
+            // initialise swingValueArrayArray if necessary
+            if (!isset($this->swingValueArrayArray[$playerIdx])) {
+                $this->swingValueArrayArray[$playerIdx] = array();
+            }
 
-                // initialise swingValueArrayArray if necessary
-                if (!isset($this->swingValueArrayArray[$playerIdx])) {
-                    $this->swingValueArrayArray[$playerIdx] = array();
+            if (empty($player->swingRequestArray)) {
+                continue;
+            }
+
+            $keyArray = array_keys($player->swingRequestArray);
+
+            foreach ($keyArray as $key) {
+                // copy swing request keys to swing value keys if they
+                // do not already exist
+                if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
+                    $this->swingValueArrayArray[$playerIdx][$key] = NULL;
                 }
 
-                foreach ($keyArray as $key) {
-                    // copy swing request keys to swing value keys if they
-                    // do not already exist
-                    if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
-                        $this->swingValueArrayArray[$playerIdx][$key] = NULL;
-                    }
-
-                    // set waitingOnActionArray based on if there are
-                    // unspecified swing dice for that player
-                    if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
-                        $this->playerArray[$playerIdx]->waitingOnAction = TRUE;
-                    }
+                // set waitingOnActionArray based on if there are
+                // unspecified swing dice for that player
+                if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
+                    $this->playerArray[$playerIdx]->waitingOnAction = TRUE;
                 }
             }
         }
@@ -843,22 +837,20 @@ class BMGame {
     }
 
     protected function set_swing_values() {
-        if (isset($this->swingRequestArrayArray)) {
-            foreach ($this->playerArray as $playerIdx => $player) {
-                if (!$player->waitingOnAction) {
-                    // apply swing values
-                    foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
-                        if (isset($die->swingType)) {
-                            $isSetSuccessful = $die->set_swingValue(
-                                $this->swingValueArrayArray[$playerIdx]
-                            );
-                            // act appropriately if the swing values are invalid
-                            if (!$isSetSuccessful) {
-                                $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
-                                $this->swingValueArrayArray[$playerIdx] = array();
-                                $player->waitingOnAction = TRUE;
-                                return;
-                            }
+        foreach ($this->playerArray as $playerIdx => $player) {
+            if (!$player->waitingOnAction) {
+                // apply swing values
+                foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
+                    if (isset($die->swingType)) {
+                        $isSetSuccessful = $die->set_swingValue(
+                            $this->swingValueArrayArray[$playerIdx]
+                        );
+                        // act appropriately if the swing values are invalid
+                        if (!$isSetSuccessful) {
+                            $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
+                            $this->swingValueArrayArray[$playerIdx] = array();
+                            $player->waitingOnAction = TRUE;
+                            return;
                         }
                     }
                 }
@@ -2188,13 +2180,8 @@ class BMGame {
     }
 
     public function request_swing_values($die, $swingtype, $playerIdx) {
-        if (!isset($this->swingRequestArrayArray)) {
-            $this->swingRequestArrayArray =
-                array_fill(0, $this->nPlayers, array());
-        }
-
         if (!$die->does_skip_swing_request()) {
-            $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
+            $this->playerArray[$playerIdx]->swingRequestArray[$swingtype][] = $die;
         }
     }
 
@@ -2409,13 +2396,13 @@ class BMGame {
             $player->activeDieArray = array();
             $player->capturedDieArray = array();
             $player->outOfPlayDieArray = array();
+            $player->swingRequestArray = array();
         }
         $this->attack = NULL;
 
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->setAllToNotWaiting();
-        $this->swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
         $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
         unset($this->forceRoundResult);
     }
@@ -3604,7 +3591,8 @@ class BMGame {
             // information
             if (!$this->playerArray[$playerIdx]->waitingOnAction &&
                 ($playerIdx == $requestingPlayerIdx)) {
-                $swingRequestArrayArray[$playerIdx] = $this->swingRequestArrayArray[$playerIdx];
+                $swingRequestArrayArray[$playerIdx] =
+                    $this->playerArray[$playerIdx]->swingRequestArray;
             }
         } elseif ($this->gameState <= BMGameState::CHOOSE_RESERVE_DICE) {
             $swingRequestArrayArray = $this->get_all_swing_requests(FALSE);

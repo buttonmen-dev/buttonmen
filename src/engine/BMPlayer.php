@@ -19,6 +19,7 @@
  * @property      bool     $isPrevRoundWinner      Has this player just won the previous round?
  * @property      float    $roundScore             Current points score in this round
  * @property      array    $gameScoreArray         Number of games W/L/D
+ * @property      array    $swingRequestArray      Swing requests
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
@@ -109,6 +110,16 @@ class BMPlayer {
      * @var array
      */
     public $gameScoreArray;
+
+    /**
+     * Array containing swing value requests
+     *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
+     * @var array
+     */
+    public $swingRequestArray;
 
     /**
      * Used by the database to record whether this player has accepted this game
@@ -349,6 +360,7 @@ class BMPlayer {
         }
         $this->set_gameScoreArray(array('W' => 0, 'L' => 0, 'D' => 0));
         $this->isPrevRoundWinner = FALSE;
+        $this->swingRequestArray = array();
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;
