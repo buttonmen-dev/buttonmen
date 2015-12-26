@@ -3938,8 +3938,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // player 2: [4] showing [2], captured [10 8]
         // player 1 takes player 2's d4 with a power attack
 
-        $this->assertFalse(isset($game->prevOptValueArrayArray));
-
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
                               array(2), // attackerAttackDieIdxArray
@@ -3952,7 +3950,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(array(array('X' => 19), array('X' => 4)), $game->prevSwingValueArrayArray);
-        $this->assertFalse(isset($game->prevOptValueArrayArray));
 
         // perform end of round scoring
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
@@ -4005,8 +4002,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(5, $game->activeDieArrayArray[0]);
         $this->assertCount(5, $game->activeDieArrayArray[1]);
         $game->proceed_to_next_user_action();
-
-        $this->assertFalse(isset($game->prevOptValueArrayArray));
 
         $this->assertCount(5, $game->activeDieArrayArray[0]);
         $this->assertCount(5, $game->activeDieArrayArray[1]);
@@ -8990,9 +8985,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($game, $game->buttonArray[1]->dieArray[4]->ownerObject);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
-        var_dump('test start');
         $game->proceed_to_next_user_action();
-        var_dump('test end');
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);

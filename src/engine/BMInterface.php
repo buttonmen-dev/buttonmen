@@ -814,7 +814,6 @@ class BMInterface {
     }
 
     protected function load_option_values_from_this_round($game) {
-        $game->optValueArrayArray = array_fill(0, $game->nPlayers, array());
         $query = 'SELECT * '.
                  'FROM game_option_map '.
                  'WHERE game_id = :game_id '.
@@ -824,7 +823,8 @@ class BMInterface {
                                    ':is_expired' => 0));
         while ($row = $statement2->fetch()) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-            $game->optValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
+            $player = $game->playerArray[$playerIdx];
+            $player->optValueArray[$row['die_idx']] = $row['option_value'];
         }
     }
 
@@ -1283,26 +1283,22 @@ class BMInterface {
     }
 
     protected function save_option_values_from_this_round($game) {
-        if (isset($game->optValueArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                if (!array_key_exists($playerIdx, $game->optValueArrayArray)) {
-                    continue;
-                }
-                $optValueArray = $game->optValueArrayArray[$playerIdx];
-                if (isset($optValueArray)) {
-                    foreach ($optValueArray as $dieIdx => $optionValue) {
-                        $query = 'INSERT INTO game_option_map '.
-                                 '(game_id, player_id, die_idx, option_value, is_expired) '.
-                                 'VALUES '.
-                                 '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':game_id'   => $game->gameId,
-                                                  ':player_id' => $playerId,
-                                                  ':die_idx'   => $dieIdx,
-                                                  ':option_value' => $optionValue,
-                                                  ':is_expired' => FALSE));
-                    }
-                }
+        foreach ($game->playerArray as $playerIdx => $player) {
+            if (empty($player->optValueArray)) {
+                continue;
+            }
+
+            foreach ($player->optValueArray as $dieIdx => $optionValue) {
+                $query = 'INSERT INTO game_option_map '.
+                         '(game_id, player_id, die_idx, option_value, is_expired) '.
+                         'VALUES '.
+                         '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id'   => $game->gameId,
+                                          ':player_id' => $game->playerIdArray[$playerIdx],
+                                          ':die_idx'   => $dieIdx,
+                                          ':option_value' => $optionValue,
+                                          ':is_expired' => FALSE));
             }
         }
     }
@@ -3312,8 +3308,9 @@ class BMInterface {
 
     protected function set_option_values($optionValueArray, $currentPlayerIdx, $game) {
         if (is_array($optionValueArray)) {
+            $player = $game->playerArray[$currentPlayerIdx];
             foreach ($optionValueArray as $dieIdx => $optionValue) {
-                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+                $player->optValueArray[$dieIdx] = $optionValue;
             }
         }
     }

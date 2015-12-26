@@ -39,7 +39,6 @@
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  *
- * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  *
  * @property      int   $logEntryLimit           Number of log entries to display
@@ -58,6 +57,7 @@
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
+ * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -273,13 +273,6 @@ class BMGame {
      * @var array
      */
     protected $forceRoundResult;
-
-    /**
-     * Array of arrays containing chosen option values
-     *
-     * @var array
-     */
-    public $optValueArrayArray;
 
     /**
      * Array of arrays containing chosen option values from last round
@@ -544,23 +537,20 @@ class BMGame {
     }
 
     protected function load_option_values_from_previous_round() {
-        if (!isset($this->optValueArrayArray)) {
-            return;
-        }
+        foreach ($this->playerArray as $playerIdx => $player) {
+            if (empty($player->optValueArray)) {
+                continue;
+            }
 
-        foreach ($this->optValueArrayArray as $playerIdx => $optionValueArray) {
-            if (!empty($optionValueArray)) {
-                $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+            $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
 
-                foreach ($optionValueArray as $dieIdx => $optionValue) {
-                    $die = $this->playerArray[$playerIdx]
-                                ->activeDieArray[$dieIndicesWithoutReserve[$dieIdx]];
-                    if (!($die instanceof BMDieOption)) {
-                        throw new LogicException('Die must be an option die.');
-                    }
-
-                    $die->set_optionValue($optionValue);
+            foreach ($player->optValueArray as $dieIdx => $optionValue) {
+                $die = $player->activeDieArray[$dieIndicesWithoutReserve[$dieIdx]];
+                if (!($die instanceof BMDieOption)) {
+                    throw new LogicException('Die must be an option die.');
                 }
+
+                $die->set_optionValue($optionValue);
             }
         }
     }
@@ -774,15 +764,14 @@ class BMGame {
     }
 
     protected function set_option_values() {
-        foreach ($this->playerArray as $playerIdx => $player) {
+        foreach ($this->playerArray as $player) {
             if (empty($player->optRequestArray)) {
                 continue;
             }
 
             foreach (array_keys($player->optRequestArray) as $dieIdx) {
-                if (isset($this->optValueArrayArray[$playerIdx]) &&
-                    (count($this->optValueArrayArray[$playerIdx]) > 0)) {
-                    $optValue = $this->optValueArrayArray[$playerIdx][$dieIdx];
+                if (!empty($player->optValueArray)) {
+                    $optValue = $player->optValueArray[$dieIdx];
                     if (isset($optValue)) {
                         $player->activeDieArray[$dieIdx]
                                ->set_optionValue($optValue);
@@ -1710,7 +1699,7 @@ class BMGame {
                 } else {
                     $player->gameScoreArray['L']++;
                     $player->swingValueArray = array();
-                    $this->optValueArrayArray[$playerIdx] = array();
+                    $player->optValueArray = array();
                 }
             }
             $this->log_action(
@@ -1743,16 +1732,17 @@ class BMGame {
     protected function do_next_step_end_game() {
         $this->reset_play_state();
 
-        // swingValueArrayArray must be reset to clear entries in the
-        // database table game_swing_map
         foreach ($this->playerArray as $player) {
+            // swingValueArray must be reset to clear entries in the
+            // database table game_swing_map
             $player->swingValueArray = array();
             $player->prevSwingValueArray = array();
+
+            // optValueArray must be reset to clear entries in the
+            // database table game_option_map
+            $player->optValueArray = array();
         }
 
-        // optValueArrayArray must be reset to clear entries in the
-        // database table game_option_map
-        $this->optValueArrayArray = array_fill(0, $this->nPlayers, array());
         $this->prevOptRequestArrayArray = NULL;
     }
 

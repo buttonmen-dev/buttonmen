@@ -2554,7 +2554,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                             $game->optRequestArrayArray);
 
         // specify option dice incorrectly
-        $game->optValueArrayArray[0][2] = 6;
+        $player = $game->playerArray[0];
+        $player->optValueArray[2] = 6;
 
         self::save_game($game);
         $game = self::load_game($game->gameId);
@@ -2562,9 +2563,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertFalse(isset($game->activeDieArrayArray[0][2]->max));
 
         // specify option dice partially
-        $game->optValueArrayArray[0][2] = 12;
-        $game->optValueArrayArray[0][3] = 16;
-        $game->optValueArrayArray[0][4] = 20;
+        $player = $game->playerArray[0];
+        $player->optValueArray[2] = 12;
+        $player->optValueArray[3] = 16;
+        $player->optValueArray[4] = 20;
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
                             $game->optValueArrayArray);
@@ -2632,9 +2634,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
 
-        $game->optValueArrayArray[1][2] = 8;
-        $game->optValueArrayArray[1][3] = 6;
-        $game->optValueArrayArray[1][4] = 12;
+        $player = $game->playerArray[1];
+        $player->optValueArray[2] = 8;
+        $player->optValueArray[3] = 6;
+        $player->optValueArray[4] = 12;
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
