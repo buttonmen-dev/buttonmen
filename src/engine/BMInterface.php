@@ -1343,13 +1343,13 @@ class BMInterface {
     }
 
     protected function save_players_awaiting_action($game) {
-        foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+        foreach ($game->playerArray as $playerIdx => $player) {
             $query = 'UPDATE game_player_map '.
                      'SET is_awaiting_action = :is_awaiting_action '.
                      'WHERE game_id = :game_id '.
                      'AND position = :position;';
             $statement = self::$conn->prepare($query);
-            if ($waitingOnAction) {
+            if ($player->waitingOnAction) {
                 $is_awaiting_action = 1;
             } else {
                 $is_awaiting_action = 0;
@@ -2675,7 +2675,7 @@ class BMInterface {
             return FALSE;
         }
 
-        if (FALSE === $game->waitingOnActionArray[$currentPlayerIdx]) {
+        if (FALSE === $game->playerArray[$currentPlayerIdx]->waitingOnAction) {
             $this->set_message('You are not the active player');
             return FALSE;
         };
@@ -2973,7 +2973,7 @@ class BMInterface {
 
         // If the game is awaiting action from a player, that player
         // can't chat without taking an action
-        if (TRUE === $game->waitingOnActionArray[$currentPlayerIdx]) {
+        if (TRUE === $game->playerArray[$currentPlayerIdx]->waitingOnAction) {
             return FALSE;
         }
 
@@ -3255,7 +3255,7 @@ class BMInterface {
 
             $game->proceed_to_next_user_action();
             // check for successful swing value set
-            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+            if ((FALSE == $game->playerArray[$currentPlayerIdx]->waitingOnAction) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
                 $this->save_game($game);
@@ -3531,7 +3531,7 @@ class BMInterface {
                     }
                     $die = $player->activeDieArray[$dieIdx];
                     $die->add_flag('AddReserve');
-                    $player->waitingOnActionArray = FALSE;
+                    $player->waitingOnAction = FALSE;
                     $game->log_action(
                         'add_reserve',
                         $player->playerId,
