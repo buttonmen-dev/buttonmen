@@ -67,7 +67,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadGameData');
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadGameData',
+            'markForumThreadRead');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -2267,13 +2268,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'boardId' => 1,
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum board loading succeeded');
+        $this->assertEquals($retval['data']['boardId'], 1);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum board loading return values should have matching structures");
+        $this->cache_json_api_output('loadForumBoard', '1', $retval);
     }
 
     public function test_request_loadForumThread() {
@@ -2416,13 +2415,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'timestamp' => strtotime('now'),
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum thread marking as read return values should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum board loading succeeded');
+        $this->assertEquals($retval['data']['boardId'], 1);
+
+        $fakeThreadId = 1;
+        $this->cache_json_api_output('markForumThreadRead', $fakeThreadId, $retval);
     }
 
     // End of Forum-related methods

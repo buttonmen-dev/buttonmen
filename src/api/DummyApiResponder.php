@@ -45,7 +45,6 @@ class DummyApiResponder {
             'loadButtonSetData',
             'loadCompletedGames',
             'loadRejectedGames',
-            'loadForumBoard',
             'loadForumOverview',
             'loadForumThread',
             'loadNewGames',
@@ -60,7 +59,6 @@ class DummyApiResponder {
             'logout',
             'markForumBoardRead',
             'markForumRead',
-            'markForumThreadRead',
             'reactToAuxiliary',
             'reactToInitiative',
             'reactToNewGame',
@@ -1320,40 +1318,11 @@ class DummyApiResponder {
         return array($results, 'Forum overview loading succeeded');
     }
 
-    protected function get_interface_response_loadForumBoard() {
-        $results = array();
-        $results['boardId'] = 1;
-        $results['boardName'] = 'Miscellaneous Chatting';
-        $results['boardColor'] = '#d0e0f0';
-        $results['threadColor'] = '#e7f0f7';
-        $results['description'] = 'Any topic that doesn\'t fit anywhere else.';
-
-        $threads = array();
-        $threads[] = array(
-            'threadId' => 1,
-            'threadTitle' => 'Who likes ice cream?',
-            'numberOfPosts' => 2,
-            'originalPosterName' => 'responder003',
-            'originalCreationTime' => 1401055337,
-            'latestPosterName' => 'responder004',
-            'latestLastUpdateTime' => 1401055397,
-            'firstNewPostId' => 2,
+    protected function get_interface_response_loadForumBoard($args) {
+        return $this->load_json_data_from_file(
+            'loadForumBoard',
+            $args['boardId'] . '.json'
         );
-        $threads[] = array(
-            'threadId' => 2,
-            'threadTitle' => 'Welcome to Button Men',
-            'numberOfPosts' => 1,
-            'originalPosterName' => 'responder003',
-            'originalCreationTime' => 1401055367,
-            'latestPosterName' => 'responder003',
-            'latestLastUpdateTime' => 1401055367,
-            'firstNewPostId' => NULL,
-        );
-
-        $results['threads'] = $threads;
-        $results['timestamp'] = 1401118756;
-
-        return array($results, 'Forum board loading succeeded');
     }
 
     protected function get_interface_response_loadForumThread($args) {
@@ -1418,10 +1387,11 @@ class DummyApiResponder {
         return array($results, 'Forum board marked read successfully');
     }
 
-    protected function get_interface_response_markForumThreadRead() {
-        $otherResults = $this->get_interface_response_loadForumBoard(NULL);
-        $results = $otherResults[0];
-        return array($results, 'Forum thread marked read successfully');
+    protected function get_interface_response_markForumThreadRead($args) {
+        return $this->load_json_data_from_file(
+            'markForumThreadRead',
+            $args['threadId'] . '.json'
+        );
     }
 
     protected function get_interface_response_createForumThread($args) {
