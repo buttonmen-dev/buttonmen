@@ -40,7 +40,6 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'joinOpenGame',
             'loadActivePlayers',
             'loadButtonData',
             'loadButtonSetData',
@@ -145,9 +144,11 @@ class DummyApiResponder {
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
-    protected function get_interface_response_joinOpenGame() {
-        // join_open_game() does not need to return much data
-        return array(TRUE, "");
+    protected function get_interface_response_joinOpenGame($args) {
+        return $this->load_json_data_from_file(
+            'joinOpenGame',
+            $args['gameId'] . '.json'
+        );
     }
 
     protected function get_interface_response_selectButton() {

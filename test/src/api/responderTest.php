@@ -67,7 +67,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'loadGameData');
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadGameData');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -790,6 +790,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals('Successfully joined game ' . $gameId, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+
+        // Fill in the fake number before caching the output
+        $retval['message'] = str_replace($gameId, $fakeGameNumber, $retval['message']);
+
+        $this->cache_json_api_output('joinOpenGame', $fakeGameNumber, $retval);
+
         return $retval['data'];
     }
 
@@ -1379,6 +1387,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     public function test_request_joinOpenGame() {
         $this->verify_login_required('joinOpenGame');
 
+        $this->game_number = 44;
+
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('joinOpenGame');
         $this->verify_mandatory_args_required(
@@ -1401,17 +1411,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
 
         $_SESSION = $this->mock_test_user_login('responder003');
-        $retdata = $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
-
-        $args = array(
-            'type' => 'joinOpenGame',
-            'gameId' => $gameId,
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $dummydata = $dummyval['data'];
-
-        $this->assertEquals($retdata, $dummydata,
-            "Real and dummy game joining return values should both be true");
+        $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
     }
 
     public function test_request_loadOpenGames() {
@@ -12735,6 +12735,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
+
+    // N.B. Fake game 44 is used by a test above
 
     /**
      * @depends test_request_savePlayerInfo

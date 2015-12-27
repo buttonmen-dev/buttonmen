@@ -631,7 +631,7 @@ test("test_Api.parseOpenGames", function(assert) {
 
 test("test_Api.joinOpenGame", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  Api.joinOpenGame(4400, 'Avis',
     function() {
       assert.equal(Api.join_game_result.load_status, 'ok',
         'Successfully retrieved open games');
@@ -645,7 +645,7 @@ test("test_Api.joinOpenGame", function(assert) {
 
 test("test_Api.parseJoinGameResult", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  Api.joinOpenGame(4400, 'Avis',
     function() {
       assert.equal(Api.join_game_result.success, true,
         "Successfully parsed join game result");
