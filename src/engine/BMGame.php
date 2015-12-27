@@ -3688,12 +3688,14 @@ class BMGame {
         $gameBtnSkillsWithKeysList = array();
 
         foreach ($this->playerArray as $player) {
-            if (!is_null($player->button) && count($player->button->dieArray) > 0) {
+            if (!is_null($player->button)) {
                 $gameBtnSkillsWithKeysList += $player->button->skillList;
 
-                foreach ($player->button->dieArray as $buttonDie) {
-                    if (count($buttonDie->skillList) > 0) {
-                        $gameSkillsWithKeysList += $buttonDie->skillList;
+                if (!empty($player->button->dieArray)) {
+                    foreach ($player->button->dieArray as $buttonDie) {
+                        if (count($buttonDie->skillList) > 0) {
+                            $gameSkillsWithKeysList += $buttonDie->skillList;
+                        }
                     }
                 }
             }

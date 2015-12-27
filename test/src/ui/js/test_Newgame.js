@@ -214,8 +214,8 @@ test("test_Newgame.formCreateGame", function(assert) {
   Newgame.getNewgameData(function() {
     Newgame.actionCreateGame();
     $('#opponent_name').val('tester2');
-    $('#player_button').val('Crab');
-    $('#opponent_button').val('John Kovalic');
+    $('#player_button').val('Avis');
+    $('#opponent_button').val('Avis');
     $.ajaxSetup({ async: false });
     $('#newgame_action_button').trigger('click');
     assert.equal(

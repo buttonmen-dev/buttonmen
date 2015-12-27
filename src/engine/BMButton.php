@@ -233,6 +233,8 @@ class BMButton extends BMCanHaveSkill {
      * Activate all dice in dieArray. This causes clones of the dice to be
      * added to their ownerObjects. Since their ownerObjects should be the
      * BMGame that owns the button, this effectively adds dice to the game.
+     *
+     * @param boolean $forceSwingRequest
      */
     public function activate($forceSwingRequest = FALSE) {
         foreach ($this->dieArray as $die) {
