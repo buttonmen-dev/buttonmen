@@ -40,7 +40,6 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'editForumPost',
             'joinOpenGame',
             'loadActivePlayers',
             'loadButtonData',
@@ -1449,12 +1448,11 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_editForumPost() {
-        $otherResults = $this->get_interface_response_loadForumThread(
-            array('currentPostId' => 2)
+    protected function get_interface_response_editForumPost($args) {
+        return $this->load_json_data_from_file(
+            'editForumPost',
+            $args['postId'] . '.json'
         );
-        $results = $otherResults[0];
-        return array($results, 'Forum post edited successfully');
     }
 
     // End of Forum-related methods

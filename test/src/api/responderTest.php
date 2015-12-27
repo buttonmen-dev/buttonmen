@@ -67,7 +67,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'loadGameData');
+            'dismissGame', 'editForumPost', 'loadGameData');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -2218,13 +2218,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'body' => 'Cat!',
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum post edited successfully');
+        $this->assertEquals($retval['data']['currentPostId'], $args['postId']);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum post editing return values should have matching structures");
+        // Cache retval under a fake post ID for dummy API retrieval
+        $fakePostId = 2;
+        $retval['data']['currentPostId'] = $fakePostId;
+        $this->cache_json_api_output('editForumPost', $fakePostId, $retval);
     }
 
     public function test_request_loadForumOverview() {
