@@ -1155,17 +1155,17 @@ class BMInterface {
     }
 
     protected function save_button_recipes($game) {
-        foreach ($game->buttonArray as $playerIdx => $button) {
-            if (($button instanceof BMButton) &&
-                ($button->hasAlteredRecipe)) {
+        foreach ($game->playerArray as $playerIdx => $player) {
+            if (($player->button instanceof BMButton) &&
+                ($player->button->hasAlteredRecipe)) {
                 $query = 'UPDATE game_player_map '.
                          'SET alt_recipe = :alt_recipe '.
                          'WHERE game_id = :game_id '.
                          'AND player_id = :player_id;';
                 $statement = self::$conn->prepare($query);
-                $statement->execute(array(':alt_recipe' => $button->recipe,
+                $statement->execute(array(':alt_recipe' => $player->button->recipe,
                                           ':game_id' => $game->gameId,
-                                          ':player_id' => $game->playerArray[$playerIdx]->playerId));
+                                          ':player_id' => $player->playerId));
             }
         }
     }
@@ -3145,7 +3145,7 @@ class BMInterface {
                 return FALSE;
             }
 
-            if (!is_null($game->buttonArray[$playerIdx])) {
+            if (!is_null($game->playerArray[$playerIdx]->button)) {
                 $this->set_message('Button has already been selected.');
                 return FALSE;
             }

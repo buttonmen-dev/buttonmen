@@ -75,7 +75,7 @@ abstract class BMAttack {
             $attackTypeArray['Skill'] = 'Skill';
 
             if ($attacker->ownerObject instanceof BMGame) {
-                $ownerButton = $attacker->ownerObject->buttonArray[$attacker->playerIdx];
+                $ownerButton = $attacker->ownerObject->playerArray[$attacker->playerIdx]->button;
                 $ownerButton->run_hooks(
                     'attack_list',
                     array('attackTypeArray' => &$attackTypeArray)
