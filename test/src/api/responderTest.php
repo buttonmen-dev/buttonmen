@@ -67,7 +67,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadGameData');
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadGameData');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -1647,20 +1647,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_mandatory_args_required(
             'loadActivePlayers',
-            array('numberOfPlayers' => 20)
+            array('numberOfPlayers' => 50)
         );
 
-        $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 20);
+	// Invoke an API call which will make sure responder001 is
+	// one of the most recent active players, then return to the default user.
+        // (N.B. We have to pick responder001, because if multiple players are active in the same second,
+        // loadActivePlayers alphabetizes them.)
+        $_SESSION = $this->mock_test_user_login('responder001');
+        $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
+        $this->verify_api_success($args);
+        $_SESSION = $this->mock_test_user_login();
+
+        // Now invoke loadActivePlayers
+        $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 50);
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Active players retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('players'));
+        $this->assertEquals($retval['data']['players'][0]['playerName'], 'responder001');
 
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player names should have matching structures");
+        $this->cache_json_api_output('loadActivePlayers', '50', $retval);
     }
 
     public function test_request_loadButtonData() {

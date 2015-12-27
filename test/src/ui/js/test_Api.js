@@ -574,7 +574,7 @@ test("test_Api.loadForumThread", function(assert) {
 
 test("test_Api.getActivePlayers", function(assert) {
   stop();
-  Api.getActivePlayers(20,
+  Api.getActivePlayers(50,
     function() {
       assert.equal(Api.active_players.load_status, 'ok',
         'Successfully retrieved active players');
@@ -584,7 +584,7 @@ test("test_Api.getActivePlayers", function(assert) {
 
 test("test_Api.parseActivePlayers", function(assert) {
   stop();
-  Api.getActivePlayers(20,
+  Api.getActivePlayers(50,
     function() {
       assert.ok(Api.active_players.players.length,
         "Successfully parsed active players info");

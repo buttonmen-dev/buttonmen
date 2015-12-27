@@ -40,11 +40,9 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'loadActivePlayers',
+            'loadActiveGames',
             'loadButtonData',
             'loadButtonSetData',
-            'loadActiveGames',
-            'loadActivePlayers',
             'loadCompletedGames',
             'loadRejectedGames',
             'loadForumBoard',
@@ -808,20 +806,11 @@ class DummyApiResponder {
         return array($data, 'Next game ID retrieved successfully.');
     }
 
-    protected function get_interface_response_loadActivePlayers() {
-        $players = array(
-            array(
-                'playerName' => 'responder003',
-                'idleness' => '0 seconds',
-            ),
-            array(
-                'playerName' => 'responder004',
-                'idleness' => '12 minutes',
-            ),
+    protected function get_interface_response_loadActivePlayers($args) {
+        return $this->load_json_data_from_file(
+            'loadActivePlayers',
+            $args['numberOfPlayers'] . '.json'
         );
-
-        return array(array('players' => $players),
-            'Active players retrieved successfully.');
     }
 
     protected function get_interface_response_loadButtonData($args) {

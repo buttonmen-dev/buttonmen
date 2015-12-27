@@ -1,4 +1,4 @@
-  module("ActivePlayers", {
+module("ActivePlayers", {
   'setup': function() {
     BMTestUtils.ActivePlayersPre = BMTestUtils.getAllElements();
 
@@ -99,7 +99,8 @@ test("test_ActivePlayers.buildPlayersTable", function(assert) {
   Api.getActivePlayers(50, function() {
     var table = ActivePlayers.buildPlayersTable();
     var htmlout = table.html();
-    assert.ok(htmlout.match('12 minutes'), "Players table content was generated");
+    assert.ok(htmlout.match('responder0'), "Players table content contains a username");
+    assert.ok(htmlout.match(' seconds'), "Players table content contains a timestamp");
     start();
   });
 });
