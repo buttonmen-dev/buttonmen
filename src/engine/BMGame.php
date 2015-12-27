@@ -38,9 +38,6 @@
  * @property      string $description;           Description provided when the game was created
  * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
- *
- * @property      array $prevOptValueArrayArray  Option values for previous round for all players
- *
  * @property      int   $logEntryLimit           Number of log entries to display
  *
  * Convenience accessors for BMPlayer properties:
@@ -58,6 +55,7 @@
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
  * @property      array $optValueArrayArray      Option values for current round for all players
+ * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -273,13 +271,6 @@ class BMGame {
      * @var array
      */
     protected $forceRoundResult;
-
-    /**
-     * Array of arrays containing chosen option values from last round
-     *
-     * @var array
-     */
-    public $prevOptValueArrayArray;
 
     /**
      * Used by BMInterface to store how many log entries to display
@@ -834,8 +825,8 @@ class BMGame {
         if (!$this->isWaitingOnAnyAction()) {
             foreach ($this->playerArray as $player) {
                 $player->prevSwingValueArray = array();
+                $player->prevOptValueArray = array();
             }
-            $this->prevOptValueArrayArray = NULL;
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         }
     }
@@ -1689,10 +1680,9 @@ class BMGame {
                 $forceRoundResult = FALSE;
             }
 
-            $this->prevOptValueArrayArray = $this->optValueArrayArray;
-
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->prevSwingValueArray = $player->swingValueArray;
+                $player->prevOptValueArray = $player->optValueArray;
                 if ($playerIdx == $winnerIdx) {
                     $player->gameScoreArray['W']++;
                     $player->isPrevRoundWinner = TRUE;
@@ -3095,23 +3085,23 @@ class BMGame {
         $sideScoreArray = $this->get_sideScoreArray();
         $canStillWinArray = $this->get_canStillWinArray();
 
-        foreach ($this->getBMPlayerProps('playerId') as $playerIdx => $playerId) {
+        foreach ($this->playerArray as $playerIdx => $player) {
             $playerData = array(
-                'playerId'            => $playerId,
+                'playerId'            => $player->playerId,
                 'button'              => $this->get_buttonInfo($playerIdx),
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
                 'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
-                'optRequestArray'     => $this->playerArray[$playerIdx]->optRequestArray,
-                'prevSwingValueArray' => $this->playerArray[$playerIdx]->prevSwingValueArray,
-                'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
+                'optRequestArray'     => $player->optRequestArray,
+                'prevSwingValueArray' => $player->prevSwingValueArray,
+                'prevOptValueArray'   => $player->prevOptValueArray,
                 'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
-                'roundScore'          => $this->playerArray[$playerIdx]->roundScore,
+                'roundScore'          => $player->roundScore,
                 'sideScore'           => $sideScoreArray[$playerIdx],
-                'gameScoreArray'      => $this->playerArray[$playerIdx]->gameScoreArray,
-                'lastActionTime'      => $this->playerArray[$playerIdx]->lastActionTime,
-                'hasDismissedGame'    => $this->playerArray[$playerIdx]->hasPlayerDismissedGame,
+                'gameScoreArray'      => $player->gameScoreArray,
+                'lastActionTime'      => $player->lastActionTime,
+                'hasDismissedGame'    => $player->hasPlayerDismissedGame,
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
 
@@ -3622,22 +3612,6 @@ class BMGame {
         }
 
         return TRUE;
-    }
-
-    /**
-     * Array of previous choice of option values
-     *
-     * @param type $playerIdx
-     * @return type
-     */
-    protected function get_prevOptValueArray($playerIdx) {
-        if (empty($this->prevOptValueArrayArray)) {
-            $prevOptValueArray = array();
-        } else {
-            $prevOptValueArray = $this->prevOptValueArrayArray[$playerIdx];
-        }
-
-        return $prevOptValueArray;
     }
 
     protected function get_waitingOnActionArray($playerIdx, $requestingPlayerIdx) {

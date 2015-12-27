@@ -24,6 +24,7 @@
  * @property      array    $prevSwingValueArray    Swing values for previous round
  * @property      array    $optRequestArray        Option requests
  * @property      array    $optValueArray          Option values for current round
+ * @property      array    $prevOptValueArray      Option values for previous round
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
@@ -148,6 +149,9 @@ class BMPlayer {
     /**
      * Array containing option value requests
      *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
      * @var array
      */
     public $optRequestArray;
@@ -155,9 +159,22 @@ class BMPlayer {
     /**
      * Array containing chosen option values
      *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
      * @var array
      */
     public $optValueArray;
+
+    /**
+     * Array containing chosen option values from last round
+     *
+     * This is deliberately public, since PHP doesn't allow proper access to
+     * the contents of encapsulated arrays.
+     *
+     * @var array
+     */
+    public $prevOptValueArray;
 
     /**
      * Used by the database to record whether this player has accepted this game
@@ -403,6 +420,7 @@ class BMPlayer {
         $this->prevSwingValueArray = array();
         $this->optRequestArray = array();
         $this->optValueArray = array();
+        $this->prevOptValueArray = array();
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;
