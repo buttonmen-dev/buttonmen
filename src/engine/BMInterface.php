@@ -3240,7 +3240,7 @@ class BMInterface {
             // will simply be dropped.
             $optionLogArray = array();
             foreach ($optionValueArray as $dieIdx => $optionValue) {
-                $dieRecipe = $game->activeDieArrayArray[$currentPlayerIdx][$dieIdx]->recipe;
+                $dieRecipe = $game->playerArray[$currentPlayerIdx]->activeDieArray[$dieIdx]->recipe;
                 $optionLogArray[$dieRecipe] = $optionValue;
             }
             $game->log_action(
@@ -3349,15 +3349,15 @@ class BMInterface {
             $defenderDieIdx = array();
 
             // divide selected dice up into attackers and defenders
-            $nAttackerDice = count($game->activeDieArrayArray[$attackerIdx]);
-            $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
+            $nAttackerDice = count($game->playerArray[$attackerIdx]->activeDieArray);
+            $nDefenderDice = count($game->playerArray[$defenderIdx]->activeDieArray);
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
                 if (filter_var(
                     $dieSelectStatus["playerIdx_{$attackerIdx}_dieIdx_{$dieIdx}"],
                     FILTER_VALIDATE_BOOLEAN
                 )) {
-                    $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
+                    $attackers[] = $game->playerArray[$attackerIdx]->activeDieArray[$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }
             }
@@ -3367,7 +3367,7 @@ class BMInterface {
                     $dieSelectStatus["playerIdx_{$defenderIdx}_dieIdx_{$dieIdx}"],
                     FILTER_VALIDATE_BOOLEAN
                 )) {
-                    $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
+                    $defenders[] = $game->playerArray[$defenderIdx]->activeDieArray[$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
             }
@@ -3440,22 +3440,21 @@ class BMInterface {
             }
 
             $playerIdx = array_search($playerId, $game->playerIdArray);
+            $player = $game->playerArray[$playerIdx];
 
             switch ($action) {
                 case 'add':
-                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
-                        !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
+                    if (!array_key_exists($dieIdx, $player->activeDieArray) ||
+                        !$player->activeDieArray[$dieIdx]->has_skill('Auxiliary')) {
                         $this->set_message('Invalid auxiliary choice');
                         return FALSE;
                     }
-                    $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
+                    $die = $player->activeDieArray[$dieIdx];
                     $die->add_flag('AddAuxiliary');
-                    $waitingOnActionArray = $game->waitingOnActionArray;
-                    $waitingOnActionArray[$playerIdx] = FALSE;
-                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $player->waitingOnAction = FALSE;
                     $game->log_action(
                         'add_auxiliary',
-                        $game->playerArray[$playerIdx]->playerId,
+                        $player->playerId,
                         array(
                             'roundNumber' => $game->roundNumber,
                             'die' => $die->get_action_log_data(),
@@ -3464,10 +3463,10 @@ class BMInterface {
                     $this->set_message('Chose to add auxiliary die');
                     break;
                 case 'decline':
-                    $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $game->setAllToNotWaiting();
                     $game->log_action(
                         'decline_auxiliary',
-                        $game->playerArray[$playerIdx]->playerId,
+                        $player->playerId,
                         array('declineAuxiliary' => TRUE)
                     );
                     $this->set_message('Declined auxiliary dice');
@@ -3521,33 +3520,30 @@ class BMInterface {
             }
 
             $playerIdx = array_search($playerId, $game->playerIdArray);
+            $player = $game->playerArray[$playerIdx];
 
             switch ($action) {
                 case 'add':
-                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
-                        !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Reserve')) {
+                    if (!array_key_exists($dieIdx, $player->activeDieArray) ||
+                        !$player->activeDieArray[$dieIdx]->has_skill('Reserve')) {
                         $this->set_message('Invalid reserve choice');
                         return FALSE;
                     }
-                    $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
+                    $die = $player->activeDieArray[$dieIdx];
                     $die->add_flag('AddReserve');
-                    $waitingOnActionArray = $game->waitingOnActionArray;
-                    $waitingOnActionArray[$playerIdx] = FALSE;
-                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $player->waitingOnActionArray = FALSE;
                     $game->log_action(
                         'add_reserve',
-                        $game->playerArray[$playerIdx]->playerId,
+                        $player->playerId,
                         array( 'die' => $die->get_action_log_data(), )
                     );
                     $this->set_message('Reserve die chosen successfully');
                     break;
                 case 'decline':
-                    $waitingOnActionArray = $game->waitingOnActionArray;
-                    $waitingOnActionArray[$playerIdx] = FALSE;
-                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $player->waitingOnAction = FALSE;
                     $game->log_action(
                         'decline_reserve',
-                        $game->playerArray[$playerIdx]->playerId,
+                        $player->playerId,
                         array('declineReserve' => TRUE)
                     );
                     $this->set_message('Declined reserve dice');

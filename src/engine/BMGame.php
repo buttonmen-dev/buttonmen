@@ -3850,7 +3850,7 @@ class BMGame {
     /**
      * Set all players' waitingOnAction statuses to FALSE
      */
-    protected function setAllToNotWaiting() {
+    public function setAllToNotWaiting() {
         foreach ($this->playerArray as $player) {
             $player->waitingOnAction = FALSE;
         }
