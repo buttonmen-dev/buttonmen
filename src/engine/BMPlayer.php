@@ -29,6 +29,8 @@
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
+ *
+ * @SuppressWarnings(PMD.TooManyFields)
  */
 class BMPlayer {
     // properties -- all accessible, but written as protected to enable the use of

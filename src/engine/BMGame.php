@@ -63,8 +63,6 @@
  *
  * @SuppressWarnings(PMD.CouplingBetweenObjects)
  * @SuppressWarnings(PMD.TooManyFields)
- * @SuppressWarnings(PMD.TooManyMethods)
- * @SuppressWarnings(PMD.UnusedPrivateField)
  */
 class BMGame {
     // properties -- all accessible, but written as protected to enable the use of

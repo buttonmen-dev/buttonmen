@@ -1155,7 +1155,7 @@ class BMInterface {
     }
 
     protected function save_button_recipes($game) {
-        foreach ($game->playerArray as $playerIdx => $player) {
+        foreach ($game->playerArray as $player) {
             if (($player->button instanceof BMButton) &&
                 ($player->button->hasAlteredRecipe)) {
                 $query = 'UPDATE game_player_map '.
@@ -1283,7 +1283,7 @@ class BMInterface {
     }
 
     protected function save_option_values_from_this_round($game) {
-        foreach ($game->playerArray as $playerIdx => $player) {
+        foreach ($game->playerArray as $player) {
             if (empty($player->optValueArray)) {
                 continue;
             }
