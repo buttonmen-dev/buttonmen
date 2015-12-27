@@ -929,7 +929,7 @@ class BMInterface {
             foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $swingType = $subdie->swingType;
-                    $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+                    $subdie->set_swingValue($game->playerArray[$originalPlayerIdx]->swingValueArray);
                 }
             }
 

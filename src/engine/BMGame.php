@@ -48,7 +48,7 @@
  * @property      array $outOfPlayDieArrayArray  Out-of-play dice for all players
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
- * @property      array $roundScoreArray         Current points score in this round
+ * @property-read array $roundScoreArray         Current points score in this round
  * @property      array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -1731,9 +1731,8 @@ class BMGame {
             // optValueArray must be reset to clear entries in the
             // database table game_option_map
             $player->optValueArray = array();
+            $player->prevOptRequestArray = array();
         }
-
-        $this->prevOptRequestArrayArray = NULL;
     }
 
     protected function update_game_state_end_game() {
