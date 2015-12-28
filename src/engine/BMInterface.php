@@ -655,7 +655,7 @@ class BMInterface {
                     $player->playerId = NULL;
                 }
                 $player->autopass = (bool)$row['autopass'];
-                $game->setArrayPropEntry('fireOvershootingArray', $pos, (bool)$row['fire_overshooting']);
+                $player->fireOvershooting = (bool)$row['fire_overshooting'];
                 $player->hasPlayerAcceptedGame = (bool)$row['has_player_accepted'];
             }
 
@@ -696,12 +696,6 @@ class BMInterface {
             $game->previousGameId = (int)$row['previous_game_id'];
         }
         $this->timestamp = (int)$row['last_action_timestamp'];
-
-
-        // initialise game arrays
-        $nPlayers = $row['n_players'];
-        $game->autopassArray = array_fill(0, $nPlayers, FALSE);
-        $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
     }
 
     protected function load_button($game, $pos, $row) {

@@ -25,7 +25,8 @@
  * @property      array    $optRequestArray        Option requests
  * @property      array    $optValueArray          Option values for current round
  * @property      array    $prevOptValueArray      Option values for previous round
- * @property      bool     $autopass               Boolean array whether each player has enabled autopass
+ * @property      bool     $autopass               Has player enabled autopass?
+ * @property      bool     $fireOvershooting       Has player enabled fire overshooting?
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
@@ -180,11 +181,18 @@ class BMPlayer {
     public $prevOptValueArray;
 
     /**
-     * Has this player enabled autopass?
+     * Has player enabled autopass?
      *
      * @var bool
      */
     protected $autopass;
+
+    /**
+     * Has player enabled fire overshooting?
+     *
+     * @var bool
+     */
+    protected $fireOvershooting;
 
     /**
      * Used by the database to record whether this player has accepted this game
@@ -369,6 +377,19 @@ class BMPlayer {
     }
 
     /**
+     * Set fire overshooting
+     *
+     * @param bool $value
+     */
+    protected function set__fireOvershooting($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException('fire overshooting must be a boolean');
+        }
+
+        $this->fireOvershooting = $value;
+    }
+
+    /**
      * Set hasPlayerAcceptedGame
      *
      * @param bool $value
@@ -445,6 +466,7 @@ class BMPlayer {
         $this->optValueArray = array();
         $this->prevOptValueArray = array();
         $this->autopass = FALSE;
+        $this->fireOvershooting = FALSE;
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;

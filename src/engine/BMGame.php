@@ -30,9 +30,6 @@
  * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
- *
- * @property      array $fireOvershootingArray   Boolean array whether each player has enabled fire overshooting
- *
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
@@ -58,6 +55,7 @@
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
+ * @property      array $fireOvershootingArray   Boolean array whether each player has enabled fire overshooting
  * @property      array $hasPlayerAcceptedGameArray   Whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray  Whether each player has dismissed this game
  * @property      array $isButtonChoiceRandomArray    Whether each button was chosen randomly
@@ -205,13 +203,6 @@ class BMGame {
     protected $gameState;
 
     /**
-     * Boolean array whether each player has enabled fire overshooting
-     *
-     * @var array
-     */
-    protected $fireOvershootingArray;
-
-    /**
      * Amount of firing that has been submitted
      *
      * @var int
@@ -335,7 +326,6 @@ class BMGame {
 
         $this->gameState = BMGameState::APPLY_HANDICAPS;
         $this->nRecentPasses = 0;
-        $this->fireOvershootingArray = array_fill(0, $this->nPlayers, FALSE);
 
         foreach ($this->playerArray as $player) {
             $player->gameScoreArray = array('W' => 0, 'L' => 0, 'D' => 0);
@@ -1245,7 +1235,7 @@ class BMGame {
 
         $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
 
-        if (!$this->fireOvershootingArray[$attackerPlayerIdx]) {
+        if (!$this->playerArray[$attackerPlayerIdx]->fireOvershooting) {
             return FALSE;
         }
 
@@ -2925,28 +2915,6 @@ class BMGame {
     protected function set__gameState($value) {
         BMGameState::validate_game_state($value);
         $this->gameState = (int)$value;
-    }
-
-    /**
-     * Allow setting the array of whether fire overshooting is allowed
-     *
-     * @param array $value
-     */
-    protected function set__fireOvershootingArray($value) {
-        if (!is_array($value) ||
-            count($value) !== $this->nPlayers) {
-            throw new InvalidArgumentException(
-                'Number of settings must equal the number of players.'
-            );
-        }
-        foreach ($value as $tempValueElement) {
-            if (!is_bool($tempValueElement)) {
-                throw new InvalidArgumentException(
-                    'Input must be an array of booleans.'
-                );
-            }
-        }
-        $this->fireOvershootingArray = $value;
     }
 
     /**
