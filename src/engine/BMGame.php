@@ -2975,21 +2975,6 @@ class BMGame {
         }
     }
 
-    // Sets an individual entry in an array that's stored in a property on this
-    // object, because "$game->$property[$key] = $value;" is illegal.
-    //
-    // shadowshade suggests
-    // indicating awkward code
-    // with verse from the East
-    public function setArrayPropEntry($property, $key, $value) {
-        $array = $this->$property;
-        if (!is_array($array)) {
-            throw new InvalidArgumentException("$property does not refer to an array");
-        }
-        $array[$key] = $value;
-        $this->__set($property, $array);
-    }
-
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->getBMPlayerProps('playerId'));
 
