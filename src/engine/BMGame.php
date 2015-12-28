@@ -380,21 +380,16 @@ class BMGame {
     }
 
     protected function update_game_state_choose_join_game() {
-        $hasPlayerAcceptedGameArray = array_fill(0, $this->nPlayers, NULL);
-        foreach ($this->playerArray as $playerIdx => $player) {
-            $hasPlayerAcceptedGameArray[$playerIdx] = $player->hasPlayerAcceptedGame;
+        $allPlayersHaveAccepted = TRUE;
+
+        foreach ($this->playerArray as $player) {
+            $player->waitingOnAction = !$player->hasPlayerAcceptedGame;
+            $allPlayersHaveAccepted &= $player->hasPlayerAcceptedGame;
         }
 
-        if (in_array(FALSE, $hasPlayerAcceptedGameArray)) {
-            foreach ($hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
-                $player = $this->playerArray[$playerIdx];
-                $player->waitingOnAction = !$hasAccepted;
-            }
-
-            return;
+        if ($allPlayersHaveAccepted) {
+            $this->gameState = BMGameState::SPECIFY_RECIPES;
         }
-
-        $this->gameState = BMGameState::SPECIFY_RECIPES;
     }
 
     protected function do_next_step_specify_recipes() {
@@ -631,7 +626,7 @@ class BMGame {
                 }
             }
             if ($areAnyDiceRemoved[$playerIdx]) {
-                $this->playerArray[$playerIdx]->activeDieArray = array_values($player->activeDieArray);
+                $player->activeDieArray = array_values($player->activeDieArray);
             }
         }
 
@@ -796,7 +791,7 @@ class BMGame {
     }
 
     protected function roll_active_dice_needing_values() {
-        foreach ($this->playerArray as $playerIdx => $player) {
+        foreach ($this->playerArray as $player) {
             foreach ($player->activeDieArray as $dieIdx => $die) {
                 if ($die instanceof BMDieSwing) {
                     if ($die->needsSwingValue) {
@@ -813,7 +808,7 @@ class BMGame {
                 }
 
                 if (empty($die->value)) {
-                    $this->playerArray[$playerIdx]->activeDieArray[$dieIdx] = $die->make_play_die(FALSE);
+                    $player->activeDieArray[$dieIdx] = $die->make_play_die(FALSE);
                 }
             }
         }
@@ -928,7 +923,7 @@ class BMGame {
                     }
 
                     if ($canDieReact) {
-                        $this->playerArray[$playerIdx]->waitingOnAction = TRUE;
+                        $player->waitingOnAction = TRUE;
                     }
                 }
             }
@@ -1858,6 +1853,7 @@ class BMGame {
         }
 
         $playerIdx = $args['playerIdx'];
+        $player = $this->playerArray[$playerIdx];
 
         if (FALSE ===
             filter_var(
@@ -1865,13 +1861,13 @@ class BMGame {
                 FILTER_VALIDATE_INT,
                 array("options"=>
                       array("min_range"=>0,
-                            "max_range"=>count($this->playerArray[$playerIdx]->activeDieArray) - 1))
+                            "max_range"=>count($player->activeDieArray) - 1))
             )) {
             $this->message = 'Invalid die index.';
             return FALSE;
         }
 
-        $die = $this->playerArray[$playerIdx]->activeDieArray[$args['rerolledDieIdx']];
+        $die = $player->activeDieArray[$args['rerolledDieIdx']];
         if (FALSE === array_search('BMSkillChance', $die->skillList)) {
             $this->message = 'Can only apply chance action to chance die.';
             return FALSE;
@@ -1894,7 +1890,7 @@ class BMGame {
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         } else {
             // only need to disable chance dice if the reroll fails to gain initiative
-            foreach ($this->playerArray[$playerIdx]->activeDieArray as &$die) {
+            foreach ($player->activeDieArray as &$die) {
                 if ($die->has_skill('Chance')) {
                     $die->add_flag('Disabled');
                 }
@@ -1906,7 +1902,7 @@ class BMGame {
 
         $this->log_action(
             'reroll_chance',
-            $this->playerArray[$playerIdx]->playerId,
+            $player->playerId,
             array(
                 'preReroll' => $preRerollData,
                 'postReroll' => $postRerollData,
@@ -1927,6 +1923,7 @@ class BMGame {
         }
 
         $playerIdx = $args['playerIdx'];
+        $player = $this->playerArray[$playerIdx];
         $dieIdxArray = $args['dieIdxArray'];
         $dieValueArray = $args['dieValueArray'];
 
@@ -1934,7 +1931,7 @@ class BMGame {
         if (is_array($dieIdxArray) &&
             count($dieIdxArray) > 0) {
             foreach ($dieIdxArray as $listIdx => $dieIdx) {
-                $die = $this->playerArray[$playerIdx]->activeDieArray[$dieIdx];
+                $die = $player->activeDieArray[$dieIdx];
 
                 $possChanceAction =
                     $this->possibleChanceAction($die, $dieValueArray, $dieIdxArray);
@@ -1949,7 +1946,7 @@ class BMGame {
 
         $this->log_action(
             'init_decline',
-            $this->playerArray[$playerIdx]->playerId,
+            $player->playerId,
             array('initDecline' => TRUE)
         );
 
@@ -1987,19 +1984,17 @@ class BMGame {
         }
 
         $playerIdx = $args['playerIdx'];
+        $player = $this->playerArray[$playerIdx];
 
         // change specified die values
         $oldDieValueArray = array();
         $preTurndownData = array();
         $postTurndownData = array();
         foreach ($args['focusValueArray'] as $dieIdx => $newDieValue) {
-            $preTurndownData[] = $this->playerArray[$playerIdx]
-                                      ->activeDieArray[$dieIdx]->get_action_log_data();
-            $oldDieValueArray[$dieIdx] = $this->playerArray[$playerIdx]
-                                              ->activeDieArray[$dieIdx]->value;
-            $this->playerArray[$playerIdx]->activeDieArray[$dieIdx]->value = $newDieValue;
-            $postTurndownData[] = $this->playerArray[$playerIdx]
-                                       ->activeDieArray[$dieIdx]->get_action_log_data();
+            $preTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
+            $oldDieValueArray[$dieIdx] = $player->activeDieArray[$dieIdx]->value;
+            $player->activeDieArray[$dieIdx]->value = $newDieValue;
+            $postTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2011,15 +2006,15 @@ class BMGame {
             1 == array_sum($newInitiativeArray)) {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
-                    $this->playerArray[$playerIdx]->activeDieArray[$dieIdx]->value) {
-                    $this->playerArray[$playerIdx]->activeDieArray[$dieIdx]->add_flag('Dizzy');
+                    $player->activeDieArray[$dieIdx]->value) {
+                    $player->activeDieArray[$dieIdx]->add_flag('Dizzy');
                 }
             }
         } else {
             // if the change does not gain initiative unambiguously, it is
             // invalid, so reset die values to original values
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
-                $this->playerArray[$playerIdx]->activeDieArray[$dieIdx]->value = $oldDieValue;
+                $player->activeDieArray[$dieIdx]->value = $oldDieValue;
             }
             $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
             return FALSE;
@@ -2027,7 +2022,7 @@ class BMGame {
 
         $this->log_action(
             'turndown_focus',
-            $this->playerArray[$playerIdx]->playerId,
+            $player->playerId,
             array(
                 'preTurndown' => $preTurndownData,
                 'postTurndown' => $postTurndownData,
@@ -2053,6 +2048,7 @@ class BMGame {
         }
 
         $playerIdx = $args['playerIdx'];
+        $player = $this->playerArray[$playerIdx];
 
         // focusValueArray should have the form array($dieIdx1 => $dieValue1, ...)
         foreach ($focusValueArray as $dieIdx => $newDieValue) {
@@ -2062,13 +2058,13 @@ class BMGame {
                     FILTER_VALIDATE_INT,
                     array("options"=>
                           array("min_range"=>0,
-                                "max_range"=>count($this->playerArray[$playerIdx]->activeDieArray) - 1))
+                                "max_range"=>count($player->activeDieArray) - 1))
                 )) {
                 $this->message = 'Invalid die index.';
                 return FALSE;
             }
 
-            $die = $this->playerArray[$playerIdx]->activeDieArray[$dieIdx];
+            $die = $player->activeDieArray[$dieIdx];
 
             if (FALSE ===
                 filter_var(
