@@ -25,6 +25,7 @@
  * @property      array    $optRequestArray        Option requests
  * @property      array    $optValueArray          Option values for current round
  * @property      array    $prevOptValueArray      Option values for previous round
+ * @property      bool     $autopass               Boolean array whether each player has enabled autopass
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
@@ -177,6 +178,13 @@ class BMPlayer {
      * @var array
      */
     public $prevOptValueArray;
+
+    /**
+     * Has this player enabled autopass?
+     *
+     * @var bool
+     */
+    protected $autopass;
 
     /**
      * Used by the database to record whether this player has accepted this game
@@ -348,6 +356,19 @@ class BMPlayer {
     }
 
     /**
+     * Set autopass
+     *
+     * @param bool $value
+     */
+    protected function set__autopass($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException('autopass must be a boolean');
+        }
+
+        $this->autopass = $value;
+    }
+
+    /**
      * Set hasPlayerAcceptedGame
      *
      * @param bool $value
@@ -423,6 +444,7 @@ class BMPlayer {
         $this->optRequestArray = array();
         $this->optValueArray = array();
         $this->prevOptValueArray = array();
+        $this->autopass = FALSE;
         $this->hasPlayerAcceptedGame = FALSE;
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;
