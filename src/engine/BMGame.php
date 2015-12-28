@@ -2607,9 +2607,10 @@ class BMGame {
     protected function get__roundNumber() {
         $roundNumber = array_sum($this->playerArray[0]->gameScoreArray) + 1;
 
-        if (max($this->playerArray[0]->gameScoreArray['W'],
-                $this->playerArray[0]->gameScoreArray['L']) >=
-            $this->maxWins) {
+        if (max(
+                $this->playerArray[0]->gameScoreArray['W'],
+                $this->playerArray[0]->gameScoreArray['L']
+            ) >= $this->maxWins) {
             $roundNumber--;
         }
 
@@ -2662,7 +2663,7 @@ class BMGame {
                 foreach ($this->playerArray as $playerIdx => $player) {
                     $player->set_gameScoreArray($value[$playerIdx]);
                 }
-            } else if ($isDieArray) {
+            } elseif ($isDieArray) {
                 $this->setBMPlayerProps($subProperty, $value, 'BMDie');
             } else {
                 $this->setBMPlayerProps($subProperty, $value);
