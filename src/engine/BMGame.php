@@ -1618,7 +1618,11 @@ class BMGame {
     }
 
     protected function do_next_step_end_round() {
-        $roundScoreArray = $this->get_roundScoreArray();
+        $roundScoreArray = array();
+        foreach ($this->playerArray as $player) {
+            $roundScoreArray[] = $player->roundScore;
+        }
+        
         if (isset($this->forceRoundResult)) {
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->isPrevRoundWinner = $this->forceRoundResult[$playerIdx];
@@ -2411,15 +2415,16 @@ class BMGame {
      * @return array
      */
     protected function get_sideScoreArray() {
-        $roundScoreArray = $this->get_roundScoreArray();
-
-        if (2 != count($roundScoreArray) ||
-            is_null($roundScoreArray[0]) ||
-            is_null($roundScoreArray[1])) {
+        if (2 != $this->nPlayers ||
+            is_null($this->playerArray[0]->roundScore) ||
+            is_null($this->playerArray[1]->roundScore)) {
             return array_fill(0, $this->nPlayers, NULL);
         }
 
-        $sideDifference = round(2/3 * ($roundScoreArray[0] - $roundScoreArray[1]), 1);
+        $sideDifference = round(
+            2/3 * ($this->playerArray[0]->roundScore - $this->playerArray[1]->roundScore),
+            1
+        );
         return array($sideDifference, -$sideDifference);
     }
 
@@ -2595,21 +2600,6 @@ class BMGame {
         }
 
         return $roundNumber;
-    }
-
-    /**
-     * Current round scores for all players
-     *
-     * @return array
-     */
-    protected function get_roundScoreArray() {
-        $roundScoreArray = array_fill(0, $this->nPlayers, NULL);
-
-        foreach ($this->playerArray as $playerIdx => $player) {
-            $roundScoreArray[$playerIdx] = $player->roundScore;
-        }
-
-        return $roundScoreArray;
     }
 
     /**
