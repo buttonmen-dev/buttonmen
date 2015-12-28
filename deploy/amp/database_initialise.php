@@ -5,7 +5,9 @@
 <body>
     <?php
 
-// james: uncomment the following lines to also initialise the interactive database
+// james: uncomment the following lines to also initialise the 
+//        primary 'buttonmen' database
+//
 //        recreate_database('buttonmen');
 //        $conn = db_connect('buttonmen');
 //        run_all_sql_files($conn);

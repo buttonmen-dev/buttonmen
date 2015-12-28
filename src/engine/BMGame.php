@@ -2656,6 +2656,7 @@ class BMGame {
         }
 
         $subProperty = substr($property, 0, strlen($property) - 5);
+        // now explicitly look for arrays like activeDieArrayArray
         $isDieArray = ('DieArray' == substr($subProperty, -8));
 
         if (property_exists('BMPlayer', $subProperty)) {
