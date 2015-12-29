@@ -1027,7 +1027,7 @@ class BMInterface {
         $allButtonData = array();
         $nButtons = 0;
 
-        foreach ($game->playerArray as $playerIdx => $player) {
+        foreach ($game->playerArray as $player) {
             if (!empty($player->button)) {
                 continue;
             }
@@ -1044,7 +1044,7 @@ class BMInterface {
             $randIdx = bm_rand(0, $nButtons - 1);
             $buttonId = $allButtonData[$randIdx]['buttonId'];
 
-            $this->choose_button($game, $buttonId, $playerIdx);
+            $this->choose_button($game, $buttonId, $player);
         }
 
         // ensure that the chat and game acceptance have also been cached
@@ -1088,7 +1088,7 @@ class BMInterface {
         return TRUE;
     }
 
-    protected function choose_button(BMGame $game, $buttonId, $buttonIdx) {
+    protected function choose_button(BMGame $game, $buttonId, $player) {
         // add info to game_player_map
         $query = 'UPDATE game_player_map '.
                  'SET button_id = :button_id, '.
@@ -1100,7 +1100,7 @@ class BMInterface {
 
         $statement->execute(array(':game_id'   => $game->gameId,
                                   ':button_id' => $buttonId,
-                                  ':position'  => $buttonIdx));
+                                  ':position'  => $player->position));
     }
 
     protected function save_basic_game_parameters($game) {
@@ -1304,7 +1304,7 @@ class BMInterface {
     }
 
     protected function save_player_game_decisions($game) {
-        foreach ($game->playerArray as $playerIdx => $player) {
+        foreach ($game->playerArray as $player) {
             $query = 'UPDATE game_player_map '.
                      'SET has_player_accepted = :has_player_accepted '.
                      'WHERE game_id = :game_id '.
@@ -1317,7 +1317,7 @@ class BMInterface {
             }
             $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
                                       ':game_id' => $game->gameId,
-                                      ':position' => $playerIdx));
+                                      ':position' => $player->position));
         }
     }
 
@@ -1343,7 +1343,7 @@ class BMInterface {
     }
 
     protected function save_players_awaiting_action($game) {
-        foreach ($game->playerArray as $playerIdx => $player) {
+        foreach ($game->playerArray as $player) {
             $query = 'UPDATE game_player_map '.
                      'SET is_awaiting_action = :is_awaiting_action '.
                      'WHERE game_id = :game_id '.
@@ -1356,7 +1356,7 @@ class BMInterface {
             }
             $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
                                       ':game_id' => $game->gameId,
-                                      ':position' => $playerIdx));
+                                      ':position' => $player->position));
         }
     }
 
