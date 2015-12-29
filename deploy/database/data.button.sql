@@ -793,7 +793,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (586, 'Alabama',         'D(6) ^(10) o(14) (S) (X)',                       0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (587, 'Alaska',          'd(6) s(20) s(30) w(30) (T)',                     0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(588, 'Arizona',         'k(7) g(9) (12) F(15) (X)',                       0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(588, 'Arizona',         'k(7) g(9) (12) F(15) (X)',                       1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (589, 'Arkansas',        'p(4) H(9) w(12) h(20) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 # Replaced $p(20) with Up(20) and $q(12) with Uq(12)
 (590, 'California',      '@(10) @(20) Up(20) Uq(12) (Y)? (Z)',             0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
@@ -802,7 +802,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (593, 'Delaware',        '(1) (4) h(6) f(8) (T)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (594, 'Florida',       'g(6) F(10) p(12) (U) r(4) r(6) hr(12) @whr(20)',   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (595, 'Georgia(US)',     'oz(10) (4/20) B(X) B(X) q(X)',                   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(596, 'Hawaii',          'n(4) m(5) k(8) F(13) d(Y)',                      0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(596, 'Hawaii',          'n(4) m(5) k(8) F(13) d(Y)',                      1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (597, 'Idaho',           'B(4) s(6) (8) (Y) (Y)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (598, 'Illinois',        '(10/20) G(12) (8,8) (R) rsd(4) rsd(6)',          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (599, 'Indiana',         '(4) (8) (12) z(20) (W)',                         0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
