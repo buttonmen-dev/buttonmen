@@ -1059,7 +1059,7 @@ class BMInterface {
         $hasRandomlyChosenButtons = FALSE;
         $hasUnresolvedNames = FALSE;
         foreach ($game->playerArray as $player) {
-            // do not resolve random names unless all players have joined the game
+            // do not resolve random button names unless all players have joined the game
             if (empty($player->playerId)) {
                 return FALSE;
             }
@@ -1336,9 +1336,9 @@ class BMInterface {
                      'WHERE game_id = :game_id '.
                      'AND player_id = :player_id;';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId,
-                                      ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]
-                                                           ->playerId));
+            $statement->execute(
+                array(':game_id' => $game->gameId,
+                      ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]->playerId));
         }
     }
 
@@ -2925,6 +2925,7 @@ class BMInterface {
                 'Caught exception in BMInterface::submit_turn: ' .
                 $e->getMessage()
             );
+            var_dump($e->getMessage());
             $this->set_message('Internal error while submitting turn');
         }
     }

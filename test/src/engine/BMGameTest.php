@@ -665,10 +665,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $recipe2 = '(6) (12) (20) (20)';
         $button1->load($recipe1);
         $button2->load($recipe2);
-        $player = $this->object->playerArray[0];
-        $player->activeDieArray = $button1->dieArray;
-        $player = $this->object->playerArray[1];
-        $player->activeDieArray = $button2->dieArray;
+        $player1 = $this->object->playerArray[0];
+        $player1->activeDieArray = $button1->dieArray;
+        $player2 = $this->object->playerArray[1];
+        $player2->activeDieArray = $button2->dieArray;
         $this->object->do_next_step();
         $this->assertFalse($this->object->playerArray[0]->waitingOnAction);
         $this->assertFalse($this->object->playerArray[1]->waitingOnAction);

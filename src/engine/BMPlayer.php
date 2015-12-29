@@ -231,6 +231,23 @@ class BMPlayer {
     protected $ownerObject;
 
 
+    public function die_indices_without_reserve() {
+        if (empty($this->activeDieArray)) {
+            return array();
+        }
+
+        $dieIndicesWithoutReserve = array();
+
+        foreach ($this->activeDieArray as $dieIdx => $die) {
+            if (!$die->has_skill('Reserve')) {
+                $dieIndicesWithoutReserve[] = $dieIdx;
+            }
+        }
+
+        return($dieIndicesWithoutReserve);
+    }
+
+
     // setter methods
     /**
      * Set ID

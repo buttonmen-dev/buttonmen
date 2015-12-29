@@ -505,12 +505,12 @@ class BMGame {
     }
 
     protected function load_option_values_from_previous_round() {
-        foreach ($this->playerArray as $playerIdx => $player) {
+        foreach ($this->playerArray as $player) {
             if (empty($player->optValueArray)) {
                 continue;
             }
 
-            $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+            $dieIndicesWithoutReserve = $player->die_indices_without_reserve();
 
             foreach ($player->optValueArray as $dieIdx => $optionValue) {
                 $die = $player->activeDieArray[$dieIndicesWithoutReserve[$dieIdx]];
@@ -521,20 +521,6 @@ class BMGame {
                 $die->set_optionValue($optionValue);
             }
         }
-    }
-
-    protected function die_indices_without_reserve($playerIdx) {
-        $activeDieArray = $this->playerArray[$playerIdx]->activeDieArray;
-        $hasReserveArray = array_fill(0, count($activeDieArray), FALSE);
-
-        foreach ($activeDieArray as $dieIdx => $die) {
-            if ($die->has_skill('Reserve')) {
-                $hasReserveArray[$dieIdx] = TRUE;
-            }
-        }
-
-        $dieIndicesWithoutReserve = array_keys($hasReserveArray, FALSE, TRUE);
-        return($dieIndicesWithoutReserve);
     }
 
     protected function update_game_state_add_available_dice_to_game() {
@@ -680,13 +666,13 @@ class BMGame {
     }
 
     protected function update_opt_requests_to_ignore_reserve_dice() {
-        foreach ($this->playerArray as $playerIdx => $player) {
+        foreach ($this->playerArray as $player) {
             if (empty($player->optRequestArray)) {
                 continue;
             }
 
             $newOptRequestArray = array();
-            $dieIndicesWithoutReserve = $this->die_indices_without_reserve($playerIdx);
+            $dieIndicesWithoutReserve = $player->die_indices_without_reserve();
 
             foreach ($player->optRequestArray as $dieIdx => $optRequest) {
                 $newDieIdx = array_search($dieIdx, $dieIndicesWithoutReserve, TRUE);
@@ -1622,7 +1608,7 @@ class BMGame {
         foreach ($this->playerArray as $player) {
             $roundScoreArray[] = $player->roundScore;
         }
-        
+
         if (isset($this->forceRoundResult)) {
             foreach ($this->playerArray as $playerIdx => $player) {
                 $player->isPrevRoundWinner = $this->forceRoundResult[$playerIdx];
@@ -3001,13 +2987,16 @@ class BMGame {
             $playerData = array(
                 'playerId'            => $player->playerId,
                 'button'              => $this->get_buttonInfo($playerIdx),
+// BMGame sometimes hides swing information that would be present in the active dice
                 'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
                 'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
                 'outOfPlayDieArray'   => $this->get_outOfPlayDieArray($playerIdx),
+// BMGame only shows swing requests to the owner of the swing dice
                 'swingRequestArray'   => $this->get_swingRequestArray($playerIdx, $requestingPlayerIdx),
                 'optRequestArray'     => $player->optRequestArray,
                 'prevSwingValueArray' => $player->prevSwingValueArray,
                 'prevOptValueArray'   => $player->prevOptValueArray,
+// BMGame may lie about who's actually waiting
                 'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $player->roundScore,
                 'sideScore'           => $sideScoreArray[$playerIdx],
