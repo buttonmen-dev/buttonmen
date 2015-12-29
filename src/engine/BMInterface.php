@@ -1338,7 +1338,8 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(
                 array(':game_id' => $game->gameId,
-                      ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]->playerId));
+                      ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]->playerId)
+            );
         }
     }
 
