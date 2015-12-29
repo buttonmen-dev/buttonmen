@@ -2577,11 +2577,9 @@ class BMGame {
      */
     protected function get__roundNumber() {
         $roundNumber = array_sum($this->playerArray[0]->gameScoreArray) + 1;
+        $playerScoreArray = $this->playerArray[0]->gameScoreArray;
 
-        if (max(
-                $this->playerArray[0]->gameScoreArray['W'],
-                $this->playerArray[0]->gameScoreArray['L']
-            ) >= $this->maxWins) {
+        if (max($playerScoreArray['W'], $playerScoreArray['L']) >= $this->maxWins) {
             $roundNumber--;
         }
 
