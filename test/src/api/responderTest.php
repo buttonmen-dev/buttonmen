@@ -68,7 +68,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
-            'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead');
+            'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
+            'reactToAuxiliary');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -942,6 +943,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('reactToAuxiliary', $fakeGameNumber, $retval);
     }
 
     /**
@@ -1651,8 +1656,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('numberOfPlayers' => 50)
         );
 
-	// Invoke an API call which will make sure responder001 is
-	// one of the most recent active players, then return to the default user.
+        // Invoke an API call which will make sure responder001 is
+        // one of the most recent active players, then return to the default user.
         // (N.B. We have to pick responder001, because if multiple players are active in the same second,
         // loadActivePlayers alphabetizes them.)
         $_SESSION = $this->mock_test_user_login('responder001');

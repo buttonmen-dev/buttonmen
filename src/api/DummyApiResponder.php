@@ -55,7 +55,6 @@ class DummyApiResponder {
             'loadProfileInfo',
             'login',
             'logout',
-            'reactToAuxiliary',
             'reactToInitiative',
             'reactToNewGame',
             'reactToReserve',
@@ -1218,8 +1217,11 @@ class DummyApiResponder {
                      'Successfully gained initiative');
     }
 
-    protected function get_interface_response_reactToAuxiliary() {
-        return array(TRUE, 'Chose to add auxiliary die');
+    protected function get_interface_response_reactToAuxiliary($args) {
+        return $this->load_json_data_from_file(
+            'reactToAuxiliary',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_reactToReserve() {
