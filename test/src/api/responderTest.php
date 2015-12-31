@@ -69,7 +69,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
             'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToReserve');
+            'reactToAuxiliary', 'reactToInitiative', 'reactToReserve',
+        );
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -1001,6 +1002,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals($expData, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('reactToInitiative', $fakeGameNumber, $retval);
     }
 
     /**
@@ -2022,8 +2027,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('reactToInitiative');
 
-        $dummy_game_id = '7';
-
         // create a game so we have the ID to load, making sure we
         // get a game which is in the react to initiative game
         // state, and the other player has initiative
@@ -2054,10 +2057,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $args['game'] = $real_game_id;
         $retval = $this->verify_api_success($args);
-        $args['game'] = $dummy_game_id;
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
-        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Successfully gained initiative');
+        $this->assertEquals($retval['data'], array('gainedInitiative' => TRUE));
     }
 
     public function test_request_submitTurn() {

@@ -55,7 +55,6 @@ class DummyApiResponder {
             'loadProfileInfo',
             'login',
             'logout',
-            'reactToInitiative',
             'reactToNewGame',
             'savePlayerInfo',
             'searchGameHistory',
@@ -1211,9 +1210,11 @@ class DummyApiResponder {
         return array(TRUE, 'Successfully set die sizes');
     }
 
-    protected function get_interface_response_reactToInitiative() {
-        return array(array('gainedInitiative' => TRUE),
-                     'Successfully gained initiative');
+    protected function get_interface_response_reactToInitiative($args) {
+        return $this->load_json_data_from_file(
+            'reactToInitiative',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_reactToAuxiliary($args) {
