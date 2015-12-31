@@ -69,7 +69,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
             'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToInitiative', 'reactToReserve',
+            'reactToAuxiliary', 'reactToInitiative', 'reactToReserve', 'submitDieValues',
         );
 
 
@@ -1064,6 +1064,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals('Successfully set die sizes', $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData, but make allowances for
+        // callers which don't use a fake game number, and don't cache the output in that case
+        if ($this->game_number > 0) {
+            $fakeGameNumber = $this->generate_fake_game_id();
+            $this->cache_json_api_output('submitDieValues', $fakeGameNumber, $retval);
+        }
+
         return $retval;
     }
 
@@ -1927,7 +1935,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 1, 1, 1, 2, 2, 2, 2),
             'responder003', 'responder004', 'Avis', 'Avis', '3'
         );
-        $dummy_game_id = '1';
 
         // now ask for the game data so we have the timestamp to return
         $args = array(
@@ -1941,16 +1948,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_submitDieValues(
             array(3),
             $real_game_id, '1', array('X' => '7'));
-
-        $args = array(
-            'type' => 'submitDieValues',
-            'game' => $dummy_game_id,
-            'roundNumber' => '1',
-            'timestamp' => $timestamp,
-            'swingValueArray' => array('X' => '7')
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Successfully set die sizes');
+        $this->assertEquals($retval['data'], TRUE);
 
         ///// Now test setting option values
         // create a game so we have the ID to load
@@ -1958,7 +1958,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 1, 2, 2),
             'responder003', 'responder004', 'Apples', 'Apples', '3'
         );
-        $dummy_game_id = '19';
 
         // now ask for the game data so we have the timestamp to return
         $args = array(
@@ -1981,16 +1980,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_submitDieValues(
             array(3, 3, 3),
             $real_game_id, '1', NULL, array(2 => 12, 3 => 8, 4 => 20));
-
-        $args = array(
-            'type' => 'submitDieValues',
-            'game' => $dummy_game_id,
-            'roundNumber' => '1',
-            'timestamp' => $timestamp,
-            'optionValueArray' => array(2 => 12, 3 => 8, 4 => 20));
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals($dummyval, $retval, "option value submission responses should be identical");
     }
 
     public function test_request_reactToAuxiliary() {

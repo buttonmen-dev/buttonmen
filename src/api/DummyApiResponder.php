@@ -59,7 +59,6 @@ class DummyApiResponder {
             'savePlayerInfo',
             'searchGameHistory',
             'submitChat',
-            'submitDieValues',
             'submitTurn',
             'verifyUser',
         );
@@ -1206,8 +1205,11 @@ class DummyApiResponder {
         return array($data, "Names retrieved successfully.");
     }
 
-    protected function get_interface_response_submitDieValues() {
-        return array(TRUE, 'Successfully set die sizes');
+    protected function get_interface_response_submitDieValues($args) {
+        return $this->load_json_data_from_file(
+            'submitDieValues',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_reactToInitiative($args) {
