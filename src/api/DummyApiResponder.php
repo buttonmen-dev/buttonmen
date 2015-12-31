@@ -46,7 +46,6 @@ class DummyApiResponder {
             'loadCompletedGames',
             'loadRejectedGames',
             'loadForumOverview',
-            'loadForumThread',
             'loadNewGames',
             'loadOpenGames',
             'loadNextNewPost',
@@ -1326,46 +1325,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadForumThread($args) {
-        $results = array();
-        $results['threadId'] = 1;
-        $results['threadTitle'] = 'Who likes ice cream?';
-        $results['boardId'] = 1;
-        $results['boardName'] = 'Miscellaneous Chatting';
-        $results['boardColor'] = '#d0e0f0';
-        $results['boardThreadColor'] = '#e7f0f7';
-        if (isset($args['currentPostId'])) {
-            $results['currentPostId'] = (int)$args['currentPostId'];
-        } else {
-            $results['currentPostId'] = NULL;
-        }
-
-
-        $posts = array();
-        $posts[] = array(
-            'postId' => 1,
-            'posterName' => 'responder003',
-            'posterColor' => '#cccccc',
-            'creationTime' => 1401055337,
-            'lastUpdateTime' => 1401055337,
-            'isNew' => FALSE,
-            'body' => 'I can\'t be the only one!',
-            'deleted' => FALSE,
+        return $this->load_json_data_from_file(
+            'loadForumThread',
+            $args['threadId'] . '.json'
         );
-        $posts[] = array(
-            'postId' => 2,
-            'posterName' => 'responder004',
-            'posterColor' => '#cccccc',
-            'creationTime' => 1401055397,
-            'lastUpdateTime' => 1401055397,
-            'isNew' => TRUE,
-            'body' => 'Hey, wow, I do too!',
-            'deleted' => FALSE,
-        );
-
-        $results['posts'] = $posts;
-        $results['timestamp'] = 1401118756;
-
-        return array($results, 'Forum thread loading succeeded');
     }
 
     protected function get_interface_response_loadNextNewPost() {

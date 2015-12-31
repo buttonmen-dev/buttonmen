@@ -67,7 +67,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadGameData',
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumThread', 'loadGameData',
             'markForumThreadRead');
 
 
@@ -2299,13 +2299,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'threadId' => $thread['data']['threadId'],
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum thread loading return values should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum thread loading succeeded');
+        $this->assertEquals($retval['data']['boardId'], 1);
+        $this->assertEquals($retval['data']['threadId'], $thread['data']['threadId']);
+
+        $fakeThreadId = 1;
+        $retval['data']['threadId'] = $fakeThreadId;
+        $this->cache_json_api_output('loadForumThread', $fakeThreadId, $retval);
     }
 
     public function test_request_loadNextNewPost() {
