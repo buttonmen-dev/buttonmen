@@ -67,8 +67,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumThread', 'loadGameData',
-            'markForumThreadRead');
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
+            'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead');
 
 
         if (!file_exists($this->jsonApiRoot)) {
@@ -2244,13 +2244,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadForumOverview');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum overview loading succeeded');
+        $this->assertTrue(is_numeric($retval['data']['timestamp']));
+        $this->assertTrue(is_array($retval['data']['boards']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum overview loading return values should have matching structures");
+        $this->cache_json_api_output('loadForumOverview', 'noargs', $retval);
     }
 
     public function test_request_loadForumBoard() {
@@ -2354,13 +2353,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'timestamp' => strtotime('now'),
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        # See #1877 for concerns about this return strategy
+        $this->assertEquals($retval['message'], 'Forum overview loading succeeded');
+        $this->assertTrue(is_array($retval['data']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum board marking as read return values should have matching structures");
+        $fakeBoardId = 1;
+        $this->cache_json_api_output('markForumBoardRead', $fakeBoardId, $retval);
     }
 
     public function test_request_markForumRead() {
@@ -2378,13 +2377,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'timestamp' => strtotime('now'),
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        # See #1877 for concerns about this return strategy
+        $this->assertEquals($retval['message'], 'Forum overview loading succeeded');
+        $this->assertTrue(is_array($retval['data']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy entire forum marking as read return values should have matching structures");
+        $this->cache_json_api_output('markForumRead', 'noargs', $retval);
     }
 
     public function test_request_markForumThreadRead() {

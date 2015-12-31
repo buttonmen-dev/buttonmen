@@ -45,7 +45,6 @@ class DummyApiResponder {
             'loadButtonSetData',
             'loadCompletedGames',
             'loadRejectedGames',
-            'loadForumOverview',
             'loadNewGames',
             'loadOpenGames',
             'loadNextNewPost',
@@ -56,8 +55,6 @@ class DummyApiResponder {
             'loadProfileInfo',
             'login',
             'logout',
-            'markForumBoardRead',
-            'markForumRead',
             'reactToAuxiliary',
             'reactToInitiative',
             'reactToNewGame',
@@ -1285,6 +1282,10 @@ class DummyApiResponder {
     // Forum-related methods
 
     protected function get_interface_response_loadForumOverview() {
+        return $this->load_json_data_from_file(
+            'loadForumOverview',
+            'noargs.json'
+        );
         $results = array();
 
         $boards = array();
@@ -1339,15 +1340,17 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_markForumRead() {
-        $otherResults = $this->get_interface_response_loadForumOverview();
-        $results = $otherResults[0];
-        return array($results, 'Forum board marked read successfully');
+        return $this->load_json_data_from_file(
+            'markForumRead',
+            'noargs.json'
+        );
     }
 
-    protected function get_interface_response_markForumBoardRead() {
-        $otherResults = $this->get_interface_response_loadForumOverview();
-        $results = $otherResults[0];
-        return array($results, 'Forum board marked read successfully');
+    protected function get_interface_response_markForumBoardRead($args) {
+        return $this->load_json_data_from_file(
+            'markForumBoardRead',
+            $args['boardId'] . '.json'
+        );
     }
 
     protected function get_interface_response_markForumThreadRead($args) {
