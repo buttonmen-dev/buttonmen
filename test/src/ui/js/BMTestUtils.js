@@ -122,6 +122,8 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'beatnikturtle_firebreather_adjustfire_inactive') { return '2803'; }
   if (gameDesc == 'beatnikturtle_firebreather_adjustfire_active') { return '2805'; }
 
+  if (gameDesc == 'bobby5150_wiseman_reacttoreserve_active') { return '3422'; }
+
   // this game number needs to not correspond to any game in the database
   if (gameDesc == 'NOGAME') { return '10000000'; }
 }

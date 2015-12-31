@@ -57,7 +57,6 @@ class DummyApiResponder {
             'logout',
             'reactToInitiative',
             'reactToNewGame',
-            'reactToReserve',
             'savePlayerInfo',
             'searchGameHistory',
             'submitChat',
@@ -1224,8 +1223,11 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_reactToReserve() {
-        return array(TRUE, 'Reserve die chosen successfully');
+    protected function get_interface_response_reactToReserve($args) {
+        return $this->load_json_data_from_file(
+            'reactToReserve',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_adjustFire($args) {

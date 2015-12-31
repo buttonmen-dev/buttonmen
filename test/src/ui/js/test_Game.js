@@ -904,7 +904,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "Reserve die chosen successfully"},
+       "text": "responder003 added a reserve die: r(20). "},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
@@ -913,7 +913,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
 
 test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
   stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
+  BMTestUtils.GameType = 'bobby5150_wiseman_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -923,7 +923,7 @@ test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "Reserve die chosen successfully"},
+       "text": "responder003 chose not to add a reserve die. "},
       "Game action succeeded when decline argument was set and no dice were chosen");
     $.ajaxSetup({ async: true });
     start();
