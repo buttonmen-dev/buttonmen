@@ -55,7 +55,6 @@ class DummyApiResponder {
             'loadProfileInfo',
             'login',
             'logout',
-            'reactToNewGame',
             'savePlayerInfo',
             'searchGameHistory',
             'submitChat',
@@ -1271,11 +1270,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_reactToNewGame($args) {
-        if (array_key_exists('action', $args)) {
-            return array(TRUE, 'Successfully ' . $args['action'] . 'ed game');
-        } else {
-            return FALSE;
-        }
+        return $this->load_json_data_from_file(
+            'reactToNewGame',
+            $args['action'] . '.json'
+        );
     }
 
     protected function get_interface_response_dismissGame($args) {

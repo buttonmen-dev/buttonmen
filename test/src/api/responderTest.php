@@ -69,7 +69,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
             'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToInitiative', 'reactToReserve', 'submitDieValues',
+            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues',
         );
 
 
@@ -824,6 +824,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals('Rejected game ' . $gameId, $retval['message']);
         }
         $this->assertEquals(TRUE, $retval['data']);
+
+        // For now, just use the action as a key when caching the test API response
+        $this->cache_json_api_output('reactToNewGame', $action, $retval);
+
         return $retval['data'];
     }
 
@@ -1492,22 +1496,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
 
         $_SESSION = $this->mock_test_user_login('responder006');
-        $retdata = $this->verify_api_reactToNewGame(
+        $this->verify_api_reactToNewGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
             $gameId,
             'accept'
         );
-
-        $args = array(
-            'type' => 'reactToNewGame',
-            'gameId' => $gameId,
-            'action' => 'accept',
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $dummydata = $dummyval['data'];
-
-        $this->assertEquals($retdata, $dummydata,
-            "Real and dummy game joining return values should both be true");
 
        // If the creating player tries to reject the game after the target player
         // has already accepted it, the API behavior should be reasonable
@@ -1528,22 +1521,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
 
         $_SESSION = $this->mock_test_user_login('responder006');
-        $retdata = $this->verify_api_reactToNewGame(
+        $this->verify_api_reactToNewGame(
             array(),
             $gameId,
             'reject'
         );
-
-        $args = array(
-            'type' => 'reactToNewGame',
-            'gameId' => $gameId,
-            'action' => 'reject',
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $dummydata = $dummyval['data'];
-
-        $this->assertEquals($retdata, $dummydata,
-            "Real and dummy game joining return values should both be true");
     }
 
     /**
