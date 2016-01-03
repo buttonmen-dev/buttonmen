@@ -5,8 +5,32 @@
     Description: Stylesheet for the GUI for the Button Men Online Game
 */
 
+html {
+    height:99%;
+}
+
+body {
+    height:98%;
+}
+
 div {
     text-align: center;
+}
+
+div#container {
+    min-height:100%;
+    position:relative;
+}
+
+div#c_body {
+    padding-bottom:100px;   // height of the footer
+}
+
+div#c_footer {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:100px;           // height of the footer
 }
 
 div#login_header{
@@ -14,7 +38,7 @@ div#login_header{
 }
 
 div#login_header p {
-    padding: 5px 5px;
+    padding: 5px;
     margin: 0;
 }
 
@@ -159,7 +183,7 @@ td.button_opponent {
     padding-bottom: 20px;
 }
 
-td.button_postgame {
+td.button_prepostgame {
     padding-top: 10px;
     padding-bottom: 10px;
 }
@@ -320,6 +344,11 @@ select.center {
  * default is visible when this class is not present */
 .hide_focus {
     outline: 0;
+}
+
+span.skill_title {
+    font-weight: bold;
+    line-height: 1.5;
 }
 
 span.skill_desc {
