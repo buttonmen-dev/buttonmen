@@ -167,21 +167,6 @@ test("test_Game.showStatePage", function(assert) {
   });
 });
 
-test("test_Game.showStatePage_no_such_game", function(assert) {
-  stop();
-  BMTestUtils.GameType = 'NOGAME';
-  var gameId = BMTestUtils.testGameId(BMTestUtils.GameType);
-  Game.getCurrentGame(function() {
-    Game.showStatePage();
-    assert.equal(Game.page, null, "The game page should be null for an undefined game");
-    assert.deepEqual(
-      Env.message,
-      {"type": "error", "text": "Error from loadGameData: Game " + gameId + " does not exist."},
-      "A reasonable failure message is set on load of nonexistent game");
-    start();
-  });
-});
-
 test("test_Game.showStatePage_chooseaux_active", function(assert) {
   stop();
   BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
@@ -420,42 +405,11 @@ test("test_Game.actionChooseJoinGameActive", function(assert) {
 //  james: incomplete for the moment
 });
 
-test("test_Game.buttonTableWithoutDice", function(assert) {
-  stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_game_over';
-  Game.getCurrentGame(function() {
-    var table = Game.buttonTableWithoutDice();
-    assert.ok(table.is('table'), 'button table without dice has correct type');
-    assert.ok(table.children().is('tbody'),'button table has tbody');
-    assert.equal(table.children().length, 1, 'button table has only one tbody');
-    var tbody = table.children();
-    assert.ok(tbody.children().is('tr'),'button table has tr');
-    assert.equal(tbody.children().length, 1, 'button table has only one tr');
-    var tr = tbody.children();
-    assert.ok(tr.children().is('td'),'button table has td');
-    assert.equal(tr.children().length, 2, 'button table has two trs');
-    var tds = tr.children();
-    tds.each(function(idx) {
-      if (idx === 0) {
-        assert.ok($(this).hasClass('button_player'));
-      } else if (idx === 1) {
-        assert.ok($(this).hasClass('button_opponent'));
-      }
-    })
-    // the contents of the tds is further tested in test_Game.buttonImageDisplay
-    start();
-  });
-});
-
 test("test_Game.actionChooseJoinGameInactive", function(assert) {
 //  james: incomplete for the moment
 });
 
 test("test_Game.actionChooseJoinGameNonplayer", function(assert) {
-//  james: incomplete for the moment
-});
-
-test("test_Game.actionShowRejectedGame", function(assert) {
 //  james: incomplete for the moment
 });
 
@@ -972,18 +926,18 @@ test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
 
 test("test_Game.formAdjustFireDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'beatnikturtle_firebreather_adjustfire_active';
+  BMTestUtils.GameType = 'blackomega_tamiya_adjustfire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#fire_action_select').val('turndown');
-    $('#fire_adjust_0').val('2');
+    $('#fire_adjust_1').val('3');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "responder003 turned down fire dice: wHF(4) from 4 to 2; Defender (12) was captured; Attacker (10) rerolled 6 => 2. "},
+       "text": "Successfully completed attack by turning down fire dice"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
@@ -1143,8 +1097,8 @@ test("test_Game.pageAddGameNavigationFooter", function(assert) {
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    assert.ok(htmlout.match('Go to your next pending game \\(at least '),
-      "Next game link exists and reflects a count of pending games");
+    assert.ok(htmlout.match('Go to your next pending game \\(if any\\)'),
+      "Next game link exists and reflects no known pending games");
     start();
   });
 });
@@ -1198,20 +1152,12 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    assert.ok(htmlout.match('<div><span class="skill_title">Die skills: </span>'),
+    assert.ok(htmlout.match('<div>Skills in this game: '),
       "Die skills footer text is present");
     assert.ok(htmlout.match('Focus'),
       "Die skills footer text lists the Focus skill");
     start();
   });
-});
-
-test("test_Game.createSkillDiv", function(assert) {
-  var skillDiv = Game.createSkillDiv(['1', '23', ' 4 5 '], 'hello');
-  assert.ok(skillDiv.is('div'));
-  assert.equal(skillDiv.html(),
-    '<span class="skill_title">hello: </span>1&nbsp;&nbsp;23&nbsp;&nbsp; 4 5 '
-  );
 });
 
 test("test_Game.pageAddLogFooter", function(assert) {
@@ -1273,20 +1219,6 @@ test("test_Game.dieRecipeTable", function(assert) {
       "Die recipe table should contain game state");
     start();
   });
-});
-
-test("test_Game.playerWLTText", function(assert) {
-  stop();
-  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
-  Api.getGameData(gameId, 10, function() {
-    var text = Game.playerWLTText('opponent');
-    assert.ok(text.match('3/1/0'),
-       "opponent WLT text should contain opponent's view of WLT state");
-    start();
-  });
-
-  // james: we'll need an extra test here of new/rejected game, once we have an
-  //        appropriate test game to use
 });
 
 test("test_Game.dieRecipeTable_focus", function(assert) {

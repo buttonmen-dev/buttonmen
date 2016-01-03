@@ -113,7 +113,6 @@ class BMSkill {
                      'Doppelganger' => 'D',
                      'Fire'         => 'F',
                      'Focus'        => 'f',
-                     'Insult'       => 'I',
                      'Konstant'     => 'k',
                      'Mad'          => '&',
                      'Maximum'      => 'M',
@@ -248,8 +247,7 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillMaximum',
                      'BMSkillTimeAndSpace',
-                     'BMSkillWarrior',
-                     'BMSkillInsult');
+                     'BMSkillWarrior');
         // fires last
     }
 
@@ -348,12 +346,6 @@ class BMSkill {
         return $defender;
     }
 
-    /**
-     * Checks whether there is exactly one defender
-     *
-     * @param array $defenderArray
-     * @return boolean
-     */
     protected static function has_single_defender(array $defenderArray) {
         // rage may add an extra defender, but it won't be captured
         $defCount = 0;

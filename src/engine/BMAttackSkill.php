@@ -360,13 +360,7 @@ class BMAttackSkill extends BMAttack {
         }
 
         $def = $defArray[0];
-
-        if ($def->has_skill('Insult')) {
-            $this->validationMessage =
-                'Dice with the Insult skill cannot be attacked by skill attacks.';
-            return FALSE;
-        }
-
+    
         if ($def->ownerObject instanceof BMGame) {
             $ownerButton = $def->ownerObject->buttonArray[$def->playerIdx];
             if ($ownerButton->has_skill('TheJapaneseBeetle')) {

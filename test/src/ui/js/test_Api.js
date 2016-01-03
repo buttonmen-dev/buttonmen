@@ -294,22 +294,19 @@ test("test_Api.parsePlayerData_failure", function(assert) {
   assert.equal(retval, false, "Api.parsePlayerData({}) returns false");
 });
 
-test("test_Api.getNewGamesData", function(assert) {
-  stop();
-  Api.getNewGamesData(function() {
-    assert.equal(Api.new_games.load_status, 'ok',
-         'Successfully loaded new games data');
-    assert.equal(Api.new_games.nGames, 0, 'Got expected number of new games');
-    start();
-  });
-});
-
 test("test_Api.getActiveGamesData", function(assert) {
   stop();
   Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
     assert.equal(Api.active_games.nGames, 16, 'Got expected number of active games');
+    start();
+  });
+});
+
+test("test_Api.parseActiveGamesData", function(assert) {
+  stop();
+  Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.games.awaitingPlayer.length, 10,
           "expected number of games parsed as waiting for the active player");
     start();
@@ -322,6 +319,13 @@ test("test_Api.getCompletedGamesData", function(assert) {
     assert.equal(Api.completed_games.load_status, 'ok',
          'Successfully loaded completed games data');
     assert.equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
+    start();
+  });
+});
+
+test("test_Api.parseCompletedGamesData", function(assert) {
+  stop();
+  Api.getCompletedGamesData(function() {
     assert.equal(Api.completed_games.games[0].gameId, 5,
           "expected completed game ID exists");
     start();
@@ -334,6 +338,13 @@ test("test_Api.getRejectedGamesData", function(assert) {
     assert.equal(Api.rejected_games.load_status, 'ok',
          'Successfully loaded rejected games data');
     assert.equal(Api.rejected_games.nGames, 1, 'Got expected number of rejected games');
+    start();
+  });
+});
+
+test("test_Api.parseRejectedGamesData", function(assert) {
+  stop();
+  Api.getRejectedGamesData(function() {
     assert.equal(Api.rejected_games.games[0].gameId, 505,
           "expected rejected game ID exists");
     start();
@@ -472,6 +483,17 @@ test("test_Api.parseGamePlayerData_option", function(assert) {
     assert.deepEqual(Api.game.player.optRequestArray, {
       4: ["2", "20"],
     });
+    start();
+  });
+});
+
+test("test_Api.playerWLTText", function(assert) {
+  stop();
+  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
+  Api.getGameData(gameId, 10, function() {
+    var text = Api.playerWLTText('opponent');
+    assert.ok(text.match('3/1/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
 });
