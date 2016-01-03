@@ -51,12 +51,6 @@ class BMSkillMood extends BMSkill {
         return TRUE;
     }
 
-    /**
-     * Checks whether this skill triggers on pre_roll
-     *
-     * @param BMDie $args
-     * @return boolean
-     */
     protected static function does_skill_trigger_on_pre_roll($args) {
         if (!($args['die'] instanceof BMDie)) {
             return FALSE;
@@ -65,10 +59,6 @@ class BMSkillMood extends BMSkill {
         $die = $args['die'];
 
         if (empty($die->value) && !$die->has_flag('HasJustSplit')) {
-            return FALSE;
-        }
-
-        if ($die->has_flag('JustPerformedTripAttack')) {
             return FALSE;
         }
 

@@ -114,7 +114,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_searchGameHistory($interface, $args) {
-        return $interface->history()->search_game_history($_SESSION['user_id'], $args);
+        return $interface->search_game_history($_SESSION['user_id'], $args);
     }
 
     protected function get_interface_response_joinOpenGame($interface, $args) {

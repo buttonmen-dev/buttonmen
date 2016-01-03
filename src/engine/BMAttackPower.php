@@ -39,7 +39,6 @@ class BMAttackPower extends BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @param int|NULL $helpValue
      * @return boolean
      */
     public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
