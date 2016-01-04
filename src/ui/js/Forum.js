@@ -57,7 +57,7 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 // These functions are part of the main action flow to load the page
 
 Forum.showLoggedInPage = function() {
-  $(window).bind('popstate', Forum.showPage);
+  $(window).bind('popstate', Forum.showLoggedInPage);
 
   var state = {
     'boardId': Env.getParameterByName('boardId'),
