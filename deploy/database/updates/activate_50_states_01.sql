@@ -9,3 +9,8 @@ WHERE name='Arizona';
 UPDATE button
 SET btn_special=1
 WHERE name='Hawaii';
+
+UPDATE button
+SET btn_special=1
+WHERE name='Iowa';
+

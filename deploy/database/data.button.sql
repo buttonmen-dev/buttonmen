@@ -806,7 +806,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (597, 'Idaho',           'B(4) s(6) (8) (Y) (Y)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (598, 'Illinois',        '(10/20) G(12) (8,8) (R) rsd(4) rsd(6)',          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (599, 'Indiana',         '(4) (8) (12) z(20) (W)',                         0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(600, 'Iowa',            'n^(6) f(8) D(9) (11) k(T)',                      0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(600, 'Iowa',            'n^(6) f(8) D(9) (11) k(T)',                      1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (601, 'Kansas',          '(9) c(9) F(9) Gz(9) t(9)',                       0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (602, 'Kentucky',        'z(5) (1/4) (9/8) (20) (R)',                      0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (603, 'Louisiana',       'p(2) @(6) G(12) o(12) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
