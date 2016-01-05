@@ -16,7 +16,7 @@
  * @property-read int    $firingMax             Maximum amount that the die can be fired up
  * @property      BMGame|BMButton $ownerObject  Game or button that owns the die
  * @property      int    $playerIdx             Index of player that currently owns the die
- * @property-read int    $activeDieIdx          Index of die in BMGame->activeDieArrayArray
+ * @property-read int    $activeDieIdx          Index of die in BMPlayer->activeDieArray
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
@@ -78,7 +78,7 @@ class BMDie extends BMCanHaveSkill {
     protected $playerIdx;
 
     /**
-     * Index of die in BMGame->activeDieArrayArray
+     * Index of die in BMPlayer->activeDieArray
      *
      * @var int
      */
@@ -754,12 +754,10 @@ class BMDie extends BMCanHaveSkill {
             return NULL;
         }
 
-        $activeDieArrayArray = $owner->activeDieArrayArray;
-
         // search for the exact instance of the current BMDie requires TRUE as third argument
         $dieIdx = array_search(
             $this,
-            $activeDieArrayArray[$this->playerIdx],
+            $owner->playerArray[$this->playerIdx]->activeDieArray,
             TRUE
         );
 
@@ -1028,7 +1026,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Set the maximum value of the die
      *
-     *  @param int $value
+     * @param int $value
      */
     protected function set__max($value) {
         if ($value === 0) {

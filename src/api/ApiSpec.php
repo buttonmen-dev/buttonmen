@@ -258,7 +258,7 @@ class ApiSpec {
                 ),
                 'status' => array(
                     'arg_type' => 'exactString',
-                    'values' => array('ACTIVE', 'COMPLETE'),
+                    'values' => array('ACTIVE', 'COMPLETE', 'REJECTED'),
                 ),
             ),
         ),

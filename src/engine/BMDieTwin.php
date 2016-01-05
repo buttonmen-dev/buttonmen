@@ -119,16 +119,13 @@ class BMDieTwin extends BMDie {
                                            'isTriggeredByAttack' => $isTriggeredByAttack,
                                            'isSubdie' => $isSubdie));
 
-        // james: note that $this->value cannot be set to zero directly, since this triggers a bug
-        $value = 0;
         foreach ($this->dice as &$die) {
             // note that we do not want to trigger the hooks again, so we set the
             // input parameter of roll() to FALSE
             $die->roll(FALSE, TRUE);
-            $value += $die->value;
         }
 
-        $this->value = $value;
+        $this->recalc_max_min();
 
         $this->run_hooks('post_roll', array('die' => $this,
                                             'isTriggeredByAttack' => $isTriggeredByAttack));
@@ -327,8 +324,18 @@ class BMDieTwin extends BMDie {
     public function recalc_max_min() {
         $this->min = 0;
         $this->max = 0;
+        $value = 0;
+        $hasBothSubValues = TRUE;
 
         foreach ($this->dice as $subdie) {
+            if (!isset($subdie->value)) {
+                $hasBothSubValues = FALSE;
+            }
+
+            if ($hasBothSubValues) {
+                $value += $subdie->value;
+            }
+
             if (!isset($subdie->min) ||
                 !isset($subdie->max)) {
                 $this->min = NULL;
@@ -337,6 +344,12 @@ class BMDieTwin extends BMDie {
             }
             $this->min += $subdie->min;
             $this->max += $subdie->max;
+        }
+
+        if ($hasBothSubValues) {
+            $this->value = $value;
+        } else {
+            $this->value = NULL;
         }
 
         $this->remove_flag('Twin');

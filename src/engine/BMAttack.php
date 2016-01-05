@@ -219,6 +219,9 @@ abstract class BMAttack {
     /**
      * Determine the help bounds for a specific attack in a current BMGame
      *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
      * @return array
      */
     public function help_bounds_specific($game, array $attackers, array $defenders) {
@@ -291,7 +294,9 @@ abstract class BMAttack {
         }
 
         if ('Surrender' == $game->attack['attackType']) {
-            $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+            foreach ($game->playerArray as $player) {
+                $player->waitingOnAction = FALSE;
+            }
             $winnerArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
             $game->forceRoundResult = $winnerArray;
@@ -369,7 +374,7 @@ abstract class BMAttack {
      * Change the attack type specified in $game->attack from 'default' into
      * the actual attack type
      *
-     * @param type $game
+     * @param BMGame $game
      */
     public function resolve_default_attack(&$game) {
         if ('Default' == $game->attack['attackType'] &&

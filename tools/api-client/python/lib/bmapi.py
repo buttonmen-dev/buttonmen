@@ -27,7 +27,11 @@ class BMClient():
     self.url = config.get(site, "url")
     self.username = config.get(site, "username")
     self.password = config.get(site, "password")
-    self.cookiefile = config.get(site, "cookiefile")
+    self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
+    try:
+      self.cachedir = os.path.expanduser(config.get(site, "cachedir"))
+    except ConfigParser.NoOptionError:
+      pass
 
   def _setup_cookies(self):
     # all requests should use the same cookie jar
@@ -42,6 +46,7 @@ class BMClient():
     self.username = None
     self.password = None
     self.cookiefile = None
+    self.cachedir = None
     self._read_rcfile(rcfile, site)
     self._setup_cookies()
 
@@ -99,6 +104,20 @@ class BMClient():
   def load_active_games(self):
     args = {
       'type': 'loadActiveGames',
+    }
+    return self._make_request(args)
+
+  def load_new_games(self):
+    args = {
+      'type': 'loadNewGames',
+    }
+    return self._make_request(args)
+
+  def react_to_new_game(self, gameId, action):
+    args = {
+      'type': 'reactToNewGame',
+      'gameId': gameId,
+      'action':  action
     }
     return self._make_request(args)
 
