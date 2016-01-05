@@ -740,7 +740,7 @@ div.forum tr.writePost input.title {
 div.forum tr.writePost textarea,
 div.forum tr td.editBody textarea {
     width: 99%;
-    height: 10em;
+    height: 16em;
     display: block;
 }
 
