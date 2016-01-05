@@ -10648,4 +10648,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(3, $game->capturedDieArrayArray[1]);
     }
+
+    /**
+     * @coversNothing
+     */
+    public function test_echo_RandomBM() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('', 'Echo');
+        $this->assertEquals('', $button1->recipe);
+        // check dice in $button1->dieArray are correct
+        $this->assertCount(0, $button1->dieArray);
+
+        $button2 = new BMButton;
+        $button2->load('', 'RandomBMAnime');
+        $this->assertEquals('', $button2->recipe);
+        // check dice in $button2->dieArray are correct
+        $this->assertCount(0, $button2->dieArray);
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertNotEquals('', $game->playerArray[0]->button->recipe);
+        $this->assertEquals($game->playerArray[0]->button->recipe,
+                            $game->playerArray[1]->button->recipe);
+        $this->assertCount(4, $game->playerArray[0]->activeDieArray);
+        $this->assertCount(4, $game->playerArray[1]->activeDieArray);
+    }
 }
