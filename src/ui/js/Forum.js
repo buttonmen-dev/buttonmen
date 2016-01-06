@@ -57,7 +57,7 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 // These functions are part of the main action flow to load the page
 
 Forum.showLoggedInPage = function() {
-  $(window).bind('popstate', Forum.showLoggedInPage);
+  $(window).bind('popstate', Forum.showPage);
 
   var state = {
     'boardId': Env.getParameterByName('boardId'),
@@ -77,6 +77,16 @@ Forum.showPage = function(state) {
   if (state.originalEvent !== undefined) {
     state = state.originalEvent.state;
   }
+
+  // If no usable state has been found yet, regenerate it from the URL
+  if ((state === undefined) || (state === null)) {
+    state = {
+      'boardId': Env.getParameterByName('boardId'),
+      'threadId': Env.getParameterByName('threadId'),
+      'postId': Env.getParameterByName('postId'),
+    };
+  }
+
   // Display the appropriate version of the page depending on the current state
   if (state.threadId) {
     Api.loadForumThread(state.threadId, state.postId, Forum.showThread);
