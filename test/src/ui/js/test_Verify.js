@@ -52,7 +52,6 @@ test("test_Verify_is_loaded", function(assert) {
 test("test_Verify.showLoggedInPage", function(assert) {
   expect(4);
   var cached_getVerifyParams = Verify.getVerifyParams;
-  var cached_page = Login.arrangePage($('<div>')); 
   var getVerifyParamsCalled = false;
   Verify.getVerifyParams = function(callback) {
     getVerifyParamsCalled = true;
