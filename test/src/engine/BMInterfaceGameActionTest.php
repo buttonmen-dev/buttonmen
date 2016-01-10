@@ -874,4 +874,275 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertFalse($this->object->gameAction()->react_to_auxiliary(1.5, 2.5, 'ha!'));
     }
 
+/**
+     * Check that adding a reserve die works correctly.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceGameAction::react_to_reserve
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_react_to_reserve_add() {
+        // Sailor Moon : (8) (8) (10) (20) r(6) r(10) r(20) r(20)
+        // Queen Beryl : (4) (8) (12) (20) r(4) r(12) r(20) r(20)
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Sailor Moon', 'Queen Beryl'),
+            4
+        );
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        $game->gameScoreArrayArray = array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                           array('W' => 1, 'L' => 0, 'D' => 0));
+        $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        $playerArray = $game->playerArray;
+        $playerArray[0]->activeDieArray = array();
+        $playerArray[1]->activeDieArray = array();
+        $game->playerArray = $playerArray;
+
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertCount(8, $game->activeDieArrayArray[0]);
+        $this->assertCount(8, $game->activeDieArrayArray[1]);
+
+        // a non-player attempts an action
+        $this->assertFalse(
+            $this->object->gameAction()->react_to_reserve(
+                0,
+                $gameId,
+                'add')
+        );
+
+        // player 1 adds reserve die
+        $this->assertTrue(
+            $this->object->gameAction()->react_to_reserve(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'add',
+                5)
+        );
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Reserve'));
+            }
+        }
+        $this->assertEquals(10, $game->activeDieArrayArray[0][4]->max);
+        $this->assertEquals('(8) (8) (10) (20) r(6) (10) r(20) r(20)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (8) (12) (20) r(4) r(12) r(20) r(20)',
+                            $game->buttonArray[1]->recipe);
+    }
+
+    /**
+     * Check that a decline of a reserve die works correctly.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceGameAction::react_to_reserve
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_react_to_reserve_decline() {
+        // Sailor Moon : (8) (8) (10) (20) r(6) r(10) r(20) r(20)
+        // Queen Beryl : (4) (8) (12) (20) r(4) r(12) r(20) r(20)
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Sailor Moon', 'Queen Beryl'),
+            4
+        );
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        $game->gameScoreArrayArray = array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                           array('W' => 1, 'L' => 0, 'D' => 0));
+        $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        $playerArray = $game->playerArray;
+        $playerArray[0]->activeDieArray = array();
+        $playerArray[1]->activeDieArray = array();
+        $game->playerArray = $playerArray;
+
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertCount(8, $game->activeDieArrayArray[0]);
+        $this->assertCount(8, $game->activeDieArrayArray[1]);
+
+        // a non-player attempts an action
+        $this->assertFalse(
+            $this->object->gameAction()->react_to_reserve(
+                0,
+                $gameId,
+                'decline')
+        );
+
+        // player 1 attempts an invalid action
+        $this->assertFalse(
+            $this->object->gameAction()->react_to_reserve(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'rubbish')
+        );
+
+        // player 2 attempts a reserve action
+        $this->assertFalse(
+            $this->object->gameAction()->react_to_reserve(
+                self::$userId2WithoutAutopass,
+                $gameId,
+                'add',
+                6)
+        );
+
+        // player 1 declines
+        $this->assertTrue(
+            $this->object->gameAction()->react_to_reserve(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'decline')
+        );
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Reserve'));
+            }
+        }
+        $this->assertEquals('(8) (8) (10) (20) r(6) r(10) r(20) r(20)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (8) (12) (20) r(4) r(12) r(20) r(20)',
+                            $game->buttonArray[1]->recipe);
+    }
+
+
+    /**
+     * The following unit tests ensure that fire works correctly.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     * @covers BMInterfaceGameAction::adjust_fire
+     */
+    function test_fire() {
+        // (4) (6) F(8) (20) (X) vs F(4) F(6) (6) (12) (X)
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Poly', 'Adam Spam'),
+            4
+        );
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        // load game
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals( 4, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 8, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[0][3]->max);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertEquals( 4, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(12, $game->activeDieArrayArray[1][3]->max);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->max));
+        $this->assertTrue($game->activeDieArrayArray[0][2]->has_skill('Fire'));
+        $this->assertTrue($game->activeDieArrayArray[1][0]->has_skill('Fire'));
+        $this->assertTrue($game->activeDieArrayArray[1][1]->has_skill('Fire'));
+
+        $game->swingValueArrayArray = array(array('X' => 17), array('X' => 5));
+
+        self::save_game($game);
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(17, $game->activeDieArrayArray[0][4]->max);
+        $this->assertEquals( 5, $game->activeDieArrayArray[1][4]->max);
+
+        $this->assertNotNull($game->activeDieArrayArray[0][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][4]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+
+        // artificially set player 1 as winning initiative
+        $game->playerWithInitiativeIdx = 0;
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 6;
+        $dieArrayArray[0][3]->value = 1;
+        $dieArrayArray[0][4]->value = 1;
+        $dieArrayArray[1][0]->value = 4;
+        $dieArrayArray[1][1]->value = 6;
+        $dieArrayArray[1][2]->value = 6;
+        $dieArrayArray[1][3]->value = 12;
+        $dieArrayArray[1][4]->value = 5;
+
+        // perform valid attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        $retval = $this->object->gameAction()->adjust_fire(
+            self::$userId1WithoutAutopass,
+            $game->gameId,
+            1,
+            'ignore',
+            'turndown',
+            array(2),
+            array(3)
+        );
+
+        $this->assertTrue($retval);
+
+        $game = self::load_game($game->gameId);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+    }
 }

@@ -2167,64 +2167,6 @@ class BMInterface {
         }
     }
 
-    public function dismiss_game($playerId, $gameId) {
-        try {
-            $query =
-                'SELECT s.name AS "status", m.was_game_dismissed ' .
-                'FROM game AS g ' .
-                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
-                    'LEFT JOIN game_player_map AS m ' .
-                    'ON m.game_id = g.id AND m.player_id = :player_id ' .
-                'WHERE g.id = :game_id';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
-                ':player_id' => $playerId,
-                ':game_id' => $gameId,
-            ));
-            $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) == 0) {
-                $this->set_message("Game $gameId does not exist");
-                return NULL;
-            }
-            if (($fetchResult[0]['status'] != 'COMPLETE') &&
-                ($fetchResult[0]['status'] != 'REJECTED')) {
-                $this->set_message("Game $gameId isn't complete");
-                return NULL;
-            }
-            if ($fetchResult[0]['was_game_dismissed'] === NULL) {
-                $this->set_message("You aren't a player of game $gameId");
-                return NULL;
-            }
-            if ((int)$fetchResult[0]['was_game_dismissed'] == 1) {
-                $this->set_message("You have already dismissed game $gameId");
-                return NULL;
-            }
-
-            $query =
-                'UPDATE game_player_map ' .
-                'SET was_game_dismissed = 1 ' .
-                'WHERE player_id = :player_id AND game_id = :game_id';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
-                ':player_id' => $playerId,
-                ':game_id' => $gameId,
-            ));
-
-            $this->set_message('Dismissing game succeeded');
-            return TRUE;
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::dismiss_game: ' .
-                $e->getMessage()
-            );
-            $this->set_message('Internal error while dismissing a game');
-            return FALSE;
-        }
-    }
-
     protected function get_config($conf_key) {
         try {
             $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
