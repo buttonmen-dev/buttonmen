@@ -743,7 +743,14 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
-    // Modify an existing chat message in the database
+    /**
+     * Modify an existing chat message in the database
+     *
+     * @param int    $playerId
+     * @param int    $gameId
+     * @param int    $editTimestamp
+     * @param string $chat
+     */
     protected function db_update_chat($playerId, $gameId, $editTimestamp, $chat) {
         $query = 'UPDATE game_chat_log ' .
                  'SET message = :message, chat_time = now() ' .
@@ -759,7 +766,13 @@ class BMInterfaceGameAction extends BMInterface {
                                   ':timestamp' => $editTimestamp));
     }
 
-    // Delete an existing chat message in the database
+    /**
+     * Delete an existing chat message in the database
+     *
+     * @param int  $playerId
+     * @param int  $gameId
+     * @param int  $editTimestamp
+     */
     protected function db_delete_chat($playerId, $gameId, $editTimestamp) {
         $query = 'DELETE FROM game_chat_log ' .
                  'WHERE game_id = :game_id ' .
@@ -773,7 +786,16 @@ class BMInterfaceGameAction extends BMInterface {
                                   ':timestamp' => $editTimestamp));
     }
 
-    // Can the active player insert a new chat entry (without an attack) right now?
+    /**
+     * Can the active player insert a new chat entry (without an attack) right now?
+     *
+     * @param BMGame $game
+     * @param int    $currentPlayerIdx
+     * @param array  $playerNameArray
+     * @param array  $chatLogEntries
+     * @param array  $actionLogEntries
+     * @return boolean
+     */
     protected function chat_is_insertable(
         $game,
         $currentPlayerIdx,
@@ -811,7 +833,13 @@ class BMInterfaceGameAction extends BMInterface {
         return TRUE;
     }
 
-    // Insert a new chat message into the database
+    /**
+     * Insert a new chat message into the database
+     *
+     * @param int    $playerId
+     * @param int    $gameId
+     * @param string $chat
+     */
     protected function db_insert_chat($playerId, $gameId, $chat) {
 
         $query = 'INSERT INTO game_chat_log ' .
@@ -826,20 +854,27 @@ class BMInterfaceGameAction extends BMInterface {
         );
     }
 
-    // react_to_auxiliary expects the following inputs:
-    //
-    //   $action:
-    //       One of {'add', 'decline'}.
-    //
-    //   $dieIdx:
-    //       (i)  If this is an 'add' action, then this is the die index of the
-    //            die to be added.
-    //       (ii) If this is a 'decline' action, then this will be ignored.
-    //
-    // The function returns a boolean telling whether the reaction has been
-    // successful.
-    // If it fails, $this->message will say why it has failed.
-
+    /**
+     * react_to_auxiliary expects the following inputs:
+     *
+     *   $action:
+     *       One of {'add', 'decline'}.
+     *
+     *   $dieIdx:
+     *       (i)  If this is an 'add' action, then this is the die index of the
+     *            die to be added.
+     *       (ii) If this is a 'decline' action, then this will be ignored.
+     *
+     * The function returns a boolean telling whether the reaction has been
+     * successful.
+     * If it fails, $this->message will say why it has failed.
+     *
+     * @param int    $playerId
+     * @param int    $gameId
+     * @param string $action
+     * @param int    $dieIdx
+     * @return boolean
+     */
     public function react_to_auxiliary(
         $playerId,
         $gameId,
@@ -907,20 +942,27 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
-    // react_to_reserve expects the following inputs:
-    //
-    //   $action:
-    //       One of {'add', 'decline'}.
-    //
-    //   $dieIdx:
-    //       (i)  If this is an 'add' action, then this is the die index of the
-    //            die to be added.
-    //       (ii) If this is a 'decline' action, then this will be ignored.
-    //
-    // The function returns a boolean telling whether the reaction has been
-    // successful.
-    // If it fails, $this->message will say why it has failed.
-
+    /**
+     * react_to_reserve expects the following inputs:
+     *
+     *   $action:
+     *       One of {'add', 'decline'}.
+     *
+     *   $dieIdx:
+     *       (i)  If this is an 'add' action, then this is the die index of the
+     *            die to be added.
+     *       (ii) If this is a 'decline' action, then this will be ignored.
+     *
+     * The function returns a boolean telling whether the reaction has been
+     * successful.
+     * If it fails, $this->message will say why it has failed.
+     *
+     * @param int    $playerId
+     * @param int    $gameId
+     * @param string $action
+     * @param int    $dieIdx
+     * @return boolean
+     */
     public function react_to_reserve(
         $playerId,
         $gameId,
@@ -989,30 +1031,40 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
-    // react_to_initiative expects the following inputs:
-    //
-    //   $action:
-    //       One of {'chance', 'focus', 'decline'}.
-    //
-    //   $dieIdxArray:
-    //       (i)   If this is a 'chance' action, then an array containing the
-    //             index of the chance die that is being rerolled.
-    //       (ii)  If this is a 'focus' action, then this is the nonempty array
-    //             of die indices corresponding to the die values in
-    //             dieValueArray. This can be either the indices of ALL focus
-    //             dice OR just a subset.
-    //       (iii) If this is a 'decline' action, then this will be ignored.
-    //
-    //   $dieValueArray:
-    //       This is only used for the 'focus' action. It is a nonempty array
-    //       containing the values of the focus dice that have been chosen by
-    //       the user. The die indices of the dice being specified are given in
-    //       $dieIdxArray.
-    //
-    // The function returns a boolean telling whether the reaction has been
-    // successful.
-    // If it fails, $this->message will say why it has failed.
-
+    /**
+     * react_to_initiative expects the following inputs:
+     *
+     *   $action:
+     *       One of {'chance', 'focus', 'decline'}.
+     *
+     *   $dieIdxArray:
+     *       (i)   If this is a 'chance' action, then an array containing the
+     *             index of the chance die that is being rerolled.
+     *       (ii)  If this is a 'focus' action, then this is the nonempty array
+     *             of die indices corresponding to the die values in
+     *             dieValueArray. This can be either the indices of ALL focus
+     *             dice OR just a subset.
+     *       (iii) If this is a 'decline' action, then this will be ignored.
+     *
+     *   $dieValueArray:
+     *       This is only used for the 'focus' action. It is a nonempty array
+     *       containing the values of the focus dice that have been chosen by
+     *       the user. The die indices of the dice being specified are given in
+     *       $dieIdxArray.
+     *
+     * The function returns a boolean telling whether the reaction has been
+     * successful.
+     * If it fails, $this->message will say why it has failed.
+     *
+     * @param int    $playerId
+     * @param int    $gameId
+     * @param int    $roundNumber
+     * @param int    $submitTimestamp
+     * @param string $action
+     * @param array  $dieIdxArray
+     * @param array  $dieValueArray
+     * @return boolean
+     */
     public function react_to_initiative(
         $playerId,
         $gameId,
@@ -1090,29 +1142,39 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
-    // adjust_fire expects the following inputs:
-    //
-    //   $action:
-    //       One of {'turndown', 'no_turndown', 'cancel'}.
-    //
-    //   $dieIdxArray:
-    //       (i)   If this is a 'turndown' action, then this is the nonempty array
-    //             of die indices corresponding to the die values in
-    //             dieValueArray. This can be either the indices of ALL fire
-    //             dice OR just a subset.
-    //       (ii)  If this is a 'no_turndown' action, then this will be ignored.
-    //       (iii) If this is a 'cancel' action, then this will be ignored.
-    //
-    //   $dieValueArray:
-    //       This is only used for the 'turndown' action. It is a nonempty array
-    //       containing the values of the fire dice that have been chosen by
-    //       the user. The die indices of the dice being specified are given in
-    //       $dieIdxArray.
-    //
-    // The function returns a boolean telling whether the reaction has been
-    // successful.
-    // If it fails, $this->message will say why it has failed.
-
+    /**
+     * adjust_fire expects the following inputs:
+     *
+     *   $action:
+     *       One of {'turndown', 'no_turndown', 'cancel'}.
+     *
+     *   $dieIdxArray:
+     *       (i)   If this is a 'turndown' action, then this is the nonempty array
+     *             of die indices corresponding to the die values in
+     *             dieValueArray. This can be either the indices of ALL fire
+     *             dice OR just a subset.
+     *       (ii)  If this is a 'no_turndown' action, then this will be ignored.
+     *       (iii) If this is a 'cancel' action, then this will be ignored.
+     *
+     *   $dieValueArray:
+     *       This is only used for the 'turndown' action. It is a nonempty array
+     *       containing the values of the fire dice that have been chosen by
+     *       the user. The die indices of the dice being specified are given in
+     *       $dieIdxArray.
+     *
+     * The function returns a boolean telling whether the reaction has been
+     * successful.
+     * If it fails, $this->message will say why it has failed.
+     *
+     * @param int    $playerId
+     * @param int    $gameId
+     * @param int    $roundNumber
+     * @param int    $submitTimestamp
+     * @param string $action
+     * @param array  $dieIdxArray
+     * @param array  $dieValueArray
+     * @return boolean
+     */
     public function adjust_fire(
         $playerId,
         $gameId,
@@ -1242,9 +1304,18 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
-    // Check whether a requested action still needs to be taken.
-    // If the time stamp is not important, use the string 'ignore'
-    // for $postedTimestamp.
+    /**
+     * Check whether a requested action still needs to be taken.
+     * If the time stamp is not important, use the string 'ignore'
+     * for $postedTimestamp.
+     *
+     * @param BMGame $game
+     * @param int    $expectedGameState
+     * @param int    $postedTimestamp
+     * @param int    $roundNumber
+     * @param int    $currentPlayerId
+     * @return boolean
+     */
     protected function is_action_current(
         BMGame $game,
         $expectedGameState,
