@@ -76,27 +76,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @depends test_create_and_load_new_game_with_empty_opponent
-     *
-     * @covers BMInterface::join_open_game
-     */
-    public function test_join_open_game() {
-        // create an open game with an unspecified opponent
-        $retval = $this->object->gameAction()->create_game(
-            array(self::$userId1WithoutAutopass, NULL),
-            array('Bauer', 'Stark'),
-            4
-        );
-        $this->assertNotNull($retval);
-        $this->object->join_open_game(self::$userId2WithoutAutopass, $retval['gameId']);
-
-        $game = self::load_game($retval['gameId']);
-        $this->assertEquals(array(self::$userId1WithoutAutopass,
-                                  self::$userId2WithoutAutopass),
-                            $game->playerIdArray);
-    }
-
-    /**
      * @depends test_create_and_load_new_game_with_empty_button
      *
      * @covers BMInterface::select_button
