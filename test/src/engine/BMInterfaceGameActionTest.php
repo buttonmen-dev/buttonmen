@@ -247,7 +247,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
                             $game->swingValueArrayArray);
 
         // check that swing values are set correctly
-        $this->object->submit_die_values(
+        $this->object->gameAction()->submit_die_values(
             self::$userId1WithoutAutopass,
             $game->gameId,
             1,
