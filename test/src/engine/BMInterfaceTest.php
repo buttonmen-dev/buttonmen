@@ -1422,7 +1422,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterface::react_to_reserve
+     * @covers BMInterfaceGameAction::react_to_reserve
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -1457,7 +1457,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // a non-player attempts an action
         $this->assertFalse(
-            $this->object->react_to_reserve(
+            $this->object->gameAction()->react_to_reserve(
                 0,
                 $gameId,
                 'decline')
@@ -1465,7 +1465,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // player 1 attempts an invalid action
         $this->assertFalse(
-            $this->object->react_to_reserve(
+            $this->object->gameAction()->react_to_reserve(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'rubbish')
@@ -1473,7 +1473,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // player 2 attempts a reserve action
         $this->assertFalse(
-            $this->object->react_to_reserve(
+            $this->object->gameAction()->react_to_reserve(
                 self::$userId2WithoutAutopass,
                 $gameId,
                 'add',
@@ -1482,7 +1482,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // player 1 declines
         $this->assertTrue(
-            $this->object->react_to_reserve(
+            $this->object->gameAction()->react_to_reserve(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'decline')
@@ -1509,7 +1509,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterface::react_to_reserve
+     * @covers BMInterfaceGameAction::react_to_reserve
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -1544,7 +1544,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // a non-player attempts an action
         $this->assertFalse(
-            $this->object->react_to_reserve(
+            $this->object->gameAction()->react_to_reserve(
                 0,
                 $gameId,
                 'add')
@@ -1552,7 +1552,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // player 1 adds reserve die
         $this->assertTrue(
-            $this->object->react_to_reserve(
+            $this->object->gameAction()->react_to_reserve(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'add',
