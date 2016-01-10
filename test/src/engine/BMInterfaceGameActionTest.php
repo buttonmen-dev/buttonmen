@@ -124,6 +124,70 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
+     * @covers BMInterface::create_game
+     */
+    public function test_create_self_game() {
+        // attempt to create a game with the same player on both sides
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId1WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4
+        );
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because a player has been selected more than once.',
+                            $this->object->message);
+    }
+
+    /**
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterface::create_game
+     */
+    public function test_create_game_with_invalid_parameters() {
+        // attempt to create a game with a non-integer number of max wins
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4.5
+        );
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
+                            $this->object->message);
+
+        // attempt to create a game with a zero number of max wins
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            0
+        );
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
+                            $this->object->message);
+
+        // attempt to create a game with a large number of max wins
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            6
+        );
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
+                            $this->object->message);
+
+        // attempt to create a game with an invalid button name
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('KJQOERUCHC', 'Stark'),
+            3
+        );
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because a button name was not valid.',
+                            $this->object->message);
+    }
+
+    /**
+     * @depends BMInterface000Test::test_create_user
+     *
      * @covers BMInterfaceGameAction::create_game
      * @covers BMInterface::load_game
      */
