@@ -826,7 +826,86 @@ class BMInterfaceGameAction extends BMInterface {
         );
     }
 
+    // react_to_auxiliary expects the following inputs:
+    //
+    //   $action:
+    //       One of {'add', 'decline'}.
+    //
+    //   $dieIdx:
+    //       (i)  If this is an 'add' action, then this is the die index of the
+    //            die to be added.
+    //       (ii) If this is a 'decline' action, then this will be ignored.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
 
+    public function react_to_auxiliary(
+        $playerId,
+        $gameId,
+        $action,
+        $dieIdx = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_AUXILIARY_DICE,
+                'ignore',
+                'ignore',
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            switch ($action) {
+                case 'add':
+                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
+                        !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
+                        $this->set_message('Invalid auxiliary choice');
+                        return FALSE;
+                    }
+                    $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
+                    $die->add_flag('AddAuxiliary');
+                    $waitingOnActionArray = $game->waitingOnActionArray;
+                    $waitingOnActionArray[$playerIdx] = FALSE;
+                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array(
+                            'roundNumber' => $game->roundNumber,
+                            'die' => $die->get_action_log_data(),
+                        )
+                    );
+                    $this->set_message('Chose to add auxiliary die');
+                    break;
+                case 'decline':
+                    $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $game->log_action(
+                        'decline_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array('declineAuxiliary' => TRUE)
+                    );
+                    $this->set_message('Declined auxiliary dice');
+                    break;
+                default:
+                    $this->set_message('Invalid response to auxiliary choice.');
+                    return FALSE;
+            }
+            $this->save_game($game);
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::react_to_auxiliary: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while making auxiliary decision');
+            return FALSE;
+        }
+    }
 
 
 

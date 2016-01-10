@@ -336,7 +336,7 @@ class ApiResponder {
             $args['dieIdx'] = NULL;
         }
 
-        $retval = $interface->react_to_auxiliary(
+        $retval = $interface->gameAction()->react_to_auxiliary(
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
