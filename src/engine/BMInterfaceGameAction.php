@@ -388,4 +388,79 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
+    public function select_button(
+        $playerId,
+        $gameId,
+        $buttonName
+    ) {
+        try {
+            if (empty($buttonName)) {
+                return FALSE;
+            }
+
+            $game = $this->load_game($gameId);
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            if (FALSE === $playerIdx) {
+                $this->set_message('Player is not a participant in game.');
+                return FALSE;
+            }
+
+            if (!is_null($game->buttonArray[$playerIdx])) {
+                $this->set_message('Button has already been selected.');
+                return FALSE;
+            }
+
+            if ('__random' == $buttonName) {
+                $query = 'UPDATE game_player_map SET is_button_random = 1 '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id';
+
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':game_id'   => $gameId,
+                                          ':player_id' => $playerId));
+            } else {
+                $query = 'SELECT id FROM button '.
+                         'WHERE name = :button_name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':button_name' => $buttonName));
+                $fetchData = $statement->fetch();
+                if (FALSE === $fetchData) {
+                    $this->set_message('Button select failed because button name was not valid.');
+                    return FALSE;
+                }
+                $buttonId = $fetchData[0];
+
+                $query = 'UPDATE game_player_map SET button_id = :button_id '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id';
+
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':game_id'   => $gameId,
+                                          ':player_id' => $playerId,
+                                          ':button_id' => $buttonId));
+            }
+
+            $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
+                     'WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+
+            $statement->execute(array(':start_time' => time(),
+                                      ':id'         => $gameId));
+
+            $game = $this->load_game($gameId);
+            $this->save_game($game);
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::select_button: ".
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while selecting button');
+        }
+    }
 }

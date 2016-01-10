@@ -323,7 +323,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertFalse($game->isButtonChoiceRandom[1]);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
 
-        $retval = $this->object->select_button(self::$userId2WithoutAutopass, $gameId, '__random');
+        $retval = $this->object->gameAction()->select_button(
+            self::$userId2WithoutAutopass,
+            $gameId,
+            '__random'
+        );
         $this->assertTrue($retval);
         $game = self::load_game($gameId);
         $this->assertFalse(empty($game->buttonArray[0]));
@@ -611,5 +615,31 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertEquals(array(self::$userId1WithoutAutopass,
                                   self::$userId2WithoutAutopass),
                             $game->playerIdArray);
+    }
+
+    /**
+     * @depends test_create_and_load_new_game_with_empty_button
+     *
+     * @covers BMInterfaceGameAction::select_button
+     */
+    public function test_select_button() {
+        // create an open game with an unspecified button
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Bauer', NULL),
+            4
+        );
+        $this->assertNotNull($retval);
+        $this->object->gameAction()->select_button(
+            self::$userId2WithoutAutopass,
+            $retval['gameId'],
+            'Iago'
+        );
+
+        $game = self::load_game($retval['gameId']);
+        $this->assertEquals('Bauer', $game->buttonArray[0]->name);
+        $this->assertEquals('(8) (10) (12) (20) (X)', $game->buttonArray[0]->recipe);
+        $this->assertEquals('Iago', $game->buttonArray[1]->name);
+        $this->assertEquals('(20) (20) (20) (X)', $game->buttonArray[1]->recipe);
     }
 }
