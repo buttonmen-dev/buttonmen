@@ -1058,7 +1058,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
-     * @covers BMInterface::adjust_fire
+     * @covers BMInterfaceGameAction::adjust_fire
      */
     function test_fire() {
         // (4) (6) F(8) (20) (X) vs F(4) F(6) (6) (12) (X)
@@ -1142,7 +1142,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
 
-        $retval = $this->object->adjust_fire(
+        $retval = $this->object->gameAction()->adjust_fire(
             self::$userId1WithoutAutopass,
             $game->gameId,
             1,

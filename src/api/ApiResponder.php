@@ -400,7 +400,7 @@ class ApiResponder {
         if (!(array_key_exists('dieValueArray', $args))) {
             $args['dieValueArray'] = NULL;
         }
-        $retval = $interface->adjust_fire(
+        $retval = $interface->gameAction()->adjust_fire(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
