@@ -658,6 +658,74 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     }
 
     /**
+     * @covers BMInterface::save_join_game_decision
+     */
+    public function test_save_join_game_decision() {
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId5WithoutAutoaccept, self::$userId2WithoutAutopass),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId5WithoutAutoaccept),
+            array('Bauer', 'Stark'),
+            4,
+            '',
+            NULL,
+            NULL,
+            FALSE
+        );
+
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+        $this->assertTrue(isset($game->hasPlayerAcceptedGameArray));
+        $this->assertTrue(is_array($game->hasPlayerAcceptedGameArray));
+        $this->assertCount(2, $game->hasPlayerAcceptedGameArray);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
+
+        $this->object->gameAction()->save_join_game_decision(
+            self::$userId5WithoutAutoaccept,
+            $gameId,
+            'accept'
+        );
+        $game = self::load_game($gameId);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
+        $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
+    }
+
+    /**
      * @depends test_create_and_load_new_game_with_empty_opponent
      *
      * @covers BMInterfaceGameAction::join_open_game

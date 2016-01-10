@@ -459,7 +459,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_reactToNewGame($interface, $args) {
-        $retval = $interface->save_join_game_decision(
+        $retval = $interface->gameAction()->save_join_game_decision(
             $_SESSION['user_id'],
             $args['gameId'],
             $args['action']

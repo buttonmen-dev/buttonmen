@@ -329,6 +329,58 @@ class BMInterfaceGameAction extends BMInterface {
         }
     }
 
+    public function save_join_game_decision($playerId, $gameId, $decision) {
+        if (('accept' != $decision) && ('reject' != $decision)) {
+            throw new InvalidArgumentException('decision must be either accept or reject');
+        }
+
+        $game = $this->load_game($gameId);
+
+        if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
+            if (('reject' == $decision) &&
+                ($playerId == $game->playerIdArray[0])) {
+                $decision = 'withdraw';
+            }
+            $this->set_message(
+                'Your decision to ' .
+                $decision .
+                ' the game failed because the game has been updated ' .
+                'since you loaded the page'
+            );
+            return;
+        }
+
+        if (!isset($game->hasPlayerAcceptedGameArray)) {
+            throw new LogicException('hasPlayerAcceptedGameArray needs to exist');
+        }
+
+        $playerIdx = array_search($playerId, $game->playerIdArray);
+
+        if (FALSE === $playerIdx) {
+            return;
+        }
+
+        $player = $game->playerArray[$playerIdx];
+        $player->waitingOnAction = FALSE;
+        $decisionFlag = ('accept' == $decision);
+        $game->hasPlayerAcceptedGameArray[$playerIdx] = $decisionFlag;
+
+        if (!$decisionFlag) {
+            $game->gameState = BMGameState::REJECTED;
+        }
+
+        $this->save_game($game);
+
+        if ($decisionFlag) {
+            $this->set_message("Joined game $gameId");
+        } else {
+            $this->set_message("Rejected game $gameId");
+        }
+
+        return TRUE;
+    }
+
+
     public function join_open_game($currentPlayerId, $gameId) {
         try {
             $game = $this->load_game($gameId);
