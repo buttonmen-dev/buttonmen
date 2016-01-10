@@ -3833,8 +3833,8 @@ class BMGame {
     /**
      * Array of previous choice of option values
      *
-     * @param type $playerIdx
-     * @return type
+     * @param int $playerIdx
+     * @return array
      */
     protected function get_prevOptValueArray($playerIdx) {
         if (empty($this->prevOptValueArrayArray)) {

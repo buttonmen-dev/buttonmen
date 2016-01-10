@@ -124,7 +124,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterface::create_game
+     * @covers BMInterfaceGameAction::create_game
      */
     public function test_create_self_game() {
         // attempt to create a game with the same player on both sides
@@ -141,7 +141,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterface::create_game
+     * @covers BMInterfaceGameAction::create_game
      */
     public function test_create_game_with_invalid_parameters() {
         // attempt to create a game with a non-integer number of max wins
@@ -658,7 +658,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @covers BMInterface::save_join_game_decision
+     * @covers BMInterfaceGameAction::save_join_game_decision
      */
     public function test_save_join_game_decision() {
         $retval = $this->object->gameAction()->create_game(
