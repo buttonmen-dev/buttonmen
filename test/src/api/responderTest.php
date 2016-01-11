@@ -69,7 +69,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
             'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues',
+            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'verifyUser',
         );
 
 
@@ -647,10 +647,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Get a unique faked random value to be used in the verification key
+     * of a responderNNN user being created
+     */
+    protected function get_fake_verification_randval($username) {
+        $matches = array();
+        preg_match('/responder(\d+)/', $username, $matches);
+        return ($matches[1] * 0.001);
+    }
+
+    /**
      * Make sure five users, responder001-005, exist, and return
      * fake session data for whichever one was requested.
      */
     protected function mock_test_user_login($username = 'responder003') {
+        global $BM_RAND_VALS;
 
         $responder = new ApiResponder($this->spec, TRUE);
 
@@ -673,9 +684,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             if (!(array_key_exists($newuser, $this->user_ids))) {
                 $args['username'] = $newuser;
                 $args['email'] = $newuser . '@example.com';
+                $BM_RAND_VALS = array($this->get_fake_verification_randval($newuser));
                 $ret1 = $responder->process_request($args);
                 if ($ret1['data']) {
                     $ret1 = $responder->process_request($args);
+                } else {
+                    $BM_RAND_VALS = array();
                 }
                 $matches = array();
                 preg_match('/id=(\d+)/', $ret1['message'], $matches);
@@ -1150,6 +1164,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_createUser() {
+        global $BM_RAND_VALS;
         $this->verify_invalid_arg_rejected('createUser');
         $this->verify_mandatory_args_required(
             'createUser',
@@ -1170,6 +1185,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 "Clean these out by hand.");
             $username = 'responder' . sprintf('%03d', $trynum);
             $responder = new ApiResponder($this->spec, TRUE);
+            $BM_RAND_VALS = array($this->get_fake_verification_randval($username));
             $real_new = $responder->process_request(
                             array('type' => 'createUser',
                                   'username' => $username,
@@ -1199,6 +1215,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 );
 
                 // FIXME: also cache the failure
+
+                // Now run a verifyUser test on the newly-created user
+                $verify_retval = $responder->process_request(
+                    array('type' => 'verifyUser',
+                          'playerId' => $real_new['data']['playerId'],
+                          'playerKey' => md5($this->get_fake_verification_randval($username)),
+                    ));
+                $this->assertEquals($verify_retval['status'], 'ok');
+                $this->assertEquals($verify_retval['message'], 'Account activated for player ' . $username . '!');
+                $this->assertEquals($verify_retval['data'], TRUE);
+
+                // Use a fake playerId as the key for verification
+                $fakePlayerId = 1;
+                $this->cache_json_api_output('verifyUser', $fakePlayerId, $verify_retval);
             }
             $trynum += 1;
         }
