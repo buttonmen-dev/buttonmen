@@ -10237,7 +10237,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 4.0;
         $expData['playerDataArray'][1]['sideScore'] = -4.0;
         $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Stealth Shadow Option Die (with 1 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Stealth Shadow Option Die (with 1 side)';
         $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Warrior Rage Option Die (with 5 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 1;
@@ -11168,7 +11168,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 30 sides)";
         $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 30;
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 20;
-        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 side)";
         $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 1;
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 1;
         $expData['playerDataArray'][0]['prevOptValueArray'] = array();
