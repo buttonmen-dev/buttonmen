@@ -143,7 +143,11 @@ class BMDieOption extends BMDie {
 
         $sideStr = '';
         if (isset($this->max)) {
-            $sideStr = " (with {$this->max} sides)";
+            $sideStr = " (with {$this->max} side";
+            if ($this->max != 1) {
+                $sideStr .= 's';
+            }
+            $sideStr .= ')';
         } else {
             $sideStr = " (with {$this->optionValueArray[0]} or {$this->optionValueArray[1]} sides)";
         }
