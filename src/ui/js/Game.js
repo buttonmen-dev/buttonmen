@@ -2860,7 +2860,7 @@ Game.gameWinner = function() {
 
   if ((playerWins < Api.game.maxWins) &&
       (opponentWins < Api.game.maxWins)) {
-      winnerName = false;
+    winnerName = false;
   }
 
   var winnerText;
