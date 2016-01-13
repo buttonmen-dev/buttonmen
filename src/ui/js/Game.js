@@ -2857,6 +2857,12 @@ Game.gameWinner = function() {
   } else {
     winnerName = false;
   }
+
+  if ((playerWins < Api.game.maxWins) &&
+      (opponentWins < Api.game.maxWins)) {
+      winnerName = false;
+  }
+
   var winnerText;
   if (winnerName) {
     winnerText = winnerName + ' won!';

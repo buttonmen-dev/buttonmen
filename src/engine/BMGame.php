@@ -29,6 +29,7 @@
  * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
  * @property-read int   $nRecentPasses           Number of consecutive passes
+ * @property-read int   $nRecentDraws            Number of consecutive draws
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property      int   $maxWins                 The game ends when a player has this many wins
@@ -197,6 +198,13 @@ class BMGame {
      * @var int
      */
     protected $nRecentPasses;
+
+    /**
+     * Number of consecutive draws
+     *
+     * @var int
+     */
+    protected $nRecentDraws;
 
     /**
      * Current points score in this round
@@ -1755,6 +1763,10 @@ class BMGame {
     }
 
     protected function do_next_step_end_round() {
+        if (!isset($this->nRecentDraws)) {
+            $this->nRecentDraws = 0;
+        }
+
         $roundScoreArray = $this->get__roundScoreArray();
         if (isset($this->forceRoundResult)) {
             foreach ($this->playerArray as $playerIdx => $player) {
@@ -1771,6 +1783,7 @@ class BMGame {
         }
 
         if ($isDraw) {
+            $this->nRecentDraws++;
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 $this->gameScoreArrayArray[$playerIdx]['D']++;
                 // james: currently there is no code for three draws in a row
@@ -1784,6 +1797,7 @@ class BMGame {
                 )
             );
         } else {
+            $this->nRecentDraws = 0;
             if (isset($this->forceRoundResult)) {
                 $winnerIdx = array_search(TRUE, $this->forceRoundResult);
                 $forceRoundResult = $this->forceRoundResult;
@@ -1830,6 +1844,12 @@ class BMGame {
                 $this->gameState = BMGameState::END_GAME;
                 return;
             }
+        }
+
+        // 10 draws in a row cause the game to be declared as a tie
+        if ($this->nRecentDraws >= 10) {
+            $this->gameState = BMGameState::END_GAME;
+            return;
         }
     }
 
