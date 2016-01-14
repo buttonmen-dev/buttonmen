@@ -302,13 +302,20 @@ class BMInterfaceHistory extends BMInterface {
                 $searchFilters['lastMoveMax'] + 24 * 60 * 60;
         }
 
+        $isCompleteTie = '(s.name = "COMPLETE" AND ' .
+                          'vA.n_rounds_won < g.n_target_wins AND ' .
+                          'vB.n_rounds_won < g.n_target_wins)';
+
         if (isset($searchFilters['winningPlayer'])) {
             if ($searchFilters['winningPlayer'] == 'A') {
-                $where .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
+                $where .= 'AND vA.n_rounds_won > vB.n_rounds_won AND NOT ' .
+                          $isCompleteTie;
             } elseif ($searchFilters['winningPlayer'] == 'B') {
-                $where .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
+                $where .= 'AND vA.n_rounds_won < vB.n_rounds_won AND NOT ' .
+                          $isCompleteTie;
             } elseif ($searchFilters['winningPlayer'] == 'Tie') {
-                $where .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+                $where .= 'AND ((vA.n_rounds_won = vB.n_rounds_won) OR ' .
+                          $isCompleteTie . ') ';
             }
         }
 
