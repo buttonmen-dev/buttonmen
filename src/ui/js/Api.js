@@ -104,11 +104,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest, textStatus, errorThrown) {
+        // when the client fails to connect to the server, then
+        // the request finishes (readyState = 4), but the response
+        // is 404: Page not found
+        if ((404 == XMLHttpRequest.status) &&
+            (4 == XMLHttpRequest.readyState)) {
+            Env.message = {
+              'type': 'error',
+              'text': 'Error when attempting to connect to server'
+            }
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
@@ -161,11 +172,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest, textStatus, errorThrown) {
+        // when the client fails to connect to the server, then
+        // the request finishes (readyState = 4), but the response
+        // is 404: Page not found
+        if ((404 == XMLHttpRequest.status) &&
+            (4 == XMLHttpRequest.readyState)) {
+            Env.message = {
+              'type': 'error',
+              'text': 'Error when attempting to connect to server'
+            }
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
