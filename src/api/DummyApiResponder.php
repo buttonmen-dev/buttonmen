@@ -57,7 +57,6 @@ class DummyApiResponder {
             'logout',
             'savePlayerInfo',
             'searchGameHistory',
-            'submitChat',
             'submitTurn',
         );
     }
@@ -1242,19 +1241,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_submitChat($args) {
-        if (array_key_exists('edit', $args)) {
-            if ($args['chat']) {
-                return array(TRUE, 'Updated previous game message');
-            } else {
-                return array(TRUE, 'Deleted previous game message');
-            }
-        } else {
-            if ($args['chat']) {
-                return array(TRUE, 'Added game message');
-            } else {
-                return array(FALSE, 'No game message specified');
-            }
-        }
+        return $this->load_json_data_from_file(
+            'submitChat',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_submitTurn() {

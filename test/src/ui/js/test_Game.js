@@ -1028,7 +1028,7 @@ test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
 
 test("test_Game.formPlayTurnInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
+  BMTestUtils.GameType = 'haruspex_haruspex_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');

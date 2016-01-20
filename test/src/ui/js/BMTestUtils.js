@@ -92,6 +92,8 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
 
+  if (gameDesc == 'haruspex_haruspex_inactive') { return '305'; }
+
   if (gameDesc == 'blackomega_tamiya_adjustfire_active') { return '807'; }
   if (gameDesc == 'blackomega_tamiya_adjustfire_nonplayer') { return '808'; }
 

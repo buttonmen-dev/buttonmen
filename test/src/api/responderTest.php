@@ -69,7 +69,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
             'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'verifyUser',
+            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
+            'verifyUser',
         );
 
 
@@ -1148,6 +1149,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_failure($args, $expMessage);
         return $retval;
     }
+
+    /**
+     * verify_api_submitChat() - helper routine which calls the API submitChat method
+     */
+    protected function verify_api_submitChat($gameId, $chat, $expMessage, $edit=NULL) {
+        $args = array(
+            'type' => 'submitChat',
+            'game' => $gameId,
+            'chat' => $chat,
+        );
+        if ($edit) {
+            $args['edit'] = $edit;
+        }
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($expMessage, $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('submitChat', $fakeGameNumber, $retval);
+    }
+
 
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
@@ -3532,13 +3554,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 02 (game 2) - player 1 submits chat
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'chat' => 'There was something i meant to say',
-        ));
-        $this->assertEquals('Added game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, 'There was something i meant to say', 'Added game message');
 
         // expected changes as a result
         $expData['gameChatEditable'] = 'TIMESTAMP';
@@ -3552,14 +3568,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 (game 2) - player 1 updates chat
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'edit' => $retval['gameChatEditable'],
-            'chat' => '...but i forgot what it was',
-        ));
-        $this->assertEquals('Updated previous game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, '...but i forgot what it was', 'Updated previous game message', $retval['gameChatEditable']);
 
         // expected changes as a result
         $expData['gameChatLog'][0]['message'] = '...but i forgot what it was';
@@ -3571,14 +3580,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 04 (game 2) - player 1 deletes chat
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'edit' => $retval['gameChatEditable'],
-            'chat' => '',
-        ));
-        $this->assertEquals('Deleted previous game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, '', 'Deleted previous game message', $retval['gameChatEditable']);
 
         // expected changes as a result
         $expData['gameChatEditable'] = FALSE;
@@ -6180,13 +6182,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // #1477: responder004 chatting here is a test hack --- otherwise, the next
         // few turns will intermittently fail depending on whether the test timing crosses a second boundary
         $_SESSION = $this->mock_test_user_login('responder004');
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'chat' => 'This is my sixth comment',
-        ));
-        $this->assertEquals('Added game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, 'This is my sixth comment', 'Added game message');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameChatEditable'] = FALSE;
@@ -10409,14 +10405,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'edit' => $retval['gameChatEditable'],
-            'chat' => 'now i want to say something else',
-        ));
-        $this->assertEquals('Updated previous game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, 'now i want to say something else', 'Updated previous game message', $retval['gameChatEditable']);
 
         $expData['gameChatLog'][0]['message'] = 'now i want to say something else';
 
