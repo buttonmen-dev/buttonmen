@@ -1705,13 +1705,13 @@ class BMGame {
     protected function update_game_state_end_game() {
     }
 
-    protected function do_next_step_rejected() {
+    protected function do_next_step_cancelled() {
         foreach ($this->playerArray as $player) {
             $player->waitingOnAction = FALSE;
         }
     }
 
-    protected function update_game_state_rejected() {
+    protected function update_game_state_cancelled() {
     }
 
     // The variable $gameStateBreakpoint is used for debugging purposes only.

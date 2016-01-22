@@ -338,16 +338,16 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse the current player's list of rejected games
+  // Load and parse the current player's list of cancelled games
 
-  my.getRejectedGamesData = function(callbackfunc) {
-    my.rejected_games = {};
+  my.getCancelledGamesData = function(callbackfunc) {
+    my.cancelled_games = {};
     var parserargs = [];
-    parserargs.target = my.rejected_games;
+    parserargs.target = my.cancelled_games;
     parserargs.isSplit = false;
     my.apiParsePost(
-      {'type': 'loadRejectedGames', },
-      'rejected_games',
+      {'type': 'loadCancelledGames', },
+      'cancelled_games',
       my.packageGameData,
       callbackfunc,
       callbackfunc,

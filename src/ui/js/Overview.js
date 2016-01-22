@@ -17,9 +17,9 @@ Overview.STALENESS_SECS = Overview.STALENESS_DAYS * 24 * 60 * 60;
 //   first when logged out. This calls Overview.pageAddIntroText()
 // * Overview.getOverview() asks the API for information about the
 //   player's overview status (currently, the lists of new, active, completed,
-//   and rejected games, and potentially the user's preferences).
+//   and cancelled games, and potentially the user's preferences).
 //   It sets Api.new_games, Api.active_games, Api.completed_games,
-//   Api.rejected_games, and potentially Api.user_prefs. If successful, it
+//   Api.cancelled_games, and potentially Api.user_prefs. If successful, it
 //   calls Overview.showPage().
 // * Overview.showPage() assembles the page contents as a variable.
 //
@@ -83,7 +83,7 @@ Overview.getOverview = function(callback) {
     Api.getNewGamesData,
     Api.getActiveGamesData,
     Api.getCompletedGamesData,
-    Api.getRejectedGamesData,
+    Api.getCancelledGamesData,
   ], callback);
 };
 
@@ -123,7 +123,7 @@ Overview.showPage = function() {
   if ((Api.new_games.nGames === 0) &&
       (Api.active_games.nGames === 0) &&
       (Api.completed_games.nGames === 0) &&
-      (Api.rejected_games.nGames === 0)) {
+      (Api.cancelled_games.nGames === 0)) {
     Env.message = {
       'type': 'none',
       'text': 'You have no games',
@@ -221,14 +221,14 @@ Overview.pageAddGameTable = function(
 
   switch (gameType) {
   case 'closed':
-    // closed games comprise completed games and rejected games
+    // closed games comprise completed games and cancelled games
     var gamesourceCompleted = Api.completed_games.games;
     Overview.addTypeToGameSource(gamesourceCompleted, 'completed');
 
-    var gamesourceRejected = Api.rejected_games.games;
-    Overview.addTypeToGameSource(gamesourceRejected, 'rejected');
+    var gamesourceCancelled = Api.cancelled_games.games;
+    Overview.addTypeToGameSource(gamesourceCancelled, 'cancelled');
 
-    gamesource = gamesourceCompleted.concat(gamesourceRejected);
+    gamesource = gamesourceCompleted.concat(gamesourceCancelled);
     gamesource.sort(function(a, b) {
       return a.gameId - b.gameId;
     });
@@ -403,7 +403,7 @@ Overview.addScoreCol = function(gameRow, gameInfo) {
     wldColor = gameInfo.opponentColor;
   }
 
-  if ((gameInfo.gameType == 'rejected') ||
+  if ((gameInfo.gameType == 'cancelled') ||
       (gameInfo.gameType == 'new')) {
     gameRow.append($('<td>', {
       'text': '–/–/–' + ' (' + gameInfo.maxWins + ')',
@@ -449,7 +449,7 @@ Overview.addDismissCol = function(gameRow, gameInfo) {
 Overview.linkTextStub = function(gameInfo, gameType) {
   if (gameInfo.gameType == 'new') {
     return 'NEW';
-  } else if (gameInfo.gameType == 'rejected') {
+  } else if (gameInfo.gameType == 'cancelled') {
     return 'CANCELLED';
   } else if (gameInfo.gameType == 'completed') {
     if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
