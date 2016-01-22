@@ -105,14 +105,14 @@ var Api = (function () {
       }
     ).fail(
       function(XMLHttpRequest) {
-        // when the client fails to connect to the server, then
-        // the request finishes (readyState = 4), but the response
-        // is 404: Page not found
-        if ((404 == XMLHttpRequest.status) &&
-            (4 == XMLHttpRequest.readyState)) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
           Env.message = {
             'type': 'error',
-            'text': 'Error when attempting to connect to server'
+            'text': 'Could not connect to Button Men server—are you online?'
           };
         } else {
           Env.message = {
@@ -173,14 +173,14 @@ var Api = (function () {
       }
     ).fail(
       function(XMLHttpRequest) {
-        // when the client fails to connect to the server, then
-        // the request finishes (readyState = 4), but the response
-        // is 404: Page not found
-        if ((404 == XMLHttpRequest.status) &&
-            (4 == XMLHttpRequest.readyState)) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
           Env.message = {
             'type': 'error',
-            'text': 'Error when attempting to connect to server'
+            'text': 'Could not connect to Button Men server—are you online?'
           };
         } else {
           Env.message = {
