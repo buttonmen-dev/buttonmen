@@ -368,7 +368,7 @@ class BMAttackSkill extends BMAttack {
         }
 
         if ($def->ownerObject instanceof BMGame) {
-            $ownerButton = $def->ownerObject->buttonArray[$def->playerIdx];
+            $ownerButton = $def->ownerObject->playerArray[$def->playerIdx]->button;
             if ($ownerButton->has_skill('TheJapaneseBeetle')) {
                 $this->validationMessage =
                     'Dice owned by The Japanese Beetle cannot be attacked by skill attacks.';

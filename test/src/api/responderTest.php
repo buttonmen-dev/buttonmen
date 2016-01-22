@@ -8023,7 +8023,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'responder003 performed Power attack using [wm(6):5] against [(8):1]; Defender (8) was captured; Attacker wm(6) changed size from 6 to 8 sides, recipe changed from wm(6) to wm(8), rerolled 5 => 1. End of round: responder003 won round 1 (50 vs. 19). ',
             $retval, array(array(0, 1), array(1, 0)),
             $gameId, 1, 'Power', 0, 1, '');
-
         $expData['roundNumber'] = 2;
         $expData['gameState'] = 'SPECIFY_DICE';
         $expData['activePlayerIdx'] = NULL;
@@ -10237,7 +10236,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 4.0;
         $expData['playerDataArray'][1]['sideScore'] = -4.0;
         $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Stealth Shadow Option Die (with 1 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Stealth Shadow Option Die (with 1 side)';
         $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Warrior Rage Option Die (with 5 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 1;
@@ -11168,7 +11167,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 30 sides)";
         $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 30;
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 20;
-        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 side)";
         $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 1;
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 1;
         $expData['playerDataArray'][0]['prevOptValueArray'] = array();
