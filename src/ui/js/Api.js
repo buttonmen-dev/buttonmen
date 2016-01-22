@@ -198,7 +198,6 @@ var Api = (function () {
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
-
   my.getButtonData = function(buttonName, callbackfunc) {
     my.apiParsePost(
       {
