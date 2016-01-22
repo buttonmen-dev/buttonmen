@@ -191,6 +191,7 @@ class BMInterface {
                      '     n_players, '.
                      '     n_target_wins, '.
                      '     n_recent_passes, '.
+                     '     n_recent_draws, '.
                      '     creator_id, '.
                      '     start_time, '.
                      '     description, '.
@@ -200,6 +201,7 @@ class BMInterface {
                      '     :n_players, '.
                      '     :n_target_wins, '.
                      '     :n_recent_passes, '.
+                     '     :n_recent_draws, '.
                      '     :creator_id, '.
                      '     FROM_UNIXTIME(:start_time), '.
                      '     :description, '.
@@ -209,6 +211,7 @@ class BMInterface {
                                       ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
+                                      ':n_recent_draws' => 0,
                                       ':creator_id'    => $playerIdArray[0],
                                       ':start_time' => time(),
                                       ':description' => $description,
@@ -695,6 +698,7 @@ class BMInterface {
         $game->maxWins   = $row['n_target_wins'];
         $game->turnNumberInRound = $row['turn_number_in_round'];
         $game->nRecentPasses = $row['n_recent_passes'];
+        $game->nRecentDraws = $row['n_recent_draws'];
         $game->description = $row['description'];
         if ($row['previous_game_id'] == NULL) {
             $game->previousGameId = NULL;
@@ -1137,8 +1141,8 @@ class BMInterface {
                  '    game_state = :game_state,'.
                  '    round_number = :round_number,'.
                  '    turn_number_in_round = :turn_number_in_round,'.
-        //:n_recent_draws
                  '    n_recent_passes = :n_recent_passes,'.
+                 '    n_recent_draws = :n_recent_draws,'.
                  '    current_player_id = :current_player_id '.
         //:last_winner_id
         //:tournament_id
@@ -1151,6 +1155,7 @@ class BMInterface {
                                   ':round_number' => $game->roundNumber,
                                   ':turn_number_in_round' => $game->turnNumberInRound,
                                   ':n_recent_passes' => $game->nRecentPasses,
+                                  ':n_recent_draws' => $game->nRecentDraws,
                                   ':current_player_id' => $this->get_currentPlayerId($game),
                                   ':game_id' => $game->gameId));
     }
