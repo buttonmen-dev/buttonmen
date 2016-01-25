@@ -798,7 +798,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Replaced $p(20) with Up(20) and $q(12) with Uq(12)
 (590, 'California',      '@(10) @(20) Up(20) Uq(12) (Y)? (Z)',             0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (591, 'Colorado',        '(4) (6) z(14) (U)? (U)?',                        0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(592, 'Connecticut',     'H(4) v(11) h(20) (4/20)? (R)',                   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(592, 'Connecticut',     'H(4) v(11) h(20) (4/20)? (R)',                   1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (593, 'Delaware',        '(1) (4) h(6) f(8) (T)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (594, 'Florida',       'g(6) F(10) p(12) (U) r(4) r(6) hr(12) @whr(20)',   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (595, 'Georgia(US)',     'oz(10) (4/20) B(X) B(X) q(X)',                   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
