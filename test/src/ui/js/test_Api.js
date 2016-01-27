@@ -447,7 +447,7 @@ test("test_Api.parseGamePlayerData", function(assert) {
     assert.deepEqual(Api.game.player.button, {
                 'name': 'Frasquito',
                 'recipe': '(4) (6) (8) (12) (2/20)',
-                'artFilename': 'BMdefaultRound.png',
+                'artFilename': 'frasquito.png',
               }, "recipe data should be parsed from API response");
     assert.deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
               "die descriptions should be parsed");
