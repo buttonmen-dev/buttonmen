@@ -163,6 +163,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'Cannot win initiative.',
                 'interacts' => array(),
             ),
+            'Insult' => array(
+                'code' => 'I',
+                'description' => 'Cannot be attacked by skill attacks.',
+                'interacts' => array(),
+            ),
             'Konstant' => array(
                 'code' => 'k',
                 'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
@@ -231,6 +236,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice are worth negative points. If you keep a Poison Die of your own at the end of a round, subtract its full value from your score. If you capture a Poison Die from someone else, subtract half its value from your score.',
                 'interacts' => array(
                      'Null' => 'Dice with both Null and Poison skills are Null',
+                     'Value' => 'Dice with both Poison and Value skills are Poison dice that score based on the negative of their current value rather than on their number of sides',
                 ),
             ),
             'Queer' => array(
@@ -266,7 +272,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Shadow' => array(
                 'code' => 's',
-                'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, Use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
+                'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
                 'interacts' => array(
                     'Stinger' => 'Dice with both Shadow and Stinger skills can singly attack with any value from the min to the max of the die (making a shadow attack against a die whose value is greater than or equal to their own, or a skill attack against a die whose value is lower than or equal to their own)',
                     'Trip' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
@@ -318,6 +324,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice are not scored like normal dice. Instead, a Value Die is scored as if the number of sides it has is equal to the value that it is currently showing. If a Value Die is ever part of an attack, all dice that are captured become Value Dice (i.e. They are scored by the current value they are showing when they are captured, not by their size).',
                 'interacts' => array(
                      'Null' => 'Dice with both Null and Value skills are Null',
+                     'Poison' => 'Dice with both Poison and Value skills are Poison dice that score based on the negative of their current value rather than on their number of sides',
                 ),
             ),
             'Warrior' => array(
@@ -332,6 +339,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Berserk' => 'Dice with both Berserk and Weak skills will first halve in size, and then shrink',
                     'Fire' => 'Dice with both Fire and Weak skills do not shrink when firing, only when actually rolling',
                 ),
+            ),
+            'Zero' => array(
+                'code' => '',
+                'description' => 'Copies the opponent\'s button recipe.',
+                'interacts' => array(),
             ),
         );
         $retval = array();
@@ -2452,7 +2464,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder001', 'responder002', 4, 'SPECIFY_DICE');
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'frasquito.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
