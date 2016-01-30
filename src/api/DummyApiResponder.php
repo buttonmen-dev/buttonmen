@@ -49,7 +49,6 @@ class DummyApiResponder {
             'loadOpenGames',
             'loadNextNewPost',
             'loadNextPendingGame',
-            'loadPlayerName',
             'loadPlayerNames',
             'loadPlayerInfo',
             'loadProfileInfo',
@@ -1121,7 +1120,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadPlayerName() {
-        return array(array('userName' => 'tester1'), NULL);
+        return $this->load_json_data_from_file(
+            'loadPlayerName',
+            'noargs.json'
+        );
     }
 
     protected function get_interface_response_loadPlayerInfo() {

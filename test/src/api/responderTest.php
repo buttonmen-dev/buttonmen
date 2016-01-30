@@ -68,7 +68,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
-            'loadForumThread', 'loadGameData', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
+            'loadForumThread', 'loadGameData', 'loadPlayerName', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
             'verifyUser',
         );
@@ -1886,7 +1886,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     public function test_request_loadPlayerName() {
         $this->verify_invalid_arg_rejected('loadPlayerName');
-        $this->markTestIncomplete("No test for loadPlayerName using session and cookies");
+
+        $_SESSION = $this->mock_test_user_login();
+        $args = array('type' => 'loadPlayerName');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], NULL);
+        $this->assertEquals($retval['data'], array('userName' => 'responder003'));
+
+        // loadPlayerName takes no args, so store this as the sole reference API output
+        // after changing the username to match the UI tests' expectations
+        $retval['data']['userName'] = 'tester1';
+        $this->cache_json_api_output('loadPlayerName', 'noargs', $retval);
     }
 
     public function test_request_loadPlayerInfo() {
