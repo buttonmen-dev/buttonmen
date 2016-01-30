@@ -230,7 +230,11 @@ class BMPlayer {
      */
     protected $ownerObject;
 
-
+    /**
+     * Find indices of active dice that do not have reserve
+     *
+     * @return array
+     */
     public function die_indices_without_reserve() {
         if (empty($this->activeDieArray)) {
             return array();
@@ -322,10 +326,18 @@ class BMPlayer {
         $this->isPrevRoundWinner = $value;
     }
 
+    /**
+     * Prevents round score from being set directly
+     */
     protected function set__roundScore() {
         throw new LogicException('Round score cannot be set directly');
     }
 
+    /**
+     * Get the current round score for this player
+     *
+     * @return int|NULL
+     */
     protected function get__roundScore() {
         if ($this->ownerObject->gameState <= BMGameState::SPECIFY_DICE) {
             return NULL;
