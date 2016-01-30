@@ -524,7 +524,7 @@ class BMPlayer {
      * Define behaviour of isset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __isset($property) {
         return isset($this->$property);
@@ -534,7 +534,7 @@ class BMPlayer {
      * Define behaviour of unset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __unset($property) {
         if (isset($this->$property)) {

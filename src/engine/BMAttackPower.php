@@ -24,8 +24,8 @@ class BMAttackPower extends BMAttack {
      * These include skill attacks involving warrior dice.
      *
      * @param BMGame $game
-     * @param boolean $includeOptional
-     * @return boolean
+     * @param bool $includeOptional
+     * @return bool
      */
     public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
@@ -40,7 +40,7 @@ class BMAttackPower extends BMAttack {
      * @param array $attackers
      * @param array $defenders
      * @param int|NULL $helpValue
-     * @return boolean
+     * @return bool
      */
     public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
@@ -109,7 +109,7 @@ class BMAttackPower extends BMAttack {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
