@@ -67,8 +67,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadForumBoard', 'loadForumOverview',
-            'loadForumThread', 'loadGameData', 'loadPlayerName', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
+            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerName', 'markForumBoardRead',
+            'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
             'verifyUser',
         );
@@ -1774,43 +1775,51 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // First, examine one set in detail
         $args = array('type' => 'loadButtonSetData', 'buttonSet' => 'The Big Cheese');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
+        $this->assertEquals($retval['data'], array(array(
+            'setName' => 'The Big Cheese',
+            'buttons' => array(
+                array(
+                    'buttonId' => 35,
+                    'buttonName' => 'Bunnies',
+                    'recipe' => '(1) (1) (1) (1) (X)',
+                    'hasUnimplementedSkill' => false,
+                    'buttonSet' => 'The Big Cheese',
+                    'dieTypes' => array('X Swing'),
+                    'dieSkills' => array(),
+                    'isTournamentLegal' => false,
+                    'artFilename' => 'bunnies.png',
+                    'tags' => array(),
+                ),
+                array(
+                    'buttonId' => 36,
+                    'buttonName' => 'Lab Rat',
+                    'recipe' => '(2) (2) (2) (2) (X)',
+                    'hasUnimplementedSkill' => false,
+                    'buttonSet' => 'The Big Cheese',
+                    'dieTypes' => array('X Swing'),
+                    'dieSkills' => array(),
+                    'isTournamentLegal' => false,
+                    'artFilename' => 'labrat.png',
+                    'tags' => array(),
+                )),
+            'numberOfButtons' => 2,
+            'dieSkills' => array(),
+            'dieTypes' => array('X Swing'),
+            'onlyHasUnimplementedButtons' => FALSE,
+        )));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], True),
-            "Real and dummy set lists should have matching structures");
+        $this->cache_json_api_output('loadButtonSetData', 'The_Big_Cheese', $retval);
 
         // Then examine the rest
         $args = array('type' => 'loadButtonSetData');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
+        $this->assertEquals(count($retval['data']), 76);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], False),
-            "Real and dummy set lists should have matching structures");
-
-        // Each button in the dummy data should exactly match a
-        // button in the live data
-        foreach ($dummydata as $dummySet) {
-            $foundSet = False;
-            foreach ($retdata as $realSet) {
-                if ($dummySet['setName'] === $realSet['setName']) {
-                    $foundSet = True;
-                    $this->assertEquals(
-                        $dummySet,
-                        $realSet,
-                        'Dummy and live information about set ' . $dummySet['setName'] . ' should match exactly'
-                    );
-                }
-            }
-            $this->assertTrue($foundSet, 'Dummy set ' . $dummySet['setName'] . ' was found in live data');
-        }
+        $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
 
     /**

@@ -41,7 +41,6 @@ class DummyApiResponder {
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
             'loadActiveGames',
-            'loadButtonSetData',
             'loadCompletedGames',
             'loadRejectedGames',
             'loadNewGames',
@@ -803,7 +802,7 @@ class DummyApiResponder {
 
     protected function get_interface_response_loadButtonData($args) {
         if (isset($args['buttonName'])) {
-            $argval = $args['buttonName'];
+            $argval = str_replace(' ', '_', $args['buttonName']);
         } else {
             $argval = 'noargs';
         }
@@ -815,72 +814,15 @@ class DummyApiResponder {
 
 
     protected function get_interface_response_loadButtonSetData($args) {
-        $data = array();
-
-        if (isset($args['buttonSet']) && $args['buttonSet'] == 'The Big Cheese') {
-            $data[] = array(
-                'setName' => 'The Big Cheese',
-                'buttons' => array(
-                    array(
-                        'buttonName' => "Bunnies",
-                        'recipe' => "(1) (1) (1) (1) (X)",
-                        'hasUnimplementedSkill' => FALSE,
-                        'buttonSet' => "The Big Cheese",
-                        'dieTypes' => array('X Swing'),
-                        'dieSkills' => array(),
-                        'isTournamentLegal' => FALSE,
-                        'artFilename' => 'bunnies.png',
-                        'tags' => array(),
-                    ),
-                    array(
-                        'buttonName' => "Lab Rat",
-                        'recipe' => "(2) (2) (2) (2) (X)",
-                        'hasUnimplementedSkill' => FALSE,
-                        'buttonSet' => "The Big Cheese",
-                        'dieTypes' => array('X Swing'),
-                        'dieSkills' => array(),
-                        'isTournamentLegal' => FALSE,
-                        'artFilename' => 'labrat.png',
-                        'tags' => array(),
-                    ),
-                ),
-                'numberOfButtons' => 2,
-                'dieSkills' => array(),
-                'dieTypes' => array('X Swing'),
-                'onlyHasUnimplementedButtons' => FALSE,
-            );
+        if (isset($args['buttonSet'])) {
+            $argval = str_replace(' ', '_', $args['buttonSet']);
         } else {
-            $data[] = array(
-                'setName' => 'Lunch Money',
-                'numberOfButtons' => 7,
-                'dieSkills' => array('Trip'),
-                'dieTypes' => array('X Swing', 'Y Swing'),
-                'onlyHasUnimplementedButtons' => FALSE,
-            );
-            $data[] = array(
-                'setName' => 'Soldiers',
-                'numberOfButtons' => 13,
-                'dieSkills' => array(),
-                'dieTypes' => array('X Swing'),
-                'onlyHasUnimplementedButtons' => FALSE,
-            );
-            $data[] = array(
-                'setName' => 'The Big Cheese',
-                'numberOfButtons' => 2,
-                'dieSkills' => array(),
-                'dieTypes' => array('X Swing'),
-                'onlyHasUnimplementedButtons' => FALSE,
-            );
-            $data[] = array(
-                'setName' => 'Vampyres',
-                'numberOfButtons' => 6,
-                'dieSkills' => array('Shadow'),
-                'dieTypes' => array('X Swing'),
-                'onlyHasUnimplementedButtons' => FALSE,
-            );
+            $argval = 'noargs';
         }
-
-        return array($data, "Button set data retrieved successfully.");
+        return $this->load_json_data_from_file(
+            'loadButtonSetData',
+            $argval . '.json'
+        );
     }
 
     protected function get_interface_response_loadGameData($args) {
