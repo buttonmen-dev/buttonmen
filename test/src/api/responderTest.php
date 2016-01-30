@@ -67,7 +67,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // API functions for which we cache JSON output while testing
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadForumBoard', 'loadForumOverview',
+            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadForumBoard', 'loadForumOverview',
             'loadForumThread', 'loadGameData', 'loadPlayerName', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
             'verifyUser',
@@ -1736,43 +1736,33 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // First, examine one button in detail
         $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
+        $this->assertEquals($retval['data'], array(array(
+           'buttonId' => 256,
+           'buttonName' => 'Avis',
+           'recipe' => '(4) (4) (10) (12) (X)',
+           'hasUnimplementedSkill' => FALSE,
+           'buttonSet' => 'Soldiers',
+           'dieTypes' => array('X Swing' => array('code' => 'X', 'swingMin' => 4, 'swingMax' => 20, 'description' => 'X Swing Dice can be any die between 4 and 20. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.')),
+           'dieSkills' => array(),
+           'isTournamentLegal' => true,
+           'artFilename' => 'avis.png',
+           'tags' => array(),
+           'flavorText' => 'Avis is an expert chainsaw dueler and ice sculptor, and she likes to beat people up.',
+           'specialText' => NULL,
+        )));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], True),
-            "Real and dummy button lists should have matching structures");
+        $this->cache_json_api_output('loadButtonData', 'Avis', $retval);
 
         // Then examine the rest
         $args = array('type' => 'loadButtonData');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
+        $this->assertEquals(count($retval['data']), 694);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], False),
-            "Real and dummy button lists should have matching structures");
-
-        // Each button in the dummy data should exactly match a
-        // button in the live data
-        foreach ($dummydata as $dummyButton) {
-            $foundButton = False;
-            foreach ($retdata as $realButton) {
-                if ($dummyButton['buttonName'] === $realButton['buttonName']) {
-                    $foundButton = True;
-                    $this->assertEquals(
-                        $dummyButton,
-                        $realButton,
-                        'Dummy and live information about button ' . $dummyButton['buttonName'] . ' should match exactly'
-                    );
-                }
-            }
-            $this->assertTrue($foundButton, 'Dummy button ' . $dummyButton['buttonName'] . ' was found in live data');
-        }
+        $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
 
     public function test_request_loadButtonSetData() {
