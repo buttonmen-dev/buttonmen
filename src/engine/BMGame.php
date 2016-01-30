@@ -1969,7 +1969,7 @@ class BMGame {
      * If used, the game will stop as soon as the game state becomes
      * the value of $gameStateBreakpoint.
      *
-     * @param type $gameStateBreakpoint
+     * @param int $gameStateBreakpoint
      */
     public function proceed_to_next_user_action($gameStateBreakpoint = NULL) {
         $repeatCount = 0;
@@ -2430,6 +2430,9 @@ class BMGame {
     }
 
     /**
+     * Checks whether each player has the initiative
+     *
+     * If $returnActionLogInfo is TRUE, then action log info is also returned
      *
      * @param array $activeDieArrayArray
      * @param array $buttonArray
@@ -2502,8 +2505,11 @@ class BMGame {
      * dice are actually tied for lowest value, this function reports
      * that they are all entitled to initiative --- it does not break the tie.
      *
+     * @param int $nPlayers
+     * @param array $initiativeArrayArray
      * @return array  For each player, does that player have a minimal initiative value?
      */
+
     protected static function compute_initiative_winner_array($nPlayers, $initiativeArrayArray) {
         $hasPlayerInitiative = array_fill(0, $nPlayers, TRUE);
 
@@ -3847,6 +3853,7 @@ class BMGame {
      * because the requesting player shouldn't see them
      *
      * @param int $playerIdx
+     * @param int $requestingPlayerIdx
      * @return array
      */
     protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
