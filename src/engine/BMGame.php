@@ -3400,7 +3400,7 @@ class BMGame {
                 'prevSwingValueArray' => $player->prevSwingValueArray,
                 'prevOptValueArray'   => $player->prevOptValueArray,
 // BMGame may lie about who's actually waiting
-                'waitingOnAction'     => $this->get_waitingOnAction($playerIdx, $requestingPlayerIdx),
+                'waitingOnAction'     => $this->isWaitingOnAction($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $player->roundScore,
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $player->gameScoreArray,
@@ -3969,7 +3969,7 @@ class BMGame {
      * @param int $requestingPlayerIdx
      * @return bool
      */
-    protected function get_waitingOnAction($playerIdx, $requestingPlayerIdx) {
+    protected function isWaitingOnAction($playerIdx, $requestingPlayerIdx) {
         // actively lie about whether a player has chosen auxiliary dice
         // to avoid leaking information
         if ((BMGameState::CHOOSE_AUXILIARY_DICE == $this->gameState) &&
