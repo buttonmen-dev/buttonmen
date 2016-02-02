@@ -63,6 +63,7 @@ class BMSkillNullTest extends PHPUnit_Framework_TestCase {
 
         // load game
         $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $game->buttonArray = array($button1, $button2);
 
