@@ -70,6 +70,26 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
     }
 
     /**
+     * Choose n swing types at random. Duplicates are allowed.
+     *
+     * @param int $nTypes
+     * @param array $possibleSwingTypes
+     * @return array
+     */
+    public static function randomly_select_swing_types(
+        $nTypes = 1,
+        array $possibleSwingTypes = array('R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
+    ) {
+        $swingTypeArray = array();
+
+        for ($idx = 0; $idx < $nTypes; $idx++) {
+            $swingTypeArray[] = $possibleSwingTypes[bm_rand(0, count($possibleSwingTypes) - 1)];
+        }
+
+        return $swingTypeArray;
+    }
+
+    /**
      * Generates an array of die sizes
      *
      * @param int $nDice

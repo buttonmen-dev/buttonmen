@@ -1,17 +1,15 @@
 <?php
 /**
- * BMBtnSkillRandomBMMixed: Code specific to RandomBMMixed
+ * BMBtnSkillRandomBMMonoskill: Code specific to RandomBMMonoskill
  *
  * @author: james
  */
 
 /**
- * This class currently supports the special skills of RandomBMMixed, which has
- * mixed random recipes: 5 dice, no swing dice, three skills chosen from all
- * existing skills, with each skill dealt out twice randomly and independently
- * over all dice
+ * This class currently supports the special skills of RandomBMMonoskill, which has
+ * 4 normal dice and a swing die, with one skill appearing a total of 2 times on various dice.
  */
-class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBMRestrictedSkills {
+class BMBtnSkillRandomBMMonoskill extends BMBtnSkillRandomBMRestrictedSkills {
     /**
      * An array containing the names of functions run by
      * BMCanHaveSkill->run_hooks()
@@ -37,11 +35,13 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBMRestrictedSkills {
         ));
 
         $button = $args['button'];
-        $nDice = 5;
-        $dieSizeArray = parent::generate_die_sizes($nDice);
+        $dieSizeArray = array_merge(
+            parent::generate_die_sizes(4),
+            parent::randomly_select_swing_types()
+         );
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills($skillCharArray, 3),
+            parent::randomly_select_skills($skillCharArray, 1),
             0,
             2
         );
@@ -56,10 +56,6 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBMRestrictedSkills {
      * @return string
      */
     public static function get_description() {
-        return '5 dice, no swing dice, three skills chosen from all ' .
-               'existing skills except ' .
-               implode(self::excluded_skill_char_array()) .
-               ', with each skill dealt out twice ' .
-               'randomly and independently over all dice.';
+        return 'Four regular dice and one swing die, and one skill appearing a total of 2 times on various dice.';
     }
 }
