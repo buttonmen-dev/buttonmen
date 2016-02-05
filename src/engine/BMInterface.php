@@ -32,7 +32,7 @@ class BMInterface {
     /**
      * Constructor
      *
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
@@ -56,7 +56,7 @@ class BMInterface {
     /**
      * Casts a BMInterface* object to another BMInterface* object
      *
-     * @param type $className
+     * @param string $className
      */
     public function cast($className) {
         // only allow cast to another BMInterface class

@@ -104,11 +104,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not connect to Button Men server—are you online?'
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
@@ -161,11 +172,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not connect to Button Men server—are you online?'
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );

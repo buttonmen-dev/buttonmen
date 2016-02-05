@@ -22,7 +22,7 @@ class BMBtnSkillRandomBMVanilla extends BMBtnSkillRandomBM {
      * Hooked method applied when specifying recipes
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function specify_recipes(array $args) {
         if (!parent::specify_recipes($args)) {
