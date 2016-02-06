@@ -118,7 +118,10 @@ class ApiResponder {
     }
 
     protected function get_interface_response_joinOpenGame($interface, $args) {
-        $success = $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
+        $success = $interface->gameAction()->join_open_game(
+            $_SESSION['user_id'],
+            $args['gameId']
+        );
         if ($success && isset($args['buttonName'])) {
             $success = $interface->select_button(
                 $_SESSION['user_id'],

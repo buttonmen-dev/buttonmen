@@ -2277,66 +2277,6 @@ class BMInterface {
         }
     }
 
-    public function join_open_game($currentPlayerId, $gameId) {
-        try {
-            $game = $this->load_game($gameId);
-
-            // check that there are still unspecified players and
-            // that the player is not already part of the game
-            $emptyPlayerIdx = NULL;
-            $isPlayerPartOfGame = FALSE;
-
-            foreach ($game->playerArray as $playerIdx => $player) {
-                if (is_null($player->playerId) && is_null($emptyPlayerIdx)) {
-                    $emptyPlayerIdx = $playerIdx;
-                } elseif ($currentPlayerId == $player->playerId) {
-                    $isPlayerPartOfGame = TRUE;
-                    break;
-                }
-            }
-
-            if ($isPlayerPartOfGame) {
-                $this->set_message('You are already playing in this game.');
-                return FALSE;
-            }
-
-            if (is_null($emptyPlayerIdx)) {
-                $this->set_message('No empty player slots in game '.$gameId.'.');
-                return FALSE;
-            }
-
-            $query = 'UPDATE game_player_map SET player_id = :player_id '.
-                     'WHERE game_id = :game_id '.
-                     'AND position = :position';
-            $statement = self::$conn->prepare($query);
-
-            $statement->execute(array(':game_id'   => $gameId,
-                                      ':player_id' => $currentPlayerId,
-                                      ':position'  => $emptyPlayerIdx));
-
-            $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
-                     'WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-
-            $statement->execute(array(':start_time' => time(),
-                                      ':id'         => $gameId));
-
-            $game = $this->load_game($gameId);
-            $player = $game->playerArray[$emptyPlayerIdx];
-            $player->hasPlayerAcceptedGame = TRUE;
-            $this->save_game($game);
-            $this->set_message('Successfully joined game ' . $gameId);
-
-            return TRUE;
-        } catch (Exception $e) {
-            error_log(
-                "Caught exception in BMInterface::join_open_game: ".
-                $e->getMessage()
-            );
-            $this->set_message('Internal error while joining open game');
-        }
-    }
-
     public function select_button(
         $playerId,
         $gameId,

@@ -578,4 +578,24 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['L']);
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['D']);
     }
+
+    /**
+     * @covers BMInterfaceGameAction::join_open_game
+     */
+    public function test_join_open_game() {
+        // create an open game with an unspecified opponent
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, NULL),
+            array('Bauer', 'Stark'),
+            4
+        );
+        $this->assertNotNull($retval);
+        $this->object->join_open_game(self::$userId2WithoutAutopass, $retval['gameId']);
+
+        $game = self::load_game($retval['gameId']);
+        $this->assertEquals(array(self::$userId1WithoutAutopass,
+                                  self::$userId2WithoutAutopass),
+                            $game->playerIdArray);
+    }
+
 }
