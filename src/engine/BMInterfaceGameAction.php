@@ -394,6 +394,53 @@ class BMInterfaceGameAction extends BMInterface {
         return (bool)$fetchData[0];
     }
 
+    public function save_join_game_decision($playerId, $gameId, $decision) {
+        if (('accept' != $decision) && ('reject' != $decision)) {
+            throw new InvalidArgumentException('decision must be either accept or reject');
+        }
+
+        $game = $this->load_game($gameId);
+
+        if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
+            if (('reject' == $decision) &&
+                ($playerId == $game->playerArray[0]->playerId)) {
+                $decision = 'withdraw';
+            }
+            $this->set_message(
+                'Your decision to ' .
+                $decision .
+                ' the game failed because the game has been updated ' .
+                'since you loaded the page'
+            );
+            return;
+        }
+
+        $playerIdx = array_search($playerId, $game->playerIdArray);
+
+        if (FALSE === $playerIdx) {
+            return;
+        }
+
+        $player = $game->playerArray[$playerIdx];
+        $player->waitingOnAction = FALSE;
+        $decisionFlag = ('accept' == $decision);
+        $player->hasPlayerAcceptedGame = $decisionFlag;
+
+        if (!$decisionFlag) {
+            $game->gameState = BMGameState::REJECTED;
+        }
+
+        $this->save_game($game);
+
+        if ($decisionFlag) {
+            $this->set_message("Joined game $gameId");
+        } else {
+            $this->set_message("Rejected game $gameId");
+        }
+
+        return TRUE;
+    }
+
     /**
      * Join an open game
      *
