@@ -92,7 +92,7 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
-        $retval = $interface->create_game(
+        $retval = $interface->gameAction()->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
