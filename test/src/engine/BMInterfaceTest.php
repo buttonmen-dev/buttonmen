@@ -68,26 +68,6 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @covers BMInterface::select_button
-     */
-    public function test_select_button() {
-        // create an open game with an unspecified button
-        $retval = $this->object->gameAction()->create_game(
-            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
-            array('Bauer', NULL),
-            4
-        );
-        $this->assertNotNull($retval);
-        $this->object->select_button(self::$userId2WithoutAutopass, $retval['gameId'], 'Iago');
-
-        $game = self::load_game($retval['gameId']);
-        $this->assertEquals('Bauer', $game->buttonArray[0]->name);
-        $this->assertEquals('(8) (10) (12) (20) (X)', $game->buttonArray[0]->recipe);
-        $this->assertEquals('Iago', $game->buttonArray[1]->name);
-        $this->assertEquals('(20) (20) (20) (X)', $game->buttonArray[1]->recipe);
-    }
-
-    /**
      * @depends BMInterface000Test::test_create_user
      *
      * @covers BMInterface::create_game
