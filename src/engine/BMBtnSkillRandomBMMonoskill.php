@@ -38,7 +38,7 @@ class BMBtnSkillRandomBMMonoskill extends BMBtnSkillRandomBM {
         $dieSizeArray = array_merge(
             parent::generate_die_sizes(4),
             parent::randomly_select_swing_types()
-         );
+        );
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
             parent::randomly_select_skills(1, $skillCharArray),
