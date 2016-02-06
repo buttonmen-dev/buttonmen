@@ -25,7 +25,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = self::load_game($gameId);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         // specify swing dice correctly
-        $game->swingValueArrayArray = array(array('X'=>19), array('X'=>5));
+        $game->swingValueArrayArray = array(array('X' => 19), array('X' => 5));
         self::save_game($game);
         $game = self::load_game($gameId);
 
@@ -59,7 +59,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $expectedSizes = array(array(8, 10, 12, 20, 19),
                                array(4, 6, 8, 5, 5));
 
-        foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
+        foreach ($game->playerArray as $playerIdx => $player) {
+            $activeDieArray = $player->activeDieArray;
             $this->assertEquals(count($expectedRecipes[$playerIdx]),
                                 count($activeDieArray));
             for ($dieIdx = 0; $dieIdx <= 4; $dieIdx++) {
@@ -81,30 +82,28 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertFalse(isset($game->defenderAllDieArray));
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->attackerAttackDieArray));
-        $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
 
         // check swing details
-        $this->assertTrue(isset($game->swingRequestArrayArray));
-        $this->assertCount(2, $game->swingRequestArrayArray);
-        $this->assertCount(1, $game->swingRequestArrayArray[0]);
-        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[0]));
-        $this->assertCount(1, $game->swingRequestArrayArray[0]['X']);
-        $this->assertTrue($game->swingRequestArrayArray[0]['X'][0] instanceof BMDieSwing);
-        $this->assertTrue($game->activeDieArrayArray[0][4] ===
-                          $game->swingRequestArrayArray[0]['X'][0]);
+        $player = $game->playerArray[0];
+        $this->assertCount(1, $player->swingRequestArray);
+        $this->assertTrue(array_key_exists('X', $player->swingRequestArray));
+        $this->assertCount(1, $player->swingRequestArray['X']);
+        $this->assertTrue($player->swingRequestArray['X'][0] instanceof BMDieSwing);
+        $this->assertTrue($player->activeDieArray[4] ===
+                          $player->swingRequestArray['X'][0]);
 
-        $this->assertCount(1, $game->swingRequestArrayArray[1]);
-        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[1]));
-        $this->assertCount(2, $game->swingRequestArrayArray[1]['X']);
-        $this->assertTrue($game->swingRequestArrayArray[1]['X'][0] instanceof BMDieSwing);
-        $this->assertTrue($game->swingRequestArrayArray[1]['X'][1] instanceof BMDieSwing);
-        $this->assertTrue($game->activeDieArrayArray[1][3] ===
-                          $game->swingRequestArrayArray[1]['X'][0]);
-        $this->assertTrue($game->activeDieArrayArray[1][4] ===
-                          $game->swingRequestArrayArray[1]['X'][1]);
+        $player = $game->playerArray[1];
+        $this->assertCount(1, $player->swingRequestArray);
+        $this->assertTrue(array_key_exists('X', $player->swingRequestArray));
+        $this->assertCount(2, $player->swingRequestArray['X']);
+        $this->assertTrue($player->swingRequestArray['X'][0] instanceof BMDieSwing);
+        $this->assertTrue($player->swingRequestArray['X'][1] instanceof BMDieSwing);
+        $this->assertTrue($player->activeDieArray[3] ===
+                          $player->swingRequestArray['X'][0]);
+        $this->assertTrue($player->activeDieArray[4] ===
+                          $player->swingRequestArray['X'][1]);
 
-        $this->assertTrue(isset($game->swingValueArrayArray));
         $this->assertEquals(array(array('X' => 19), array('X' => 5)),
                             $game->swingValueArrayArray);
 
@@ -115,18 +114,15 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         // check action info
         $this->assertFalse(isset($game->attack));
         $this->assertEquals(0, $game->nRecentPasses);
-        $this->assertEquals(TRUE, $game->waitingOnActionArray[$game->activePlayerIdx]);
-
+        $this->assertTrue($game->playerArray[$game->activePlayerIdx]->waitingOnAction);
 
         // check score
-        $this->assertFalse(isset($game->roundScoreArray));
-        $this->assertCount(2, $game->gameScoreArrayArray);
-        $this->assertEquals(0, $game->gameScoreArrayArray[0]['W']);
-        $this->assertEquals(0, $game->gameScoreArrayArray[0]['L']);
-        $this->assertEquals(0, $game->gameScoreArrayArray[0]['D']);
-        $this->assertEquals(0, $game->gameScoreArrayArray[1]['W']);
-        $this->assertEquals(0, $game->gameScoreArrayArray[1]['L']);
-        $this->assertEquals(0, $game->gameScoreArrayArray[1]['D']);
+        $this->assertEquals(0, $game->playerArray[0]->gameScoreArray['W']);
+        $this->assertEquals(0, $game->playerArray[0]->gameScoreArray['L']);
+        $this->assertEquals(0, $game->playerArray[0]->gameScoreArray['D']);
+        $this->assertEquals(0, $game->playerArray[1]->gameScoreArray['W']);
+        $this->assertEquals(0, $game->playerArray[1]->gameScoreArray['L']);
+        $this->assertEquals(0, $game->playerArray[1]->gameScoreArray['D']);
     }
 
     /**
@@ -146,7 +142,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
 
         // specify swing dice correctly
-        $game->swingValueArrayArray = array(array('X'=>17), array('X'=>8));
+        $player = $game->playerArray[0];
+        $player->swingValueArray = array('X' => 17);
+        $player = $game->playerArray[1];
+        $player->swingValueArray = array('X' => 8);
+
         self::save_game($game);
         $game = self::load_game($gameId);
 
@@ -292,6 +292,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $this->assertEquals(2, $game->maxWins);
         $game->buttonArray = array($button1, $button2);
@@ -444,8 +445,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 1);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $game->buttonArray = array($button1, $button2);
-
         $game->waitingOnActionArray = array(FALSE, FALSE);
 
         self::save_game($game);
@@ -526,6 +527,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $this->assertEquals(2, $game->maxWins);
         $game->buttonArray = array($button1, $button2);
@@ -595,6 +597,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game = new BMGame($gameId, array(self::$userId1WithoutAutopass,
                                           self::$userId2WithoutAutopass),
                            array('', ''), 2);
+        $game->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
@@ -1387,7 +1390,8 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                             $game->optRequestArrayArray);
 
         // specify option dice incorrectly
-        $game->optValueArrayArray[0][2] = 6;
+        $player = $game->playerArray[0];
+        $player->optValueArray[2] = 6;
 
         self::save_game($game);
         $game = self::load_game($game->gameId);
@@ -1395,9 +1399,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertFalse(isset($game->activeDieArrayArray[0][2]->max));
 
         // specify option dice partially
-        $game->optValueArrayArray[0][2] = 12;
-        $game->optValueArrayArray[0][3] = 16;
-        $game->optValueArrayArray[0][4] = 20;
+        $player = $game->playerArray[0];
+        $player->optValueArray[2] = 12;
+        $player->optValueArray[3] = 16;
+        $player->optValueArray[4] = 20;
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
                             $game->optValueArrayArray);
@@ -1465,9 +1470,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
 
-        $game->optValueArrayArray[1][2] = 8;
-        $game->optValueArrayArray[1][3] = 6;
-        $game->optValueArrayArray[1][4] = 12;
+        $player = $game->playerArray[1];
+        $player->optValueArray[2] = 8;
+        $player->optValueArray[3] = 6;
+        $player->optValueArray[4] = 12;
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array(2 =>  8, 3 =>  6, 4 => 12)),

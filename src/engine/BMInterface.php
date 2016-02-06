@@ -32,7 +32,7 @@ class BMInterface {
     /**
      * Constructor
      *
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
@@ -136,8 +136,8 @@ class BMInterface {
 
             $data = $game->getJsonData($playerId);
             $data['currentPlayerIdx'] = $currentPlayerIdx;
-            foreach ($game->playerIdArray as $gamePlayerIdx => $gamePlayerId) {
-                $playerName = $this->get_player_name_from_id($gamePlayerId);
+            foreach ($game->playerArray as $gamePlayerIdx => $gamePlayer) {
+                $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
             }
@@ -347,22 +347,20 @@ class BMInterface {
                 } else {
                     $player->playerId = NULL;
                 }
-                $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
-                $game->setArrayPropEntry('fireOvershootingArray', $pos, (bool)$row['fire_overshooting']);
-                $game->setArrayPropEntry('hasPlayerAcceptedGameArray', $pos, (bool)$row['has_player_accepted']);
+                $player->autopass = (bool)$row['autopass'];
+                $player->fireOvershooting = (bool)$row['fire_overshooting'];
+                $player->hasPlayerAcceptedGame = (bool)$row['has_player_accepted'];
             }
 
             if (1 == $row['did_win_initiative']) {
                 $game->playerWithInitiativeIdx = $pos;
             }
 
-            $game->setArrayPropEntry(
-                'gameScoreArrayArray',
-                $pos,
+            $game->playerArray[$pos]->set_gameScoreArray(
                 array(
-                    'W' => $row['n_rounds_won'],
-                    'L' => $row['n_rounds_lost'],
-                    'D' => $row['n_rounds_drawn']
+                    'W' => (int)$row['n_rounds_won'],
+                    'L' => (int)$row['n_rounds_lost'],
+                    'D' => (int)$row['n_rounds_drawn']
                 )
             );
 
@@ -391,21 +389,6 @@ class BMInterface {
             $game->previousGameId = (int)$row['previous_game_id'];
         }
         $this->timestamp = (int)$row['last_action_timestamp'];
-
-
-        // initialise game arrays
-        $nPlayers = $row['n_players'];
-        $game->playerIdArray = array_fill(0, $nPlayers, NULL);
-        $game->gameScoreArrayArray =
-            array_fill(0, $nPlayers, array('W' => 0, 'L' => 0, 'D' => 0));
-        $game->buttonArray = array_fill(0, $nPlayers, NULL);
-        $game->isButtonChoiceRandom = array_fill(0, $nPlayers, FALSE);
-        $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
-        $game->autopassArray = array_fill(0, $nPlayers, FALSE);
-        $game->fireOvershootingArray = array_fill(0, $nPlayers, FALSE);
-        $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
-        $game->hasPlayerDismissedGameArray = array_fill(0, $nPlayers, FALSE);
-        $game->hasPlayerAcceptedGameArray = array_fill(0, $nPlayers, FALSE);
     }
 
     protected function load_button($game, $pos, $row) {
@@ -429,7 +412,8 @@ class BMInterface {
         }
 
         if ($row['is_button_random']) {
-            $game->isButtonChoiceRandom[$pos] = TRUE;
+            $player = $game->playerArray[$pos];
+            $player->isButtonChoiceRandom = TRUE;
         }
     }
 
@@ -457,25 +441,15 @@ class BMInterface {
 
     protected function load_lastActionTime($game, $pos, $row) {
         if (isset($row['player_last_action_timestamp'])) {
-            $game->setArrayPropEntry(
-                'lastActionTimeArray',
-                $pos,
-                (int)$row['player_last_action_timestamp']
-            );
-        } else {
-            $game->setArrayPropEntry('lastActionTimeArray', $pos, 0);
+            $player = $game->playerArray[$pos];
+            $player->lastActionTime = (int)$row['player_last_action_timestamp'];
         }
     }
 
     protected function load_hasPlayerDismissedGame($game, $pos, $row) {
         if (isset($row['was_game_dismissed'])) {
-            $game->setArrayPropEntry(
-                'hasPlayerDismissedGameArray',
-                $pos,
-                ((int)$row['was_game_dismissed'] == 1)
-            );
-        } else {
-            $game->setArrayPropEntry('hasPlayerDismissedGameArray', $pos, 0);
+            $player = $game->playerArray[$pos];
+            $player->hasPlayerDismissedGame = ((int)$row['was_game_dismissed'] == 1);
         }
     }
 
@@ -488,7 +462,6 @@ class BMInterface {
     }
 
     protected function load_swing_values_from_last_round($game) {
-        $game->prevSwingValueArrayArray = array_fill(0, $game->nPlayers, array());
         $query = 'SELECT * '.
                  'FROM game_swing_map '.
                  'WHERE game_id = :game_id '.
@@ -498,12 +471,12 @@ class BMInterface {
                                    ':is_expired' => 1));
         while ($row = $statement2->fetch()) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-            $game->prevSwingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            $player = $game->playerArray[$playerIdx];
+            $player->prevSwingValueArray[$row['swing_type']] = $row['swing_value'];
         }
     }
 
     protected function load_swing_values_from_this_round($game) {
-        $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
         $query = 'SELECT * '.
                  'FROM game_swing_map '.
                  'WHERE game_id = :game_id '.
@@ -513,12 +486,12 @@ class BMInterface {
                                    ':is_expired' => 0));
         while ($row = $statement2->fetch()) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-            $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            $player = $game->playerArray[$playerIdx];
+            $player->swingValueArray[$row['swing_type']] = $row['swing_value'];
         }
     }
 
     protected function load_option_values_from_last_round($game) {
-        $game->prevOptValueArrayArray = array_fill(0, $game->nPlayers, array());
         $query = 'SELECT * '.
                  'FROM game_option_map '.
                  'WHERE game_id = :game_id '.
@@ -528,12 +501,12 @@ class BMInterface {
                                    ':is_expired' => 1));
         while ($row = $statement2->fetch()) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-            $game->prevOptValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
+            $player = $game->playerArray[$playerIdx];
+            $player->prevOptValueArray[$row['die_idx']] = $row['option_value'];
         }
     }
 
     protected function load_option_values_from_this_round($game) {
-        $game->optValueArrayArray = array_fill(0, $game->nPlayers, array());
         $query = 'SELECT * '.
                  'FROM game_option_map '.
                  'WHERE game_id = :game_id '.
@@ -543,7 +516,8 @@ class BMInterface {
                                    ':is_expired' => 0));
         while ($row = $statement2->fetch()) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-            $game->optValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
+            $player = $game->playerArray[$playerIdx];
+            $player->optValueArray[$row['die_idx']] = $row['option_value'];
         }
     }
 
@@ -629,7 +603,7 @@ class BMInterface {
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
         if (isset($die->swingType) && !$die instanceof BMDieTwin) {
             $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
-            $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+            $die->set_swingValue($game->playerArray[$originalPlayerIdx]->swingValueArray);
 
             if (isset($row['actual_max'])) {
                 $die->max = (int)$row['actual_max'];
@@ -648,7 +622,7 @@ class BMInterface {
             foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $swingType = $subdie->swingType;
-                    $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+                    $subdie->set_swingValue($game->playerArray[$originalPlayerIdx]->swingValueArray);
                 }
             }
 
@@ -689,8 +663,8 @@ class BMInterface {
     }
 
     protected function recreate_optRequestArrayArray($game) {
-        foreach ($game->activeDieArrayArray as $activeDieArray) {
-            foreach ($activeDieArray as $activeDie) {
+        foreach ($game->playerArray as $player) {
+            foreach ($player->activeDieArray as $activeDie) {
                 if ($activeDie instanceof BMDieOption) {
                     $game->request_option_values(
                         $activeDie,
@@ -746,12 +720,12 @@ class BMInterface {
         $allButtonData = array();
         $nButtons = 0;
 
-        foreach ($game->buttonArray as $buttonIdx => $button) {
-            if (!empty($button)) {
+        foreach ($game->playerArray as $player) {
+            if (!empty($player->button)) {
                 continue;
             }
 
-            if (!$game->isButtonChoiceRandom[$buttonIdx]) {
+            if (!$player->isButtonChoiceRandom) {
                 continue;
             }
 
@@ -763,7 +737,7 @@ class BMInterface {
             $randIdx = bm_rand(0, $nButtons - 1);
             $buttonId = $allButtonData[$randIdx]['buttonId'];
 
-            $this->choose_button($game, $buttonId, $buttonIdx);
+            $this->choose_button($game, $buttonId, $player);
         }
 
         // ensure that the chat and game acceptance have also been cached
@@ -775,27 +749,31 @@ class BMInterface {
     }
 
     protected function does_need_random_button_selection(BMGame $game) {
+        $hasRandomlyChosenButtons = FALSE;
+        $hasUnresolvedNames = FALSE;
+        foreach ($game->playerArray as $player) {
+            // do not resolve random button names unless all players have joined the game
+            if (empty($player->playerId)) {
+                return FALSE;
+            }
+
+            $hasRandomlyChosenButtons |= $player->isButtonChoiceRandom;
+            $hasUnresolvedNames |= is_null($player->button);
+        }
+
         // only resolve random names if there are some randomly chosen buttons
-        if (empty($game->isButtonChoiceRandom) ||
-            !in_array(TRUE, $game->isButtonChoiceRandom)) {
+        if (!$hasRandomlyChosenButtons) {
             return FALSE;
         }
 
         // only resolve random names if there are some left to resolve
-        if (!in_array(NULL, $game->buttonArray, TRUE)) {
+        if (!$hasUnresolvedNames) {
             return FALSE;
         }
 
         // do not resolve random names unless all buttons have been chosen
-        foreach ($game->buttonArray as $buttonIdx => $button) {
-            if (empty($button) && !$game->isButtonChoiceRandom[$buttonIdx]) {
-                return FALSE;
-            }
-        }
-
-        // do not resolve random names unless all players have joined the game
-        foreach ($game->playerIdArray as $playerId) {
-            if (empty($playerId)) {
+        foreach ($game->playerArray as $player) {
+            if (empty($player->button) && !$player->isButtonChoiceRandom) {
                 return FALSE;
             }
         }
@@ -803,7 +781,7 @@ class BMInterface {
         return TRUE;
     }
 
-    protected function choose_button(BMGame $game, $buttonId, $buttonIdx) {
+    protected function choose_button(BMGame $game, $buttonId, $player) {
         // add info to game_player_map
         $query = 'UPDATE game_player_map '.
                  'SET button_id = :button_id, '.
@@ -815,7 +793,7 @@ class BMInterface {
 
         $statement->execute(array(':game_id'   => $game->gameId,
                                   ':button_id' => $buttonId,
-                                  ':position'  => $buttonIdx));
+                                  ':position'  => $player->position));
     }
 
     protected function save_basic_game_parameters($game) {
@@ -848,7 +826,7 @@ class BMInterface {
         if (is_null($game->activePlayerIdx)) {
             $currentPlayerId = NULL;
         } else {
-            $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
+            $currentPlayerId = $game->playerArray[$game->activePlayerIdx]->playerId;
         }
 
         return $currentPlayerId;
@@ -870,17 +848,17 @@ class BMInterface {
     }
 
     protected function save_button_recipes($game) {
-        foreach ($game->buttonArray as $playerIdx => $button) {
-            if (($button instanceof BMButton) &&
-                ($button->hasAlteredRecipe)) {
+        foreach ($game->playerArray as $player) {
+            if (($player->button instanceof BMButton) &&
+                ($player->button->hasAlteredRecipe)) {
                 $query = 'UPDATE game_player_map '.
                          'SET alt_recipe = :alt_recipe '.
                          'WHERE game_id = :game_id '.
                          'AND player_id = :player_id;';
                 $statement = self::$conn->prepare($query);
-                $statement->execute(array(':alt_recipe' => $button->recipe,
+                $statement->execute(array(':alt_recipe' => $player->button->recipe,
                                           ':game_id' => $game->gameId,
-                                          ':player_id' => $game->playerIdArray[$playerIdx]));
+                                          ':player_id' => $player->playerId));
             }
         }
     }
@@ -890,37 +868,33 @@ class BMInterface {
             return;
         }
 
-        if (isset($game->isButtonChoiceRandom)) {
-            foreach ($game->isButtonChoiceRandom as $position => $isRandomButton) {
-                if ($isRandomButton) {
-                    $query = 'UPDATE game_player_map '.
-                             'SET is_button_random = 1 '.
-                             'WHERE game_id = :game_id '.
-                             'AND position = :position;';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':game_id' => $game->gameId,
-                                              ':position' => $position));
-                }
+        foreach ($game->playerArray as $position => $player) {
+            if ($player->isButtonChoiceRandom) {
+                $query = 'UPDATE game_player_map '.
+                         'SET is_button_random = 1 '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id' => $game->gameId,
+                                          ':position' => $position));
             }
         }
     }
 
     protected function save_round_scores($game) {
-        if (isset($game->gameScoreArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                $query = 'UPDATE game_player_map '.
-                         'SET n_rounds_won = :n_rounds_won,'.
-                         '    n_rounds_lost = :n_rounds_lost,'.
-                         '    n_rounds_drawn = :n_rounds_drawn '.
-                         'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':n_rounds_won' => $game->gameScoreArrayArray[$playerIdx]['W'],
-                                          ':n_rounds_lost' => $game->gameScoreArrayArray[$playerIdx]['L'],
-                                          ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
-                                          ':game_id' => $game->gameId,
-                                          ':player_id' => $playerId));
-            }
+        foreach ($game->playerArray as $player) {
+            $query = 'UPDATE game_player_map '.
+                     'SET n_rounds_won = :n_rounds_won,'.
+                     '    n_rounds_lost = :n_rounds_lost,'.
+                     '    n_rounds_drawn = :n_rounds_drawn '.
+                     'WHERE game_id = :game_id '.
+                     'AND player_id = :player_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':n_rounds_won' => $player->gameScoreArray['W'],
+                                      ':n_rounds_lost' => $player->gameScoreArray['L'],
+                                      ':n_rounds_drawn' => $player->gameScoreArray['D'],
+                                      ':game_id' => $game->gameId,
+                                      ':player_id' => $player->playerId));
         }
     }
 
@@ -939,122 +913,104 @@ class BMInterface {
     }
 
     protected function save_swing_values_from_last_round($game) {
-        if (isset($game->prevSwingValueArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                if (!array_key_exists($playerIdx, $game->prevSwingValueArrayArray)) {
-                    continue;
-                }
-                $swingValueArray = $game->prevSwingValueArrayArray[$playerIdx];
-                if (!empty($swingValueArray)) {
-                    foreach ($swingValueArray as $swingType => $swingValue) {
-                        $query = 'INSERT INTO game_swing_map '.
-                                 '(game_id, player_id, swing_type, swing_value, is_expired) '.
-                                 'VALUES '.
-                                 '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':game_id'     => $game->gameId,
-                                                  ':player_id'   => $playerId,
-                                                  ':swing_type'  => $swingType,
-                                                  ':swing_value' => $swingValue,
-                                                  ':is_expired'  => TRUE));
-                    }
-                }
+        foreach ($game->playerArray as $player) {
+            if (empty($player->prevSwingValueArray)) {
+                continue;
+            }
+
+            foreach ($player->prevSwingValueArray as $swingType => $swingValue) {
+                $query = 'INSERT INTO game_swing_map '.
+                         '(game_id, player_id, swing_type, swing_value, is_expired) '.
+                         'VALUES '.
+                         '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id'     => $game->gameId,
+                                          ':player_id'   => $player->playerId,
+                                          ':swing_type'  => $swingType,
+                                          ':swing_value' => $swingValue,
+                                          ':is_expired'  => TRUE));
             }
         }
     }
 
     protected function save_swing_values_from_this_round($game) {
-        if (isset($game->swingValueArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
-                    continue;
-                }
-                $swingValueArray = $game->swingValueArrayArray[$playerIdx];
-                if (!empty($swingValueArray)) {
-                    foreach ($swingValueArray as $swingType => $swingValue) {
-                        $query = 'INSERT INTO game_swing_map '.
-                                 '(game_id, player_id, swing_type, swing_value, is_expired) '.
-                                 'VALUES '.
-                                 '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':game_id'     => $game->gameId,
-                                                  ':player_id'   => $playerId,
-                                                  ':swing_type'  => $swingType,
-                                                  ':swing_value' => $swingValue,
-                                                  ':is_expired'  => FALSE));
-                    }
-                }
+        foreach ($game->playerArray as $player) {
+            if (empty($player->swingValueArray)) {
+                continue;
+            }
+
+            foreach ($player->swingValueArray as $swingType => $swingValue) {
+                $query = 'INSERT INTO game_swing_map '.
+                         '(game_id, player_id, swing_type, swing_value, is_expired) '.
+                         'VALUES '.
+                         '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id'     => $game->gameId,
+                                          ':player_id'   => $player->playerId,
+                                          ':swing_type'  => $swingType,
+                                          ':swing_value' => $swingValue,
+                                          ':is_expired'  => FALSE));
             }
         }
     }
 
     protected function save_option_values_from_last_round($game) {
-        if (isset($game->prevOptValueArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                if (!array_key_exists($playerIdx, $game->prevOptValueArrayArray)) {
-                    continue;
-                }
-                $optValueArray = $game->prevOptValueArrayArray[$playerIdx];
-                if (isset($optValueArray)) {
-                    foreach ($optValueArray as $dieIdx => $optionValue) {
-                        $query = 'INSERT INTO game_option_map '.
-                                 '(game_id, player_id, die_idx, option_value, is_expired) '.
-                                 'VALUES '.
-                                 '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':game_id'   => $game->gameId,
-                                                  ':player_id' => $playerId,
-                                                  ':die_idx'   => $dieIdx,
-                                                  ':option_value' => $optionValue,
-                                                  ':is_expired' => TRUE));
-                    }
-                }
+        foreach ($game->playerArray as $player) {
+            if (empty($player->prevOptValueArray)) {
+                continue;
+            }
+
+            foreach ($player->prevOptValueArray as $dieIdx => $optionValue) {
+                $query = 'INSERT INTO game_option_map '.
+                         '(game_id, player_id, die_idx, option_value, is_expired) '.
+                         'VALUES '.
+                         '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id'   => $game->gameId,
+                                          ':player_id' => $player->playerId,
+                                          ':die_idx'   => $dieIdx,
+                                          ':option_value' => $optionValue,
+                                          ':is_expired' => TRUE));
             }
         }
     }
 
     protected function save_option_values_from_this_round($game) {
-        if (isset($game->optValueArrayArray)) {
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                if (!array_key_exists($playerIdx, $game->optValueArrayArray)) {
-                    continue;
-                }
-                $optValueArray = $game->optValueArrayArray[$playerIdx];
-                if (isset($optValueArray)) {
-                    foreach ($optValueArray as $dieIdx => $optionValue) {
-                        $query = 'INSERT INTO game_option_map '.
-                                 '(game_id, player_id, die_idx, option_value, is_expired) '.
-                                 'VALUES '.
-                                 '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':game_id'   => $game->gameId,
-                                                  ':player_id' => $playerId,
-                                                  ':die_idx'   => $dieIdx,
-                                                  ':option_value' => $optionValue,
-                                                  ':is_expired' => FALSE));
-                    }
-                }
+        foreach ($game->playerArray as $player) {
+            if (empty($player->optValueArray)) {
+                continue;
+            }
+
+            foreach ($player->optValueArray as $dieIdx => $optionValue) {
+                $query = 'INSERT INTO game_option_map '.
+                         '(game_id, player_id, die_idx, option_value, is_expired) '.
+                         'VALUES '.
+                         '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id'   => $game->gameId,
+                                          ':player_id' => $player->playerId,
+                                          ':die_idx'   => $dieIdx,
+                                          ':option_value' => $optionValue,
+                                          ':is_expired' => FALSE));
             }
         }
     }
 
     protected function save_player_game_decisions($game) {
-        if (isset($game->hasPlayerAcceptedGameArray)) {
-            foreach ($game->hasPlayerAcceptedGameArray as $playerIdx => $hasAccepted) {
-                $query = 'UPDATE game_player_map '.
-                         'SET has_player_accepted = :has_player_accepted '.
-                         'WHERE game_id = :game_id '.
-                         'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-                if ($hasAccepted) {
-                    $hasPlayerAccepted = 1;
-                } else {
-                    $hasPlayerAccepted = 0;
-                }
-                $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
-                                          ':game_id' => $game->gameId,
-                                          ':position' => $playerIdx));
+        foreach ($game->playerArray as $player) {
+            $query = 'UPDATE game_player_map '.
+                     'SET has_player_accepted = :has_player_accepted '.
+                     'WHERE game_id = :game_id '.
+                     'AND position = :position;';
+            $statement = self::$conn->prepare($query);
+            if ($player->hasPlayerAcceptedGame) {
+                $hasPlayerAccepted = 1;
+            } else {
+                $hasPlayerAccepted = 0;
             }
+            $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
+                                      ':game_id' => $game->gameId,
+                                      ':position' => $player->position));
         }
     }
 
@@ -1073,26 +1029,28 @@ class BMInterface {
                      'WHERE game_id = :game_id '.
                      'AND player_id = :player_id;';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId,
-                                      ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
+            $statement->execute(
+                array(':game_id' => $game->gameId,
+                      ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]->playerId)
+            );
         }
     }
 
     protected function save_players_awaiting_action($game) {
-        foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+        foreach ($game->playerArray as $player) {
             $query = 'UPDATE game_player_map '.
                      'SET is_awaiting_action = :is_awaiting_action '.
                      'WHERE game_id = :game_id '.
                      'AND position = :position;';
             $statement = self::$conn->prepare($query);
-            if ($waitingOnAction) {
+            if ($player->waitingOnAction) {
                 $is_awaiting_action = 1;
             } else {
                 $is_awaiting_action = 0;
             }
             $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
                                       ':game_id' => $game->gameId,
-                                      ':position' => $playerIdx));
+                                      ':position' => $player->position));
         }
     }
 
@@ -1191,9 +1149,6 @@ class BMInterface {
 
     // Actually insert a die into the database - all error checking to be done by caller
     protected function db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx) {
-        $gameId = $game->gameId;
-        $playerId = $game->playerIdArray[$playerIdx];
-
         $query = 'INSERT INTO die '.
                  '    (owner_id, '.
                  '     original_owner_id, '.
@@ -1230,9 +1185,10 @@ class BMInterface {
             $actualMax = $activeDie->max;
         }
 
-        $statement->execute(array(':owner_id' => $playerId,
-                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                  ':game_id' => $gameId,
+        $statement->execute(array(':owner_id' => $game->playerArray[$playerIdx]->playerId,
+                                  ':original_owner_id' => $game->playerArray[$activeDie->originalPlayerIdx]
+                                                               ->playerId,
+                                  ':game_id' => $game->gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
                                   ':actual_max' => $actualMax,
@@ -1864,8 +1820,8 @@ class BMInterface {
 
     protected function get_player_name_mapping($game) {
         $idNameMapping = array();
-        foreach ($game->playerIdArray as $playerId) {
-            $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
+        foreach ($game->playerArray as $player) {
+            $idNameMapping[$player->playerId] = $this->get_player_name_from_id($player->playerId);
         }
         return $idNameMapping;
     }

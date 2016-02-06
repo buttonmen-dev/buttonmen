@@ -25,7 +25,7 @@ class DummyApiResponder {
      *   don't start a session
      *
      * @param ApiSpec $spec
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
