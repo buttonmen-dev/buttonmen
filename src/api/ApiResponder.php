@@ -376,7 +376,7 @@ class ApiResponder {
         if (!(array_key_exists('dieValueArray', $args))) {
             $args['dieValueArray'] = NULL;
         }
-        $retval = $interface->react_to_initiative(
+        $retval = $interface->gameAction()->react_to_initiative(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
