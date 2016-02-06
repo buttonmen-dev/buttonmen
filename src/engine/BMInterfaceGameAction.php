@@ -1241,4 +1241,46 @@ class BMInterfaceGameAction extends BMInterface {
             return FALSE;
         }
     }
+
+    // Check whether a requested action still needs to be taken.
+    // If the time stamp is not important, use the string 'ignore'
+    // for $postedTimestamp.
+    protected function is_action_current(
+        BMGame $game,
+        $expectedGameState,
+        $postedTimestamp,
+        $roundNumber,
+        $currentPlayerId
+    ) {
+        $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+
+        if (FALSE === $currentPlayerIdx) {
+            $this->set_message('You are not a participant in this game');
+            return FALSE;
+        }
+
+        if (FALSE === $game->playerArray[$currentPlayerIdx]->waitingOnAction) {
+            $this->set_message('You are not the active player');
+            return FALSE;
+        };
+
+        $doesTimeStampAgree =
+            ('ignore' === $postedTimestamp) ||
+            ($postedTimestamp == $this->timestamp);
+        $doesRoundNumberAgree =
+            ('ignore' === $roundNumber) ||
+            ($roundNumber == $game->roundNumber);
+        $doesGameStateAgree = $expectedGameState == $game->gameState;
+
+        $isGameStateCurrent =
+            $doesTimeStampAgree &&
+            $doesRoundNumberAgree &&
+            $doesGameStateAgree;
+
+        if (!$isGameStateCurrent) {
+            $this->set_message('Game state is not current');
+        }
+
+        return $isGameStateCurrent;
+    }
 }
