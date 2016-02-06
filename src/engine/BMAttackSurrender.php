@@ -22,7 +22,7 @@ class BMAttackSurrender extends BMAttackPass {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     public function validate_attack($game, array $attackers, array $defenders) {
         $isValid = parent::validate_attack($game, $attackers, $defenders);

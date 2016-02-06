@@ -12,7 +12,12 @@
  */
 
 class BMInterfaceForum extends BMInterface {
-    // Retrieves an overview of all of the boards available on the forum
+    /**
+     * Retrieves an overview of all of the boards available on the forum
+     *
+     * @param int $currentPlayerId
+     * @return array|NULL
+     */
     public function load_forum_overview($currentPlayerId) {
         try {
             $results = array();
@@ -71,8 +76,14 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Retrieves an overview of a specific forum board, plus information on all
-    // the threads on that board
+    /**
+     * Retrieves an overview of a specific forum board, plus information on
+     * all the threads on that board
+     *
+     * @param int $currentPlayerId
+     * @param int $boardId
+     * @return array|NULL
+     */
     public function load_forum_board($currentPlayerId, $boardId) {
         try {
             $results = array();
@@ -171,8 +182,15 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Retrieves an overview of a specific forum thread, plus information on
-    // the posts in that thread
+    /**
+     * Retrieves an overview of a specific forum thread, plus information on
+     * the posts in that thread
+     *
+     * @param int $currentPlayerId
+     * @param int $threadId
+     * @param int $currentPostId
+     * @return array|NULL
+     */
     public function load_forum_thread($currentPlayerId, $threadId, $currentPostId) {
         try {
             $results = array();
@@ -256,7 +274,12 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Load the ID's of the next new post and its thread
+    /**
+     * Load the ID's of the next new post and its thread
+     *
+     * @param int $currentPlayerId
+     * @return array|NULL
+     */
     public function get_next_new_post($currentPlayerId) {
         try {
             $results = array();
@@ -297,8 +320,14 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Indicates that the reader has finished reading all of the posts on every
-    // board which they care to read
+    /**
+     * Indicates that the reader has finished reading all of the posts on every
+     * board which they care to read
+     *
+     * @param int $currentPlayerId
+     * @param int $timestamp
+     * @return array|NULL
+     */
     public function mark_forum_read($currentPlayerId, $timestamp) {
         try {
             $query = 'SELECT b.id FROM forum_board AS b;';
@@ -326,9 +355,16 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-
-    // Indicates that the reader has finished reading all of the posts on this
-    // board which they care to read
+    /**
+     * Indicates that the reader has finished reading all of the posts on this
+     * board which they care to read
+     *
+     * @param int $currentPlayerId
+     * @param int $boardId
+     * @param int $timestamp
+     * @param bool $suppressResults
+     * @return array|NULL
+     */
     public function mark_forum_board_read($currentPlayerId, $boardId, $timestamp, $suppressResults = FALSE) {
         try {
             $query =
@@ -361,8 +397,16 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Indicates that the reader has finished reading all of the posts in this
-    // thread which they care to read
+    /**
+     * Indicates that the reader has finished reading all of the posts in this
+     * thread which they care to read
+     *
+     * @param int $currentPlayerId
+     * @param int $threadId
+     * @param int $boardId
+     * @param int $timestamp
+     * @return array|NULL
+     */
     public function mark_forum_thread_read($currentPlayerId, $threadId, $boardId, $timestamp) {
         try {
             $query =
@@ -390,7 +434,15 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Adds a new thread to the specified board
+    /**
+     * Adds a new thread to the specified board
+     *
+     * @param int $currentPlayerId
+     * @param int $boardId
+     * @param string $title
+     * @param string $body
+     * @return array|NULL
+     */
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
         try {
             $query =
@@ -432,7 +484,14 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Adds a new post to the specified thread
+    /**
+     * Adds a new post to the specified thread
+     *
+     * @param int $currentPlayerId
+     * @param int $threadId
+     * @param string $body
+     * @return array|NULL
+     */
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
             $query =
@@ -468,7 +527,14 @@ class BMInterfaceForum extends BMInterface {
         }
     }
 
-    // Changes the body of the specified post
+    /**
+     * Changes the body of the specified post
+     *
+     * @param int $currentPlayerId
+     * @param int $postId
+     * @param string $body
+     * @return array|NULL
+     */
     public function edit_forum_post($currentPlayerId, $postId, $body) {
         try {
             $query =

@@ -28,7 +28,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
      * Hooked method applied when specifying recipes
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function specify_recipes(array $args) {
         // implement functionality that will be shared by all child classes

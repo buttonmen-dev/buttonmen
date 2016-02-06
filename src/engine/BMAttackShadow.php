@@ -22,7 +22,7 @@ class BMAttackShadow extends BMAttackPower {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     public function validate_attack($game, array $attackers, array $defenders) {
         $this->validationMessage = '';
@@ -89,7 +89,7 @@ class BMAttackShadow extends BMAttackPower {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
