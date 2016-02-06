@@ -316,7 +316,7 @@ class ApiResponder {
         } else {
             $optionValueArray = array();
         }
-        $retval = $interface->submit_die_values(
+        $retval = $interface->gameAction()->submit_die_values(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
