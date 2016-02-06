@@ -909,4 +909,83 @@ class BMInterfaceGameAction extends BMInterface {
             return FALSE;
         }
     }
+
+    // react_to_reserve expects the following inputs:
+    //
+    //   $action:
+    //       One of {'add', 'decline'}.
+    //
+    //   $dieIdx:
+    //       (i)  If this is an 'add' action, then this is the die index of the
+    //            die to be added.
+    //       (ii) If this is a 'decline' action, then this will be ignored.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function react_to_reserve(
+        $playerId,
+        $gameId,
+        $action,
+        $dieIdx = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_RESERVE_DICE,
+                'ignore',
+                'ignore',
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+            $player = $game->playerArray[$playerIdx];
+
+            switch ($action) {
+                case 'add':
+                    if (!array_key_exists($dieIdx, $player->activeDieArray) ||
+                        !$player->activeDieArray[$dieIdx]->has_skill('Reserve')) {
+                        $this->set_message('Invalid reserve choice');
+                        return FALSE;
+                    }
+                    $die = $player->activeDieArray[$dieIdx];
+                    $die->add_flag('AddReserve');
+                    $player->waitingOnAction = FALSE;
+                    $game->log_action(
+                        'add_reserve',
+                        $player->playerId,
+                        array( 'die' => $die->get_action_log_data(), )
+                    );
+                    $this->set_message('Reserve die chosen successfully');
+                    break;
+                case 'decline':
+                    $player->waitingOnAction = FALSE;
+                    $game->log_action(
+                        'decline_reserve',
+                        $player->playerId,
+                        array('declineReserve' => TRUE)
+                    );
+                    $this->set_message('Declined reserve dice');
+                    break;
+                default:
+                    $this->set_message('Invalid response to reserve choice.');
+                    return FALSE;
+            }
+
+            $this->save_game($game);
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::react_to_reserve: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while making reserve decision');
+            return FALSE;
+        }
+    }
 }

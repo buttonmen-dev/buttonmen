@@ -355,7 +355,7 @@ class ApiResponder {
             $args['dieIdx'] = NULL;
         }
 
-        $retval = $interface->react_to_reserve(
+        $retval = $interface->gameAction()->react_to_reserve(
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
