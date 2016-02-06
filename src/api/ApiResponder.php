@@ -421,7 +421,7 @@ class ApiResponder {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
         }
-        $retval = $interface->submit_chat(
+        $retval = $interface->gameAction()->submit_chat(
             $_SESSION['user_id'],
             $args['game'],
             $args['edit'],
