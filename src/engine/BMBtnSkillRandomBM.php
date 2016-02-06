@@ -50,11 +50,11 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
     /**
      * Choose n skills from an array of possible skills
      *
-     * @param array $possibleSkillArray
      * @param int $nSkills
+     * @param array $possibleSkillArray
      * @return array
      */
-    public static function randomly_select_skills(array $possibleSkillArray, $nSkills) {
+    public static function randomly_select_skills($nSkills, array $possibleSkillArray) {
         if (count($possibleSkillArray) < $nSkills) {
             throw new LogicException('Not enough possible skills to select from');
         }
@@ -207,5 +207,37 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         $recipe = implode(' ', $dieRecipeArray);
 
         return $recipe;
+    }
+
+    /**
+     * Array containing excluded die skill names
+     *
+     * @return array
+     */
+    protected static function excluded_skill_array() {
+        // Actively exclude possibly problematic skills
+        // The current selection is conservative, and should be whittled down in time,
+        // after we deal with bugs that arise from strange skill combinations
+        return array(
+            'Auxiliary', 'Reserve', 'Warrior', // game-level skills
+            'Doppelganger', 'Mad', 'Mood',
+            'Morphing', 'Radioactive', // recipe-changing skills
+            'Fire', // skills that add an extra step to attacks
+            'Slow', // skills excluded because they're no fun
+        );
+    }
+
+    /**
+     * Array containing excluded die skill characters
+     *
+     * @return array
+     */
+    protected static function excluded_skill_char_array() {
+        $skillCharArray = array_map(
+            'BMSkill::abbreviate_skill_name',
+            self::excluded_skill_array()
+        );
+        sort($skillCharArray);
+        return $skillCharArray;
     }
 }

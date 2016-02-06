@@ -68,5 +68,23 @@ class BMBtnSkillRandomBMTest extends PHPUnit_Framework_TestCase {
         $retval = BMBtnSkillRandomBM::specify_recipes($args);
         $this->assertFalse($retval);
     }
+
+    public function testRandomly_select_skills() {
+        global $BM_RAND_VALS;
+
+        $skillArray = array('s1', 's2', 's3', 's4');
+
+        $BM_RAND_VALS = array(2, 2, 1);
+        $retval = BMBtnSkillRandomBM::randomly_select_skills(2, $skillArray);
+        $this->assertEquals(array('s3', 's2'), $retval);
+    }
+
+    public function testRandomly_select_swing_types() {
+        global $BM_RAND_VALS;
+
+        $BM_RAND_VALS = array(5);
+        $retval = BMBtnSkillRandomBM::randomly_select_swing_types();
+        $this->assertEquals(array('W'), $retval);
+    }
 }
 

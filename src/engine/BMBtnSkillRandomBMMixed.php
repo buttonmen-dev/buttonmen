@@ -11,7 +11,7 @@
  * existing skills, with each skill dealt out twice randomly and independently
  * over all dice
  */
-class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBMRestrictedSkills {
+class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
     /**
      * An array containing the names of functions run by
      * BMCanHaveSkill->run_hooks()
@@ -41,7 +41,7 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBMRestrictedSkills {
         $dieSizeArray = parent::generate_die_sizes($nDice);
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills($skillCharArray, 3),
+            parent::randomly_select_skills(3, $skillCharArray),
             0,
             2
         );
