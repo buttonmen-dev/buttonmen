@@ -439,7 +439,7 @@ class ApiResponder {
         if (!(array_key_exists('chat', $args))) {
             $args['chat'] = '';
         }
-        $retval = $interface->submit_turn(
+        $retval = $interface->gameAction()->submit_turn(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
