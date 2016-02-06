@@ -1,15 +1,15 @@
 <?php
 /**
- * BMBtnSkillRandomBMMonoskill: Code specific to RandomBMMonoskill
+ * BMBtnSkillRandomBMTriskill: Code specific to RandomBMTriskill
  *
  * @author: james
  */
 
 /**
- * This class currently supports the special skills of RandomBMMonoskill, which has
- * 4 normal dice and a swing die, with 1 skill appearing a total of 2 times on various dice.
+ * This class currently supports the special skills of RandomBMTriskill, which has
+ * 4 normal dice and a swing die, with 3 skills appearing a total of 7 times on various dice.
  */
-class BMBtnSkillRandomBMMonoskill extends BMBtnSkillRandomBM {
+class BMBtnSkillRandomBMTriskill extends BMBtnSkillRandomBM {
     /**
      * An array containing the names of functions run by
      * BMCanHaveSkill->run_hooks()
@@ -41,9 +41,9 @@ class BMBtnSkillRandomBMMonoskill extends BMBtnSkillRandomBM {
          );
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills(1, $skillCharArray),
-            0,
-            2
+            parent::randomly_select_skills(3, $skillCharArray),
+            4,
+            1
         );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
 
@@ -56,6 +56,6 @@ class BMBtnSkillRandomBMMonoskill extends BMBtnSkillRandomBM {
      * @return string
      */
     public static function get_description() {
-        return 'Four regular dice and one swing die, and 1 skill appearing a total of 2 times on various dice.';
+        return 'Four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.';
     }
 }
