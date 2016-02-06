@@ -622,4 +622,235 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertEquals('(20) (20) (20) (X)', $game->buttonArray[1]->recipe);
     }
 
+    /**
+     * Check that a decline of an auxiliary die works correctly.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_react_to_auxiliary_both_aux_decline() {
+        // Lancelot : (10) (12) (20) (20) (X) +(X)
+        // Gawaine  :  (4)  (4) (12) (20) (X) +(6)
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Lancelot', 'Gawaine'),
+            4
+        );
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+
+        // a non-player attempts an action
+        $this->assertFalse(
+            $this->object->react_to_auxiliary(
+                0,
+                $gameId,
+                'decline')
+        );
+
+        // player 1 attempts an invalid action
+        $this->assertFalse(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'rubbish')
+        );
+
+        // player 1 declines
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'decline')
+        );
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Auxiliary'));
+            }
+        }
+        $this->assertEquals('(10) (12) (20) (20) (X)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (4) (12) (20) (X)',
+                            $game->buttonArray[1]->recipe);
+    }
+
+    /**
+     * Check that courtesy auxiliary dice are given correctly.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     * @covers BMGame::add_selected_auxiliary_dice
+     */
+    public function test_react_to_auxiliary_one_aux_decline() {
+        // Kublai   :  (4) (8) (12) (20) (X)
+        // Gawaine  :  (4) (4) (12) (20) (X) +(6)
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Kublai', 'Gawaine'),
+            4
+        );
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+
+        // player 1 chooses to add auxiliary die
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'add',
+                5
+            )
+        );
+
+        $game = self::load_game($gameId);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
+
+        // player 1 tries incorrectly to act again
+        $this->assertFalse(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'add',
+                5)
+        );
+
+        // player 2 declines
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId2WithoutAutopass,
+                $gameId,
+                'decline')
+            );
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Auxiliary'));
+            }
+        }
+        $this->assertEquals('(4) (8) (12) (20) (X)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (4) (12) (20) (X)',
+                            $game->buttonArray[1]->recipe);
+    }
+
+    /**
+     * Check that courtesy auxiliary dice are given correctly.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     * @covers BMGame::add_selected_auxiliary_dice
+     */
+    public function test_react_to_auxiliary_one_aux_accept() {
+        // Kublai   :  (4) (8) (12) (20) (X)
+        // Gawaine  :  (4) (4) (12) (20) (X) +(6)
+        $retval = $this->object->gameAction()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Kublai', 'Gawaine'),
+            4
+        );
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+
+        // player 1 tries incorrectly adding a non-auxiliary die
+        $this->assertFalse(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'add',
+                0
+            )
+        );
+
+        // player 1 chooses to add an auxiliary die
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'add',
+                5
+            )
+        );
+
+        $game = self::load_game($gameId);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
+
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId2WithoutAutopass,
+                $gameId,
+                'add',
+                5)
+            );
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Auxiliary'));
+            }
+        }
+        $this->assertEquals('(4) (8) (12) (20) (X) (6)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (4) (12) (20) (X) (6)',
+                            $game->buttonArray[1]->recipe);
+    }
+
+    /**
+     * Check that a bad action is handled gracefully.
+     *
+     * @depends BMInterface000Test::test_create_user
+     *
+     * @covers BMInterfaceGameAction::react_to_auxiliary
+     */
+    public function test_react_to_auxiliary_invalid() {
+        $this->assertFalse($this->object->react_to_auxiliary(1.5, 2.5, 'ha!'));
+    }
+
 }
