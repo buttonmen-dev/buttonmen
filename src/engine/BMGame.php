@@ -3857,6 +3857,11 @@ class BMGame {
      * @return array
      */
     protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
+        // do not show swing requests unless this information is actually necessary
+        if ($this->gameState > BMGameState::SPECIFY_DICE) {
+            return array();
+        }
+
         $swingRequestArray = array();
 
         if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
