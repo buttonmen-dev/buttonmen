@@ -1943,18 +1943,18 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::rejected
+     * Perform the logic required at BMGameState::CANCELLED
      */
-    protected function do_next_step_rejected() {
+    protected function do_next_step_cancelled() {
         foreach ($this->playerArray as $player) {
             $player->waitingOnAction = FALSE;
         }
     }
 
     /**
-     * Update game state from BMGameState::rejected if necessary
+     * Update game state from BMGameState::CANCELLED if necessary
      */
-    protected function update_game_state_rejected() {
+    protected function update_game_state_cancelled() {
     }
 
     /**
