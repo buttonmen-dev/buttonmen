@@ -7,7 +7,7 @@ Verify.bodyDivId = 'verify_page';
 Verify.showLoggedInPage = function() {
   // Find the verification parameters and submit them to the server,
   // then display the result
-  Verify.getVerifyParams(Verify.showStatePage);
+  Verify.getVerifyParams(Login.arrangePage);
 };
 
 // Verify basically behaves roughly the same way regardless of whether or not
@@ -47,16 +47,6 @@ Verify.getVerifyParams = function(callbackfunc) {
     callbackfunc,
     callbackfunc
   );
-};
-
-Verify.showStatePage = function() {
-  Verify.page = $('<div>');
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  Login.arrangePage(Verify.page);
 };
 
 Verify.setVerifyUserSuccessMessage = function(message) {

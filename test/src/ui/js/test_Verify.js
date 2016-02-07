@@ -46,22 +46,17 @@ test("test_Verify_is_loaded", function(assert) {
 
 // The purpose of this test is to demonstrate that the flow of
 // Verify.showLoggedInPage() is correct for a showXPage function,
-// namely that it calls an API getter with a showStatePage function
-// as a callback.
+// namely that it calls an API getter with a function as a callback.
 //
 // Accomplish this by mocking the invoked functions
 test("test_Verify.showLoggedInPage", function(assert) {
-  expect(5);
+  expect(4);
   var cached_getVerifyParams = Verify.getVerifyParams;
-  var cached_showStatePage = Verify.showStatePage;
   var getVerifyParamsCalled = false;
-  Verify.showStatePage = function() {
-    assert.ok(getVerifyParamsCalled, "Verify.getVerifyParams is called before Verify.showStatePage");
-  }
   Verify.getVerifyParams = function(callback) {
     getVerifyParamsCalled = true;
-    assert.equal(callback, Verify.showStatePage,
-      "Verify.getVerifyParams is called with Verify.showStatePage as an argument");
+    assert.equal(callback, Login.arrangePage,
+      "Verify.getVerifyParams is called with Login.arrangePage as an argument");
     callback();
   }
 
@@ -70,7 +65,6 @@ test("test_Verify.showLoggedInPage", function(assert) {
   assert.equal(item.nodeName, "DIV",
         "#verify_page is a div after showLoggedInPage() is called");
   Verify.getVerifyParams = cached_getVerifyParams;
-  Verify.showStatePage = cached_showStatePage;
 });
 
 // At this point, Verify.showLoggedOutPage is a pointer to
@@ -87,10 +81,6 @@ test("test_Verify.getVerifyParams", function(assert) {
           "getVerifyParams() succeeds in its POST");
     start();
   });
-});
-
-test("test_Verify.showStatePage", function(assert) {
-// FIXME: put a test here that actually meaningfully tests the code
 });
 
 test("test_Verify.setVerifyUserSuccessMessage", function(assert) {
