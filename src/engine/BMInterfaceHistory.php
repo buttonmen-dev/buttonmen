@@ -383,7 +383,7 @@ class BMInterfaceHistory extends BMInterface {
             // We'll only display games that have actually started
             $where .= 'AND (s.name = "COMPLETE" ' .
                       'OR s.name = "ACTIVE" ' .
-                      'OR s.name = "REJECTED") ';
+                      'OR s.name = "CANCELLED") ';
         }
     }
 

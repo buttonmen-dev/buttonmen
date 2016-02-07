@@ -297,7 +297,7 @@ class BMInterfaceGameAction extends BMInterface {
             $previousPlayerIds = array();
             while ($row = $statement->fetch()) {
                 if (($row['status'] != 'COMPLETE') &&
-                    ($row['status'] != 'REJECTED')) {
+                    ($row['status'] != 'CANCELLED')) {
                     $this->set_message(
                         'Game create failed because the previous game has not been completed yet.'
                     );
@@ -427,7 +427,7 @@ class BMInterfaceGameAction extends BMInterface {
         $player->hasPlayerAcceptedGame = $decisionFlag;
 
         if (!$decisionFlag) {
-            $game->gameState = BMGameState::REJECTED;
+            $game->gameState = BMGameState::CANCELLED;
         }
 
         $this->save_game($game);
@@ -1442,7 +1442,7 @@ class BMInterfaceGameAction extends BMInterface {
                 return NULL;
             }
             if (($fetchResult[0]['status'] != 'COMPLETE') &&
-                ($fetchResult[0]['status'] != 'REJECTED')) {
+                ($fetchResult[0]['status'] != 'CANCELLED')) {
                 $this->set_message("Game $gameId isn't complete");
                 return NULL;
             }

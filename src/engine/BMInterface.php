@@ -834,8 +834,8 @@ class BMInterface {
     protected function get_game_status($game) {
         if (BMGameState::END_GAME == $game->gameState) {
             $status = 'COMPLETE';
-        } elseif (BMGameState::REJECTED == $game->gameState) {
-            $status = 'REJECTED';
+        } elseif (BMGameState::CANCELLED == $game->gameState) {
+            $status = 'CANCELLED';
         } elseif (in_array(NULL, $game->playerIdArray) ||
                   in_array(NULL, $game->buttonArray)) {
             $status = 'OPEN';
@@ -1232,8 +1232,8 @@ class BMInterface {
                 $query .= 'AND s.name = "ACTIVE" AND g.game_state <= 13 ';
             } elseif ('COMPLETE' == $type) {
                 $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
-            } elseif ('REJECTED' == $type) {
-                $query .= 'AND s.name = "REJECTED" AND v2.was_game_dismissed = 0 ';
+            } elseif ('CANCELLED' == $type) {
+                $query .= 'AND s.name = "CANCELLED" AND v2.was_game_dismissed = 0 ';
             }
             $query .= 'ORDER BY g.last_action_time ASC;';
             $statement = self::$conn->prepare($query);
@@ -1337,8 +1337,8 @@ class BMInterface {
         return $this->get_all_games($playerId, 'COMPLETE');
     }
 
-    public function get_all_rejected_games($playerId) {
-        return $this->get_all_games($playerId, 'REJECTED');
+    public function get_all_cancelled_games($playerId) {
+        return $this->get_all_games($playerId, 'CANCELLED');
     }
 
     public function get_all_open_games($currentPlayerId) {
