@@ -25,7 +25,7 @@ class DummyApiResponder {
      *   don't start a session
      *
      * @param ApiSpec $spec
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
@@ -48,7 +48,7 @@ class DummyApiResponder {
             'loadActiveGames',
             'loadActivePlayers',
             'loadCompletedGames',
-            'loadRejectedGames',
+            'loadCancelledGames',
             'loadForumBoard',
             'loadForumOverview',
             'loadForumThread',
@@ -755,7 +755,7 @@ class DummyApiResponder {
         return array($data, "All game details retrieved successfully.");
     }
 
-    protected function get_interface_response_loadRejectedGames() {
+    protected function get_interface_response_loadCancelledGames() {
         $data = array(
             'gameIdArray' => array(),
             'gameDescriptionArray' => array(),
@@ -787,8 +787,8 @@ class DummyApiResponder {
         $data['nDrawsArray'][] = 0;
         $data['nTargetWinsArray'][] = 3;
         $data['isAwaitingActionArray'][] = 0;
-        $data['gameStateArray'][] = "REJECTED";
-        $data['statusArray'][] = "REJECTED";
+        $data['gameStateArray'][] = "CANCELLED";
+        $data['statusArray'][] = "CANCELLED";
         $data['inactivityArray'][] = "8 days";
         $data['inactivityRawArray'][] = 8*60*60*24;
         $data['playerColorArray'][] = "#dd99dd";
