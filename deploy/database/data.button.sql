@@ -1118,15 +1118,15 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 #####   S P E C I A L   B U T T O N S   #####
 #############################################
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_order) VALUES
-(10001, 'RandomBMVanilla',    '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 1),
-(10002, 'RandomBMAnime',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 2),
-(10003, 'RandomBMMixed',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 3),
-(10004, 'RandomBMFixed',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 4),
-(10005, 'RandomBMMonoskill',  '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 5),
-(10006, 'RandomBMDuoskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 6),
-(10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 7),
-(10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 8),
-(10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 9);
+(10001, 'RandomBMVanilla',    '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 10),
+(10002, 'RandomBMAnime',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 20),
+(10003, 'RandomBMMixed',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 30),
+(10004, 'RandomBMFixed',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 40),
+(10005, 'RandomBMMonoskill',  '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 50),
+(10006, 'RandomBMDuoskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 60),
+(10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 70),
+(10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 80),
+(10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90);
 
 
 
