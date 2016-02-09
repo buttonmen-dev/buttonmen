@@ -47,7 +47,6 @@ class DummyApiResponder {
             'loadOpenGames',
             'loadNextNewPost',
             'loadNextPendingGame',
-            'loadPlayerNames',
             'loadPlayerInfo',
             'loadProfileInfo',
             'login',
@@ -910,20 +909,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadPlayerNames() {
-        $data = array(
-            'nameArray' => array(),
-            'statusArray' => array(),
+        return $this->load_json_data_from_file(
+            'loadPlayerNames',
+            'noargs.json'
         );
-
-        // three test players exist and are all active
-        $data['nameArray'][] = 'tester1';
-        $data['statusArray'][] = 'ACTIVE';
-        $data['nameArray'][] = 'tester2';
-        $data['statusArray'][] = 'ACTIVE';
-        $data['nameArray'][] = 'tester3';
-        $data['statusArray'][] = 'ACTIVE';
-
-        return array($data, "Names retrieved successfully.");
     }
 
     protected function get_interface_response_submitDieValues($args) {

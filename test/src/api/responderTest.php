@@ -68,8 +68,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
-            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerName', 'markForumBoardRead',
-            'markForumRead', 'markForumThreadRead',
+            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerName', 'loadPlayerNames',
+            'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
             'submitTurn', 'verifyUser',
         );
@@ -1953,15 +1953,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadPlayerNames');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Names retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('nameArray', 'statusArray'));
+        $this->assertEquals(count($retval['data']['nameArray']), count($retval['data']['statusArray']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player names should have matching structures");
+        // We don't know for sure which player will be active, and the UI testing expects
+        // 'tester2', so find an active player and modify its name before saving
+        $active_player_idx = -1;
+        foreach ($retval['data']['statusArray'] as $idx => $status) {
+            if ($status == 'ACTIVE') {
+                $active_player_idx = $idx;
+            }
+        }
+        $this->assertTrue($active_player_idx >= 0);
+        $retval['data']['nameArray'][$active_player_idx] = 'tester2';
+
+        // loadPlayerNames takes no args, so store this as the sole reference API output
+        $this->cache_json_api_output('loadPlayerNames', 'noargs', $retval);
     }
 
     public function test_request_submitChat() {
