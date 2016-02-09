@@ -71,7 +71,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerName', 'markForumBoardRead',
             'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
-            'verifyUser',
+            'submitTurn', 'verifyUser',
         );
 
 
@@ -1121,6 +1121,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('submitTurn', $fakeGameNumber, $retval);
+
         return $retval;
     }
 

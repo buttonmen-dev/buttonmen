@@ -992,7 +992,7 @@ test("test_Game.formAdjustFireDiceActive", function(assert) {
 
 test("test_Game.formPlayTurnActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1000,7 +1000,8 @@ test("test_Game.formPlayTurnActive", function(assert) {
     $('#game_action_button').trigger('click');
     assert.deepEqual(
       Env.message,
-      {"type": "success", "text": "Dummy turn submission accepted"},
+      {"type": "success",
+       "text": "responder003 performed Skill attack using [(12):4,(20):8] against [q(Z=28):12]; Defender q(Z=28) was captured; Attacker (12) rerolled 4 => 6; Attacker (20) rerolled 8 => 5. "},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();

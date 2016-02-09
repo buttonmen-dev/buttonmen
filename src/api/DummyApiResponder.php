@@ -54,7 +54,6 @@ class DummyApiResponder {
             'logout',
             'savePlayerInfo',
             'searchGameHistory',
-            'submitTurn',
         );
     }
 
@@ -969,8 +968,11 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_submitTurn() {
-        return array(TRUE, 'Dummy turn submission accepted');
+    protected function get_interface_response_submitTurn($args) {
+        return $this->load_json_data_from_file(
+            'submitTurn',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_login() {

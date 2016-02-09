@@ -102,6 +102,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'washu_hooloovoo_startturn_inactive') { return '1003'; }
   if (gameDesc == 'washu_hooloovoo_first_comments_inactive') { return '1005'; }
   if (gameDesc == 'washu_hooloovoo_reacttoreserve_active') { return '1007'; }
+  if (gameDesc == 'washu_hooloovoo_startturn_active') { return '1009'; }
   if (gameDesc == 'washu_hooloovoo_reacttoreserve_inactive') { return '1016'; }
   if (gameDesc == 'washu_hooloovoo_reacttoreserve_nonplayer') { return '1017'; }
   if (gameDesc == 'washu_hooloovoo_cant_win') { return '1022'; }
