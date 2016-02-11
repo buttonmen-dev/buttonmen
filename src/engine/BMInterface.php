@@ -716,6 +716,9 @@ class BMInterface {
             } else {
                 throw new InvalidArgumentException('Invalid button name.');
             }
+            if (isset($row['original_recipe'])) {
+                $player->button->originalRecipe = $row['original_recipe'];
+            }
         }
 
         if ($row['is_button_random']) {
@@ -1159,11 +1162,13 @@ class BMInterface {
             if (($player->button instanceof BMButton) &&
                 ($player->button->hasAlteredRecipe)) {
                 $query = 'UPDATE game_player_map '.
-                         'SET alt_recipe = :alt_recipe '.
+                         'SET alt_recipe = :alt_recipe,'.
+                         '    original_recipe = :original_recipe '.
                          'WHERE game_id = :game_id '.
                          'AND player_id = :player_id;';
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':alt_recipe' => $player->button->recipe,
+                                          ':original_recipe' => $player->button->originalRecipe,
                                           ':game_id' => $game->gameId,
                                           ':player_id' => $player->playerId));
             }

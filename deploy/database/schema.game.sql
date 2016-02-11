@@ -31,6 +31,7 @@ CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED,
     button_id          SMALLINT UNSIGNED,
+    original_recipe    VARCHAR(100),
     alt_recipe         VARCHAR(100),
     position           TINYINT UNSIGNED NOT NULL,
     did_win_initiative BOOLEAN DEFAULT FALSE,
