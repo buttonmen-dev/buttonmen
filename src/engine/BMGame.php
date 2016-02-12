@@ -3446,12 +3446,14 @@ class BMGame {
         $buttonInfo = array(
             'name' => '',
             'recipe' => '',
+            'originalRecipe' => '',
             'artFilename' => '',
         );
         $button = $this->playerArray[$playerIdx]->button;
         if ($button instanceof BMButton) {
             $buttonInfo['name'] = $button->name;
             $buttonInfo['recipe'] = $button->recipe;
+            $buttonInfo['originalRecipe'] = $button->originalRecipe;
             $buttonInfo['artFilename'] = $button->artFilename;
         }
         return $buttonInfo;

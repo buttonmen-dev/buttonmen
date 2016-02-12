@@ -2570,9 +2570,15 @@ Game.buttonImageDisplay = function(player) {
     'text': 'Button: '
   });
   buttonInfo.append(Env.buildButtonLink(Api.game[player].button.name));
-  var buttonRecipe = $('<div>', {
-    'text': Api.game[player].button.recipe,
-  });
+  if (isPreOrPostGame) {
+    var buttonRecipe = $('<div>', {
+      'text': Api.game[player].button.originalRecipe,
+    });
+  } else {
+    var buttonRecipe = $('<div>', {
+      'text': Api.game[player].button.recipe,
+    });
+  }
 
   if (player == 'opponent' && !isPreOrPostGame) {
     buttonTd.append(playerName);
