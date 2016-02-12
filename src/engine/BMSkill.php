@@ -355,10 +355,10 @@ class BMSkill {
      * @return bool
      */
     protected static function has_single_defender(array $defenderArray) {
-        // rage may add an extra defender, but it won't be captured
+        // exclude new defenders that have been added because of Rage
         $defCount = 0;
         foreach ($defenderArray as &$def) {
-            if ($def->captured) {
+            if (!($def->has_flag('IsRageTargetReplacement'))) {
                 $defCount++;
             }
         }
