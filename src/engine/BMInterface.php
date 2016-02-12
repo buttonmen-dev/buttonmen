@@ -620,7 +620,7 @@ class BMInterface {
                  'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
                  's.name AS status_name,'.
                  'v.player_id, v.position, v.autopass, v.fire_overshooting,'.
-                 'v.button_name, v.alt_recipe,'.
+                 'v.button_name, v.original_recipe, v.alt_recipe,'.
                  'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                  'v.did_win_initiative,'.
                  'v.is_awaiting_action, '.

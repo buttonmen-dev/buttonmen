@@ -6,6 +6,7 @@ AS SELECT
     m.game_id,
     m.player_id,
     m.button_id,
+    m.original_recipe,
     m.alt_recipe,
     m.position,
     m.did_win_initiative,
