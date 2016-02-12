@@ -14,8 +14,8 @@
  * @property-read array   $dieArray              Array of BMDie
  * @property      BMGame  $ownerObject           BMGame that owns the BMButton
  * @property      BMGame  $playerIdx             BMGame index of the player that owns the BMButton
- * @property      boolean $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
- * @property      boolean $hasAlteredRecipe      Flag signalling if the recipe has changed
+ * @property      bool    $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
+ * @property      bool    $hasAlteredRecipe      Flag signalling if the recipe has changed
  */
 class BMButton extends BMCanHaveSkill {
     // properties
@@ -234,7 +234,7 @@ class BMButton extends BMCanHaveSkill {
      * added to their ownerObjects. Since their ownerObjects should be the
      * BMGame that owns the button, this effectively adds dice to the game.
      *
-     * @param boolean $forceSwingRequest
+     * @param bool $forceSwingRequest
      */
     public function activate($forceSwingRequest = FALSE) {
         foreach ($this->dieArray as $die) {
@@ -351,7 +351,7 @@ class BMButton extends BMCanHaveSkill {
      * Define behaviour of isset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __isset($property) {
         return isset($this->$property);
@@ -361,7 +361,7 @@ class BMButton extends BMCanHaveSkill {
      * Define behaviour of unset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __unset($property) {
         if (isset($this->$property)) {

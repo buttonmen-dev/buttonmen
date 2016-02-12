@@ -324,7 +324,7 @@ class BMSkill {
      * an extra die that is not captured
      *
      * @param array $defenderArray
-     * @param boolean $allowOnlyOneDef
+     * @param bool $allowOnlyOneDef
      * @return BMDie
      */
     protected static function get_single_defender(array $defenderArray, $allowOnlyOneDef) {
@@ -352,7 +352,7 @@ class BMSkill {
      * Checks whether there is exactly one defender
      *
      * @param array $defenderArray
-     * @return boolean
+     * @return bool
      */
     protected static function has_single_defender(array $defenderArray) {
         // exclude new defenders that have been added because of Rage

@@ -75,6 +75,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (58, 'Victorian Horror',              6500),
 (68, 'Cowboy Bebop',                  6600),
 (69, '50 States',                     6700),
+(77, 'Zodiac',                        7500),
 
 # Unofficial Sets - fan and vanity sets
 (70, 'Japanese Beetle (unofficial)',  6800),
@@ -798,7 +799,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Replaced $p(20) with Up(20) and $q(12) with Uq(12)
 (590, 'California',      '@(10) @(20) Up(20) Uq(12) (Y)? (Z)',             0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (591, 'Colorado',        '(4) (6) z(14) (U)? (U)?',                        0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(592, 'Connecticut',     'H(4) v(11) h(20) (4/20)? (R)',                   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(592, 'Connecticut',     'H(4) v(11) h(20) (4/20)? (R)',                   1, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (593, 'Delaware',        '(1) (4) h(6) f(8) (T)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (594, 'Florida',       'g(6) F(10) p(12) (U) r(4) r(6) hr(12) @whr(20)',   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (595, 'Georgia(US)',     'oz(10) (4/20) B(X) B(X) q(X)',                   0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
@@ -930,6 +931,20 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (675, 'Fuma',      'a(8) (16) (20) (V) (Z)',              0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
 (676, 'Vox',       '(6) a(6) (12) (12) a(V,V)',           0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls"));
 
+# ZODIAC (Kaori)
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(695, 'Aquarius',    '(6) p(6) (8) s(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(696, 'Aries',       '(6) s(8) z(10) (20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(697, 'Cancer',      'p(6) g(8) (8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(698, 'Capricorn',   '(6) g(6) (10) s(12) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(699, 'Gemini',      '(4,4) (12) (12) z(V) s(V)',           0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(700, 'Leo',         '(4) (6) p(10) z(20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(701, 'Libra',       '(4) g(4) (8,8) z(8,8) (V)',           0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(702, 'Pisces',      '(4) p(8) z(12) (12) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(703, 'Sagittarius', '(4) (4) s(8) p(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(704, 'Scorpio',     'g(6) (10) (12) p(20) (V)',            0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(705, 'Taurus',      'g(8) (10) (20) s(20) (V)',            0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(706, 'Virgo',       '(4) g(8) z(12) (20) (V)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac"));
 
 ################################################
 #####   C L A S S I C    F A N A T I C S   #####

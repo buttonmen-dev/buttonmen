@@ -21,7 +21,7 @@ class BMSkillMaximum extends BMSkill {
      * Hooked method applied while rolling a die
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function roll(&$args) {
         if (!($args['die'] instanceof BMDie)) {

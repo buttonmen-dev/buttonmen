@@ -75,7 +75,7 @@ History.searchParameterInfo = {
     'source': {
       'COMPLETE': 'Completed',
       'ACTIVE': 'In Progress',
-      'REJECTED': 'Cancelled',
+      'CANCELLED': 'Cancelled',
     },
     'dataType': 'string',
     'toolTip': 'Search or sort by the game status',
@@ -650,7 +650,7 @@ History.buildResultsTableBody = function() {
         'text': 'Completed',
         'style': 'font-weight: bold;'
       }));
-    } else if (game.status == 'REJECTED') {
+    } else if (game.status == 'CANCELLED') {
       gameRow.append($('<td>', {
         'text': 'Cancelled',
         'style': 'color: #aaaaaa;'
@@ -668,7 +668,7 @@ History.buildResultsTableBody = function() {
 
 History.scoreCol = function(game) {
   var score;
-  if (game.status == 'REJECTED') {
+  if (game.status == 'CANCELLED') {
     score = '–/–/–';
   } else {
     score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;

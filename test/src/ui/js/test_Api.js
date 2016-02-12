@@ -17,7 +17,7 @@ module("Api", {
     delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
-    delete Api.rejected_games;
+    delete Api.cancelled_games;
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
@@ -328,14 +328,14 @@ test("test_Api.getCompletedGamesData", function(assert) {
   });
 });
 
-test("test_Api.getRejectedGamesData", function(assert) {
+test("test_Api.getCancelledGamesData", function(assert) {
   stop();
-  Api.getRejectedGamesData(function() {
-    assert.equal(Api.rejected_games.load_status, 'ok',
-         'Successfully loaded rejected games data');
-    assert.equal(Api.rejected_games.nGames, 1, 'Got expected number of rejected games');
-    assert.equal(Api.rejected_games.games[0].gameId, 505,
-          "expected rejected game ID exists");
+  Api.getCancelledGamesData(function() {
+    assert.equal(Api.cancelled_games.load_status, 'ok',
+         'Successfully loaded cancelled games data');
+    assert.equal(Api.cancelled_games.nGames, 1, 'Got expected number of cancelled games');
+    assert.equal(Api.cancelled_games.games[0].gameId, 505,
+          "expected cancelled game ID exists");
     start();
   });
 });
@@ -447,7 +447,7 @@ test("test_Api.parseGamePlayerData", function(assert) {
     assert.deepEqual(Api.game.player.button, {
                 'name': 'Frasquito',
                 'recipe': '(4) (6) (8) (12) (2/20)',
-                'artFilename': 'BMdefaultRound.png',
+                'artFilename': 'frasquito.png',
               }, "recipe data should be parsed from API response");
     assert.deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
               "die descriptions should be parsed");

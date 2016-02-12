@@ -432,7 +432,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
         }
         // Insert things like the game ID into a game.html link
         if (replacements[tagName].escapeParameter) {
-          // We need to HTML decode the parameter before we URI encode it, 
+          // We need to HTML decode the parameter before we URI encode it,
           // and the easiest way is to pretend we're going to render it
           var tempDiv = $('<div>');
           tempDiv.html(tagParameter);

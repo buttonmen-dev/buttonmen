@@ -33,7 +33,7 @@ class ApiResponder {
      *   don't start a session
      *
      * @param ApiSpec $spec
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
@@ -157,8 +157,8 @@ class ApiResponder {
         return $interface->get_all_completed_games($_SESSION['user_id']);
     }
 
-    protected function get_interface_response_loadRejectedGames($interface) {
-        return $interface->get_all_rejected_games($_SESSION['user_id']);
+    protected function get_interface_response_loadCancelledGames($interface) {
+        return $interface->get_all_cancelled_games($_SESSION['user_id']);
     }
 
     protected function get_interface_response_loadNextPendingGame($interface, $args) {
