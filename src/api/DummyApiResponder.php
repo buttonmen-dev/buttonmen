@@ -47,7 +47,6 @@ class DummyApiResponder {
             'loadOpenGames',
             'loadNextNewPost',
             'loadNextPendingGame',
-            'loadPlayerInfo',
             'loadProfileInfo',
             'login',
             'logout',
@@ -845,36 +844,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadPlayerInfo() {
-        $playerInfoArray = array('id' => 1,
-                                'name_ingame' => 'tester1',
-                                'name_irl' => '',
-                                'email' => 'tester1@example.com',
-                                'is_email_public' => FALSE,
-                                'status' => 'ACTIVE',
-                                'dob_month' => 0,
-                                'dob_day' => 0,
-                                'gender' => '',
-                                'image_size' => NULL,
-                                'autoaccept' => TRUE,
-                                'autopass' => TRUE,
-                                'fire_overshooting' => FALSE,
-                                'uses_gravatar' => FALSE,
-                                'monitor_redirects_to_game' => FALSE,
-                                'monitor_redirects_to_forum' => FALSE,
-                                'automatically_monitor' => FALSE,
-                                'comment' => NULL,
-                                'homepage' => NULL,
-                                'favorite_button' => NULL,
-                                'favorite_buttonset' => NULL,
-                                'last_action_time' => 0,
-                                'last_access_time' => 0,
-                                'creation_time' => 1388193734,
-                                'fanatic_button_id' => 0,
-                                'n_games_won' => 0,
-                                'n_games_lost' => 0,
-                               );
-
-        return array(array('user_prefs' => $playerInfoArray), NULL);
+        return $this->load_json_data_from_file(
+            'loadPlayerInfo',
+            'noargs.json'
+        );
     }
 
     protected function get_interface_response_savePlayerInfo() {

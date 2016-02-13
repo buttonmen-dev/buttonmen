@@ -68,8 +68,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
-            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerName', 'loadPlayerNames',
-            'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
+            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerInfo', 'loadPlayerName',
+            'loadPlayerNames', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
             'submitTurn', 'verifyUser',
         );
@@ -1912,15 +1912,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadPlayerInfo');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], NULL);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player data should have matching structures");
+        $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
+        $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
+        $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
+
+        // loadPlayerName takes no args, so store this as the sole reference API output
+        // after changing the username to match the UI tests' expectations
+        $retval['data']['user_prefs']['name_ingame'] = 'tester1';
+        $this->cache_json_api_output('loadPlayerInfo', 'noargs', $retval);
     }
 
     public function test_request_loadProfileInfo() {
