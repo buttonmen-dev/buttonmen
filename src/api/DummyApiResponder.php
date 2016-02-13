@@ -47,7 +47,6 @@ class DummyApiResponder {
             'loadOpenGames',
             'loadNextNewPost',
             'loadNextPendingGame',
-            'loadProfileInfo',
             'login',
             'logout',
             'savePlayerInfo',
@@ -855,30 +854,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadProfileInfo($args) {
-        $profileInfoArray = array(
-            'id' => 3,
-            'name_ingame' => $args['playerName'],
-            'name_irl' => 'Test User',
-            'email' => NULL,
-            'email_hash' => '55502f40dc8b7c769880b10874abc9d0',
-            'is_email_public' => FALSE,
-            'dob_month' => 2,
-            'dob_day' => 29,
-            'gender' => '',
-            'image_size' => NULL,
-            'uses_gravatar' => FALSE,
-            'comment' => '',
-            'homepage' => NULL,
-            'favorite_button' => NULL,
-            'favorite_buttonset' => NULL,
-            'last_access_time' => 0,
-            'creation_time' => 0,
-            'fanatic_button_id' => 0,
-            'n_games_won' => 0,
-            'n_games_lost' => 0,
+        return $this->load_json_data_from_file(
+            'loadProfileInfo',
+            $args['playerName'] . '.json'
         );
-
-        return array(array('profile_info' => $profileInfoArray), NULL);
     }
 
     protected function get_interface_response_loadPlayerNames() {

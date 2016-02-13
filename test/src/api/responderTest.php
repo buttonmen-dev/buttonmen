@@ -69,7 +69,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
             'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerInfo', 'loadPlayerName',
-            'loadPlayerNames', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
+            'loadPlayerNames', 'loadProfileInfo', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
             'submitTurn', 'verifyUser',
         );
@@ -1916,6 +1916,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], NULL);
 
+        $akeys = array_keys($retval['data']['user_prefs']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar'));
         $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
         $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
@@ -1938,14 +1941,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadProfileInfo', 'playerName' => 'responder003');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player data should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player ID retrieved successfully.');
+
+        $akeys = array_keys($retval['data']['profile_info']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'gender', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'uses_gravatar'));
+        $this->assertEquals($retval['data']['profile_info']['name_ingame'], 'responder003');
+        $this->assertEquals($retval['data']['profile_info']['email'], NULL);
+        $this->assertEquals($retval['data']['profile_info']['dob_day'], '29');
+
+        // Cache the data as is, and also under the 'tester' name for which the UI tests load profile data
+        $this->cache_json_api_output('loadProfileInfo', 'responder003', $retval);
+        $retval['data']['profile_info']['name_ingame'] = 'tester';
+        $this->cache_json_api_output('loadProfileInfo', 'tester', $retval);
     }
 
     public function test_request_loadPlayerNames() {
