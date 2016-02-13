@@ -70,8 +70,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
             'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerInfo', 'loadPlayerName',
             'loadPlayerNames', 'loadProfileInfo', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'submitDieValues', 'submitChat',
-            'submitTurn', 'verifyUser',
+            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'savePlayerInfo',
+            'submitDieValues', 'submitChat', 'submitTurn', 'verifyUser',
         );
 
 
@@ -1316,13 +1316,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $_SESSION = $this->mock_test_user_login('responder001');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player info updated successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('playerId'));
 
         $_SESSION = $this->mock_test_user_login('responder002');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player info updated successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('playerId'));
 
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('savePlayerInfo');
@@ -1349,14 +1351,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'automatically_monitor' => 'false',
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy player data update return values should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player info updated successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('playerId'));
+        $this->cache_json_api_output('savePlayerInfo', 'Test_User', $retval);
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $retval = $this->verify_api_success($args);

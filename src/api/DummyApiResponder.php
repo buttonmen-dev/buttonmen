@@ -49,7 +49,6 @@ class DummyApiResponder {
             'loadNextPendingGame',
             'login',
             'logout',
-            'savePlayerInfo',
             'searchGameHistory',
         );
     }
@@ -849,8 +848,12 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_savePlayerInfo() {
-        return array(array('playerId' => 1), 'Player info updated successfully.');
+    protected function get_interface_response_savePlayerInfo($args) {
+        $argval = str_replace(' ', '_', $args['name_irl']);
+        return $this->load_json_data_from_file(
+            'savePlayerInfo',
+            $argval . '.json'
+        );
     }
 
     protected function get_interface_response_loadProfileInfo($args) {
