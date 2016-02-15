@@ -498,7 +498,8 @@ Env.buildProfileLink = function(playerName, textOnly) {
   }
 };
 
-Env.buildVacationImage = function(onVacation) {
+// Utility function to build a vacation image object
+Env.buildVacationImage = function() {
   return  $('<img>', {
           'src': Env.ui_root + 'images/vacation.png',
           'class': 'playerFlag',

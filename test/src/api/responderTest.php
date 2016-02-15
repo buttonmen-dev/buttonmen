@@ -495,6 +495,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
+		    'onVacation' => 0,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -513,6 +514,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
+		    'onVacation' => 0,
                 ),
             ),
             'gameActionLog' => array(),
@@ -1537,6 +1539,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
             "Real and dummy game lists should have matching structures");
+
     }
 
     public function test_request_loadCompletedGames() {

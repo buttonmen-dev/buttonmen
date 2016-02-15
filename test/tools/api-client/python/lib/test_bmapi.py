@@ -142,7 +142,7 @@ class TestBMClient(unittest.TestCase):
 
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
-      'gameScoreArray', 'hasDismissedGame', 'lastActionTime',
+      'gameScoreArray', 'hasDismissedGame', 'lastActionTime', 'onVacation',
       'optRequestArray', 'outOfPlayDieArray',
       'playerColor', 'playerId', 'playerName',
       'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',
