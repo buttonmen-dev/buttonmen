@@ -453,6 +453,14 @@ table.activePlayerList th.idleness {
     cursor: pointer;
 }
 
+.playerFlag {
+   font-weight: bold;
+	   font-style: italic;*/
+   cursor: default;
+   vertical-align: middle;
+   margin: 0px 3px;
+}
+
 #newgame_create_table th,
 #newgame_create_table td {
     vertical-align: top;

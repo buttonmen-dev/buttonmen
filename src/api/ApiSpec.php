@@ -543,7 +543,7 @@ class ApiSpec {
                     'minvalue' => 80,
                 ),
                 'uses_gravatar' => 'boolean',
-                'vacation' => array(
+                'vacation_message' => array(
 		    'arg_type' => 'string',
 	            'maxlength' => self::VACATION_MESSAGE_MAX_LENGTH,
                 ),

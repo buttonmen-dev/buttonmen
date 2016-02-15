@@ -498,6 +498,14 @@ Env.buildProfileLink = function(playerName, textOnly) {
   }
 };
 
+Env.buildVacationImage = function(onVacation) {
+  return  $('<img>', {
+          'src': Env.ui_root + 'images/vacation.png',
+          'class': 'playerFlag',
+          'title': 'On Vacation'
+        });
+}
+
 // Utility function to link to a button page given a button name
 Env.buildButtonLink = function(buttonName, recipe, textOnly) {
   var url = 'buttons.html?button=' + encodeURIComponent(buttonName);
