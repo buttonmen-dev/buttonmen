@@ -25,7 +25,7 @@ class DummyApiResponder {
      *   don't start a session
      *
      * @param ApiSpec $spec
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
@@ -37,6 +37,45 @@ class DummyApiResponder {
             session_start();
             $this->jsonFileRoot = "./dummy_data/";
         }
+
+        // Functions whose dummy data is not yet being provided by responderTest
+        $this->untransformedFunctions = array(
+            'editForumPost',
+            'joinOpenGame',
+            'loadActivePlayers',
+            'loadButtonData',
+            'loadButtonSetData',
+            'loadActiveGames',
+            'loadActivePlayers',
+            'loadCompletedGames',
+            'loadCancelledGames',
+            'loadForumBoard',
+            'loadForumOverview',
+            'loadForumThread',
+            'loadNewGames',
+            'loadOpenGames',
+            'loadNextNewPost',
+            'loadNextPendingGame',
+            'loadPlayerName',
+            'loadPlayerNames',
+            'loadPlayerInfo',
+            'loadProfileInfo',
+            'login',
+            'logout',
+            'markForumBoardRead',
+            'markForumRead',
+            'markForumThreadRead',
+            'reactToAuxiliary',
+            'reactToInitiative',
+            'reactToNewGame',
+            'reactToReserve',
+            'savePlayerInfo',
+            'searchGameHistory',
+            'submitChat',
+            'submitDieValues',
+            'submitTurn',
+            'verifyUser',
+        );
     }
 
     // This function looks at the provided arguments, fakes appropriate
@@ -84,28 +123,21 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_createUser($args) {
-        $dummy_users = array(
-            'tester1' => 1,
-            'tester2' => 2,
-            'tester3' => 3);
-        $username = $args['username'];
-        if (array_key_exists($username, $dummy_users)) {
-            $userid = $dummy_users[$username];
-            return array(NULL, "$username already exists (id=$userid)");
-        }
-        return array(array('userName' => $username),
-                     'User ' . $username . ' created successfully.  ' .
-                     'A verification code has been e-mailed to ' . $username . '@example.com.  ' .
-                     'Follow the link in that message to start beating people up! ' .
-                     '(Note: If you don\'t see the email shortly, be sure to check ' .
-                     'your spam folder.)');
+        return $this->load_json_data_from_file(
+            'createUser',
+            $args['username'] . '.json'
+        );
     }
 
     protected function get_interface_response_verifyUser() {
         return array(TRUE, "New user tester1 has been verified.");
     }
 
-    protected function get_interface_response_createGame() {
+    protected function get_interface_response_createGame($args) {
+        return $this->load_json_data_from_file(
+            'createGame',
+            $args['playerInfoArray'][0][1] . '_' . $args['playerInfoArray'][1][1] . '.json'
+        );
         // for verisimilitude, choose a game ID of one greater than
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
@@ -723,7 +755,7 @@ class DummyApiResponder {
         return array($data, "All game details retrieved successfully.");
     }
 
-    protected function get_interface_response_loadRejectedGames() {
+    protected function get_interface_response_loadCancelledGames() {
         $data = array(
             'gameIdArray' => array(),
             'gameDescriptionArray' => array(),
@@ -755,8 +787,8 @@ class DummyApiResponder {
         $data['nDrawsArray'][] = 0;
         $data['nTargetWinsArray'][] = 3;
         $data['isAwaitingActionArray'][] = 0;
-        $data['gameStateArray'][] = "REJECTED";
-        $data['statusArray'][] = "REJECTED";
+        $data['gameStateArray'][] = "CANCELLED";
+        $data['statusArray'][] = "CANCELLED";
         $data['inactivityArray'][] = "8 days";
         $data['inactivityRawArray'][] = 8*60*60*24;
         $data['playerColorArray'][] = "#dd99dd";
@@ -1096,61 +1128,17 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadGameData($args) {
-        // The dummy loadGameData returns one of a number of
-        // sets of dummy game data, for general test use.
-        // Specify which one you want using the game number:
-        //   1: a newly-created game, waiting for both players to set swing dice
-        //   2: new game in which the active player has set swing dice
-        //   3: game in which it is the current player's turn to attack
-        //   4: game in which it is the opponent's turn to attack
-        //   5: game which has been completed
-        //   7: game in which focus dice can be used to respond to initiative
-        //   8: game in which chance dice can be used to respond to initiative
-        //   9: game in which opponent can use chance dice to respond to initiative
-        //  10: game in "specify dice" state in which active player is not a participant
-        //  11: game in "start turn" state in which active player is not a participant
-        //  12: game in "react to initiative" state in which active player is not a participant
-        //  13: game in which active player can decide whether to choose auxiliary die
-        //  14: game in which it is the opponents turn to choose auxiliary die
-        //  15: game in "choose auxiliary" state in which active player is not a participant
-        //  16: game in which active player can decide whether to add reserve die
-        //  17: game in which opponent can decide whether to add reserve die
-        //  18: game in "choose reserve" state in which active player is not a participant
-        //  19: game in which active player can choose option die values
-        //  20: game in which active player can turn down fire dice
-        //  25: game in which value dice are present
-
-        $data = NULL;
-
-        if (is_numeric($args['game'])) {
-            $data = $this->load_json_data_from_file(
-                'loadGameData',
-                $args['game'] . '.json'
-            );
-        }
-
-        if ($data) {
-            // Variables to set for older handcrafted tests only
-            if ($args['game'] < 100) {
-                if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
-                    $data['gameActionLog'] =
-                        array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
-                    $data['gameChatLog'] =
-                        array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
-                }
-                $timestamp = strtotime('now');
-                $data['timestamp'] = $timestamp;
-            }
-
-            // Return data for all tests
-            $data['gameId'] = (int) $args['game'];
-            return array($data, "Loaded data for game " . $args['game']);
-        }
-        return array(NULL, "Game does not exist.");
+        return $this->load_json_data_from_file(
+            'loadGameData',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_countPendingGames() {
-        return array(array('count' => 0), 'Pending game count succeeded.');
+        return $this->load_json_data_from_file(
+            'countPendingGames',
+            'noargs.json'
+        );
     }
 
     protected function get_interface_response_loadPlayerName() {
@@ -1257,8 +1245,11 @@ class DummyApiResponder {
         return array(TRUE, 'Reserve die chosen successfully');
     }
 
-    protected function get_interface_response_adjustFire() {
-        return array(TRUE, 'Successfully completed attack by turning down fire dice');
+    protected function get_interface_response_adjustFire($args) {
+        return $this->load_json_data_from_file(
+            'adjustFire',
+            $args['game'] . '.json'
+        );
     }
 
     protected function get_interface_response_submitChat($args) {
@@ -1299,8 +1290,11 @@ class DummyApiResponder {
         }
     }
 
-    protected function get_interface_response_dismissGame() {
-        return array(TRUE, 'Dismissing game succeeded');
+    protected function get_interface_response_dismissGame($args) {
+        return $this->load_json_data_from_file(
+            'dismissGame',
+            $args['gameId'] . '.json'
+        );
     }
 
     ////////////////////////////////////////////////////////////
@@ -1443,20 +1437,18 @@ class DummyApiResponder {
         return array($results, 'Forum thread marked read successfully');
     }
 
-    protected function get_interface_response_createForumThread() {
-        $otherResults = $this->get_interface_response_loadForumThread(
-            array()
+    protected function get_interface_response_createForumThread($args) {
+        return $this->load_json_data_from_file(
+            'createForumThread',
+            $args['boardId'] . '.json'
         );
-        $results = $otherResults[0];
-        return array($results, 'Forum thread created successfully');
     }
 
-    protected function get_interface_response_createForumPost() {
-        $otherResults = $this->get_interface_response_loadForumThread(
-            array('currentPostId' => 2)
+    protected function get_interface_response_createForumPost($args) {
+        return $this->load_json_data_from_file(
+            'createForumPost',
+            $args['threadId'] . '.json'
         );
-        $results = $otherResults[0];
-        return array($results, 'Forum post created successfully');
     }
 
     protected function get_interface_response_editForumPost() {
@@ -1494,17 +1486,29 @@ class DummyApiResponder {
             // As far as we can easily tell, arguments are okay.
             // Pass them along to the dummy responder functions.
             $retval = $this->get_interface_response($args);
-            $data = $retval[0];
-            $message = $retval[1];
+            if (FALSE !== array_search($args['type'], $this->untransformedFunctions)) {
+                $data = $retval[0];
+                $message = $retval[1];
 
-            $output = array(
-                'data' => $data,
-                'message' => $message,
-            );
-            if ($data) {
-                $output['status'] = 'ok';
+                $output = array(
+                    'data' => $data,
+                    'message' => $message,
+                );
+                if ($data) {
+                    $output['status'] = 'ok';
+                } else {
+                    $output['status'] = 'failed';
+                }
             } else {
-                $output['status'] = 'failed';
+                if ($retval) {
+                    $output = $retval;
+                } else {
+                    $output = array(
+                        'data' => NULL,
+                        'status' => 'failed',
+                        'message' => 'The arguments provided to dummy_responder were not recognized fake inputs',
+                    );
+                }
             }
         } else {
             $output = array(

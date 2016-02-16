@@ -47,7 +47,7 @@ class BMInterfaceNewuser {
     /**
      * Constructor
      *
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
@@ -178,7 +178,7 @@ class BMInterfaceNewuser {
      *
      * @param int $playerId
      * @param string $playerKey
-     * @return boolean
+     * @return bool
      */
     public function verify_user($playerId, $playerKey) {
         try {

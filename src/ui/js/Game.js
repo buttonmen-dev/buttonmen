@@ -26,7 +26,7 @@ Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
 
-Game.GAME_STATE_REJECTED = 'REJECTED';
+Game.GAME_STATE_CANCELLED = 'CANCELLED';
 
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
@@ -128,8 +128,8 @@ Game.showStatePage = function() {
       } else {
         Game.actionChooseJoinGameNonplayer();
       }
-    } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
-      Game.actionShowRejectedGame();
+    } else if (Api.game.gameState == Game.GAME_STATE_CANCELLED) {
+      Game.actionShowCancelledGame();
     } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
@@ -362,7 +362,7 @@ Game.actionChooseJoinGameNonplayer = function() {
   Game.page.append(Game.buttonTableWithoutDice());
 };
 
-Game.actionShowRejectedGame = function() {
+Game.actionShowCancelledGame = function() {
 
   // nothing to do on button click
   Game.form = null;
@@ -1707,7 +1707,7 @@ Game.pageAddGameHeader = function(action_desc) {
       Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET + ' ';
   if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     gameTitle += 'Completed';
-  } else if (Api.game.gameState == Game.GAME_STATE_REJECTED) {
+  } else if (Api.game.gameState == Game.GAME_STATE_CANCELLED) {
     gameTitle += 'Cancelled';
   } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
     gameTitle += 'New Game';
@@ -1760,7 +1760,7 @@ Game.pageAddGameHeader = function(action_desc) {
 
   if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
       (Api.game.gameState == Game.GAME_STATE_END_GAME ||
-       Api.game.gameState == Game.GAME_STATE_REJECTED)) {
+       Api.game.gameState == Game.GAME_STATE_CANCELLED)) {
     var dismissDiv = $('<div>');
     Game.page.append(dismissDiv);
     var dismissLink = $('<a>', {
@@ -1980,7 +1980,7 @@ Game.createSkillDiv = function(spanArray, divTitle) {
 // Display links to create new games similar to this one
 Game.pageAddNewGameLinkFooter = function() {
   if ((Api.game.gameState != Game.GAME_STATE_END_GAME) &&
-      (Api.game.gameState != Game.GAME_STATE_REJECTED)) {
+      (Api.game.gameState != Game.GAME_STATE_CANCELLED)) {
     return;
   }
 
@@ -2399,7 +2399,7 @@ Game.dieRecipeTable = function(table_action, active) {
 Game.playerWLTText = function(player) {
   var text;
   if ((Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) ||
-      (Api.game.gameState == Game.GAME_STATE_REJECTED)) {
+      (Api.game.gameState == Game.GAME_STATE_CANCELLED)) {
     text = 'W/L/T: –/–/–';
   } else {
     text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
@@ -2549,7 +2549,7 @@ Game.pageAddDieBattleTable = function(clickable) {
 Game.buttonImageDisplay = function(player) {
   var tdClass = 'button_' + player;
   var isPreOrPostGame = Api.game.gameState == Game.GAME_STATE_END_GAME ||
-                        Api.game.gameState == Game.GAME_STATE_REJECTED ||
+                        Api.game.gameState == Game.GAME_STATE_CANCELLED ||
                         Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME;
 
   if (isPreOrPostGame) {

@@ -60,7 +60,7 @@ class BMSkillMorphing extends BMSkill {
      * Check whether the dice specified in the attack are possibly valid
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     protected static function are_dice_in_attack_valid($args) {
         if (!is_array($args['attackers']) ||

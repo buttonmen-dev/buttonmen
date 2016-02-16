@@ -199,7 +199,7 @@ test("test_Forum.formPostNewThread", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Api.forum_board = { 'boardId': 3 };
+  Api.forum_board = { 'boardId': 1 };
 
   var formHolder = $('<div>');
   formHolder.append($('<input>', { 'class': 'title', 'value': 'Test', } ));
@@ -220,7 +220,7 @@ test("test_Forum.formReplyToThread", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Api.forum_thread = { 'threadId': 3 };
+  Api.forum_thread = { 'threadId': 1 };
 
   var formHolder = $('<div>');
   formHolder.append($('<textarea>', { 'text': 'Test body' } ));

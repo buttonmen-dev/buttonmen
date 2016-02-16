@@ -310,9 +310,9 @@ test("test_History.scoreCol", function(assert) {
     'completed game score column has the correct color'
   );
 
-  // test rejected games
+  // test cancelled games
   game = {
-    'status' : 'REJECTED',
+    'status' : 'CANCELLED',
     'roundsWonA' : 0,
     'roundsWonB' : 0,
     'roundsDrawn' : 0,
@@ -322,16 +322,16 @@ test("test_History.scoreCol", function(assert) {
   };
 
   column = History.scoreCol(game);
-  assert.ok(column.is('td'), 'rejected game score column has the correct type');
+  assert.ok(column.is('td'), 'cancelled game score column has the correct type');
   assert.equal(
     '–/–/– (4)',
     column.text(),
-    'rejected game score column has the correct text'
+    'cancelled game score column has the correct text'
   );
   assert.equal(
     'rgb(255, 255, 255)',
     column.css('background-color'),
-    'rejected game score column has the correct color'
+    'cancelled game score column has the correct color'
   );
 });
 

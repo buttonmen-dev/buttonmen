@@ -167,6 +167,21 @@ test("test_Game.showStatePage", function(assert) {
   });
 });
 
+test("test_Game.showStatePage_no_such_game", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'NOGAME';
+  var gameId = BMTestUtils.testGameId(BMTestUtils.GameType);
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    assert.equal(Game.page, null, "The game page should be null for an undefined game");
+    assert.deepEqual(
+      Env.message,
+      {"type": "error", "text": "Error from loadGameData: Game " + gameId + " does not exist."},
+      "A reasonable failure message is set on load of nonexistent game");
+    start();
+  });
+});
+
 test("test_Game.showStatePage_chooseaux_active", function(assert) {
   stop();
   BMTestUtils.GameType = 'merlin_crane_reacttoauxiliary_active';
@@ -440,7 +455,7 @@ test("test_Game.actionChooseJoinGameNonplayer", function(assert) {
 //  james: incomplete for the moment
 });
 
-test("test_Game.actionShowRejectedGame", function(assert) {
+test("test_Game.actionShowCancelledGame", function(assert) {
 //  james: incomplete for the moment
 });
 
@@ -957,18 +972,18 @@ test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
 
 test("test_Game.formAdjustFireDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'blackomega_tamiya_adjustfire_active';
+  BMTestUtils.GameType = 'beatnikturtle_firebreather_adjustfire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#fire_action_select').val('turndown');
-    $('#fire_adjust_1').val('3');
+    $('#fire_adjust_0').val('2');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "Successfully completed attack by turning down fire dice"},
+       "text": "responder003 turned down fire dice: wHF(4) from 4 to 2; Defender (12) was captured; Attacker (10) rerolled 6 => 2. "},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
@@ -1128,8 +1143,8 @@ test("test_Game.pageAddGameNavigationFooter", function(assert) {
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    assert.ok(htmlout.match('Go to your next pending game \\(if any\\)'),
-      "Next game link exists and reflects no known pending games");
+    assert.ok(htmlout.match('Go to your next pending game \\(at least '),
+      "Next game link exists and reflects a count of pending games");
     start();
   });
 });
@@ -1270,7 +1285,7 @@ test("test_Game.playerWLTText", function(assert) {
     start();
   });
 
-  // james: we'll need an extra test here of new/rejected game, once we have an
+  // james: we'll need an extra test here of new/cancelled game, once we have an
   //        appropriate test game to use
 });
 
