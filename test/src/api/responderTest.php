@@ -64,24 +64,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Directory to cache JSON output for UI tests to use
         $this->jsonApiRoot = BW_PHP_ROOT . "/api/dummy_data/";
 
-        // API functions for which we cache JSON output while testing
-        $this->apiFunctionsWithTestOutput = array(
-            'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
-            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadNextNewPost', 'loadPlayerInfo',
-            'loadPlayerName', 'loadPlayerNames', 'loadProfileInfo', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
-            'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'savePlayerInfo',
-            'submitDieValues', 'submitChat', 'submitTurn', 'verifyUser',
-        );
-
-
+        // Parent directory for cached JSON API output
         if (!file_exists($this->jsonApiRoot)) {
             mkdir($this->jsonApiRoot);
-        }
-        foreach ($this->apiFunctionsWithTestOutput as $apiFunction) {
-            if (!file_exists($this->jsonApiRoot . $apiFunction)) {
-                mkdir($this->jsonApiRoot . $apiFunction);
-            }
         }
 
         // Tests in this file should override randomization, so
@@ -395,6 +380,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * where the dummy responder can find it and use it for UI tests
      */
     protected function cache_json_api_output($apiFunction, $objname, $objdata) {
+        if (!file_exists($this->jsonApiRoot . $apiFunction)) {
+            mkdir($this->jsonApiRoot . $apiFunction);
+        }
         $jsonApiFile = $this->jsonApiRoot . $apiFunction . "/" . $objname . ".json";
         $fh = fopen($jsonApiFile, "w");
         fwrite($fh, json_encode($objdata) . "\n");
@@ -1663,6 +1651,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('ok', $dummyval['status'], 'Dummy load of completed games should succeed');
     }
 
+    /**
+     * @depends test_request_createGame
+     * @depends test_request_searchGameHistory
+     *
+     * Depend on tests which create games to ensure that some games exist
+     */
     public function test_request_loadNextPendingGame() {
         $this->verify_login_required('loadNextPendingGame');
 
@@ -1675,29 +1669,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadNextPendingGame');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'],
-            'Dummy load of next pending game ID should succeed');
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('gameId'));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata, $dummydata, TRUE),
-            "Real and dummy pending game data should have matching structures");
+        // store this game ID so we can test skipping it, then normalize the gameId and save the output
+        $args['currentGameId'] = $retval['data']['gameId'];
+        $retval['data']['gameId'] = 7;
+        $this->cache_json_api_output('loadNextPendingGame', 'noargs', $retval);
 
         // now skip a game and verify that this is a valid invocation
-        $args['currentGameId'] = 7;
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('gameId'));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+        $this->assertTrue($retval['data']['gameId'] != $args['currentGameId']);
 
-        $this->assertEquals('ok', $dummyval['status'],
-            'Dummy load of next pending game ID while skipping current game should succeed');
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata, $dummydata, TRUE),
-            "Real and dummy pending game data should have matching structures");
+        // Normalize this gameId and save the output
+        $retval['data']['gameId'] = 4;
+        $this->cache_json_api_output('loadNextPendingGame', '7', $retval);
     }
 
     public function test_request_loadActivePlayers() {

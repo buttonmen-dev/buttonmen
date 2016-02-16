@@ -45,7 +45,6 @@ class DummyApiResponder {
             'loadRejectedGames',
             'loadNewGames',
             'loadOpenGames',
-            'loadNextPendingGame',
             'login',
             'logout',
             'searchGameHistory',
@@ -777,14 +776,15 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadNextPendingGame($args) {
-        // Assume that game IDs 7 is the next one waiting for tester1,
-        // and that 4 is next after that if 7 is being skipped
-        if (isset($args['currentGameId']) && $args['currentGameId'] == 7) {
-            $data = array('gameId' => 4);
+        if (isset($args['currentGameId'])) {
+            $argval = $args['currentGameId'];
         } else {
-            $data = array('gameId' => 7);
+            $argval = 'noargs';
         }
-        return array($data, 'Next game ID retrieved successfully.');
+        return $this->load_json_data_from_file(
+            'loadNextPendingGame',
+            $argval . '.json'
+        );
     }
 
     protected function get_interface_response_loadActivePlayers($args) {
