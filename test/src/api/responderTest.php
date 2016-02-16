@@ -11,12 +11,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @var spec         ApiSpec object which will be used as a helper
-     * @var dummy        dummy_responder object used to check the live responder
      * @var game_number  a static number for each full-game test, so test game data can be used by UI tests
      * @var move_number  an increment counter for each move in each full-game test, so test game data can be used by UI tests
      */
     protected $spec;
-    protected $dummy;
     protected $user_ids;
     protected $game_number;
     protected $move_number;
@@ -47,13 +45,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         }
         $this->spec = new ApiSpec();
 
-        if (file_exists('../src/api/DummyApiResponder.php')) {
-            require_once '../src/api/DummyApiResponder.php';
-        } else {
-            require_once 'src/api/DummyApiResponder.php';
-        }
-        $this->dummy = new DummyApiResponder($this->spec, True);
-
         // Cache user IDs parsed from the DB for use within a test
         $this->user_ids = array();
 
@@ -64,19 +55,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Directory to cache JSON output for UI tests to use
         $this->jsonApiRoot = BW_PHP_ROOT . "/api/dummy_data/";
 
-        // API functions for which we cache JSON output while testing
-        $this->apiFunctionsWithTestOutput = array(
-            'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
-            'dismissGame', 'loadGameData');
-
-
+        // Parent directory for cached JSON API output
         if (!file_exists($this->jsonApiRoot)) {
             mkdir($this->jsonApiRoot);
-        }
-        foreach ($this->apiFunctionsWithTestOutput as $apiFunction) {
-            if (!file_exists($this->jsonApiRoot . $apiFunction)) {
-                mkdir($this->jsonApiRoot . $apiFunction);
-            }
         }
 
         // Tests in this file should override randomization, so
@@ -402,6 +383,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * where the dummy responder can find it and use it for UI tests
      */
     protected function cache_json_api_output($apiFunction, $objname, $objdata) {
+        if (!file_exists($this->jsonApiRoot . $apiFunction)) {
+            mkdir($this->jsonApiRoot . $apiFunction);
+        }
         $jsonApiFile = $this->jsonApiRoot . $apiFunction . "/" . $objname . ".json";
         $fh = fopen($jsonApiFile, "w");
         fwrite($fh, json_encode($objdata) . "\n");
@@ -656,10 +640,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Get a unique faked random value to be used in the verification key
+     * of a responderNNN user being created
+     */
+    protected function get_fake_verification_randval($username) {
+        $matches = array();
+        preg_match('/responder(\d+)/', $username, $matches);
+        return ($matches[1] * 0.001);
+    }
+
+    /**
      * Make sure five users, responder001-005, exist, and return
      * fake session data for whichever one was requested.
      */
     protected function mock_test_user_login($username = 'responder003') {
+        global $BM_RAND_VALS;
 
         $responder = new ApiResponder($this->spec, TRUE);
 
@@ -682,9 +677,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             if (!(array_key_exists($newuser, $this->user_ids))) {
                 $args['username'] = $newuser;
                 $args['email'] = $newuser . '@example.com';
+                $BM_RAND_VALS = array($this->get_fake_verification_randval($newuser));
                 $ret1 = $responder->process_request($args);
                 if ($ret1['data']) {
                     $ret1 = $responder->process_request($args);
+                } else {
+                    $BM_RAND_VALS = array();
                 }
                 $matches = array();
                 preg_match('/id=(\d+)/', $ret1['message'], $matches);
@@ -802,6 +800,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals('Successfully joined game ' . $gameId, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+
+        // Fill in the fake number before caching the output
+        $retval['message'] = str_replace($gameId, $fakeGameNumber, $retval['message']);
+
+        $this->cache_json_api_output('joinOpenGame', $fakeGameNumber, $retval);
+
         return $retval['data'];
     }
 
@@ -825,6 +831,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals('Rejected game ' . $gameId, $retval['message']);
         }
         $this->assertEquals(TRUE, $retval['data']);
+
+        // For now, just use the action as a key when caching the test API response
+        $this->cache_json_api_output('reactToNewGame', $action, $retval);
+
         return $retval['data'];
     }
 
@@ -945,6 +955,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('reactToAuxiliary', $fakeGameNumber, $retval);
     }
 
     /**
@@ -966,6 +980,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('reactToReserve', $fakeGameNumber, $retval);
     }
 
     /**
@@ -995,6 +1013,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals($expData, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('reactToInitiative', $fakeGameNumber, $retval);
     }
 
     /**
@@ -1053,6 +1075,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals('Successfully set die sizes', $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData, but make allowances for
+        // callers which don't use a fake game number, and don't cache the output in that case
+        if ($this->game_number > 0) {
+            $fakeGameNumber = $this->generate_fake_game_id();
+            $this->cache_json_api_output('submitDieValues', $fakeGameNumber, $retval);
+        }
+
         return $retval;
     }
 
@@ -1082,6 +1112,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);
+
+        // Construct a fake game ID as we do for loadGameData
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('submitTurn', $fakeGameNumber, $retval);
+
         return $retval;
     }
 
@@ -1112,21 +1147,34 @@ class responderTest extends PHPUnit_Framework_TestCase {
         return $retval;
     }
 
+    /**
+     * verify_api_submitChat() - helper routine which calls the API submitChat method
+     */
+    protected function verify_api_submitChat($gameId, $chat, $expMessage, $edit=NULL) {
+        $args = array(
+            'type' => 'submitChat',
+            'game' => $gameId,
+            'chat' => $chat,
+        );
+        if ($edit) {
+            $args['edit'] = $edit;
+        }
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($expMessage, $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('submitChat', $fakeGameNumber, $retval);
+    }
+
+
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
         $retval = $this->verify_api_failure($args, 'Specified API function does not exist');
-
-        // This test result should hold for all functions, since
-        // the structure of the top-level response doesn't depend
-        // on the function
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($retval, $dummyval);
-        $this->assertTrue(
-            $this->object_structures_match($retval, $dummyval),
-            "Real and dummy return values should have matching structures");
     }
 
     public function test_request_createUser() {
+        global $BM_RAND_VALS;
         $this->verify_invalid_arg_rejected('createUser');
         $this->verify_mandatory_args_required(
             'createUser',
@@ -1139,14 +1187,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Tests may be run multiple times.  Find a user of the
         // form responderNNN which hasn't been created yet and
-        // create it in the test DB.  The dummy interface will claim
-        // success for any username of this form.
+        // create it in the test DB.
         while (!($created_real)) {
             $this->assertTrue($trynum < $maxtries,
                 "Internal test error: too many responderNNN users in the test database. " .
                 "Clean these out by hand.");
             $username = 'responder' . sprintf('%03d', $trynum);
             $responder = new ApiResponder($this->spec, TRUE);
+            $BM_RAND_VALS = array($this->get_fake_verification_randval($username));
             $real_new = $responder->process_request(
                             array('type' => 'createUser',
                                   'username' => $username,
@@ -1176,6 +1224,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 );
 
                 // FIXME: also cache the failure
+
+                // Now run a verifyUser test on the newly-created user
+                $verify_retval = $responder->process_request(
+                    array('type' => 'verifyUser',
+                          'playerId' => $real_new['data']['playerId'],
+                          'playerKey' => md5($this->get_fake_verification_randval($username)),
+                    ));
+                $this->assertEquals($verify_retval['status'], 'ok');
+                $this->assertEquals($verify_retval['message'], 'Account activated for player ' . $username . '!');
+                $this->assertEquals($verify_retval['data'], TRUE);
+
+                // Use a fake playerId as the key for verification
+                $fakePlayerId = 1;
+                $this->cache_json_api_output('verifyUser', $fakePlayerId, $verify_retval);
             }
             $trynum += 1;
         }
@@ -1235,13 +1297,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $_SESSION = $this->mock_test_user_login('responder001');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player info updated successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('playerId'));
 
         $_SESSION = $this->mock_test_user_login('responder002');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player info updated successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('playerId'));
 
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('savePlayerInfo');
@@ -1268,14 +1332,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'automatically_monitor' => 'false',
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy player data update return values should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player info updated successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('playerId'));
+        $this->cache_json_api_output('savePlayerInfo', 'Test_User', $retval);
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $retval = $this->verify_api_success($args);
@@ -1354,42 +1414,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->cache_json_api_output('createGame', 'Avis_None', $retval);
     }
 
-    /**
-     * @depends test_request_savePlayerInfo
-     */
-    public function test_request_searchGameHistory() {
-        $this->verify_login_required('searchGameHistory');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('searchGameHistory');
-
-        // make sure there's at least one game
-        $this->verify_api_createGame(
-            array(1, 1, 1, 1, 2, 2, 2),
-            'responder003', 'responder004', 'Hammer', 'Stark', 3
-        );
-
-        $args = array(
-            'type' => 'searchGameHistory',
-            'sortColumn' => 'lastMove',
-            'sortDirection' => 'DESC',
-            'numberOfResults' => '20',
-            'page' => '1',
-            'buttonNameA' => 'Avis');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('Sought games retrieved successfully.', $retval['message']);
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game lists should have matching structures");
-    }
-
     public function test_request_joinOpenGame() {
         $this->verify_login_required('joinOpenGame');
+
+        $this->game_number = 44;
 
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('joinOpenGame');
@@ -1413,55 +1441,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
 
         $_SESSION = $this->mock_test_user_login('responder003');
-        $retdata = $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
-
-        $args = array(
-            'type' => 'joinOpenGame',
-            'gameId' => $gameId,
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $dummydata = $dummyval['data'];
-
-        $this->assertEquals($retdata, $dummydata,
-            "Real and dummy game joining return values should both be true");
-    }
-
-    public function test_request_loadOpenGames() {
-        $this->verify_login_required('loadOpenGames');
-
-        $_SESSION = $this->mock_test_user_login('responder004');
-        $this->verify_invalid_arg_rejected('loadOpenGames');
-
-        $gameId = $this->verify_api_createGame(
-            array(),
-            'responder004', '', 'Avis', 'Avis', '3'
-        );
-
-        $args = array(
-            'type' => 'loadOpenGames',
-        );
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game lists should have matching structures");
-    }
-
-    public function test_request_loadNewGames() {
-        $this->verify_login_required('loadNewGames');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadNewGames');
-
-        $args = array('type' => 'loadNewGames');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of new games should succeed');
+        $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
     }
 
     public function test_request_reactToNewGameAccept() {
@@ -1481,22 +1461,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
 
         $_SESSION = $this->mock_test_user_login('responder006');
-        $retdata = $this->verify_api_reactToNewGame(
+        $this->verify_api_reactToNewGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
             $gameId,
             'accept'
         );
-
-        $args = array(
-            'type' => 'reactToNewGame',
-            'gameId' => $gameId,
-            'action' => 'accept',
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $dummydata = $dummyval['data'];
-
-        $this->assertEquals($retdata, $dummydata,
-            "Real and dummy game joining return values should both be true");
 
        // If the creating player tries to reject the game after the target player
         // has already accepted it, the API behavior should be reasonable
@@ -1517,22 +1486,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
 
         $_SESSION = $this->mock_test_user_login('responder006');
-        $retdata = $this->verify_api_reactToNewGame(
+        $this->verify_api_reactToNewGame(
             array(),
             $gameId,
             'reject'
         );
-
-        $args = array(
-            'type' => 'reactToNewGame',
-            'gameId' => $gameId,
-            'action' => 'reject',
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $dummydata = $dummyval['data'];
-
-        $this->assertEquals($retdata, $dummydata,
-            "Real and dummy game joining return values should both be true");
     }
 
     /**
@@ -1575,82 +1533,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($targetPendingCountPrecreate, $targetPendingCountPostcancel);
     }
 
-    /**
-     * @depends test_request_savePlayerInfo
-     */
-    public function test_request_loadActiveGames() {
-        $this->verify_login_required('loadActiveGames');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadActiveGames');
-
-        // make sure there's at least one game
-        $this->verify_api_createGame(
-            array(1, 1, 1, 1, 2, 2, 2),
-            'responder003', 'responder004', 'Hammer', 'Stark', '3'
-        );
-
-        $args = array('type' => 'loadActiveGames');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game lists should have matching structures");
-    }
-
-    public function test_request_loadCompletedGames() {
-        $this->verify_login_required('loadCompletedGames');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadCompletedGames');
-
-        $args = array('type' => 'loadCompletedGames');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of completed games should succeed');
-    }
-
-    public function test_request_loadNextPendingGame() {
-        $this->verify_login_required('loadNextPendingGame');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadNextPendingGame');
-
-        // loadGameData should fail if currentGameId is non-numeric
-        $args = array('type' => 'loadNextPendingGame', 'currentGameId' => 'foobar');
-        $this->verify_api_failure($args, 'Argument (currentGameId) to function loadNextPendingGame is invalid');
-
-        $args = array('type' => 'loadNextPendingGame');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'],
-            'Dummy load of next pending game ID should succeed');
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata, $dummydata, TRUE),
-            "Real and dummy pending game data should have matching structures");
-
-        // now skip a game and verify that this is a valid invocation
-        $args['currentGameId'] = 7;
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('ok', $dummyval['status'],
-            'Dummy load of next pending game ID while skipping current game should succeed');
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata, $dummydata, TRUE),
-            "Real and dummy pending game data should have matching structures");
-    }
-
     public function test_request_loadActivePlayers() {
         $this->verify_login_required('loadActivePlayers');
 
@@ -1659,20 +1541,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_mandatory_args_required(
             'loadActivePlayers',
-            array('numberOfPlayers' => 20)
+            array('numberOfPlayers' => 50)
         );
 
-        $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 20);
+        // Invoke an API call to make sure some player has recently been active.
+        $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
+        $this->verify_api_success($args);
+
+        // Now invoke loadActivePlayers
+        $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 50);
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Active players retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('players'));
 
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        // loadActivePlayers does not guarantee an ordering if multiple players have been active
+        // within the same second
+        $this->assertEquals(substr($retval['data']['players'][0]['playerName'], 0, 9), 'responder');
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player names should have matching structures");
+        $this->cache_json_api_output('loadActivePlayers', '50', $retval);
     }
 
     public function test_request_loadButtonData() {
@@ -1684,43 +1571,33 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // First, examine one button in detail
         $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
+        $this->assertEquals($retval['data'], array(array(
+           'buttonId' => 256,
+           'buttonName' => 'Avis',
+           'recipe' => '(4) (4) (10) (12) (X)',
+           'hasUnimplementedSkill' => FALSE,
+           'buttonSet' => 'Soldiers',
+           'dieTypes' => array('X Swing' => array('code' => 'X', 'swingMin' => 4, 'swingMax' => 20, 'description' => 'X Swing Dice can be any die between 4 and 20. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.')),
+           'dieSkills' => array(),
+           'isTournamentLegal' => true,
+           'artFilename' => 'avis.png',
+           'tags' => array(),
+           'flavorText' => 'Avis is an expert chainsaw dueler and ice sculptor, and she likes to beat people up.',
+           'specialText' => NULL,
+        )));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], True),
-            "Real and dummy button lists should have matching structures");
+        $this->cache_json_api_output('loadButtonData', 'Avis', $retval);
 
         // Then examine the rest
         $args = array('type' => 'loadButtonData');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
+        $this->assertEquals(count($retval['data']), 706);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], False),
-            "Real and dummy button lists should have matching structures");
-
-        // Each button in the dummy data should exactly match a
-        // button in the live data
-        foreach ($dummydata as $dummyButton) {
-            $foundButton = False;
-            foreach ($retdata as $realButton) {
-                if ($dummyButton['buttonName'] === $realButton['buttonName']) {
-                    $foundButton = True;
-                    $this->assertEquals(
-                        $dummyButton,
-                        $realButton,
-                        'Dummy and live information about button ' . $dummyButton['buttonName'] . ' should match exactly'
-                    );
-                }
-            }
-            $this->assertTrue($foundButton, 'Dummy button ' . $dummyButton['buttonName'] . ' was found in live data');
-        }
+        $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
 
     public function test_request_loadButtonSetData() {
@@ -1732,43 +1609,51 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // First, examine one set in detail
         $args = array('type' => 'loadButtonSetData', 'buttonSet' => 'The Big Cheese');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
+        $this->assertEquals($retval['data'], array(array(
+            'setName' => 'The Big Cheese',
+            'buttons' => array(
+                array(
+                    'buttonId' => 35,
+                    'buttonName' => 'Bunnies',
+                    'recipe' => '(1) (1) (1) (1) (X)',
+                    'hasUnimplementedSkill' => false,
+                    'buttonSet' => 'The Big Cheese',
+                    'dieTypes' => array('X Swing'),
+                    'dieSkills' => array(),
+                    'isTournamentLegal' => false,
+                    'artFilename' => 'bunnies.png',
+                    'tags' => array(),
+                ),
+                array(
+                    'buttonId' => 36,
+                    'buttonName' => 'Lab Rat',
+                    'recipe' => '(2) (2) (2) (2) (X)',
+                    'hasUnimplementedSkill' => false,
+                    'buttonSet' => 'The Big Cheese',
+                    'dieTypes' => array('X Swing'),
+                    'dieSkills' => array(),
+                    'isTournamentLegal' => false,
+                    'artFilename' => 'labrat.png',
+                    'tags' => array(),
+                )),
+            'numberOfButtons' => 2,
+            'dieSkills' => array(),
+            'dieTypes' => array('X Swing'),
+            'onlyHasUnimplementedButtons' => FALSE,
+        )));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], True),
-            "Real and dummy set lists should have matching structures");
+        $this->cache_json_api_output('loadButtonSetData', 'The_Big_Cheese', $retval);
 
         // Then examine the rest
         $args = array('type' => 'loadButtonSetData');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
+        $this->assertEquals(count($retval['data']), 77);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], False),
-            "Real and dummy set lists should have matching structures");
-
-        // Each button in the dummy data should exactly match a
-        // button in the live data
-        foreach ($dummydata as $dummySet) {
-            $foundSet = False;
-            foreach ($retdata as $realSet) {
-                if ($dummySet['setName'] === $realSet['setName']) {
-                    $foundSet = True;
-                    $this->assertEquals(
-                        $dummySet,
-                        $realSet,
-                        'Dummy and live information about set ' . $dummySet['setName'] . ' should match exactly'
-                    );
-                }
-            }
-            $this->assertTrue($foundSet, 'Dummy set ' . $dummySet['setName'] . ' was found in live data');
-        }
+        $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
 
     /**
@@ -1834,7 +1719,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     public function test_request_loadPlayerName() {
         $this->verify_invalid_arg_rejected('loadPlayerName');
-        $this->markTestIncomplete("No test for loadPlayerName using session and cookies");
+
+        $_SESSION = $this->mock_test_user_login();
+        $args = array('type' => 'loadPlayerName');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], NULL);
+        $this->assertEquals($retval['data'], array('userName' => 'responder003'));
+
+        // loadPlayerName takes no args, so store this as the sole reference API output
+        // after changing the username to match the UI tests' expectations
+        $retval['data']['userName'] = 'tester1';
+        $this->cache_json_api_output('loadPlayerName', 'noargs', $retval);
     }
 
     public function test_request_loadPlayerInfo() {
@@ -1845,15 +1741,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadPlayerInfo');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], NULL);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player data should have matching structures");
+        $akeys = array_keys($retval['data']['user_prefs']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar'));
+        $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
+        $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
+        $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
+
+        // loadPlayerName takes no args, so store this as the sole reference API output
+        // after changing the username to match the UI tests' expectations
+        $retval['data']['user_prefs']['name_ingame'] = 'tester1';
+        $this->cache_json_api_output('loadPlayerInfo', 'noargs', $retval);
     }
 
     public function test_request_loadProfileInfo() {
@@ -1868,14 +1770,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadProfileInfo', 'playerName' => 'responder003');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player data should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Player ID retrieved successfully.');
+
+        $akeys = array_keys($retval['data']['profile_info']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'gender', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'uses_gravatar'));
+        $this->assertEquals($retval['data']['profile_info']['name_ingame'], 'responder003');
+        $this->assertEquals($retval['data']['profile_info']['email'], NULL);
+        $this->assertEquals($retval['data']['profile_info']['dob_day'], '29');
+
+        // Cache the data as is, and also under the 'tester' name for which the UI tests load profile data
+        $this->cache_json_api_output('loadProfileInfo', 'responder003', $retval);
+        $retval['data']['profile_info']['name_ingame'] = 'tester';
+        $this->cache_json_api_output('loadProfileInfo', 'tester', $retval);
     }
 
     public function test_request_loadPlayerNames() {
@@ -1886,15 +1795,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadPlayerNames');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Names retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('nameArray', 'statusArray'));
+        $this->assertEquals(count($retval['data']['nameArray']), count($retval['data']['statusArray']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player names should have matching structures");
+        // We don't know for sure which player will be active, and the UI testing expects
+        // 'tester2', so find an active player and modify its name before saving
+        $active_player_idx = -1;
+        foreach ($retval['data']['statusArray'] as $idx => $status) {
+            if ($status == 'ACTIVE') {
+                $active_player_idx = $idx;
+            }
+        }
+        $this->assertTrue($active_player_idx >= 0);
+        $retval['data']['nameArray'][$active_player_idx] = 'tester2';
+
+        // loadPlayerNames takes no args, so store this as the sole reference API output
+        $this->cache_json_api_output('loadPlayerNames', 'noargs', $retval);
     }
 
     public function test_request_submitChat() {
@@ -1917,7 +1836,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 1, 1, 1, 2, 2, 2, 2),
             'responder003', 'responder004', 'Avis', 'Avis', '3'
         );
-        $dummy_game_id = '1';
 
         // now ask for the game data so we have the timestamp to return
         $args = array(
@@ -1931,16 +1849,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_submitDieValues(
             array(3),
             $real_game_id, '1', array('X' => '7'));
-
-        $args = array(
-            'type' => 'submitDieValues',
-            'game' => $dummy_game_id,
-            'roundNumber' => '1',
-            'timestamp' => $timestamp,
-            'swingValueArray' => array('X' => '7')
-        );
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Successfully set die sizes');
+        $this->assertEquals($retval['data'], TRUE);
 
         ///// Now test setting option values
         // create a game so we have the ID to load
@@ -1948,7 +1859,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 1, 2, 2),
             'responder003', 'responder004', 'Apples', 'Apples', '3'
         );
-        $dummy_game_id = '19';
 
         // now ask for the game data so we have the timestamp to return
         $args = array(
@@ -1971,16 +1881,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_submitDieValues(
             array(3, 3, 3),
             $real_game_id, '1', NULL, array(2 => 12, 3 => 8, 4 => 20));
-
-        $args = array(
-            'type' => 'submitDieValues',
-            'game' => $dummy_game_id,
-            'roundNumber' => '1',
-            'timestamp' => $timestamp,
-            'optionValueArray' => array(2 => 12, 3 => 8, 4 => 20));
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals($dummyval, $retval, "option value submission responses should be identical");
     }
 
     public function test_request_reactToAuxiliary() {
@@ -2017,8 +1917,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('reactToInitiative');
 
-        $dummy_game_id = '7';
-
         // create a game so we have the ID to load, making sure we
         // get a game which is in the react to initiative game
         // state, and the other player has initiative
@@ -2049,10 +1947,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $args['game'] = $real_game_id;
         $retval = $this->verify_api_success($args);
-        $args['game'] = $dummy_game_id;
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
-        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Successfully gained initiative');
+        $this->assertEquals($retval['data'], array('gainedInitiative' => TRUE));
     }
 
     public function test_request_submitTurn() {
@@ -2230,13 +2127,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'body' => 'Cat!',
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum post edited successfully');
+        $this->assertEquals($retval['data']['currentPostId'], $args['postId']);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum post editing return values should have matching structures");
+        // Cache retval under a fake post ID for dummy API retrieval
+        $fakePostId = 2;
+        $retval['data']['currentPostId'] = $fakePostId;
+        $this->cache_json_api_output('editForumPost', $fakePostId, $retval);
     }
 
     public function test_request_loadForumOverview() {
@@ -2247,13 +2145,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array('type' => 'loadForumOverview');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum overview loading succeeded');
+        $this->assertTrue(is_numeric($retval['data']['timestamp']));
+        $this->assertTrue(is_array($retval['data']['boards']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum overview loading return values should have matching structures");
+        $this->cache_json_api_output('loadForumOverview', 'noargs', $retval);
     }
 
     public function test_request_loadForumBoard() {
@@ -2271,13 +2168,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'boardId' => 1,
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum board loading succeeded');
+        $this->assertEquals($retval['data']['boardId'], 1);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum board loading return values should have matching structures");
+        $this->cache_json_api_output('loadForumBoard', '1', $retval);
     }
 
     public function test_request_loadForumThread() {
@@ -2304,13 +2199,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'threadId' => $thread['data']['threadId'],
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum thread loading return values should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum thread loading succeeded');
+        $this->assertEquals($retval['data']['boardId'], 1);
+        $this->assertEquals($retval['data']['threadId'], $thread['data']['threadId']);
+
+        $fakeThreadId = 1;
+        $retval['data']['threadId'] = $fakeThreadId;
+        $this->cache_json_api_output('loadForumThread', $fakeThreadId, $retval);
     }
 
     public function test_request_loadNextNewPost() {
@@ -2332,13 +2229,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $args = array('type' => 'loadNextNewPost');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Checked new forum posts successfully');
+        $this->assertEquals(array_keys($retval['data']), array('nextNewPostId', 'nextNewPostThreadId'));
+        $this->assertTrue(is_numeric($retval['data']['nextNewPostId']));
+        $this->assertTrue(is_numeric($retval['data']['nextNewPostThreadId']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy new forum post check return values should have matching structures");
+        // fake the nextNewPostId so the UI tests can look for a fixed value
+        $retval['data']['nextNewPostId'] = 3;
+        $this->cache_json_api_output('loadNextNewPost', 'noargs', $retval);
     }
 
     public function test_request_markForumBoardRead() {
@@ -2357,13 +2256,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'timestamp' => strtotime('now'),
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        # See #1877 for concerns about this return strategy
+        $this->assertEquals($retval['message'], 'Forum overview loading succeeded');
+        $this->assertTrue(is_array($retval['data']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum board marking as read return values should have matching structures");
+        $fakeBoardId = 1;
+        $this->cache_json_api_output('markForumBoardRead', $fakeBoardId, $retval);
     }
 
     public function test_request_markForumRead() {
@@ -2381,13 +2280,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'timestamp' => strtotime('now'),
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        # See #1877 for concerns about this return strategy
+        $this->assertEquals($retval['message'], 'Forum overview loading succeeded');
+        $this->assertTrue(is_array($retval['data']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy entire forum marking as read return values should have matching structures");
+        $this->cache_json_api_output('markForumRead', 'noargs', $retval);
     }
 
     public function test_request_markForumThreadRead() {
@@ -2420,13 +2318,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'timestamp' => strtotime('now'),
         );
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy forum thread marking as read return values should have matching structures");
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Forum board loading succeeded');
+        $this->assertEquals($retval['data']['boardId'], 1);
+
+        $fakeThreadId = 1;
+        $this->cache_json_api_output('markForumThreadRead', $fakeThreadId, $retval);
     }
 
     // End of Forum-related methods
@@ -3531,13 +3429,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 02 (game 2) - player 1 submits chat
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'chat' => 'There was something i meant to say',
-        ));
-        $this->assertEquals('Added game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, 'There was something i meant to say', 'Added game message');
 
         // expected changes as a result
         $expData['gameChatEditable'] = 'TIMESTAMP';
@@ -3551,14 +3443,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 (game 2) - player 1 updates chat
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'edit' => $retval['gameChatEditable'],
-            'chat' => '...but i forgot what it was',
-        ));
-        $this->assertEquals('Updated previous game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, '...but i forgot what it was', 'Updated previous game message', $retval['gameChatEditable']);
 
         // expected changes as a result
         $expData['gameChatLog'][0]['message'] = '...but i forgot what it was';
@@ -3570,14 +3455,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 04 (game 2) - player 1 deletes chat
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'edit' => $retval['gameChatEditable'],
-            'chat' => '',
-        ));
-        $this->assertEquals('Deleted previous game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, '', 'Deleted previous game message', $retval['gameChatEditable']);
 
         // expected changes as a result
         $expData['gameChatEditable'] = FALSE;
@@ -3773,6 +3651,255 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_createGame
+     * @depends test_interface_game_003
+     *
+     * test_request_createGame creates an Active game containing Avis
+     * test_interface_game_003 creates at least one Completed game
+     */
+    public function test_request_loadActiveGames() {
+        $this->verify_login_required('loadActiveGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadActiveGames');
+
+        $args = array('type' => 'loadActiveGames');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadActiveGames', 'noargs', $retval);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_createGame
+     * @depends test_interface_game_003
+     *
+     * test_request_createGame creates an Active game containing Avis
+     * test_interface_game_003 creates at least one Completed game
+     */
+    public function test_request_loadCompletedGames() {
+        $this->verify_login_required('loadCompletedGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadCompletedGames');
+
+        $args = array('type' => 'loadCompletedGames');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadCompletedGames', 'noargs', $retval);
+    }
+
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_reactToNewGameCancel
+     *
+     * A game is withdrawn in test_request_reactToNewGameCancel
+     */
+    public function test_request_loadCancelledGames() {
+        $this->verify_login_required('loadCancelledGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadCancelledGames');
+
+        // Mock player responder006, who should be able to see the cancelled game
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $args = array('type' => 'loadCancelledGames');
+        $retval = $this->verify_api_success($args);
+        $_SESSION = $this->mock_test_user_login();
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadCancelledGames', 'noargs', $retval);
+    }
+
+
+    public function test_request_loadNewGames() {
+        $this->verify_login_required('loadNewGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNewGames');
+
+        $args = array('type' => 'loadNewGames');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadNewGames', 'noargs', $retval);
+    }
+
+
+    public function test_request_loadOpenGames() {
+        $this->verify_login_required('loadOpenGames');
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_invalid_arg_rejected('loadOpenGames');
+
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder004', '', 'Avis', 'Avis', '3'
+        );
+
+        $args = array(
+            'type' => 'loadOpenGames',
+        );
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Open games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games'));
+
+        $this->cache_json_api_output('loadOpenGames', 'noargs', $retval);
+    }
+
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_createGame
+     * @depends test_interface_game_003
+     *
+     * test_request_createGame creates an Active game containing Avis
+     * test_interface_game_003 creates at least one Completed game
+     */
+    public function test_request_searchGameHistory() {
+        $this->verify_login_required('searchGameHistory');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('searchGameHistory');
+
+        // make sure there's at least one game
+        $this->verify_api_createGame(
+            array(1, 1, 1, 1, 2, 2, 2),
+            'responder003', 'responder004', 'Hammer', 'Stark', 3
+        );
+
+
+        // Search for a game with a particular button name
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+            'buttonNameA' => 'Avis',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Sought games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games', 'summary'));
+        $this->assertTrue(count($retval['data']['games']) > 0);
+        $this->assertEquals($retval['data']['games'][0]['buttonNameA'], 'Avis');
+        $akeys = array_keys($retval['data']['summary']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('earliestStart', 'gamesCompleted', 'gamesWonA', 'gamesWonB', 'latestMove', 'matchesFound'));
+
+        $this->cache_json_api_output('searchGameHistory', 'Avis', $retval);
+
+
+        // Search for a game in a particular state
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+            'status' => 'COMPLETE',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Sought games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games', 'summary'));
+        $this->assertTrue(count($retval['data']['games']) > 0);
+        $this->assertEquals($retval['data']['games'][0]['status'], 'COMPLETE');
+        $akeys = array_keys($retval['data']['summary']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('earliestStart', 'gamesCompleted', 'gamesWonA', 'gamesWonB', 'latestMove', 'matchesFound'));
+
+        $this->cache_json_api_output('searchGameHistory', 'COMPLETE', $retval);
+
+
+        // Search for any games
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Sought games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games', 'summary'));
+        $this->assertTrue(count($retval['data']['games']) > 0);
+        $akeys = array_keys($retval['data']['summary']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('earliestStart', 'gamesCompleted', 'gamesWonA', 'gamesWonB', 'latestMove', 'matchesFound'));
+
+        $this->cache_json_api_output('searchGameHistory', 'noargs', $retval);
+    }
+
+    /**
+     * @depends test_request_createGame
+     * @depends test_request_searchGameHistory
+     *
+     * Depend on tests which create games to ensure that some games exist
+     */
+    public function test_request_loadNextPendingGame() {
+        $this->verify_login_required('loadNextPendingGame');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNextPendingGame');
+
+        // loadGameData should fail if currentGameId is non-numeric
+        $args = array('type' => 'loadNextPendingGame', 'currentGameId' => 'foobar');
+        $this->verify_api_failure($args, 'Argument (currentGameId) to function loadNextPendingGame is invalid');
+
+        $args = array('type' => 'loadNextPendingGame');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('gameId'));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+
+        // store this game ID so we can test skipping it, then normalize the gameId and save the output
+        $args['currentGameId'] = $retval['data']['gameId'];
+        $retval['data']['gameId'] = 7;
+        $this->cache_json_api_output('loadNextPendingGame', 'noargs', $retval);
+
+        // now skip a game and verify that this is a valid invocation
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('gameId'));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+        $this->assertTrue($retval['data']['gameId'] != $args['currentGameId']);
+
+        // Normalize this gameId and save the output
+        $retval['data']['gameId'] = 4;
+        $this->cache_json_api_output('loadNextPendingGame', '7', $retval);
     }
 
     /**
@@ -6193,13 +6320,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // #1477: responder004 chatting here is a test hack --- otherwise, the next
         // few turns will intermittently fail depending on whether the test timing crosses a second boundary
         $_SESSION = $this->mock_test_user_login('responder004');
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'chat' => 'This is my sixth comment',
-        ));
-        $this->assertEquals('Added game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, 'This is my sixth comment', 'Added game message');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameChatEditable'] = FALSE;
@@ -10459,14 +10580,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-        $retval = $this->verify_api_success(array(
-            'type' => 'submitChat',
-            'game' => $gameId,
-            'edit' => $retval['gameChatEditable'],
-            'chat' => 'now i want to say something else',
-        ));
-        $this->assertEquals('Updated previous game message', $retval['message']);
-        $this->assertEquals(TRUE, $retval['data']);
+        $this->verify_api_submitChat($gameId, 'now i want to say something else', 'Updated previous game message', $retval['gameChatEditable']);
 
         $expData['gameChatLog'][0]['message'] = 'now i want to say something else';
 
@@ -11502,11 +11616,99 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(3, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-            'responder004 performed Power attack using [(20):15] against [fsp(R=14):9]; Defender fsp(R=14) was captured; Attacker (20) rerolled 15 => 3. End of round: responder003 won round 2 (60 vs. 51). responder004 won initiative for round 3. Initial die values: responder003 rolled [^(3):1, fsp(R=14):1, ftz(14):1, tz(1/30=30):1, (1/30=1):1], responder004 rolled [(20):1, (20):1, (20):1, (20):1]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=30)]. ',
+            array(3, 1, 1, 1, 1, 1, 20, 20, 20, 20),
+            'responder004 performed Power attack using [(20):15] against [fsp(R=14):9]; Defender fsp(R=14) was captured; Attacker (20) rerolled 15 => 3. End of round: responder003 won round 2 (60 vs. 51). responder003 won initiative for round 3. Initial die values: responder003 rolled [^(3):1, fsp(R=14):1, ftz(14):1, tz(1/30=30):1, (1/30=1):1], responder004 rolled [(20):20, (20):20, (20):20, (20):20]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=30)]. ',
             $retval, array(array(1, 0), array(0, 0)),
             $gameId, 2, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['gameActionLogCount'] += 3;
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(20):15] against [fsp(R=14):9]; Defender fsp(R=14) was captured; Attacker (20) rerolled 15 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'End of round: responder003 won round 2 (60 vs. 51)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 3. Initial die values: responder003 rolled [^(3):1, fsp(R=14):1, ftz(14):1, tz(1/30=30):1, (1/30=1):1], responder004 rolled [(20):20, (20):20, (20):20, (20):20]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=30)].'));
+        $expData['roundNumber'] = 3;
+        $expData['activePlayerIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Trip');
+        $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30), 4 => array(1, 30));
+        $expData['playerDataArray'][0]['capturedDieArray'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'] = array();
+        $expData['playerDataArray'][0]['gameScoreArray']['W'] = 1;
+        $expData['playerDataArray'][1]['gameScoreArray']['L'] = 1;
+        $expData['playerDataArray'][0]['roundScore'] = 10;
+        $expData['playerDataArray'][1]['roundScore'] = 40;
+        $expData['playerDataArray'][0]['sideScore'] = -20.0;
+        $expData['playerDataArray'][1]['sideScore'] = 20.0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 1, 'sides' => 3, 'skills' => array('TimeAndSpace'), 'properties' => array(), 'recipe' => '^(3)', 'description' => 'TimeAndSpace 3-sided die'),
+            array('value' => 1, 'sides' => 14, 'skills' => array('Focus', 'Shadow', 'Poison'), 'properties' => array(), 'recipe' => 'fsp(R)', 'description' => 'Focus Shadow Poison R Swing Die (with 14 sides)'),
+            array('value' => 1, 'sides' => 14, 'skills' => array('Focus', 'Trip', 'Speed'), 'properties' => array(), 'recipe' => 'ftz(14)', 'description' => 'Focus Trip Speed 14-sided die'),
+            array('value' => 1, 'sides' => 30, 'skills' => array('Trip', 'Speed'), 'properties' => array(), 'recipe' => 'tz(1/30)', 'description' => 'Trip Speed Option Die (with 30 sides)'),
+            array('value' => 1, 'sides' => 1, 'skills' => array(), 'properties' => array(), 'recipe' => '(1/30)', 'description' => 'Option Die (with 1 side)'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        $this->verify_api_submitTurn(
+            array(),
+            'responder003 surrendered. End of round: responder004 won round 3 because opponent surrendered. ',
+            $retval, array(),
+            $gameId, 3, 'Surrender', 0, 1, '');
+
+        $expData['gameActionLogCount'] += 2;
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 surrendered'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 3 because opponent surrendered'));
+        $expData['roundNumber'] = 4;
+        $expData['gameState'] = 'CHOOSE_RESERVE_DICE';
+        $expData['activePlayerIdx'] = NULL;
+        $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array('R' => '14');
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array(3 => '30', 4 => '1');
+        $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30), 6 => array(1, 30));
+        $expData['playerDataArray'][0]['gameScoreArray']['L'] = 2;
+        $expData['playerDataArray'][1]['gameScoreArray']['W'] = 2;
+        $expData['playerDataArray'][0]['roundScore'] = NULL;
+        $expData['playerDataArray'][1]['roundScore'] = NULL;
+        $expData['playerDataArray'][0]['sideScore'] = NULL;
+        $expData['playerDataArray'][1]['sideScore'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Focus Shadow Poison R Swing Die';
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = 'Trip Speed Option Die (with 1 or 30 sides)';
+        array_splice($expData['playerDataArray'][0]['activeDieArray'], 4, 0, array(
+            array('value' => NULL, 'sides' => 4, 'skills' => array('Reserve', 'TimeAndSpace'), 'properties' => array(), 'recipe' => 'r^(4)', 'description' => 'Reserve TimeAndSpace 4-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array('Reserve', 'Speed'), 'properties' => array(), 'recipe' => 'rz(12)', 'description' => 'Reserve Speed 12-sided die'),
+        ));
+        $expData['playerDataArray'][0]['activeDieArray'][6]['value'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][6]['sides'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][6]['description'] = 'Option Die (with 1 or 30 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = NULL;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = NULL;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = NULL;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = NULL;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_reactToReserve(
+            array(1, 1, 20, 20, 20, 20),
+            'responder003 chose not to add a reserve die. ',
+            $gameId, 'decline', NULL);
     }
 
     /**
@@ -12823,6 +13025,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
+
+    // N.B. Fake game 44 is used by a test above
 
     /**
      * @depends test_request_savePlayerInfo
