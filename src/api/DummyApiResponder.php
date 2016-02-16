@@ -45,7 +45,6 @@ class DummyApiResponder {
             'loadRejectedGames',
             'loadNewGames',
             'loadOpenGames',
-            'loadNextNewPost',
             'loadNextPendingGame',
             'login',
             'logout',
@@ -998,10 +997,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadNextNewPost() {
-        $results = array();
-        $results['nextNewPostId'] = 3;
-        $results['nextNewPostThreadId'] = 2;
-        return array($results, 'Checked new forum posts successfully');
+        return $this->load_json_data_from_file(
+            'loadNextNewPost',
+            'noargs.json'
+        );
     }
 
     protected function get_interface_response_markForumRead() {

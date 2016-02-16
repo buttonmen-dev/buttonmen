@@ -68,8 +68,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->apiFunctionsWithTestOutput = array(
             'adjustFire', 'countPendingGames', 'createForumPost', 'createForumThread', 'createGame', 'createUser',
             'dismissGame', 'editForumPost', 'joinOpenGame', 'loadActivePlayers', 'loadButtonData', 'loadButtonSetData',
-            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadPlayerInfo', 'loadPlayerName',
-            'loadPlayerNames', 'loadProfileInfo', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
+            'loadForumBoard', 'loadForumOverview', 'loadForumThread', 'loadGameData', 'loadNextNewPost', 'loadPlayerInfo',
+            'loadPlayerName', 'loadPlayerNames', 'loadProfileInfo', 'markForumBoardRead', 'markForumRead', 'markForumThreadRead',
             'reactToAuxiliary', 'reactToInitiative', 'reactToNewGame', 'reactToReserve', 'savePlayerInfo',
             'submitDieValues', 'submitChat', 'submitTurn', 'verifyUser',
         );
@@ -2396,13 +2396,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $args = array('type' => 'loadNextNewPost');
         $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Checked new forum posts successfully');
+        $this->assertEquals(array_keys($retval['data']), array('nextNewPostId', 'nextNewPostThreadId'));
+        $this->assertTrue(is_numeric($retval['data']['nextNewPostId']));
+        $this->assertTrue(is_numeric($retval['data']['nextNewPostThreadId']));
 
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata),
-            "Real and dummy new forum post check return values should have matching structures");
+        // fake the nextNewPostId so the UI tests can look for a fixed value
+        $retval['data']['nextNewPostId'] = 3;
+        $this->cache_json_api_output('loadNextNewPost', 'noargs', $retval);
     }
 
     public function test_request_markForumBoardRead() {
