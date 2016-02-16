@@ -47,7 +47,6 @@ class DummyApiResponder {
             'loadOpenGames',
             'login',
             'logout',
-            'searchGameHistory',
         );
     }
 
@@ -164,30 +163,17 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_searchGameHistory($args) {
-        $games = array();
-
-        if ((!isset($args['status']) || $args['status'] == 'COMPLETE')) {
-            $games[] = $this->mock_completed_game($args);
+        if (isset($args['status'])) {
+            $argval = $args['status'];
+        } elseif (isset($args['buttonNameA'])) {
+            $argval = $args['buttonNameA'];
+        } else {
+            $argval = 'noargs';
         }
-
-        if ((!isset($args['status']) || $args['status'] == 'ACTIVE')) {
-            $games[] = $this->mock_active_game($args);
-        }
-
-        $summary = array();
-        $summary['matchesFound'] = count($games);
-        $summary['earliestStart'] = 1399605464;
-        $summary['latestMove'] = 1399691809;
-        $summary['gamesWonA'] = count($games);
-        $summary['gamesWonB'] = 0;
-        $summary['gamesCompleted'] = 1;
-
-        $data = array(
-            'games' => $games,
-            'summary' => $summary
+        return $this->load_json_data_from_file(
+            'searchGameHistory',
+            $argval . '.json'
         );
-
-        return array($data, "Search results retrieved successfully.");
     }
 
     protected function mock_completed_game($args) {

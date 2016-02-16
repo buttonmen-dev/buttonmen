@@ -1421,40 +1421,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->cache_json_api_output('createGame', 'Avis_None', $retval);
     }
 
-    /**
-     * @depends test_request_savePlayerInfo
-     */
-    public function test_request_searchGameHistory() {
-        $this->verify_login_required('searchGameHistory');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('searchGameHistory');
-
-        // make sure there's at least one game
-        $this->verify_api_createGame(
-            array(1, 1, 1, 1, 2, 2, 2),
-            'responder003', 'responder004', 'Hammer', 'Stark', 3
-        );
-
-        $args = array(
-            'type' => 'searchGameHistory',
-            'sortColumn' => 'lastMove',
-            'sortDirection' => 'DESC',
-            'numberOfResults' => '20',
-            'page' => '1',
-            'buttonNameA' => 'Avis');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('Sought games retrieved successfully.', $retval['message']);
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game lists should have matching structures");
-    }
-
     public function test_request_joinOpenGame() {
         $this->verify_login_required('joinOpenGame');
 
@@ -1649,47 +1615,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummyval = $this->dummy->process_request($args);
 
         $this->assertEquals('ok', $dummyval['status'], 'Dummy load of completed games should succeed');
-    }
-
-    /**
-     * @depends test_request_createGame
-     * @depends test_request_searchGameHistory
-     *
-     * Depend on tests which create games to ensure that some games exist
-     */
-    public function test_request_loadNextPendingGame() {
-        $this->verify_login_required('loadNextPendingGame');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadNextPendingGame');
-
-        // loadGameData should fail if currentGameId is non-numeric
-        $args = array('type' => 'loadNextPendingGame', 'currentGameId' => 'foobar');
-        $this->verify_api_failure($args, 'Argument (currentGameId) to function loadNextPendingGame is invalid');
-
-        $args = array('type' => 'loadNextPendingGame');
-        $retval = $this->verify_api_success($args);
-        $this->assertEquals($retval['status'], 'ok');
-        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
-        $this->assertEquals(array_keys($retval['data']), array('gameId'));
-        $this->assertTrue(is_numeric($retval['data']['gameId']));
-
-        // store this game ID so we can test skipping it, then normalize the gameId and save the output
-        $args['currentGameId'] = $retval['data']['gameId'];
-        $retval['data']['gameId'] = 7;
-        $this->cache_json_api_output('loadNextPendingGame', 'noargs', $retval);
-
-        // now skip a game and verify that this is a valid invocation
-        $retval = $this->verify_api_success($args);
-        $this->assertEquals($retval['status'], 'ok');
-        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
-        $this->assertEquals(array_keys($retval['data']), array('gameId'));
-        $this->assertTrue(is_numeric($retval['data']['gameId']));
-        $this->assertTrue($retval['data']['gameId'] != $args['currentGameId']);
-
-        // Normalize this gameId and save the output
-        $retval['data']['gameId'] = 4;
-        $this->cache_json_api_output('loadNextPendingGame', '7', $retval);
     }
 
     public function test_request_loadActivePlayers() {
@@ -3804,6 +3729,135 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_createGame
+     * @depends test_interface_game_003
+     *
+     * test_request_createGame creates an Active game containing Avis
+     * test_interface_game_003 creates at least one Completed game
+     */
+    public function test_request_searchGameHistory() {
+        $this->verify_login_required('searchGameHistory');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('searchGameHistory');
+
+        // make sure there's at least one game
+        $this->verify_api_createGame(
+            array(1, 1, 1, 1, 2, 2, 2),
+            'responder003', 'responder004', 'Hammer', 'Stark', 3
+        );
+
+
+        // Search for a game with a particular button name
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+            'buttonNameA' => 'Avis',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Sought games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games', 'summary'));
+        $this->assertTrue(count($retval['data']['games']) > 0);
+        $this->assertEquals($retval['data']['games'][0]['buttonNameA'], 'Avis');
+        $akeys = array_keys($retval['data']['summary']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('earliestStart', 'gamesCompleted', 'gamesWonA', 'gamesWonB', 'latestMove', 'matchesFound'));
+
+        $this->cache_json_api_output('searchGameHistory', 'Avis', $retval);
+
+
+        // Search for a game in a particular state
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+            'status' => 'COMPLETE',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Sought games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games', 'summary'));
+        $this->assertTrue(count($retval['data']['games']) > 0);
+        $this->assertEquals($retval['data']['games'][0]['status'], 'COMPLETE');
+        $akeys = array_keys($retval['data']['summary']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('earliestStart', 'gamesCompleted', 'gamesWonA', 'gamesWonB', 'latestMove', 'matchesFound'));
+
+        $this->cache_json_api_output('searchGameHistory', 'COMPLETE', $retval);
+
+
+        // Search for any games
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Sought games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games', 'summary'));
+        $this->assertTrue(count($retval['data']['games']) > 0);
+        $akeys = array_keys($retval['data']['summary']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('earliestStart', 'gamesCompleted', 'gamesWonA', 'gamesWonB', 'latestMove', 'matchesFound'));
+
+        $this->cache_json_api_output('searchGameHistory', 'noargs', $retval);
+    }
+
+    /**
+     * @depends test_request_createGame
+     * @depends test_request_searchGameHistory
+     *
+     * Depend on tests which create games to ensure that some games exist
+     */
+    public function test_request_loadNextPendingGame() {
+        $this->verify_login_required('loadNextPendingGame');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNextPendingGame');
+
+        // loadGameData should fail if currentGameId is non-numeric
+        $args = array('type' => 'loadNextPendingGame', 'currentGameId' => 'foobar');
+        $this->verify_api_failure($args, 'Argument (currentGameId) to function loadNextPendingGame is invalid');
+
+        $args = array('type' => 'loadNextPendingGame');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('gameId'));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+
+        // store this game ID so we can test skipping it, then normalize the gameId and save the output
+        $args['currentGameId'] = $retval['data']['gameId'];
+        $retval['data']['gameId'] = 7;
+        $this->cache_json_api_output('loadNextPendingGame', 'noargs', $retval);
+
+        // now skip a game and verify that this is a valid invocation
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Next game ID retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('gameId'));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+        $this->assertTrue($retval['data']['gameId'] != $args['currentGameId']);
+
+        // Normalize this gameId and save the output
+        $retval['data']['gameId'] = 4;
+        $this->cache_json_api_output('loadNextPendingGame', '7', $retval);
     }
 
     /**
