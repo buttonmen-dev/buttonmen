@@ -11,12 +11,6 @@
 class DummyApiResponder {
     // properties
 
-    // N.B. this class is always used for some type of testing,
-    // but, the usage here matches the way responder uses this flag:
-    // * FALSE: this instance is being accessed remotely via POST
-    // * TRUE:  this instance is being accessed locally by unit tests
-    private $isTest;               // whether this invocation is for testing
-
     /**
      * Constructor
      *   start a session (don't use api_core because dummy_responder has no backend)
