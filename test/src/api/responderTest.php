@@ -1595,7 +1595,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 694);
+        $this->assertEquals(count($retval['data']), 706);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -1651,7 +1651,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 76);
+        $this->assertEquals(count($retval['data']), 77);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
@@ -3710,15 +3710,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
      *
      * A game is withdrawn in test_request_reactToNewGameCancel
      */
-    public function test_request_loadRejectedGames() {
-        $this->verify_login_required('loadRejectedGames');
+    public function test_request_loadCancelledGames() {
+        $this->verify_login_required('loadCancelledGames');
 
         $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadRejectedGames');
+        $this->verify_invalid_arg_rejected('loadCancelledGames');
 
         // Mock player responder006, who should be able to see the cancelled game
         $_SESSION = $this->mock_test_user_login('responder006');
-        $args = array('type' => 'loadRejectedGames');
+        $args = array('type' => 'loadCancelledGames');
         $retval = $this->verify_api_success($args);
         $_SESSION = $this->mock_test_user_login();
 
@@ -3728,7 +3728,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         sort($akeys);
         $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
 
-        $this->cache_json_api_output('loadRejectedGames', 'noargs', $retval);
+        $this->cache_json_api_output('loadCancelledGames', 'noargs', $retval);
     }
 
 
@@ -11648,7 +11648,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => 1, 'sides' => 14, 'skills' => array('Focus', 'Shadow', 'Poison'), 'properties' => array(), 'recipe' => 'fsp(R)', 'description' => 'Focus Shadow Poison R Swing Die (with 14 sides)'),
             array('value' => 1, 'sides' => 14, 'skills' => array('Focus', 'Trip', 'Speed'), 'properties' => array(), 'recipe' => 'ftz(14)', 'description' => 'Focus Trip Speed 14-sided die'),
             array('value' => 1, 'sides' => 30, 'skills' => array('Trip', 'Speed'), 'properties' => array(), 'recipe' => 'tz(1/30)', 'description' => 'Trip Speed Option Die (with 30 sides)'),
-            array('value' => 1, 'sides' => 1, 'skills' => array(), 'properties' => array(), 'recipe' => '(1/30)', 'description' => 'Option Die (with 1 sides)'),
+            array('value' => 1, 'sides' => 1, 'skills' => array(), 'properties' => array(), 'recipe' => '(1/30)', 'description' => 'Option Die (with 1 side)'),
         );
         $expData['playerDataArray'][1]['activeDieArray'] = array(
             array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
@@ -11702,6 +11702,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = NULL;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = NULL;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = NULL;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
         $this->verify_api_reactToReserve(
