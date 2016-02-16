@@ -309,9 +309,11 @@ test("test_Api.getActiveGamesData", function(assert) {
   Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    assert.equal(Api.active_games.nGames, 16, 'Got expected number of active games');
-    assert.equal(Api.active_games.games.awaitingPlayer.length, 10,
-          "expected number of games parsed as waiting for the active player");
+    assert.ok(Api.active_games.nGames > 0, 'Parsed some active games');
+    assert.ok(Api.active_games.games.awaitingPlayer.length > 0,
+          "Parsed some games as waiting for the active player");
+    assert.ok(Api.active_games.nGames > Api.active_games.games.awaitingPlayer.length,
+          "Parsed more active games than games waiting for the active player");
     start();
   });
 });

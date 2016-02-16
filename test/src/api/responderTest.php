@@ -1578,32 +1578,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($targetPendingCountPrecreate, $targetPendingCountPostcancel);
     }
 
-    /**
-     * @depends test_request_savePlayerInfo
-     */
-    public function test_request_loadActiveGames() {
-        $this->verify_login_required('loadActiveGames');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadActiveGames');
-
-        // make sure there's at least one game
-        $this->verify_api_createGame(
-            array(1, 1, 1, 1, 2, 2, 2),
-            'responder003', 'responder004', 'Hammer', 'Stark', '3'
-        );
-
-        $args = array('type' => 'loadActiveGames');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game lists should have matching structures");
-    }
-
     public function test_request_loadCompletedGames() {
         $this->verify_login_required('loadCompletedGames');
 
@@ -3729,6 +3703,31 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_createGame
+     * @depends test_interface_game_003
+     *
+     * test_request_createGame creates an Active game containing Avis
+     * test_interface_game_003 creates at least one Completed game
+     */
+    public function test_request_loadActiveGames() {
+        $this->verify_login_required('loadActiveGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadActiveGames');
+
+        $args = array('type' => 'loadActiveGames');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadActiveGames', 'noargs', $retval);
     }
 
     /**
