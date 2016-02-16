@@ -323,9 +323,9 @@ test("test_Api.getCompletedGamesData", function(assert) {
   Api.getCompletedGamesData(function() {
     assert.equal(Api.completed_games.load_status, 'ok',
          'Successfully loaded completed games data');
-    assert.equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
-    assert.equal(Api.completed_games.games[0].gameId, 5,
-          "expected completed game ID exists");
+    assert.ok(Api.completed_games.nGames > 0, 'Parsed some completed games');
+    assert.equal(Api.completed_games.games[0]['status'], 'COMPLETE',
+          "Completed game has expected status");
     start();
   });
 });

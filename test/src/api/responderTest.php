@@ -1578,19 +1578,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($targetPendingCountPrecreate, $targetPendingCountPostcancel);
     }
 
-    public function test_request_loadCompletedGames() {
-        $this->verify_login_required('loadCompletedGames');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadCompletedGames');
-
-        $args = array('type' => 'loadCompletedGames');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of completed games should succeed');
-    }
-
     public function test_request_loadActivePlayers() {
         $this->verify_login_required('loadActivePlayers');
 
@@ -3729,6 +3716,32 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->cache_json_api_output('loadActiveGames', 'noargs', $retval);
     }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     * @depends test_request_createGame
+     * @depends test_interface_game_003
+     *
+     * test_request_createGame creates an Active game containing Avis
+     * test_interface_game_003 creates at least one Completed game
+     */
+    public function test_request_loadCompletedGames() {
+        $this->verify_login_required('loadCompletedGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadCompletedGames');
+
+        $args = array('type' => 'loadCompletedGames');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadCompletedGames', 'noargs', $retval);
+    }
+
 
     /**
      * @depends test_request_savePlayerInfo
