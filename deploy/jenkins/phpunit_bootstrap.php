@@ -7,7 +7,7 @@
 $BM_RAND_VALS = array();
 $BM_RAND_REQUIRE_OVERRIDE = FALSE;
 
-function bm_rand($min=FALSE, $max=FALSE) {
+function bm_rand($min = FALSE, $max = FALSE) {
     global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
 
     if (count($BM_RAND_VALS) > 0) {

@@ -47,7 +47,7 @@ if (!function_exists('bm_rand')) {
      * @param int $max
      * @return int
      */
-    function bm_rand($min=FALSE, $max=FALSE) {
+    function bm_rand($min = FALSE, $max = FALSE) {
         if (is_numeric($min) && is_numeric($max)) {
             return mt_rand($min, $max);
         }
