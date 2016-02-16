@@ -1711,14 +1711,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('numberOfPlayers' => 50)
         );
 
-        // Invoke an API call which will make sure responder001 is
-        // one of the most recent active players, then return to the default user.
-        // (N.B. We have to pick responder001, because if multiple players are active in the same second,
-        // loadActivePlayers alphabetizes them.)
-        $_SESSION = $this->mock_test_user_login('responder001');
+        // Invoke an API call to make sure some player has recently been active.
         $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
         $this->verify_api_success($args);
-        $_SESSION = $this->mock_test_user_login();
 
         // Now invoke loadActivePlayers
         $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 50);
@@ -1726,7 +1721,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Active players retrieved successfully.');
         $this->assertEquals(array_keys($retval['data']), array('players'));
-        $this->assertEquals($retval['data']['players'][0]['playerName'], 'responder001');
+
+        // loadActivePlayers does not guarantee an ordering if multiple players have been active
+        // within the same second
+        $this->assertEquals(substr($retval['data']['players'][0]['playerName'], 0, 9), 'responder');
 
         $this->cache_json_api_output('loadActivePlayers', '50', $retval);
     }
