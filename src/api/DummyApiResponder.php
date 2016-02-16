@@ -40,7 +40,6 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'loadRejectedGames',
             'loadNewGames',
             'loadOpenGames',
             'login',
@@ -298,45 +297,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadRejectedGames() {
-        $data = array(
-            'gameIdArray' => array(),
-            'gameDescriptionArray' => array(),
-            'opponentIdArray' => array(),
-            'opponentNameArray' => array(),
-            'myButtonNameArray' => array(),
-            'opponentButtonNameArray' => array(),
-            'nWinsArray' => array(),
-            'nLossesArray' => array(),
-            'nDrawsArray' => array(),
-            'nTargetWinsArray' => array(),
-            'isAwaitingActionArray' => array(),
-            'gameStateArray' => array(),
-            'statusArray' => array(),
-            'inactivityArray' => array(),
-            'playerColorArray' => array(),
-            'opponentColorArray' => array(),
+        return $this->load_json_data_from_file(
+            'loadRejectedGames',
+            'noargs.json'
         );
-
-        // game 505
-        $data['gameIdArray'][] = 505;
-        $data['gameDescriptionArray'][] = 'Game 505';
-        $data['opponentIdArray'][] = 2;
-        $data['opponentNameArray'][] = "tester2";
-        $data['myButtonNameArray'][] = "Avis";
-        $data['opponentButtonNameArray'][] = "Avis";
-        $data['nWinsArray'][] = 3;
-        $data['nLossesArray'][] = 2;
-        $data['nDrawsArray'][] = 0;
-        $data['nTargetWinsArray'][] = 3;
-        $data['isAwaitingActionArray'][] = 0;
-        $data['gameStateArray'][] = "REJECTED";
-        $data['statusArray'][] = "REJECTED";
-        $data['inactivityArray'][] = "8 days";
-        $data['inactivityRawArray'][] = 8*60*60*24;
-        $data['playerColorArray'][] = "#dd99dd";
-        $data['opponentColorArray'][] = "#ddffdd";
-
-        return array($data, "All game details retrieved successfully.");
     }
 
     protected function get_interface_response_loadNextPendingGame($args) {

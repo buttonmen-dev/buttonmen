@@ -3745,6 +3745,34 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
+     * @depends test_request_reactToNewGameCancel
+     *
+     * A game is withdrawn in test_request_reactToNewGameCancel
+     */
+    public function test_request_loadRejectedGames() {
+        $this->verify_login_required('loadRejectedGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadRejectedGames');
+
+        // Mock player responder006, who should be able to see the cancelled game
+        $_SESSION = $this->mock_test_user_login('responder006');
+        $args = array('type' => 'loadRejectedGames');
+        $retval = $this->verify_api_success($args);
+        $_SESSION = $this->mock_test_user_login();
+
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadRejectedGames', 'noargs', $retval);
+    }
+
+
+    /**
+     * @depends test_request_savePlayerInfo
      * @depends test_request_createGame
      * @depends test_interface_game_003
      *

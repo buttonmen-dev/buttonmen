@@ -335,9 +335,9 @@ test("test_Api.getRejectedGamesData", function(assert) {
   Api.getRejectedGamesData(function() {
     assert.equal(Api.rejected_games.load_status, 'ok',
          'Successfully loaded rejected games data');
-    assert.equal(Api.rejected_games.nGames, 1, 'Got expected number of rejected games');
-    assert.equal(Api.rejected_games.games[0].gameId, 505,
-          "expected rejected game ID exists");
+    assert.ok(Api.rejected_games.nGames > 0, 'Parsed some rejected games');
+    assert.equal(Api.rejected_games.games[0]['status'], 'REJECTED',
+          "Rejected game has expected status");
     start();
   });
 });
