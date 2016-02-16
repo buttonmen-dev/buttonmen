@@ -42,7 +42,7 @@ class BMGameState {
     const END_GAME = 60;
 
     // special states
-    const REJECTED = 251;
+    const CANCELLED = 251;
 
     /**
      * All possible game state strings
@@ -69,7 +69,7 @@ class BMGameState {
                      'END_TURN',
                      'END_ROUND',
                      'END_GAME',
-                     'REJECTED');
+                     'CANCELLED');
     }
 
     /**

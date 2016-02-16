@@ -19,13 +19,9 @@ class DummyApiResponder {
 
     /**
      * Constructor
-     * For live invocation:
      *   start a session (don't use api_core because dummy_responder has no backend)
-     * For test invocation:
-     *   don't start a session
      *
      * @param ApiSpec $spec
-     * @param boolean $isTest
      */
     public function __construct(ApiSpec $spec) {
         $this->spec = $spec;
@@ -155,9 +151,9 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_loadRejectedGames() {
+    protected function get_interface_response_loadCancelledGames() {
         return $this->load_json_data_from_file(
-            'loadRejectedGames',
+            'loadCancelledGames',
             'noargs.json'
         );
     }

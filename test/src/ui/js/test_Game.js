@@ -455,7 +455,7 @@ test("test_Game.actionChooseJoinGameNonplayer", function(assert) {
 //  james: incomplete for the moment
 });
 
-test("test_Game.actionShowRejectedGame", function(assert) {
+test("test_Game.actionShowCancelledGame", function(assert) {
 //  james: incomplete for the moment
 });
 
@@ -1286,7 +1286,7 @@ test("test_Game.playerWLTText", function(assert) {
     start();
   });
 
-  // james: we'll need an extra test here of new/rejected game, once we have an
+  // james: we'll need an extra test here of new/cancelled game, once we have an
   //        appropriate test game to use
 });
 

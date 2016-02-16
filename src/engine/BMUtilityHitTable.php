@@ -104,7 +104,7 @@ class BMUtilityHitTable {
      * Test for a hit. Return all possible sets of dice that can make that hit.
      *
      * @param int $target
-     * @return boolean
+     * @return bool
      */
     public function find_hit($target) {
         if (array_key_exists($target, $this->hits)) {

@@ -176,7 +176,7 @@ class BMUtilityXCYIterator implements Iterator {
     /**
      * Check whether we fell off the end.
      *
-     * @return boolean
+     * @return bool
      */
     public function valid() {
         return !is_null($this->head);

@@ -21,7 +21,7 @@ class BMSkillMood extends BMSkill {
      * Hooked method applied before die roll
      *
      * @param array $args Array of arguments to hooked method
-     * @return boolean
+     * @return bool
      */
     public static function pre_roll(&$args) {
         if (!self::does_skill_trigger_on_pre_roll($args)) {
@@ -55,7 +55,7 @@ class BMSkillMood extends BMSkill {
      * Checks whether this skill triggers on pre_roll
      *
      * @param BMDie $args
-     * @return boolean
+     * @return bool
      */
     protected static function does_skill_trigger_on_pre_roll($args) {
         if (!($args['die'] instanceof BMDie)) {
@@ -109,7 +109,7 @@ class BMSkillMood extends BMSkill {
      * Returns whether an object can have the mood swing skill
      *
      * @param mixed $obj
-     * @return boolean
+     * @return bool
      */
     protected static function can_have_mood($obj) {
         // Mood only has an effect on swing dice and twin swing dice

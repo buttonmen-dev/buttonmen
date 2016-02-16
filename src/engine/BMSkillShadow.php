@@ -56,7 +56,7 @@ class BMSkillShadow extends BMSkill {
         return 'These dice are normal in all respects, except that ' .
                'they cannot make Power Attacks. Instead, they make inverted ' .
                'Power Attacks, called "Shadow Attacks." To make a Shadow ' .
-               'Attack, Use one of your Shadow Dice to capture one of your ' .
+               'Attack, use one of your Shadow Dice to capture one of your ' .
                'opponent\'s dice. The number showing on the die you capture ' .
                'must be greater than or equal to the number showing on your ' .
                'die, but within its range. For example, a shadow 10-sided ' .

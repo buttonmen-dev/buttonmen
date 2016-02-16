@@ -121,7 +121,7 @@ class BMSkillWarrior extends BMSkill {
      * Hooked method applied after rolling a die
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function post_roll(&$args) {
         if (!($args['die'] instanceof BMDie)) {

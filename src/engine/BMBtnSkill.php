@@ -25,7 +25,7 @@ class BMBtnSkill {
      * Complete description of skill, packaged for front end
      *
      * @param string $skill
-     * @param boolean $includeEmpty
+     * @param bool $includeEmpty
      * @return array|NULL
      */
     public static function describe($skill, $includeEmpty = TRUE) {

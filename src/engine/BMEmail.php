@@ -47,7 +47,7 @@ class BMEmail {
      * Constructor
      *
      * @param string $recipient
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct($recipient, $isTest) {
         $this->recipient = $recipient;

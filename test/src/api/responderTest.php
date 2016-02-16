@@ -144,6 +144,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'Cannot win initiative.',
                 'interacts' => array(),
             ),
+            'Insult' => array(
+                'code' => 'I',
+                'description' => 'Cannot be attacked by skill attacks.',
+                'interacts' => array(),
+            ),
             'Konstant' => array(
                 'code' => 'k',
                 'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
@@ -212,6 +217,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice are worth negative points. If you keep a Poison Die of your own at the end of a round, subtract its full value from your score. If you capture a Poison Die from someone else, subtract half its value from your score.',
                 'interacts' => array(
                      'Null' => 'Dice with both Null and Poison skills are Null',
+                     'Value' => 'Dice with both Poison and Value skills are Poison dice that score based on the negative of their current value rather than on their number of sides',
                 ),
             ),
             'Queer' => array(
@@ -247,7 +253,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Shadow' => array(
                 'code' => 's',
-                'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, Use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
+                'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
                 'interacts' => array(
                     'Stinger' => 'Dice with both Shadow and Stinger skills can singly attack with any value from the min to the max of the die (making a shadow attack against a die whose value is greater than or equal to their own, or a skill attack against a die whose value is lower than or equal to their own)',
                     'Trip' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
@@ -299,6 +305,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice are not scored like normal dice. Instead, a Value Die is scored as if the number of sides it has is equal to the value that it is currently showing. If a Value Die is ever part of an attack, all dice that are captured become Value Dice (i.e. They are scored by the current value they are showing when they are captured, not by their size).',
                 'interacts' => array(
                      'Null' => 'Dice with both Null and Value skills are Null',
+                     'Poison' => 'Dice with both Poison and Value skills are Poison dice that score based on the negative of their current value rather than on their number of sides',
                 ),
             ),
             'Warrior' => array(
@@ -313,6 +320,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Berserk' => 'Dice with both Berserk and Weak skills will first halve in size, and then shrink',
                     'Fire' => 'Dice with both Fire and Weak skills do not shrink when firing, only when actually rolling',
                 ),
+            ),
+            'Zero' => array(
+                'code' => '',
+                'description' => 'Copies the opponent\'s button recipe.',
+                'interacts' => array(),
             ),
         );
         $retval = array();
@@ -2350,7 +2362,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder001', 'responder002', 4, 'SPECIFY_DICE');
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'frasquito.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
@@ -2982,6 +2994,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 8;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 12;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder003' . ' set swing values: V=6, X=10';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003' . ' won initiative for round 1. Initial die values: ' . 'responder003' . ' rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], ' . 'responder004' . ' rolled [(20):5, (20):8, (20):12, (X=4):4].'));
@@ -3107,6 +3121,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][0]['capturedDieArray'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'] = array();
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'V' => array(6, 12));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003' . ' passed'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1'));
@@ -3155,6 +3171,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 17;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 2;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' set swing values: X=7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003' . ' won initiative for round 2. Initial die values: ' . 'responder003' . ' rolled [p(20):8, s(20):6, (V=6):1, (X=10):1], ' . 'responder004' . ' rolled [(20):7, (20):2, (20):17, (X=7):2].'));
         array_pop($expData['gameActionLog']);
@@ -3999,6 +4017,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 9;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 1;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder003' . ' set swing values: V=6, W=4, X=4, Y=1, Z=4';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' set swing values: V=12, W=11, X=10, Y=9, Z=8'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003' . ' won initiative for round 1. Initial die values: ' . 'responder003' . ' rolled [o(V=6)?:2, o(W=4)?:2, o(X=4)?:4, o(Y=1)?:1, o(Z=4)?:4], ' . 'responder004' .' rolled [o(V=12)?:9, o(W=11)?:4, o(X=10)?:9, o(Y=9)?:8, o(Z=8)?:1].'));
@@ -4237,6 +4257,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 8;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 6;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(6):3, (6):6, (8):7, (12):2, m(X=4):4], responder004 rolled [(20):11, (20):5, (20):8, (20):6].'));
         $expData['gameActionLogCount'] = 2;
@@ -4253,11 +4275,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'responder003 performed Skill attack using [(8):7,m(X=4):4] against [(20):11]; Defender (20) was captured; Attacker (8) rerolled 7 => 4; Attacker m(X=4) changed size from 4 to 20 sides, recipe changed from m(X=4) to m(20), rerolled 4 => 8. ',
             $retval, array(array(0, 2), array(0, 4), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
-
-        // This change is not per se the bug in #1224, but it's a
-        // symptom showing that this is when the problem happens -
-        // p1's swing die request array goes away
-        $expData['playerDataArray'][0]['swingRequestArray'] = array();
 
         // expected changes
         $expData['activePlayerIdx'] = 1;
@@ -4434,7 +4451,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = -14.7;
         $expData['playerDataArray'][1]['roundScore'] = 40;
         $expData['playerDataArray'][1]['sideScore'] = 14.7;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         // all of these dice should have values
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 2, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
@@ -4546,6 +4562,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(6):1, (6):2, (8):8, (12):7, m(X=4):4], responder004 rolled [wm(1):1, wm(2):2, wm(4):1, m(8):8, m(10):8]. responder004 has dice which are not counted for initiative due to die skills: [wm(1), wm(2), wm(4)].'));
         $expData['gameActionLogCount'] = 2;
@@ -4801,6 +4819,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 10;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 10;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 10;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder003 set swing values: Y=1';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=11'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [t(1):1, (2):1, t(4):1, (6):6, (Y=1):1], responder004 rolled [(8):5, t(8):8, (10):10, t(10):10, (X=11):10]. responder003 has dice which are not counted for initiative due to die skills: [t(1), t(4)]. responder004 has dice which are not counted for initiative due to die skills: [t(8), t(10)].'));
@@ -5352,6 +5372,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][5]['sides'] = 16;
         $expData['playerDataArray'][1]['activeDieArray'][5]['description'] .= ' (with 16 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder004 set swing values: X=16';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [(2):1, (4):4, s(10):2, s(20):20, (X=4):4, s(X=4):3], responder004 rolled [(4):3, f(6):3, f(8):3, (10):1, (12):9, s(X=16):1].'));
@@ -5627,6 +5649,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(X)', 'description' => 'Shadow X Swing Die'),
         );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [f(8):7] against [(2):1]; Defender (2) was captured; Attacker f(8) rerolled 7 => 8'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
@@ -5678,6 +5702,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 11;
         $expData['playerDataArray'][1]['activeDieArray'][5]['sides'] = 15;
         $expData['playerDataArray'][1]['activeDieArray'][5]['description'] .= ' (with 15 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=15'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 2. Initial die values: responder003 rolled [(2):2, (4):2, s(10):1, s(20):9, (X=4):4, s(X=4):1], responder004 rolled [(4):4, f(6):4, f(8):8, (10):1, (12):8, s(X=15):11].'));
@@ -5890,6 +5916,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['description'] .= ' (with 20 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 28;
         $expData['playerDataArray'][1]['activeDieArray'][3]['description'] .= ' (with 28 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder004 set swing values: T=2, W=8, X=20, Z=28';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=5'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [(4):3, (6):1, (12):5, (X=5):3], responder004 rolled [q(T=2):1, q(W=8):8, q(X=20):1, q(Z=28):22].'));
@@ -6045,6 +6073,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Poison'), 'properties' => array(), 'recipe' => 'rp(U)', 'description' => 'Reserve Poison U Swing Die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [q(Z=28):22] against [(X=5):3]; Defender (X=5) was captured; Attacker q(Z=28) rerolled 22 => 17'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
@@ -6111,6 +6141,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 12;
         $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 20;
         $expData['playerDataArray'][0]['activeDieArray'][3]['description'] .= ' (with 20 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=20'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 2. Initial die values: responder003 rolled [(4):4, (6):2, (12):4, (X=20):7, (20):8], responder004 rolled [q(T=2):2, q(W=8):5, q(X=20):20, q(Z=28):12].'));
@@ -6347,6 +6379,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Poison'), 'properties' => array(), 'recipe' => 'rp(U)', 'description' => 'Reserve Poison U Swing Die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(X=20):7] against [q(T=2):2]; Defender q(T=2) was captured; Attacker (X=20) rerolled 7 => 20'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'End of round: responder003 won round 2 (80 vs. 18)'));
@@ -6426,6 +6460,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['description'] .= ' (with 4 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 20;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 20 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: T=2, W=4, X=4, Z=4, S=20'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 3. Initial die values: responder003 rolled [(4):2, (6):5, (12):1, (X=20):12, (20):8], responder004 rolled [q(T=2):2, q(W=4):4, q(X=4):1, q(Z=4):1, z(S=20):4].'));
@@ -6616,6 +6652,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Poison'), 'properties' => array(), 'recipe' => 'rp(U)', 'description' => 'Reserve Poison U Swing Die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 surrendered'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 3 because opponent surrendered'));
@@ -6681,6 +6719,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 12;
         $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 20;
         $expData['playerDataArray'][0]['activeDieArray'][3]['description'] .= ' (with 20 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=20'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 4. Initial die values: responder003 rolled [(4):1, (6):4, (12):4, (X=20):10, (10):5, (20):17], responder004 rolled [q(T=2):2, q(W=4):2, q(X=4):2, q(Z=4):4, z(S=20):12].'));
@@ -7067,6 +7107,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 29;
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 30;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 30 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder004 set swing values: U=30';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: W=7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [(6,6):7, (10):4, (12):3, (20):18, (W=7,W=7):4], responder004 rolled [(4):1, (8):7, (12):7, (16):15, B(U=30):29].'));
@@ -7190,6 +7232,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => 16, 'skills' => array(), 'properties' => array(), 'recipe' => '(16)', 'description' => '16-sided die'),
             array('value' => NULL, 'sides' => 30, 'skills' => array('Berserk'), 'properties' => array(), 'recipe' => 'B(U)', 'description' => 'Berserk U Swing Die (with 30 sides)'),
         );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('W' => array(4, 12));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('U' => array(8, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(16):15] against [(6,6):9]; Defender (6,6) was captured; Attacker (16) rerolled 15 => 7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 1 (88 vs. 15)'));
         $expData['gameActionLogCount'] = 7;
@@ -7233,6 +7277,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 3;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: W=6'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 2. Initial die values: responder003 rolled [(6,6):8, (10):10, (12):8, (20):1, (W=6,W=6):11], responder004 rolled [(4):3, (8):5, (12):5, (16):1, B(U=30):3].'));
         $expData['gameActionLogCount'] = 9;
@@ -7323,6 +7369,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 7;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 7 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [H(1,10):9, H(12):5, H(20):18, H(20):13], responder004 rolled [(6):5, (8):5, (10):4, (12,12):13, h(X=7):5].'));
         $expData['gameActionLogCount'] = 2;
@@ -7583,6 +7631,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array('Twin');
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (both with 4 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'] = array(array('sides' => 4, 'value' => 1), array('sides' => 4, 'value' => 4));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: W=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [D(4):2, D(6):5, D(10):10, D(12):9, D(X=4):3], responder004 rolled [(4):4, (8,8):15, (10,10):10, (12):9, (W=4,W=4):5].'));
@@ -7671,7 +7721,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(1, 0)),
             array(array(0, array('value' => 5, 'sides' => 8, 'recipe' => '(W,W)')))
         );
-        $expData['playerDataArray'][0]['swingRequestArray']['W'] = array(4, 12);
         $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array('WasJustCaptured', 'Twin');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [D(12):9] against [(W=4,W=4):5]; Defender (W=4,W=4) was captured; Attacker D(12) changed size from 12 to 8 sides, recipe changed from D(12) to (W=4,W=4), rerolled 9 => 4'));
         $expData['gameActionLogCount'] = 6;
@@ -7948,6 +7997,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 12;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 12 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=12 and option dice: (10/20=10)'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [wm(1):1, wm(2):1, wm(4):4, m(8):4, m(10):2], responder004 rolled [(4):2, k(6):4, (8):1, (10/20=10):3, (X=12)?:8]. responder003 has dice which are not counted for initiative due to die skills: [wm(1), wm(2), wm(4)].'));
         $expData['gameActionLogCount'] = 2;
@@ -8101,7 +8152,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, 2), array(1, 2)),
             array(array(0, array('value' => 8, 'sides' => 12, 'recipe' => '(X)?')))
         );
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [wm(4):4,wm(4):4] against [(X=12)?:8]; Defender (X=12)? was captured; Attacker wm(4) changed size from 4 to 12 sides, recipe changed from wm(4) to wm(X=12), rerolled 4 => 3; Attacker wm(4) changed size from 4 to 12 sides, recipe changed from wm(4) to wm(X=12), rerolled 4 => 9'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
         $expData['gameActionLogCount'] = 9;
@@ -8126,7 +8176,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, 3)),
             array(array(0, array('value' => 4, 'sides' => 6, 'recipe' => 'k(6)')))
         );
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [wm(X=12):9] against [k(6):4]; Defender k(6) was captured; Attacker wm(X=12) changed size from 12 to 6 sides, recipe changed from wm(X=12) to wm(6), rerolled 9 => 5'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
         array_pop($expData['gameActionLog']);
@@ -8144,7 +8193,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'responder003 performed Power attack using [wm(6):5] against [(8):1]; Defender (8) was captured; Attacker wm(6) changed size from 6 to 8 sides, recipe changed from wm(6) to wm(8), rerolled 5 => 1. End of round: responder003 won round 1 (50 vs. 19). ',
             $retval, array(array(0, 1), array(1, 0)),
             $gameId, 1, 'Power', 0, 1, '');
-
         $expData['roundNumber'] = 2;
         $expData['gameState'] = 'SPECIFY_DICE';
         $expData['activePlayerIdx'] = NULL;
@@ -8157,7 +8205,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = NULL;
         $expData['playerDataArray'][0]['sideScore'] = NULL;
         $expData['playerDataArray'][1]['sideScore'] = NULL;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array(3 => array(10, 20));
         $expData['playerDataArray'][1]['prevSwingValueArray'] = array('X' => 12);
         $expData['playerDataArray'][1]['prevOptValueArray'] = array(3 => 10);
@@ -8177,6 +8225,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][0]['capturedDieArray'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'] = array();
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [wm(6):5] against [(8):1]; Defender (8) was captured; Attacker wm(6) changed size from 6 to 8 sides, recipe changed from wm(6) to wm(8), rerolled 5 => 1'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'End of round: responder003 won round 1 (50 vs. 19)'));
@@ -8271,6 +8321,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 4 sides)';
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [wm(1):1, wm(2):2, wm(4):2, m(8):4, m(10):6], responder004 rolled [D(4):2, D(6):2, D(10):10, D(12):4, D(X=4):2]. responder003 has dice which are not counted for initiative due to die skills: [wm(1), wm(2), wm(4)].'));
         $expData['gameActionLogCount'] = 2;
@@ -8321,7 +8373,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(1, 0)),
             array(array(0, array('value' => 2, 'sides' => 4, 'recipe' => 'D(X)')))
         );
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [wm(4):2] against [D(X=4):2]; Defender D(X=4) was captured; Attacker wm(4) remained the same size, recipe changed from wm(4) to wm(X=4), rerolled 2 => 1'));
         $expData['gameActionLogCount'] = 4;
 
@@ -8347,7 +8398,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, 0)),
             array(array(1, array('value' => 1, 'sides' => 4, 'recipe' => 'wm(X)')))
         );
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [D(6):2] against [wm(X=4):1]; Defender wm(X=4) was captured; Attacker D(6) changed size from 6 to 4 sides, recipe changed from D(6) to wm(X=4), rerolled 2 => 3'));
         $expData['gameActionLogCount'] = 5;
 
@@ -8422,6 +8472,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [(6):5, c(6):3, (10):8, (12):7, c(X=4):2], responder004 rolled [(4):4, (6):3, f(8):5, (10):1, f(20):8].'));
         $expData['gameActionLogCount'] = 2;
@@ -8683,6 +8735,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
             array('value' => NULL, 'sides' => 20, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(20)', 'description' => 'Focus 20-sided die'),
         );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [f(20):8] against [(6):4]; Defender (6) was captured; Attacker f(20) rerolled 8 => 14'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 1 (48 vs. 28)'));
@@ -8721,6 +8774,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 2;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=6'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):1, c(6):4, (10):5, (12):8, c(X=6):2], responder004 rolled [(4):3, (6):5, f(8):3, (10):8, f(20):2].'));
@@ -8850,6 +8905,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 3;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 1;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=9, U=8'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [f(3):3, nD(R=9):1, (1):1, n(2):1, Bp(U=8):5], responder004 rolled [Hog%(4):1, Hog%(4):3, Hog%(4):4, Hog%(4):1]. responder004 has dice which are not counted for initiative due to die skills: [Hog%(4), Hog%(4), Hog%(4), Hog%(4)].'));
         $expData['gameActionLogCount'] = 2;
@@ -8875,7 +8932,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, array('value' => 1, 'sides' => 4, 'recipe' => 'Hog%n(4)')))
         );
         array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 0, array(array('value' => '3', 'sides' => 4, 'recipe' => 'Hog(4)', 'description' => 'Mighty Ornery Stinger 4-sided die', 'skills'  => array('Mighty', 'Ornery', 'Stinger'), 'properties' => array('HasJustMorphed', 'HasJustSplit', 'HasJustGrown'))));
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('U' => array(8, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [nD(R=9):1] against [Hog%(4):1]; Defender Hog%(4) recipe changed to Hog%n(4), was captured; Attacker nD(R=9) showing 1 changed to Hog(4), which then split into: Hog(2) which grew into Hog(4) showing 4, and Hog(2) which grew into Hog(4) showing 3'));
         $expData['gameActionLogCount'] = 3;
 
@@ -9016,6 +9072,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 3;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: Y=1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [t(1):1, (10):1, (10):4, z(12):9, (Y=1):1], responder004 rolled [Hog%(4):3, Hog%(4):2, Hog%(4):1, Hog%(4):3]. responder003 has dice which are not counted for initiative due to die skills: [t(1)]. responder004 has dice which are not counted for initiative due to die skills: [Hog%(4), Hog%(4), Hog%(4), Hog%(4)].'));
         $expData['gameActionLogCount'] = 2;
@@ -9128,6 +9186,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: T=2'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [q(2):1, z(3):2, (5):3, s(23):11, t(T=2,T=2):3], responder004 rolled [Hog%(4):4, Hog%(4):1, Hog%(4):2, Hog%(4):4]. responder003 has dice which are not counted for initiative due to die skills: [t(T=2,T=2)]. responder004 has dice which are not counted for initiative due to die skills: [Hog%(4), Hog%(4), Hog%(4), Hog%(4)].'));
         $expData['gameActionLogCount'] = 2;
@@ -9301,6 +9361,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (both with 2 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'] = array(array('sides' => 2, 'value' => 1), array('sides' => 2, 'value' => 1));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: R=2'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [tm(6):3, f(8):8, g(10):7, z(10):1, sF(20):3], responder004 rolled [v(5):2, v(10):6, vq(10):1, vs(15):5, s(R=2,R=2)?:2]. responder003 has dice which are not counted for initiative due to die skills: [tm(6), g(10)].'));
         $expData['gameActionLogCount'] = 2;
@@ -9376,7 +9438,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=8,R=8)?:4]; Defender s(R=8,R=8)? was captured; Attacker tm(6) changed size from 6 to 16 sides, recipe changed from tm(6) to tm(R=8,R=8), rerolled 3 => 6; Attacker z(10) rerolled 1 => 3'));
         $expData['gameActionLogCount'] = 5;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -9606,6 +9667,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray']['4']['sides'] = 4;
         $expData['playerDataArray'][1]['activeDieArray']['4']['description'] .= ' (both with 2 sides)';
         $expData['playerDataArray'][1]['activeDieArray']['4']['subdieArray'] = array(array('sides' => 2, 'value' => 1), array('sides' => 2, 'value' => 2));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder003 set swing values: T=2';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: T=2'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [q(2):1, z(3):3, (5):5, s(23):6, t(T=2,T=2):3], responder004 rolled [q(2):2, z(3):1, (5):1, s(23):16, t(T=2,T=2):3]. responder003 has dice which are not counted for initiative due to die skills: [t(T=2,T=2)]. responder004 has dice which are not counted for initiative due to die skills: [t(T=2,T=2)].'));
@@ -10035,6 +10098,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 17.5;
         $expData['playerDataArray'][0]['sideScore'] = -10.7;
         $expData['playerDataArray'][1]['sideScore'] = 10.7;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
 
 
         ////////////////////
@@ -10239,6 +10304,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'Focus Option Die (with 4 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 15;
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 1;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
 
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: Y=20 and option dice: f(4/20=4)'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(1):1, (2):1, z(12):1, z(20):10, `(4):4, `(6):6, `(8):8, `(10):10], responder004 rolled [z(15,15):17, tg(6):6, n(Y=20):19, f(4/20=4):4, sgv(17):15, `(1):1]. responder003 has dice which are not counted for initiative due to die skills: [`(4), `(6), `(8), `(10)]. responder004 has dice which are not counted for initiative due to die skills: [tg(6), sgv(17), `(1)].'));
@@ -10358,7 +10425,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 4.0;
         $expData['playerDataArray'][1]['sideScore'] = -4.0;
         $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 1;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Stealth Shadow Option Die (with 1 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Stealth Shadow Option Die (with 1 side)';
         $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Warrior Rage Option Die (with 5 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 1;
@@ -10376,6 +10443,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 12;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['gameActionLog'][0]['message'] = 'responder003 set swing values: X=4, Z=4';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: Y=1 and option dice: ds(1/15=1), `G(5/10=5)'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [k(7):5, p(X=4)?:4, o(Z=4):4, G(3,17):7, t(5):4, g`(2):2], responder004 rolled [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1):1, wHz(12):12]. responder003 has dice which are not counted for initiative due to die skills: [G(3,17), t(5), g`(2)]. responder004 has dice which are not counted for initiative due to die skills: [ft(5), `G(5/10=5), wHz(12)].'));
@@ -10604,6 +10673,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 14;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 19;
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 11;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: W=4, X=4, T=3'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [dG(17):2, Ho(W=4)?:2, q(X=4):3, ^B(T=3,T=3):4, (5):5], responder004 rolled [(20):4, (20):1, (20):15, (20):14, (20):19, (20):11]. responder004\'s button has the "slow" button special, and cannot win initiative normally.'));
         $expData['gameActionLogCount'] = 2;
@@ -10748,6 +10819,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'Focus Option Die (with 20 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 1;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
 
         $expData['gameActionLog'][0]['message'] = 'responder004 set swing values: Y=5 and option dice: f(4/20=20)';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=11'));
@@ -10927,6 +11000,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 15;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 9;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 7;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 40;
         $expData['playerDataArray'][1]['sideScore'] = 14.3;
         $expData['playerWithInitiativeIdx'] = 0;
@@ -11238,6 +11313,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = null;
         $expData['playerDataArray'][1]['sideScore'] = null;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
+
         $expData['roundNumber'] = 2;
         $expData['validAttackTypeArray'] = array();
         $expData['gameActionLogCount'] = 11;
@@ -11282,7 +11359,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 30 sides)";
         $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 30;
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 20;
-        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 side)";
         $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 1;
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 1;
         $expData['playerDataArray'][0]['prevOptValueArray'] = array();
@@ -11295,6 +11372,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 7;
         $expData['playerDataArray'][1]['roundScore'] = 40;
         $expData['playerDataArray'][1]['sideScore'] = 20;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Trip");
         $expData['gameActionLogCount'] = 14;
 
@@ -11719,6 +11798,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "Y Mad Swing Die (with 19 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 19;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 24.5;
         $expData['playerDataArray'][1]['sideScore'] = 3.3;
         $expData['playerWithInitiativeIdx'] = 0;
@@ -12138,6 +12219,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "Rage X Swing Die (with 19 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 19;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 7;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 24.5;
         $expData['playerDataArray'][1]['sideScore'] = 0.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
@@ -12316,6 +12399,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "X Swing Die (with 17 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 17;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 23;
         $expData['playerDataArray'][1]['sideScore'] = 13.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
@@ -12531,6 +12616,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 11;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 14;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][0]['roundScore'] = 22;
         $expData['playerDataArray'][1]['roundScore'] = 60;
         $expData['playerDataArray'][0]['sideScore'] = -25.3;
@@ -12895,6 +12982,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 20;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: S=6'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [Gst(S=6):2, Gst(S=6)?:1, Gst^(S=6):2], responder004 rolled [(20):13, (20):2, (20):7, (20):4, (20):6, (20):20]. responder004\'s button has the "slow" button special, and cannot win initiative normally.'));
         $expData['gameActionLogCount'] += 2;
@@ -12937,6 +13026,1444 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     // N.B. Fake game 44 is used by a test above
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test locks in the behavior of a Trip die unsuccessfully attacking a Radioactive die
+     * The attacking trip die SHOULD split in this case (#1432, #1919)
+     */
+    public function test_interface_game_044() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 44;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        $gameId = $this->verify_api_createGame(
+            array(1, 1, 1, 7, 1, 2, 1, 3, 1, 4, 1, 7),
+            'responder003', 'responder004', 'Prudence', 'Calmon', 3
+        );
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive', 'Trip'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Prudence', 'recipe' => '(1) t(4) (6) (12) (X)', 'artFilename' => 'prudence.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Calmon', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'calmon.png');
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 1, 'skills' => array(), 'properties' => array(), 'recipe' => '(1)', 'description' => '1-sided die'),
+            array('value' => NULL, 'sides' => 4, 'skills' => array('Trip'), 'properties' => array(), 'recipe' => 't(4)', 'description' => 'Trip 4-sided die'),
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 3, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('Twin'), 'recipe' => '%Ho(1,2)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 2 sides)', 'subdieArray' => array(array('sides' => 1), array('sides' => 2))),
+            array('value' => NULL, 'sides' => 5, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('Twin'), 'recipe' => '%Ho(1,4)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 4 sides)', 'subdieArray' => array(array('sides' => 1), array('sides' => 4))),
+            array('value' => NULL, 'sides' => 7, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('Twin'), 'recipe' => '%Ho(1,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 6 sides)', 'subdieArray' => array(array('sides' => 1), array('sides' => 6))),
+            array('value' => NULL, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array('Twin'), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)', 'subdieArray' => array(array('sides' => 1), array('sides' => 8))),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitDieValues(
+            array(4),
+            $gameId, 1, array('X' => 6), NULL);
+
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(1):1, t(4):1, (6):1, (12):7, (X=6):4], responder004 rolled [%Ho(1,2):3, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):8]. responder003 has dice which are not counted for initiative due to die skills: [t(4)].'));
+        $expData['gameActionLogCount'] = 2;
+        $expData['gameState'] = "START_TURN";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "X Swing Die (with 6 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 4;
+        $expData['playerDataArray'][0]['roundScore'] = 14.5;
+        $expData['playerDataArray'][0]['sideScore'] = 1.7;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'] = array(array("sides" => "1", "value" => "1"), array("sides" => "2", "value" => "2"));
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['subdieArray'] = array(array("sides" => "1", "value" => "1"), array("sides" => "4", "value" => "3"));
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['subdieArray'] = array(array("sides" => "1", "value" => "1"), array("sides" => "6", "value" => "4"));
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['subdieArray'] = array(array("sides" => "1", "value" => "1"), array("sides" => "8", "value" => "7"));
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
+        $expData['playerDataArray'][1]['roundScore'] = 12;
+        $expData['playerDataArray'][1]['sideScore'] = -1.7;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(1, 1, 2, 2, 1),
+            'responder003 performed Trip attack using [t(4):1] against [%Ho(1,2):3]; Attacker t(4) rerolled 1 => 1; Defender %Ho(1,2) recipe changed to %Ho(2,4), rerolled 3 => 3, was not captured; Attacker t(4) showing 1 split into: t(2) showing 2, and t(2) showing 1. ',
+            $retval, array(array(0, 1), array(1, 0)),
+            $gameId, 1, 'Trip', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [t(4):1] against [%Ho(1,2):3]; Attacker t(4) rerolled 1 => 1; Defender %Ho(1,2) recipe changed to %Ho(2,4), rerolled 3 => 3, was not captured; Attacker t(4) showing 1 split into: t(2) showing 2, and t(2) showing 1'));
+        $expData['gameActionLogCount'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("JustPerformedTripAttack", "JustPerformedUnsuccessfulAttack", "HasJustSplit");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = 't(2)';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Trip 2-sided die';
+        array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 0, array(
+            array('value' => 1, 'sides' => 2, 'recipe' => 't(2)', 'skills' => array('Trip'), 'properties' => array("JustPerformedTripAttack", "JustPerformedUnsuccessfulAttack", "HasJustSplit"), 'description' => 'Trip 2-sided die')));
+        $expData['playerDataArray'][0]['sideScore'] = 0.7;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "Radioactive Mighty Ornery Twin Die (with 2 and 4 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array("HasJustGrown", "Twin");
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "%Ho(2,4)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'] = array(array("sides" => "2", "value" => "1"), array("sides" => "4", "value" => "2"));
+        $expData['playerDataArray'][1]['roundScore'] = 13.5;
+        $expData['playerDataArray'][1]['sideScore'] = -0.7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1, 4, 1, 2, 2, 1, 1, 7, 2, 2),
+            'responder004 performed Skill attack using [%Ho(1,4):4] against [(X=6):4]; Defender (X=6) was captured; Attacker %Ho(1,4) showing 4 changed to Ho(1,4), which then split into: Ho(1,2) which grew into Ho(2,4) showing 5, and Ho(0,2) which grew into Ho(1,4) showing 3. responder004\'s idle ornery dice rerolled at end of turn: %Ho(2,4) changed size from 6 to 10 sides, recipe changed from %Ho(2,4) to %Ho(4,6), rerolled 3 => 3; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 5 => 8; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 8 => 4. ',
+            $retval, array(array(1, 1), array(0, 5)),
+            $gameId, 1, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [%Ho(1,4):4] against [(X=6):4]; Defender (X=6) was captured; Attacker %Ho(1,4) showing 4 changed to Ho(1,4), which then split into: Ho(1,2) which grew into Ho(2,4) showing 5, and Ho(0,2) which grew into Ho(1,4) showing 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: %Ho(2,4) changed size from 6 to 10 sides, recipe changed from %Ho(2,4) to %Ho(4,6), rerolled 3 => 3; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 5 => 8; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 8 => 4'));
+        $expData['gameActionLogCount'] = 5;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['roundScore'] = 11.5;
+        $expData['playerDataArray'][0]['sideScore'] = -10.7;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "Radioactive Mighty Ornery Twin Die (with 4 and 6 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array("HasJustGrown", "HasJustRerolledOrnery", "Twin");
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "%Ho(4,6)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'] = array(array("sides" => "4", "value" => "2"), array("sides" => "6", "value" => "1"));
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "Mighty Ornery Twin Die (with 2 and 4 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array("HasJustSplit", "HasJustGrown", "Twin");
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "Ho(2,4)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['skills'] = array("Mighty", "Ornery");
+        $expData['playerDataArray'][1]['activeDieArray'][1]['subdieArray'] = array(array("sides" => "2", "value" => "1"), array("sides" => "4", "value" => "4"));
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "Mighty Ornery Twin Die (with 1 and 4 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array("HasJustSplit", "HasJustGrown", "Twin");
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "Ho(1,4)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['skills'] = array("Mighty", "Ornery");
+        $expData['playerDataArray'][1]['activeDieArray'][2]['subdieArray'] = array(array("sides" => "1", "value" => "1"), array("sides" => "4", "value" => "2"));
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = "Radioactive Mighty Ornery Twin Die (with 2 and 8 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array("HasJustGrown", "HasJustRerolledOrnery", "Twin");
+        $expData['playerDataArray'][1]['activeDieArray'][3]['recipe'] = "%Ho(2,8)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['subdieArray'] = array(array("sides" => "2", "value" => "1"), array("sides" => "8", "value" => "7"));
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "Radioactive Mighty Ornery Twin Die (with 2 and 10 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array("HasJustGrown", "HasJustRerolledOrnery", "Twin");
+        $expData['playerDataArray'][1]['activeDieArray'][4]['recipe'] = "%Ho(2,10)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 12;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['skills'] = array("Radioactive", "Mighty", "Ornery");
+        $expData['playerDataArray'][1]['activeDieArray'][4]['subdieArray'] = array(array("sides" => "2", "value" => "2"), array("sides" => "10", "value" => "2"));
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 4;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['roundScore'] = 27.5;
+        $expData['playerDataArray'][1]['sideScore'] = 10.7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test checks for regressions of option die indexing in display of previous option values.
+     * This test uses bobby 5150, who has an option reserve die which is not the first reserve die.
+     * * bobby 5150 loses round 1 and selects the r(1/30) (actually r!(1/30)) die
+     * * bobby 5150 loses round 2 and selects a second reserve die with an earlier index than r!(1/30)
+     * * the API must still report the correct previous option value for the r(1/30)
+     * Note: because 2/3 of the game must be played in order to verify the fix, this test game is then
+     * played to the end in case there is a future use for more completed test games
+     */
+    public function test_interface_game_045() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 45;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        $gameId = $this->verify_api_createGame(
+            array(3, 14, 1, 4, 1, 6),
+            'responder003', 'responder004', 'bobby 5150', 'Uncle Scratchy', 3
+        );
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Poison', 'Reserve', 'Shadow', 'Speed', 'TimeAndSpace', 'Trip'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Uncle Scratchy', 'recipe' => '(2) (4) (6) (10) (X)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
+        $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 3, 'skills' => array('TimeAndSpace'), 'properties' => array(), 'recipe' => '^(3)', 'description' => 'TimeAndSpace 3-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Focus', 'Shadow', 'Poison'), 'properties' => array(), 'recipe' => 'fsp(R)', 'description' => 'Focus Shadow Poison R Swing Die'),
+            array('value' => NULL, 'sides' => 14, 'skills' => array('Focus', 'Trip', 'Speed'), 'properties' => array(), 'recipe' => 'ftz(14)', 'description' => 'Focus Trip Speed 14-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Trip', 'Speed'), 'properties' => array(), 'recipe' => 'tz(1/30)', 'description' => 'Trip Speed Option Die (with 1 or 30 sides)'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 2, 'skills' => array(), 'properties' => array(), 'recipe' => '(2)', 'description' => '2-sided die'),
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitDieValues(
+            array(11),
+            $gameId, 1, array('X' => 11), NULL);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set die sizes'));
+        $expData['gameActionLogCount'] = 1;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitDieValues(
+            array(7, 1),
+            $gameId, 1, array('R' => 15), array(3 => 1));
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=11'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=15 and option dice: tz(1/30=1)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [^(3):3, fsp(R=15):7, ftz(14):14, tz(1/30=1):1], responder004 rolled [(2):1, (4):4, (6):1, (10):6, (X=11):11]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=1)].'));
+        $expData['gameActionLogCount'] = 3;
+        $expData['gameState'] = "START_TURN";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Shadow Poison R Swing Die (with 15 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 15;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 14;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 1 side)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 1;
+        $expData['playerDataArray'][0]['roundScore'] = -6;
+        $expData['playerDataArray'][0]['sideScore'] = -15;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 11;
+        $expData['playerDataArray'][1]['roundScore'] = 16.5;
+        $expData['playerDataArray'][1]['sideScore'] = 15;
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['playerWithInitiativeIdx'] = 1;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(2),
+            'responder004 performed Power attack using [(4):4] against [^(3):3]; Defender ^(3) was captured; Attacker (4) rerolled 4 => 2. ',
+            $retval, array(array(1, 1), array(0, 0)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):4] against [^(3):3]; Defender ^(3) was captured; Attacker (4) rerolled 4 => 2'));
+        $expData['gameActionLogCount'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Focus Shadow Poison R Swing Die (with 15 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "fsp(R)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 15;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['skills'] = array("Focus", "Shadow", "Poison");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Trip Speed 14-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 14;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Focus", "Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 14;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Trip Speed Option Die (with 1 side)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 1;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = -7.5;
+        $expData['playerDataArray'][0]['sideScore'] = -18;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "^(3)";
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 3;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][1]['roundScore'] = 19.5;
+        $expData['playerDataArray'][1]['sideScore'] = 18;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Shadow", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(1),
+            'responder003 performed Speed attack using [tz(1/30=1):1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1) rerolled 1 => 1. ',
+            $retval, array(array(0, 2), array(1, 2)),
+            $gameId, 1, 'Speed', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Speed attack using [tz(1/30=1):1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1) rerolled 1 => 1'));
+        $expData['gameActionLogCount'] = 5;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "(6)";
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][0]['roundScore'] = -1.5;
+        $expData['playerDataArray'][0]['sideScore'] = -12;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "10-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(10)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 11;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 16.5;
+        $expData['playerDataArray'][1]['sideScore'] = 12;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1),
+            'responder004 performed Skill attack using [(2):1] against [tz(1/30=1):1]; Defender tz(1/30=1) was captured; Attacker (2) rerolled 1 => 1. ',
+            $retval, array(array(1, 0), array(0, 2)),
+            $gameId, 1, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(2):1] against [tz(1/30=1):1]; Defender tz(1/30=1) was captured; Attacker (2) rerolled 1 => 1'));
+        $expData['gameActionLogCount'] = 6;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = -2;
+        $expData['playerDataArray'][0]['sideScore'] = -13;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['sides'] = 1;
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][1]['roundScore'] = 17.5;
+        $expData['playerDataArray'][1]['sideScore'] = 13;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Shadow", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(2),
+            'responder003 performed Power attack using [ftz(14):14] against [(X=11):11]; Defender (X=11) was captured; Attacker ftz(14) rerolled 14 => 2. ',
+            $retval, array(array(0, 1), array(1, 3)),
+            $gameId, 1, 'Power', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [ftz(14):14] against [(X=11):11]; Defender (X=11) was captured; Attacker ftz(14) rerolled 14 => 2'));
+        $expData['gameActionLogCount'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['recipe'] = "(X)";
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['sides'] = 11;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['value'] = 11;
+        $expData['playerDataArray'][0]['roundScore'] = 9;
+        $expData['playerDataArray'][0]['sideScore'] = -2;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 12;
+        $expData['playerDataArray'][1]['sideScore'] = 2;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(2),
+            'responder004 performed Skill attack using [(4):2] against [ftz(14):2]; Defender ftz(14) was captured; Attacker (4) rerolled 2 => 2. responder003 passed. ',
+            $retval, array(array(1, 1), array(0, 1)),
+            $gameId, 1, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(4):2] against [ftz(14):2]; Defender ftz(14) was captured; Attacker (4) rerolled 2 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        $expData['gameActionLogCount'] = 9;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = 2;
+        $expData['playerDataArray'][0]['sideScore'] = -16;
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['sides'] = 14;
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['value'] = 2;
+        $expData['playerDataArray'][1]['roundScore'] = 26;
+        $expData['playerDataArray'][1]['sideScore'] = 16;
+        $expData['validAttackTypeArray'] = array("Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(2, 8),
+            'responder004 performed Skill attack using [(2):1,(10):6] against [fsp(R=15):7]; Defender fsp(R=15) was captured; Attacker (2) rerolled 1 => 2; Attacker (10) rerolled 6 => 8. End of round: responder004 won round 1 (18.5 vs. 17). ',
+            $retval, array(array(1, 0), array(1, 2), array(0, 0)),
+            $gameId, 1, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = null;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(2):1,(10):6] against [fsp(R=15):7]; Defender fsp(R=15) was captured; Attacker (2) rerolled 1 => 2; Attacker (10) rerolled 6 => 8'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 1 (18.5 vs. 17)'));
+        $expData['gameActionLogCount'] = 11;
+        $expData['gameState'] = "CHOOSE_RESERVE_DICE";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "TimeAndSpace 3-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "^(3)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['skills'] = array("TimeAndSpace");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Shadow Poison R Swing Die";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "fsp(R)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Focus", "Shadow", "Poison");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Focus Trip Speed 14-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 14;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Focus", "Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 1 or 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Reserve TimeAndSpace 4-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][4]['recipe'] = "r^(4)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array("Reserve", "TimeAndSpace");
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['description'] = "Reserve Speed 12-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][5]['recipe'] = "rz(12)";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['skills'] = array("Reserve", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][5]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][6]['description'] = "Reserve Option Die (with 1 or 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][6]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][6]['recipe'] = "r(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][6]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][6]['skills'] = array("Reserve");
+        $expData['playerDataArray'][0]['activeDieArray'][6]['value'] = null;
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        $expData['playerDataArray'][0]['gameScoreArray'] = array("D" => 0, "L" => 1, "W" => 0);
+        $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "6" => array(1, 30));
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 1);
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array("R" => 15);
+        $expData['playerDataArray'][0]['roundScore'] = null;
+        $expData['playerDataArray'][0]['sideScore'] = null;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array("R" => array(2, 16));
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "6-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(6)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = "10-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['recipe'] = "(10)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][4]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = null;
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        $expData['playerDataArray'][1]['gameScoreArray'] = array("D" => 0, "L" => 0, "W" => 1);
+        $expData['playerDataArray'][1]['prevSwingValueArray'] = array("X" => 11);
+        $expData['playerDataArray'][1]['roundScore'] = null;
+        $expData['playerDataArray'][1]['sideScore'] = null;
+        $expData['playerDataArray'][1]['swingRequestArray'] = array("X" => array(4, 20));
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['roundNumber'] = 2;
+        $expData['validAttackTypeArray'] = array();
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_reactToReserve(
+            array(1, 8, 2, 4, 3, 7, 8),
+            'responder003 added a reserve die: r(1/30). ',
+            $gameId, 'add', 6);
+
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 added a reserve die: r(1/30)'));
+        $expData['gameActionLogCount'] = 12;
+        $expData['gameState'] = "SPECIFY_DICE";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 or 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array();
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30) r^(4) rz(12) (1/30)");
+        $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "4" => array(1, 30));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitDieValues(
+            array(1, 1, 1),
+            $gameId, 2, array('R' => 11), array(3 => 1, 4 => 1));
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=11 and option dice: tz(1/30=1), (1/30=1)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 2. Initial die values: responder003 rolled [^(3):1, fsp(R=11):1, ftz(14):8, tz(1/30=1):1, (1/30=1):1], responder004 rolled [(2):2, (4):4, (6):3, (10):7, (X=11):8]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=1)].'));
+        $expData['gameActionLogCount'] = 14;
+        $expData['gameState'] = "START_TURN";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Shadow Poison R Swing Die (with 11 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 1 side)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 1 side)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 1;
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array();
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = -1.5;
+        $expData['playerDataArray'][0]['sideScore'] = -12;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 7;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][1]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 16.5;
+        $expData['playerDataArray'][1]['sideScore'] = 12;
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Shadow", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(6),
+            'responder003 performed Shadow attack using [fsp(R=11):1] against [(2):2]; Defender (2) was captured; Attacker fsp(R=11) rerolled 1 => 6. ',
+            $retval, array(array(0, 1), array(1, 0)),
+            $gameId, 2, 'Shadow', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Shadow attack using [fsp(R=11):1] against [(2):2]; Defender (2) was captured; Attacker fsp(R=11) rerolled 1 => 6'));
+        $expData['gameActionLogCount'] = 15;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 6;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "(2)";
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['sides'] = 2;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['roundScore'] = 0.5;
+        $expData['playerDataArray'][0]['sideScore'] = -10;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "4-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "(4)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "6-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "(6)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "10-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(10)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 7;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['roundScore'] = 15.5;
+        $expData['playerDataArray'][1]['sideScore'] = 10;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(9),
+            'responder004 performed Skill attack using [(X=11):8] against [ftz(14):8]; Defender ftz(14) was captured; Attacker (X=11) rerolled 8 => 9. ',
+            $retval, array(array(1, 3), array(0, 2)),
+            $gameId, 2, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(X=11):8] against [ftz(14):8]; Defender ftz(14) was captured; Attacker (X=11) rerolled 8 => 9'));
+        $expData['gameActionLogCount'] = 16;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Trip Speed Option Die (with 1 side)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Option Die (with 1 side)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array();
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30), "3" => array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = -6.5;
+        $expData['playerDataArray'][0]['sideScore'] = -24;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 9;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 14;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 8;
+        $expData['playerDataArray'][1]['roundScore'] = 29.5;
+        $expData['playerDataArray'][1]['sideScore'] = 24;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Skill", "Shadow", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(3, 2),
+            'responder003 performed Skill attack using [^(3):1,fsp(R=11):6] against [(10):7]; Defender (10) was captured; Attacker ^(3) rerolled 1 => 3; Attacker fsp(R=11) rerolled 6 => 2. responder003 gets another turn because a Time and Space die rolled odd. ',
+            $retval, array(array(0, 0), array(0, 1), array(1, 2)),
+            $gameId, 2, 'Skill', 0, 1, '');
+
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [^(3):1,fsp(R=11):6] against [(10):7]; Defender (10) was captured; Attacker ^(3) rerolled 1 => 3; Attacker fsp(R=11) rerolled 6 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 gets another turn because a Time and Space die rolled odd'));
+        $expData['gameActionLogCount'] = 18;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['recipe'] = "(10)";
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['sides'] = 10;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['value'] = 7;
+        $expData['playerDataArray'][0]['roundScore'] = 3.5;
+        $expData['playerDataArray'][0]['sideScore'] = -14;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 9;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 24.5;
+        $expData['playerDataArray'][1]['sideScore'] = 14;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Shadow", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(7, 1, 1),
+            'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1):1,(1/30=1):1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1) rerolled 1 => 1; Attacker (1/30=1) rerolled 1 => 1. ',
+            $retval, array(array(0, 1), array(0, 2), array(0, 3), array(1, 0)),
+            $gameId, 2, 'Skill', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1):1,(1/30=1):1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1) rerolled 1 => 1; Attacker (1/30=1) rerolled 1 => 1'));
+        $expData['gameActionLogCount'] = 19;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 7;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['recipe'] = "(4)";
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['sides'] = 4;
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][0]['roundScore'] = 7.5;
+        $expData['playerDataArray'][0]['sideScore'] = -10;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "6-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "(6)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 9;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['roundScore'] = 22.5;
+        $expData['playerDataArray'][1]['sideScore'] = 10;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1),
+            'responder004 performed Power attack using [(6):3] against [(1/30=1):1]; Defender (1/30=1) was captured; Attacker (6) rerolled 3 => 1. ',
+            $retval, array(array(1, 0), array(0, 3)),
+            $gameId, 2, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(6):3] against [(1/30=1):1]; Defender (1/30=1) was captured; Attacker (6) rerolled 3 => 1'));
+        $expData['gameActionLogCount'] = 20;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = 7;
+        $expData['playerDataArray'][0]['sideScore'] = -11;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['sides'] = 1;
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][1]['roundScore'] = 23.5;
+        $expData['playerDataArray'][1]['sideScore'] = 11;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Shadow", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(7),
+            'responder003 performed Shadow attack using [fsp(R=11):7] against [(X=11):9]; Defender (X=11) was captured; Attacker fsp(R=11) rerolled 7 => 7. ',
+            $retval, array(array(0, 1), array(1, 1)),
+            $gameId, 2, 'Shadow', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Shadow attack using [fsp(R=11):7] against [(X=11):9]; Defender (X=11) was captured; Attacker fsp(R=11) rerolled 7 => 7'));
+        $expData['gameActionLogCount'] = 21;
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['recipe'] = "(X)";
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['value'] = 9;
+        $expData['playerDataArray'][0]['roundScore'] = 18;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 18;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(6),
+            'responder004 performed Skill attack using [(6):1] against [tz(1/30=1):1]; Defender tz(1/30=1) was captured; Attacker (6) rerolled 1 => 6. responder003 passed. ',
+            $retval, array(array(1, 0), array(0, 2)),
+            $gameId, 2, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(6):1] against [tz(1/30=1):1]; Defender tz(1/30=1) was captured; Attacker (6) rerolled 1 => 6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        $expData['gameActionLogCount'] = 23;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = 17.5;
+        $expData['playerDataArray'][0]['sideScore'] = -1;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 6;
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['sides'] = 1;
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][1]['roundScore'] = 19;
+        $expData['playerDataArray'][1]['sideScore'] = 1;
+        $expData['validAttackTypeArray'] = array("Power");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(3),
+            'responder004 performed Power attack using [(6):6] against [^(3):3]; Defender ^(3) was captured; Attacker (6) rerolled 6 => 3. responder003 passed. responder004 passed. End of round: responder004 won round 2 (22 vs. 16). ',
+            $retval, array(array(1, 0), array(0, 0)),
+            $gameId, 2, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = null;
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(6):6] against [^(3):3]; Defender ^(3) was captured; Attacker (6) rerolled 6 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 2 (22 vs. 16)'));
+        $expData['gameActionLogCount'] = 27;
+        $expData['gameState'] = "CHOOSE_RESERVE_DICE";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Shadow Poison R Swing Die";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Focus Trip Speed 14-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 14;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Focus", "Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 1 or 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Reserve TimeAndSpace 4-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][4]['recipe'] = "r^(4)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array("Reserve", "TimeAndSpace");
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['description'] = "Reserve Speed 12-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][5]['recipe'] = "rz(12)";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['skills'] = array("Reserve", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][5]['value'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][6]['description'] = "Option Die (with 1 or 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][6]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][6]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][6]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][6]['skills'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][6]['value'] = null;
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        $expData['playerDataArray'][0]['gameScoreArray'] = array("D" => 0, "L" => 2, "W" => 0);
+        $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "6" => array(1, 30));
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 1, "4" => 1);
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array("R" => 11);
+        $expData['playerDataArray'][0]['roundScore'] = null;
+        $expData['playerDataArray'][0]['sideScore'] = null;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array("R" => array(2, 16));
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "2-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "(2)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "4-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "(4)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "6-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(6)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = "10-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['recipe'] = "(10)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = null;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][4]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = null;
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        $expData['playerDataArray'][1]['gameScoreArray'] = array("D" => 0, "L" => 0, "W" => 2);
+        $expData['playerDataArray'][1]['prevSwingValueArray'] = array("X" => 11);
+        $expData['playerDataArray'][1]['roundScore'] = null;
+        $expData['playerDataArray'][1]['sideScore'] = null;
+        $expData['playerDataArray'][1]['swingRequestArray'] = array("X" => array(4, 20));
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['roundNumber'] = 3;
+        $expData['validAttackTypeArray'] = array();
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_reactToReserve(
+            array(1, 1, 12, 1, 2, 1, 9, 8),
+            'responder003 added a reserve die: rz(12). ',
+            $gameId, 'add', 5);
+
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 added a reserve die: rz(12)'));
+        $expData['gameActionLogCount'] = 28;
+        $expData['gameState'] = "SPECIFY_DICE";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Speed 12-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['recipe'] = "z(12)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array("Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][5]['description'] = "Option Die (with 1 or 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['sides'] = null;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['skills'] = array();
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30) r^(4) z(12) (1/30)");
+        $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "5" => array(1, 30));
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 1, "5" => 1);
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitDieValues(
+            array(4, 30, 25),
+            $gameId, 3, array('R' => 13), array(3 => 30, 5 => 30));
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=13 and option dice: tz(1/30=30), (1/30=30)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 3. Initial die values: responder003 rolled [^(3):1, fsp(R=13):4, ftz(14):1, tz(1/30=30):30, z(12):12, (1/30=30):25], responder004 rolled [(2):1, (4):2, (6):1, (10):9, (X=11):8]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=30)].'));
+        $expData['gameActionLogCount'] = 30;
+        $expData['gameState'] = "START_TURN";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Shadow Poison R Swing Die (with 13 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 13;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Trip Speed Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['description'] = "Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][5]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][5]['value'] = 25;
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array();
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = 31.5;
+        $expData['playerDataArray'][0]['sideScore'] = 10;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
+        $expData['playerDataArray'][1]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 16.5;
+        $expData['playerDataArray'][1]['sideScore'] = -10;
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['playerWithInitiativeIdx'] = 1;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(2),
+            'responder004 performed Power attack using [(2):1] against [^(3):1]; Defender ^(3) was captured; Attacker (2) rerolled 1 => 2. ',
+            $retval, array(array(1, 0), array(0, 0)),
+            $gameId, 3, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(2):1] against [^(3):1]; Defender ^(3) was captured; Attacker (2) rerolled 1 => 2'));
+        $expData['gameActionLogCount'] = 31;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Focus Shadow Poison R Swing Die (with 13 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "fsp(R)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 13;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['skills'] = array("Focus", "Shadow", "Poison");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Focus Trip Speed 14-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 14;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Focus", "Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Trip Speed Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Speed 12-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "z(12)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array("Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 25;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30), "4" => array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = 30;
+        $expData['playerDataArray'][0]['sideScore'] = 7;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "^(3)";
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 3;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][1]['roundScore'] = 19.5;
+        $expData['playerDataArray'][1]['sideScore'] = -7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Shadow", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(24),
+            'responder003 performed Power attack using [(1/30=30):25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30) rerolled 25 => 24. ',
+            $retval, array(array(0, 4), array(1, 0)),
+            $gameId, 3, 'Power', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30):25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30) rerolled 25 => 24'));
+        $expData['gameActionLogCount'] = 32;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 24;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "(2)";
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['sides'] = 2;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['roundScore'] = 32;
+        $expData['playerDataArray'][0]['sideScore'] = 9;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "4-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "(4)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "6-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "(6)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "10-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(10)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 18.5;
+        $expData['playerDataArray'][1]['sideScore'] = -9;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1),
+            'responder004 performed Skill attack using [(6):1] against [ftz(14):1]; Defender ftz(14) was captured; Attacker (6) rerolled 1 => 1. ',
+            $retval, array(array(1, 1), array(0, 1)),
+            $gameId, 3, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(6):1] against [ftz(14):1]; Defender ftz(14) was captured; Attacker (6) rerolled 1 => 1'));
+        $expData['gameActionLogCount'] = 33;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Trip Speed Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Speed 12-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "z(12)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 24;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array("1" => array(1, 30), "3" => array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = 25;
+        $expData['playerDataArray'][0]['sideScore'] = -5;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['recipe'] = "ftz(14)";
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['sides'] = 14;
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][1]['roundScore'] = 32.5;
+        $expData['playerDataArray'][1]['sideScore'] = 5;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Shadow", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(23, 5),
+            'responder003 performed Trip attack using [tz(1/30=30):30] against [(6):1]; Attacker tz(1/30=30) rerolled 30 => 23; Defender (6) rerolled 1 => 5, was captured. ',
+            $retval, array(array(0, 1), array(1, 1)),
+            $gameId, 3, 'Trip', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30):30] against [(6):1]; Attacker tz(1/30=30) rerolled 30 => 23; Defender (6) rerolled 1 => 5, was captured'));
+        $expData['gameActionLogCount'] = 34;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("JustPerformedTripAttack");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 23;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['recipe'] = "(6)";
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['sides'] = 6;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['value'] = 5;
+        $expData['playerDataArray'][0]['roundScore'] = 31;
+        $expData['playerDataArray'][0]['sideScore'] = 1;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "10-sided die";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "(10)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 8;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 29.5;
+        $expData['playerDataArray'][1]['sideScore'] = -1;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(10),
+            'responder004 performed Power attack using [(X=11):8] against [fsp(R=13):4]; Defender fsp(R=13) was captured; Attacker (X=11) rerolled 8 => 10. ',
+            $retval, array(array(1, 2), array(0, 0)),
+            $gameId, 3, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(X=11):8] against [fsp(R=13):4]; Defender fsp(R=13) was captured; Attacker (X=11) rerolled 8 => 10'));
+        $expData['gameActionLogCount'] = 35;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Trip Speed Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['skills'] = array("Trip", "Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 23;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Speed 12-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "z(12)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Speed");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 24;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array("0" => array(1, 30), "2" => array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = 44;
+        $expData['playerDataArray'][0]['sideScore'] = 14;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['recipe'] = "fsp(R)";
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['sides'] = 13;
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][1]['roundScore'] = 23;
+        $expData['playerDataArray'][1]['sideScore'] = -14;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Speed", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(19, 7),
+            'responder003 performed Trip attack using [tz(1/30=30):23] against [(10):9]; Attacker tz(1/30=30) rerolled 23 => 19; Defender (10) rerolled 9 => 7, was captured. ',
+            $retval, array(array(0, 0), array(1, 1)),
+            $gameId, 3, 'Trip', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30):23] against [(10):9]; Attacker tz(1/30=30) rerolled 23 => 19; Defender (10) rerolled 9 => 7, was captured'));
+        $expData['gameActionLogCount'] = 36;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array("JustPerformedTripAttack");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 19;
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['recipe'] = "(10)";
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['sides'] = 10;
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['value'] = 7;
+        $expData['playerDataArray'][0]['roundScore'] = 54;
+        $expData['playerDataArray'][0]['sideScore'] = 24;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "X Swing Die (with 11 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['recipe'] = "(X)";
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 10;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 18;
+        $expData['playerDataArray'][1]['sideScore'] = -24;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(4, 3),
+            'responder004 performed Skill attack using [(4):2,(X=11):10] against [z(12):12]; Defender z(12) was captured; Attacker (4) rerolled 2 => 4; Attacker (X=11) rerolled 10 => 3. ',
+            $retval, array(array(1, 0), array(1, 1), array(0, 1)),
+            $gameId, 3, 'Skill', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(4):2,(X=11):10] against [z(12):12]; Defender z(12) was captured; Attacker (4) rerolled 2 => 4; Attacker (X=11) rerolled 10 => 3'));
+        $expData['gameActionLogCount'] = 37;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 30;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 24;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['optRequestArray'] = array(array(1, 30), array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = 48;
+        $expData['playerDataArray'][0]['sideScore'] = 12;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 3;
+        $expData['playerDataArray'][1]['capturedDieArray'][3]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][3]['recipe'] = "z(12)";
+        $expData['playerDataArray'][1]['capturedDieArray'][3]['sides'] = 12;
+        $expData['playerDataArray'][1]['capturedDieArray'][3]['value'] = 12;
+        $expData['playerDataArray'][1]['roundScore'] = 30;
+        $expData['playerDataArray'][1]['sideScore'] = -12;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['validAttackTypeArray'] = array("Power", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(1, 3),
+            'responder003 performed Trip attack using [tz(1/30=30):19] against [(4):4]; Attacker tz(1/30=30) rerolled 19 => 1; Defender (4) rerolled 4 => 3, was not captured. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 3, 'Trip', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30):19] against [(4):4]; Attacker tz(1/30=30) rerolled 19 => 1; Defender (4) rerolled 4 => 3, was not captured'));
+        $expData['gameActionLogCount'] = 38;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array("JustPerformedTripAttack", "JustPerformedUnsuccessfulAttack");
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][1]['capturedDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(4),
+            'responder004 performed Power attack using [(4):3] against [tz(1/30=30):1]; Defender tz(1/30=30) was captured; Attacker (4) rerolled 3 => 4. ',
+            $retval, array(array(1, 0), array(0, 0)),
+            $gameId, 3, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['activePlayerIdx'] = 0;
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):3] against [tz(1/30=30):1]; Defender tz(1/30=30) was captured; Attacker (4) rerolled 3 => 4'));
+        $expData['gameActionLogCount'] = 39;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Option Die (with 30 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "(1/30)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['skills'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 24;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['canStillWin'] = false;
+        $expData['playerDataArray'][0]['optRequestArray'] = array(array(1, 30));
+        $expData['playerDataArray'][0]['roundScore'] = 33;
+        $expData['playerDataArray'][0]['sideScore'] = -18;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['capturedDieArray'][4]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][4]['recipe'] = "tz(1/30)";
+        $expData['playerDataArray'][1]['capturedDieArray'][4]['sides'] = 30;
+        $expData['playerDataArray'][1]['capturedDieArray'][4]['value'] = 1;
+        $expData['playerDataArray'][1]['roundScore'] = 60;
+        $expData['playerDataArray'][1]['sideScore'] = 18;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(16),
+            'responder003 performed Power attack using [(1/30=30):24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30) rerolled 24 => 16. responder004 passed. ',
+            $retval, array(array(0, 0), array(1, 1)),
+            $gameId, 3, 'Power', 0, 1, '');
+
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30):24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30) rerolled 24 => 16'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
+        $expData['gameActionLogCount'] = 41;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 16;
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['recipe'] = "(X)";
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['sides'] = 11;
+        $expData['playerDataArray'][0]['capturedDieArray'][3]['value'] = 3;
+        $expData['playerDataArray'][0]['roundScore'] = 44;
+        $expData['playerDataArray'][0]['sideScore'] = -7;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['capturedDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][1]['roundScore'] = 54.5;
+        $expData['playerDataArray'][1]['sideScore'] = 7;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(6),
+            'responder003 performed Power attack using [(1/30=30):16] against [(4):4]; Defender (4) was captured; Attacker (1/30=30) rerolled 16 => 6. End of round: responder004 won round 3 (52.5 vs. 48). ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 3, 'Power', 0, 1, '');
+
+        $expData['activePlayerIdx'] = null;
+        $expData['gameActionLog'] = array();
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=11'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=15 and option dice: tz(1/30=1)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [^(3):3, fsp(R=15):7, ftz(14):14, tz(1/30=1):1], responder004 rolled [(2):1, (4):4, (6):1, (10):6, (X=11):11]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=1)].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):4] against [^(3):3]; Defender ^(3) was captured; Attacker (4) rerolled 4 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Speed attack using [tz(1/30=1):1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(2):1] against [tz(1/30=1):1]; Defender tz(1/30=1) was captured; Attacker (2) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [ftz(14):14] against [(X=11):11]; Defender (X=11) was captured; Attacker ftz(14) rerolled 14 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(4):2] against [ftz(14):2]; Defender ftz(14) was captured; Attacker (4) rerolled 2 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(2):1,(10):6] against [fsp(R=15):7]; Defender fsp(R=15) was captured; Attacker (2) rerolled 1 => 2; Attacker (10) rerolled 6 => 8'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 1 (18.5 vs. 17)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 added a reserve die: r(1/30)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=11 and option dice: tz(1/30=1), (1/30=1)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 2. Initial die values: responder003 rolled [^(3):1, fsp(R=11):1, ftz(14):8, tz(1/30=1):1, (1/30=1):1], responder004 rolled [(2):2, (4):4, (6):3, (10):7, (X=11):8]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=1)].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Shadow attack using [fsp(R=11):1] against [(2):2]; Defender (2) was captured; Attacker fsp(R=11) rerolled 1 => 6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(X=11):8] against [ftz(14):8]; Defender ftz(14) was captured; Attacker (X=11) rerolled 8 => 9'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [^(3):1,fsp(R=11):6] against [(10):7]; Defender (10) was captured; Attacker ^(3) rerolled 1 => 3; Attacker fsp(R=11) rerolled 6 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 gets another turn because a Time and Space die rolled odd'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1):1,(1/30=1):1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1) rerolled 1 => 1; Attacker (1/30=1) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(6):3] against [(1/30=1):1]; Defender (1/30=1) was captured; Attacker (6) rerolled 3 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Shadow attack using [fsp(R=11):7] against [(X=11):9]; Defender (X=11) was captured; Attacker fsp(R=11) rerolled 7 => 7'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(6):1] against [tz(1/30=1):1]; Defender tz(1/30=1) was captured; Attacker (6) rerolled 1 => 6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(6):6] against [^(3):3]; Defender ^(3) was captured; Attacker (6) rerolled 6 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 2 (22 vs. 16)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 added a reserve die: rz(12)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=13 and option dice: tz(1/30=30), (1/30=30)'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 3. Initial die values: responder003 rolled [^(3):1, fsp(R=13):4, ftz(14):1, tz(1/30=30):30, z(12):12, (1/30=30):25], responder004 rolled [(2):1, (4):2, (6):1, (10):9, (X=11):8]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=30)].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(2):1] against [^(3):1]; Defender ^(3) was captured; Attacker (2) rerolled 1 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30):25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30) rerolled 25 => 24'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(6):1] against [ftz(14):1]; Defender ftz(14) was captured; Attacker (6) rerolled 1 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30):30] against [(6):1]; Attacker tz(1/30=30) rerolled 30 => 23; Defender (6) rerolled 1 => 5, was captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(X=11):8] against [fsp(R=13):4]; Defender fsp(R=13) was captured; Attacker (X=11) rerolled 8 => 10'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30):23] against [(10):9]; Attacker tz(1/30=30) rerolled 23 => 19; Defender (10) rerolled 9 => 7, was captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(4):2,(X=11):10] against [z(12):12]; Defender z(12) was captured; Attacker (4) rerolled 2 => 4; Attacker (X=11) rerolled 10 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30):19] against [(4):4]; Attacker tz(1/30=30) rerolled 19 => 1; Defender (4) rerolled 4 => 3, was not captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):3] against [tz(1/30=30):1]; Defender tz(1/30=30) was captured; Attacker (4) rerolled 3 => 4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30):24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30) rerolled 24 => 16'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30):16] against [(4):4]; Defender (4) was captured; Attacker (1/30=30) rerolled 16 => 6'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 3 (52.5 vs. 48)'));
+        $expData['gameActionLogCount'] = 43;
+        $expData['gameState'] = "END_GAME";
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][0]['capturedDieArray']);
+        $expData['playerDataArray'][0]['gameScoreArray'] = array("D" => 0, "L" => 3, "W" => 0);
+        $expData['playerDataArray'][0]['optRequestArray'] = array();
+        $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 30, "5" => 30);
+        $expData['playerDataArray'][0]['roundScore'] = 0;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        array_pop($expData['playerDataArray'][1]['capturedDieArray']);
+        $expData['playerDataArray'][1]['gameScoreArray'] = array("D" => 0, "L" => 0, "W" => 3);
+        $expData['playerDataArray'][1]['roundScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['validAttackTypeArray'] = array();
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
 
     /**
      * @depends test_request_savePlayerInfo

@@ -11,8 +11,13 @@
  * pertaining to history-related information
  */
 class BMInterfaceHistory extends BMInterface {
-    // Parse the search filters, converting them to standardized forms (such
-    // as converting names to ID's), and validating them against the database
+    /**
+     * Parse the search filters, converting them to standardized forms (such
+     * as converting names to ID's), and validating them against the database
+     *
+     * @param array $searchParameters
+     * @return array|NULL
+     */
     protected function assemble_search_filters($searchParameters) {
         try {
             $searchFilters = array();
@@ -53,6 +58,13 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
+    /**
+     * Set player name search filters
+     *
+     * @param array $searchFilters
+     * @param array $searchParameters
+     * @return bool
+     */
     protected function set_playerNames(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['playerNameA'])) {
             $playerIdA = $this->get_player_id_from_name($searchParameters['playerNameA']);
@@ -77,6 +89,13 @@ class BMInterfaceHistory extends BMInterface {
         return TRUE;
     }
 
+    /**
+     * Set button name search filters
+     *
+     * @param array $searchFilters
+     * @param array $searchParameters
+     * @return bool
+     */
     protected function set_buttonNames(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['buttonNameA'])) {
             $buttonIdA = $this->get_button_id_from_name($searchParameters['buttonNameA']);
@@ -101,6 +120,12 @@ class BMInterfaceHistory extends BMInterface {
         return TRUE;
     }
 
+    /**
+     * Set game start search filters
+     *
+     * @param array $searchFilters
+     * @param array $searchParameters
+     */
     protected function set_gameStart_limits(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['gameStartMin'])) {
             $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
@@ -110,6 +135,12 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
+    /**
+     * Set last move search filters
+     *
+     * @param array $searchFilters
+     * @param array $searchParameters
+     */
     protected function set_lastMove_limits(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['lastMoveMin'])) {
             $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
@@ -119,8 +150,13 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
-    // Parse out the additional options that affect how search results
-    // are to be presented
+    /**
+     * Parse out the additional options that affect how search results
+     * are to be presented
+     *
+     * @param array $searchParameters
+     * @return array|NULL
+     */
     protected function assemble_search_options($searchParameters) {
         try {
             $searchOptions = array();
@@ -155,7 +191,13 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
-    // Get all games matching the specified search parameters.
+    /**
+     * Get all games matching the specified search parameters
+     *
+     * @param int $currentPlayerId
+     * @param array $args
+     * @return array|NULL
+     */
     public function search_game_history($currentPlayerId, $args) {
         $combinedQuery = '';
 
@@ -235,6 +277,11 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
+    /**
+     * Create base SQL query for history search
+     *
+     * @return string
+     */
     protected function base_query() {
         return  'SELECT ' .
                     'g.id AS game_id, ' .
@@ -257,6 +304,11 @@ class BMInterfaceHistory extends BMInterface {
                     'INNER JOIN game_status AS s ON s.id = g.status_id ';
     }
 
+    /**
+     * Create inner join for the first player
+     *
+     * @return string
+     */
     protected function player_join_0() {
         return  'INNER JOIN game_player_view AS vA ' .
                     'ON vA.game_id = g.id AND vA.position = 0 ' .
@@ -264,6 +316,11 @@ class BMInterfaceHistory extends BMInterface {
                     'ON vB.game_id = g.id AND vB.position = 1 ';
     }
 
+    /**
+     * Create inner join for the second player
+     *
+     * @return string
+     */
     protected function player_join_1() {
         return  'INNER JOIN game_player_view AS vA ' .
                     'ON vA.game_id = g.id AND vA.position = 1 ' .
@@ -271,6 +328,13 @@ class BMInterfaceHistory extends BMInterface {
                     'ON vB.game_id = g.id AND vB.position = 0 ';
     }
 
+    /**
+     * Add all filters to WHERE conditions
+     *
+     * @param array $searchFilters
+     * @param string $where
+     * @param array $whereParameters
+     */
     protected function apply_all_filters($searchFilters, &$where, &$whereParameters) {
         $this->apply_filter($searchFilters, 'gameId', 'g.id', 'game_id_%%%', $where, $whereParameters);
         $this->apply_filter($searchFilters, 'playerIdA', 'vA.player_id', 'player_id_A_%%%', $where, $whereParameters);
@@ -319,10 +383,20 @@ class BMInterfaceHistory extends BMInterface {
             // We'll only display games that have actually started
             $where .= 'AND (s.name = "COMPLETE" ' .
                       'OR s.name = "ACTIVE" ' .
-                      'OR s.name = "REJECTED") ';
+                      'OR s.name = "CANCELLED") ';
         }
     }
 
+    /**
+     * Add a specific filter to WHERE conditions
+     *
+     * @param array $searchFilters
+     * @param string $searchFilterType
+     * @param string $whereKeyStr
+     * @param string $whereParameterStr
+     * @param string $where
+     * @param array $whereParameters
+     */
     protected function apply_filter(
         $searchFilters,
         $searchFilterType,
@@ -337,6 +411,12 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
+    /**
+     * Customise sort order
+     *
+     * @param array $searchOptions
+     * @param string $sort
+     */
     protected function apply_order_by($searchOptions, &$sort) {
         switch($searchOptions['sortColumn']) {
             case 'gameId':
@@ -385,12 +465,27 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
+    /**
+     * Determine limit parameters
+     *
+     * @param array $searchOptions
+     * @param array $limitParameters
+     */
     protected function apply_limit($searchOptions, &$limitParameters) {
         $limitParameters[':offset'] =
             ($searchOptions['page'] - 1) * $searchOptions['numberOfResults'];
         $limitParameters[':page_size'] = $searchOptions['numberOfResults'];
     }
 
+    /**
+     * Create full game query
+     *
+     * @param string $where_0
+     * @param string $where_1
+     * @param string $sort
+     * @param string $limit
+     * @return string
+     */
     protected function game_query($where_0, $where_1, $sort, $limit) {
         return  'SELECT * FROM (( ' .
                     $this->base_query() . $this->player_join_0() . $where_0 .
@@ -400,6 +495,16 @@ class BMInterfaceHistory extends BMInterface {
                 'GROUP BY game_id ' . $sort . $limit . ';';
     }
 
+    /**
+     * Execute the game query
+     *
+     * @param string $combinedGameQuery
+     * @param int $currentPlayerId
+     * @param array $whereParameters_0
+     * @param array $whereParameters_1
+     * @param array $limitParameters
+     * @param array $games
+     */
     protected function execute_game_query(
         $combinedGameQuery,
         $currentPlayerId,
@@ -444,6 +549,13 @@ class BMInterfaceHistory extends BMInterface {
         }
     }
 
+    /**
+     * Create summary query
+     *
+     * @param array $where_0
+     * @param array $where_1
+     * @return array
+     */
     protected function summary_query($where_0, $where_1) {
         return  'SELECT ' .
                     'COUNT(*) AS matches_found, ' .
@@ -462,6 +574,14 @@ class BMInterfaceHistory extends BMInterface {
                 ') AS summary;';
     }
 
+    /**
+     * Execute summary query
+     *
+     * @param string $combinedQuery
+     * @param array $whereParameters_0
+     * @param array $whereParameters_1
+     * @param array $summary
+     */
     protected function execute_summary_query(
         $combinedQuery,
         $whereParameters_0,
