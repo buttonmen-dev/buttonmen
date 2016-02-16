@@ -1451,31 +1451,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
     }
 
-    public function test_request_loadOpenGames() {
-        $this->verify_login_required('loadOpenGames');
-
-        $_SESSION = $this->mock_test_user_login('responder004');
-        $this->verify_invalid_arg_rejected('loadOpenGames');
-
-        $gameId = $this->verify_api_createGame(
-            array(),
-            'responder004', '', 'Avis', 'Avis', '3'
-        );
-
-        $args = array(
-            'type' => 'loadOpenGames',
-        );
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game lists should have matching structures");
-    }
-
     public function test_request_reactToNewGameAccept() {
         $this->verify_login_required('reactToNewGame');
 
@@ -3774,6 +3749,30 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->cache_json_api_output('loadNewGames', 'noargs', $retval);
     }
+
+
+    public function test_request_loadOpenGames() {
+        $this->verify_login_required('loadOpenGames');
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_invalid_arg_rejected('loadOpenGames');
+
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder004', '', 'Avis', 'Avis', '3'
+        );
+
+        $args = array(
+            'type' => 'loadOpenGames',
+        );
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'Open games retrieved successfully.');
+        $this->assertEquals(array_keys($retval['data']), array('games'));
+
+        $this->cache_json_api_output('loadOpenGames', 'noargs', $retval);
+    }
+
 
     /**
      * @depends test_request_savePlayerInfo

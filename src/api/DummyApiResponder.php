@@ -40,7 +40,6 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'loadOpenGames',
             'login',
             'logout',
         );
@@ -124,32 +123,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadOpenGames() {
-        // Use games that didn't appear in loadGameData
-        $games = array();
-
-        // game 20
-        $games[] = array(
-            'gameId' => 20,
-            'challengerId' => 1,
-            'challengerName' => 'tester',
-            'challengerButton' => 'Avis',
-            'challengerColor' => '#cccccc',
-            'victimButton' => NULL,
-            'targetWins' => 3,
+        return $this->load_json_data_from_file(
+            'loadOpenGames',
+            'noargs.json'
         );
-
-        // game 21
-        $games[] = array(
-            'gameId' => 21,
-            'challengerId' => 2,
-            'challengerName' => 'tester2',
-            'challengerButton' => 'Von Pinn',
-            'challengerColor' => '#cccccc',
-            'victimButton' => 'Apples',
-            'targetWins' => 3,
-        );
-
-        return array(array('games' => $games), "Open games retrieved successfully.");
     }
 
     protected function get_interface_response_searchGameHistory($args) {
