@@ -40,7 +40,6 @@ class DummyApiResponder {
 
         // Functions whose dummy data is not yet being provided by responderTest
         $this->untransformedFunctions = array(
-            'loadNewGames',
             'loadOpenGames',
             'login',
             'logout',
@@ -260,26 +259,10 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadNewGames() {
-        $data = array(
-            'gameIdArray' => array(),
-            'opponentIdArray' => array(),
-            'opponentNameArray' => array(),
-            'myButtonNameArray' => array(),
-            'opponentButtonNameArray' => array(),
-            'nWinsArray' => array(),
-            'nLossesArray' => array(),
-            'nDrawsArray' => array(),
-            'nTargetWinsArray' => array(),
-            'isAwaitingActionArray' => array(),
-            'gameStateArray' => array(),
-            'statusArray' => array(),
-            'inactivityArray' => array(),
-            'inactivityRawArray' => array(),
-            'playerColorArray' => array(),
-            'opponentColorArray' => array(),
+        return $this->load_json_data_from_file(
+            'loadNewGames',
+            'noargs.json'
         );
-
-        return array($data, "All game details retrieved successfully.");
     }
 
     protected function get_interface_response_loadActiveGames() {

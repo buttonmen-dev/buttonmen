@@ -1476,19 +1476,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy game lists should have matching structures");
     }
 
-    public function test_request_loadNewGames() {
-        $this->verify_login_required('loadNewGames');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadNewGames');
-
-        $args = array('type' => 'loadNewGames');
-        $retval = $this->verify_api_success($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of new games should succeed');
-    }
-
     public function test_request_reactToNewGameAccept() {
         $this->verify_login_required('reactToNewGame');
 
@@ -3770,6 +3757,23 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->cache_json_api_output('loadRejectedGames', 'noargs', $retval);
     }
 
+
+    public function test_request_loadNewGames() {
+        $this->verify_login_required('loadNewGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNewGames');
+
+        $args = array('type' => 'loadNewGames');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($retval['status'], 'ok');
+        $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
+        $akeys = array_keys($retval['data']);
+        sort($akeys);
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+
+        $this->cache_json_api_output('loadNewGames', 'noargs', $retval);
+    }
 
     /**
      * @depends test_request_savePlayerInfo
