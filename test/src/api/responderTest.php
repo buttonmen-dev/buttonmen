@@ -11,12 +11,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @var spec         ApiSpec object which will be used as a helper
-     * @var dummy        dummy_responder object used to check the live responder
      * @var game_number  a static number for each full-game test, so test game data can be used by UI tests
      * @var move_number  an increment counter for each move in each full-game test, so test game data can be used by UI tests
      */
     protected $spec;
-    protected $dummy;
     protected $user_ids;
     protected $game_number;
     protected $move_number;
@@ -46,13 +44,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             require_once 'src/api/ApiSpec.php';
         }
         $this->spec = new ApiSpec();
-
-        if (file_exists('../src/api/DummyApiResponder.php')) {
-            require_once '../src/api/DummyApiResponder.php';
-        } else {
-            require_once 'src/api/DummyApiResponder.php';
-        }
-        $this->dummy = new DummyApiResponder($this->spec, True);
 
         // Cache user IDs parsed from the DB for use within a test
         $this->user_ids = array();
@@ -1168,15 +1159,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
         $retval = $this->verify_api_failure($args, 'Specified API function does not exist');
-
-        // This test result should hold for all functions, since
-        // the structure of the top-level response doesn't depend
-        // on the function
-        $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals($retval, $dummyval);
-        $this->assertTrue(
-            $this->object_structures_match($retval, $dummyval),
-            "Real and dummy return values should have matching structures");
     }
 
     public function test_request_createUser() {
@@ -1193,8 +1175,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Tests may be run multiple times.  Find a user of the
         // form responderNNN which hasn't been created yet and
-        // create it in the test DB.  The dummy interface will claim
-        // success for any username of this form.
+        // create it in the test DB.
         while (!($created_real)) {
             $this->assertTrue($trynum < $maxtries,
                 "Internal test error: too many responderNNN users in the test database. " .

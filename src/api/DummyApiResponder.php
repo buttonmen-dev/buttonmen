@@ -27,22 +27,11 @@ class DummyApiResponder {
      * @param ApiSpec $spec
      * @param boolean $isTest
      */
-    public function __construct(ApiSpec $spec, $isTest = FALSE) {
+    public function __construct(ApiSpec $spec) {
         $this->spec = $spec;
-        $this->isTest = $isTest;
 
-        if ($this->isTest) {
-            $this->jsonFileRoot = BW_PHP_ROOT . "/api/dummy_data/";
-        } else {
-            session_start();
-            $this->jsonFileRoot = "./dummy_data/";
-        }
-
-        // Functions whose dummy data is not yet being provided by responderTest
-        $this->untransformedFunctions = array(
-            'login',
-            'logout',
-        );
+        session_start();
+        $this->jsonFileRoot = "./dummy_data/";
     }
 
     // This function looks at the provided arguments, fakes appropriate
@@ -117,9 +106,11 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_selectButton() {
-        // select_button() does not need to return much data
-        return array(TRUE, "");
+    protected function get_interface_response_selectButton($args) {
+        return $this->load_json_data_from_file(
+            'selectButton',
+            $args['gameId'] . '.json'
+        );
     }
 
     protected function get_interface_response_loadOpenGames() {
@@ -141,98 +132,6 @@ class DummyApiResponder {
             'searchGameHistory',
             $argval . '.json'
         );
-    }
-
-    protected function mock_completed_game($args) {
-        if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester') {
-            // game 5
-            $game = array(
-                'gameId' => 5,
-                'playerIdA' => 1,
-                'playerNameA' => 'tester',
-                'buttonNameA' => 'Avis',
-                'colorA' => '#cccccc',
-                'playerIdB' => 2,
-                'playerNameB' => 'tester2',
-                'buttonNameB' => 'Avis',
-                'colorB' => '#dddddd',
-                'gameStart' => 1399605464,
-                'lastMove' => 1399691804,
-                'roundsWonA' => 3,
-                'roundsWonB' => 2,
-                'roundsDrawn' => 0,
-                'targetWins' => 3,
-                'status' => 'COMPLETE',
-            );
-        } elseif (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
-            // game 5
-            $game = array(
-                'gameId' => 5,
-                'playerIdA' => 2,
-                'playerNameA' => 'tester2',
-                'buttonNameA' => 'Avis',
-                'colorA' => '#cccccc',
-                'playerIdB' => 1,
-                'playerNameB' => 'tester',
-                'buttonNameB' => 'Avis',
-                'colorB' => '#dddddd',
-                'gameStart' => 1399605464,
-                'lastMove' => 1399691804,
-                'roundsWonA' => 3,
-                'roundsWonB' => 2,
-                'roundsDrawn' => 0,
-                'targetWins' => 3,
-                'status' => 'COMPLETE',
-            );
-        }
-
-        return $game;
-    }
-
-    protected function mock_active_game($args) {
-        if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester') {
-            // game 6
-            $game = array(
-                'gameId' => 6,
-                'playerIdA' => 1,
-                'playerNameA' => 'tester',
-                'buttonNameA' => 'Buck Godot',
-                'colorA' => '#cccccc',
-                'playerIdB' => 2,
-                'playerNameB' => 'tester2',
-                'buttonNameB' => 'Von Pinn',
-                'colorB' => '#dddddd',
-                'gameStart' => 1399605469,
-                'lastMove' => 1399691809,
-                'roundsWonA' => 0,
-                'roundsWonB' => 0,
-                'roundsDrawn' => 0,
-                'targetWins' => 3,
-                'status' => 'ACTIVE',
-            );
-        } elseif (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
-            // game 5
-            $game = array(
-                'gameId' => 6,
-                'playerIdA' => 2,
-                'playerNameA' => 'tester2',
-                'buttonNameA' => 'Buck Godot',
-                'colorA' => '#cccccc',
-                'playerIdB' => 1,
-                'playerNameB' => 'tester',
-                'buttonNameB' => 'Von Pinn',
-                'colorB' => '#dddddd',
-                'gameStart' => 1399605469,
-                'lastMove' => 1399691809,
-                'roundsWonA' => 0,
-                'roundsWonB' => 0,
-                'roundsDrawn' => 0,
-                'targetWins' => 3,
-                'status' => 'ACTIVE',
-            );
-        }
-
-        return $game;
     }
 
     protected function get_interface_response_loadNewGames() {
@@ -406,16 +305,6 @@ class DummyApiResponder {
         );
     }
 
-    protected function get_interface_response_login() {
-//            $login_success = login($_POST['username'], $_POST['password']);
-//            if ($login_success) {
-//                $data = array('userName' => $_POST['username']);
-//            } else {
-//                $data = NULL;
-//            }
-        return array(NULL, "function not implemented");
-    }
-
     protected function get_interface_response_reactToNewGame($args) {
         return $this->load_json_data_from_file(
             'reactToNewGame',
@@ -438,36 +327,6 @@ class DummyApiResponder {
             'loadForumOverview',
             'noargs.json'
         );
-        $results = array();
-
-        $boards = array();
-        $boards[] = array(
-            'boardId' => 1,
-            'boardName' => 'Miscellaneous Chatting',
-            'boardColor' => '#d0e0f0',
-            'threadColor' => '#e7f0f7',
-            'description' => 'Any topic that doesn\'t fit anywhere else.',
-            'numberOfThreads' => 2,
-            'firstNewPostId' => 3,
-            'firstNewPostThreadId' => 2,
-        );
-        $boards[] = array(
-            'boardId' => 2,
-            'boardName' => 'Features and Bugs',
-            'boardColor' => '#f0d0d0',
-            'threadColor' => '#f7e7e7',
-            'description' =>
-                'Feedback on new features that have been added, features ' .
-                    'you\'d like to see or bugs you\'ve discovered.',
-            'numberOfThreads' => 0,
-            'firstNewPostId' => NULL,
-            'firstNewPostThreadId' => NULL,
-        );
-
-        $results['boards'] = $boards;
-        $results['timestamp'] = 1401118756;
-
-        return array($results, 'Forum overview loading succeeded');
     }
 
     protected function get_interface_response_loadForumBoard($args) {
@@ -536,19 +395,10 @@ class DummyApiResponder {
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 
-    protected function get_interface_response_logout() {
-//            logout();
-//            $data = array('userName' => FALSE);
-        return array(NULL, "function not implemented");
-    }
 
     // Ask get_interface_response() for the dummy response to the
     // request, then construct a response.  Match the logic in
     // responder as closely as possible for convenience.
-    // * For live (remote) invocation:
-    //   * display the output to the user
-    // * For test invocation:
-    //   * return the output as a PHP variable
     public function process_request($args) {
 
         // make sure all arguments passed to the function are
@@ -560,29 +410,14 @@ class DummyApiResponder {
             // As far as we can easily tell, arguments are okay.
             // Pass them along to the dummy responder functions.
             $retval = $this->get_interface_response($args);
-            if (FALSE !== array_search($args['type'], $this->untransformedFunctions)) {
-                $data = $retval[0];
-                $message = $retval[1];
-
-                $output = array(
-                    'data' => $data,
-                    'message' => $message,
-                );
-                if ($data) {
-                    $output['status'] = 'ok';
-                } else {
-                    $output['status'] = 'failed';
-                }
+            if ($retval) {
+                $output = $retval;
             } else {
-                if ($retval) {
-                    $output = $retval;
-                } else {
-                    $output = array(
-                        'data' => NULL,
-                        'status' => 'failed',
-                        'message' => 'The arguments provided to dummy_responder were not recognized fake inputs',
-                    );
-                }
+                $output = array(
+                    'data' => NULL,
+                    'status' => 'failed',
+                    'message' => 'The arguments provided to dummy_responder were not recognized fake inputs',
+                );
             }
         } else {
             $output = array(
@@ -592,11 +427,7 @@ class DummyApiResponder {
             );
         }
 
-        if ($this->isTest) {
-            return $output;
-        } else {
-            header('Content-Type: application/json');
-            echo json_encode($output);
-        }
+        header('Content-Type: application/json');
+        echo json_encode($output);
     }
 }
