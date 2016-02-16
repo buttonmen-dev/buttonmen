@@ -400,7 +400,7 @@ var Api = (function () {
         'gameDescription': data.gameDescriptionArray[i],
         'opponentId': data.opponentIdArray[i],
         'opponentName': data.opponentNameArray[i],
-        'opponentOnVacation': data.opponentOnVacationArray[i],
+        'isOpponentOnVacation': data.isOpponentOnVacationArray[i],
         'playerButtonName': data.myButtonNameArray[i],
         'opponentButtonName': data.opponentButtonNameArray[i],
         'gameScoreDict': {

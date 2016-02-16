@@ -454,8 +454,6 @@ table.activePlayerList th.idleness {
 }
 
 .playerFlag {
-   font-weight: bold;
-	   font-style: italic;*/
    cursor: default;
    vertical-align: middle;
    margin: 0px 3px;

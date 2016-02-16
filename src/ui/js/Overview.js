@@ -336,7 +336,7 @@ Overview.addTableRows = function(tableBody, gamesource, gameType, showDismiss) {
     Overview.addPlayerCol(
       gameRow,
       gameInfo.opponentName,
-      gameInfo.opponentOnVacation,
+      gameInfo.isOpponentOnVacation,
       gameInfo.opponentColor
     );
     Overview.addScoreCol(gameRow, gameInfo);
@@ -390,10 +390,10 @@ Overview.addButtonCol = function(gameRow, buttonName) {
   ));
 };
 
-Overview.addPlayerCol = function(gameRow, playerName, playerOnVacation, playerColor) {
+Overview.addPlayerCol = function(gameRow, playerName, isPlayerOnVacation, playerColor) {
   gameRow.append($('<td>', {
       'style': 'background-color: ' + playerColor,
-    }).append((playerOnVacation>0) ? Env.buildVacationImage() : '')
+    }).append((isPlayerOnVacation) ? Env.buildVacationImage() : '')
       .append(Env.buildProfileLink(playerName)));
 }
 
