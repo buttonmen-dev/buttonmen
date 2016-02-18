@@ -1789,14 +1789,23 @@ class BMGame {
      * Perform the logic required at BMGameState::choose_turbo_swing
      */
     protected function do_next_step_choose_turbo_swing() {
-
+        $attacker = $this->playerArray[$this->attack['attackerPlayerIdx']];
+        foreach ($attacker->activeDieArray as $activeDie) {
+            if ($activeDie->has_skill('Turbo') &&
+                $activeDie->has_flag('IsAttacker') &&
+                $activeDie->doesReroll) {
+                $attacker->waitingOnAction = TRUE;
+            }
+        }
     }
 
     /**
      * Update game state from BMGameState::choose_turbo_swing if necessary
      */
     protected function update_game_state_choose_turbo_swing() {
-        $this->gameState = BMGameState::END_TURN;
+        if (!$this->isWaitingOnAnyAction()) {
+            $this->gameState = BMGameState::END_TURN;
+        }
     }
 
     /**
