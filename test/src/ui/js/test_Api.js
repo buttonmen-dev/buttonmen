@@ -309,9 +309,11 @@ test("test_Api.getActiveGamesData", function(assert) {
   Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    assert.equal(Api.active_games.nGames, 16, 'Got expected number of active games');
-    assert.equal(Api.active_games.games.awaitingPlayer.length, 10,
-          "expected number of games parsed as waiting for the active player");
+    assert.ok(Api.active_games.nGames > 0, 'Parsed some active games');
+    assert.ok(Api.active_games.games.awaitingPlayer.length > 0,
+          "Parsed some games as waiting for the active player");
+    assert.ok(Api.active_games.nGames > Api.active_games.games.awaitingPlayer.length,
+          "Parsed more active games than games waiting for the active player");
     start();
   });
 });
@@ -321,9 +323,9 @@ test("test_Api.getCompletedGamesData", function(assert) {
   Api.getCompletedGamesData(function() {
     assert.equal(Api.completed_games.load_status, 'ok',
          'Successfully loaded completed games data');
-    assert.equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
-    assert.equal(Api.completed_games.games[0].gameId, 5,
-          "expected completed game ID exists");
+    assert.ok(Api.completed_games.nGames > 0, 'Parsed some completed games');
+    assert.equal(Api.completed_games.games[0]['status'], 'COMPLETE',
+          "Completed game has expected status");
     start();
   });
 });
@@ -333,9 +335,9 @@ test("test_Api.getCancelledGamesData", function(assert) {
   Api.getCancelledGamesData(function() {
     assert.equal(Api.cancelled_games.load_status, 'ok',
          'Successfully loaded cancelled games data');
-    assert.equal(Api.cancelled_games.nGames, 1, 'Got expected number of cancelled games');
-    assert.equal(Api.cancelled_games.games[0].gameId, 505,
-          "expected cancelled game ID exists");
+    assert.ok(Api.cancelled_games.nGames > 0, 'Parsed some cancelled games');
+    assert.equal(Api.cancelled_games.games[0]['status'], 'CANCELLED',
+          "Cancelled game has expected status");
     start();
   });
 });
@@ -574,7 +576,7 @@ test("test_Api.loadForumThread", function(assert) {
 
 test("test_Api.getActivePlayers", function(assert) {
   stop();
-  Api.getActivePlayers(20,
+  Api.getActivePlayers(50,
     function() {
       assert.equal(Api.active_players.load_status, 'ok',
         'Successfully retrieved active players');
@@ -584,7 +586,7 @@ test("test_Api.getActivePlayers", function(assert) {
 
 test("test_Api.parseActivePlayers", function(assert) {
   stop();
-  Api.getActivePlayers(20,
+  Api.getActivePlayers(50,
     function() {
       assert.ok(Api.active_players.players.length,
         "Successfully parsed active players info");
@@ -631,7 +633,7 @@ test("test_Api.parseOpenGames", function(assert) {
 
 test("test_Api.joinOpenGame", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  Api.joinOpenGame(4400, 'Avis',
     function() {
       assert.equal(Api.join_game_result.load_status, 'ok',
         'Successfully retrieved open games');
@@ -645,7 +647,7 @@ test("test_Api.joinOpenGame", function(assert) {
 
 test("test_Api.parseJoinGameResult", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  Api.joinOpenGame(4400, 'Avis',
     function() {
       assert.equal(Api.join_game_result.success, true,
         "Successfully parsed join game result");
@@ -680,7 +682,7 @@ test("test_Api.parseSearchResults_games", function(assert) {
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    assert.equal(Api.game_history.games.length, 1,
+    assert.ok(Api.game_history.games.length > 0,
       "Successfully parsed search results games list");
     start();
   });
@@ -694,10 +696,11 @@ test("test_Api.parseSearchResults_summary", function(assert) {
             'numberOfResults': '20',
             'page': '1',
             'playerNameA': 'tester2',
+            'buttonNameA': 'Avis',
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    assert.equal(Api.game_history.summary.matchesFound, 2,
+    assert.ok(Api.game_history.summary.matchesFound > 0,
       "Successfully parsed search results summary data");
     start();
   });

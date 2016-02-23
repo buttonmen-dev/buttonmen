@@ -122,7 +122,7 @@ test("test_OpenGames.buildGameTable", function(assert) {
 });
 
 test("test_OpenGames.joinOpenGame", function(assert) {
-  var gameId = 21;
+  var gameId = 4400;
 
   var gameRow = $('<tr>');
   var gameActionTd = $('<td>');
