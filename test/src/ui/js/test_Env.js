@@ -298,9 +298,9 @@ test("test_Env.buildVacationImage", function(assert) {
   assert.equal(vacationImage.attr('src'), 
      Env.ui_root + 'images/vacation.png',
      'Vacation image should point to correct image.');
-  assert.equal(vacationImage.attr('class', 'playerFlag',
+  assert.equal(vacationImage.attr('class'), 'playerFlag',
      'Vacation image should have a CSS class of playerFlag.');
-  assert.equal(vacationImage.attr('title', 'On Vacation',
+  assert.equal(vacationImage.attr('title'), 'On Vacation',
      'Vacation image should have a title of On Vacation.');
 });
 
