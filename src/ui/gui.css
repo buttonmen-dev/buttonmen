@@ -236,6 +236,15 @@ select.center {
     border-radius: 5px;
 }
 
+.turbo_div {
+    padding: 5px;
+}
+
+.turbo_span {
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
 .winner_name {
     font-size: 150%;
 }

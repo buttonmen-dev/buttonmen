@@ -835,6 +835,12 @@ Game.actionPlayTurnActive = function() {
   }
   Game.pageAddGameHeader('Your turn to attack');
   Game.pageAddDieBattleTable(true);
+
+  // james : add fire turndown
+
+  // james : add turbo change
+  Game.pageAddTurboTable();
+
   Game.page.append($('<br>'));
 
   var attackdiv = $('<div>');
@@ -2543,6 +2549,32 @@ Game.pageAddDieBattleTable = function(clickable) {
   return true;
 };
 
+Game.pageAddTurboTable = function() {
+  // james: incomplete
+
+  var turboDiv = $('<div>', {
+    'class': 'turbo_div',
+  });
+
+  var die;
+
+  for (var idx = 0; idx < Api.game['player'].activeDieArray.length; idx++) {
+    die = Api.game['player'].activeDieArray[idx];
+    if ($.inArray('Turbo', die.skills) > -1) {
+      turboDiv.append($('<span>', {
+        'id': 'turbo_span' + idx,
+        'class': 'turbo_span',
+        'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+        'text': 'Turbo resize:' + die.recipe,
+      }));
+    }
+  };
+
+  Game.page.append(turboDiv);
+
+  turboDiv.hide();
+}
+
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
@@ -2741,6 +2773,10 @@ Game.gamePlayerDice = function(player, player_active) {
         containerDivOpts['class'] =
           'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
+      }
+      if ((die.skills.indexOf('Turbo') >= 0) &&
+          (player == 'player')) {
+        containerDivOpts['class'] += ' turbo';
       }
       divOpts['class'] = 'die_img';
       dieContainerDiv = $('<div>', containerDivOpts);
@@ -3048,6 +3084,22 @@ Game.dieBorderTogglePlayerHandler = function() {
   } else {
     borderDiv.attr('style', '');
   }
+
+  if ($(this).hasClass('turbo')) {
+    Game.updateTurboVisibility();
+  }
+};
+
+Game.updateTurboVisibility = function() {
+  $('.turbo_div').hide();
+  $('.turbo_span').hide();
+
+  $('.turbo').each(function() {
+    if ($(this).hasClass('selected')) {
+      $('#turbo_span' + $(this).attr('id').match(/[^_]+$/)).show();
+      $('.turbo_div').show();
+    }
+  });
 };
 
 Game.dieBorderToggleOpponentHandler = function() {
