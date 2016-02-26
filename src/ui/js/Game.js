@@ -2550,26 +2550,46 @@ Game.pageAddDieBattleTable = function(clickable) {
 };
 
 Game.pageAddTurboTable = function() {
-  // james: incomplete
-
   var turboDiv = $('<div>', {
     'class': 'turbo_div',
   });
 
   var die;
+  var turboSpan;
+  var turboSubspan;
+  var turboInput;
+
+  turboSpan = $('<span>', {
+    'id': 'turbo_span',
+    'class': 'turbo_span',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+    'text': 'Turbo resize:',
+  });
 
   for (var idx = 0; idx < Api.game['player'].activeDieArray.length; idx++) {
     die = Api.game['player'].activeDieArray[idx];
     if ($.inArray('Turbo', die.skills) > -1) {
-      turboDiv.append($('<span>', {
-        'id': 'turbo_span' + idx,
-        'class': 'turbo_span',
-        'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
-        'text': 'Turbo resize:' + die.recipe,
-      }));
+      turboSubspan = $('<span>', {
+        'id': 'turbo_subspan' + idx,
+        'class': 'turbo_subspan',
+        'style': 'background: none repeat scroll 0 0 #ffffff',
+        'text': Game.dieRecipeText(die) + ' ',
+      });
+
+      console.log(die);
+
+      turboInput = $('<input>', {
+        'id': 'turbo_input' + idx,
+        'type': 'text',
+        'class': 'swing',
+      });
+
+      turboSpan.append(turboSubspan);
+      turboSubspan.append(turboInput);
     }
   };
 
+  turboDiv.append(turboSpan);
   Game.page.append(turboDiv);
 
   turboDiv.hide();
@@ -3092,11 +3112,11 @@ Game.dieBorderTogglePlayerHandler = function() {
 
 Game.updateTurboVisibility = function() {
   $('.turbo_div').hide();
-  $('.turbo_span').hide();
+  $('.turbo_subspan').hide();
 
   $('.turbo').each(function() {
     if ($(this).hasClass('selected')) {
-      $('#turbo_span' + $(this).attr('id').match(/[^_]+$/)).show();
+      $('#turbo_subspan' + $(this).attr('id').match(/[^_]+$/)).show();
       $('.turbo_div').show();
     }
   });

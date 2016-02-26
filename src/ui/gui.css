@@ -238,11 +238,19 @@ select.center {
 
 .turbo_div {
     padding: 5px;
+    margin: 7px;
 }
 
 .turbo_span {
-    padding: 2px 5px;
+    padding: 9px 9px;
     border-radius: 5px;
+    margin: 5px;
+}
+
+.turbo_subspan {
+    padding: 6px 6px;
+    border-radius: 5px;
+    margin-left: 12px;
 }
 
 .winner_name {
