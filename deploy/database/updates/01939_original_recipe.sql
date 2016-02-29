@@ -44,9 +44,14 @@ SET original_recipe = (SELECT recipe
 WHERE original_recipe IS NULL;
 
 -- for Echo and Zero, explicitly copy the opponent's original recipe
+--
+-- note that the subselect on the FROM line is necessary because MySQL
+-- doesn't currently allow the table to be updated to be directly
+-- in the FROM condition, see also
+--   http://www.xaprb.com/blog/2006/06/23/how-to-select-from-an-update-target-in-mysql/
 UPDATE game_player_map AS m1
 SET m1.original_recipe = (SELECT m2.original_recipe
-  FROM (select game_id, player_id, original_recipe FROM game_player_map) AS m2
+  FROM (SELECT game_id, player_id, original_recipe FROM game_player_map) AS m2
   WHERE m1.game_id = m2.game_id
   AND m1.player_id <> m2.player_id
 )
@@ -55,7 +60,9 @@ WHERE button_id IN (SELECT b.id
   WHERE b.name IN ('Echo', 'Zero')
 );
 
--- now deal with recipes that remain empty by directly copying the recipes
+-- now deal with original recipes that remain empty by directly copying the recipes
 UPDATE game_player_map
 SET original_recipe = alt_recipe
 WHERE original_recipe = '';
+
+-- the last step will be to manually fix RandomBMAnime recipes
