@@ -904,7 +904,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "Reserve die chosen successfully"},
+       "text": "responder003 added a reserve die: r(20). "},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
@@ -913,7 +913,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
 
 test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
   stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_reacttoreserve_active';
+  BMTestUtils.GameType = 'bobby5150_wiseman_reacttoreserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -923,7 +923,7 @@ test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "Reserve die chosen successfully"},
+       "text": "responder003 chose not to add a reserve die. "},
       "Game action succeeded when decline argument was set and no dice were chosen");
     $.ajaxSetup({ async: true });
     start();
@@ -992,7 +992,7 @@ test("test_Game.formAdjustFireDiceActive", function(assert) {
 
 test("test_Game.formPlayTurnActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
+  BMTestUtils.GameType = 'washu_hooloovoo_startturn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -1000,7 +1000,8 @@ test("test_Game.formPlayTurnActive", function(assert) {
     $('#game_action_button').trigger('click');
     assert.deepEqual(
       Env.message,
-      {"type": "success", "text": "Dummy turn submission accepted"},
+      {"type": "success",
+       "text": "responder003 performed Skill attack using [(12):4,(20):8] against [q(Z=28):12]; Defender q(Z=28) was captured; Attacker (12) rerolled 4 => 6; Attacker (20) rerolled 8 => 5. "},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
@@ -1028,7 +1029,7 @@ test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
 
 test("test_Game.formPlayTurnInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
+  BMTestUtils.GameType = 'haruspex_haruspex_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
