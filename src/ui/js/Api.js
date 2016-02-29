@@ -112,7 +112,7 @@ var Api = (function () {
             (0 === XMLHttpRequest.readyState)) {
           Env.message = {
             'type': 'error',
-            'text': 'Could not connect to Button Men server—are you online?'
+            'text': 'Could not connect to Button Men server, please try again'
           };
         } else {
           Env.message = {
@@ -180,7 +180,7 @@ var Api = (function () {
             (0 === XMLHttpRequest.readyState)) {
           Env.message = {
             'type': 'error',
-            'text': 'Could not connect to Button Men server—are you online?'
+            'text': 'Could not connect to Button Men server, please try again'
           };
         } else {
           Env.message = {
