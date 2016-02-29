@@ -1159,18 +1159,24 @@ class BMInterface {
 
     protected function save_button_recipes($game) {
         foreach ($game->playerArray as $player) {
-            if (($player->button instanceof BMButton) &&
-                ($player->button->hasAlteredRecipe)) {
+            if ($player->button instanceof BMButton) {
+                $boundParameters = array(':original_recipe' => $player->button->originalRecipe,
+                                         ':game_id' => $game->gameId,
+                                         ':player_id' => $player->playerId);
+
                 $query = 'UPDATE game_player_map '.
-                         'SET alt_recipe = :alt_recipe,'.
-                         '    original_recipe = :original_recipe '.
-                         'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
+                         'SET original_recipe = :original_recipe ';
+
+                if ($player->button->hasAlteredRecipe) {
+                    $query .= ', alt_recipe = :alt_recipe ';
+                    $boundParameters[':alt_recipe'] = $player->button->recipe;
+                }
+
+                $query .= 'WHERE game_id = :game_id '.
+                          'AND player_id = :player_id;';
+
                 $statement = self::$conn->prepare($query);
-                $statement->execute(array(':alt_recipe' => $player->button->recipe,
-                                          ':original_recipe' => $player->button->originalRecipe,
-                                          ':game_id' => $game->gameId,
-                                          ':player_id' => $player->playerId));
+                $statement->execute($boundParameters);
             }
         }
     }

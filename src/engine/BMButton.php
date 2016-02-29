@@ -254,10 +254,6 @@ class BMButton extends BMCanHaveSkill {
      * Change the button recipe
      */
     public function update_button_recipe() {
-        if (empty($this->originalRecipe)) {
-            $this->originalRecipe = $this->recipe;
-        }
-
         $recipe = '';
 
         $playerIdx = array_search($this, $this->ownerObject->buttonArray, TRUE);
@@ -292,19 +288,6 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
-    /**
-     * Get the original recipe of the button
-     *
-     * @return string
-     */
-    protected function get_originalRecipe() {
-        if (empty($this->originalRecipe)) {
-            return $this->recipe;
-        } else {
-            return $this->originalRecipe;
-        }
-    }
-
     // utility methods
     /**
      * Getter
@@ -317,8 +300,6 @@ class BMButton extends BMCanHaveSkill {
             switch ($property) {
                 case 'artFilename':
                     return $this->get_artFilename();
-                case 'originalRecipe':
-                    return $this->get_originalRecipe();
                 default:
                     return $this->$property;
             }

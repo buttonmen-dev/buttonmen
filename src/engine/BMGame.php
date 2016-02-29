@@ -431,6 +431,11 @@ class BMGame {
             }
         }
 
+        // cache recipes
+        foreach ($this->playerArray as $player) {
+            $player->button->originalRecipe = $player->button->recipe;
+        }
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
