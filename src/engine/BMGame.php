@@ -1865,7 +1865,7 @@ class BMGame {
      */
     protected function do_next_step_end_round() {
         // stop degenerate games from running forever
-        if ($this->roundNumber >= 200) {
+        if ($this->get__roundNumber() >= 200) {
             $this->gameState = BMGameState::CANCELLED;
             return;
         }
