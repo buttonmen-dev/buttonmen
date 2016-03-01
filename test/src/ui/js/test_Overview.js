@@ -339,10 +339,20 @@ test("test_Overview.addButtonCol", function(assert) {
 
 test("test_Overview.addPlayerCol", function(assert) {
   var gameRow = $('<tr>');
-  Overview.addPlayerCol(gameRow, 'testPlayerName', '#fdcfff');
+  Overview.addPlayerCol(gameRow, 'testPlayerName', 0, '#fdcfff');
   assert.equal(
     gameRow.html(),
     '<td style=\"background-color: #fdcfff\">' +
+      '<a href=\"profile.html?player=testPlayerName\">testPlayerName</a>' +
+    '</td>'
+  )
+  var gameRow = $('<tr>');
+  Overview.addPlayerCol(gameRow, 'testPlayerName', 1, '#fdcfff');
+  assert.equal(
+    gameRow.html(),
+    '<td style=\"background-color: #fdcfff\">' +
+      '<img src=\"../ui/images/vacation.png\" class=\"playerFlag\" ' +
+      'title=\"On Vacation\">' +
       '<a href=\"profile.html?player=testPlayerName\">testPlayerName</a>' +
     '</td>'
   )
