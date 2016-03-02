@@ -501,11 +501,11 @@ Env.buildProfileLink = function(playerName, textOnly) {
 // Utility function to build a vacation image object
 Env.buildVacationImage = function() {
   return  $('<img>', {
-          'src': Env.ui_root + 'images/vacation.png',
-          'class': 'playerFlag',
-          'title': 'On Vacation'
-        });
-}
+    'src': Env.ui_root + 'images/vacation.png',
+    'class': 'playerFlag',
+    'title': 'On Vacation'
+  });
+};
 
 // Utility function to link to a button page given a button name
 Env.buildButtonLink = function(buttonName, recipe, textOnly) {

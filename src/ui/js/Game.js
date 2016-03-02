@@ -2896,11 +2896,11 @@ Game.playerOpponentHeaderRow = function(label, field) {
   var opponentInfo = $('<th>', { 'text': prefix, });
   if (field == 'playerName') {
     if (Api.game.player.isOnVacation) {
-       playerInfo.append(Env.buildVacationImage());
+      playerInfo.append(Env.buildVacationImage());
     }
     playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
     if (Api.game.opponent.isOnVacation) {
-       opponentInfo.append(Env.buildVacationImage());
+      opponentInfo.append(Env.buildVacationImage());
     }
     opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
   } else if (field == 'buttonName') {

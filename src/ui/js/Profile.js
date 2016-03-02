@@ -125,7 +125,8 @@ Profile.buildProfileTable = function() {
   var vacationHolder = null;
   if (Api.profile_info.vacation_message) {
     vacationHolder = $('<span>');
-    var cookedVacation= Env.prepareRawTextForDisplay(Api.profile_info.vacation_message);
+    var cookedVacation = 
+      Env.prepareRawTextForDisplay(Api.profile_info.vacation_message);
     vacationHolder.append(cookedVacation);
   }
 
