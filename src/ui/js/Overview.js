@@ -390,7 +390,7 @@ Overview.addButtonCol = function(gameRow, buttonName) {
   ));
 };
 
-Overview.addPlayerCol = function(gameRow, playerName, 
+Overview.addPlayerCol = function(gameRow, playerName,
                                  isPlayerOnVacation, playerColor) {
   gameRow.append($('<td>', {
       'style': 'background-color: ' + playerColor,
