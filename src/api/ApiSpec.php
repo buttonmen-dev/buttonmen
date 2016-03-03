@@ -544,8 +544,8 @@ class ApiSpec {
                 ),
                 'uses_gravatar' => 'boolean',
                 'vacation_message' => array(
-		    'arg_type' => 'string',
-	            'maxlength' => self::VACATION_MESSAGE_MAX_LENGTH,
+                    'arg_type' => 'string',
+                    'maxlength' => self::VACATION_MESSAGE_MAX_LENGTH,
                 ),
                 'current_password' => 'string',
                 'new_password' => 'string',

@@ -84,7 +84,7 @@ class BMInterfacePlayer extends BMInterface {
             'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
             'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
             'comment' => $infoArray['comment'],
-            'vacation_message' => $infoArray['vacation_message'], 
+            'vacation_message' => $infoArray['vacation_message'],
             'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
             'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
             'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
