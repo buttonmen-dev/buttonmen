@@ -31,6 +31,7 @@
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
  * @property      int      $lastActionTime         Time of last action
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
+ * @property      bool     $isOnVacation           Is player on vacation? (Used by BMInterface only)
  *
  * @SuppressWarnings(PMD.TooManyFields)
  */
@@ -229,6 +230,13 @@ class BMPlayer {
      * @var BMGame
      */
     protected $ownerObject;
+
+    /**
+     * Is current player on vacation? Currently only used by BMInterface.
+     *
+     * @var bool
+     */
+    public $isOnVacation;
 
     /**
      * Find indices of active dice that do not have reserve
@@ -462,6 +470,20 @@ class BMPlayer {
         }
     }
 
+    /**
+     * Set isOnVacation
+     *
+     * @param bool $value
+     */
+    protected function set__isOnVacation($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException('isOnVacation must be a boolean');
+        }
+
+        $this->isOnVacation = $value;
+    }
+
+    /**
     // utility methods
     /**
      * Constructor
