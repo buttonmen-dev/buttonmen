@@ -936,14 +936,14 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (695, 'Aquarius',    '(6) p(6) (8) s(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
 (696, 'Aries',       '(6) s(8) z(10) (20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
 (697, 'Cancer',      'p(6) g(8) (8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
-(698, 'Capricorn',   '(6) g(6) (10) s(12) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
-(699, 'Gemini',      '(4,4) (12) (12) z(V) s(V)',           0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(698, 'Capricorn',   '(4) s(6) (10) g(12) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(699, 'Gemini',      '(4,4) (12) (12) z(X) s(X)',           0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
 (700, 'Leo',         '(4) (6) p(10) z(20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
-(701, 'Libra',       '(4) g(4) (8,8) z(8,8) (V)',           0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(701, 'Libra',       '(4) g(4) z(8,8) (8,8) (V)',           0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
 (702, 'Pisces',      '(4) p(8) z(12) (12) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
-(703, 'Sagittarius', '(4) (4) s(8) p(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(703, 'Sagittarius', '(4) (4) s(8) p(10) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
 (704, 'Scorpio',     'g(6) (10) (12) p(20) (V)',            0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
-(705, 'Taurus',      'g(8) (10) (20) s(20) (V)',            0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
+(705, 'Taurus',      'g(8) (10) s(12) (20) (V)',            0, 0, (SELECT id FROM buttonset WHERE name="Zodiac")),
 (706, 'Virgo',       '(4) g(8) z(12) (20) (V)',             0, 0, (SELECT id FROM buttonset WHERE name="Zodiac"));
 
 ################################################
@@ -1321,3 +1321,15 @@ UPDATE button SET flavor_text="Dunkirk is a mysterious Balkan folk dancer. He of
 UPDATE button SET flavor_text="Durban McGinty sleeps with one eye open and is easily startled when awake. He is never without something to chew on, and he likes to beat people up." WHERE name="McGinty";
 UPDATE button SET flavor_text="Starchylde is a ferocious vampire hunter and a prolific poet. She likes garlic, mice and ultraviolet light, and she likes to beat people up." WHERE name="Starchylde";
 UPDATE button SET flavor_text="Tiffany is a robotics expert and gourmet chef. Her travels often take her to remote locations in Tibet and Pakistan, and she likes to beat people up." WHERE name="Tiffany";
+UPDATE button SET flavor_text="Aries is a strong-willed warrior and a bundle of energy. He is creative and spontaneous, quick to anger, but doesn't take it personally. Although he works best alone, he likes parties, humor, and beating people up." WHERE name="Aries";
+UPDATE button SET flavor_text="Aquarius is an honest and loyal humanitarian. He is easy going and makes friendships naturally. He accomplishes his goals in a quiet, unorthodox but surprisingly effective way. He loves arts, poetry, and beating people up." WHERE name="Aquarius";
+UPDATE button SET flavor_text="Cancer is a loyal, sympathetic friend with a special interest in history. He is known to be a conservative traditionalist who occasionally needs solitude. He loves his home, his family, and beating people up." WHERE name="Cancer";
+UPDATE button SET flavor_text="Capricorn is a good organizer with broad shoulders for other people's problems. He is highly intelligent and shrugs off any negative comment about his personality. He loves stability and order, and beating people up." WHERE name="Capricorn";
+UPDATE button SET flavor_text="Gemini is an adaptable and flexible duo. They may turn from hot to cold in no time since their attention easily drifts to something new. They love to inspire others, talking and playing with their mobile phones, and beating people up." WHERE name="Gemini";
+UPDATE button SET flavor_text="Leo is a natural born leader with a tendency to be high-minded about his opinion. He is usually correct in his statements, though. He is brave, generous, and stubborn. He loves power and hides his sensitive nature by beating people up." WHERE name="Leo";
+UPDATE button SET flavor_text="Libra is the caring friend of the underdog. Although she can be quiet and shy, she makes an excellent debater and has a strong sense of justice. She loves beauty, keeping everything in balance, and beating people up." WHERE name="Libra";
+UPDATE button SET flavor_text="Pisces acquires vast amounts of knowledge but keeps an extremely low profile. She is honest, unselfish and trustworthy. Others might take advantage of her because of her gentleness and generosity. She loves her friends and beating people up." WHERE name="Pisces";
+UPDATE button SET flavor_text="Sagittarius is a philosopher with a tendency to wear herself out, going in too many directions at once. She is not very patient and expects quick results. She loves her freedom, abstract ideas and new points of view, and beating people up." WHERE name="Sagittarius";
+UPDATE button SET flavor_text="Scorpio understands deeper layers of the psyche but is unable to communicate this so she is often misjudged. She is passionate and sometimes intrigued by the dark side of life. She likes the hero, secrets, being in opposition, and beating people up." WHERE name="Scorpio";
+UPDATE button SET flavor_text="Taurus is stubborn by nature and will stand her ground to the bitter end. She is full of strength, stamina and will. She loves to teach others patiently, is endlessly generous with her time, and seeks pleasure in beating people up." WHERE name="Taurus";
+UPDATE button SET flavor_text="Virgo is delightful to chat with due to her charm and her remarkable memory. She is an excellent teammate and works well with others. She needs balance in her life, otherwise she becomes short-tempered and impatient, and starts beating people up." WHERE name="Virgo";
