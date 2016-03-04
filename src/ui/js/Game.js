@@ -420,11 +420,11 @@ Game.actionSpecifyDiceActive = function() {
         'id': 'option_' + position,
         'name': 'option_' + position,
       });
-      $.each(vals, function(idx) {
+      $.each(vals, function(_idx_, val) {
         optselect.append($('<option>', {
-          'value': vals[idx],
-          'label': vals[idx],
-          'text': vals[idx],
+          'value': val,
+          'label': val,
+          'text': val,
         }));
       });
       optinput.append(optselect);
@@ -2555,6 +2555,7 @@ Game.pageAddTurboTable = function() {
   });
 
   var die;
+  var optVals;
   var turboSpan;
   var turboSubspan;
   var turboInput;
@@ -2567,7 +2568,7 @@ Game.pageAddTurboTable = function() {
   });
 
   for (var idx = 0; idx < Api.game['player'].activeDieArray.length; idx++) {
-    die = Api.game['player'].activeDieArray[idx];
+    die = Api.game.player.activeDieArray[idx];
     if ($.inArray('Turbo', die.skills) > -1) {
       turboSubspan = $('<span>', {
         'id': 'turbo_subspan' + idx,
@@ -2576,13 +2577,28 @@ Game.pageAddTurboTable = function() {
         'text': Game.dieRecipeText(die) + ' ',
       });
 
-      console.log(die);
+      if (/\(.*\/.*\)/.test(die.recipe)) {
+        // option selector
+        turboInput = $('<select>', {
+          'id': 'turbo_input' + idx,
+          'name': 'turbo_input' + idx,
+        });
 
-      turboInput = $('<input>', {
-        'id': 'turbo_input' + idx,
-        'type': 'text',
-        'class': 'swing',
-      });
+        $.each(Api.game.player.optRequestArray[idx], function(_idx_, val) {
+          turboInput.append($('<option>', {
+            'value': val,
+            'label': val,
+            'text': val,
+          }));
+        });
+      } else {
+        // swing selector
+        turboInput = $('<input>', {
+          'id': 'turbo_input' + idx,
+          'type': 'text',
+          'class': 'swing',
+        });
+      }
 
       turboSpan.append(turboSubspan);
       turboSubspan.append(turboInput);
