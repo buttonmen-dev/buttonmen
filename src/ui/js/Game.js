@@ -2555,7 +2555,6 @@ Game.pageAddTurboTable = function() {
   });
 
   var die;
-  var optVals;
   var turboSpan;
   var turboSubspan;
   var turboInput;
@@ -2567,7 +2566,7 @@ Game.pageAddTurboTable = function() {
     'text': 'Turbo resize:',
   });
 
-  for (var idx = 0; idx < Api.game['player'].activeDieArray.length; idx++) {
+  for (var idx = 0; idx < Api.game.player.activeDieArray.length; idx++) {
     die = Api.game.player.activeDieArray[idx];
     if ($.inArray('Turbo', die.skills) > -1) {
       turboSubspan = $('<span>', {
@@ -2603,13 +2602,13 @@ Game.pageAddTurboTable = function() {
       turboSpan.append(turboSubspan);
       turboSubspan.append(turboInput);
     }
-  };
+  }
 
   turboDiv.append(turboSpan);
   Game.page.append(turboDiv);
 
   turboDiv.hide();
-}
+};
 
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,
