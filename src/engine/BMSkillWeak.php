@@ -21,7 +21,7 @@ class BMSkillWeak extends BMSkill {
      * Hooked method applied before die roll
      *
      * @param array $args Array of arguments to hooked method
-     * @return boolean
+     * @return bool
      */
     public static function pre_roll($args) {
         $die = $args['die'];

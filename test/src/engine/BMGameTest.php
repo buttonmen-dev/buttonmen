@@ -3104,8 +3104,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('X Swing Die (with 7 sides)', $out3['playerDataArray'][1]['activeDieArray'][4]['description']);
         $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
         $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
-        $this->assertEquals(array('X' => array(4, 20)), $out3['playerDataArray'][0]['swingRequestArray']);
-        $this->assertEquals(array('X' => array(4, 20)), $out3['playerDataArray'][1]['swingRequestArray']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['swingRequestArray']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['swingRequestArray']);
         $this->assertEquals(27.5, $out3['playerDataArray'][0]['roundScore']);
         $this->assertEquals(16, $out3['playerDataArray'][1]['roundScore']);
         $this->assertEquals(7.7, $out3['playerDataArray'][0]['sideScore']);
@@ -3197,7 +3197,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($out7['playerDataArray'][0]['swingRequestArray']));
         $this->assertTrue(isset($out7['playerDataArray'][1]['swingRequestArray']));
         $this->assertEquals(array(), $out7['playerDataArray'][0]['swingRequestArray']);
-        $this->assertEquals(array('4', '20'), $out7['playerDataArray'][1]['swingRequestArray']['X']);
+        $this->assertEquals(array(), $out7['playerDataArray'][1]['swingRequestArray']);
     }
 
     /**
@@ -7096,8 +7096,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][1]->value = 2;
 
         $data = $game->getJsonData(234);
-        $this->assertEquals(array('X' => array(4, 20)), $data['playerDataArray'][0]['swingRequestArray']);
-        $this->assertEquals(array('Y' => array(1, 20)), $data['playerDataArray'][1]['swingRequestArray']);
+        $this->assertEquals(array(), $data['playerDataArray'][0]['swingRequestArray']);
+        $this->assertEquals(array(), $data['playerDataArray'][1]['swingRequestArray']);
     }
 
     /**

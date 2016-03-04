@@ -33,7 +33,7 @@ module("Overview", {
     delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
-    delete Api.rejected_games;
+    delete Api.cancelled_games;
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Api.user_prefs;
@@ -48,7 +48,7 @@ module("Overview", {
     // Page elements
     $('#overview_page').remove();
     $("#favicon").attr("href","/favicon.ico");
-    
+
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
 
@@ -360,12 +360,12 @@ test("test_Overview.addScoreCol", function(assert) {
   var gameRow;
 
   gameRow = $('<tr>');
-  gameInfo.gameType = 'rejected';
+  gameInfo.gameType = 'cancelled';
   Overview.addScoreCol(gameRow, gameInfo);
   assert.equal(
     gameRow.html(),
     '<td>–/–/– (5)</td>',
-    'Rejected games have a dashed score'
+    'Cancelled games have a dashed score'
   );
 
   gameRow = $('<tr>');
@@ -491,11 +491,11 @@ test("test_Overview.linkTextStub", function(assert) {
     'new game stub'
   );
 
-  gameInfo.gameType = 'rejected';
+  gameInfo.gameType = 'cancelled';
   assert.equal(
     Overview.linkTextStub(gameInfo, gameType),
     'CANCELLED',
-    'rejected game stub'
+    'cancelled game stub'
   );
 
   gameInfo.gameType = 'completed';

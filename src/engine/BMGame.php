@@ -271,6 +271,10 @@ class BMGame {
     protected $fireCache;
 
     // methods
+    /**
+     * This is a generic caller function that calls each
+     * do_next_step_*() function, based on the current game state.
+     */
     public function do_next_step() {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
@@ -281,6 +285,10 @@ class BMGame {
         $this->$funcName();
     }
 
+    /**
+     * This is a generic caller function that calls each
+     * update_game_state_*() function, based on the current game state.
+     */
     public function update_game_state() {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
@@ -291,9 +299,15 @@ class BMGame {
         $this->$funcName();
     }
 
+    /**
+     * Perform the logic required at BMGameState::start_game
+     */
     protected function do_next_step_start_game() {
     }
 
+    /**
+     * Update game state from BMGameState::start_game if necessary
+     */
     protected function update_game_state_start_game() {
         $this->reset_play_state();
         $allPlayersSet = TRUE;
@@ -332,6 +346,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::apply_handicaps
+     */
     protected function do_next_step_apply_handicaps() {
         // ignore for the moment
         foreach ($this->playerArray as $player) {
@@ -339,6 +356,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::apply_handicaps if necessary
+     */
     protected function update_game_state_apply_handicaps() {
         if (!isset($this->maxWins)) {
             throw new LogicException(
@@ -359,10 +379,16 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::choose_join_game
+     */
     protected function do_next_step_choose_join_game() {
 
     }
 
+    /**
+     * Update game state from BMGameState::choose_join_game if necessary
+     */
     protected function update_game_state_choose_join_game() {
         $allPlayersHaveAccepted = TRUE;
 
@@ -376,6 +402,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::specify_recipes
+     */
     protected function do_next_step_specify_recipes() {
         if (isset($this->playerArray)) {
             foreach ($this->playerArray as $playerIdx => $player) {
@@ -392,6 +421,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::specify_recipes if necessary
+     */
     protected function update_game_state_specify_recipes() {
         foreach ($this->playerArray as $player) {
             if (empty($player->button->recipe)) {
@@ -402,11 +434,17 @@ class BMGame {
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
+    /**
+     * Perform the logic required at BMGameState::load_dice_into_buttons
+     */
     protected function do_next_step_load_dice_into_buttons() {
         // james: this is currently carried out either by manually setting
         // $this->playerArray[...]->button, or by BMInterface
     }
 
+    /**
+     * Update game state from BMGameState::load_dice_into_buttons if necessary
+     */
     protected function update_game_state_load_dice_into_buttons() {
         foreach ($this->playerArray as $player) {
             if (empty($player->button)) {
@@ -423,6 +461,9 @@ class BMGame {
         $this->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
     }
 
+    /**
+     * Perform the logic required at BMGameState::add_available_dice_to_game
+     */
     protected function do_next_step_add_available_dice_to_game() {
         foreach ($this->playerArray as $player) {
             $player->button->activate();
@@ -433,6 +474,10 @@ class BMGame {
         $this->load_option_values_from_previous_round();
     }
 
+    /**
+     * Add courtesy auxiliary dice if a player has no auxiliary dice, but the
+     * opponent does
+     */
     protected function offer_courtesy_auxiliary_dice() {
         $havePlayersAuxDice = $this->do_players_have_dice_with_skill('Auxiliary');
 
@@ -453,6 +498,12 @@ class BMGame {
         }
     }
 
+    /**
+     * Check whether each player has dice with a certain skill
+     *
+     * @param string $skill
+     * @return array
+     */
     protected function do_players_have_dice_with_skill($skill) {
         $hasDiceWithSkill = array_fill(0, $this->nPlayers, FALSE);
 
@@ -470,6 +521,11 @@ class BMGame {
         return $hasDiceWithSkill;
     }
 
+    /**
+     * Retrieve all auxiliary dice from all players
+     *
+     * @return array
+     */
     protected function get_all_auxiliary_dice() {
         $auxiliaryDice = array();
 
@@ -484,6 +540,10 @@ class BMGame {
         return $auxiliaryDice;
     }
 
+    /**
+     * Set swing values for swing dice if there are swing values
+     * carried across from the previous round
+     */
     protected function load_swing_values_from_previous_round() {
         foreach ($this->playerArray as $player) {
             if (empty($player->swingValueArray)) {
@@ -504,6 +564,10 @@ class BMGame {
         }
     }
 
+    /**
+     * Set option values for option dice if there are option values
+     * carried across from the previous round
+     */
     protected function load_option_values_from_previous_round() {
         foreach ($this->playerArray as $player) {
             if (empty($player->optValueArray)) {
@@ -523,6 +587,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::add_available_dice_to_game if necessary
+     */
     protected function update_game_state_add_available_dice_to_game() {
         $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
         $waitingOnActionArray =
@@ -532,10 +599,16 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::choose_auxiliary_dice
+     */
     protected function do_next_step_choose_auxiliary_dice() {
 
     }
 
+    /**
+     * Update game state from BMGameState::choose_auxiliary_dice if necessary
+     */
     protected function update_game_state_choose_auxiliary_dice() {
         // if all decisions on auxiliary dice have been made
         if (!$this->isWaitingOnAnyAction()) {
@@ -556,6 +629,13 @@ class BMGame {
         }
     }
 
+    /**
+     * Determine whether each player has decided to add an auxiliary die,
+     * and if all players have decided to do so, then convert these selected
+     * auxiliary dice to normal dice
+     *
+     * @return array
+     */
     protected function add_selected_auxiliary_dice() {
         $hasChosenAuxDie = array_fill(0, $this->nPlayers, FALSE);
 
@@ -584,6 +664,12 @@ class BMGame {
         return array_fill(0, $this->nPlayers, $useAuxDice);
     }
 
+    /**
+     * Remove all dice with a certain skill from all players
+     *
+     * @param string $skill
+     * @return bool
+     */
     protected function remove_dice_with_skill($skill) {
         $areAnyDiceRemoved = array_fill(0, $this->nPlayers, FALSE);
 
@@ -603,6 +689,9 @@ class BMGame {
         return $areAnyDiceRemoved;
     }
 
+    /**
+     * Perform the logic required at BMGameState::choose_reserve_dice
+     */
     protected function do_next_step_choose_reserve_dice() {
         $this->setAllToNotWaiting();
 
@@ -620,9 +709,13 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::choose_reserve_dice if necessary
+     */
     protected function update_game_state_choose_reserve_dice() {
         // if all decisions on reserve dice have been made
         if (!$this->isWaitingOnAnyAction()) {
+            $this->update_prevOptValueArray();
             $areAnyDiceAdded = $this->add_selected_reserve_dice();
 
             if (array_sum($areAnyDiceAdded) > 0) {
@@ -632,7 +725,6 @@ class BMGame {
                         $player->button->update_button_recipe();
                     }
                 }
-
             }
 
             $this->update_opt_requests_to_ignore_reserve_dice();
@@ -641,6 +733,43 @@ class BMGame {
         }
     }
 
+    /**
+     * Update option request array when reserve option dice are added
+     */
+    protected function update_prevOptValueArray() {
+        foreach ($this->playerArray as $player) {
+            if (!empty($player->prevOptValueArray)) {
+                foreach (array_reverse(array_keys($player->activeDieArray)) as $dieIdx) {
+                    if ($player->activeDieArray[$dieIdx]->has_flag('AddReserve')) {
+                        // count how many dice don't have reserve on the left of the added die
+                        $dieIndicesWithoutReserve = $player->die_indices_without_reserve();
+                        $nDiceOnLeft = 0;
+                        foreach ($dieIndicesWithoutReserve as $leftDieIdx) {
+                            if ($leftDieIdx < $dieIdx) {
+                                $nDiceOnLeft++;
+                            }
+                        }
+
+                        // this code theoretically accommodates the ability to add multiple reserve
+                        // option dice at once
+                        foreach (array_reverse(array_keys($player->prevOptValueArray)) as $optIdx) {
+                            // increment all keys for prevOptValueArray that aren't left of the new die
+                            if ($optIdx >= $nDiceOnLeft) {
+                                $player->prevOptValueArray[$optIdx + 1] = $player->prevOptValueArray[$optIdx];
+                                unset($player->prevOptValueArray[$optIdx]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Convert selected reserve dice to normal dice and then add them
+     *
+     * @return bool
+     */
     protected function add_selected_reserve_dice() {
         $areAnyDiceAdded = array_fill(0, $this->nPlayers, FALSE);
 
@@ -665,6 +794,9 @@ class BMGame {
         return $areAnyDiceAdded;
     }
 
+    /**
+     * Stop reserve dice from requesting option values
+     */
     protected function update_opt_requests_to_ignore_reserve_dice() {
         foreach ($this->playerArray as $player) {
             if (empty($player->optRequestArray)) {
@@ -685,6 +817,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::specify_dice
+     */
     protected function do_next_step_specify_dice() {
         $this->setAllToNotWaiting();
         $this->initialise_swing_value_array_array();
@@ -693,6 +828,10 @@ class BMGame {
         $this->roll_active_dice_needing_values();
     }
 
+    /**
+     * Copy specified swing requests to the swing value array if this
+     * swing type hasn't yet been specified.
+     */
     protected function initialise_swing_value_array_array() {
         foreach ($this->playerArray as $player) {
             if (empty($player->swingRequestArray)) {
@@ -717,6 +856,10 @@ class BMGame {
         }
     }
 
+    /**
+     * Copy specified option requests to option dice if the
+     * option value hasn't yet been specified.
+     */
     protected function set_option_values() {
         foreach ($this->playerArray as $player) {
             if (empty($player->optRequestArray)) {
@@ -740,6 +883,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Copy specified swing values to swing dice.
+     */
     protected function set_swing_values() {
         foreach ($this->playerArray as $player) {
             if (!$player->waitingOnAction) {
@@ -760,6 +906,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Roll active dice that are fully specified except for their value
+     */
     protected function roll_active_dice_needing_values() {
         foreach ($this->playerArray as $player) {
             foreach ($player->activeDieArray as $dieIdx => $die) {
@@ -784,6 +933,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::specify_dice if necessary
+     */
     protected function update_game_state_specify_dice() {
         if (!$this->isWaitingOnAnyAction()) {
             foreach ($this->playerArray as $player) {
@@ -794,6 +946,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::determine_initiative
+     */
     protected function do_next_step_determine_initiative() {
         $response =
             BMGame::does_player_have_initiative_array(
@@ -850,12 +1005,18 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::determine_initiative if necessary
+     */
     protected function update_game_state_determine_initiative() {
         if (isset($this->playerWithInitiativeIdx)) {
             $this->gameState = BMGameState::REACT_TO_INITIATIVE;
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::react_to_initiative
+     */
     protected function do_next_step_react_to_initiative() {
         foreach ($this->playerArray as $playerIdx => $player) {
             // do nothing if a player has won initiative
@@ -900,6 +1061,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::react_to_initiative if necessary
+     */
     protected function update_game_state_react_to_initiative() {
         // if everyone is out of actions, reactivate chance dice
         if (!$this->isWaitingOnAnyAction()) {
@@ -916,6 +1080,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::start_round
+     */
     protected function do_next_step_start_round() {
         if (!isset($this->playerWithInitiativeIdx)) {
             throw new LogicException(
@@ -927,6 +1094,9 @@ class BMGame {
         $this->turnNumberInRound = 1;
     }
 
+    /**
+     * Update game state from BMGameState::start_round if necessary
+     */
     protected function update_game_state_start_round() {
         if (isset($this->activePlayerIdx)) {
             $this->gameState = BMGameState::START_TURN;
@@ -949,6 +1119,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::start_turn
+     */
     protected function do_next_step_start_turn() {
         $this->firingAmount = NULL;
         $this->perform_autopass();
@@ -959,6 +1132,11 @@ class BMGame {
         }
     }
 
+    /**
+     * Set the attack to a pass attack if:
+     * (i) the only valid attack is a pass attack, and
+     * (ii) the player has the autopass preference set
+     */
     protected function perform_autopass() {
         if (!isset($this->attack) &&
             $this->playerArray[$this->activePlayerIdx]->autopass &&
@@ -975,6 +1153,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::start_turn if necessary
+     */
     protected function update_game_state_start_turn() {
         if ($this->isWaitingOnAnyAction()) {
             return;
@@ -997,6 +1178,11 @@ class BMGame {
         $this->gameState = BMGameState::ADJUST_FIRE_DICE;
     }
 
+    /**
+     * Validate the attack parameters
+     *
+     * @return bool
+     */
     protected function are_attack_params_reasonable() {
         // if attack has not been set, ask player to select attack
         if (!isset($this->attack)) {
@@ -1021,6 +1207,12 @@ class BMGame {
         return TRUE;
     }
 
+    /**
+     * Create a BMAttack instance that corresponds to the attack
+     * specified in $this->attack
+     *
+     * @return array|FALSE
+     */
     protected function create_attack_instance() {
         if (!isset($this->attack)) {
             $this->regenerate_attack();
@@ -1075,9 +1267,10 @@ class BMGame {
                      'defAttackDieArray' => $defAttackDieArray);
     }
 
+    /**
+     * This is intended to regenerate an attack during firing
+     */
     protected function regenerate_attack() {
-        // james: this is currently to regenerate an attack during firing
-
         $attackerPlayerIdx = NULL;
         $defenderPlayerIdx = NULL;
         $attackerAttackDieIdxArray = array();
@@ -1106,6 +1299,9 @@ class BMGame {
         );
     }
 
+    /**
+     * Add the IsAttacker flag to all attacking dice
+     */
     protected function add_flag_to_attackers() {
         if (empty($this->attack['attackerAttackDieIdxArray'])) {
             return;
@@ -1118,6 +1314,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Add the IsAttackTarget flag to all dice being targeted in the attack
+     */
     protected function add_flag_to_attack_targets() {
         if (empty($this->attack['defenderAttackDieIdxArray'])) {
             return;
@@ -1130,12 +1329,20 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::adjust_fire_dice
+     */
     protected function do_next_step_adjust_fire_dice() {
         if ($this->needs_firing() || $this->allows_fire_overshooting()) {
             $this->playerArray[$this->attack['attackerPlayerIdx']]->waitingOnAction = TRUE;
         }
     }
 
+    /**
+     * Checks whether the attack requires fire assistance to be successful
+     *
+     * @return bool
+     */
     protected function needs_firing() {
         $attackType = $this->attack['attackType'];
 
@@ -1212,7 +1419,7 @@ class BMGame {
      * already able to capture the defender without help, but where there is
      * fire support possible, and the attacker is not yet at maximum value.
      *
-     * @return boolean
+     * @return bool
      */
     protected function allows_fire_overshooting() {
         if ('Power' != $this->attack['attackType']) {
@@ -1267,6 +1474,9 @@ class BMGame {
         return FALSE;
     }
 
+    /**
+     * Update game state from BMGameState::adjust_fire_dice if necessary
+     */
     protected function update_game_state_adjust_fire_dice() {
         if ($this->isWaitingOnAnyAction()) {
             return;
@@ -1275,31 +1485,37 @@ class BMGame {
         $this->gameState = BMGameState::COMMIT_ATTACK;
     }
 
-    // turn_down_fire_dice expects one of the following input arrays:
-    //
-    //   1.  array('action' => 'cancel',
-    //             'playerIdx' => $playerIdx,
-    //             'dieIdxArray' => $dieIdxArray,
-    //             'dieValueArray' => $dieValueArray)
-    //       where $dieIdxArray and $dieValueArray are the raw inputs to
-    //       BMInterface->adjust_fire()
-    //
-    //   2.  array('action' => 'no_turndown',
-    //             'playerIdx' => $playerIdx,
-    //             'dieIdxArray' => $dieIdxArray,
-    //             'dieValueArray' => $dieValueArray)
-    //       where $dieIdxArray and $dieValueArray are the raw inputs to
-    //       BMInterface->adjust_fire()
-    //
-    //   3.  array('action' => 'turndown',
-    //             'playerIdx' => $playerIdx,
-    //             'fireValueArray' => array($dieIdx1 => $dieValue1,
-    //                                       $dieIdx2 => $dieValue2))
-    //       where the details of SOME or ALL fire dice are in $fireValueArray
-    //
-    // It returns a boolean telling whether the reaction has been successful.
-    // If it fails, $game->message will say why it has failed.
-
+    /**
+     * React with fire dice.
+     *
+     * react_to_firing expects one of the following input arrays:
+     *
+     *   1.  array('action' => 'cancel',
+     *             'playerIdx' => $playerIdx,
+     *             'dieIdxArray' => $dieIdxArray,
+     *             'dieValueArray' => $dieValueArray)
+     *       where $dieIdxArray and $dieValueArray are the raw inputs to
+     *       BMInterface->adjust_fire()
+     *
+     *   2.  array('action' => 'no_turndown',
+     *             'playerIdx' => $playerIdx,
+     *             'dieIdxArray' => $dieIdxArray,
+     *             'dieValueArray' => $dieValueArray)
+     *       where $dieIdxArray and $dieValueArray are the raw inputs to
+     *       BMInterface->adjust_fire()
+     *
+     *   3.  array('action' => 'turndown',
+     *             'playerIdx' => $playerIdx,
+     *             'fireValueArray' => array($dieIdx1 => $dieValue1,
+     *                                       $dieIdx2 => $dieValue2))
+     *       where the details of SOME or ALL fire dice are in $fireValueArray
+     *
+     * It returns a boolean telling whether the reaction has been successful.
+     * If it fails, $game->message will say why it has failed.
+     *
+     * @param array $args
+     * @return string|FALSE
+     */
     public function react_to_firing(array $args) {
         if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
             $this->message = 'Wrong game state to react to firing.';
@@ -1327,8 +1543,15 @@ class BMGame {
         return $reactResponse;
     }
 
-    // $fireValueArray is an associative array, with the keys being the
-    // die indices of the attacker die array that are being specified
+    /**
+     * Attempt to turn down fire dice
+     *
+     * $fireValueArray is an associative array, with the keys being the
+     * die indices of the attacker die array that are being specified
+     *
+     * @param array $args
+     * @return bool
+     */
     protected function react_to_firing_turndown(array $args) {
         if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
             $this->message = 'Wrong game state to react to firing.';
@@ -1400,6 +1623,11 @@ class BMGame {
         return TRUE;
     }
 
+    /**
+     * Attempt to not turn down fire dice
+     *
+     * @return bool
+     */
     protected function react_to_firing_no_turndown() {
         if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
             $this->message = 'Wrong game state to react to firing.';
@@ -1432,6 +1660,11 @@ class BMGame {
         return TRUE;
     }
 
+    /**
+     * Cancel the current attack
+     *
+     * @return bool
+     */
     protected function react_to_firing_cancel() {
         $this->attack = NULL;
         $this->gameState = BMGameState::START_TURN;
@@ -1460,6 +1693,9 @@ class BMGame {
         return TRUE;
     }
 
+    /**
+     * Perform the logic required at BMGameState::commit_attack
+     */
     protected function do_next_step_commit_attack() {
         // display dice
         $instance = $this->create_attack_instance();
@@ -1504,6 +1740,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Remove all flags from all dice for all players
+     */
     protected function remove_all_flags() {
         foreach ($this->playerArray as $player) {
             if (empty($player->activeDieArray)) {
@@ -1526,6 +1765,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::commit_attack if necessary
+     */
     protected function update_game_state_commit_attack() {
         if (isset($this->attack) &&
             !$this->isWaitingOnAnyAction()) {
@@ -1543,19 +1785,31 @@ class BMGame {
         $this->gameState = BMGameState::CHOOSE_TURBO_SWING;
     }
 
+    /**
+     * Perform the logic required at BMGameState::choose_turbo_swing
+     */
     protected function do_next_step_choose_turbo_swing() {
 
     }
 
+    /**
+     * Update game state from BMGameState::choose_turbo_swing if necessary
+     */
     protected function update_game_state_choose_turbo_swing() {
         $this->gameState = BMGameState::END_TURN;
     }
 
+    /**
+     * Perform the logic required at BMGameState::end_turn
+     */
     protected function do_next_step_end_turn() {
         $this->perform_end_of_turn_die_actions();
         $this->firingAmount = NULL;
     }
 
+    /**
+     * Perform die actions that occur at the end of each turn
+     */
     protected function perform_end_of_turn_die_actions() {
         $preRerollDieInfo = array();
         $postRerollDieInfo = array();
@@ -1589,6 +1843,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::end_turn if necessary
+     */
     protected function update_game_state_end_turn() {
         $nDice = array_map('count', $this->getBMPlayerProps('activeDieArray'));
         // check if any player has no dice, or if everyone has passed
@@ -1603,6 +1860,9 @@ class BMGame {
         $this->attack = NULL;
     }
 
+    /**
+     * Perform the logic required at BMGameState::end_round
+     */
     protected function do_next_step_end_round() {
         $roundScoreArray = array();
         foreach ($this->playerArray as $player) {
@@ -1672,6 +1932,9 @@ class BMGame {
         $this->reset_play_state();
     }
 
+    /**
+     * Update game state from BMGameState::end_round if necessary
+     */
     protected function update_game_state_end_round() {
         if (isset($this->activePlayerIdx)) {
             return;
@@ -1686,6 +1949,9 @@ class BMGame {
         }
     }
 
+    /**
+     * Perform the logic required at BMGameState::end_game
+     */
     protected function do_next_step_end_game() {
         $this->reset_play_state();
 
@@ -1702,21 +1968,41 @@ class BMGame {
         }
     }
 
+    /**
+     * Update game state from BMGameState::end_game if necessary
+     */
     protected function update_game_state_end_game() {
     }
 
-    protected function do_next_step_rejected() {
+    /**
+     * Perform the logic required at BMGameState::CANCELLED
+     */
+    protected function do_next_step_cancelled() {
         foreach ($this->playerArray as $player) {
             $player->waitingOnAction = FALSE;
         }
     }
 
-    protected function update_game_state_rejected() {
+    /**
+     * Update game state from BMGameState::CANCELLED if necessary
+     */
+    protected function update_game_state_cancelled() {
     }
 
-    // The variable $gameStateBreakpoint is used for debugging purposes only.
-    // If used, the game will stop as soon as the game state becomes
-    // the value of $gameStateBreakpoint
+    /**
+     * Carry out all automated game actions until a player needs to do something
+     *
+     * The idea here is to call update_game_state() and do_next_step() one after
+     * another until:
+     * (i) the game requires a player action, or
+     * (ii) the game reaches a game state that signals that it has ended
+     *
+     * The variable $gameStateBreakpoint is used for debugging purposes only.
+     * If used, the game will stop as soon as the game state becomes
+     * the value of $gameStateBreakpoint.
+     *
+     * @param int $gameStateBreakpoint
+     */
     public function proceed_to_next_user_action($gameStateBreakpoint = NULL) {
         $repeatCount = 0;
         $initialGameState = $this->gameState;
@@ -1760,29 +2046,35 @@ class BMGame {
         }
     }
 
-    // react_to_initiative expects one of the following three input arrays:
-    //
-    //   1.  array('action' => 'chance',
-    //             'playerIdx => $playerIdx,
-    //             'rerolledDieIdx' => $rerolledDieIdx)
-    //       where the index of the rerolled chance die is in $rerolledDieIdx
-    //
-    //   2.  array('action' => 'decline',
-    //             'playerIdx' => $playerIdx,
-    //             'dieIdxArray' => $dieIdxArray,
-    //             'dieValueArray' => $dieValueArray)
-    //       where $dieIdxArray and $dieValueArray are the raw inputs to
-    //       BMInterface->react_to_initiative()
-    //
-    //   3.  array('action' => 'focus',
-    //             'playerIdx' => $playerIdx,
-    //             'focusValueArray' => array($dieIdx1 => $dieValue1,
-    //                                        $dieIdx2 => $dieValue2))
-    //       where the details of SOME or ALL focus dice are in $focusValueArray
-    //
-    // It returns a boolean telling whether the reaction has been successful.
-    // If it fails, $game->message will say why it has failed.
-
+    /**
+     * React to an initiative decision
+     *
+     * react_to_initiative expects one of the following three input arrays:
+     *
+     *   1.  array('action' => 'chance',
+     *             'playerIdx => $playerIdx,
+     *             'rerolledDieIdx' => $rerolledDieIdx)
+     *       where the index of the rerolled chance die is in $rerolledDieIdx
+     *
+     *   2.  array('action' => 'decline',
+     *             'playerIdx' => $playerIdx,
+     *             'dieIdxArray' => $dieIdxArray,
+     *             'dieValueArray' => $dieValueArray)
+     *       where $dieIdxArray and $dieValueArray are the raw inputs to
+     *       BMInterface->react_to_initiative()
+     *
+     *   3.  array('action' => 'focus',
+     *             'playerIdx' => $playerIdx,
+     *             'focusValueArray' => array($dieIdx1 => $dieValue1,
+     *                                        $dieIdx2 => $dieValue2))
+     *       where the details of SOME or ALL focus dice are in $focusValueArray
+     *
+     * It returns a boolean telling whether the reaction has been successful.
+     * If it fails, $game->message will say why it has failed.
+     *
+     * @param array $args
+     * @return bool
+     */
     public function react_to_initiative(array $args) {
         if (BMGameState::REACT_TO_INITIATIVE != $this->gameState) {
             $this->message = 'Wrong game state to react to initiative.';
@@ -1820,6 +2112,12 @@ class BMGame {
         return array('gainedInitiative' => $gainedInitiative);
     }
 
+    /**
+     * React to an initiative decision by attempting to reroll a chance die
+     *
+     * @param array $args
+     * @return bool
+     */
     protected function react_to_initiative_chance($args) {
         if (!array_key_exists('rerolledDieIdx', $args)) {
             $this->message = 'rerolledDieIdx must exist.';
@@ -1887,6 +2185,12 @@ class BMGame {
         return array('gainedInitiative' => $gainedInitiative);
     }
 
+    /**
+     * React to an initiative decision by declining
+     *
+     * @param array $args
+     * @return bool
+     */
     protected function react_to_initiative_decline($args) {
         // if there is die information sent, check that it signals
         // no change
@@ -1931,6 +2235,14 @@ class BMGame {
         return array('gainedInitiative' => FALSE);
     }
 
+    /**
+     * Check if any valid chance action has been selected
+     *
+     * @param BMDie $die
+     * @param array $dieValueArray
+     * @param array $dieIdxArray
+     * @return bool
+     */
     protected function possibleChanceAction($die, $dieValueArray, $dieIdxArray) {
         // check for ANY selected dice, not just a single die
         $possChanceAction = $die->has_skill('Chance') &&
@@ -1940,6 +2252,15 @@ class BMGame {
         return $possChanceAction;
     }
 
+    /**
+     * Check if any valid focus action has been selected
+     *
+     * @param BMDie $die
+     * @param array $dieValueArray
+     * @param array $dieIdxArray
+     * @param int $listIdx
+     * @return bool
+     */
     protected function possibleFocusAction($die, $dieValueArray, $dieIdxArray, $listIdx) {
         // check for ANY change in die value, also invalid changes
         $possFocusAction = $die->has_skill('Focus') &&
@@ -1950,6 +2271,12 @@ class BMGame {
         return $possFocusAction;
     }
 
+    /**
+     * React to an initiative decision by attempting to turn down a focus die
+     *
+     * @param array $args
+     * @return bool
+     */
     protected function react_to_initiative_focus($args) {
         $isValid = $this->validateFocusAction($args);
 
@@ -2007,6 +2334,12 @@ class BMGame {
         return array('gainedInitiative' => TRUE);
     }
 
+    /**
+     * Validate proposed focus action
+     *
+     * @param array $args
+     * @return bool
+     */
     protected function validateFocusAction($args) {
         if (!array_key_exists('focusValueArray', $args)) {
             $this->message = 'focusValueArray must exist.';
@@ -2061,10 +2394,21 @@ class BMGame {
         return TRUE;
     }
 
+    /**
+     * Add die to active die array of its owning player
+     *
+     * @param BMDie $die
+     */
     public function add_die($die) {
         $this->playerArray[$die->playerIdx]->activeDieArray[] = $die;
     }
 
+    /**
+     * Capture die and transfer its ownership
+     *
+     * @param BMDie $die
+     * @param int $newOwnerIdx
+     */
     public function capture_die($die, $newOwnerIdx = NULL) {
         $dieIdx = FALSE;
         foreach ($this->playerArray as $player) {
@@ -2090,12 +2434,26 @@ class BMGame {
         array_splice($player->activeDieArray, $dieIdx, 1);
     }
 
+    /**
+     * Add swing requests of a die to the swing request array
+     *
+     * @param BMDie $die
+     * @param string $swingtype
+     * @param int $playerIdx
+     */
     public function request_swing_values($die, $swingtype, $playerIdx) {
         if (!$die->does_skip_swing_request()) {
             $this->playerArray[$playerIdx]->swingRequestArray[$swingtype][] = $die;
         }
     }
 
+    /**
+     * Add option requests of a die to the option request array
+     *
+     * @param BMDie $die
+     * @param array $optionArray
+     * @param int $playerIdx
+     */
     public function request_option_values($die, $optionArray, $playerIdx) {
         $player = $this->playerArray[$playerIdx];
         $dieIdx = array_search($die, $player->activeDieArray, TRUE);
@@ -2103,6 +2461,16 @@ class BMGame {
         $player->optRequestArray[$dieIdx] = $optionArray;
     }
 
+    /**
+     * Checks whether each player has the initiative
+     *
+     * If $returnActionLogInfo is TRUE, then action log info is also returned
+     *
+     * @param array $activeDieArrayArray
+     * @param array $buttonArray
+     * @param bool $returnActionLogInfo
+     * @return mixed
+     */
     public static function does_player_have_initiative_array(
         array $activeDieArrayArray,
         $buttonArray = array(),
@@ -2169,8 +2537,11 @@ class BMGame {
      * dice are actually tied for lowest value, this function reports
      * that they are all entitled to initiative --- it does not break the tie.
      *
+     * @param int $nPlayers
+     * @param array $initiativeArrayArray
      * @return array  For each player, does that player have a minimal initiative value?
      */
+
     protected static function compute_initiative_winner_array($nPlayers, $initiativeArrayArray) {
         $hasPlayerInitiative = array_fill(0, $nPlayers, TRUE);
 
@@ -2199,6 +2570,12 @@ class BMGame {
         return $hasPlayerInitiative;
     }
 
+    /**
+     * Is this button slow?
+     *
+     * @param BMButton $button
+     * @return bool
+     */
     protected static function is_button_slow($button) {
         $hookResult = $button->run_hooks(
             __FUNCTION__,
@@ -2211,6 +2588,14 @@ class BMGame {
         return $isSlow;
     }
 
+    /**
+     * Is the die fully specified?
+     *
+     * At the moment, this actually just checks whether the die has a value
+     *
+     * @param BMDie $die
+     * @return bool
+     */
     public static function is_die_specified($die) {
         // A die can be unspecified if it is swing, option, or plasma.
 
@@ -2220,6 +2605,11 @@ class BMGame {
         return (isset($die->max));
     }
 
+    /**
+     * Find all valid attack types, excluding Default and Surrender
+     *
+     * @return array
+     */
     public function valid_attack_types() {
         // james: assume two players at the moment
         $attackerIdx = $this->activePlayerIdx;
@@ -2276,6 +2666,19 @@ class BMGame {
         return $validAttackTypeArray;
     }
 
+    /**
+     * Check whether a valid attack exists, given:
+     * - which player is the attacker
+     * - which player is the defender
+     * - the attack type
+     * - whether optional attacks should be included
+     *
+     * @param int $attackerIdx
+     * @param int $defenderIdx
+     * @param string $attackType
+     * @param bool $includeOptional
+     * @return bool
+     */
     protected function does_valid_attack_exist(
         $attackerIdx,
         $defenderIdx,
@@ -2296,6 +2699,11 @@ class BMGame {
         return $attack->find_attack($this, $includeOptional);
     }
 
+    /**
+     * Clear most of the information in the BMGame
+     *
+     * This is used at the end of each round and at the end of the game
+     */
     public function reset_play_state() {
         $this->activePlayerIdx = NULL;
         $this->playerWithInitiativeIdx = NULL;
@@ -2314,6 +2722,9 @@ class BMGame {
         unset($this->forceRoundResult);
     }
 
+    /**
+     * Update the active player
+     */
     protected function update_active_player() {
         if (!isset($this->activePlayerIdx)) {
             throw new LogicException(
@@ -2346,10 +2757,10 @@ class BMGame {
     /**
      * Constructor
      *
-     * @param integer $gameID
+     * @param int $gameID
      * @param array $playerIdArray
      * @param array $buttonRecipeArray
-     * @param integer $maxWins
+     * @param int $maxWins
      */
     public function __construct(
         $gameID = 0,
@@ -2414,7 +2825,13 @@ class BMGame {
         return array($sideDifference, -$sideDifference);
     }
 
-    // record a game action in the history log
+    /**
+     * Record a game action in the history log
+     *
+     * @param string $actionType
+     * @param int $actingPlayerIdx
+     * @param array $params
+     */
     public function log_action($actionType, $actingPlayerIdx, $params) {
         $this->actionLog[] = new BMGameAction(
             $this->gameState,
@@ -2424,13 +2841,22 @@ class BMGame {
         );
     }
 
-    // empty the action log after its entries have been stored in
-    // the database
+    /**
+     * Empty the action log after its entries have been stored in the database
+     */
     public function empty_action_log() {
         $this->actionLog = array();
     }
 
-    // N.B. The chat text has not been sanitized at this point, so don't use it for anything
+    /**
+     * Add chat to chat log
+     *
+     * N.B. The chat text has not been sanitized at this point, so don't
+     *      use it for anything
+     *
+     * @param int $playerIdx
+     * @param string $chat
+     */
     public function add_chat($playerIdx, $chat) {
         $this->chat = array('playerIdx' => $playerIdx, 'chat' => $chat);
     }
@@ -2785,6 +3211,11 @@ class BMGame {
                               'attackType' => $value[4]);
     }
 
+    /**
+     * Validate the format of the attack array
+     *
+     * @param array $value
+     */
     protected function validateAttackFormat($value) {
         if (!is_array($value) || (5 !== count($value))) {
             throw new InvalidArgumentException(
@@ -2928,7 +3359,7 @@ class BMGame {
      * Define behaviour of isset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __isset($property) {
         return isset($this->$property);
@@ -2938,7 +3369,7 @@ class BMGame {
      * Define behaviour of unset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __unset($property) {
         if (isset($this->$property)) {
@@ -2949,6 +3380,12 @@ class BMGame {
         }
     }
 
+    /**
+     * Get the JSON data corresponding to this game
+     *
+     * @param int $requestingPlayerId
+     * @return array
+     */
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->getBMPlayerProps('playerId'));
 
@@ -2995,7 +3432,7 @@ class BMGame {
                 'prevSwingValueArray' => $player->prevSwingValueArray,
                 'prevOptValueArray'   => $player->prevOptValueArray,
 // BMGame may lie about who's actually waiting
-                'waitingOnAction'     => $this->get_waitingOnActionArray($playerIdx, $requestingPlayerIdx),
+                'waitingOnAction'     => $this->isWaitingOnAction($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $player->roundScore,
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $player->gameScoreArray,
@@ -3009,9 +3446,15 @@ class BMGame {
         return $playerDataArray;
     }
 
+    /**
+     * Perform a deep clone of the active die array array
+     *
+     * This is used so that changes don't propagate back into the
+     * real game data
+     *
+     * @return array
+     */
     protected function clone_activeDieArrayArray() {
-        // create a deep clone of the original activeDieArrayArray so that changes
-        // don't propagate back into the real game data
         $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
 
         foreach ($this->playerArray as $playerIdx => $player) {
@@ -3244,16 +3687,40 @@ class BMGame {
         return $subdieArrayArray;
     }
 
+    /**
+     * Check whether the current game state is before BMGameState::SPECIFY_DICE
+     *
+     * @return bool
+     */
     protected function isGameStateBeforeSpecifyingDice() {
         return $this->gameState <= BMGameState::SPECIFY_DICE;
     }
 
+    /**
+     * Check whether die data should be hidden for the requesting player
+     *
+     * @param int $playerIdx
+     * @param int $requestingPlayerIdx
+     * @return bool
+     */
     protected function shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx) {
         return ($this->wereSwingOrOptionValuesReset() &&
                 $this->isGameStateBeforeSpecifyingDice() &&
                 ($playerIdx !== $requestingPlayerIdx));
     }
 
+    /**
+     * Copy subdie properties into a format that can be exported to the UI
+     *
+     * Returns whether all the properties are NULL
+     *
+     * @param array $subdieArrayArray
+     * @param int $playerIdx
+     * @param int $dieIdx
+     * @param int $subdieIdx
+     * @param BMDie $subdie
+     * @return bool
+     */
     protected function assignSubdice(
         &$subdieArrayArray,
         $playerIdx,
@@ -3414,12 +3881,19 @@ class BMGame {
     }
 
     /**
-     * Array of swing requests
+     * Swing requests, taking into account whether these should be hidden
+     * because the requesting player shouldn't see them
      *
      * @param int $playerIdx
+     * @param int $requestingPlayerIdx
      * @return array
      */
     protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
+        // do not show swing requests unless this information is actually necessary
+        if ($this->gameState > BMGameState::SPECIFY_DICE) {
+            return array();
+        }
+
         $swingRequestArray = array();
 
         if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
@@ -3466,6 +3940,12 @@ class BMGame {
         return $swingRequestArray;
     }
 
+    /**
+     * Get all swing requests
+     *
+     * @param bool $includeCourtesyDice
+     * @return array
+     */
     protected function get_all_swing_requests($includeCourtesyDice = FALSE) {
         $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
@@ -3503,6 +3983,11 @@ class BMGame {
         return $swingRequestArrayArray;
     }
 
+    /**
+     * Check whether all buttons are specified
+     *
+     * @return bool
+     */
     protected function are_buttons_specified() {
         foreach ($this->playerArray as $player) {
             if (empty($player->button)) {
@@ -3513,7 +3998,15 @@ class BMGame {
         return TRUE;
     }
 
-    protected function get_waitingOnActionArray($playerIdx, $requestingPlayerIdx) {
+    /**
+     * Check whether a player is required to act, also taking into account
+     * whether the requesting player is allowed to know.
+     *
+     * @param int $playerIdx
+     * @param int $requestingPlayerIdx
+     * @return bool
+     */
+    protected function isWaitingOnAction($playerIdx, $requestingPlayerIdx) {
         // actively lie about whether a player has chosen auxiliary dice
         // to avoid leaking information
         if ((BMGameState::CHOOSE_AUXILIARY_DICE == $this->gameState) &&
@@ -3561,7 +4054,7 @@ class BMGame {
     /**
      * Were the swing or option values reset?
      *
-     * @return boolean
+     * @return bool
      */
     protected function wereSwingOrOptionValuesReset() {
         // james: need to also consider the case of many multiple draws in a row
@@ -3650,6 +4143,12 @@ class BMGame {
         return $canStillWinArray;
     }
 
+    /**
+     * Check whether there is a skill remaining in the game that makes it
+     * impossible to determine whether there is already a winner
+     *
+     * @return bool
+     */
     protected function has_skill_that_prevents_win_determination() {
         foreach ($this->playerArray as $player) {
             if (empty($player->activeDieArray)) {

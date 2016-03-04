@@ -156,6 +156,8 @@ class BMDieSwing extends BMDie {
      * Does not roll the die.
      *
      * Clones the die and returns the clone.
+     *
+     * @param bool $forceSwingRequest
      */
     public function activate($forceSwingRequest = FALSE) {
         $newDie = clone $this;

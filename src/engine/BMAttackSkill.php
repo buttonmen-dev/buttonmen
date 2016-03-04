@@ -88,8 +88,8 @@ class BMAttackSkill extends BMAttack {
      * These include skill attacks involving warrior dice.
      *
      * @param BMGame $game
-     * @param boolean $includeOptional
-     * @return boolean
+     * @param bool $includeOptional
+     * @return bool
      */
     public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
@@ -166,7 +166,7 @@ class BMAttackSkill extends BMAttack {
      * @param array $attackers
      * @param array $defenders
      * @param double $helpValue
-     * @return boolean
+     * @return bool
      */
     public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
@@ -234,7 +234,7 @@ class BMAttackSkill extends BMAttack {
      *
      * @param array $attackers
      * @param double $dval
-     * @return boolean
+     * @return bool
      */
     protected function is_direct_attack_valid($attackers, $dval) {
         $combos = $this->hitTable->find_hit($dval);
@@ -257,7 +257,7 @@ class BMAttackSkill extends BMAttack {
      * @param array $defenders
      * @param double $dval
      * @param double $helpValue
-     * @return boolean
+     * @return bool
      */
     protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue) {
         if (is_null($helpValue)) {
@@ -297,7 +297,7 @@ class BMAttackSkill extends BMAttack {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (0 == count($attArray)) {
@@ -352,7 +352,7 @@ class BMAttackSkill extends BMAttack {
      * Check if button skills are compatible with this type of attack.
      *
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function are_button_skills_compatible(array $defArray) {
         if (1 != count($defArray)) {
@@ -386,7 +386,7 @@ class BMAttackSkill extends BMAttack {
      * - there are no non-warrior dice present
      *
      * @param array $attArray
-     * @return boolean
+     * @return bool
      */
     protected function is_invalid_warrior_attack(array $attArray) {
         $nWarrior = 0;

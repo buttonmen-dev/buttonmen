@@ -104,11 +104,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not connect to Button Men server, please try again'
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
@@ -161,11 +172,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not connect to Button Men server, please try again'
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
@@ -198,7 +220,6 @@ var Api = (function () {
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
-
   my.getButtonData = function(buttonName, callbackfunc) {
     my.apiParsePost(
       {
@@ -338,16 +359,16 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse the current player's list of rejected games
+  // Load and parse the current player's list of cancelled games
 
-  my.getRejectedGamesData = function(callbackfunc) {
-    my.rejected_games = {};
+  my.getCancelledGamesData = function(callbackfunc) {
+    my.cancelled_games = {};
     var parserargs = [];
-    parserargs.target = my.rejected_games;
+    parserargs.target = my.cancelled_games;
     parserargs.isSplit = false;
     my.apiParsePost(
-      {'type': 'loadRejectedGames', },
-      'rejected_games',
+      {'type': 'loadCancelledGames', },
+      'cancelled_games',
       my.packageGameData,
       callbackfunc,
       callbackfunc,

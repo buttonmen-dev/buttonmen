@@ -12,7 +12,12 @@
  */
 
 class BMInterfacePlayer extends BMInterface {
-
+    /**
+     * Get player info
+     *
+     * @param int $playerId
+     * @return array|NULL
+     */
     public function get_player_info($playerId) {
         try {
             $query =
@@ -97,6 +102,14 @@ class BMInterfacePlayer extends BMInterface {
         return array('user_prefs' => $playerInfoArray);
     }
 
+    /**
+     * Set player info
+     *
+     * @param int $playerId
+     * @param array $infoArray
+     * @param array $addlInfo
+     * @return mixed
+     */
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
@@ -157,6 +170,12 @@ class BMInterfacePlayer extends BMInterface {
         return array('playerId' => $playerId);
     }
 
+    /**
+     * Validate the date of birth
+     *
+     * @param array $infoArray
+     * @return bool
+     */
     protected function validate_player_dob(array $infoArray) {
         if (($infoArray['dob_month'] != 0 && $infoArray['dob_day'] == 0) ||
             ($infoArray['dob_month'] == 0 && $infoArray['dob_day'] != 0)) {
@@ -173,6 +192,13 @@ class BMInterfacePlayer extends BMInterface {
         return TRUE;
     }
 
+    /**
+     * Validate password and email
+     *
+     * @param array $addlInfo
+     * @param int $playerId
+     * @return bool
+     */
     protected function validate_player_password_and_email(array $addlInfo, $playerId) {
         if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
             !isset($addlInfo['current_password'])) {
@@ -200,6 +226,12 @@ class BMInterfacePlayer extends BMInterface {
         return TRUE;
     }
 
+    /**
+     * Get profile info
+     *
+     * @param string $profilePlayerName
+     * @return array|NULL
+     */
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {
@@ -261,6 +293,12 @@ class BMInterfacePlayer extends BMInterface {
         return array('profile_info' => $profileInfoArray);
     }
 
+    /**
+     * Update last action time
+     *
+     * @param int $playerId
+     * @param int $gameId
+     */
     public function update_last_action_time($playerId, $gameId = NULL) {
         try {
             $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
@@ -287,6 +325,11 @@ class BMInterfacePlayer extends BMInterface {
         }
     }
 
+    /**
+     * Update last access time
+     *
+     * @param int $playerId
+     */
     public function update_last_access_time($playerId) {
         try {
             $query = 'UPDATE player SET last_access_time = now() WHERE id = :id';
