@@ -2554,17 +2554,16 @@ Game.pageAddTurboTable = function() {
     'class': 'turbo_div',
   });
 
-  var die;
-  var turboSpan;
-  var turboSubspan;
-  var turboInput;
-
-  turboSpan = $('<span>', {
+  var turboSpan = $('<span>', {
     'id': 'turbo_span',
     'class': 'turbo_span',
     'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
     'text': 'Turbo resize:',
   });
+
+  var turboSubspan;
+  var turboElement;
+  var die;
 
   for (var idx = 0; idx < Api.game.player.activeDieArray.length; idx++) {
     die = Api.game.player.activeDieArray[idx];
@@ -2576,31 +2575,20 @@ Game.pageAddTurboTable = function() {
         'text': Game.dieRecipeText(die) + ' ',
       });
 
-      if (/\(.*\/.*\)/.test(die.recipe)) {
-        // option selector
-        turboInput = $('<select>', {
-          'id': 'turbo_input' + idx,
-          'name': 'turbo_input' + idx,
-        });
+      // james: in the future, there will need to be more code here to deal
+      // with the interaction of turbo with skills like morphing
 
-        $.each(Api.game.player.optRequestArray[idx], function(_idx_, val) {
-          turboInput.append($('<option>', {
-            'value': val,
-            'label': val,
-            'text': val,
-          }));
-        });
+      if (/\(.*\/.*\)/.test(die.recipe)) {
+        turboElement = Game.createTurboOptionSelector(
+          idx,
+          Api.game.player.optRequestArray[idx]
+        );
       } else {
-        // swing selector
-        turboInput = $('<input>', {
-          'id': 'turbo_input' + idx,
-          'type': 'text',
-          'class': 'swing',
-        });
+        turboElement = Game.createTurboSwingSelector(idx);
       }
 
       turboSpan.append(turboSubspan);
-      turboSubspan.append(turboInput);
+      turboSubspan.append(turboElement);
     }
   }
 
@@ -2609,6 +2597,33 @@ Game.pageAddTurboTable = function() {
 
   turboDiv.hide();
 };
+
+Game.createTurboOptionSelector = function(idx, vals) {
+  var select = $('<select>', {
+    'id': 'turbo_element' + idx,
+    'name': 'turbo_element' + idx,
+  });
+
+  $.each(vals, function(_idx_, val) {
+    select.append($('<option>', {
+      'value': val,
+      'label': val,
+      'text': val,
+    }));
+  });
+
+  return select;
+}
+
+Game.createTurboSwingSelector = function(idx) {
+  var input = $('<input>', {
+    'id': 'turbo_element' + idx,
+    'type': 'text',
+    'class': 'swing',
+  });
+
+  return input;
+}
 
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,

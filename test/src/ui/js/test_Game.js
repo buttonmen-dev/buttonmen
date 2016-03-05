@@ -1438,6 +1438,45 @@ test("test_Game.pageAddDieBattleTable", function(assert) {
   });
 });
 
+test("test_Game.pageAddTurboTable", function(assert) {
+  stop();
+
+  start();
+});
+
+test("test_Game.createTurboOptionSelector", function(assert) {
+  var select = Game.createTurboOptionSelector(3, [1,30]);
+
+  assert.ok(select.is('select'), 'Turbo option selector must be a select field');
+  assert.equal(select.attr('id'), 'turbo_element3');
+  assert.equal(select.attr('name'), 'turbo_element3');
+
+  var children = select.children();
+
+  assert.equal(children.length, 2);
+
+  var child1 = children.first();
+  assert.ok(child1.is('option'), 'First element must be an option');
+  assert.equal(child1.attr('value'), 1);
+  assert.equal(child1.attr('label'), 1);
+  assert.equal(child1.text(), 1);
+
+  var child2 = children.last();
+  assert.ok(child2.is('option'), 'Second element must be an option');
+  assert.equal(child2.attr('value'), 30);
+  assert.equal(child2.attr('label'), 30);
+  assert.equal(child2.text(), 30);
+});
+
+test("test_Game.createTurboSwingSelector", function(assert) {
+  var input = Game.createTurboSwingSelector(4);
+
+  assert.ok(input.is('input'), 'Turbo swing selector must be an input field');
+  assert.equal(input.attr('id'), 'turbo_element4');
+  assert.equal(input.attr('type'), 'text');
+  assert.equal(input.attr('class'), 'swing');
+});
+
 test("test_Game.gamePlayerStatus", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
