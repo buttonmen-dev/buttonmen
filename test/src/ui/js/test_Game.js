@@ -80,13 +80,13 @@ test("test_Game.showLoggedInPage", function(assert) {
   var getCurrentGameCalled = false;
   Game.showStatePage = function() {
     assert.ok(getCurrentGameCalled, "Game.getCurrentGame is called before Game.showStatePage");
-  }
+  };
   Game.getCurrentGame = function(callback) {
     getCurrentGameCalled = true;
     assert.equal(callback, Game.showStatePage,
       "Game.getCurrentGame is called with Game.showStatePage as an argument");
     callback();
-  }
+  };
 
   Game.showLoggedInPage();
   var item = document.getElementById('game_page');
@@ -271,7 +271,7 @@ test("test_Game.showStatePage_turn_active", function(assert) {
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
     assert.ok(!Game.page.is('.compactMode'),
-      "The created page should be in normal mode")
+      "The created page should be in normal mode");
     start();
   });
 });
@@ -286,7 +286,7 @@ test("test_Game.showStatePage_turn_active_compactMode", function(assert) {
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
     assert.ok(Game.page.is('.compactMode'),
-      "The created page should be in compact mode")
+      "The created page should be in compact mode");
     start();
   });
 });
@@ -441,7 +441,7 @@ test("test_Game.buttonTableWithoutDice", function(assert) {
       } else if (idx === 1) {
         assert.ok($(this).hasClass('button_opponent'));
       }
-    })
+    });
     // the contents of the tds is further tested in test_Game.buttonImageDisplay
     start();
   });
@@ -1429,7 +1429,6 @@ test("test_Game.pageAddDieBattleTable", function(assert) {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
-    var htmlout = Game.page.html();
     assert.ok(Game.page.find('div.battle_mat_player').length > 0,
       "die battle table should insert player battle mat");
     assert.ok(Game.page.find('div.battle_mat_opponent').length > 0,
@@ -1440,7 +1439,8 @@ test("test_Game.pageAddDieBattleTable", function(assert) {
 
 test("test_Game.pageAddTurboTable", function(assert) {
   stop();
-
+  // james: currently incomplete because I need the JSON for an appropriate
+  // test game
   start();
 });
 
@@ -1483,12 +1483,6 @@ test("test_Game.gamePlayerStatus", function(assert) {
   Game.getCurrentGame(function() {
     var statusJQuery = Game.gamePlayerStatus('player', false, true);
     var statusPropArr = BMTestUtils.DOMNodePropArray(statusJQuery[0]);
-    var expectedPropArr = [
-      "DIV", { "class": "status_player" }, [
-        [ "DIV", {}, [ "W/L/T: 1/1/0 (3)", "foobar", [ "B", {}, [ "Score: 13 (-30.7 sides)" ] ] ] ],
-        [ "DIV", {}, [ [ "SPAN", {}, [ "Dice captured: q(Z=4)" ] ] ] ],
-      ]
-    ];
     assert.equal(statusPropArr[0], "DIV", "Game.gamePlayerStatus() returns a DIV");
     assert.equal(statusPropArr[1]['class'], "status_player", "Game.gamePlayerStatus() sets correct class for active player");
 

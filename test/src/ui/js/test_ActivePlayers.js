@@ -55,13 +55,13 @@ test("test_ActivePlayers.showLoggedInPage", function(assert) {
   var getActivePlayersCalled = false;
   ActivePlayers.showPage = function() {
     assert.ok(getActivePlayersCalled, "ActivePlayers.getActivePlayers is called before ActivePlayers.showPage");
-  }
+  };
   Api.getActivePlayers = function(number, callback) {
     getActivePlayersCalled = true;
     assert.equal(callback, ActivePlayers.showPage,
       "ActivePlayers.getActivePlayers is called with ActivePlayers.showPage as an argument");
     callback();
-  }
+  };
 
   ActivePlayers.showLoggedInPage();
   var item = document.getElementById('activeplayers_page');

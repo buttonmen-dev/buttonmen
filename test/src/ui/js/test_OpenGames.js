@@ -57,13 +57,13 @@ test("test_OpenGames.showLoggedInPage", function(assert) {
   var getOpenGamesCalled = false;
   OpenGames.showPage = function() {
     assert.ok(getOpenGamesCalled, "OpenGames.getOpenGames is called before OpenGames.showPage");
-  }
+  };
   OpenGames.getOpenGames = function(callback) {
     getOpenGamesCalled = true;
     assert.equal(callback, OpenGames.showPage,
       "OpenGames.getOpenGames is called with OpenGames.showPage as an argument");
     callback();
-  }
+  };
 
   OpenGames.showLoggedInPage();
   var item = document.getElementById('opengames_page');
