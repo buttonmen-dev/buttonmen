@@ -1450,6 +1450,7 @@ test("test_Game.createTurboOptionSelector", function(assert) {
   assert.ok(select.is('select'), 'Turbo option selector must be a select field');
   assert.equal(select.attr('id'), 'turbo_element3');
   assert.equal(select.attr('name'), 'turbo_element3');
+  assert.equal(select.attr('pos'), 3);
 
   var children = select.children();
 
@@ -1475,6 +1476,7 @@ test("test_Game.createTurboSwingSelector", function(assert) {
   assert.equal(input.attr('id'), 'turbo_element4');
   assert.equal(input.attr('type'), 'text');
   assert.equal(input.attr('class'), 'swing');
+  assert.equal(input.attr('pos'), 4);
 });
 
 test("test_Game.gamePlayerStatus", function(assert) {

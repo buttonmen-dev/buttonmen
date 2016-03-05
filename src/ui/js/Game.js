@@ -838,7 +838,6 @@ Game.actionPlayTurnActive = function() {
 
   // james : add fire turndown
 
-  // james : add turbo change
   Game.pageAddTurboTable();
 
   Game.page.append($('<br>'));
@@ -1522,6 +1521,7 @@ Game.formPlayTurnActive = function() {
       defenderIdx: Api.game.opponentIdx,
       dieSelectStatus: Game.activity.dieSelectStatus,
       attackType: Game.activity.attackType,
+      turboVals: Game.activity.turboVals,
       chat: Game.activity.chat,
       roundNumber: Api.game.roundNumber,
       timestamp: Api.game.timestamp,
@@ -1680,12 +1680,18 @@ Game.readCurrentGameActivity = function() {
   for (i = 0 ; i < Api.game.opponent.activeDieArray.length; i++) {
     Game.activity.dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
   }
-  $('div.selected').each(function(index, element) {
+  $('div.selected').each(function(_idx_, element) {
     Game.activity.dieSelectStatus[$(element).attr('id')] = true;
   });
 
   // Get the specified attack type
   Game.activity.attackType = $('#attack_type_select').val();
+
+  // Read turbo values
+  Game.activity.turboVals = {};
+  $('[id^=turbo_element]:visible').each(function(idx) {
+    Game.activity.turboVals[$(this).attr('pos')] = $(this).val();
+  });
 
   // Store the game chat in recent activity (minus trailing whitespace)
   var chat = $('#game_chat').val();
@@ -2602,6 +2608,7 @@ Game.createTurboOptionSelector = function(idx, vals) {
   var select = $('<select>', {
     'id': 'turbo_element' + idx,
     'name': 'turbo_element' + idx,
+    'pos': idx,
   });
 
   $.each(vals, function(_idx_, val) {
@@ -2613,17 +2620,18 @@ Game.createTurboOptionSelector = function(idx, vals) {
   });
 
   return select;
-}
+};
 
 Game.createTurboSwingSelector = function(idx) {
   var input = $('<input>', {
     'id': 'turbo_element' + idx,
     'type': 'text',
     'class': 'swing',
+    'pos': idx,
   });
 
   return input;
-}
+};
 
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,
