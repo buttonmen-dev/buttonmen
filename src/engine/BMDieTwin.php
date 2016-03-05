@@ -165,7 +165,7 @@ class BMDieTwin extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                if (('Mood' != $skill) && 'Mad' != $skill) {
+                if (('Mood' != $skill) && 'Mad' != $skill && 'Turbo' != $skill) {
                     $skillStr .= "$skill ";
                 }
             }
@@ -175,7 +175,7 @@ class BMDieTwin extends BMDie {
     }
 
     /**
-     * Create string for skills associated with swing
+     * Create string for mood skills associated with swing
      *
      * @return string
      */
@@ -191,6 +191,20 @@ class BMDieTwin extends BMDie {
     }
 
     /**
+     * Create string for turbo skills associated with swing
+     *
+     * @return string
+     */
+    protected function turboStr() {
+        $turboStr = '';
+        if ($this->has_skill('Turbo')) {
+            $turboStr = 'Turbo ';
+        }
+
+        return $turboStr;
+    }
+
+    /**
      * Create string of the type of twin die, including its swing type
      *
      * @return string
@@ -199,7 +213,8 @@ class BMDieTwin extends BMDie {
         $typeStr = '';
         if ($this->dice[0] instanceof BMDieSwing &&
             $this->dice[1] instanceof BMDieSwing) {
-            $typeStr = "Twin {$this->dice[0]->swingType}{$this->moodStr()} Swing Die";
+            $typeStr = "{$this->turboStr()}Twin {$this->dice[0]->swingType}" .
+                       "{$this->moodStr()} Swing Die";
         } else {
             $typeStr = 'Twin Die';
         }

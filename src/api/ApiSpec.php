@@ -598,6 +598,12 @@ class ApiSpec {
                 'defenderIdx' => 'number',
             ),
             'permitted' => array(
+                'turboVals' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => TRUE,
+                    'key_type' => 'number',
+                    'elem_type' => 'number',
+                ),
                 'chat' => array(
                     'arg_type' => 'string',
                     'maxlength' => self::GAME_CHAT_MAX_LENGTH,

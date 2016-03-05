@@ -211,7 +211,7 @@ class BMDieSwing extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                if (('Mood' != $skill) && ('Mad' != $skill)) {
+                if (('Mood' != $skill) && ('Mad' != $skill) && 'Turbo' != $skill) {
                     $skillStr .= "$skill ";
                 }
             }
@@ -222,6 +222,11 @@ class BMDieSwing extends BMDie {
             $moodStr = ' Mad';
         } elseif ($this->has_skill('Mood')) {
             $moodStr = ' Mood';
+        }
+
+        $turboStr = '';
+        if ($this->has_skill('Turbo')) {
+            $turboStr = 'Turbo ';
         }
 
         $sideStr = '';
@@ -238,7 +243,8 @@ class BMDieSwing extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}{$this->swingType}{$moodStr} Swing Die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$turboStr}{$this->swingType}{$moodStr}" .
+                  " Swing Die{$sideStr}{$valueStr}";
 
         return $result;
     }
