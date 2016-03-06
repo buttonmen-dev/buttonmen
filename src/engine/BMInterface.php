@@ -499,7 +499,7 @@ class BMInterface {
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
           
-                $isOnVacation = $game->playerArray[$gamePlayerIdx]->isOnVacation;
+                $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
 
@@ -739,7 +739,7 @@ class BMInterface {
                 break;
         }
 
-        $player->isOnVacation =  $row['is_on_vacation'];
+        $player->isOnVacation = (bool) $row['is_on_vacation'];
 
         if (isset($row['current_player_id']) &&
             isset($row['player_id']) &&
@@ -1598,7 +1598,7 @@ class BMInterface {
             $gameDescriptionArray[] = $row['description'];
             $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
-            $isOpponentOnVacationArray[]  = $row['opponent_on_vacation'];
+            $isOpponentOnVacationArray[]  = (bool) $row['opponent_on_vacation'];
             $myButtonNameArray[]  = $row['my_button_name'];
             $oppButtonNameArray[] = $row['opponent_button_name'];
             $nWinsArray[]         = (int)$row['n_wins'];
