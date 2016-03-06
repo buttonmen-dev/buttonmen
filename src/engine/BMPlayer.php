@@ -483,7 +483,6 @@ class BMPlayer {
         $this->isOnVacation = $value;
     }
 
-    /**
     // utility methods
     /**
      * Constructor
