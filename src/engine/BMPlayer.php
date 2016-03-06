@@ -236,7 +236,7 @@ class BMPlayer {
      *
      * @var bool
      */
-    public $isOnVacation;
+    protected $isOnVacation;
 
     /**
      * Find indices of active dice that do not have reserve
