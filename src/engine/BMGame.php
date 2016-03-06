@@ -1864,6 +1864,12 @@ class BMGame {
      * Perform the logic required at BMGameState::end_round
      */
     protected function do_next_step_end_round() {
+        // stop degenerate games from running forever
+        if ($this->get__roundNumber() >= 200) {
+            $this->gameState = BMGameState::CANCELLED;
+            return;
+        }
+
         $roundScoreArray = array();
         foreach ($this->playerArray as $player) {
             $roundScoreArray[] = $player->roundScore;
