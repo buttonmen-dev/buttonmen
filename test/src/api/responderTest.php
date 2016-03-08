@@ -493,7 +493,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
-		    'isOnVacation' => 0,
+		    'isOnVacation' => false,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -512,7 +512,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
-		    'isOnVacation' => 0,
+		    'isOnVacation' => false,
                 ),
             ),
             'gameActionLog' => array(),

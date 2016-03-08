@@ -1664,6 +1664,7 @@ class BMInterface {
                     'v_challenger.player_name AS challenger_name, ' .
                     'v_challenger.button_name AS challenger_button, ' .
                     'v_challenger.is_button_random AS challenger_random, ' .
+                    'v_challenger.is_on_vacation AS is_challenger_on_vacation, ' .
                     'v_victim.button_name AS victim_button, ' .
                     'v_victim.is_button_random AS victim_random, ' .
                     'g.n_target_wins AS target_wins, ' .
@@ -1708,6 +1709,7 @@ class BMInterface {
                     'gameId' => (int)$row['game_id'],
                     'challengerId' => (int)$row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
+                    'isChallengerOnVacation' => $row['is_challenger_on_vacation'],
                     'challengerButton' => $challengerButton,
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $victimButton,
