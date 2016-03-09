@@ -348,7 +348,7 @@ test("test_Overview.addPlayerCol", function(assert) {
   )
   var gameRow = $('<tr>');
   Overview.addPlayerCol(gameRow, 'testPlayerName', 1, '#fdcfff');
-  assert.ok(gameRow.html().match('vacation.png'),
+  assert.ok(gameRow.html().match('vacation16.png'),
 	    'Player column should contain vacation image');
 });
 
