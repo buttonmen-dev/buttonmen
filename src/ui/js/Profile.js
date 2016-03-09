@@ -53,7 +53,7 @@ Profile.buildProfileTable = function() {
 
   var profileName=$('<spane>');
   if (Api.profile_info.vacation_message) {
-      profileName.append(Env.buildVacationImage('large'));
+    profileName.append(Env.buildVacationImage('large'));
   }  
   profileName.append(Api.profile_info.name_ingame);
 
