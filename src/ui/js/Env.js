@@ -499,9 +499,10 @@ Env.buildProfileLink = function(playerName, textOnly) {
 };
 
 // Utility function to build a vacation image object
-Env.buildVacationImage = function() {
+Env.buildVacationImage = function(size) {
+  var image = (size=='large') ? 'vacation22.png' : 'vacation16.png';
   return  $('<img>', {
-    'src': Env.ui_root + 'images/vacation.png',
+    'src': Env.ui_root + 'images/'+image,
     'class': 'playerFlag',
     'title': 'On Vacation'
   });

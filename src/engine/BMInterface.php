@@ -1709,7 +1709,7 @@ class BMInterface {
                     'gameId' => (int)$row['game_id'],
                     'challengerId' => (int)$row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
-                    'isChallengerOnVacation' => $row['is_challenger_on_vacation'],
+                    'isChallengerOnVacation' => (bool)$row['is_challenger_on_vacation'],
                     'challengerButton' => $challengerButton,
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $victimButton,
