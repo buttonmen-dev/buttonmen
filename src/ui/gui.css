@@ -33,8 +33,13 @@ div#c_footer {
     height:100px;           // height of the footer
 }
 
-div#login_header{
+div#login_header {
     text-align: left;
+}
+
+div.login {
+    text-align: left;
+    padding: 5px;
 }
 
 div#login_header p {
@@ -118,7 +123,6 @@ table.spaced {
 
 table.dice {
     padding: 0px;
-    spacing: 0px;
 }
 
 td {

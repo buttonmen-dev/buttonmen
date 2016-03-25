@@ -172,6 +172,10 @@ Login.arrangeHeader = function() {
   $('#login_header').empty();
   $('#login_header').append(Login.message);
 
+  if (Login.formElements) {
+    $('#login_header').append(Login.formElements);
+  }
+
   if (Login.form) {
     $('#login_name').focus();
     $('#login_action_button').click(Login.form);
@@ -231,17 +235,17 @@ Login.getLoginForm = function() {
 // The function should set up a header and a form
 
 Login.stateLoggedIn = function(welcomeText) {
+  Login.formElements = null;
   Login.message = $('<p>');
-  var loginform = Login.getLoginForm();
-  loginform.append(
+  Login.message.append(
     welcomeText + ': You are logged in as ' + Login.player + '. '
   );
-  loginform.append($('<button>', {
+  Login.message.append($('<button>', {
     'id': 'login_action_button',
     'text': 'Logout?',
   }));
+  Login.message.append(Login.getLoginForm());
 
-  Login.message.append(loginform);
   Api.getNextNewPostId(Login.addMainNavbar);
   Login.form = Login.formLogout;
   Login.logged_in = true;
@@ -267,32 +271,43 @@ Login.stateLoggedOut = function(welcomeText) {
     Login.message.append('You are not logged in. ');
   }
 
-  var loginform = Login.getLoginForm();
-  loginform.append('Username: ');
-  loginform.append($('<input>', {
+  Login.message.append($('<a>', {
+    'href': 'create_user.html',
+    'text': 'Create an account',
+  }));
+
+  Login.formElements = $('<div>', {
+    'class': 'login',
+  });
+  var loginExisting = Login.getLoginForm();
+  loginExisting.append('Username: ');
+  loginExisting.append($('<input>', {
     'type': 'text',
     'id': 'login_name',
     'name': 'login_name',
   }));
-  loginform.append(' Password: ');
-  loginform.append($('<input>', {
+  loginExisting.append(' ');
+  loginExisting.append('Password: ');
+  loginExisting.append($('<input>', {
     'type': 'password',
     'id': 'login_pass',
     'name': 'login_pass',
   }));
-  loginform.append(' ');
-  loginform.append($('<button>', {
+  loginExisting.append(' ');
+  loginExisting.append($('<button>', {
     'id': 'login_action_button',
     'text': 'Login',
   }));
-  var createoption = $('<font>', { 'text': ' or ', });
-  createoption.append($('<a>', {
-    'href': 'create_user.html',
-    'text': 'Create an account',
+  loginExisting.append(' ');
+  loginExisting.append($('<input>', {
+    'type': 'checkbox',
+    'id': 'login_checkbox',
+    'name': 'login_checkbox',
   }));
-  loginform.append(createoption);
+  loginExisting.append('Keep me logged in');
 
-  Login.message.append(loginform);
+  Login.formElements.append(loginExisting);
+
   Login.form = Login.formLogin;
   Login.logged_in = false;
 };
@@ -394,17 +409,22 @@ Login.formLogout = function() {
 Login.formLogin = function() {
   var username = null;
   var password = null;
-  $('input#login_name').each(function(index, element) {
+  var doStayLoggedIn = false;
+  $('input#login_name').each(function(_index, element) {
     username = $.trim($(element).val());
   });
-  $('input#login_pass').each(function(index, element) {
+  $('input#login_pass').each(function(_index, element) {
     password = $(element).val();
   });
+  $('input#login_checkbox').each(function(_index, element) {
+    doStayLoggedIn = $(element).is(':checked');
+  })
 
   var loginargs = {
     'type': 'login',
     'username': username,
     'password': password,
+    'doStayLoggedIn': doStayLoggedIn,
   };
   Login.postToResponder(loginargs);
 };

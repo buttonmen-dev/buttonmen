@@ -401,7 +401,9 @@ class ApiSpec {
                 'username' => 'alnum',
                 'password' => 'string',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'doStayLoggedIn' => 'boolean',
+            ),
         ),
         'logout' => array(
             'mandatory' => array(),
