@@ -21,7 +21,7 @@ class BMSkillWeak extends BMSkill {
      * Hooked method applied before die roll
      *
      * @param array $args Array of arguments to hooked method
-     * @return boolean
+     * @return bool
      */
     public static function pre_roll($args) {
         $die = $args['die'];
@@ -67,7 +67,7 @@ class BMSkillWeak extends BMSkill {
     protected static function get_description() {
         return 'When a Weak Die rerolls for any reason, ' .
                'it first shrinks from its current size to the ' .
-               'next larger size in the list of "standard" ' .
+               'next smaller size in the list of "standard" ' .
                'die sizes (1, 2, 4, 6, 8, 10, 12, 16, 20, 30).';
     }
 

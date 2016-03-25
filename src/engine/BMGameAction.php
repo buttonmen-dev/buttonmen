@@ -369,6 +369,12 @@ class BMGameAction {
         return $messageDefender;
     }
 
+    /**
+     * Describes dice added to the defender
+     *
+     * @param array $postAttackDice
+     * @return string
+     */
     protected function message_defender_added_dice($postAttackDice) {
         $addedDieRecipes = array();
 

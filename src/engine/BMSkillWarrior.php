@@ -121,7 +121,7 @@ class BMSkillWarrior extends BMSkill {
      * Hooked method applied after rolling a die
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function post_roll(&$args) {
         if (!($args['die'] instanceof BMDie)) {
@@ -166,7 +166,9 @@ class BMSkillWarrior extends BMSkill {
                'aren\'t part of your starting dice, they don\'t count for ' .
                'initiative, they can\'t be attacked, none of their other ' .
                'skills can be used, etc. The only thing they can do is ' .
-               'participate in a Skill attack. ' .
+               'participate in a Skill attack. At the start of the round, ' .
+               'each Warrior die shows its maximum value; when it\'s brought ' .
+               'into play, it\'s rolled as usual. ' .
                'Only one Warrior Die may be used in any given Skill Attack, ' .
                'and that Skill Attack must include one or more dice that are ' .
                'already in play as well (i.e. you can\'t make a single-die ' .

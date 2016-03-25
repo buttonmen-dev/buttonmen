@@ -246,11 +246,93 @@ test("test_History.buildResultsTableBody", function(assert) {
 
   History.getHistory(function() {
     var tbody = History.buildResultsTableBody();
-    var avisCell = tbody.find('td:contains("Avis")');
+    var avisCell = tbody.find('td:contains("haruspex")');
     assert.ok(avisCell.length > 0, 'Table body contains game information.');
 
     start();
   });
+});
+
+test("test_History.scoreCol", function(assert) {
+  var game;
+  var column;
+
+  // james: there needs to be a test for new games when this is supported
+
+  // test normal active games
+  game = {
+    'status' : 'ACTIVE',
+    'roundsWonA' : 1,
+    'roundsWonB' : 2,
+    'roundsDrawn' : 4,
+    'targetWins' : 5,
+    'colorA' : '#aa0000',
+    'colorB' : '#00bb00',
+  };
+
+  column = History.scoreCol(game);
+  assert.ok(column.is('td'), 'active game score column has the correct type');
+  assert.equal(
+    '1/2/4 (5)',
+    column.text(),
+    'active game score column has the correct text'
+  );
+  assert.equal(
+    'rgb(255, 255, 255)',
+    column.css('background-color'),
+    'active game score column has the correct color'
+  );
+
+  // test completed games
+  game = {
+    'status' : 'COMPLETED',
+    'roundsWonA' : 1,
+    'roundsWonB' : 3,
+    'roundsDrawn' : 2,
+    'targetWins' : 3,
+    'colorA' : '#ff0000',
+    'colorB' : '#00ff00',
+  };
+
+  column = History.scoreCol(game);
+  assert.ok(
+    column.is('td'),
+    'completed game score column has the correct type'
+  );
+  assert.equal(
+    '1/3/2 (3)',
+    column.text(),
+    'completed game score column has the correct text'
+  );
+  assert.equal(
+    'rgb(0, 255, 0)',
+    column.css('background-color'),
+    'completed game score column has the correct color'
+  );
+
+  // test cancelled games
+  game = {
+    'status' : 'CANCELLED',
+    'roundsWonA' : 0,
+    'roundsWonB' : 0,
+    'roundsDrawn' : 0,
+    'targetWins' : 4,
+    'colorA' : '#aaaaaa',
+    'colorB' : '#bbbbbb',
+  };
+
+  column = History.scoreCol(game);
+  assert.ok(column.is('td'), 'cancelled game score column has the correct type');
+  assert.equal(
+    '–/–/– (4)',
+    column.text(),
+    'cancelled game score column has the correct text'
+  );
+  assert.equal(
+    'rgb(255, 255, 255)',
+    column.css('background-color'),
+    'cancelled game score column has the correct color'
+  );
 });
 
 test("test_History.buildResultsTableFooter", function(assert) {

@@ -21,7 +21,7 @@ class BMSkillFocus extends BMSkill {
      * Hooked method applied when checking if it is possible to react to initiative
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function react_to_initiative($args) {
         $activeDieArrayArray = $args['activeDieArrayArray'];

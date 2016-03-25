@@ -92,6 +92,8 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
   if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
 
+  if (gameDesc == 'haruspex_haruspex_inactive') { return '305'; }
+
   if (gameDesc == 'blackomega_tamiya_adjustfire_active') { return '807'; }
   if (gameDesc == 'blackomega_tamiya_adjustfire_nonplayer') { return '808'; }
 
@@ -100,6 +102,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'washu_hooloovoo_startturn_inactive') { return '1003'; }
   if (gameDesc == 'washu_hooloovoo_first_comments_inactive') { return '1005'; }
   if (gameDesc == 'washu_hooloovoo_reacttoreserve_active') { return '1007'; }
+  if (gameDesc == 'washu_hooloovoo_startturn_active') { return '1009'; }
   if (gameDesc == 'washu_hooloovoo_reacttoreserve_inactive') { return '1016'; }
   if (gameDesc == 'washu_hooloovoo_reacttoreserve_nonplayer') { return '1017'; }
   if (gameDesc == 'washu_hooloovoo_cant_win') { return '1022'; }
@@ -120,6 +123,12 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'shadowwarriors_fernworthy_newgame_active') { return '2701'; }
 
   if (gameDesc == 'beatnikturtle_firebreather_adjustfire_inactive') { return '2803'; }
+  if (gameDesc == 'beatnikturtle_firebreather_adjustfire_active') { return '2805'; }
+
+  if (gameDesc == 'bobby5150_wiseman_reacttoreserve_active') { return '3422'; }
+
+  // this game number needs to not correspond to any game in the database
+  if (gameDesc == 'NOGAME') { return '10000000'; }
 }
 
 // We don't currently usually test reading the URL bar contents, because

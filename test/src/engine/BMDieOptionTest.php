@@ -435,6 +435,37 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDieOption::describe
+     */
+    public function testDescribeSingular() {
+        $this->object->init(array(1,30));
+        $this->assertEquals('Option Die (with 1 or 30 sides)', $this->object->describe(TRUE));
+        $this->assertEquals('Option Die (with 1 or 30 sides)', $this->object->describe(FALSE));
+
+        $this->object->set_optionValue(1);
+        $this->assertEquals('Option Die (with 1 side)', $this->object->describe(TRUE));
+        $this->assertEquals('Option Die (with 1 side)', $this->object->describe(FALSE));
+
+        $this->object->roll();
+        $this->assertEquals(
+            "Option Die (with 1 side) showing 1",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals('Option Die (with 1 side)', $this->object->describe(FALSE));
+
+        $this->object->add_skill('Poison');
+        $this->object->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow Option Die (with 1 side) showing 1",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Option Die (with 1 side)',
+            $this->object->describe(FALSE)
+        );
+    }
+
+    /*
      * @covers BMDieOption::shrink
      */
     public function testShrink() {

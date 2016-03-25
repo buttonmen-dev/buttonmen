@@ -442,7 +442,7 @@ class BMDie extends BMCanHaveSkill {
      * @param array $attackers
      * @param array $defenders
      * @param int $amount
-     * @return boolean
+     * @return bool
      */
     public function attack_contribute($type, array $attackers, array $defenders, $amount) {
         if ($amount == 0) {
@@ -722,7 +722,7 @@ class BMDie extends BMCanHaveSkill {
      *
      * @param string $sidecountStr
      * @param BMDie $dieObj
-     * @param boolean $addMaxval
+     * @param bool $addMaxval
      * @return string Representation of the side count of the die
      */
     protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
@@ -858,7 +858,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Determine whether the die skips the swing request phase
      *
-     * @return boolean
+     * @return bool
      */
     public function does_skip_swing_request() {
         $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
@@ -1026,7 +1026,7 @@ class BMDie extends BMCanHaveSkill {
     /**
      * Set the maximum value of the die
      *
-     *  @param int $value
+     * @param int $value
      */
     protected function set__max($value) {
         if ($value === 0) {
@@ -1210,7 +1210,7 @@ class BMDie extends BMCanHaveSkill {
      * Define behaviour of isset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __isset($property) {
         return isset($this->$property);
@@ -1220,7 +1220,7 @@ class BMDie extends BMCanHaveSkill {
      * Unset
      *
      * @param mixed $property
-     * @return boolean
+     * @return bool
      */
     public function __unset($property) {
         if (isset($this->$property)) {
