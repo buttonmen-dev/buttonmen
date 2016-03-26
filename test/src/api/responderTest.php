@@ -398,7 +398,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * * Does each key have the same type of value for each array?
      */
     protected function object_structures_match($obja, $objb, $inspect_child_arrays=False) {
-        foreach ($obja as $akey => $avalue) {
+        foreach (array_keys($obja) as $akey) {
             if (!(array_key_exists($akey, $objb))) {
                 $this->output_mismatched_objects($obja, $objb);
                 return False;
@@ -416,7 +416,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 }
             }
         }
-        foreach ($objb as $bkey => $bvalue) {
+        foreach (array_keys($objb) as $bkey) {
             if (!(array_key_exists($bkey, $obja))) {
                 $this->output_mismatched_objects($obja, $objb);
                 return False;
@@ -435,7 +435,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $attack = array();
         foreach ($gameData['playerDataArray'] as $playerIdx => $playerData) {
             if (count($playerData['activeDieArray']) > 0) {
-                foreach ($playerData['activeDieArray'] as $dieIdx => $dieInfo) {
+                foreach (array_keys($playerData['activeDieArray']) as $dieIdx) {
                     $attack['playerIdx_' . $playerIdx . '_dieIdx_' . $dieIdx] = 'false';
                 }
             }
@@ -580,7 +580,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $dieInfo = $addCapturedDie[1];
             $dieInfo['properties'] = array('WasJustCaptured');
             $expData['playerDataArray'][$playerIdx]['capturedDieArray'][] = $dieInfo;
-        };
+        }
 
         // Make the most common update on previously-captured dice --- clear properties (i.e. WasJustCaptured)
         foreach ($clearPropsCapturedDice as $clearPropsCapturedDie) {
@@ -5238,7 +5238,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
                 array('value' => NULL, 'sides' => NULL, 'skills' => array('Auxiliary', 'Shadow'), 'properties' => array(), 'recipe' => '+s(X)', 'description' => 'Auxiliary Shadow X Swing Die'),
             );
-        };
+        }
 
         // now load the game from responder003's POV and check its state
         $retval = $this->verify_api_loadGameData($initialExpData[0], $gameId, 10);
@@ -12314,7 +12314,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'CHOOSE_AUXILIARY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Berserk', 'Ornery', 'Morphing', 'Radioactive', 'Rage', 'Reserve', 'Shadow', 'Slow', 'Stinger', 'Poison'));
         $expData['playerDataArray'][0]['button'] = array('name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'artFilename' => 'maryland.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('W' => array(4, 12), 'X' => array(4, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -12351,7 +12351,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "wtrollkin", "recipe" => "p(4) pG%(7) s(15) sB(S) s%(S) worm(Y)");
         array_pop($expData['playerDataArray'][1]['activeDieArray']);
-        $expData['playerDataArray'][1]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "Maryland", "recipe" => "g(4) m(8) o(10) (W) (X)");
+        $expData['playerDataArray'][1]['button'] = array("artFilename" => "maryland.png", "name" => "Maryland", "recipe" => "g(4) m(8) o(10) (W) (X)");
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -12569,7 +12569,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Fire', 'Konstant', 'Morphing', 'Null', 'Stealth'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Hawaii', 'recipe' => 'n(4) m(5) k(8) F(13) d(Y)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Hawaii', 'recipe' => 'n(4) m(5) k(8) F(13) d(Y)', 'artFilename' => 'hawaii.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
