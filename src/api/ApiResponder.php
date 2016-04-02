@@ -565,7 +565,7 @@ class ApiResponder {
         if (isset($args['doStayLoggedIn'])) {
             $doStayLoggedIn = ('true' == $args['doStayLoggedIn']);
         } else {
-            $doStayLoggedIn = false;
+            $doStayLoggedIn = FALSE;
         }
 
         $login_success = login($args['username'], $args['password'], $doStayLoggedIn);
