@@ -418,7 +418,7 @@ Login.formLogin = function() {
   });
   $('input#login_checkbox').each(function(_index, element) {
     doStayLoggedIn = $(element).is(':checked');
-  })
+  });
 
   var loginargs = {
     'type': 'login',
