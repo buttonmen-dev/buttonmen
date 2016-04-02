@@ -165,7 +165,8 @@ class BMSkillWarrior extends BMSkill {
                'out of play, Warrior dice are completely out of play: They ' .
                'aren\'t part of your starting dice, they don\'t count for ' .
                'initiative, they can\'t be attacked, none of their other ' .
-               'skills can be used, etc. The only thing they can do is ' .
+               'skills can be used, they don\'t count for scoring purposes, ' .
+               'etc. The only thing they can do is ' .
                'participate in a Skill attack. At the start of the round, ' .
                'each Warrior die shows its maximum value; when it\'s brought ' .
                'into play, it\'s rolled as usual. ' .
