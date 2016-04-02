@@ -569,6 +569,7 @@ class ApiResponder {
         }
 
         $login_success = login($args['username'], $args['password'], $doStayLoggedIn);
+
         if ($login_success) {
             return array('userName' => $args['username']);
         } else {
