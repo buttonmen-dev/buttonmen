@@ -1898,6 +1898,7 @@ Game.pageAddSkillListFooter = function() {
   var interactDescArray;
   var skillDesc;
   var skillSpan;
+  var tooltipDiv;
 
   $.each(Api.game.gameSkillsInfo, function(skill, info) {
     skillDesc = skill;
@@ -1917,20 +1918,39 @@ Game.pageAddSkillListFooter = function() {
       skillDesc += interactDescArray.join('\n');
     }
 
-    skillSpan = $('<span>').append($('<span>', {
+    skillSpan = $('<span>', {
       'text': skill,
-      'title': skillDesc,
       'class': 'skill_desc',
-    })).append($('<span>', {
-      'text': 'i',
-      'title': skillDesc,
-      'class': 'info_icon',
-    }));
+    });
+
+    tooltipDiv = $('<div>', {
+      'text': skillDesc,
+      'class': 'hidden_tooltip',
+    });
+
+    skillSpan.on({
+      'click': function() {
+          if ($(this).data('ui-tooltip')) {
+            $(this).tooltip('destroy');
+          } else {
+            $(this).tooltip({
+              items: '.skill_desc',
+              content: $(this).next('.hidden_tooltip').html(),
+            });
+            $(this).tooltip('open');
+          }
+        },
+      'mouseout': function(event) {
+        event.stopImmediatePropagation();
+      }
+    });
 
     if (info.code) {
       dieSkillSpanArray.push(skillSpan);
+      dieSkillSpanArray.push(tooltipDiv);
     } else {
       buttonSkillSpanArray.push(skillSpan);
+      buttonSkillSpanArray.push(tooltipDiv);
     }
   });
 
