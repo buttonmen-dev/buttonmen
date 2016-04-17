@@ -379,7 +379,7 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Generic parser and repackager of the data returned from the database
 
-  my.packageGameData = function(data, _, parserargs) {
+  my.packageGameData = function(data, _apikey, parserargs) {
     // the output format is one of the following:
     // - split into games awaiting the player and games awaiting the opponent
     // - made entirely of games not awaiting action
