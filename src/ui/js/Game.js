@@ -2702,21 +2702,28 @@ Game.gamePlayerDice = function(player, player_active) {
   var dieContainerDiv;
   var dieBorderDiv;
   var isClickable;
+  var isSelected;
 
   for (var i = 0; i < Api.game[player].activeDieArray.length; i++) {
     die = Api.game[player].activeDieArray[i];
     dieIndex = Game.dieIndexId(player, i);
     isClickable = Game.isDieClickable(player_active, player, die);
-    dieDiv = Game.createDieDiv(player, die, isClickable);
-    dieBorderDiv = Game.createBorderDiv(player);
+    dieDiv = Game.createDieDiv(player, die.value, isClickable);
+    dieBorderDiv = Game.createBorderDiv(Game.color[player]);
+
+    isSelected = ('dieSelectStatus' in Game.activity) &&
+                 (dieIndex in Game.activity.dieSelectStatus) &&
+                 (Game.activity.dieSelectStatus[dieIndex]);
+
     dieContainerDiv = Game.createContainerDiv(
       player,
       die,
       isClickable,
+      isSelected,
       dieIndex,
       player_active
     );
-    dieRecipeDiv = Game.createRecipeDiv(player, die);
+    dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
 
     dieBorderDiv.append(dieDiv);
     if (player == 'player') {
@@ -2740,9 +2747,9 @@ Game.gamePlayerDice = function(player, player_active) {
         dieIndex,
         player_active
       );
-      dieBorderDiv = Game.createBorderDiv(player);
-      dieDiv = Game.createDieDiv(player, die, false);
-      dieRecipeDiv = Game.createRecipeDiv(player, die);
+      dieBorderDiv = Game.createBorderDiv(Game.color[player]);
+      dieDiv = Game.createDieDiv(player, die.value, false);
+      dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
 
       dieBorderDiv.append(dieDiv);
       if (player == 'player') {
@@ -2762,6 +2769,8 @@ Game.gamePlayerDice = function(player, player_active) {
 Game.isDieClickable = function(isPlayerActive, player, die) {
   // Find out whether this die is clickable: it is if the player
   // is active and this particular die is not dizzy
+  console.log(die);
+
   if (isPlayerActive) {
     if (die.properties.indexOf('Dizzy') >= 0) {
       return false;
@@ -2777,10 +2786,10 @@ Game.isDieClickable = function(isPlayerActive, player, die) {
   }
 };
 
-Game.createBorderDiv = function(player) {
+Game.createBorderDiv = function(color) {
   return $('<div>', {
     'class': 'die_border',
-    'style': 'border: 2px solid' + Game.color[player],
+    'style': 'border: 2px solid ' + color,
   });
 };
 
@@ -2788,6 +2797,7 @@ Game.createContainerDiv = function(
   player,
   die,
   isClickable,
+  isSelected,
   dieIndex,
   isPlayerActive
 ) {
@@ -2801,9 +2811,7 @@ Game.createContainerDiv = function(
     // clickable dice should be selectable via keyboard as well
     dieContainerDiv.prop('tabindex', 0);
     dieContainerDiv.addClass('hide_focus');
-    if (('dieSelectStatus' in Game.activity) &&
-        (dieIndex in Game.activity.dieSelectStatus) &&
-        (Game.activity.dieSelectStatus[dieIndex])) {
+    if (isSelected) {
       dieContainerDiv.addClass('selected');
     } else {
       dieContainerDiv.addClass('unselected_' + player);
@@ -2849,8 +2857,10 @@ Game.createContainerDiv = function(
   return dieContainerDiv;
 };
 
-Game.createDieDiv = function(player, die, isClickable) {
-  var dieDiv = $('<div>', {'class': 'die_img',});
+Game.createDieDiv = function(player, value, isClickable) {
+  var dieDiv = $('<div>', {
+    'class': 'die_img',
+  });
 
   if (!isClickable) {
     dieDiv.addClass('die_greyed');
@@ -2858,18 +2868,18 @@ Game.createDieDiv = function(player, die, isClickable) {
 
   dieDiv.append($('<span>', {
     'class': 'die_overlay die_number_' + player,
-    'html': '&nbsp;' + die.value + '&nbsp;',
+    'html': '&nbsp;' + value + '&nbsp;',
   }));
 
   return dieDiv;
 };
 
-Game.createRecipeDiv = function(player, die) {
+Game.createRecipeDiv = function(player, recipe) {
   var dieRecipeDiv = $('<div>');
 
   dieRecipeDiv.append($('<span>', {
     'class': 'die_recipe_' + player,
-    'text': Game.dieRecipeText(die),
+    'text': recipe,
   }));
 
   return dieRecipeDiv;
