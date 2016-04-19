@@ -2769,8 +2769,6 @@ Game.gamePlayerDice = function(player, player_active) {
 Game.isDieClickable = function(isPlayerActive, player, die) {
   // Find out whether this die is clickable: it is if the player
   // is active and this particular die is not dizzy
-  console.log(die);
-
   if (isPlayerActive) {
     if (die.properties.indexOf('Dizzy') >= 0) {
       return false;
