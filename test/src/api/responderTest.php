@@ -1305,7 +1305,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array_keys($retval['data']), array('playerId'));
 
         $_SESSION = $this->mock_test_user_login('responder002');
+        $args['vacation_message'] = 'Player 2 is on vacation';
         $retval = $this->verify_api_success($args);
+        $args['vacation_message'] = '';
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Player info updated successfully.');
         $this->assertEquals(array_keys($retval['data']), array('playerId'));
@@ -2383,6 +2385,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['optRequestArray'] = array('4' => array(2, 20));
+
+        // in test_request_savePlayerInfo() responder002 was set to be on vacation - make sure the game reflects that.
+        $expData['playerDataArray'][1]['isOnVacation'] = TRUE;
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
