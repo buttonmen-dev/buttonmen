@@ -498,6 +498,16 @@ Env.buildProfileLink = function(playerName, textOnly) {
   }
 };
 
+// Utility function to build a vacation image object
+Env.buildVacationImage = function(size) {
+  var image = (size=='large') ? 'vacation22.png' : 'vacation16.png';
+  return  $('<img>', {
+    'src': Env.ui_root + 'images/' + image,
+    'class': 'playerFlag',
+    'title': 'On Vacation'
+  });
+};
+
 // Utility function to link to a button page given a button name
 Env.buildButtonLink = function(buttonName, recipe, textOnly) {
   var url = 'buttons.html?button=' + encodeURIComponent(buttonName);
