@@ -502,7 +502,7 @@ Env.buildProfileLink = function(playerName, textOnly) {
 Env.buildVacationImage = function(size) {
   var image = (size=='large') ? 'vacation22.png' : 'vacation16.png';
   return  $('<img>', {
-    'src': Env.ui_root + 'images/'+image,
+    'src': Env.ui_root + 'images/' + image,
     'class': 'playerFlag',
     'title': 'On Vacation'
   });

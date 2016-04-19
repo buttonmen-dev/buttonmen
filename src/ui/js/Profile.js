@@ -51,7 +51,7 @@ Profile.showPage = function() {
 Profile.buildProfileTable = function() {
   var table = $('<table>', { 'class': 'profileTable', });
 
-  var profileName=$('<spane>');
+  var profileName=$('<span>');
   if (Api.profile_info.vacation_message) {
     profileName.append(Env.buildVacationImage('large'));
   }
@@ -133,7 +133,6 @@ Profile.buildProfileTable = function() {
     vacationHolder = $('<span>');
     var cookedVacation =
       Env.prepareRawTextForDisplay(Api.profile_info.vacation_message);
-    //    vacationHolder.append(Env.buildVacationImage('small'));
     vacationHolder.append(cookedVacation);
   }
 
