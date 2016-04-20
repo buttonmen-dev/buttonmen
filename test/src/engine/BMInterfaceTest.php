@@ -737,7 +737,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
