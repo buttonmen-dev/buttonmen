@@ -83,8 +83,8 @@ class BMInterface {
         return $interface;
     }
 
-    public function gameAction() {
-        $interface = $this->cast('BMInterfaceGameAction');
+    public function game() {
+        $interface = $this->cast('BMInterfaceGame');
         $interface->parent = $this;
         return $interface;
     }
@@ -139,7 +139,7 @@ class BMInterface {
                 $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
-          
+
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }

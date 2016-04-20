@@ -2,20 +2,20 @@
 
 require_once 'BMInterfaceTestAbstract.php';
 
-class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
+class BMInterfaceGameTest extends BMInterfaceTestAbstract {
 
     protected function init() {
-        $this->object = new BMInterfaceGameAction(TRUE);
+        $this->object = new BMInterfaceGame(TRUE);
     }
 
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_and_load_new_game() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4
@@ -120,11 +120,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      */
     public function test_create_self_game() {
         // attempt to create a game with the same player on both sides
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId1WithoutAutopass),
             array('Bauer', 'Stark'),
             4
@@ -137,11 +137,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      */
     public function test_create_game_with_invalid_parameters() {
         // attempt to create a game with a non-integer number of max wins
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4.5
@@ -151,7 +151,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
                             $this->object->message);
 
         // attempt to create a game with a zero number of max wins
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             0
@@ -161,7 +161,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
                             $this->object->message);
 
         // attempt to create a game with a large number of max wins
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             6
@@ -171,7 +171,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
                             $this->object->message);
 
         // attempt to create a game with an invalid button name
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('KJQOERUCHC', 'Stark'),
             3
@@ -185,11 +185,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_game_with_ornery_mood_swing() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Skeeve', 'Skeeve'),
             4
@@ -304,7 +304,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
                             $game->swingValueArrayArray);
 
         // check that swing values are set correctly
-        $this->object->gameAction()->submit_die_values(
+        $this->object->game()->submit_die_values(
             self::$userId1WithoutAutopass,
             $game->gameId,
             1,
@@ -333,11 +333,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_game_with_one_random_button() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Coil', '__random'),
             4
@@ -356,11 +356,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_game_with_one_random_button_and_one_unspecified() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('__random', NULL),
             4
@@ -381,7 +381,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertFalse($game->playerArray[1]->isButtonChoiceRandom);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
 
-        $retval = $this->object->gameAction()->select_button(
+        $retval = $this->object->game()->select_button(
             self::$userId2WithoutAutopass,
             $gameId,
             '__random'
@@ -398,11 +398,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_game_with_two_random_buttons() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('__random', '__random'),
             4
@@ -420,11 +420,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_game_with_two_random_buttons_with_one_unspecified_player() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, NULL),
             array('__random', '__random'),
             4
@@ -442,11 +442,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_and_load_new_game_with_empty_opponent() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, NULL),
             array('Bauer', 'Stark'),
             4
@@ -513,11 +513,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_and_load_new_game_with_empty_button() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', NULL),
             4
@@ -582,7 +582,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     /**
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::create_game
+     * @covers BMInterfaceGame::create_game
      * @covers BMInterface::load_game
      */
     public function test_create_and_load_new_game_with_empty_opponent_and_opponent_button() {
@@ -649,10 +649,10 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @covers BMInterfaceGameAction::save_join_game_decision
+     * @covers BMInterfaceGame::save_join_game_decision
      */
     public function test_save_join_game_decision() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4,
@@ -668,7 +668,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
 
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId5WithoutAutoaccept, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4,
@@ -684,7 +684,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertTrue($game->hasPlayerAcceptedGameArray[1]);
 
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId5WithoutAutoaccept),
             array('Bauer', 'Stark'),
             4,
@@ -700,7 +700,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->hasPlayerAcceptedGameArray[0]);
         $this->assertFalse($game->hasPlayerAcceptedGameArray[1]);
 
-        $this->object->gameAction()->save_join_game_decision(
+        $this->object->game()->save_join_game_decision(
             self::$userId5WithoutAutoaccept,
             $gameId,
             'accept'
@@ -712,17 +712,17 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
 
     /**
-     * @covers BMInterfaceGameAction::join_open_game
+     * @covers BMInterfaceGame::join_open_game
      */
     public function test_join_open_game() {
         // create an open game with an unspecified opponent
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, NULL),
             array('Bauer', 'Stark'),
             4
         );
         $this->assertNotNull($retval);
-        $this->object->gameAction()->join_open_game(
+        $this->object->game()->join_open_game(
             self::$userId2WithoutAutopass,
             $retval['gameId']
         );
@@ -734,17 +734,17 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     }
 
     /**
-     * @covers BMInterfaceGameAction::select_button
+     * @covers BMInterfaceGame::select_button
      */
     public function test_select_button() {
         // create an open game with an unspecified button
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', NULL),
             4
         );
         $this->assertNotNull($retval);
-        $this->object->gameAction()->select_button(
+        $this->object->game()->select_button(
             self::$userId2WithoutAutopass,
             $retval['gameId'],
             'Iago'
@@ -762,14 +762,14 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterfaceGame::react_to_auxiliary
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
     public function test_react_to_auxiliary_both_aux_decline() {
         // Lancelot : (10) (12) (20) (20) (X) +(X)
         // Gawaine  :  (4)  (4) (12) (20) (X) +(6)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Lancelot', 'Gawaine'),
             4
@@ -784,7 +784,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // a non-player attempts an action
         $this->assertFalse(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 0,
                 $gameId,
                 'decline')
@@ -792,7 +792,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 attempts an invalid action
         $this->assertFalse(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'rubbish')
@@ -800,7 +800,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 declines
         $this->assertTrue(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'decline')
@@ -827,7 +827,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterfaceGame::react_to_auxiliary
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      * @covers BMGame::add_selected_auxiliary_dice
@@ -835,7 +835,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     public function test_react_to_auxiliary_one_aux_decline() {
         // Kublai   :  (4) (8) (12) (20) (X)
         // Gawaine  :  (4) (4) (12) (20) (X) +(6)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Kublai', 'Gawaine'),
             4
@@ -851,7 +851,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 chooses to add auxiliary die
         $this->assertTrue(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'add',
@@ -868,7 +868,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 tries incorrectly to act again
         $this->assertFalse(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'add',
@@ -877,7 +877,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 2 declines
         $this->assertTrue(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId2WithoutAutopass,
                 $gameId,
                 'decline')
@@ -904,7 +904,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterfaceGame::react_to_auxiliary
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      * @covers BMGame::add_selected_auxiliary_dice
@@ -912,7 +912,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
     public function test_react_to_auxiliary_one_aux_accept() {
         // Kublai   :  (4) (8) (12) (20) (X)
         // Gawaine  :  (4) (4) (12) (20) (X) +(6)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Kublai', 'Gawaine'),
             4
@@ -928,7 +928,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 tries incorrectly adding a non-auxiliary die
         $this->assertFalse(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'add',
@@ -938,7 +938,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 chooses to add an auxiliary die
         $this->assertTrue(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'add',
@@ -954,7 +954,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertTrue($game->activeDieArrayArray[0][5]->has_flag('AddAuxiliary'));
 
         $this->assertTrue(
-            $this->object->gameAction()->react_to_auxiliary(
+            $this->object->game()->react_to_auxiliary(
                 self::$userId2WithoutAutopass,
                 $gameId,
                 'add',
@@ -982,10 +982,10 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::react_to_auxiliary
+     * @covers BMInterfaceGame::react_to_auxiliary
      */
     public function test_react_to_auxiliary_invalid() {
-        $this->assertFalse($this->object->gameAction()->react_to_auxiliary(1.5, 2.5, 'ha!'));
+        $this->assertFalse($this->object->game()->react_to_auxiliary(1.5, 2.5, 'ha!'));
     }
 
     /**
@@ -993,14 +993,14 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::react_to_reserve
+     * @covers BMInterfaceGame::react_to_reserve
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
     public function test_react_to_reserve_decline() {
         // Sailor Moon : (8) (8) (10) (20) r(6) r(10) r(20) r(20)
         // Queen Beryl : (4) (8) (12) (20) r(4) r(12) r(20) r(20)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Sailor Moon', 'Queen Beryl'),
             4
@@ -1028,7 +1028,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // a non-player attempts an action
         $this->assertFalse(
-            $this->object->gameAction()->react_to_reserve(
+            $this->object->game()->react_to_reserve(
                 0,
                 $gameId,
                 'decline')
@@ -1036,7 +1036,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 attempts an invalid action
         $this->assertFalse(
-            $this->object->gameAction()->react_to_reserve(
+            $this->object->game()->react_to_reserve(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'rubbish')
@@ -1044,7 +1044,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 2 attempts a reserve action
         $this->assertFalse(
-            $this->object->gameAction()->react_to_reserve(
+            $this->object->game()->react_to_reserve(
                 self::$userId2WithoutAutopass,
                 $gameId,
                 'add',
@@ -1053,7 +1053,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 declines
         $this->assertTrue(
-            $this->object->gameAction()->react_to_reserve(
+            $this->object->game()->react_to_reserve(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'decline')
@@ -1080,14 +1080,14 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @depends BMInterface000Test::test_create_user
      *
-     * @covers BMInterfaceGameAction::react_to_reserve
+     * @covers BMInterfaceGame::react_to_reserve
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
     public function test_react_to_reserve_add() {
         // Sailor Moon : (8) (8) (10) (20) r(6) r(10) r(20) r(20)
         // Queen Beryl : (4) (8) (12) (20) r(4) r(12) r(20) r(20)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Sailor Moon', 'Queen Beryl'),
             4
@@ -1115,7 +1115,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // a non-player attempts an action
         $this->assertFalse(
-            $this->object->gameAction()->react_to_reserve(
+            $this->object->game()->react_to_reserve(
                 0,
                 $gameId,
                 'add')
@@ -1123,7 +1123,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
 
         // player 1 adds reserve die
         $this->assertTrue(
-            $this->object->gameAction()->react_to_reserve(
+            $this->object->game()->react_to_reserve(
                 self::$userId1WithoutAutopass,
                 $gameId,
                 'add',
@@ -1154,11 +1154,11 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
-     * @covers BMInterfaceGameAction::adjust_fire
+     * @covers BMInterfaceGame::adjust_fire
      */
     function test_fire() {
         // (4) (6) F(8) (20) (X) vs F(4) F(6) (6) (12) (X)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Poly', 'Adam Spam'),
             4
@@ -1238,7 +1238,7 @@ class BMInterfaceGameActionTest extends BMInterfaceTestAbstract {
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
 
-        $retval = $this->object->gameAction()->adjust_fire(
+        $retval = $this->object->game()->adjust_fire(
             self::$userId1WithoutAutopass,
             $game->gameId,
             1,

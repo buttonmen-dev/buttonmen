@@ -1,17 +1,16 @@
 <?php
 
 /**
- * BMInterfaceGameAction: interface between GUI and BMGame for game action-related requests
+ * BMInterfaceGame: interface between GUI and BMGame for all game-related requests
  *
  * @author james
  */
 
 /**
  * This class deals with communication between the UI, the game code, and the database
- * pertaining to player-instigated game actions and chat
  */
 
-class BMInterfaceGameAction extends BMInterface {
+class BMInterfaceGame extends BMInterface {
     /**
      * Create a game
      *

@@ -16,7 +16,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     public function test_load_game_after_setting_swing_values() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4
@@ -132,7 +132,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     public function test_play_turn() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Bauer', 'Stark'),
             4
@@ -194,7 +194,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     public function test_load_poison() {
         // Coil: p4 12 p20 20 V
         // Bane: p2 p4 12 12 V
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Coil', 'Bane'),
             4
@@ -254,7 +254,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      */
     public function test_swing_value_reset_at_end_of_round() {
         // create a dummy game that will be overwritten
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Tess', 'Coil'),
             4
@@ -426,7 +426,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      */
     public function test_swing_value_reset_at_end_of_game() {
         // create a dummy game that will be overwritten
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Tess', 'Coil'),
             1
@@ -500,7 +500,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      */
     public function test_swing_value_persistence() {
         // create a dummy game that will be overwritten
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Tess', 'Coil'),
             4
@@ -579,7 +579,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      */
     public function test_all_pass() {
         // create a dummy game that will be overwritten
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Wiseman', 'Wiseman'),
             4
@@ -665,7 +665,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      */
     public function test_autopass() {
         // create a dummy game that will be overwritten
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId3WithAutopass),
             array('Bunnies', 'Peace'),
             4
@@ -742,7 +742,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     function test_twin_die() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Cthulhu', 'Bill'),
             4
@@ -847,7 +847,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     function test_konstant() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Al-Khwarizmi', 'Carl Friedrich Gauss'),
             4
@@ -935,7 +935,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     public function test_surrender() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Sonia', 'Tamiya'),
             4
@@ -1034,7 +1034,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      */
     public function test_autoplay_bug() {
         // autoplay bug requires autopass turned on
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId4WithAutopass),
             array('Scorpion', 'Kakita'),
             4
@@ -1189,7 +1189,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     public function test_reserve_swing_setting() {
         // Zomulgustar : t(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?
         // Cammy Neko  : (4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Zomulgustar', 'Cammy Neko'),
             4
@@ -1248,7 +1248,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     public function test_echo_vs_other() {
         // Echo : none
         // Avis : (4) (4) (10) (12) (X)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Echo', 'Avis'),
             4
@@ -1293,7 +1293,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
     public function test_echo_recipe_save() {
         // Echo : none
         // Avis : (4) (4) (10) (12) (X)
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Echo', 'Avis'),
             4
@@ -1324,7 +1324,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @coversNothing
      */
     public function test_declined_courtesy_auxiliary_swing_dice() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Ayeka', 'Merlin'),
             4
@@ -1367,7 +1367,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     public function test_option_game() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Apples', 'Green Apple'),
             4
@@ -1571,7 +1571,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @coversNothing
      */
     public function test_option_game_multiple_identical_option_bug() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Farrell', 'Farrell'),
             4
@@ -1594,7 +1594,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     public function test_mood_swing_round() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Gilly', 'Igor'),
             4
@@ -1709,7 +1709,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @covers BMInterface::load_game
      */
     public function test_twin_mood_swing_round() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('TheFool', 'TheFool'),
             4
@@ -1845,7 +1845,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @coversNothing
      */
     public function test_option_reset_bug() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Frasquito', 'Wiseman'),
             4
@@ -1962,7 +1962,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
      * @coversNothing
      */
     public function test_swing_reset_bug() {
-        $retval = $this->object->gameAction()->create_game(
+        $retval = $this->object->game()->create_game(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Mau', 'Wiseman'),
             4
