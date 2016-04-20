@@ -112,7 +112,7 @@ var Api = (function () {
             (0 === XMLHttpRequest.readyState)) {
           Env.message = {
             'type': 'error',
-            'text': 'Could not connect to Button Men server—are you online?'
+            'text': 'Could not connect to Button Men server, please try again'
           };
         } else {
           Env.message = {
@@ -180,7 +180,7 @@ var Api = (function () {
             (0 === XMLHttpRequest.readyState)) {
           Env.message = {
             'type': 'error',
-            'text': 'Could not connect to Button Men server—are you online?'
+            'text': 'Could not connect to Button Men server, please try again'
           };
         } else {
           Env.message = {
@@ -400,6 +400,7 @@ var Api = (function () {
         'gameDescription': data.gameDescriptionArray[i],
         'opponentId': data.opponentIdArray[i],
         'opponentName': data.opponentNameArray[i],
+        'isOpponentOnVacation': data.isOpponentOnVacationArray[i],
         'playerButtonName': data.myButtonNameArray[i],
         'opponentButtonName': data.opponentButtonNameArray[i],
         'gameScoreDict': {

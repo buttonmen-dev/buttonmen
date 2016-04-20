@@ -80,8 +80,8 @@ class TestBMClient(unittest.TestCase):
     known_keys = [
       'gameDescriptionArray', 'gameIdArray', 'gameStateArray', 
       'inactivityArray', 'inactivityRawArray',
-      'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
-      'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
+      'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray',
+      'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
       'opponentNameArray', 'playerColorArray', 'statusArray'
     ]
@@ -98,8 +98,8 @@ class TestBMClient(unittest.TestCase):
     known_keys = [
       'gameDescriptionArray', 'gameIdArray', 'gameStateArray', 
       'inactivityArray', 'inactivityRawArray',
-      'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
-      'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
+      'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray',
+      'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
       'opponentNameArray', 'playerColorArray', 'statusArray'
     ]
@@ -142,7 +142,7 @@ class TestBMClient(unittest.TestCase):
 
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
-      'gameScoreArray', 'hasDismissedGame', 'lastActionTime',
+      'gameScoreArray', 'hasDismissedGame', 'isOnVacation', 'lastActionTime', 
       'optRequestArray', 'outOfPlayDieArray',
       'playerColor', 'playerId', 'playerName',
       'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',

@@ -715,6 +715,7 @@ class BMGame {
     protected function update_game_state_choose_reserve_dice() {
         // if all decisions on reserve dice have been made
         if (!$this->isWaitingOnAnyAction()) {
+            $this->update_prevOptValueArray();
             $areAnyDiceAdded = $this->add_selected_reserve_dice();
 
             if (array_sum($areAnyDiceAdded) > 0) {
@@ -724,12 +725,43 @@ class BMGame {
                         $player->button->update_button_recipe();
                     }
                 }
-
             }
 
             $this->update_opt_requests_to_ignore_reserve_dice();
             $this->remove_dice_with_skill('Reserve');
             $this->gameState = BMGameState::SPECIFY_DICE;
+        }
+    }
+
+    /**
+     * Update option request array when reserve option dice are added
+     */
+    protected function update_prevOptValueArray() {
+        foreach ($this->playerArray as $player) {
+            if (!empty($player->prevOptValueArray)) {
+                foreach (array_reverse(array_keys($player->activeDieArray)) as $dieIdx) {
+                    if ($player->activeDieArray[$dieIdx]->has_flag('AddReserve')) {
+                        // count how many dice don't have reserve on the left of the added die
+                        $dieIndicesWithoutReserve = $player->die_indices_without_reserve();
+                        $nDiceOnLeft = 0;
+                        foreach ($dieIndicesWithoutReserve as $leftDieIdx) {
+                            if ($leftDieIdx < $dieIdx) {
+                                $nDiceOnLeft++;
+                            }
+                        }
+
+                        // this code theoretically accommodates the ability to add multiple reserve
+                        // option dice at once
+                        foreach (array_reverse(array_keys($player->prevOptValueArray)) as $optIdx) {
+                            // increment all keys for prevOptValueArray that aren't left of the new die
+                            if ($optIdx >= $nDiceOnLeft) {
+                                $player->prevOptValueArray[$optIdx + 1] = $player->prevOptValueArray[$optIdx];
+                                unset($player->prevOptValueArray[$optIdx]);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1832,6 +1864,12 @@ class BMGame {
      * Perform the logic required at BMGameState::end_round
      */
     protected function do_next_step_end_round() {
+        // stop degenerate games from running forever
+        if ($this->get__roundNumber() >= 200) {
+            $this->gameState = BMGameState::CANCELLED;
+            return;
+        }
+
         $roundScoreArray = array();
         foreach ($this->playerArray as $player) {
             $roundScoreArray[] = $player->roundScore;
