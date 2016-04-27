@@ -2562,6 +2562,9 @@ Game.buttonImageDisplay = function(player) {
   var playerName = $('<div>', {
     'html': $('<b>', { 'text': 'Player: ', }),
   });
+  if (Api.game[player].isOnVacation) {
+    playerName.append(Env.buildVacationImage());
+  }
   playerName.append(Env.buildProfileLink(Api.game[player].playerName));
   var playerWLT = $('<div>', {
     'text': Game.playerWLTText(player),
@@ -2892,7 +2895,13 @@ Game.playerOpponentHeaderRow = function(label, field) {
   var playerInfo = $('<th>', { 'text': prefix, });
   var opponentInfo = $('<th>', { 'text': prefix, });
   if (field == 'playerName') {
+    if (Api.game.player.isOnVacation) {
+      playerInfo.append(Env.buildVacationImage());
+    }
     playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
+    if (Api.game.opponent.isOnVacation) {
+      opponentInfo.append(Env.buildVacationImage());
+    }
     opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
   } else if (field == 'buttonName') {
     playerInfo.append(Env.buildButtonLink(Api.game.player[field]));
