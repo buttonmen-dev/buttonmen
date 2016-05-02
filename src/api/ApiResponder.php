@@ -241,6 +241,7 @@ class ApiResponder {
         $infoArray['dob_month'] = (int)$args['dob_month'];
         $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
+        $infoArray['vacation_message'] = $args['vacation_message'];
         $infoArray['gender'] = $args['gender'];
         $infoArray['autoaccept'] = ('true' == $args['autoaccept']);
         $infoArray['autopass'] = ('true' == $args['autopass']);

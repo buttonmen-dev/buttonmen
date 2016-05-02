@@ -10,6 +10,7 @@ UserPrefs.MAX_IMAGE_SIZE = 200;
 UserPrefs.GENDER_MAX_LENGTH = 100;
 UserPrefs.HOMEPAGE_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
+UserPrefs.VACATION_MAX_LENGTH = 255;
 UserPrefs.DEFAULT_COLORS = {
   'player_color': '#dd99dd',
   'opponent_color': '#ddffdd',
@@ -167,6 +168,12 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'textarea',
       'value': Api.user_prefs.comment,
       'length': UserPrefs.COMMENT_MAX_LENGTH,
+    },
+    'vacation_message': {
+      'text': 'Vacation Message',
+      'type': 'textarea',
+      'value': Api.user_prefs.vacation_message,
+      'length': UserPrefs.VACATION_MAX_LENGTH,
     },
   };
 
@@ -376,6 +383,7 @@ UserPrefs.formSetPrefs = function() {
   var image_size = $('#userprefs_image_size').val();
   var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
+  var vacation_message= $('#userprefs_vacation_message').val().trim();
   var autoaccept = $('#userprefs_autoaccept').prop('checked');
   var autopass = $('#userprefs_autopass').prop('checked');
   var fire_overshooting = $('#userprefs_fire_overshooting').prop('checked');
@@ -483,6 +491,7 @@ UserPrefs.formSetPrefs = function() {
       'uses_gravatar': uses_gravatar,
       'homepage': homepage,
       'comment': comment,
+      'vacation_message': vacation_message,
       'autoaccept': autoaccept,
       'autopass': autopass,
       'fire_overshooting': fire_overshooting,

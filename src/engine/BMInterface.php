@@ -498,6 +498,9 @@ class BMInterface {
                 $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
+          
+                $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
+                $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
 
             $actionLogArray = $this->load_game_action_log($game, $logEntryLimit);
@@ -627,7 +630,8 @@ class BMInterface {
                  'v.is_button_random, '.
                  'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp, '.
                  'v.was_game_dismissed, '.
-                 'v.has_player_accepted '.
+                 'v.has_player_accepted, '.
+                 'v.is_on_vacation '.
                  'FROM game AS g '.
                  'LEFT JOIN game_status AS s '.
                  'ON s.id = g.status_id '.
@@ -734,6 +738,8 @@ class BMInterface {
                 $player->waitingOnAction = FALSE;
                 break;
         }
+
+        $player->isOnVacation = (bool) $row['is_on_vacation'];
 
         if (isset($row['current_player_id']) &&
             isset($row['player_id']) &&
@@ -1506,6 +1512,7 @@ class BMInterface {
             $query = 'SELECT v1.game_id,'.
                      'v1.player_id AS opponent_id,'.
                      'v1.player_name AS opponent_name,'.
+                     'v1.is_on_vacation AS opponent_on_vacation,'.
                      'v2.button_name AS my_button_name,'.
                      'v1.button_name AS opponent_button_name,'.
                      'v2.n_rounds_won AS n_wins,'.
@@ -1556,6 +1563,7 @@ class BMInterface {
         $gameDescriptionArray = array();
         $opponentIdArray = array();
         $opponentNameArray = array();
+        $isOpponentOnVacationArray = array();
         $myButtonNameArray = array();
         $oppButtonNameArray = array();
         $nWinsArray = array();
@@ -1590,6 +1598,7 @@ class BMInterface {
             $gameDescriptionArray[] = $row['description'];
             $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
+            $isOpponentOnVacationArray[]  = (bool) $row['opponent_on_vacation'];
             $myButtonNameArray[]  = $row['my_button_name'];
             $oppButtonNameArray[] = $row['opponent_button_name'];
             $nWinsArray[]         = (int)$row['n_wins'];
@@ -1610,6 +1619,7 @@ class BMInterface {
                      'gameDescriptionArray'    => $gameDescriptionArray,
                      'opponentIdArray'         => $opponentIdArray,
                      'opponentNameArray'       => $opponentNameArray,
+                     'isOpponentOnVacationArray' => $isOpponentOnVacationArray,
                      'myButtonNameArray'       => $myButtonNameArray,
                      'opponentButtonNameArray' => $oppButtonNameArray,
                      'nWinsArray'              => $nWinsArray,
@@ -1654,6 +1664,7 @@ class BMInterface {
                     'v_challenger.player_name AS challenger_name, ' .
                     'v_challenger.button_name AS challenger_button, ' .
                     'v_challenger.is_button_random AS challenger_random, ' .
+                    'v_challenger.is_on_vacation AS is_challenger_on_vacation, ' .
                     'v_victim.button_name AS victim_button, ' .
                     'v_victim.is_button_random AS victim_random, ' .
                     'g.n_target_wins AS target_wins, ' .
@@ -1698,6 +1709,7 @@ class BMInterface {
                     'gameId' => (int)$row['game_id'],
                     'challengerId' => (int)$row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
+                    'isChallengerOnVacation' => (bool)$row['is_challenger_on_vacation'],
                     'challengerButton' => $challengerButton,
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $victimButton,

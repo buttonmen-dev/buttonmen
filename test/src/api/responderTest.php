@@ -493,6 +493,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
+		    'isOnVacation' => false,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -511,6 +512,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
+		    'isOnVacation' => false,
                 ),
             ),
             'gameActionLog' => array(),
@@ -1282,6 +1284,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'gender' => '',
             'comment' => '',
+            'vacation_message' => '',
             'homepage' => '',
             'autoaccept' => 'true',
             'autopass' => 'false',
@@ -1302,7 +1305,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array_keys($retval['data']), array('playerId'));
 
         $_SESSION = $this->mock_test_user_login('responder002');
+        $args['vacation_message'] = 'Player 2 is on vacation';
         $retval = $this->verify_api_success($args);
+        $args['vacation_message'] = '';
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Player info updated successfully.');
         $this->assertEquals(array_keys($retval['data']), array('playerId'));
@@ -1318,6 +1323,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'gender' => '',
             'comment' => '',
+            'vacation_message' => '',
             'homepage' => '',
             'autoaccept' => 'true',
             'autopass' => 'true',
@@ -1747,7 +1753,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $akeys = array_keys($retval['data']['user_prefs']);
         sort($akeys);
-        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar'));
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
         $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
         $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
@@ -1776,7 +1782,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $akeys = array_keys($retval['data']['profile_info']);
         sort($akeys);
-        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'gender', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'uses_gravatar'));
+        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'gender', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'uses_gravatar','vacation_message'));
         $this->assertEquals($retval['data']['profile_info']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['profile_info']['email'], NULL);
         $this->assertEquals($retval['data']['profile_info']['dob_day'], '29');
@@ -2379,6 +2385,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['optRequestArray'] = array('4' => array(2, 20));
+
+        // in test_request_savePlayerInfo() responder002 was set to be on vacation - make sure the game reflects that.
+        $expData['playerDataArray'][1]['isOnVacation'] = TRUE;
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -3673,7 +3682,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
         $akeys = array_keys($retval['data']);
         sort($akeys);
-        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
 
         $this->cache_json_api_output('loadActiveGames', 'noargs', $retval);
     }
@@ -3698,7 +3707,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
         $akeys = array_keys($retval['data']);
         sort($akeys);
-        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
 
         $this->cache_json_api_output('loadCompletedGames', 'noargs', $retval);
     }
@@ -3726,7 +3735,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
         $akeys = array_keys($retval['data']);
         sort($akeys);
-        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
 
         $this->cache_json_api_output('loadCancelledGames', 'noargs', $retval);
     }
@@ -3744,7 +3753,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($retval['message'], 'All game details retrieved successfully.');
         $akeys = array_keys($retval['data']);
         sort($akeys);
-        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
+        $this->assertEquals($akeys, array('gameDescriptionArray', 'gameIdArray', 'gameStateArray', 'inactivityArray', 'inactivityRawArray', 'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray', 'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray', 'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray', 'opponentNameArray', 'playerColorArray', 'statusArray'));
 
         $this->cache_json_api_output('loadNewGames', 'noargs', $retval);
     }
