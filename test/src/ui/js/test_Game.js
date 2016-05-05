@@ -1679,19 +1679,23 @@ test("test_Game.createContainerDiv", function(assert) {
 });
 
 test("test_Game.createDieDiv", function(assert) {
-  var dieDiv = Game.createDieDiv('opponent', 4, true);
+  var dieDiv = Game.createDieDiv('opponent', 5, 8, true);
 
   assert.ok(dieDiv.is('div'));
-  assert.equal(dieDiv.prop('class'), 'die_img');
+  assert.equal(dieDiv.prop('class'), 'die_img d8');
   assert.equal(dieDiv.children().length, 1);
 
   var dieSpan = dieDiv.children().first();
   assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent');
-  assert.equal(dieSpan.html(), '&nbsp;4&nbsp;');
+  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;');
 
-  dieDiv = Game.createDieDiv('opponent', 4, false);
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false);
   assert.ok(dieDiv.is('div'));
-  assert.equal(dieDiv.prop('class'), 'die_img die_greyed');
+  assert.equal(dieDiv.prop('class'), 'die_img die_greyed d8');
+
+  dieSpan = dieDiv.children().first();
+  assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent');
+  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;');
 });
 
 test("test_Game.createRecipeDiv", function(assert) {
