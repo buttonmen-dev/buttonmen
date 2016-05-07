@@ -306,7 +306,8 @@ OpenGames.buildGameTable = function(tableType, buttons) {
       }
       gameRow.append($('<td>', {
         'style': 'background-color: ' + game.challengerColor + ';',
-      }).append(Env.buildProfileLink(game.challengerName)));
+      }).append((game.isChallengerOnVacation) ? Env.buildVacationImage() : '')
+        .append(Env.buildProfileLink(game.challengerName)));
     }
 
     gameRow.append($('<td>', {
