@@ -1679,23 +1679,99 @@ test("test_Game.createContainerDiv", function(assert) {
 });
 
 test("test_Game.createDieDiv", function(assert) {
-  var dieDiv = Game.createDieDiv('opponent', 5, 8, true);
+  var dieDiv = Game.createDieDiv('opponent', 5, 8, true, false);
 
-  assert.ok(dieDiv.is('div'));
-  assert.equal(dieDiv.prop('class'), 'die_img d8');
-  assert.equal(dieDiv.children().length, 1);
+  assert.ok(dieDiv.is('div'), 'active dieDiv is a div');
+  assert.equal(dieDiv.prop('class'), 'die_img', 'active dieDiv class is correct');
+  assert.equal(dieDiv.children().length, 1, 'active dieDiv has one child');
 
   var dieSpan = dieDiv.children().first();
-  assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent');
-  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;');
+  assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'active dieSpan has correct classes');
+  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'active dieSpan contents are correct');
 
-  dieDiv = Game.createDieDiv('opponent', 5, 8, false);
-  assert.ok(dieDiv.is('div'));
-  assert.equal(dieDiv.prop('class'), 'die_img die_greyed d8');
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false, false);
+  assert.ok(dieDiv.is('div'), 'inactive dieDiv is a div');
+  assert.equal(dieDiv.prop('class'), 'die_img die_greyed', 'inactive dieDiv classes are correct');
 
   dieSpan = dieDiv.children().first();
-  assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent');
-  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;');
+  assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'inactive dieDiv has correct classes');
+  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'inactive dieSpan contents are correct');
+
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false, true);
+  assert.ok(dieDiv.is('div'), 'dead dieDiv is a div');
+  assert.equal(dieDiv.prop('class'), 'die_img die_dead', 'dead dieDiv classes are correct');
+
+  dieSpan = dieDiv.children().first();
+  assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'dead dieDiv has correct classes');
+  assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'dead dieSpan contents are correct');
+});
+
+test("test_Game.backgroundImagePath", function(assert) {
+  var dieDiv = $('<div>', {'class': 'die_img',});
+
+  assert.ok(Game.backgroundImagePath(dieDiv, 1).indexOf('d2active.png') >= 0, 'active d1');
+  assert.ok(Game.backgroundImagePath(dieDiv, 2).indexOf('d2active.png') >= 0, 'active d2');
+  assert.ok(Game.backgroundImagePath(dieDiv, 3).indexOf('d4active.png') >= 0, 'active d3');
+  assert.ok(Game.backgroundImagePath(dieDiv, 4).indexOf('d4active.png') >= 0, 'active d4');
+  assert.ok(Game.backgroundImagePath(dieDiv, 5).indexOf('d6active.png') >= 0, 'active d5');
+  assert.ok(Game.backgroundImagePath(dieDiv, 6).indexOf('d6active.png') >= 0, 'active d6');
+  assert.ok(Game.backgroundImagePath(dieDiv, 7).indexOf('d8active.png') >= 0, 'active d7');
+  assert.ok(Game.backgroundImagePath(dieDiv, 8).indexOf('d8active.png') >= 0, 'active d8');
+  assert.ok(Game.backgroundImagePath(dieDiv, 9).indexOf('d10active.png') >= 0, 'active d9');
+  assert.ok(Game.backgroundImagePath(dieDiv, 10).indexOf('d10active.png') >= 0, 'active d10');
+  assert.ok(Game.backgroundImagePath(dieDiv, 11).indexOf('d12active.png') >= 0, 'active d11');
+  assert.ok(Game.backgroundImagePath(dieDiv, 12).indexOf('d12active.png') >= 0, 'active d12');
+  assert.ok(Game.backgroundImagePath(dieDiv, 13).indexOf('d20active.png') >= 0, 'active d13');
+  assert.ok(Game.backgroundImagePath(dieDiv, 19).indexOf('d20active.png') >= 0, 'active d19');
+  assert.ok(Game.backgroundImagePath(dieDiv, 20).indexOf('d20active.png') >= 0, 'active d20');
+  assert.ok(Game.backgroundImagePath(dieDiv, 21).indexOf('d30active.png') >= 0, 'active d21');
+  assert.ok(Game.backgroundImagePath(dieDiv, 29).indexOf('d30active.png') >= 0, 'active d29');
+  assert.ok(Game.backgroundImagePath(dieDiv, 30).indexOf('d30active.png') >= 0, 'active d30');
+  assert.ok(Game.backgroundImagePath(dieDiv, 31).indexOf('d30active.png') >= 0, 'active d31');
+
+  dieDiv = $('<div>', {'class': 'die_img die_greyed',});
+
+  assert.ok(Game.backgroundImagePath(dieDiv, 1).indexOf('d2inactive.png') >= 0, 'inactive d1');
+  assert.ok(Game.backgroundImagePath(dieDiv, 2).indexOf('d2inactive.png') >= 0, 'inactive d2');
+  assert.ok(Game.backgroundImagePath(dieDiv, 3).indexOf('d4inactive.png') >= 0, 'inactive d3');
+  assert.ok(Game.backgroundImagePath(dieDiv, 4).indexOf('d4inactive.png') >= 0, 'inactive d4');
+  assert.ok(Game.backgroundImagePath(dieDiv, 5).indexOf('d6inactive.png') >= 0, 'inactive d5');
+  assert.ok(Game.backgroundImagePath(dieDiv, 6).indexOf('d6inactive.png') >= 0, 'inactive d6');
+  assert.ok(Game.backgroundImagePath(dieDiv, 7).indexOf('d8inactive.png') >= 0, 'inactive d7');
+  assert.ok(Game.backgroundImagePath(dieDiv, 8).indexOf('d8inactive.png') >= 0, 'inactive d8');
+  assert.ok(Game.backgroundImagePath(dieDiv, 9).indexOf('d10inactive.png') >= 0, 'inactive d9');
+  assert.ok(Game.backgroundImagePath(dieDiv, 10).indexOf('d10inactive.png') >= 0, 'inactive d10');
+  assert.ok(Game.backgroundImagePath(dieDiv, 11).indexOf('d12inactive.png') >= 0, 'inactive d11');
+  assert.ok(Game.backgroundImagePath(dieDiv, 12).indexOf('d12inactive.png') >= 0, 'inactive d12');
+  assert.ok(Game.backgroundImagePath(dieDiv, 13).indexOf('d20inactive.png') >= 0, 'inactive d13');
+  assert.ok(Game.backgroundImagePath(dieDiv, 19).indexOf('d20inactive.png') >= 0, 'inactive d19');
+  assert.ok(Game.backgroundImagePath(dieDiv, 20).indexOf('d20inactive.png') >= 0, 'inactive d20');
+  assert.ok(Game.backgroundImagePath(dieDiv, 21).indexOf('d30inactive.png') >= 0, 'inactive d21');
+  assert.ok(Game.backgroundImagePath(dieDiv, 29).indexOf('d30inactive.png') >= 0, 'inactive d29');
+  assert.ok(Game.backgroundImagePath(dieDiv, 30).indexOf('d30inactive.png') >= 0, 'inactive d30');
+  assert.ok(Game.backgroundImagePath(dieDiv, 31).indexOf('d30inactive.png') >= 0, 'inactive d31');
+
+  dieDiv = $('<div>', {'class': 'die_img die_dead',});
+
+  assert.ok(Game.backgroundImagePath(dieDiv, 1).indexOf('d2taken.png') >= 0, 'taken d1');
+  assert.ok(Game.backgroundImagePath(dieDiv, 2).indexOf('d2taken.png') >= 0, 'taken d2');
+  assert.ok(Game.backgroundImagePath(dieDiv, 3).indexOf('d4taken.png') >= 0, 'taken d3');
+  assert.ok(Game.backgroundImagePath(dieDiv, 4).indexOf('d4taken.png') >= 0, 'taken d4');
+  assert.ok(Game.backgroundImagePath(dieDiv, 5).indexOf('d6taken.png') >= 0, 'taken d5');
+  assert.ok(Game.backgroundImagePath(dieDiv, 6).indexOf('d6taken.png') >= 0, 'taken d6');
+  assert.ok(Game.backgroundImagePath(dieDiv, 7).indexOf('d8taken.png') >= 0, 'taken d7');
+  assert.ok(Game.backgroundImagePath(dieDiv, 8).indexOf('d8taken.png') >= 0, 'taken d8');
+  assert.ok(Game.backgroundImagePath(dieDiv, 9).indexOf('d10taken.png') >= 0, 'taken d9');
+  assert.ok(Game.backgroundImagePath(dieDiv, 10).indexOf('d10taken.png') >= 0, 'taken d10');
+  assert.ok(Game.backgroundImagePath(dieDiv, 11).indexOf('d12taken.png') >= 0, 'taken d11');
+  assert.ok(Game.backgroundImagePath(dieDiv, 12).indexOf('d12taken.png') >= 0, 'taken d12');
+  assert.ok(Game.backgroundImagePath(dieDiv, 13).indexOf('d20taken.png') >= 0, 'taken d13');
+  assert.ok(Game.backgroundImagePath(dieDiv, 19).indexOf('d20taken.png') >= 0, 'taken d19');
+  assert.ok(Game.backgroundImagePath(dieDiv, 20).indexOf('d20taken.png') >= 0, 'taken d20');
+  assert.ok(Game.backgroundImagePath(dieDiv, 21).indexOf('d30taken.png') >= 0, 'taken d21');
+  assert.ok(Game.backgroundImagePath(dieDiv, 29).indexOf('d30taken.png') >= 0, 'taken d29');
+  assert.ok(Game.backgroundImagePath(dieDiv, 30).indexOf('d30taken.png') >= 0, 'taken d30');
+  assert.ok(Game.backgroundImagePath(dieDiv, 31).indexOf('d30taken.png') >= 0, 'taken d31');
 });
 
 test("test_Game.createRecipeDiv", function(assert) {

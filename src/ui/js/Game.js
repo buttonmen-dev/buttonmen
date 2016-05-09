@@ -2708,7 +2708,14 @@ Game.gamePlayerDice = function(player, player_active) {
     die = Api.game[player].activeDieArray[i];
     dieIndex = Game.dieIndexId(player, i);
     isClickable = Game.isDieClickable(player_active, player, die);
-    dieDiv = Game.createDieDiv(player, die.value, die.sides, isClickable);
+    dieDiv = Game.createDieDiv(
+      player,
+      die.value,
+      die.sides,
+      isClickable,
+      false
+    );
+    dieDiv.css("background-image", Game.backgroundImagePath(dieDiv, die.sides));
     dieBorderDiv = Game.createBorderDiv(Game.color[player]);
 
     isSelected = ('dieSelectStatus' in Game.activity) &&
@@ -2748,7 +2755,7 @@ Game.gamePlayerDice = function(player, player_active) {
         player_active
       );
       dieBorderDiv = Game.createBorderDiv(Game.color[player]);
-      dieDiv = Game.createDieDiv(player, die.value, die.sides, false);
+      dieDiv = Game.createDieDiv(player, die.value, die.sides, false, true);
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
 
       dieBorderDiv.append(dieDiv);
@@ -2855,12 +2862,14 @@ Game.createContainerDiv = function(
   return dieContainerDiv;
 };
 
-Game.createDieDiv = function(player, value, sides, isClickable) {
+Game.createDieDiv = function(player, value, sides, isClickable, isCaptured) {
   var dieDiv = $('<div>', {
     'class': 'die_img',
   });
 
-  if (!isClickable) {
+  if (isCaptured) {
+    dieDiv.addClass('die_dead');
+  } else if (!isClickable) {
     dieDiv.addClass('die_greyed');
   }
 
@@ -2869,25 +2878,51 @@ Game.createDieDiv = function(player, value, sides, isClickable) {
     'html': '&nbsp;' + value + '&nbsp;',
   });
 
-  if (sides <= 4) {
-    dieDiv.addClass('d4');
-  } else if (sides <= 6) {
-    dieDiv.addClass('d6');
-  } else if (sides <= 8) {
-    dieDiv.addClass('d8');
-  } else if (sides <= 10) {
-    dieDiv.addClass('d10');
-  } else if (sides <= 12) {
-    dieDiv.addClass('d12');
-  } else if (sides <= 20) {
-    dieDiv.addClass('d20');
-  } else if (sides <= 30) {
-    dieDiv.addClass('d30');
-  }
-
   dieDiv.append(dieSpan);
 
+  dieDiv.css("background-image", Game.backgroundImagePath(dieDiv, sides));
+
   return dieDiv;
+};
+
+Game.backgroundImagePath = function(dieDiv, sides) {
+  var sidesRoundedUp;
+  var imageType;
+
+  if (sides <= 2) {
+    sidesRoundedUp = 2;
+  } else if (sides <= 4) {
+    sidesRoundedUp = 4;
+  } else if (sides <= 6) {
+    sidesRoundedUp = 6;
+  } else if (sides <= 8) {
+    sidesRoundedUp = 8;
+  } else if (sides <= 10) {
+    sidesRoundedUp = 10;
+  } else if (sides <= 12) {
+    sidesRoundedUp = 12;
+  } else if (sides <= 20) {
+    sidesRoundedUp = 20;
+  } else {
+    sidesRoundedUp = 30;
+  };
+
+  if (dieDiv.hasClass('die_greyed')) {
+    imageType = 'inactive';
+  } else if (dieDiv.hasClass('die_dead')) {
+    imageType = 'taken';
+  } else {
+    imageType = 'active';
+  }
+
+  return 'url(images/die/' +
+//         'circles' +
+         'realistic' +
+//         'symmetric' +
+         '/d' +
+         sidesRoundedUp +
+         imageType +
+         '.png)';
 };
 
 Game.createRecipeDiv = function(player, recipe) {
