@@ -121,4 +121,8 @@ test("test_Profile.buildProfileTableRow", function(assert) {
   tr = Profile.buildProfileTableRow('Things', null, 'nothing', false);
   valueTd = tr.find('td.missingValue');
   assert.equal(valueTd.text(), 'nothing', 'Missing value should be in missingValue cell');
+
+  tr = Profile.buildProfileTableRow('A', 'B', 'C', true, 'SomeClass');
+  valueTd = tr.find('td.SomeClass');
+  assert.equal(valueTd.text(), 'B', 'Row should include SomeClass as style');
 });

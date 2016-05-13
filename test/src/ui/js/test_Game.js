@@ -163,6 +163,8 @@ test("test_Game.showStatePage", function(assert) {
     var htmlout = Game.page.html();
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
+    assert.ok(htmlout.match('vacation16.png'),
+      "The game UI contains a vacation icon when the API data reports that one player is on vacation");
     start();
   });
 });
@@ -246,6 +248,8 @@ test("test_Game.showStatePage_swingset", function(assert) {
     var htmlout = Game.page.html();
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
+    assert.ok(!htmlout.match('vacation16.png'),
+      "The game UI does not contain a vacation icon when the API data reports that neither player is on vacation");
     start();
   });
 });

@@ -293,6 +293,22 @@ test("test_Env.buildProfileLink", function(assert) {
     'Link text should point to profile page.');
 });
 
+test("test_Env.buildVacationImage", function(assert) {
+  var vacationImage = Env.buildVacationImage();
+  assert.equal(vacationImage.attr('src'), 
+     Env.ui_root + 'images/vacation16.png',
+     'Vacation image should point to correct image.');
+  assert.equal(vacationImage.attr('class'), 'playerFlag',
+     'Vacation image should have a CSS class of playerFlag.');
+  assert.equal(vacationImage.attr('title'), 'On Vacation',
+     'Vacation image should have a title of On Vacation.');
+
+  vacationImage = Env.buildVacationImage('large');
+  assert.equal(vacationImage.attr('src'), 
+     Env.ui_root + 'images/vacation22.png',
+     'Vacation image should point to correct image.');
+});
+
 test("test_Env.buildButtonLink", function(assert) {
   var link = Env.buildButtonLink('tester');
   assert.equal(link.attr('href'), 'buttons.html?button=tester',

@@ -24,6 +24,7 @@ AS SELECT
     i.image_size,
     i.uses_gravatar,
     i.comment,
+    i.vacation_message,
     i.homepage,
     i.favorite_button_id,
     i.favorite_buttonset_id,
