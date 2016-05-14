@@ -24,7 +24,7 @@ class BMInterfaceGameAction extends BMInterface {
         try {
             $sqlParameters = array(':game_id' => $game->gameId);
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
-                     'game_state,action_type,acting_player,message ' .
+                     'game_state,action_type,type_log_id,acting_player,message ' .
                      'FROM game_action_log ';
             $query .= $this->build_game_log_query_restrictions($game, FALSE, FALSE, $sqlParameters);
 
@@ -33,9 +33,14 @@ class BMInterfaceGameAction extends BMInterface {
             $logEntries = array();
             $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
-                $params = json_decode($row['message'], TRUE);
-                if (!($params)) {
-                    $params = $row['message'];
+                if ($row['type_log_id'] != NULL) {
+                    $typefunc = 'load_params_from_type_log_' . $row['action_type'];
+                    $params = $this->$typefunc($row['type_log_id']);
+                } else {
+                    $params = json_decode($row['message'], TRUE);
+                    if (!($params)) {
+                        $params = $row['message'];
+                    }
                 }
                 $gameAction = new BMGameAction(
                     $row['game_state'],
@@ -91,6 +96,71 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type end_draw
+     *
+     * @param int $row_id
+     * @return array
+     */
+    protected function load_params_from_type_log_end_draw($row_id) {
+        try {
+            $query = 'SELECT round_number,round_score FROM game_action_log_type_end_draw ' .
+                     'WHERE id=:row_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':row_id' => $row_id));
+            $row = $statement->fetch();
+            return array(
+                'roundNumber' => (int)$row['round_number'],
+                'roundScore' => (float)$row['round_score'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_end_draw: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type end_draw
+     *
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_end_draw($params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_end_draw ' .
+                     '(round_number, round_score) ' .
+                     'VALUES ' .
+                     '(:round_number, :round_score)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':round_number' => $params['roundNumber'],
+                ':round_score' => $params['roundScore']));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_end_draw: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Helper function which asks the database for the ID of the last inserted row
+     *
+     * @return int
+     */
+    protected function last_insert_id() {
+        $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
+        $statement->execute();
+        $fetchData = $statement->fetch();
+        return (int)$fetchData[0];
+    }
+
+    /**
      * Save new game action log entries into the database
      *
      * @param BMGame $game
@@ -98,18 +168,27 @@ class BMInterfaceGameAction extends BMInterface {
      */
     protected function log_game_actions(BMGame $game) {
         $query = 'INSERT INTO game_action_log ' .
-                 '(game_id, game_state, action_type, acting_player, message) ' .
+                 '(game_id, game_state, action_type, type_log_id, acting_player, message) ' .
                  'VALUES ' .
-                 '(:game_id, :game_state, :action_type, :acting_player, :message)';
+                 '(:game_id, :game_state, :action_type, :type_log_id, :acting_player, :message)';
         foreach ($game->actionLog as $gameAction) {
-            $statement = self::$conn->prepare($query);
-            $statement->execute(
-                array(':game_id'     => $game->gameId,
-                      ':game_state' => $gameAction->gameState,
-                      ':action_type' => $gameAction->actionType,
-                      ':acting_player' => $gameAction->actingPlayerId,
-                      ':message'    => json_encode($gameAction->params))
+            $actionArgs = array(
+                ':game_id'       => $game->gameId,
+                ':game_state'    => $gameAction->gameState,
+                ':action_type'   => $gameAction->actionType,
+                ':acting_player' => $gameAction->actingPlayerId,
             );
+            $typefunc = 'save_params_to_type_log_' . $gameAction->actionType;
+            if (method_exists($this, $typefunc)) {
+                $this->$typefunc($gameAction->params);
+                $actionArgs[':type_log_id'] = $this->last_insert_id();
+                $actionArgs[':message'] = NULL;
+            } else {
+                $actionArgs[':type_log_id'] = NULL;
+                $actionArgs[':message'] = json_encode($gameAction->params);
+            }
+            $statement = self::$conn->prepare($query);
+            $statement->execute($actionArgs);
         }
         $game->empty_action_log();
     }
