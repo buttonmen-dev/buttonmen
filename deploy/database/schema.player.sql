@@ -27,6 +27,7 @@ CREATE TABLE player (
     homepage            VARCHAR(100),
     favorite_button_id      SMALLINT UNSIGNED,
     favorite_buttonset_id   SMALLINT UNSIGNED,
+    die_background      VARCHAR(10) DEFAULT 'circle',
     player_color        VARCHAR(7),
     opponent_color      VARCHAR(7),
     neutral_color_a     VARCHAR(7),

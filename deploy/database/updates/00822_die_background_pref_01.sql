@@ -1,4 +1,4 @@
-# Views for player-related tables
+ALTER TABLE player ADD COLUMN die_background VARCHAR(10) DEFAULT 'circle' AFTER favorite_buttonset_id;
 
 DROP VIEW IF EXISTS player_view;
 CREATE VIEW player_view
