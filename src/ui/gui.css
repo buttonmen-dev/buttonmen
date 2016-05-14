@@ -417,6 +417,10 @@ table.profileTable td.partialValue {
     vertical-align: top;
 }
 
+table.profileTable td.emphasize{
+    background-color: #ffcc66;
+}
+
 table.activePlayerList td.player,
 table.activePlayerList th.player {
     text-align: right;
@@ -438,6 +442,12 @@ table.activePlayerList th.idleness {
     color: blue;
     text-decoration: underline;
     cursor: pointer;
+}
+
+.playerFlag {
+   cursor: default;
+   vertical-align: middle;
+   margin: 0px 3px;
 }
 
 #newgame_create_table th,
@@ -907,4 +917,8 @@ div.forum div.splitRight {
 
 #buttons_page table.skills p.interaction {
     font-style: italic;
+}
+
+#zoom {
+  background-color: green;
 }

@@ -94,7 +94,7 @@
     # alert, emerg.
     LogLevel warn
 
-    CustomLog ${APACHE_LOG_DIR}/access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" BMUser=%{BMUserID}n BMAPI=%{BMAPIMethod}n"
+    CustomLog ${APACHE_LOG_DIR}/access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" BMUser=%{BMUserID}n BMAPI=%{BMAPIMethod}n BMStatus=%{BMAPIStatus}n"
 
     Alias /doc/ "/usr/share/doc/"
     <Directory "/usr/share/doc/">

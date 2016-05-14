@@ -38,6 +38,7 @@ CREATE TABLE player (
     fanatic_button_id   SMALLINT UNSIGNED,
     n_games_won         SMALLINT UNSIGNED DEFAULT 0,
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
+    vacation_message	VARCHAR(255),
     INDEX (name_ingame),
     CONSTRAINT fk_fav_button_id
       FOREIGN KEY  (favorite_button_id)    REFERENCES button(id),
