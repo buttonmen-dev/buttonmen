@@ -6,7 +6,7 @@ import json
 import re
 import MySQLdb
 
-END_DRAW_OLD_STRING_RE = re.compile('^Round (\d+) ended in a draw \((-?[0-9\.]+) vs\. (-?[0-9\.]+)\)$')
+END_DRAW_OLD_STRING_RE = re.compile('^Round (\d+) ended in a draw \((-?\d+(?:\.\d+)?) vs\. (-?\d+(?:\.\d+)?)\)$')
 
 def get_last_insert_id(crs):
   crs.execute('SELECT LAST_INSERT_ID()')
@@ -35,7 +35,7 @@ def migrate_to_type_log_end_draw(row, crs):
     raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
   type_log_id = get_last_insert_id(crs)
   update_sql = 'UPDATE game_action_log SET type_log_id=%s,message=NULL WHERE id=%d' % (type_log_id, row_id)
-  result == crs.execute(update_sql)
+  result = crs.execute(update_sql)
   if not result == 1:
     raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
   print "Moved %s to game_action_log_type_end_draw id %s" % (row[1], type_log_id)
