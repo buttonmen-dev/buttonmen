@@ -1901,7 +1901,7 @@ class BMGame {
                 0,
                 array(
                     'roundNumber' => $this->get_prevRoundNumber(),
-                    'roundScoreArray' => $roundScoreArray,
+                    'roundScore'  => $roundScoreArray[0],
                 )
             );
         } else {
