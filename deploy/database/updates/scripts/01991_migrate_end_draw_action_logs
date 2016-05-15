@@ -3,7 +3,10 @@
 # Utility to migrate end_draw action log entries to new format
 
 import json
+import re
 import MySQLdb
+
+END_DRAW_OLD_STRING_RE = re.compile('^Round (\d+) ended in a draw \((-?[0-9\.]+) vs\. (-?[0-9\.]+)\)$')
 
 def get_last_insert_id(crs):
   crs.execute('SELECT LAST_INSERT_ID()')
@@ -11,11 +14,19 @@ def get_last_insert_id(crs):
 
 def migrate_to_type_log_end_draw(row, crs):
   row_id = row[0]
-  msgdata = json.loads(row[1])
-  round_number = msgdata['roundNumber']
-  assert(len(msgdata['roundScoreArray']) == 2)
-  assert(msgdata['roundScoreArray'][0] == msgdata['roundScoreArray'][1])
-  round_score = msgdata['roundScoreArray'][0]
+  try:
+    msgdata = json.loads(row[1])
+    round_number = msgdata['roundNumber']
+    assert(len(msgdata['roundScoreArray']) == 2)
+    assert(msgdata['roundScoreArray'][0] == msgdata['roundScoreArray'][1])
+    round_score = msgdata['roundScoreArray'][0]
+  except ValueError:
+    mobj = END_DRAW_OLD_STRING_RE.match(row[1])
+    if not mobj:
+      raise ValueError, "Could not match string: %s" % row[1]
+    round_number = mobj.group(1)
+    assert(mobj.group(2) == mobj.group(3))
+    round_score = mobj.group(2)
   insert_sql = 'INSERT INTO game_action_log_type_end_draw ' + \
     '(id, round_number, round_score) VALUES ' + \
     '(0, %s, %s);' % (round_number, round_score)
