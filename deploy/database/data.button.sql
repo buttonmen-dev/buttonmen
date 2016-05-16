@@ -1151,23 +1151,23 @@ SET flavor_text='This button gets a different random recipe in each game, with a
 WHERE name='RandomBMAnime';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, with 1 skill appearing a total of 2 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 1 skill appearing a total of 2 times on various dice.'
 WHERE name='RandomBMMonoskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, with 2 skills appearing a total of 5 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 2 skills appearing a total of 5 times on various dice.'
 WHERE name='RandomBMDuoskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, with 3 skills appearing a total of 7 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.'
 WHERE name='RandomBMTriskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, with 4 skills appearing a total of 10 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 4 skills appearing a total of 10 times on various dice.'
 WHERE name='RandomBMTetraskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, with 5 skills appearing a total of 13 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 5 skills appearing a total of 13 times on various dice.'
 WHERE name='RandomBMPentaskill';
 
 UPDATE button SET flavor_text="Rikachu is a bootleg Button Man created at Origins. He's a Pokedog - from the Pokeman ad opposite the Tess page." WHERE name="Rikachu";

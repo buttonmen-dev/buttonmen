@@ -7,7 +7,7 @@
 
 /**
  * This class currently supports the special skills of RandomBMTetraskill, which has
- * 4 normal dice and a swing die, with 4 skills appearing a total of 10 times on various dice.
+ * 4 normal dice and a swing die, and 4 skills appearing a total of 10 times on various dice.
  */
 class BMBtnSkillRandomBMTetraskill extends BMBtnSkillRandomBM {
     /**
