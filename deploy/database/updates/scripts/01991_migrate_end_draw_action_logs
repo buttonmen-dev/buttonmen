@@ -8,10 +8,6 @@ import MySQLdb
 
 END_DRAW_OLD_STRING_RE = re.compile('^Round (\d+) ended in a draw \((-?\d+(?:\.\d+)?) vs\. (-?\d+(?:\.\d+)?)\)$')
 
-def get_last_insert_id(crs):
-  crs.execute('SELECT LAST_INSERT_ID()')
-  return crs.fetchone()[0]
-
 def migrate_to_type_log_end_draw(row, crs):
   row_id = row[0]
   try:
@@ -27,24 +23,25 @@ def migrate_to_type_log_end_draw(row, crs):
     round_number = mobj.group(1)
     assert(mobj.group(2) == mobj.group(3))
     round_score = mobj.group(2)
+
   insert_sql = 'INSERT INTO game_action_log_type_end_draw ' + \
-    '(id, round_number, round_score) VALUES ' + \
-    '(0, %s, %s);' % (round_number, round_score)
+    '(action_log_id, round_number, round_score) VALUES ' + \
+    '(%s, %s, %s);' % (row[0], round_number, round_score)
   result = crs.execute(insert_sql)
   if not result == 1:
     raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
-  type_log_id = get_last_insert_id(crs)
-  update_sql = 'UPDATE game_action_log SET type_log_id=%s,message=NULL WHERE id=%d' % (type_log_id, row_id)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
   result = crs.execute(update_sql)
   if not result == 1:
     raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
-  print "Moved %s to game_action_log_type_end_draw id %s" % (row[1], type_log_id)
+  print "Moved row %s message %s to game_action_log_type_end_draw" % (row[0], row[1])
 
 conn = MySQLdb.connect(user='root', db='buttonmen')
 crs = conn.cursor()
 results = crs.execute(
   'SELECT id,message FROM game_action_log WHERE action_type="end_draw" ' + \
-  'AND type_log_id IS NULL')
+  'AND message IS NOT NULL')
 if results > 0:
   for row in crs.fetchall():
     migrate_to_type_log_end_draw(row, crs)
