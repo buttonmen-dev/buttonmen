@@ -36,6 +36,9 @@ class BMInterfaceGameAction extends BMInterface {
                 if ($row['type_log_id'] != NULL) {
                     $typefunc = 'load_params_from_type_log_' . $row['action_type'];
                     $params = $this->$typefunc($row['type_log_id']);
+                } elseif (in_array($row['action_type'], array('decline_auxiliary'))) {
+                    // This action_type does not store any parameters
+                    $params = array();
                 } else {
                     $params = json_decode($row['message'], TRUE);
                     if (!($params)) {
@@ -182,6 +185,10 @@ class BMInterfaceGameAction extends BMInterface {
             if (method_exists($this, $typefunc)) {
                 $this->$typefunc($gameAction->params);
                 $actionArgs[':type_log_id'] = $this->last_insert_id();
+                $actionArgs[':message'] = NULL;
+            } elseif (in_array($gameAction->actionType, array('decline_auxiliary'))) {
+                // This action_type does not store any parameters
+                $actionArgs[':type_log_id'] = NULL;
                 $actionArgs[':message'] = NULL;
             } else {
                 $actionArgs[':type_log_id'] = NULL;

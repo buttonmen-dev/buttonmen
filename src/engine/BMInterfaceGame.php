@@ -1092,7 +1092,7 @@ class BMInterfaceGame extends BMInterface {
                     $game->log_action(
                         'decline_auxiliary',
                         $player->playerId,
-                        array('declineAuxiliary' => TRUE)
+                        array()
                     );
                     $this->set_message('Declined auxiliary dice');
                     break;
