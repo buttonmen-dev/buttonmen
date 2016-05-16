@@ -69,7 +69,6 @@ CREATE TABLE game_action_log (
     action_time        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     game_state         TINYINT UNSIGNED DEFAULT 10,
     action_type        VARCHAR(20),
-    type_log_id        INTEGER UNSIGNED DEFAULT NULL,
     acting_player      SMALLINT UNSIGNED NOT NULL,
     message            TEXT,
     INDEX (game_id)
@@ -77,8 +76,10 @@ CREATE TABLE game_action_log (
 
 CREATE TABLE game_action_log_type_end_draw (
     id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
     round_number       TINYINT UNSIGNED NOT NULL,
-    round_score        VARCHAR(10) NOT NULL
+    round_score        VARCHAR(10) NOT NULL,
+    INDEX (action_log_id)
 );
 
 CREATE TABLE game_chat_log (
