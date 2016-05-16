@@ -1907,10 +1907,10 @@ class BMGame {
         } else {
             if (isset($this->forceRoundResult)) {
                 $winnerIdx = array_search(TRUE, $this->forceRoundResult);
-                $forceRoundResult = $this->forceRoundResult;
+                $surrendered = TRUE;
             } else {
                 $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
-                $forceRoundResult = FALSE;
+                $surrendered = FALSE;
             }
 
             foreach ($this->playerArray as $playerIdx => $player) {
@@ -1930,8 +1930,9 @@ class BMGame {
                 $this->playerArray[$winnerIdx]->playerId,
                 array(
                     'roundNumber' => $this->get_prevRoundNumber(),
-                    'roundScoreArray' => $roundScoreArray,
-                    'resultForced' => $forceRoundResult,
+                    'winningRoundScore' => max($roundScoreArray),
+                    'losingRoundScore' => min($roundScoreArray),
+                    'surrendered' => $surrendered,
                 )
             );
         }
