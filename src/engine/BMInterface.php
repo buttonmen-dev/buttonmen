@@ -1557,7 +1557,7 @@ class BMInterface {
             $parameters[':set_name'] = $setName;
         }
         $query .=
-            'ORDER BY s.sort_order ASC, b.name ASC;';
+            'ORDER BY s.sort_order ASC, b.sort_order ASC, b.name ASC;';
 
         $statement = self::$conn->prepare($query);
         $statement->execute($parameters);
