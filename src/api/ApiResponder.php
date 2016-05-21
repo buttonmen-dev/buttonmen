@@ -92,7 +92,7 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
-        $retval = $interface->create_game(
+        $retval = $interface->game()->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
@@ -118,9 +118,12 @@ class ApiResponder {
     }
 
     protected function get_interface_response_joinOpenGame($interface, $args) {
-        $success = $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
+        $success = $interface->game()->join_open_game(
+            $_SESSION['user_id'],
+            $args['gameId']
+        );
         if ($success && isset($args['buttonName'])) {
-            $success = $interface->select_button(
+            $success = $interface->game()->select_button(
                 $_SESSION['user_id'],
                 (int)$args['gameId'],
                 $args['buttonName']
@@ -130,7 +133,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_selectButton($interface, $args) {
-        return $interface->select_button(
+        return $interface->game()->select_button(
             $_SESSION['user_id'],
             (int)$args['gameId'],
             $args['buttonName']
@@ -314,7 +317,7 @@ class ApiResponder {
         } else {
             $optionValueArray = array();
         }
-        $retval = $interface->submit_die_values(
+        $retval = $interface->game()->submit_die_values(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -334,7 +337,7 @@ class ApiResponder {
             $args['dieIdx'] = NULL;
         }
 
-        $retval = $interface->react_to_auxiliary(
+        $retval = $interface->game()->react_to_auxiliary(
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
@@ -353,7 +356,7 @@ class ApiResponder {
             $args['dieIdx'] = NULL;
         }
 
-        $retval = $interface->react_to_reserve(
+        $retval = $interface->game()->react_to_reserve(
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
@@ -374,7 +377,7 @@ class ApiResponder {
         if (!(array_key_exists('dieValueArray', $args))) {
             $args['dieValueArray'] = NULL;
         }
-        $retval = $interface->react_to_initiative(
+        $retval = $interface->game()->react_to_initiative(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -398,7 +401,7 @@ class ApiResponder {
         if (!(array_key_exists('dieValueArray', $args))) {
             $args['dieValueArray'] = NULL;
         }
-        $retval = $interface->adjust_fire(
+        $retval = $interface->game()->adjust_fire(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -419,7 +422,7 @@ class ApiResponder {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
         }
-        $retval = $interface->submit_chat(
+        $retval = $interface->game()->submit_chat(
             $_SESSION['user_id'],
             $args['game'],
             $args['edit'],
@@ -437,7 +440,7 @@ class ApiResponder {
         if (!(array_key_exists('chat', $args))) {
             $args['chat'] = '';
         }
-        $retval = $interface->submit_turn(
+        $retval = $interface->game()->submit_turn(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -457,7 +460,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_reactToNewGame($interface, $args) {
-        $retval = $interface->save_join_game_decision(
+        $retval = $interface->game()->save_join_game_decision(
             $_SESSION['user_id'],
             $args['gameId'],
             $args['action']
@@ -471,7 +474,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_dismissGame($interface, $args) {
-        $retval = $interface->dismiss_game($_SESSION['user_id'], $args['gameId']);
+        $retval = $interface->game()->dismiss_game($_SESSION['user_id'], $args['gameId']);
         if (isset($retval)) {
             // Just update the player's last action time. Don't update the
             // game's, since the game is already over.
@@ -623,6 +626,7 @@ class ApiResponder {
                 'message' => $check['message'],
             );
         }
+        apache_note('BMAPIStatus', $output['status']);
 
         if ($this->isTest) {
             return $output;
