@@ -7593,7 +7593,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $attackLogEntry = end($arrayVal);
         $this->assertEquals('end_winner', $attackLogEntry->actionType);
         $this->assertEquals(1, $attackLogEntry->params['roundNumber']);
-        $this->assertEquals(array(TRUE, FALSE), $attackLogEntry->params['resultForced']);
+        $this->assertEquals(TRUE, $attackLogEntry->params['surrendered']);
     }
 
     /**
