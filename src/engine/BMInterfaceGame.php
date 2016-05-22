@@ -1082,7 +1082,7 @@ class BMInterfaceGame extends BMInterface {
                         $player->playerId,
                         array(
                             'roundNumber' => $game->roundNumber,
-                            'die' => $die->get_action_log_data(),
+                            'dieRecipe' => $die->get_recipe(TRUE),
                         )
                     );
                     $this->set_message('Chose to add auxiliary die');
