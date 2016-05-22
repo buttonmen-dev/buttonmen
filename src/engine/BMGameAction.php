@@ -57,9 +57,6 @@ class BMGameAction {
         $actingPlayerId,
         $params
     ) {
-        if (!$params) {
-            throw new Exception("BMGameAction error: params can't be empty");
-        }
         $this->gameState = $gameState;
         $this->actionType = $actionType;
         $this->actingPlayerId = $actingPlayerId;
