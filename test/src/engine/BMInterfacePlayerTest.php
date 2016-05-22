@@ -34,6 +34,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
         $this->assertArrayHasKey('automatically_monitor', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('vacation_message', $resultArray);
         $this->assertArrayHasKey('player_color', $resultArray);
         $this->assertArrayHasKey('opponent_color', $resultArray);
         $this->assertArrayHasKey('neutral_color_a', $resultArray);
@@ -75,6 +76,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
             'dob_day' => 0,
             'gender' => '',
             'comment' => '',
+            'vacation_message' => '',
             'autopass' => 1,
             'fire_overshooting' => 0,
             'player_color' => '#dd99dd',
@@ -133,9 +135,11 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
      * @covers BMInterfacePlayer::update_last_action_time
      */
     public function test_update_last_action_time() {
-        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
-                                                   self::$userId2WithoutAutopass),
-                                                   array('Avis', 'Hammer'), 4);
+        $retval = $this->object->game()->create_game(
+            array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
+            array('Avis', 'Hammer'),
+            4
+        );
         $gameId = $retval['gameId'];
 
         $game = self::load_game($gameId);

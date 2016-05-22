@@ -57,7 +57,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_end_draw()
      */
     public function test_friendly_message_end_draw() {
-        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_draw', 0, array('roundNumber' => 2, 'roundScoreArray' => array(23, 23)));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_draw', 0, array('roundNumber' => 2, 'roundScore' => 23));
         $this->assertEquals(
             "Round 2 ended in a draw (23 vs. 23)",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
