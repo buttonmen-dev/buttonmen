@@ -1,0 +1,56 @@
+#!/usr/bin/python
+#####
+# Utility to fix all twin dice in prod and dev databases
+
+import json
+import MySQLdb
+
+def parse_twin_info_from_recipe(recipe):
+  sides_arr = recipe.split('(')[1].split(')')[0].split(',')
+  assert (len(sides_arr) == 2)
+  if sides_arr[0].isdigit() and sides_arr[1].isdigit():
+    l_sides = int(sides_arr[0])
+    r_sides = int(sides_arr[1])
+    is_swing = False
+  else:
+    l_sides = sides_arr[0]
+    r_sides = sides_arr[1]
+    is_swing = True
+  return {
+    'l_sides': l_sides,
+    'r_sides': r_sides,
+    'is_swing': is_swing,
+  }
+
+def check_twin_die(row, crs):
+  [row_id, game_id, status_id, recipe, value, actual_max, flags] = row
+  twin_info = parse_twin_info_from_recipe(recipe)
+  if value:
+    if not flags or 'Twin__' not in flags:
+      if twin_info['is_swing']:
+        print "Row may need to be fixed, but it contains swing dice - fix it by hand: %s" % str(row)
+        return
+      l_value = min(twin_info['l_sides'], value - 1)
+      r_value = value - l_value
+      assert(r_value <= twin_info['r_sides'])
+      newflags = 'Twin__{"sides":[%d,%d],"values":[%d,%d]}' % (
+        twin_info['l_sides'], twin_info['r_sides'], l_value, r_value)
+      if flags:
+        newflags = flags + ';' + newflags
+      update_sql = "UPDATE die SET flags='%s' WHERE id=%d" % (newflags, row_id)
+      result = crs.execute(update_sql)
+      if not result == 1:
+        raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+      print "Fixed %s, flags => %s" % (str(row), newflags)
+  else:
+    if flags and flags.count('null') > 0 and flags.count('null') < 4:
+      print "This game may be unloadable right now, and the row may need to be fixed by hand - if sides is non-null but value is null, that's a bad sign: %s" % (str(row))
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,game_id,status_id,recipe,value,actual_max,flags FROM die WHERE recipe LIKE "%,%";')
+if results > 0:
+  for row in crs.fetchall():
+    check_twin_die(row, crs)
+conn.commit()
