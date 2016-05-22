@@ -112,8 +112,8 @@ class BMGameAction {
     protected function friendly_message_end_draw() {
         $message = 'Round ' . $this->params['roundNumber'] .
                    ' ended in a draw (' .
-                   $this->params['roundScoreArray'][0] . ' vs. ' .
-                   $this->params['roundScoreArray'][1] . ')';
+                   $this->params['roundScore'] . ' vs. ' .
+                   $this->params['roundScore'] . ')';
         return $message;
     }
 

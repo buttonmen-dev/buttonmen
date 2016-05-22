@@ -75,6 +75,14 @@ CREATE TABLE game_action_log (
     INDEX (game_id)
 );
 
+CREATE TABLE game_action_log_type_end_draw (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    round_number       TINYINT UNSIGNED NOT NULL,
+    round_score        VARCHAR(10) NOT NULL,
+    INDEX (action_log_id)
+);
+
 CREATE TABLE game_chat_log (
     id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     game_id            MEDIUMINT UNSIGNED NOT NULL,

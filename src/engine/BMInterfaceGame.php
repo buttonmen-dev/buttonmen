@@ -962,7 +962,7 @@ class BMInterfaceGame extends BMInterface {
             }
             $chatArray = $this->load_game_chat_log($game, 1);
             $lastChatEntryList = $chatArray['chatEntries'];
-            $logArray = $this->load_game_action_log($game, 1);
+            $logArray = $this->game_action()->load_game_action_log($game, 1);
             $lastActionEntryList = $logArray['logEntries'];
 
             if ($editTimestamp) {

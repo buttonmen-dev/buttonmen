@@ -89,6 +89,12 @@ class BMInterface {
         return $interface;
     }
 
+    public function game_action() {
+        $interface = $this->cast('BMInterfaceGameAction');
+        $interface->parent = $this;
+        return $interface;
+    }
+
     public function history() {
         $interface = $this->cast('BMInterfaceHistory');
         $interface->parent = $this;
@@ -144,7 +150,7 @@ class BMInterface {
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
 
-            $actionLogArray = $this->load_game_action_log($game, $logEntryLimit);
+            $actionLogArray = $this->game_action()->load_game_action_log($game, $logEntryLimit);
             if (empty($actionLogArray)) {
                 $data['gameActionLog'] = NULL;
                 $data['gameActionLogCount'] = 0;
@@ -709,7 +715,7 @@ class BMInterface {
             $this->save_captured_dice($game);
             $this->save_out_of_play_dice($game);
             $this->delete_dice_marked_as_deleted($game);
-            $this->save_action_log($game);
+            $this->game_action()->save_action_log($game);
             $this->save_chat_log($game);
         } catch (Exception $e) {
             error_log(
@@ -1137,16 +1143,6 @@ class BMInterface {
         $statement->execute(array(':game_id' => $game->gameId));
     }
 
-    protected function save_action_log($game) {
-        // If any game action entries were generated, load them
-        // into the message so the calling player can see them,
-        // then save them to the historical log
-        if (count($game->actionLog) > 0) {
-            $this->load_message_from_game_actions($game);
-            $this->log_game_actions($game);
-        }
-    }
-
     protected function save_chat_log($game) {
         // If the player sent a chat message, insert it now
         // then save them to the historical log
@@ -1572,7 +1568,7 @@ class BMInterface {
             $parameters[':set_name'] = $setName;
         }
         $query .=
-            'ORDER BY s.sort_order ASC, b.name ASC;';
+            'ORDER BY s.sort_order ASC, b.sort_order ASC, b.name ASC;';
 
         $statement = self::$conn->prepare($query);
         $statement->execute($parameters);
@@ -1893,80 +1889,6 @@ class BMInterface {
         }
     }
 
-    // Enter recent game actions into the action log
-    // Note: it might be possible for this to be a protected function
-    protected function log_game_actions(BMGame $game) {
-        $query = 'INSERT INTO game_action_log ' .
-                 '(game_id, game_state, action_type, acting_player, message) ' .
-                 'VALUES ' .
-                 '(:game_id, :game_state, :action_type, :acting_player, :message)';
-        foreach ($game->actionLog as $gameAction) {
-            $statement = self::$conn->prepare($query);
-            $statement->execute(
-                array(':game_id'     => $game->gameId,
-                      ':game_state' => $gameAction->gameState,
-                      ':action_type' => $gameAction->actionType,
-                      ':acting_player' => $gameAction->actingPlayerId,
-                      ':message'    => json_encode($gameAction->params))
-            );
-        }
-        $game->empty_action_log();
-    }
-
-    protected function load_game_action_log(BMGame $game, $logEntryLimit) {
-        try {
-            $sqlParameters = array(':game_id' => $game->gameId);
-            $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
-                     'game_state,action_type,acting_player,message ' .
-                     'FROM game_action_log ';
-            $query .= $this->build_game_log_query_restrictions($game, FALSE, FALSE, $sqlParameters);
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute($sqlParameters);
-            $logEntries = array();
-            $playerIdNames = $this->get_player_name_mapping($game);
-            while ($row = $statement->fetch()) {
-                $params = json_decode($row['message'], TRUE);
-                if (!($params)) {
-                    $params = $row['message'];
-                }
-                $gameAction = new BMGameAction(
-                    $row['game_state'],
-                    $row['action_type'],
-                    $row['acting_player'],
-                    $params
-                );
-
-                // Only add the message to the log if one is returned: friendly_message() may
-                // intentionally return no message if providing one would leak information
-                $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
-                if ($message) {
-                    $logEntries[] = array(
-                        'timestamp' => (int)$row['action_timestamp'],
-                        'player' => $this->get_player_name_from_id($gameAction->actingPlayerId),
-                        'message' => $message,
-                    );
-                }
-            }
-
-            $nEntries = count($logEntries);
-
-            if (!is_null($logEntryLimit) &&
-                ($nEntries > $logEntryLimit)) {
-                $logEntries = array_slice($logEntries, 0, $logEntryLimit);
-            }
-
-            return array('logEntries' => $logEntries, 'nEntries' => $nEntries);
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::load_game_action_log: ' .
-                $e->getMessage()
-            );
-            $this->set_message('Internal error while reading log entries');
-            return NULL;
-        }
-    }
-
     protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $sqlParameters = array(':game_id' => $game->gameId);
@@ -2025,31 +1947,6 @@ class BMInterface {
         }
 
         return $restrictions;
-    }
-
-    // Create a status message based on recent game actions
-    protected function load_message_from_game_actions(BMGame $game) {
-        $message = '';
-        $playerIdNames = $this->get_player_name_mapping($game);
-        foreach ($game->actionLog as $gameAction) {
-            $messagePart = $gameAction->friendly_message(
-                $playerIdNames,
-                $game->roundNumber,
-                $game->gameState
-            );
-
-            if (!empty($messagePart)) {
-                if ('.' == substr($messagePart, -1)) {
-                    $message .= $messagePart . ' ';
-                } else {
-                    $message .= $messagePart . '. ';
-                }
-            }
-        }
-
-        if (!empty($message)) {
-            $this->set_message($message);
-        }
     }
 
     protected function get_config($conf_key) {

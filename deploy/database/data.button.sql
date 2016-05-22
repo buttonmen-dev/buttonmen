@@ -1132,16 +1132,16 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 #############################################
 #####   S P E C I A L   B U T T O N S   #####
 #############################################
-INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(10001, 'RandomBMVanilla', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-(10002, 'RandomBMAnime',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-(10003, 'RandomBMMixed',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-(10004, 'RandomBMFixed',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"));
-###(10005, 'RandomBMMonoskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-###(10006, 'RandomBMDuoskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-###(10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-###(10008, 'RandomBMTetraskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
-###(10009, 'RandomBMPentaskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM")),
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_order) VALUES
+(10001, 'RandomBMVanilla',    '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 10),
+(10002, 'RandomBMAnime',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 20),
+(10003, 'RandomBMMixed',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 30),
+(10004, 'RandomBMFixed',      '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 40),
+(10005, 'RandomBMMonoskill',  '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 50),
+(10006, 'RandomBMDuoskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 60),
+(10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 70),
+(10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 80),
+(10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90);
 
 
 
@@ -1164,6 +1164,26 @@ WHERE name='RandomBMMixed';
 UPDATE button
 SET flavor_text='This button gets a different random recipe in each game, with an anime formula'
 WHERE name='RandomBMAnime';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 1 skill appearing a total of 2 times on various dice.'
+WHERE name='RandomBMMonoskill';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 2 skills appearing a total of 5 times on various dice.'
+WHERE name='RandomBMDuoskill';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.'
+WHERE name='RandomBMTriskill';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 4 skills appearing a total of 10 times on various dice.'
+WHERE name='RandomBMTetraskill';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 5 skills appearing a total of 13 times on various dice.'
+WHERE name='RandomBMPentaskill';
 
 UPDATE button SET flavor_text="Rikachu is a bootleg Button Man created at Origins. He's a Pokedog - from the Pokeman ad opposite the Tess page." WHERE name="Rikachu";
 UPDATE button SET flavor_text="ConMan plays games at conventions until (and sometimes past) dawn, drinks coffee like it's water, and likes to beat people up." WHERE name="ConMan";

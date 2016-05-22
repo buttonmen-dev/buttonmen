@@ -1,16 +1,15 @@
 <?php
 /**
- * BMBtnSkillRandomBMFixed: Code specific to RandomBMFixed
+ * BMBtnSkillRandomBMTriskill: Code specific to RandomBMTriskill
  *
  * @author: james
  */
 
 /**
- * This class currently supports the special skills of RandomBMFixed, which has
- * fixed random recipes: 5 dice, no swing dice, two of them having a single skill
- * chosen from c, f, and d (the same skill on both)
+ * This class currently supports the special skills of RandomBMTriskill, which has
+ * 4 normal dice and a swing die, and 3 skills appearing a total of 7 times on various dice.
  */
-class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
+class BMBtnSkillRandomBMTriskill extends BMBtnSkillRandomBM {
     /**
      * An array containing the names of functions run by
      * BMCanHaveSkill->run_hooks()
@@ -23,21 +22,27 @@ class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
      * Hooked method applied when specifying recipes
      *
      * @param array $args
-     * @return bool
+     * @return boolean
      */
     public static function specify_recipes(array $args) {
         if (!parent::specify_recipes($args)) {
             return FALSE;
         }
 
+        $skillCharArray = array_merge(array_diff(
+            BMSkill::all_skill_chars(),
+            self::excluded_skill_char_array()
+        ));
+
         $button = $args['button'];
-        $nDice = 5;
-        $dieSizeArray = parent::generate_die_sizes($nDice);
+        $dieSizeArray = array_merge(
+            parent::generate_die_sizes(4),
+            parent::randomly_select_swing_types()
+        );
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills(1, array('c', 'f', 'd')),
-            0,
-            2,
+            parent::randomly_select_skills(3, $skillCharArray),
+            4,
             1
         );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
@@ -51,7 +56,6 @@ class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
      * @return string
      */
     public static function get_description() {
-        return '5 dice, no swing dice, two of them having a single skill ' .
-               'chosen from c, f, and d (the same skill on both).';
+        return 'Four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.';
     }
 }

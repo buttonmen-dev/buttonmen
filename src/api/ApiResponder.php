@@ -626,6 +626,7 @@ class ApiResponder {
                 'message' => $check['message'],
             );
         }
+        apache_note('BMAPIStatus', $output['status']);
 
         if ($this->isTest) {
             return $output;
