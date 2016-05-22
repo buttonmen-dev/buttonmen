@@ -431,6 +431,11 @@ class BMGame {
             }
         }
 
+        // cache recipes
+        foreach ($this->playerArray as $player) {
+            $player->button->originalRecipe = $player->button->recipe;
+        }
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
@@ -3485,12 +3490,14 @@ class BMGame {
         $buttonInfo = array(
             'name' => '',
             'recipe' => '',
+            'originalRecipe' => '',
             'artFilename' => '',
         );
         $button = $this->playerArray[$playerIdx]->button;
         if ($button instanceof BMButton) {
             $buttonInfo['name'] = $button->name;
             $buttonInfo['recipe'] = $button->recipe;
+            $buttonInfo['originalRecipe'] = $button->originalRecipe;
             $buttonInfo['artFilename'] = $button->artFilename;
         }
         return $buttonInfo;
