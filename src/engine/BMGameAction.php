@@ -97,9 +97,6 @@ class BMGameAction {
             if ($this->actionType == 'attack') {
                 return $playerIdNames[$this->actingPlayerId] . ' ' . $this->params;
             }
-            if ($this->actionType == 'end_winner') {
-                return ('End of round: ' . $playerIdNames[$this->actingPlayerId] . ' ' . $this->params);
-            }
             return($this->params);
         }
     }
@@ -125,11 +122,11 @@ class BMGameAction {
     protected function friendly_message_end_winner() {
         $message = 'End of round: ' . $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' won round ' . $this->params['roundNumber'];
-        if (array_key_exists('resultForced', $this->params) && ($this->params['resultForced'])) {
+        if ($this->params['surrendered']) {
             $message .= ' because opponent surrendered';
         } else {
-            $message .= ' (' .  max($this->params['roundScoreArray']) . ' vs. ' .
-                        min($this->params['roundScoreArray']) . ')';
+            $message .= ' (' .  $this->params['winningRoundScore'] . ' vs. ' .
+                        $this->params['losingRoundScore'] . ')';
         }
         return $message;
     }
