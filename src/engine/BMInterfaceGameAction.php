@@ -213,10 +213,9 @@ class BMInterfaceGameAction extends BMInterface {
     /**
      * Load the parameters for a single game action log message of type decline_auxiliary
      *
-     * @param int $action_log_id
      * @return array
      */
-    protected function load_params_from_type_log_decline_auxiliary($action_log_id) {
+    protected function load_params_from_type_log_decline_auxiliary() {
         // decline_auxiliary has no secondary parameters
         return array();
     }
@@ -224,13 +223,11 @@ class BMInterfaceGameAction extends BMInterface {
     /**
      * Save the parameters for a single game action log message of type decline_auxiliary
      *
-     * @param int $action_log_id
-     * @param array $params
      * @return void
      */
-    protected function save_params_to_type_log_decline_auxiliary($action_log_id, $params) {
+    protected function save_params_to_type_log_decline_auxiliary() {
         // decline_auxiliary has no secondary parameters
-        return TRUE;
+        return;
     }
 
     /**
