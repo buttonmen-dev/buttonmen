@@ -749,7 +749,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_auxiliary()
      */
     public function test_friendly_message_decline_auxiliary() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'decline_auxiliary', 2, array('declineAuxiliary' => TRUE));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'decline_auxiliary', 2, array());
         $this->assertEquals(
             "gameaction02 chose not to use auxiliary dice in this game: neither player will get an auxiliary die",
                 $this->object->friendly_message($this->playerIdNames, 0, 0)
