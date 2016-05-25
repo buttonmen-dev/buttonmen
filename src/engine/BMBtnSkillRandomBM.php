@@ -66,9 +66,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
             $skillArray[$possibleSkillArray[bm_rand(0, $nPossibleSkills - 1)]] = TRUE;
         }
 
-        $skillCharArray = array_keys($skillArray);
-        sort($skillCharArray);
-        return $skillCharArray;
+        return array_keys($skillArray);
     }
 
     /**
@@ -192,7 +190,9 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
                          ')';
 
             if (!empty($dieSkillLetterArrayArray[$dieIdx])) {
-                foreach ($dieSkillLetterArrayArray[$dieIdx] as $skillLetter) {
+                $dieSkillLetterArray = $dieSkillLetterArrayArray[$dieIdx];
+                sort($dieSkillLetterArray)
+                foreach ($dieSkillLetterArray as $skillLetter) {
                     $skillNameArray = BMSkill::expand_skill_string($skillLetter);
                     $skillName = 'BMSkill' . $skillNameArray[0];
                     $skill = new $skillName;
