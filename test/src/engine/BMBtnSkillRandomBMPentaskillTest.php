@@ -49,7 +49,7 @@ class BMBtnSkillRandomBMPentaskillTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('c(6) bk(10) H(12) BH(20) bBkc(X)', $button->recipe);
+        $this->assertEquals('c(6) bk(10) H(12) BH(20) Bbck(X)', $button->recipe);
     }
 
     /**
