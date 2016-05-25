@@ -2574,7 +2574,7 @@ Game.buttonImageDisplay = function(player) {
   });
   buttonInfo.append(Env.buildButtonLink(Api.game[player].button.name));
   var buttonRecipe = $('<div>');
-  if (isPreOrPostGame) {
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonRecipe.text(Api.game[player].button.originalRecipe);
   } else {
     buttonRecipe.text(Api.game[player].button.recipe);
