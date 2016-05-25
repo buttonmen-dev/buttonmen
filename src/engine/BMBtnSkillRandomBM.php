@@ -66,7 +66,9 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
             $skillArray[$possibleSkillArray[bm_rand(0, $nPossibleSkills - 1)]] = TRUE;
         }
 
-        return sort(array_keys($skillArray));
+        $skillCharArray = array_keys($skillArray);
+        sort($skillCharArray);
+        return $skillCharArray;
     }
 
     /**
