@@ -321,7 +321,7 @@ class BMInterface {
                  'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
                  's.name AS status_name,'.
                  'v.player_id, v.position, v.autopass, v.fire_overshooting,'.
-                 'v.button_name, v.alt_recipe,'.
+                 'v.button_name, v.original_recipe, v.alt_recipe,'.
                  'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                  'v.did_win_initiative,'.
                  'v.is_awaiting_action, '.
@@ -417,6 +417,9 @@ class BMInterface {
                 $player->button = $button;
             } else {
                 throw new InvalidArgumentException('Invalid button name.');
+            }
+            if (isset($row['original_recipe'])) {
+                $player->button->originalRecipe = $row['original_recipe'];
             }
         }
 
@@ -860,16 +863,24 @@ class BMInterface {
 
     protected function save_button_recipes($game) {
         foreach ($game->playerArray as $player) {
-            if (($player->button instanceof BMButton) &&
-                ($player->button->hasAlteredRecipe)) {
+            if ($player->button instanceof BMButton) {
+                $boundParameters = array(':original_recipe' => $player->button->originalRecipe,
+                                         ':game_id' => $game->gameId,
+                                         ':player_id' => $player->playerId);
+
                 $query = 'UPDATE game_player_map '.
-                         'SET alt_recipe = :alt_recipe '.
-                         'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
+                         'SET original_recipe = :original_recipe ';
+
+                if ($player->button->hasAlteredRecipe) {
+                    $query .= ', alt_recipe = :alt_recipe ';
+                    $boundParameters[':alt_recipe'] = $player->button->recipe;
+                }
+
+                $query .= 'WHERE game_id = :game_id '.
+                          'AND player_id = :player_id;';
+
                 $statement = self::$conn->prepare($query);
-                $statement->execute(array(':alt_recipe' => $player->button->recipe,
-                                          ':game_id' => $game->gameId,
-                                          ':player_id' => $player->playerId));
+                $statement->execute($boundParameters);
             }
         }
     }

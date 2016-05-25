@@ -2573,9 +2573,12 @@ Game.buttonImageDisplay = function(player) {
     'text': 'Button: '
   });
   buttonInfo.append(Env.buildButtonLink(Api.game[player].button.name));
-  var buttonRecipe = $('<div>', {
-    'text': Api.game[player].button.recipe,
-  });
+  var buttonRecipe = $('<div>');
+  if (isPreOrPostGame) {
+    buttonRecipe.text(Api.game[player].button.originalRecipe);
+  } else {
+    buttonRecipe.text(Api.game[player].button.recipe);
+  }
 
   if (player == 'opponent' && !isPreOrPostGame) {
     buttonTd.append(playerName);

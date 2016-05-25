@@ -38,18 +38,16 @@ class BMBtnSkillRandomBMTriskillTest extends PHPUnit_Framework_TestCase {
             1, 5, 3, 4,        // die sizes       6, 20, 10, 12
             6,                 // swing type      X
             7, 2, 5,           // skill type      H, c, k
-            3, 3, 2,           // skill positions -- all skills once
-            2, 3,              // skill #4
-            2, 4,              // skill #5
-            2, 1,              // skill #6
-            0, 1,              // skill #7
+            3, 3, 2,           // skill positions -- first skill twice
+            0, 0, 4,           // skill positions -- second skill twice
+            4, 1,              // skill positions -- third skill twice
         );
 
         $retval = BMBtnSkillRandomBMTriskill::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('(6) Hk(10) k(12) kcH(20) k(X)', $button->recipe);
+        $this->assertEquals('c(6) k(10) H(12) H(20) kc(X)', $button->recipe);
     }
 
     /**

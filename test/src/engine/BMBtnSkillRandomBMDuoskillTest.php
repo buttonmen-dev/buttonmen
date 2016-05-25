@@ -38,18 +38,15 @@ class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
             1, 5, 3, 4,        // die sizes       6, 20, 10, 12
             6,                 // swing type      X
             7, 2,              // skill type      H, c
-            3, 3,              // skill positions -- all skills once
-            1, 3,              // ignored assignment
-            1, 4,              // skill #3
-            1, 1,              // skill #4
-            0, 1,              // skill #5
+            3, 3, 1,           // skill positions -- first skill twice
+            1, 4               // skill positions -- second skill twice
         );
 
         $retval = BMBtnSkillRandomBMDuoskill::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('(6) Hc(10) (12) cH(20) c(X)', $button->recipe);
+        $this->assertEquals('(6) cH(10) (12) H(20) c(X)', $button->recipe);
     }
 
     /**

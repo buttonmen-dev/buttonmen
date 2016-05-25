@@ -38,20 +38,17 @@ class BMBtnSkillRandomBMTetraskillTest extends PHPUnit_Framework_TestCase {
             1, 5, 3, 4,        // die sizes       6, 20, 10, 12
             6,                 // swing type      X
             7, 2, 5, 2, 0,     // skill type      H, c, k, ignored, B
-            3, 3, 2, 0,        // skill positions -- all skills once
-            2, 3,              // skill #5
-            2, 4,              // skill #6
-            2, 1,              // skill #7
-            3, 4,              // skill #8
-            3, 1,              // skill #9
-            0, 1,              // skill #10
+            3, 3, 2,           // skill positions -- first skill twice
+            0, 0, 4,           // skill positions -- second skill twice
+            4, 1,              // skill positions -- third skill twice
+            4, 4, 3            // skill positions -- fourth skill twice
         );
 
         $retval = BMBtnSkillRandomBMTetraskill::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('B(6) HBk(10) k(12) kcH(20) Bk(X)', $button->recipe);
+        $this->assertEquals('c(6) k(10) H(12) BH(20) Bkc(X)', $button->recipe);
     }
 
     /**
