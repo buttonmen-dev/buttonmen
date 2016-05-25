@@ -1601,7 +1601,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 711);
+        $this->assertEquals(count($retval['data']), 712);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
