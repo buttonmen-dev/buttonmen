@@ -211,6 +211,61 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type add_auxiliary
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_add_auxiliary($action_log_id) {
+        try {
+            $query = 'SELECT round_number,die_recipe FROM game_action_log_type_add_auxiliary ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            return array(
+                'roundNumber' => (int)$row['round_number'],
+                'dieRecipe' => (string)$row['die_recipe'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_add_auxiliary: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type add_auxiliary
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_add_auxiliary($action_log_id, $params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_add_auxiliary ' .
+                     '(action_log_id, round_number, die_recipe) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :round_number, :die_recipe)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':round_number' => $params['roundNumber'],
+                ':die_recipe' => $params['dieRecipe']));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_add_auxiliary: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Load the parameters for a single game action log message of type decline_auxiliary
      *
      * @return array

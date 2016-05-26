@@ -733,8 +733,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_add_auxiliary()
      */
     public function test_friendly_message_add_auxiliary() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'add_auxiliary', 2, array('roundNumber' => 1,
-            'die' => array('recipe' => '+(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '+(6):')));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'add_auxiliary', 2, array('roundNumber' => 1, 'dieRecipe' => '+(6)'));
         $this->assertEquals(
             "gameaction02 chose to use auxiliary die +(6) in this game",
             $this->object->friendly_message($this->playerIdNames, 2, BMGameState::CHOOSE_AUXILIARY_DICE)

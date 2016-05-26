@@ -53,7 +53,7 @@ class BMBtnSkillRandomBMMixedTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
 
-        $this->assertEquals('k(6) zk(6) (10) zc(12) c(20)', $button->recipe);
+        $this->assertEquals('k(6) kz(6) (10) cz(12) c(20)', $button->recipe);
     }
 
     /**

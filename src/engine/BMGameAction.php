@@ -866,7 +866,7 @@ class BMGameAction {
         if (($this->outputRoundNumber != $this->params['roundNumber']) ||
             ($this->outputGameState != BMGameState::CHOOSE_AUXILIARY_DICE)) {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                       ' chose to use auxiliary die ' . $this->params['die']['recipe'] .
+                       ' chose to use auxiliary die ' . $this->params['dieRecipe'] .
                        ' in this game';
         } else {
             // Otherwise, return nothing - the fact that this player has made a choice
