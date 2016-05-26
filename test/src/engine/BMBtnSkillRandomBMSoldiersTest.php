@@ -1,8 +1,8 @@
 <?php
 
-class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillRandomBMSoldiersTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMBtnSkillRandomBMDuoskill
+     * @var BMBtnSkillRandomBMSoldiers
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMBtnSkillRandomBMDuoskill;
+        $this->object = new BMBtnSkillRandomBMSoldiers;
     }
 
     /**
@@ -24,7 +24,7 @@ class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMBtnSkillRandomBMDuoskill::specify_recipes
+     * @covers BMBtnSkillRandomBMSoldiers::specify_recipes
      */
     public function testSpecify_recipes_valid_args() {
         global $BM_RAND_VALS;
@@ -34,29 +34,24 @@ class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($button->hasAlteredRecipe);
         $this->assertEmpty($button->recipe);
 
-        $BM_RAND_VALS = array(
-            1, 5, 3, 4,        // die sizes       6, 20, 10, 12
-            6,                 // swing type      X
-            7, 2,              // skill type      H, c
-            3, 3, 1,           // skill positions -- first skill twice
-            1, 4               // skill positions -- second skill twice
-        );
+        // choose dice with 6, 20, 10, 12 sides -- the fifth die is always X
+        $BM_RAND_VALS = array(1, 5, 3, 4);
 
-        $retval = BMBtnSkillRandomBMDuoskill::specify_recipes($args);
+        $retval = BMBtnSkillRandomBMSoldiers::specify_recipes($args);
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('(6) Hc(10) (12) H(20) c(X)', $button->recipe);
+        $this->assertEquals('(6) (10) (12) (20) (X)', $button->recipe);
     }
 
     /**
-     * @covers BMBtnSkillRandomBMDuoskill::specify_recipes
+     * @covers BMBtnSkillRandomBMSoldiers::specify_recipes
      */
     public function testSpecify_recipes_valid_args_already_specified() {
         $button = new BMButton;
         $button->recipe = '(4) (X)';
         $args = array('button' => $button);
-        $retval = BMBtnSkillRandomBMDuoskill::specify_recipes($args);
+        $retval = BMBtnSkillRandomBMSoldiers::specify_recipes($args);
         $this->assertFalse($retval);
         $this->assertNull($button->hasAlteredRecipe);
         $this->assertEquals('(4) (X)', $button->recipe);

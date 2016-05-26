@@ -151,6 +151,66 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type end_winner
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_end_winner($action_log_id) {
+        try {
+            $query = 'SELECT round_number,winning_round_score,losing_round_score,surrendered ' .
+                     'FROM game_action_log_type_end_winner ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            return array(
+                'roundNumber' => (int)$row['round_number'],
+                'winningRoundScore' => (float)$row['winning_round_score'],
+                'losingRoundScore' => (float)$row['losing_round_score'],
+                'surrendered' => (bool)$row['surrendered'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_end_winner: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type end_winner
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_end_winner($action_log_id, $params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_end_winner ' .
+                     '(action_log_id, round_number, winning_round_score, losing_round_score, surrendered) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :round_number, :winning_round_score, :losing_round_score, :surrendered)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':round_number' => $params['roundNumber'],
+                ':winning_round_score' => $params['winningRoundScore'],
+                ':losing_round_score' => $params['losingRoundScore'],
+                ':surrendered' => $params['surrendered']));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_end_winner: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Load the parameters for a single game action log message of type add_auxiliary
      *
      * @param int $action_log_id
@@ -203,6 +263,26 @@ class BMInterfaceGameAction extends BMInterface {
             $this->set_message('Internal error while saving log entries');
             return NULL;
         }
+    }
+
+    /**
+     * Load the parameters for a single game action log message of type decline_auxiliary
+     *
+     * @return array
+     */
+    protected function load_params_from_type_log_decline_auxiliary() {
+        // decline_auxiliary has no secondary parameters
+        return array();
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type decline_auxiliary
+     *
+     * @return void
+     */
+    protected function save_params_to_type_log_decline_auxiliary() {
+        // decline_auxiliary has no secondary parameters
+        return;
     }
 
     /**
