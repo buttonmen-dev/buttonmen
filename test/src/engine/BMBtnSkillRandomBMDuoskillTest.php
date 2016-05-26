@@ -46,7 +46,7 @@ class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($retval);
         $this->assertTrue($button->hasAlteredRecipe);
         $this->assertNotEmpty($button->recipe);
-        $this->assertEquals('(6) cH(10) (12) H(20) c(X)', $button->recipe);
+        $this->assertEquals('(6) Hc(10) (12) H(20) c(X)', $button->recipe);
     }
 
     /**
