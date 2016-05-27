@@ -813,9 +813,9 @@ class BMGameAction {
     protected function friendly_message_turndown_focus() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' gained initiative by turning down focus dice';
         $focusStrs = array();
-        foreach ($this->params['preTurndown'] as $idx => $die) {
-            $focusStrs[] = $die['recipe'] . ' from ' . $die['value'] . ' to ' .
-                           $this->params['postTurndown'][$idx]['value'];
+        foreach ($this->params['turndownDice'] as $die) {
+            $focusStrs[] = $die['recipe'] . ' from ' . $die['origValue'] . ' to ' .
+                           $die['turndownValue'];
         }
         $message .= ': ' . implode(", ", $focusStrs);
         return $message;
