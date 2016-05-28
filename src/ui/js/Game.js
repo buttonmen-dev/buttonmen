@@ -2722,7 +2722,14 @@ Game.gamePlayerDice = function(player, player_active) {
       false,
       Api.game.player.dieBackgroundType
     );
-    dieDiv.css('background-image', Game.backgroundImagePath(dieDiv, die.sides));
+    dieDiv.css(
+      'background-image',
+      Game.backgroundImagePath(
+        dieDiv,
+        die.sides,
+        Api.game.player.dieBackgroundType
+      )
+    );
     dieBorderDiv = Game.createBorderDiv(Game.color[player]);
 
     isSelected = ('dieSelectStatus' in Game.activity) &&
