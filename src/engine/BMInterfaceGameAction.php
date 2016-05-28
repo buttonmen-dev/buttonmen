@@ -286,6 +286,72 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type turndown_focus
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_turndown_focus($action_log_id) {
+        try {
+            // turndown_focus has one set of secondary parameters for each die which was turned down
+            $query = 'SELECT recipe,orig_value,turndown_value FROM game_action_log_type_turndown_focus_die ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $turndownDice = array();
+            while ($row = $statement->fetch()) {
+                $turndownDice[] = array(
+                    'recipe'        => (string)$row['recipe'],
+                    'origValue'     => (int)$row['orig_value'],
+                    'turndownValue' => (int)$row['turndown_value'],
+                );
+            }
+            return array(
+                'turndownDice' => $turndownDice,
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_turndown_focus: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type turndown_focus
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_turndown_focus($action_log_id, $params) {
+        try {
+            // turndown_focus has one set of secondary parameters for each die which was turned down
+            $query = 'INSERT INTO game_action_log_type_turndown_focus_die ' .
+                     '(action_log_id, recipe, orig_value, turndown_value) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :recipe, :orig_value, :turndown_value)';
+            foreach ($params['turndownDice'] as $die) {
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(
+                    ':action_log_id'  => $action_log_id,
+                    ':recipe'         => $die['recipe'],
+                    ':orig_value'     => $die['origValue'],
+                    ':turndown_value' => $die['turndownValue']));
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_turndown_focus: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Helper function which asks the database for the ID of the last inserted row
      *
      * @return int

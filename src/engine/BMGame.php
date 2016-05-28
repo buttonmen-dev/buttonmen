@@ -2301,13 +2301,9 @@ class BMGame {
 
         // change specified die values
         $oldDieValueArray = array();
-        $preTurndownData = array();
-        $postTurndownData = array();
         foreach ($args['focusValueArray'] as $dieIdx => $newDieValue) {
-            $preTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
             $oldDieValueArray[$dieIdx] = $player->activeDieArray[$dieIdx]->value;
             $player->activeDieArray[$dieIdx]->value = $newDieValue;
-            $postTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2315,12 +2311,18 @@ class BMGame {
 
         // if the change is successful, disable focus dice that changed
         // value
+        $turndownDiceLogInfo = array();
         if ($newInitiativeArray[$playerIdx] &&
             1 == array_sum($newInitiativeArray)) {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
                     $player->activeDieArray[$dieIdx]->value) {
                     $player->activeDieArray[$dieIdx]->add_flag('Dizzy');
+                    $turndownDiceLogInfo[] = array(
+                        'recipe'        => $player->activeDieArray[$dieIdx]->get_recipe(TRUE),
+                        'origValue'     => $oldDieValue,
+                        'turndownValue' => $player->activeDieArray[$dieIdx]->value,
+                    );
                 }
             }
         } else {
@@ -2337,8 +2339,7 @@ class BMGame {
             'turndown_focus',
             $player->playerId,
             array(
-                'preTurndown' => $preTurndownData,
-                'postTurndown' => $postTurndownData,
+                'turndownDice' => $turndownDiceLogInfo,
             )
         );
 
