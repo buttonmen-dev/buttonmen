@@ -20,6 +20,7 @@ CREATE TABLE button (
     tourn_legal BOOLEAN NOT NULL,
     set_id      SMALLINT UNSIGNED,
     flavor_text VARCHAR(500),
+    sort_order  INT NOT NULL DEFAULT 0,
     INDEX (name)
 );
 

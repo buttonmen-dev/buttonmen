@@ -57,7 +57,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_end_draw()
      */
     public function test_friendly_message_end_draw() {
-        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_draw', 0, array('roundNumber' => 2, 'roundScoreArray' => array(23, 23)));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_draw', 0, array('roundNumber' => 2, 'roundScore' => 23));
         $this->assertEquals(
             "Round 2 ended in a draw (23 vs. 23)",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -68,13 +68,13 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_end_winner()
      */
     public function test_friendly_message_end_winner() {
-        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 1, 'roundScoreArray' => array(24, 43), 'resultForced' => NULL));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 1, 'winningRoundScore' => 43, 'losingRoundScore' => 24, 'surrendered' => FALSE));
         $this->assertEquals(
             "End of round: gameaction02 won round 1 (43 vs. 24)",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
 
-        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 2, 'roundScoreArray' => array(25, 23), 'resultForced' => array(FALSE, TRUE)));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 2, 'winningRoundScore' => 25, 'losingRoundScore' => 23, 'surrendered' => TRUE));
         $this->assertEquals(
             "End of round: gameaction02 won round 2 because opponent surrendered",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -684,9 +684,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_friendly_message_turndown_focus() {
         $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'turndown_focus', 1, array(
-            'preTurndown' => array(array('recipe' => 'f(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'f(20):4')),
-            'postTurndown' => array(array('recipe' => 'f(20)', 'min' => 1, 'max' => 20, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'f(20):2')),
-            'gainedInitiative' => FALSE,
+            'turndownDice' => array(array('recipe' => 'f(20)', 'origValue' => 4, 'turndownValue' => 2)),
         ));
         $this->assertEquals(
             "gameaction01 gained initiative by turning down focus dice: f(20) from 4 to 2",
@@ -733,8 +731,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_add_auxiliary()
      */
     public function test_friendly_message_add_auxiliary() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'add_auxiliary', 2, array('roundNumber' => 1,
-            'die' => array('recipe' => '+(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '+(6):')));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'add_auxiliary', 2, array('roundNumber' => 1, 'dieRecipe' => '+(6)'));
         $this->assertEquals(
             "gameaction02 chose to use auxiliary die +(6) in this game",
             $this->object->friendly_message($this->playerIdNames, 2, BMGameState::CHOOSE_AUXILIARY_DICE)
@@ -749,7 +746,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_auxiliary()
      */
     public function test_friendly_message_decline_auxiliary() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'decline_auxiliary', 2, array('declineAuxiliary' => TRUE));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'decline_auxiliary', 2, array());
         $this->assertEquals(
             "gameaction02 chose not to use auxiliary dice in this game: neither player will get an auxiliary die",
                 $this->object->friendly_message($this->playerIdNames, 0, 0)

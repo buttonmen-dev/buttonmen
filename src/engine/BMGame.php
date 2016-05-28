@@ -431,6 +431,11 @@ class BMGame {
             }
         }
 
+        // cache recipes
+        foreach ($this->playerArray as $player) {
+            $player->button->originalRecipe = $player->button->recipe;
+        }
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
@@ -1901,16 +1906,16 @@ class BMGame {
                 0,
                 array(
                     'roundNumber' => $this->get_prevRoundNumber(),
-                    'roundScoreArray' => $roundScoreArray,
+                    'roundScore'  => $roundScoreArray[0],
                 )
             );
         } else {
             if (isset($this->forceRoundResult)) {
                 $winnerIdx = array_search(TRUE, $this->forceRoundResult);
-                $forceRoundResult = $this->forceRoundResult;
+                $surrendered = TRUE;
             } else {
                 $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
-                $forceRoundResult = FALSE;
+                $surrendered = FALSE;
             }
 
             foreach ($this->playerArray as $playerIdx => $player) {
@@ -1930,8 +1935,9 @@ class BMGame {
                 $this->playerArray[$winnerIdx]->playerId,
                 array(
                     'roundNumber' => $this->get_prevRoundNumber(),
-                    'roundScoreArray' => $roundScoreArray,
-                    'resultForced' => $forceRoundResult,
+                    'winningRoundScore' => max($roundScoreArray),
+                    'losingRoundScore' => min($roundScoreArray),
+                    'surrendered' => $surrendered,
                 )
             );
         }
@@ -2295,13 +2301,9 @@ class BMGame {
 
         // change specified die values
         $oldDieValueArray = array();
-        $preTurndownData = array();
-        $postTurndownData = array();
         foreach ($args['focusValueArray'] as $dieIdx => $newDieValue) {
-            $preTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
             $oldDieValueArray[$dieIdx] = $player->activeDieArray[$dieIdx]->value;
             $player->activeDieArray[$dieIdx]->value = $newDieValue;
-            $postTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2309,12 +2311,18 @@ class BMGame {
 
         // if the change is successful, disable focus dice that changed
         // value
+        $turndownDiceLogInfo = array();
         if ($newInitiativeArray[$playerIdx] &&
             1 == array_sum($newInitiativeArray)) {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
                     $player->activeDieArray[$dieIdx]->value) {
                     $player->activeDieArray[$dieIdx]->add_flag('Dizzy');
+                    $turndownDiceLogInfo[] = array(
+                        'recipe'        => $player->activeDieArray[$dieIdx]->get_recipe(TRUE),
+                        'origValue'     => $oldDieValue,
+                        'turndownValue' => $player->activeDieArray[$dieIdx]->value,
+                    );
                 }
             }
         } else {
@@ -2331,8 +2339,7 @@ class BMGame {
             'turndown_focus',
             $player->playerId,
             array(
-                'preTurndown' => $preTurndownData,
-                'postTurndown' => $postTurndownData,
+                'turndownDice' => $turndownDiceLogInfo,
             )
         );
 
@@ -3484,12 +3491,14 @@ class BMGame {
         $buttonInfo = array(
             'name' => '',
             'recipe' => '',
+            'originalRecipe' => '',
             'artFilename' => '',
         );
         $button = $this->playerArray[$playerIdx]->button;
         if ($button instanceof BMButton) {
             $buttonInfo['name'] = $button->name;
             $buttonInfo['recipe'] = $button->recipe;
+            $buttonInfo['originalRecipe'] = $button->originalRecipe;
             $buttonInfo['artFilename'] = $button->artFilename;
         }
         return $buttonInfo;
