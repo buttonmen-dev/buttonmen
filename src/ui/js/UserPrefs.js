@@ -490,8 +490,6 @@ UserPrefs.formSetPrefs = function() {
     image_size = undefined;
   }
 
-  console.log(die_background);
-
   Api.apiFormPost(
     {
       'type': 'savePlayerInfo',

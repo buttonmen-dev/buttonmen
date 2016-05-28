@@ -2722,7 +2722,7 @@ Game.gamePlayerDice = function(player, player_active) {
       false,
       Api.game.player.dieBackgroundType
     );
-    dieDiv.css("background-image", Game.backgroundImagePath(dieDiv, die.sides));
+    dieDiv.css('background-image', Game.backgroundImagePath(dieDiv, die.sides));
     dieBorderDiv = Game.createBorderDiv(Game.color[player]);
 
     isSelected = ('dieSelectStatus' in Game.activity) &&
@@ -2902,7 +2902,7 @@ Game.createDieDiv = function(
   dieDiv.append(dieSpan);
 
   dieDiv.css(
-    "background-image",
+    'background-image',
     Game.backgroundImagePath(dieDiv, sides, dieBackgroundType)
   );
 
@@ -2929,7 +2929,7 @@ Game.backgroundImagePath = function(dieDiv, sides, backgroundType) {
     sidesRoundedUp = 20;
   } else {
     sidesRoundedUp = 30;
-  };
+  }
 
   if (dieDiv.hasClass('die_greyed')) {
     imageType = 'inactive';
