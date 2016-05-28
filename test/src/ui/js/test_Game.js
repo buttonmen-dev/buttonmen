@@ -1683,7 +1683,7 @@ test("test_Game.createContainerDiv", function(assert) {
 });
 
 test("test_Game.createDieDiv", function(assert) {
-  var dieDiv = Game.createDieDiv('opponent', 5, 8, true, false);
+  var dieDiv = Game.createDieDiv('opponent', 5, 8, true, false, 'symmetric');
 
   assert.ok(dieDiv.is('div'), 'active dieDiv is a div');
   assert.equal(dieDiv.prop('class'), 'die_img', 'active dieDiv class is correct');
@@ -1693,7 +1693,7 @@ test("test_Game.createDieDiv", function(assert) {
   assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'active dieSpan has correct classes');
   assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'active dieSpan contents are correct');
 
-  dieDiv = Game.createDieDiv('opponent', 5, 8, false, false);
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false, false, 'symmetric');
   assert.ok(dieDiv.is('div'), 'inactive dieDiv is a div');
   assert.equal(dieDiv.prop('class'), 'die_img die_greyed', 'inactive dieDiv classes are correct');
 
@@ -1701,7 +1701,7 @@ test("test_Game.createDieDiv", function(assert) {
   assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'inactive dieDiv has correct classes');
   assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'inactive dieSpan contents are correct');
 
-  dieDiv = Game.createDieDiv('opponent', 5, 8, false, true);
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false, true, 'symmetric');
   assert.ok(dieDiv.is('div'), 'dead dieDiv is a div');
   assert.equal(dieDiv.prop('class'), 'die_img die_dead', 'dead dieDiv classes are correct');
 
@@ -1713,25 +1713,25 @@ test("test_Game.createDieDiv", function(assert) {
 test("test_Game.backgroundImagePath", function(assert) {
   var dieDiv = $('<div>', {'class': 'die_img',});
 
-  assert.ok(Game.backgroundImagePath(dieDiv, 1).indexOf('d2active.png') >= 0, 'active d1');
-  assert.ok(Game.backgroundImagePath(dieDiv, 2).indexOf('d2active.png') >= 0, 'active d2');
-  assert.ok(Game.backgroundImagePath(dieDiv, 3).indexOf('d4active.png') >= 0, 'active d3');
-  assert.ok(Game.backgroundImagePath(dieDiv, 4).indexOf('d4active.png') >= 0, 'active d4');
-  assert.ok(Game.backgroundImagePath(dieDiv, 5).indexOf('d6active.png') >= 0, 'active d5');
-  assert.ok(Game.backgroundImagePath(dieDiv, 6).indexOf('d6active.png') >= 0, 'active d6');
-  assert.ok(Game.backgroundImagePath(dieDiv, 7).indexOf('d8active.png') >= 0, 'active d7');
-  assert.ok(Game.backgroundImagePath(dieDiv, 8).indexOf('d8active.png') >= 0, 'active d8');
-  assert.ok(Game.backgroundImagePath(dieDiv, 9).indexOf('d10active.png') >= 0, 'active d9');
-  assert.ok(Game.backgroundImagePath(dieDiv, 10).indexOf('d10active.png') >= 0, 'active d10');
-  assert.ok(Game.backgroundImagePath(dieDiv, 11).indexOf('d12active.png') >= 0, 'active d11');
-  assert.ok(Game.backgroundImagePath(dieDiv, 12).indexOf('d12active.png') >= 0, 'active d12');
-  assert.ok(Game.backgroundImagePath(dieDiv, 13).indexOf('d20active.png') >= 0, 'active d13');
-  assert.ok(Game.backgroundImagePath(dieDiv, 19).indexOf('d20active.png') >= 0, 'active d19');
-  assert.ok(Game.backgroundImagePath(dieDiv, 20).indexOf('d20active.png') >= 0, 'active d20');
-  assert.ok(Game.backgroundImagePath(dieDiv, 21).indexOf('d30active.png') >= 0, 'active d21');
-  assert.ok(Game.backgroundImagePath(dieDiv, 29).indexOf('d30active.png') >= 0, 'active d29');
-  assert.ok(Game.backgroundImagePath(dieDiv, 30).indexOf('d30active.png') >= 0, 'active d30');
-  assert.ok(Game.backgroundImagePath(dieDiv, 31).indexOf('d30active.png') >= 0, 'active d31');
+  assert.ok(Game.backgroundImagePath(dieDiv, 1, 'symmetric').indexOf('images/die/symmetric/d2active.png') >= 0, 'active d1');
+  assert.ok(Game.backgroundImagePath(dieDiv, 2, 'symmetric').indexOf('images/die/symmetric/d2active.png') >= 0, 'active d2');
+  assert.ok(Game.backgroundImagePath(dieDiv, 3, 'symmetric').indexOf('images/die/symmetric/d4active.png') >= 0, 'active d3');
+  assert.ok(Game.backgroundImagePath(dieDiv, 4, 'symmetric').indexOf('images/die/symmetric/d4active.png') >= 0, 'active d4');
+  assert.ok(Game.backgroundImagePath(dieDiv, 5, 'symmetric').indexOf('images/die/symmetric/d6active.png') >= 0, 'active d5');
+  assert.ok(Game.backgroundImagePath(dieDiv, 6, 'symmetric').indexOf('images/die/symmetric/d6active.png') >= 0, 'active d6');
+  assert.ok(Game.backgroundImagePath(dieDiv, 7, 'symmetric').indexOf('images/die/symmetric/d8active.png') >= 0, 'active d7');
+  assert.ok(Game.backgroundImagePath(dieDiv, 8, 'symmetric').indexOf('images/die/symmetric/d8active.png') >= 0, 'active d8');
+  assert.ok(Game.backgroundImagePath(dieDiv, 9, 'symmetric').indexOf('images/die/symmetric/d10active.png') >= 0, 'active d9');
+  assert.ok(Game.backgroundImagePath(dieDiv, 10, 'realistic').indexOf('images/die/realistic/d10active.png') >= 0, 'active d10');
+  assert.ok(Game.backgroundImagePath(dieDiv, 11, 'realistic').indexOf('images/die/realistic/d12active.png') >= 0, 'active d11');
+  assert.ok(Game.backgroundImagePath(dieDiv, 12, 'realistic').indexOf('images/die/realistic/d12active.png') >= 0, 'active d12');
+  assert.ok(Game.backgroundImagePath(dieDiv, 13, 'realistic').indexOf('images/die/realistic/d20active.png') >= 0, 'active d13');
+  assert.ok(Game.backgroundImagePath(dieDiv, 19, 'realistic').indexOf('images/die/realistic/d20active.png') >= 0, 'active d19');
+  assert.ok(Game.backgroundImagePath(dieDiv, 20, 'realistic').indexOf('images/die/realistic/d20active.png') >= 0, 'active d20');
+  assert.ok(Game.backgroundImagePath(dieDiv, 21, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d21');
+  assert.ok(Game.backgroundImagePath(dieDiv, 29, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d29');
+  assert.ok(Game.backgroundImagePath(dieDiv, 30, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d30');
+  assert.ok(Game.backgroundImagePath(dieDiv, 31, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d31');
 
   dieDiv = $('<div>', {'class': 'die_img die_greyed',});
 

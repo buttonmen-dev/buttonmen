@@ -2719,7 +2719,8 @@ Game.gamePlayerDice = function(player, player_active) {
       die.value,
       die.sides,
       isClickable,
-      false
+      false,
+      Api.game.player.dieBackgroundType
     );
     dieDiv.css("background-image", Game.backgroundImagePath(dieDiv, die.sides));
     dieBorderDiv = Game.createBorderDiv(Game.color[player]);
@@ -2761,7 +2762,14 @@ Game.gamePlayerDice = function(player, player_active) {
         player_active
       );
       dieBorderDiv = Game.createBorderDiv(Game.color[player]);
-      dieDiv = Game.createDieDiv(player, die.value, die.sides, false, true);
+      dieDiv = Game.createDieDiv(
+        player,
+        die.value,
+        die.sides,
+        false,
+        true,
+        Api.game.player.dieBackgroundType
+      );
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
 
       dieBorderDiv.append(dieDiv);
@@ -2868,7 +2876,14 @@ Game.createContainerDiv = function(
   return dieContainerDiv;
 };
 
-Game.createDieDiv = function(player, value, sides, isClickable, isCaptured) {
+Game.createDieDiv = function(
+  player,
+  value,
+  sides,
+  isClickable,
+  isCaptured,
+  dieBackgroundType
+) {
   var dieDiv = $('<div>', {
     'class': 'die_img',
   });
@@ -2886,12 +2901,15 @@ Game.createDieDiv = function(player, value, sides, isClickable, isCaptured) {
 
   dieDiv.append(dieSpan);
 
-  dieDiv.css("background-image", Game.backgroundImagePath(dieDiv, sides));
+  dieDiv.css(
+    "background-image",
+    Game.backgroundImagePath(dieDiv, sides, dieBackgroundType)
+  );
 
   return dieDiv;
 };
 
-Game.backgroundImagePath = function(dieDiv, sides) {
+Game.backgroundImagePath = function(dieDiv, sides, backgroundType) {
   var sidesRoundedUp;
   var imageType;
 
@@ -2922,9 +2940,7 @@ Game.backgroundImagePath = function(dieDiv, sides) {
   }
 
   return 'url(images/die/' +
-//         'circles' +
-         'realistic' +
-//         'symmetric' +
+         backgroundType +
          '/d' +
          sidesRoundedUp +
          imageType +

@@ -145,7 +145,8 @@ class BMInterface {
                 $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
-
+                $data['playerDataArray'][$gamePlayerIdx]['dieBackgroundType'] =
+                    $this->load_die_background_type($gamePlayer->playerId);
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
@@ -195,7 +196,7 @@ class BMInterface {
         return NULL;
     }
 
-       // Can the active player edit the most recent chat entry in this game?
+    // Can the active player edit the most recent chat entry in this game?
     protected function find_editable_chat_timestamp(
         $game,
         $currentPlayerIdx,
@@ -1452,7 +1453,7 @@ class BMInterface {
                 $parameterName = ':skipped_game_id_' . $index;
                 $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
                 $parameters[$parameterName] = $skippedGameId;
-            };
+            }
             $query = $query .
                      'ORDER BY g.last_action_time ASC '.
                      'LIMIT 1';
@@ -2007,6 +2008,12 @@ class BMInterface {
             return $count . ' ' . $noun . 'es';
         }
         return $count . ' ' . $noun . 's';
+    }
+
+    protected function load_die_background_type($currentPlayerId) {
+        $playerInfoArray = $this->player()->get_player_info($currentPlayerId);
+
+        return $playerInfoArray['user_prefs']['die_background'];
     }
 
     // Retrieves the colors that the user has saved in their preferences
