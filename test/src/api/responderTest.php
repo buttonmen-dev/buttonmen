@@ -10626,7 +10626,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Berserk', 'Mighty', 'Mood', 'Ornery', 'Queer', 'Rage', 'Stealth', 'TimeAndSpace', 'Giant'));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['swingRequestArray'] = array('W' => array(4, 12), 'T' => array(2, 12), 'X' => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'LadyJ', 'recipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'originalRecipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'LadyJ', 'recipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'originalRecipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'artFilename' => 'ladyj.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 17, 'skills' => array('Stealth', 'Rage'), 'properties' => array(), 'recipe' => 'dG(17)', 'description' => 'Stealth Rage 17-sided die'),
@@ -12940,7 +12940,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Chance', 'Mood', 'Ornery', 'Rage', 'Reserve', 'Shadow', 'TimeAndSpace', 'Trip'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'originalRecipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'originalRecipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'jenniegirl.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
