@@ -310,7 +310,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Warrior' => array(
                 'code' => '`',
-                'description' => 'These are extra dice which may be brought into play during a round, by using one of them to a Skill Attack. Once a Warrior die is brought into play, it loses the Warrior skill for the rest of the round. After the round, the die regains the Warrior skill to start the next round. While they are out of play, Warrior dice are completely out of play: They aren\'t part of your starting dice, they don\'t count for initiative, they can\'t be attacked, none of their other skills can be used, etc. The only thing they can do is participate in a Skill attack. At the start of the round, each Warrior die shows its maximum value; when it\'s brought into play, it\'s rolled as usual. Only one Warrior Die may be used in any given Skill Attack, and that Skill Attack must include one or more dice that are already in play as well (i.e. you can\'t make a single-die Skill Attack with a Warrior die). The Warrior die adds its full value to the Skill Attack. After the target die is captured, the Warrior loses the Warrior skill, any other skills on the die become active, and the former Warrior die is treated exactly like a regular die for the remainder of the round. Adding a Warrior die to a Skill Attack is always optional; even if you have no other legal attack, you can choose to pass rather than using a Warrior die, if you prefer.',
+                'description' => 'These are extra dice which may be brought into play during a round, by using one of them in a multi-die Skill Attack. Once a Warrior die is brought into play, it loses the Warrior skill for the rest of the round. After the round, the die regains the Warrior skill to start the next round. Dice with the Warrior skill are completely out of play: They aren\'t part of your starting dice, they don\'t count for initiative, they can\'t be attacked, none of their other skills can be used, they don\'t count for scoring purposes, etc. At the start of the round, each Warrior die shows its maximum value; when it\'s brought into play, it\'s rolled as usual. Only one Warrior Die may be used in any given Skill Attack. Adding a Warrior die to a Skill Attack is always optional; even if you have no other legal attack, you can choose to pass rather than using a Warrior die.',
                 'interacts' => array(),
             ),
             'Weak' => array(
@@ -1601,7 +1601,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 706);
+        $this->assertEquals(count($retval['data']), 712);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -2368,8 +2368,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder001', 'responder002', 4, 'SPECIFY_DICE');
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'frasquito.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'originalRecipe' => '(4) (6) (8) (12) (2/20)', 'originalRecipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'frasquito.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
@@ -2928,8 +2928,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Poison', 'Shadow'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Jellybean', 'recipe' => 'p(20) s(20) (V) (X)', 'artFilename' => 'jellybean.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Dirgo', 'recipe' => '(20) (20) (20) (X)', 'artFilename' => 'dirgo.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jellybean', 'recipe' => 'p(20) s(20) (V) (X)', 'originalRecipe' => 'p(20) s(20) (V) (X)', 'originalRecipe' => 'p(20) s(20) (V) (X)', 'artFilename' => 'jellybean.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Dirgo', 'recipe' => '(20) (20) (20) (X)', 'originalRecipe' => '(20) (20) (20) (X)', 'originalRecipe' => '(20) (20) (20) (X)', 'artFilename' => 'dirgo.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 20, 'skills' => array('Poison'), 'properties' => array(), 'recipe' => 'p(20)', 'description' => 'Poison 20-sided die'),
             array('value' => NULL, 'sides' => 20, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(20)', 'description' => 'Shadow 20-sided die'),
@@ -3246,8 +3246,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 0;
         $expData['playerDataArray'][0]['canStillWin'] = TRUE;
         $expData['playerDataArray'][1]['canStillWin'] = TRUE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 54, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
         );
@@ -3394,8 +3394,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 0;
         $expData['playerDataArray'][0]['canStillWin'] = TRUE;
         $expData['playerDataArray'][1]['canStillWin'] = TRUE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 29, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
         );
@@ -3536,8 +3536,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 0;
         $expData['playerDataArray'][0]['canStillWin'] = TRUE;
         $expData['playerDataArray'][1]['canStillWin'] = TRUE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 13, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
         );
@@ -3642,8 +3642,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 0;
         $expData['playerDataArray'][0]['canStillWin'] = TRUE;
         $expData['playerDataArray'][1]['canStillWin'] = TRUE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 12, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
         );
@@ -3937,8 +3937,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mood', 'Ornery'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Y' => array(1, 20), 'Z' => array(4, 30));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Y' => array(1, 20), 'Z' => array(4, 30));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'skeeve.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'skeeve.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'originalRecipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'skeeve.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'originalRecipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'skeeve.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(V)?', 'description' => 'Ornery V Mood Swing Die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(W)?', 'description' => 'Ornery W Mood Swing Die'),
@@ -4219,8 +4219,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Morphing'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Mau', 'recipe' => '(6) (6) (8) (12) m(X)', 'artFilename' => 'mau.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Mau', 'recipe' => '(6) (6) (8) (12) m(X)', 'originalRecipe' => '(6) (6) (8) (12) m(X)', 'artFilename' => 'mau.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
@@ -4523,8 +4523,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Morphing', 'Slow'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Mau', 'recipe' => '(6) (6) (8) (12) m(X)', 'artFilename' => 'mau.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Mau', 'recipe' => '(6) (6) (8) (12) m(X)', 'originalRecipe' => '(6) (6) (8) (12) m(X)', 'artFilename' => 'mau.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'originalRecipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
@@ -4757,8 +4757,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Trip'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Hope', 'recipe' => 't(1) (2) t(4) (6) (Y)', 'artFilename' => 'hope.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Stumbling Clowns', 'recipe' => '(8) t(8) (10) t(10) (X)', 'artFilename' => 'stumblingclowns.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Hope', 'recipe' => 't(1) (2) t(4) (6) (Y)', 'originalRecipe' => 't(1) (2) t(4) (6) (Y)', 'artFilename' => 'hope.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Stumbling Clowns', 'recipe' => '(8) t(8) (10) t(10) (X)', 'originalRecipe' => '(8) t(8) (10) t(10) (X)', 'artFilename' => 'stumblingclowns.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array('Trip'), 'properties' => array(), 'recipe' => 't(1)', 'description' => 'Trip 1-sided die'),
             array('value' => NULL, 'sides' => 2, 'skills' => array(), 'properties' => array(), 'recipe' => '(2)', 'description' => '2-sided die'),
@@ -4936,8 +4936,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 26;
         $expData['playerDataArray'][0]['sideScore'] = 0.7;
         $expData['playerDataArray'][1]['sideScore'] = -0.7;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Tamiya', 'recipe' => '(4) (8) (8) (12) z(20)', 'artFilename' => 'tamiya.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'originalRecipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Tamiya', 'recipe' => '(4) (8) (8) (12) z(20)', 'originalRecipe' => '(4) (8) (8) (12) z(20)', 'artFilename' => 'tamiya.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 5, 'sides' => 6, 'skills' => array('Trip', 'Morphing'), 'properties' => array(), 'recipe' => 'tm(6)', 'description' => 'Trip Morphing 6-sided die'),
             array('value' => 8, 'sides' => 8, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(8)', 'description' => 'Focus 8-sided die'),
@@ -5229,8 +5229,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $initialExpData[$idx]['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Focus', 'Shadow'));
             $initialExpData[$idx]['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
             $initialExpData[$idx]['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
-            $initialExpData[$idx]['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
-            $initialExpData[$idx]['playerDataArray'][1]['button'] = array('name' => 'Crane', 'recipe' => '(4) f(6) f(8) (10) (12)', 'artFilename' => 'crane.png');
+            $initialExpData[$idx]['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'originalRecipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
+            $initialExpData[$idx]['playerDataArray'][1]['button'] = array('name' => 'Crane', 'recipe' => '(4) f(6) f(8) (10) (12)', 'originalRecipe' => '(4) f(6) f(8) (10) (12)', 'artFilename' => 'crane.png');
             $initialExpData[$idx]['playerDataArray'][0]['activeDieArray'] = array(
                 array('value' => NULL, 'sides' => 2, 'skills' => array(), 'properties' => array(), 'recipe' => '(2)', 'description' => '2-sided die'),
                 array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
@@ -5852,8 +5852,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Null', 'Poison', 'Queer', 'Reserve', 'Speed'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('T' => array(2, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Washu', 'recipe' => '(4) (6) (12) (X) r(6) r(8) r(10) r(20)', 'artFilename' => 'washu.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Hooloovoo', 'recipe' => 'q(T) q(W) q(X) q(Z) rn(R) rz(S) rp(U) rf(V)', 'artFilename' => 'hooloovoo.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Washu', 'recipe' => '(4) (6) (12) (X) r(6) r(8) r(10) r(20)', 'originalRecipe' => '(4) (6) (12) (X) r(6) r(8) r(10) r(20)', 'artFilename' => 'washu.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Hooloovoo', 'recipe' => 'q(T) q(W) q(X) q(Z) rn(R) rz(S) rp(U) rf(V)', 'originalRecipe' => 'q(T) q(W) q(X) q(Z) rn(R) rz(S) rp(U) rf(V)', 'artFilename' => 'hooloovoo.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
@@ -7004,8 +7004,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Berserk'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('W' => array(4, 12));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('U' => array(8, 30));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Buck Godot', 'recipe' => '(6,6) (10) (12) (20) (W,W)', 'artFilename' => 'buckgodot.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'The GM', 'recipe' => '(4) (8) (12) (16) B(U)', 'artFilename' => 'thegm.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Buck Godot', 'recipe' => '(6,6) (10) (12) (20) (W,W)', 'originalRecipe' => '(6,6) (10) (12) (20) (W,W)', 'artFilename' => 'buckgodot.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'The GM', 'recipe' => '(4) (8) (12) (16) B(U)', 'originalRecipe' => '(4) (8) (12) (16) B(U)', 'artFilename' => 'thegm.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array('Twin'), 'recipe' => '(6,6)', 'description' => 'Twin Die (both with 6 sides)', 'subdieArray' => array(array('sides' => 6), array('sides' => 6))),
             array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
@@ -7326,8 +7326,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Weak'));
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'The Tick', 'recipe' => 'H(1,10) H(12) H(20) H(20)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Famine', 'recipe' => '(6) (8) (10) (12,12) h(X)', 'artFilename' => 'famine.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'The Tick', 'recipe' => 'H(1,10) H(12) H(20) H(20)', 'originalRecipe' => 'H(1,10) H(12) H(20) H(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Famine', 'recipe' => '(6) (8) (10) (12,12) h(X)', 'originalRecipe' => '(6) (8) (10) (12,12) h(X)', 'artFilename' => 'famine.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 11, 'skills' => array('Mighty'), 'properties' => array('Twin'), 'recipe' => 'H(1,10)', 'description' => 'Mighty Twin Die (with 1 and 10 sides)', 'subdieArray' => array(array('sides' => 1), array('sides' => 10))),
             array('value' => NULL, 'sides' => 12, 'skills' => array('Mighty'), 'properties' => array(), 'recipe' => 'H(12)', 'description' => 'Mighty 12-sided die'),
@@ -7480,8 +7480,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['activePlayerIdx'] = 0;
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Berserk', 'Trip');
-        $expData['playerDataArray'][0]['button'] = array('name' => 'wranklepig', 'recipe' => 'pB(17) Fo(13) q(11) gc(7) nt(5)', 'artFilename' => 'wranklepig.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'wranklepig', 'recipe' => 'pB(17) Fo(13) q(11) gc(7) nt(5)', 'originalRecipe' => 'pB(17) Fo(13) q(11) gc(7) nt(5)', 'artFilename' => 'wranklepig.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['roundScore'] = -1.5;
         $expData['playerDataArray'][1]['roundScore'] = 40;
@@ -7572,8 +7572,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Doppelganger'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('W' => array(4, 12));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'The James Beast', 'recipe' => '(4) (8,8) (10,10) (12) (W,W)', 'artFilename' => 'thejamesbeast.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'originalRecipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'The James Beast', 'recipe' => '(4) (8,8) (10,10) (12) (W,W)', 'originalRecipe' => '(4) (8,8) (10,10) (12) (W,W)', 'artFilename' => 'thejamesbeast.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(4)', 'description' => 'Doppelganger 4-sided die'),
             array('value' => NULL, 'sides' => 6, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(6)', 'description' => 'Doppelganger 6-sided die'),
@@ -7836,8 +7836,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'antillama.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'antillama.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'originalRecipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'antillama.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'originalRecipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'antillama.png');
         $expData['activePlayerIdx'] = 1;
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
@@ -7949,8 +7949,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array('3' => array(10, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Fan Chung Graham', 'recipe' => '(4) k(6) (8) (10/20) (X)?', 'artFilename' => 'fanchunggraham.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'originalRecipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Fan Chung Graham', 'recipe' => '(4) k(6) (8) (10/20) (X)?', 'originalRecipe' => '(4) k(6) (8) (10/20) (X)?', 'artFilename' => 'fanchunggraham.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array('Slow', 'Morphing'), 'properties' => array(), 'recipe' => 'wm(1)', 'description' => 'Slow Morphing 1-sided die'),
             array('value' => NULL, 'sides' => 2, 'skills' => array('Slow', 'Morphing'), 'properties' => array(), 'recipe' => 'wm(2)', 'description' => 'Slow Morphing 2-sided die'),
@@ -8276,8 +8276,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Doppelganger', 'Morphing', 'Slow'));
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Skomp', 'recipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'originalRecipe' => 'wm(1) wm(2) wm(4) m(8) m(10)', 'artFilename' => 'skomp.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'originalRecipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array('Slow', 'Morphing'), 'properties' => array(), 'recipe' => 'wm(1)', 'description' => 'Slow Morphing 1-sided die'),
             array('value' => NULL, 'sides' => 2, 'skills' => array('Slow', 'Morphing'), 'properties' => array(), 'recipe' => 'wm(2)', 'description' => 'Slow Morphing 2-sided die'),
@@ -8433,8 +8433,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Chance', 'Focus'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Pikathulhu', 'recipe' => '(6) c(6) (10) (12) c(X)', 'artFilename' => 'pikathulhu.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Phoenix', 'recipe' => '(4) (6) f(8) (10) f(20)', 'artFilename' => 'phoenix.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Pikathulhu', 'recipe' => '(6) c(6) (10) (12) c(X)', 'originalRecipe' => '(6) c(6) (10) (12) c(X)', 'artFilename' => 'pikathulhu.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Phoenix', 'recipe' => '(4) (6) f(8) (10) f(20)', 'originalRecipe' => '(4) (6) f(8) (10) f(20)', 'artFilename' => 'phoenix.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
             array('value' => NULL, 'sides' => 6, 'skills' => array('Chance'), 'properties' => array(), 'recipe' => 'c(6)', 'description' => 'Chance 6-sided die'),
@@ -8866,8 +8866,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Berserk', 'Doppelganger', 'Focus', 'Mighty', 'Null', 'Ornery', 'Poison', 'Radioactive', 'Stinger'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16), 'U' => array(8, 30));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'fendrin', 'recipe' => 'f(3) nD(R) (1) n(2) Bp(U)', 'artFilename' => 'fendrin.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'fendrin', 'recipe' => 'f(3) nD(R) (1) n(2) Bp(U)', 'originalRecipe' => 'f(3) nD(R) (1) n(2) Bp(U)', 'artFilename' => 'fendrin.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'originalRecipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 3, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(3)', 'description' => 'Focus 3-sided die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Null', 'Doppelganger'), 'properties' => array(), 'recipe' => 'nD(R)', 'description' => 'Null Doppelganger R Swing Die'),
@@ -9035,8 +9035,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive', 'Speed', 'Stinger', 'Trip'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'slamkrypare', 'recipe' => 't(1) (10) (10) z(12) (Y)', 'artFilename' => 'slamkrypare.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'slamkrypare', 'recipe' => 't(1) (10) (10) z(12) (Y)', 'originalRecipe' => 't(1) (10) (10) z(12) (Y)', 'artFilename' => 'slamkrypare.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'originalRecipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array('Trip'), 'properties' => array(), 'recipe' => 't(1)', 'description' => 'Trip 1-sided die'),
             array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
@@ -9147,8 +9147,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Queer', 'Radioactive', 'Shadow', 'Speed', 'Stinger', 'Trip'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('T' => array(2, 12));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'originalRecipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'gman97216', 'recipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'originalRecipe' => 'Hog%(4) Hog%(4) Hog%(4) Hog%(4)', 'artFilename' => 'gman97216.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 2, 'skills' => array('Queer'), 'properties' => array(), 'recipe' => 'q(2)', 'description' => 'Queer 2-sided die'),
             array('value' => NULL, 'sides' => 3, 'skills' => array('Speed'), 'properties' => array(), 'recipe' => 'z(3)', 'description' => 'Speed 3-sided die'),
@@ -9320,8 +9320,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Fire', 'Focus', 'Mood', 'Morphing', 'Queer', 'Shadow', 'Speed', 'Stinger', 'Trip', 'Value'));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'TheFool', 'recipe' => 'v(5) v(10) vq(10) vs(15) s(R,R)?', 'artFilename' => 'thefool.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'originalRecipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'TheFool', 'recipe' => 'v(5) v(10) vq(10) vs(15) s(R,R)?', 'originalRecipe' => 'v(5) v(10) vq(10) vs(15) s(R,R)?', 'artFilename' => 'thefool.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 6, 'skills' => array('Trip', 'Morphing'), 'properties' => array(), 'recipe' => 'tm(6)', 'description' => 'Trip Morphing 6-sided die'),
             array('value' => NULL, 'sides' => 8, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(8)', 'description' => 'Focus 8-sided die'),
@@ -9508,8 +9508,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Focus', 'Shadow', 'Trip'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20), 'Y' => array(1, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Ein', 'recipe' => '(8) (8) f(8) t(8) (X) +(Y)', 'artFilename' => 'ein.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Merlin', 'recipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'originalRecipe' => '(2) (4) s(10) s(20) (X) +s(X)', 'artFilename' => 'merlin.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Ein', 'recipe' => '(8) (8) f(8) t(8) (X) +(Y)', 'originalRecipe' => '(8) (8) f(8) t(8) (X) +(Y)', 'artFilename' => 'ein.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 2, 'skills' => array(), 'properties' => array(), 'recipe' => '(2)', 'description' => '2-sided die'),
             array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
@@ -9607,8 +9607,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Queer', 'Shadow', 'Speed', 'Trip'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('T' => array(2, 12));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('T' => array(2, 12));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'originalRecipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Pjack', 'recipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'originalRecipe' => 'q(2) z(3) (5) s(23) t(T,T)', 'artFilename' => 'pjack.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 2, 'skills' => array('Queer'), 'properties' => array(), 'recipe' => 'q(2)', 'description' => 'Queer 2-sided die'),
             array('value' => NULL, 'sides' => 3, 'skills' => array('Speed'), 'properties' => array(), 'recipe' => 'z(3)', 'description' => 'Speed 3-sided die'),
@@ -9751,12 +9751,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = -6.0;
         $expData['playerDataArray'][1]['sideScore'] = 6.0;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'tn(4) c(10) tn(10) c(12) (12)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'o(6) Ms(8) (8) s(10) oM(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'nt(4) c(10) nt(10) c(12) (12)', 'originalRecipe' => 'nt(4) c(10) nt(10) c(12) (12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'o(6) Ms(8) (8) s(10) Mo(20)', 'originalRecipe' => 'o(6) Ms(8) (8) s(10) Mo(20)', 'artFilename' => 'BMdefaultRound.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
-            array('value' => 4, 'sides' => 4, 'skills' => array('Trip', 'Null'), 'properties' => array(), 'recipe' => 'tn(4)', 'description' => 'Trip Null 4-sided die'),
+            array('value' => 4, 'sides' => 4, 'skills' => array('Null', 'Trip'), 'properties' => array(), 'recipe' => 'nt(4)', 'description' => 'Null Trip 4-sided die'),
             array('value' => 3, 'sides' => 10, 'skills' => array('Chance'), 'properties' => array(), 'recipe' => 'c(10)', 'description' => 'Chance 10-sided die'),
-            array('value' => 3, 'sides' => 10, 'skills' => array('Trip', 'Null'), 'properties' => array(), 'recipe' => 'tn(10)', 'description' => 'Trip Null 10-sided die'),
+            array('value' => 3, 'sides' => 10, 'skills' => array('Null', 'Trip'), 'properties' => array(), 'recipe' => 'nt(10)', 'description' => 'Null Trip 10-sided die'),
             array('value' => 5, 'sides' => 12, 'skills' => array('Chance'), 'properties' => array(), 'recipe' => 'c(12)', 'description' => 'Chance 12-sided die'),
             array('value' => 5, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
         );
@@ -9765,9 +9765,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => 8, 'sides' => 8, 'skills' => array('Maximum', 'Shadow'), 'properties' => array(), 'recipe' => 'Ms(8)', 'description' => 'Maximum Shadow 8-sided die'),
             array('value' => 5, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
             array('value' => 7, 'sides' => 10, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(10)', 'description' => 'Shadow 10-sided die'),
-            array('value' => 20, 'sides' => 20, 'skills' => array('Ornery', 'Maximum'), 'properties' => array(), 'recipe' => 'oM(20)', 'description' => 'Ornery Maximum 20-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array('Maximum', 'Ornery'), 'properties' => array(), 'recipe' => 'Mo(20)', 'description' => 'Maximum Ornery 20-sided die'),
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [tn(4):4, c(10):3, tn(10):3, c(12):5, (12):5], responder004 rolled [o(6):6, Ms(8):8, (8):5, s(10):7, oM(20):20]. responder003 has dice which are not counted for initiative due to die skills: [tn(4), tn(10)].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [nt(4):4, c(10):3, nt(10):3, c(12):5, (12):5], responder004 rolled [o(6):6, Ms(8):8, (8):5, s(10):7, Mo(20):20]. responder003 has dice which are not counted for initiative due to die skills: [nt(4), nt(10)].'));
         $expData['gameActionLogCount'] = 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -9775,7 +9775,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 01 - verify that a trip attack by the smaller trip die against the Ms(8) is rejected
-        // [tn(4):4, c(10):3, tn(10):3, c(12):5, (12):5] => [o(6):6, Ms(8):8, (8):5, s(10):7, oM(20):20]
+        // [nt(4):4, c(10):3, nt(10):3, c(12):5, (12):5] => [o(6):6, Ms(8):8, (8):5, s(10):7, Mo(20):20]
         $this->verify_api_submitTurn_failure(
             array(),
             'The attacking die cannot roll high enough to capture the target die',
@@ -9785,7 +9785,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // A trip attack by the larger trip die against the Ms(8) should be allowed
         $this->verify_api_submitTurn(
             array(7),
-            'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured. ',
+            'responder003 performed Trip attack using [nt(10):3] against [Ms(8):8]; Attacker nt(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured. ',
             $retval, array(array(0, 2), array(1, 1)),
             $gameId, 1, 'Trip', 0, 1, '');
 
@@ -9797,7 +9797,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(),
             array()
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tn(10):3] against [Ms(8):8]; Attacker tn(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [nt(10):3] against [Ms(8):8]; Attacker nt(10) rerolled 3 => 7; Defender Ms(8) rerolled 8 => 8, was not captured'));
         $expData['gameActionLogCount'] = 2;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -9829,8 +9829,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['activePlayerIdx'] = 0;
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Shadow Warriors', 'recipe' => '(1) (2) `(4) `(6) `(8) `(10) `(12)', 'artFilename' => 'shadowwarriors.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'fernworthy', 'recipe' => '(1) (2) z(12) z(20) `(4) `(6) `(8) `(10)', 'artFilename' => 'fernworthy.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Shadow Warriors', 'recipe' => '(1) (2) `(4) `(6) `(8) `(10) `(12)', 'originalRecipe' => '(1) (2) `(4) `(6) `(8) `(10) `(12)', 'artFilename' => 'shadowwarriors.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'fernworthy', 'recipe' => '(1) (2) z(12) z(20) `(4) `(6) `(8) `(10)', 'originalRecipe' => '(1) (2) z(12) z(20) `(4) `(6) `(8) `(10)', 'artFilename' => 'fernworthy.png');
         $expData['playerDataArray'][0]['roundScore'] = 1.5;
         $expData['playerDataArray'][1]['roundScore'] = 17.5;
         $expData['playerDataArray'][0]['sideScore'] = -10.7;
@@ -10080,8 +10080,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Fire', 'Mighty', 'Slow', 'Speed', 'Value'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Beatnik Turtle', 'recipe' => 'wHF(4) (8) (10) vz(20) vz(20)', 'artFilename' => 'beatnikturtle.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Firebreather', 'recipe' => '(4) F(6) F(6) (12) (S)', 'artFilename' => 'firebreather.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Beatnik Turtle', 'recipe' => 'wHF(4) (8) (10) vz(20) vz(20)', 'originalRecipe' => 'wHF(4) (8) (10) vz(20) vz(20)', 'artFilename' => 'beatnikturtle.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Firebreather', 'recipe' => '(4) F(6) F(6) (12) (S)', 'originalRecipe' => '(4) F(6) F(6) (12) (S)', 'artFilename' => 'firebreather.png');
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('S' => array(6, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -10249,8 +10249,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array(3 => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'fernworthy', 'recipe' => '(1) (2) z(12) z(20) `(4) `(6) `(8) `(10)', 'artFilename' => 'fernworthy.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Noeh', 'recipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'artFilename' => 'noeh.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'fernworthy', 'recipe' => '(1) (2) z(12) z(20) `(4) `(6) `(8) `(10)', 'originalRecipe' => '(1) (2) z(12) z(20) `(4) `(6) `(8) `(10)', 'artFilename' => 'fernworthy.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Noeh', 'recipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'originalRecipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'artFilename' => 'noeh.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 1, 'skills' => array(), 'properties' => array(), 'recipe' => '(1)', 'description' => '1-sided die'),
             array('value' => NULL, 'sides' => 2, 'skills' => array(), 'properties' => array(), 'recipe' => '(2)', 'description' => '2-sided die'),
@@ -10375,8 +10375,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'Z' => array(4, 30));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15), 2 => array(5, 10));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'dexx', 'recipe' => 'k(7) p?(X) o!(Z) G(3,17) t(5) g`(2)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'GorgorBey', 'recipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'dexx', 'recipe' => 'k(7) p?(X) o!(Z) G(3,17) t(5) g`(2)', 'originalRecipe' => 'k(7) p?(X) o!(Z) G(3,17) t(5) g`(2)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'GorgorBey', 'recipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'originalRecipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'artFilename' => 'BMdefaultRound.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 7, 'skills' => array('Konstant'), 'properties' => array(), 'recipe' => 'k(7)', 'description' => 'Konstant 7-sided die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Poison', 'Mood'), 'properties' => array(), 'recipe' => 'p(X)?', 'description' => 'Poison X Mood Swing Die'),
@@ -10626,8 +10626,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Berserk', 'Mighty', 'Mood', 'Ornery', 'Queer', 'Rage', 'Stealth', 'TimeAndSpace', 'Giant'));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['swingRequestArray'] = array('W' => array(4, 12), 'T' => array(2, 12), 'X' => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'LadyJ', 'recipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'LadyJ', 'recipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'originalRecipe' => 'dG(17) Ho(W)? q(X) ^B(T,T) (5)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 17, 'skills' => array('Stealth', 'Rage'), 'properties' => array(), 'recipe' => 'dG(17)', 'description' => 'Stealth Rage 17-sided die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Mighty', 'Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'Ho(W)?', 'description' => 'Mighty Ornery W Mood Swing Die'),
@@ -10753,8 +10753,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array(3 => array(4, 20));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Max Factor', 'recipe' => '(6) (8) (12) (X) (X)', 'artFilename' => 'maxfactor.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Noeh', 'recipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'artFilename' => 'noeh.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Max Factor', 'recipe' => '(6) (8) (12) (X) (X)', 'originalRecipe' => '(6) (8) (12) (X) (X)', 'artFilename' => 'maxfactor.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Noeh', 'recipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'originalRecipe' => 'z(15,15) tg(6) n(Y) f(4/20) sgv(17) `(1)', 'artFilename' => 'noeh.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
             array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
@@ -10842,11 +10842,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_request_savePlayerInfo
      *
-     * 0. Start a game with responder003 playing RandomBMMixed [k(4) pk(4) np(8) n(10) (20)] and
-     *    responder004 playing RandomBMMixed [Mkh(4) M(4) k(10) h(12) (12)]
-     *    responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, pk(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mkh(4):4, M(4):4, k(10):5, h(12):2, (12):7].
+     * 0. Start a game with responder003 playing RandomBMMixed [k(4) kp(4) np(8) n(10) (20)] and
+     *    responder004 playing RandomBMMixed [Mhk(4) M(4) k(10) h(12) (12)]
+     *    responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, kp(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mhk(4):4, M(4):4, k(10):5, h(12):2, (12):7].
      * 1. responder003 performed Skill attack using [k(4):1,np(8):6] against [k(10):5]; Defender k(10) recipe changed to kn(10), was captured; Attacker k(4) does not reroll; Attacker np(8) rerolled 6 => 7
-     * 2. responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) changed size from 4 to 2 sides, recipe changed from Mkh(4) to Mkh(2), does not reroll; Attacker (12) rerolled 7 => 9
+     * 2. responder004 performed Skill attack using [Mhk(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mhk(4) changed size from 4 to 2 sides, recipe changed from Mhk(4) to Mhk(2), does not reroll; Attacker (12) rerolled 7 => 9
      */
     public function test_interface_game_033() {
 
@@ -10880,23 +10880,23 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = -8.7;
         $expData['playerDataArray'][1]['sideScore'] = 8.7;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'k(4) pk(4) np(8) n(10) (20)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'Mkh(4) M(4) k(10) h(12) (12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'k(4) kp(4) np(8) n(10) (20)', 'originalRecipe' => 'k(4) kp(4) np(8) n(10) (20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'Mhk(4) M(4) k(10) h(12) (12)', 'originalRecipe' => 'Mhk(4) M(4) k(10) h(12) (12)', 'artFilename' => 'BMdefaultRound.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 1, 'sides' => 4, 'skills' => array('Konstant'), 'properties' => array(), 'recipe' => 'k(4)', 'description' => 'Konstant 4-sided die'),
-            array('value' => 3, 'sides' => 4, 'skills' => array('Poison', 'Konstant'), 'properties' => array(), 'recipe' => 'pk(4)', 'description' => 'Poison Konstant 4-sided die'),
+            array('value' => 3, 'sides' => 4, 'skills' => array('Konstant', 'Poison'), 'properties' => array(), 'recipe' => 'kp(4)', 'description' => 'Konstant Poison 4-sided die'),
             array('value' => 6, 'sides' => 8, 'skills' => array('Null', 'Poison'), 'properties' => array(), 'recipe' => 'np(8)', 'description' => 'Null Poison 8-sided die'),
             array('value' => 3, 'sides' => 10, 'skills' => array('Null'), 'properties' => array(), 'recipe' => 'n(10)', 'description' => 'Null 10-sided die'),
             array('value' => 3, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
         );
         $expData['playerDataArray'][1]['activeDieArray'] = array(
-            array('value' => 4, 'sides' => 4, 'skills' => array('Maximum', 'Konstant', 'Weak'), 'properties' => array(), 'recipe' => 'Mkh(4)', 'description' => 'Maximum Konstant Weak 4-sided die'),
+            array('value' => 4, 'sides' => 4, 'skills' => array('Maximum', 'Weak', 'Konstant'), 'properties' => array(), 'recipe' => 'Mhk(4)', 'description' => 'Maximum Weak Konstant 4-sided die'),
             array('value' => 4, 'sides' => 4, 'skills' => array('Maximum'), 'properties' => array(), 'recipe' => 'M(4)', 'description' => 'Maximum 4-sided die'),
             array('value' => 5, 'sides' => 10, 'skills' => array('Konstant'), 'properties' => array(), 'recipe' => 'k(10)', 'description' => 'Konstant 10-sided die'),
             array('value' => 2, 'sides' => 12, 'skills' => array('Weak'), 'properties' => array(), 'recipe' => 'h(12)', 'description' => 'Weak 12-sided die'),
             array('value' => 7, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, pk(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mkh(4):4, M(4):4, k(10):5, h(12):2, (12):7].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [k(4):1, kp(4):3, np(8):6, n(10):3, (20):3], responder004 rolled [Mhk(4):4, M(4):4, k(10):5, h(12):2, (12):7].'));
         $expData['gameActionLogCount'] = 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -10923,7 +10923,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(9),
-            'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) does not reroll; Attacker (12) rerolled 7 => 9. ',
+            'responder004 performed Skill attack using [Mhk(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mhk(4) does not reroll; Attacker (12) rerolled 7 => 9. ',
             $retval, array(array(1, 0), array(1, 3), array(0, 3)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -10936,7 +10936,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, 0)),
             array(array(1, array('value' => 3, 'sides' => 10, 'recipe' => 'n(10)', 'properties' => array('WasJustCaptured'))))
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [Mkh(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mkh(4) does not reroll; Attacker (12) rerolled 7 => 9'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [Mhk(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mhk(4) does not reroll; Attacker (12) rerolled 7 => 9'));
         $expData['gameActionLogCount'] = 3;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -10965,8 +10965,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Poison', 'Reserve', 'Shadow', 'Speed', 'TimeAndSpace', 'Trip'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 3, 'skills' => array('TimeAndSpace'), 'properties' => array(), 'recipe' => '^(3)', 'description' => 'TimeAndSpace 3-sided die'),
@@ -11344,7 +11344,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array();
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30) r^(4) rz(12) (1/30)");
+        $expData['playerDataArray'][0]['button'] = array('artFilename' => 'BMdefaultRound.png', 'name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz(1/30) r^(4) rz(12) (1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)');
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "4" => array(1, 30));
         $expData['gameActionLogCount'] = 12;
 
@@ -11743,8 +11743,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Boom', 'Mad'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) (Y)&', 'artFilename' => 'elsie.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) (Y)&', 'artFilename' => 'elsie.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) (Y)&', 'originalRecipe' => '(4) b(4) (10) b(12) (Y)&', 'artFilename' => 'elsie.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Elsie', 'recipe' => '(4) b(4) (10) b(12) (Y)&', 'originalRecipe' => '(4) b(4) (10) b(12) (Y)&', 'artFilename' => 'elsie.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -11914,23 +11914,23 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 0.3;
         $expData['playerDataArray'][1]['sideScore'] = -0.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => '(4) d(6) B(10) hd(10) hB(12)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'b(6) q(6) v(10) qb(12) v(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => '(4) d(6) B(10) dh(10) Bh(12)', 'originalRecipe' => '(4) d(6) B(10) dh(10) Bh(12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'b(6) q(6) v(10) bq(12) v(20)', 'originalRecipe' => 'b(6) q(6) v(10) bq(12) v(20)', 'artFilename' => 'BMdefaultRound.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 4, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
             array('value' => 4, 'sides' => 6, 'skills' => array('Stealth'), 'properties' => array(), 'recipe' => 'd(6)', 'description' => 'Stealth 6-sided die'),
             array('value' => 1, 'sides' => 10, 'skills' => array('Berserk'), 'properties' => array(), 'recipe' => 'B(10)', 'description' => 'Berserk 10-sided die'),
-            array('value' => 2, 'sides' => 10, 'skills' => array('Weak', 'Stealth'), 'properties' => array(), 'recipe' => 'hd(10)', 'description' => 'Weak Stealth 10-sided die'),
-            array('value' => 2, 'sides' => 12, 'skills' => array('Weak', 'Berserk'), 'properties' => array(), 'recipe' => 'hB(12)', 'description' => 'Weak Berserk 12-sided die'),
+            array('value' => 2, 'sides' => 10, 'skills' => array('Stealth', 'Weak'), 'properties' => array(), 'recipe' => 'dh(10)', 'description' => 'Stealth Weak 10-sided die'),
+            array('value' => 2, 'sides' => 12, 'skills' => array('Berserk', 'Weak'), 'properties' => array(), 'recipe' => 'Bh(12)', 'description' => 'Berserk Weak 12-sided die'),
         );
         $expData['playerDataArray'][1]['activeDieArray'] = array(
             array('value' => 2, 'sides' => 6, 'skills' => array('Boom'), 'properties' => array(), 'recipe' => 'b(6)', 'description' => 'Boom 6-sided die'),
             array('value' => 2, 'sides' => 6, 'skills' => array('Queer'), 'properties' => array(), 'recipe' => 'q(6)', 'description' => 'Queer 6-sided die'),
             array('value' => 4, 'sides' => 10, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(10)', 'description' => 'Value 10-sided die'),
-            array('value' => 2, 'sides' => 12, 'skills' => array('Queer', 'Boom'), 'properties' => array(), 'recipe' => 'qb(12)', 'description' => 'Queer Boom 12-sided die'),
+            array('value' => 2, 'sides' => 12, 'skills' => array('Boom', 'Queer'), 'properties' => array(), 'recipe' => 'bq(12)', 'description' => 'Boom Queer 12-sided die'),
             array('value' => 13, 'sides' => 20, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(20)', 'description' => 'Value 20-sided die'),
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(4):4, d(6):4, B(10):1, hd(10):2, hB(12):2], responder004 rolled [b(6):2, q(6):2, v(10):4, qb(12):2, v(20):13].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(4):4, d(6):4, B(10):1, dh(10):2, Bh(12):2], responder004 rolled [b(6):2, q(6):2, v(10):4, bq(12):2, v(20):13].'));
         $expData['gameActionLogCount'] += 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -11964,21 +11964,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
 
         //////////
-        // Move 2 - responder004 performed Boom attack using [qb(12):2] against [hd(10):2]
+        // Move 2 - responder004 performed Boom attack using [bq(12):2] against [dh(10):2]
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(4),
-            'responder004 performed Boom attack using [qb(12):2] against [hd(10):2]; Defender hd(10) recipe changed to hd(8), rerolled 2 => 4, was not captured; Attacker qb(12) does not reroll, was taken out of play. ',
+            'responder004 performed Boom attack using [bq(12):2] against [dh(10):2]; Defender dh(10) recipe changed to dh(8), rerolled 2 => 4, was not captured; Attacker bq(12) does not reroll, was taken out of play. ',
             $retval, array(array(1, 2), array(0, 3)),
             $gameId, 1, 'Boom', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['activePlayerIdx'] = 0;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Boom attack using [qb(12):2] against [hd(10):2]; Defender hd(10) recipe changed to hd(8), rerolled 2 => 4, was not captured; Attacker qb(12) does not reroll, was taken out of play'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Boom attack using [bq(12):2] against [dh(10):2]; Defender dh(10) recipe changed to dh(8), rerolled 2 => 4, was not captured; Attacker bq(12) does not reroll, was taken out of play'));
         $expData['gameActionLogCount'] += 1;
-        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Weak Stealth 8-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Stealth Weak 8-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array("HasJustShrunk");
-        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "hd(8)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "dh(8)";
         $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 8;
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 4;
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
@@ -11987,7 +11987,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
         $expData['playerDataArray'][1]['outOfPlayDieArray'][0]['properties'] = array("IsAttacker");
-        $expData['playerDataArray'][1]['outOfPlayDieArray'][0]['recipe'] = "qb(12)";
+        $expData['playerDataArray'][1]['outOfPlayDieArray'][0]['recipe'] = "bq(12)";
         $expData['playerDataArray'][1]['outOfPlayDieArray'][0]['sides'] = 12;
         $expData['playerDataArray'][1]['outOfPlayDieArray'][0]['value'] = 2;
         $expData['playerDataArray'][1]['roundScore'] = 11.5;
@@ -11999,15 +11999,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
 
         //////////
-        // Move 3 - responder003 performed Berserk attack using [hB(12):2] against [q(6):2]
+        // Move 3 - responder003 performed Berserk attack using [Bh(12):2] against [q(6):2]
         $this->verify_api_submitTurn(
             array(1),
-            'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1. ',
+            'responder003 performed Berserk attack using [Bh(12):2] against [q(6):2]; Defender q(6) was captured; Attacker Bh(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1. ',
             $retval, array(array(0, 4), array(1, 0)),
             $gameId, 1, 'Berserk', 0, 1, '');
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Berserk attack using [hB(12):2] against [q(6):2]; Defender q(6) was captured; Attacker hB(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Berserk attack using [Bh(12):2] against [q(6):2]; Defender q(6) was captured; Attacker Bh(12) changed to h(6) and changed size from 12 to 6 sides because of the Berserk attack, and then changed size from 6 to 4 sides, recipe changed from h(6) to h(4), rerolled 2 => 1'));
         $expData['gameActionLogCount'] += 1;
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Weak 4-sided die";
@@ -12060,8 +12060,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 2.3;
         $expData['playerDataArray'][1]['sideScore'] = -2.3;
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Rold Rage', 'recipe' => '(6) (6) G(6) G(6) G(6)', 'artFilename' => 'roldrage.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'ElihuRoot', 'recipe' => '(3) h(10) h(10) n(20) n(30)', 'artFilename' => 'elihuroot.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Rold Rage', 'recipe' => '(6) (6) G(6) G(6) G(6)', 'originalRecipe' => '(6) (6) G(6) G(6) G(6)', 'artFilename' => 'roldrage.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'ElihuRoot', 'recipe' => '(3) h(10) h(10) n(20) n(30)', 'originalRecipe' => '(3) h(10) h(10) n(20) n(30)', 'artFilename' => 'elihuroot.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 3, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
             array('value' => 5, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
@@ -12168,8 +12168,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Rage', 'Trip'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Stumbling Clowns', 'recipe' => '(8) t(8) (10) t(10) (X)', 'artFilename' => 'stumblingclowns.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Delt Rage', 'recipe' => 'G(4) G(4) (10) (12) G(X)', 'artFilename' => 'deltrage.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Stumbling Clowns', 'recipe' => '(8) t(8) (10) t(10) (X)', 'originalRecipe' => '(8) t(8) (10) t(10) (X)', 'artFilename' => 'stumblingclowns.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Delt Rage', 'recipe' => 'G(4) G(4) (10) (12) G(X)', 'originalRecipe' => 'G(4) G(4) (10) (12) G(X)', 'artFilename' => 'deltrage.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -12322,8 +12322,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'CHOOSE_AUXILIARY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Berserk', 'Ornery', 'Morphing', 'Radioactive', 'Rage', 'Reserve', 'Shadow', 'Slow', 'Stinger', 'Poison'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'artFilename' => 'maryland.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'originalRecipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'originalRecipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'artFilename' => 'maryland.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('W' => array(4, 12), 'X' => array(4, 20));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -12358,9 +12358,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameState'] = "SPECIFY_DICE";
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "wtrollkin", "recipe" => "p(4) pG%(7) s(15) sB(S) s%(S) worm(Y)");
+        $expData['playerDataArray'][0]['button'] = array('artFilename' => 'BMdefaultRound.png', 'name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S) worm(Y)', 'originalRecipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)');
         array_pop($expData['playerDataArray'][1]['activeDieArray']);
-        $expData['playerDataArray'][1]['button'] = array("artFilename" => "maryland.png", "name" => "Maryland", "recipe" => "g(4) m(8) o(10) (W) (X)");
+        $expData['playerDataArray'][1]['button'] = array('artFilename' => 'maryland.png', 'name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X)', 'originalRecipe' => 'g(4) m(8) o(10) (W) (X) +@(8)');
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -12489,8 +12489,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('RandomBMMixed', 'Berserk', 'Maximum', 'Mighty', 'Trip', 'Value'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'vHM(4) v(8) H(10) M(10) (20)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => '(4) tB(4) tBv(6) (10) v(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'HMv(4) v(8) H(10) M(10) (20)', 'originalRecipe' => 'HMv(4) v(8) H(10) M(10) (20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => '(4) Bt(4) Btv(6) (10) v(20)', 'originalRecipe' => '(4) Bt(4) Btv(6) (10) v(20)', 'artFilename' => 'BMdefaultRound.png');
         $expData['activePlayerIdx'] = 1;
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array('Skill', 'Trip');
@@ -12500,7 +12500,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 9.7;
         $expData['playerDataArray'][1]['sideScore'] = -9.7;
         $expData['playerDataArray'][0]['activeDieArray'] = array(
-            array('value' => 4, 'sides' => 4, 'skills' => array('Value', 'Mighty', 'Maximum'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'vHM(4)', 'description' => 'Value Mighty Maximum 4-sided die'),
+            array('value' => 4, 'sides' => 4, 'skills' => array('Mighty', 'Maximum', 'Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'HMv(4)', 'description' => 'Mighty Maximum Value 4-sided die'),
             array('value' => 7, 'sides' => 8, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(8)', 'description' => 'Value 8-sided die'),
             array('value' => 10, 'sides' => 10, 'skills' => array('Mighty'), 'properties' => array(), 'recipe' => 'H(10)', 'description' => 'Mighty 10-sided die'),
             array('value' => 10, 'sides' => 10, 'skills' => array('Maximum'), 'properties' => array(), 'recipe' => 'M(10)', 'description' => 'Maximum 10-sided die'),
@@ -12508,18 +12508,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][1]['activeDieArray'] = array(
             array('value' => 3, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
-            array('value' => 1, 'sides' => 4, 'skills' => array('Trip', 'Berserk'), 'properties' => array(), 'recipe' => 'tB(4)', 'description' => 'Trip Berserk 4-sided die'),
-            array('value' => 1, 'sides' => 6, 'skills' => array('Trip', 'Berserk', 'Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'tBv(6)', 'description' => 'Trip Berserk Value 6-sided die'),
+            array('value' => 1, 'sides' => 4, 'skills' => array('Berserk', 'Trip'), 'properties' => array(), 'recipe' => 'Bt(4)', 'description' => 'Berserk Trip 4-sided die'),
+            array('value' => 1, 'sides' => 6, 'skills' => array('Berserk', 'Trip', 'Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'Btv(6)', 'description' => 'Berserk Trip Value 6-sided die'),
             array('value' => 1, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
             array('value' => 3, 'sides' => 20, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(20)', 'description' => 'Value 20-sided die'),
         );
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [vHM(4):4, v(8):7, H(10):10, M(10):10, (20):20], responder004 rolled [(4):3, tB(4):1, tBv(6):1, (10):1, v(20):3]. responder004 has dice which are not counted for initiative due to die skills: [tB(4), tBv(6)].'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [HMv(4):4, v(8):7, H(10):10, M(10):10, (20):20], responder004 rolled [(4):3, Bt(4):1, Btv(6):1, (10):1, v(20):3]. responder004 has dice which are not counted for initiative due to die skills: [Bt(4), Btv(6)].'));
         $expData['gameActionLogCount'] = 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
-        // Verify that a Trip attack vHM(4):4 <= tB(4) is rejected because tB(4) won't be able to roll high enough once vHM(4) grows
+        // Verify that a Trip attack HMv(4):4 <= Bt(4) is rejected because Bt(4) won't be able to roll high enough once HMv(4) grows
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn_failure(
             array(),
@@ -12530,21 +12530,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
-        // Verify that a Trip attack vHM(4):4 <= tBv(6) is allowed because tBv(6) will still be able to roll high enough once vHM(4) grows
+        // Verify that a Trip attack HMv(4):4 <= Btv(6) is allowed because Btv(6) will still be able to roll high enough once HMv(4) grows
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(5),
-            'responder004 performed Trip attack using [tBv(6):1] against [vHM(4):4]; Attacker tBv(6) rerolled 1 => 5; Defender vHM(4) recipe changed to vHM(6), rerolled 4 => 6, was not captured. ',
+            'responder004 performed Trip attack using [Btv(6):1] against [HMv(4):4]; Attacker Btv(6) rerolled 1 => 5; Defender HMv(4) recipe changed to HMv(6), rerolled 4 => 6, was not captured. ',
             $retval, array(array(1, 2), array(0, 0)),
             $gameId, 1, 'Trip', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['activePlayerIdx'] = 0;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Trip attack using [tBv(6):1] against [vHM(4):4]; Attacker tBv(6) rerolled 1 => 5; Defender vHM(4) recipe changed to vHM(6), rerolled 4 => 6, was not captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Trip attack using [Btv(6):1] against [HMv(4):4]; Attacker Btv(6) rerolled 1 => 5; Defender HMv(4) recipe changed to HMv(6), rerolled 4 => 6, was not captured'));
         $expData['gameActionLogCount'] = 2;
-        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Value Mighty Maximum 6-sided die";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = "Mighty Maximum Value 6-sided die";
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array("ValueRelevantToScore", "HasJustGrown");
-        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "vHM(6)";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = "HMv(6)";
         $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 6;
         $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 6;
         $expData['playerDataArray'][0]['roundScore'] = 26.5;
@@ -12578,8 +12578,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Fire', 'Konstant', 'Morphing', 'Null', 'Stealth'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Hawaii', 'recipe' => 'n(4) m(5) k(8) F(13) d(Y)', 'artFilename' => 'hawaii.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Hawaii', 'recipe' => 'n(4) m(5) k(8) F(13) d(Y)', 'originalRecipe' => 'n(4) m(5) k(8) F(13) d(Y)', 'artFilename' => 'hawaii.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -12687,8 +12687,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 26;
         $expData['playerDataArray'][0]['sideScore'] = 0.7;
         $expData['playerDataArray'][1]['sideScore'] = -0.7;
-        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Tamiya', 'recipe' => '(4) (8) (8) (12) z(20)', 'artFilename' => 'tamiya.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'BlackOmega', 'recipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'originalRecipe' => 'tm(6) f(8) g(10) z(10) sF(20)', 'artFilename' => 'blackomega.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Tamiya', 'recipe' => '(4) (8) (8) (12) z(20)', 'originalRecipe' => '(4) (8) (8) (12) z(20)', 'artFilename' => 'tamiya.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 5, 'sides' => 6, 'skills' => array('Trip', 'Morphing'), 'properties' => array(), 'recipe' => 'tm(6)', 'description' => 'Trip Morphing 6-sided die'),
             array('value' => 8, 'sides' => 8, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(8)', 'description' => 'Focus 8-sided die'),
@@ -12940,8 +12940,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Chance', 'Mood', 'Ornery', 'Rage', 'Reserve', 'Shadow', 'TimeAndSpace', 'Trip'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'originalRecipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -13059,8 +13059,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive', 'Trip'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Prudence', 'recipe' => '(1) t(4) (6) (12) (X)', 'artFilename' => 'prudence.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Calmon', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'calmon.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Prudence', 'recipe' => '(1) t(4) (6) (12) (X)', 'originalRecipe' => '(1) t(4) (6) (12) (X)', 'artFilename' => 'prudence.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Calmon', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'originalRecipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'calmon.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -13232,8 +13232,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Poison', 'Reserve', 'Shadow', 'Speed', 'TimeAndSpace', 'Trip'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Uncle Scratchy', 'recipe' => '(2) (4) (6) (10) (X)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Uncle Scratchy', 'recipe' => '(2) (4) (6) (10) (X)', 'originalRecipe' => '(2) (4) (6) (10) (X)', 'artFilename' => 'BMdefaultRound.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
@@ -13571,7 +13571,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array();
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30) r^(4) rz(12) (1/30)");
+        $expData['playerDataArray'][0]['button'] = array('artFilename' => 'BMdefaultRound.png', 'name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz(1/30) r^(4) rz(12) (1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)');
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "4" => array(1, 30));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -13973,7 +13973,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][5]['sides'] = null;
         $expData['playerDataArray'][0]['activeDieArray'][5]['skills'] = array();
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30) r^(4) z(12) (1/30)");
+        $expData['playerDataArray'][0]['button'] = array('artFilename' => 'BMdefaultRound.png', 'name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz(1/30) r^(4) z(12) (1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)');
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "5" => array(1, 30));
         $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 1, "5" => 1);
 
