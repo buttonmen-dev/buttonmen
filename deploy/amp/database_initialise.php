@@ -5,12 +5,12 @@
 <body>
     <?php
 
-// james: uncomment the following lines to also initialise the 
+// james: uncomment the following lines to also initialise the
 //        primary 'buttonmen' database
 //
-//        recreate_database('buttonmen');
-//        $conn = db_connect('buttonmen');
-//        run_all_sql_files($conn);
+        recreate_database('buttonmen');
+        $conn = db_connect('buttonmen');
+        run_all_sql_files($conn);
 
         recreate_database('buttonmen_test');
         $conn = db_connect('buttonmen_test');
