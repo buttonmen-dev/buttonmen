@@ -352,6 +352,67 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type reroll_chance
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_reroll_chance($action_log_id) {
+        try {
+            $query = 'SELECT die_recipe,orig_value,reroll_value,gained_initiative ' .
+                     'FROM game_action_log_type_reroll_chance ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            return array(
+                'dieRecipe' => (string)$row['die_recipe'],
+                'origValue' => (int)$row['orig_value'],
+                'rerollValue' => (int)$row['reroll_value'],
+                'gainedInitiative' => (bool)$row['gained_initiative'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_reroll_chance: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type reroll_chance
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_reroll_chance($action_log_id, $params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_reroll_chance ' .
+                     '(action_log_id, die_recipe, orig_value, reroll_value, gained_initiative) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :die_recipe, :orig_value, :reroll_value, :gained_initiative)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':die_recipe' => $params['dieRecipe'],
+                ':orig_value' => $params['origValue'],
+                ':reroll_value' => $params['rerollValue'],
+                ':gained_initiative' => $params['gainedInitiative'],
+            ));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_reroll_chance: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Helper function which asks the database for the ID of the last inserted row
      *
      * @return int

@@ -2157,14 +2157,15 @@ class BMGame {
             return FALSE;
         }
 
-        $preRerollData = $die->get_action_log_data();
+        $preRerollRecipe = $die->get_recipe(TRUE);
+        $preRerollValue = $die->value;
         $die->roll(FALSE);
 
         if (isset($args['TESTrerolledDieValue'])) {
             $die->value = $args['TESTrerolledDieValue'];
         }
 
-        $postRerollData = $die->get_action_log_data();
+        $postRerollValue = $die->value;
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2188,8 +2189,9 @@ class BMGame {
             'reroll_chance',
             $player->playerId,
             array(
-                'preReroll' => $preRerollData,
-                'postReroll' => $postRerollData,
+                'dieRecipe' => $preRerollRecipe,
+                'origValue' => $preRerollValue,
+                'rerollValue' => $postRerollValue,
                 'gainedInitiative' => $gainedInitiative,
             )
         );

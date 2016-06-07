@@ -1,0 +1,37 @@
+#!/usr/bin/python
+#####
+# Utility to migrate reroll_chance action log entries to new format
+
+import json
+import MySQLdb
+
+def migrate_to_type_log_reroll_chance(row, crs):
+  row_id = row[0]
+  msgdata = json.loads(row[1])
+  die_recipe = msgdata['preReroll']['recipe']
+  orig_value = msgdata['preReroll']['value']
+  reroll_value = msgdata['postReroll']['value']
+  gained_initiative = bool(msgdata['gainedInitiative'])
+
+  insert_sql = 'INSERT INTO game_action_log_type_reroll_chance ' + \
+    '(action_log_id, die_recipe, orig_value, reroll_value, gained_initiative) VALUES ' + \
+    '(%s, "%s", %s, %s, %s);' % (row[0], die_recipe, orig_value, reroll_value, gained_initiative)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
+  result = crs.execute(update_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+  print "Moved row %s message %s to game_action_log_type_reroll_chance" % (row[0], row[1])
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,message FROM game_action_log WHERE action_type="reroll_chance" ' + \
+  'AND message IS NOT NULL')
+if results > 0:
+  for row in crs.fetchall():
+    migrate_to_type_log_reroll_chance(row, crs)
+conn.commit()

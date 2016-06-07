@@ -669,9 +669,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_friendly_message_reroll_chance() {
         $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'reroll_chance', 2, array(
-            'preReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):4'),
-            'postReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 11, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):11'),
-            'gainedInitiative' => FALSE,
+            'dieRecipe' => 'c(20)', 'origValue' => 4, 'rerollValue' => 11, 'gainedInitiative' => FALSE,
         ));
         $this->assertEquals(
             "gameaction02 rerolled a chance die, but did not gain initiative: c(20) rerolled 4 => 11",
