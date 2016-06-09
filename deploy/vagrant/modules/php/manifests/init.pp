@@ -24,7 +24,7 @@ class php::base {
 class php::base::feature::phpunit {
   exec {
     "php_wget_phpunit":
-      command => "/usr/bin/wget --no-verbose -O /etc/php5/deploy-includes/phpunit.phar http://phar.phpunit.de/phpunit.phar",
+      command => "/usr/bin/wget --no-verbose -O /etc/php5/deploy-includes/phpunit.phar https://phar.phpunit.de/phpunit-old.phar",
       creates => "/etc/php5/deploy-includes/phpunit.phar",
       require => File["/etc/php5/deploy-includes"];
   }

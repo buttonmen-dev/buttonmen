@@ -2161,10 +2161,6 @@ class BMGame {
         $preRerollValue = $die->value;
         $die->roll(FALSE);
 
-        if (isset($args['TESTrerolledDieValue'])) {
-            $die->value = $args['TESTrerolledDieValue'];
-        }
-
         $postRerollValue = $die->value;
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
