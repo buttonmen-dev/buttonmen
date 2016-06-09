@@ -359,15 +359,16 @@ class BMInterfaceGameAction extends BMInterface {
      */
     protected function load_params_from_type_log_reroll_chance($action_log_id) {
         try {
-            $query = 'SELECT die_recipe,orig_value,reroll_value,gained_initiative ' .
+            $query = 'SELECT orig_recipe,orig_value,reroll_recipe,reroll_value,gained_initiative ' .
                      'FROM game_action_log_type_reroll_chance ' .
                      'WHERE action_log_id=:action_log_id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':action_log_id' => $action_log_id));
             $row = $statement->fetch();
             return array(
-                'dieRecipe' => (string)$row['die_recipe'],
+                'origRecipe' => (string)$row['orig_recipe'],
                 'origValue' => (int)$row['orig_value'],
+                'rerollRecipe' => (string)$row['reroll_recipe'],
                 'rerollValue' => (int)$row['reroll_value'],
                 'gainedInitiative' => (bool)$row['gained_initiative'],
             );
@@ -391,14 +392,15 @@ class BMInterfaceGameAction extends BMInterface {
     protected function save_params_to_type_log_reroll_chance($action_log_id, $params) {
         try {
             $query = 'INSERT INTO game_action_log_type_reroll_chance ' .
-                     '(action_log_id, die_recipe, orig_value, reroll_value, gained_initiative) ' .
+                     '(action_log_id, orig_recipe, orig_value, reroll_recipe, reroll_value, gained_initiative) ' .
                      'VALUES ' .
-                     '(:action_log_id, :die_recipe, :orig_value, :reroll_value, :gained_initiative)';
+                     '(:action_log_id, :orig_recipe, :orig_value, :reroll_recipe, :reroll_value, :gained_initiative)';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':action_log_id' => $action_log_id,
-                ':die_recipe' => $params['dieRecipe'],
+                ':orig_recipe' => $params['origRecipe'],
                 ':orig_value' => $params['origValue'],
+                ':reroll_recipe' => $params['rerollRecipe'],
                 ':reroll_value' => $params['rerollValue'],
                 ':gained_initiative' => $params['gainedInitiative'],
             ));

@@ -2161,6 +2161,7 @@ class BMGame {
         $preRerollValue = $die->value;
         $die->roll(FALSE);
 
+        $postRerollRecipe = $die->get_recipe(TRUE);
         $postRerollValue = $die->value;
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
@@ -2185,8 +2186,9 @@ class BMGame {
             'reroll_chance',
             $player->playerId,
             array(
-                'dieRecipe' => $preRerollRecipe,
+                'origRecipe' => $preRerollRecipe,
                 'origValue' => $preRerollValue,
+                'rerollRecipe' => $postRerollRecipe,
                 'rerollValue' => $postRerollValue,
                 'gainedInitiative' => $gainedInitiative,
             )

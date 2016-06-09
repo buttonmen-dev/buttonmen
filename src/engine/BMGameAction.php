@@ -800,7 +800,7 @@ class BMGameAction {
         } else {
             $message .= ', but did not gain initiative';
         }
-        $message .= ': ' . $this->params['dieRecipe'] . ' rerolled ' .
+        $message .= ': ' . $this->params['origRecipe'] . ' rerolled ' .
                     $this->params['origValue'] . ' => ' . $this->params['rerollValue'];
         return $message;
     }

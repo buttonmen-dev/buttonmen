@@ -8,14 +8,15 @@ import MySQLdb
 def migrate_to_type_log_reroll_chance(row, crs):
   row_id = row[0]
   msgdata = json.loads(row[1])
-  die_recipe = msgdata['preReroll']['recipe']
+  orig_recipe = msgdata['preReroll']['recipe']
   orig_value = msgdata['preReroll']['value']
+  reroll_recipe = msgdata['postReroll']['recipe']
   reroll_value = msgdata['postReroll']['value']
   gained_initiative = bool(msgdata['gainedInitiative'])
 
   insert_sql = 'INSERT INTO game_action_log_type_reroll_chance ' + \
-    '(action_log_id, die_recipe, orig_value, reroll_value, gained_initiative) VALUES ' + \
-    '(%s, "%s", %s, %s, %s);' % (row[0], die_recipe, orig_value, reroll_value, gained_initiative)
+    '(action_log_id, orig_recipe, orig_value, reroll_recipe, reroll_value, gained_initiative) VALUES ' + \
+    '(%s, "%s", %s, "%s", %s, %s);' % (row[0], orig_recipe, orig_value, reroll_recipe, reroll_value, gained_initiative)
   result = crs.execute(insert_sql)
   if not result == 1:
     raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
