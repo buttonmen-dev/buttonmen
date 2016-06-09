@@ -694,7 +694,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_init_decline()
      */
     public function test_friendly_message_init_decline() {
-        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'init_decline', 2, array('initDecline' => TRUE));
+        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'init_decline', 2, array());
         $this->assertEquals(
             "gameaction02 chose not to try to gain initiative using chance or focus dice",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
