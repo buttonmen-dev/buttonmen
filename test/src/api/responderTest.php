@@ -298,6 +298,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Konstant' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
                     'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                     'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
+                    'Turbo' => 'If a Turbo Die is rerolled because it is the target of a Trip attack, then the size cannot be changed.',
+                ),
+            ),
+            'Turbo' => array(
+                'code' => '!',
+                'description' => 'After your starting roll, you may change the size of a Turbo Swing or Option die every time you roll it. Decide on a size first that is valid for the Swing or Option type, then roll the new die as usual.',
+                'interacts' => array(
+                    'Boom' => 'If a Turbo Die is rerolled because it is the target of a Boom attack, then the size cannot be changed.',
+                    'Trip' => 'If a Turbo Die is rerolled because it is the target of a Trip attack, then the size cannot be changed.',
                 ),
             ),
             'Value' => array(
@@ -10371,7 +10380,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'responder003', 'responder004', 'dexx', 'GorgorBey', 3);
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
-        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Konstant', 'Mighty', 'Mood', 'Ornery', 'Poison', 'Rage', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger', 'Trip', 'Warrior'));
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Konstant', 'Mighty', 'Mood', 'Ornery', 'Poison', 'Rage', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger', 'Trip', 'Turbo', 'Warrior'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'Z' => array(4, 30));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15), 2 => array(5, 10));
@@ -12942,7 +12951,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Chance', 'Mood', 'Ornery', 'Rage', 'Reserve', 'Shadow', 'TimeAndSpace', 'Trip', 'Turbo'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'originalRecipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jenniegirl', 'recipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'originalRecipe' => 'Gst(S) Gst(S)? Gst(S)^ cor(V) cor@(X)!', 'artFilename' => 'jenniegirl.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
