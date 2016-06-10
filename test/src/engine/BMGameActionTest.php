@@ -718,7 +718,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_reserve()
      */
     public function test_friendly_message_decline_reserve() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'decline_reserve', 2, array('declineReserve' => TRUE));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'decline_reserve', 2, array());
         $this->assertEquals(
             "gameaction02 chose not to add a reserve die",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
