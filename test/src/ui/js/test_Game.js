@@ -1549,7 +1549,6 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 });
 
 test("test_Game.isDieClickable", function(assert) {
-  var player = '';
   var die = {
     description: "6-sided die",
     properties: [],
@@ -1559,25 +1558,23 @@ test("test_Game.isDieClickable", function(assert) {
     value: 2
   };
 
-  assert.equal(Game.isDieClickable(false, player, die), false);
+  assert.equal(Game.isDieClickable(false, '', die), false);
 
-  assert.equal(Game.isDieClickable(true, player, die), true);
+  assert.equal(Game.isDieClickable(true, '', die), true);
 
   die.properties = ['Dizzy'];
-  assert.equal(Game.isDieClickable(true, player, die), false);
+  assert.equal(Game.isDieClickable(true, '', die), false);
 
   die.properties = ['WasJustCaptured'];
-  assert.equal(Game.isDieClickable(true, player, die), false);
+  assert.equal(Game.isDieClickable(true, '', die), false);
 
   die.properties = [];
   die.skills = ['Warrior'];
-  player = 'opponent';
-  assert.equal(Game.isDieClickable(true, player, die), false);
+  assert.equal(Game.isDieClickable(true, 'opponent', die), false);
 
   die.properties = [];
   die.skills = ['Warrior'];
-  player = 'player';
-  assert.equal(Game.isDieClickable(true, player, die), true);
+  assert.equal(Game.isDieClickable(true, 'player', die), true);
 });
 
 test("test_Game.createBorderDiv", function(assert) {
@@ -1869,7 +1866,6 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    console.log(html);
     assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');

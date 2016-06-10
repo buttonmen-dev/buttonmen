@@ -2715,13 +2715,13 @@ Game.gamePlayerDice = function(player, player_active) {
     dieIndex = Game.dieIndexId(player, i);
     isClickable = Game.isDieClickable(player_active, player, die);
     dieDiv = Game.createDieDiv(player, die.value, isClickable);
-    dieBorderDiv = Game.createBorderDiv(Game.color[player]);
+    dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
 
     isSelected = ('dieSelectStatus' in Game.activity) &&
                  (dieIndex in Game.activity.dieSelectStatus) &&
                  (Game.activity.dieSelectStatus[dieIndex]);
 
-    dieContainerDiv = Game.createContainerDiv(
+    dieContainerDiv = Game.createDieContainerDiv(
       player,
       die,
       isClickable,
@@ -2746,14 +2746,14 @@ Game.gamePlayerDice = function(player, player_active) {
   // having been captured just now.
   $.each(Api.game[nonplayer].capturedDieArray, function(_idx, die) {
     if (die.properties.indexOf('WasJustCaptured') >= 0) {
-      dieContainerDiv = Game.createContainerDiv(
+      dieContainerDiv = Game.createDieContainerDiv(
         player,
         die,
         Game.isDieClickable(player_active, player, die),
         dieIndex,
         player_active
       );
-      dieBorderDiv = Game.createBorderDiv(Game.color[player]);
+      dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
       dieDiv = Game.createDieDiv(player, die.value, false);
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
 
@@ -2774,7 +2774,7 @@ Game.gamePlayerDice = function(player, player_active) {
 
 Game.isDieClickable = function(isPlayerActive, player, die) {
   // Find out whether this die is clickable: it is if the player
-  // is active and this particular die is not dizzy
+  // is active and this particular die is not dizzy or warrior
   if (isPlayerActive) {
     if (die.properties.indexOf('Dizzy') >= 0) {
       return false;
@@ -2790,14 +2790,14 @@ Game.isDieClickable = function(isPlayerActive, player, die) {
   }
 };
 
-Game.createBorderDiv = function(color) {
+Game.createDieBorderDiv = function(color) {
   return $('<div>', {
     'class': 'die_border',
     'style': 'border: 2px solid ' + color,
   });
 };
 
-Game.createContainerDiv = function(
+Game.createDieContainerDiv = function(
   player,
   die,
   isClickable,
