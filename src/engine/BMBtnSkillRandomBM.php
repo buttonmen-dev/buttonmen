@@ -190,7 +190,10 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
                          ')';
 
             if (!empty($dieSkillLetterArrayArray[$dieIdx])) {
-                foreach ($dieSkillLetterArrayArray[$dieIdx] as $skillLetter) {
+                $dieSkillLetterArray = $dieSkillLetterArrayArray[$dieIdx];
+                // Sort the skills in reverse order because they get prepended later.
+                rsort($dieSkillLetterArray);
+                foreach ($dieSkillLetterArray as $skillLetter) {
                     $skillNameArray = BMSkill::expand_skill_string($skillLetter);
                     $skillName = 'BMSkill' . $skillNameArray[0];
                     $skill = new $skillName;

@@ -57,9 +57,6 @@ class BMGameAction {
         $actingPlayerId,
         $params
     ) {
-        if (!$params) {
-            throw new Exception("BMGameAction error: params can't be empty");
-        }
         $this->gameState = $gameState;
         $this->actionType = $actionType;
         $this->actingPlayerId = $actingPlayerId;
@@ -803,8 +800,8 @@ class BMGameAction {
         } else {
             $message .= ', but did not gain initiative';
         }
-        $message .= ': ' . $this->params['preReroll']['recipe'] . ' rerolled ' .
-                    $this->params['preReroll']['value'] . ' => ' . $this->params['postReroll']['value'];
+        $message .= ': ' . $this->params['origRecipe'] . ' rerolled ' .
+                    $this->params['origValue'] . ' => ' . $this->params['rerollValue'];
         return $message;
     }
 
@@ -816,9 +813,9 @@ class BMGameAction {
     protected function friendly_message_turndown_focus() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' gained initiative by turning down focus dice';
         $focusStrs = array();
-        foreach ($this->params['preTurndown'] as $idx => $die) {
-            $focusStrs[] = $die['recipe'] . ' from ' . $die['value'] . ' to ' .
-                           $this->params['postTurndown'][$idx]['value'];
+        foreach ($this->params['turndownDice'] as $die) {
+            $focusStrs[] = $die['recipe'] . ' from ' . $die['origValue'] . ' to ' .
+                           $die['turndownValue'];
         }
         $message .= ': ' . implode(", ", $focusStrs);
         return $message;
@@ -869,7 +866,7 @@ class BMGameAction {
         if (($this->outputRoundNumber != $this->params['roundNumber']) ||
             ($this->outputGameState != BMGameState::CHOOSE_AUXILIARY_DICE)) {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                       ' chose to use auxiliary die ' . $this->params['die']['recipe'] .
+                       ' chose to use auxiliary die ' . $this->params['dieRecipe'] .
                        ' in this game';
         } else {
             // Otherwise, return nothing - the fact that this player has made a choice

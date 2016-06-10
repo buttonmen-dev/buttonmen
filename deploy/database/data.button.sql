@@ -1141,7 +1141,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_ord
 (10006, 'RandomBMDuoskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 60),
 (10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 70),
 (10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 80),
-(10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90);
+(10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90),
+(10010, 'RandomBMSoldiers',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 100);
 
 
 
@@ -1170,20 +1171,24 @@ SET flavor_text='This button gets a different random recipe in each game, with f
 WHERE name='RandomBMMonoskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 2 skills appearing a total of 5 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 2 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMDuoskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 3 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMTriskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 4 skills appearing a total of 10 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 4 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMTetraskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 5 skills appearing a total of 13 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 5 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMPentaskill';
+
+UPDATE button
+SET flavor_text='This button gets a different random recipe in each game, similar to buttons in the Soldiers set: Four regular dice plus one X swing die, no skills on any dice.'
+WHERE name='RandomBMSoldiers';
 
 UPDATE button SET flavor_text="Rikachu is a bootleg Button Man created at Origins. He's a Pokedog - from the Pokeman ad opposite the Tess page." WHERE name="Rikachu";
 UPDATE button SET flavor_text="ConMan plays games at conventions until (and sometimes past) dawn, drinks coffee like it's water, and likes to beat people up." WHERE name="ConMan";

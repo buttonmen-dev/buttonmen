@@ -431,6 +431,11 @@ class BMGame {
             }
         }
 
+        // cache recipes
+        foreach ($this->playerArray as $player) {
+            $player->button->originalRecipe = $player->button->recipe;
+        }
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
@@ -2152,14 +2157,12 @@ class BMGame {
             return FALSE;
         }
 
-        $preRerollData = $die->get_action_log_data();
+        $preRerollRecipe = $die->get_recipe(TRUE);
+        $preRerollValue = $die->value;
         $die->roll(FALSE);
 
-        if (isset($args['TESTrerolledDieValue'])) {
-            $die->value = $args['TESTrerolledDieValue'];
-        }
-
-        $postRerollData = $die->get_action_log_data();
+        $postRerollRecipe = $die->get_recipe(TRUE);
+        $postRerollValue = $die->value;
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2183,8 +2186,10 @@ class BMGame {
             'reroll_chance',
             $player->playerId,
             array(
-                'preReroll' => $preRerollData,
-                'postReroll' => $postRerollData,
+                'origRecipe' => $preRerollRecipe,
+                'origValue' => $preRerollValue,
+                'rerollRecipe' => $postRerollRecipe,
+                'rerollValue' => $postRerollValue,
                 'gainedInitiative' => $gainedInitiative,
             )
         );
@@ -2232,7 +2237,7 @@ class BMGame {
         $this->log_action(
             'init_decline',
             $player->playerId,
-            array('initDecline' => TRUE)
+            array()
         );
 
         if (!$this->isWaitingOnAnyAction()) {
@@ -2296,13 +2301,9 @@ class BMGame {
 
         // change specified die values
         $oldDieValueArray = array();
-        $preTurndownData = array();
-        $postTurndownData = array();
         foreach ($args['focusValueArray'] as $dieIdx => $newDieValue) {
-            $preTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
             $oldDieValueArray[$dieIdx] = $player->activeDieArray[$dieIdx]->value;
             $player->activeDieArray[$dieIdx]->value = $newDieValue;
-            $postTurndownData[] = $player->activeDieArray[$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2310,12 +2311,18 @@ class BMGame {
 
         // if the change is successful, disable focus dice that changed
         // value
+        $turndownDiceLogInfo = array();
         if ($newInitiativeArray[$playerIdx] &&
             1 == array_sum($newInitiativeArray)) {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
                     $player->activeDieArray[$dieIdx]->value) {
                     $player->activeDieArray[$dieIdx]->add_flag('Dizzy');
+                    $turndownDiceLogInfo[] = array(
+                        'recipe'        => $player->activeDieArray[$dieIdx]->get_recipe(TRUE),
+                        'origValue'     => $oldDieValue,
+                        'turndownValue' => $player->activeDieArray[$dieIdx]->value,
+                    );
                 }
             }
         } else {
@@ -2332,8 +2339,7 @@ class BMGame {
             'turndown_focus',
             $player->playerId,
             array(
-                'preTurndown' => $preTurndownData,
-                'postTurndown' => $postTurndownData,
+                'turndownDice' => $turndownDiceLogInfo,
             )
         );
 
@@ -3485,12 +3491,14 @@ class BMGame {
         $buttonInfo = array(
             'name' => '',
             'recipe' => '',
+            'originalRecipe' => '',
             'artFilename' => '',
         );
         $button = $this->playerArray[$playerIdx]->button;
         if ($button instanceof BMButton) {
             $buttonInfo['name'] = $button->name;
             $buttonInfo['recipe'] = $button->recipe;
+            $buttonInfo['originalRecipe'] = $button->originalRecipe;
             $buttonInfo['artFilename'] = $button->artFilename;
         }
         return $buttonInfo;

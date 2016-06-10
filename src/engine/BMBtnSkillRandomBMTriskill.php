@@ -7,7 +7,7 @@
 
 /**
  * This class currently supports the special skills of RandomBMTriskill, which has
- * 4 normal dice and a swing die, and 3 skills appearing a total of 7 times on various dice.
+ * 4 normal dice and a swing die, and 3 skills each appearing a total of 2 times on various dice.
  */
 class BMBtnSkillRandomBMTriskill extends BMBtnSkillRandomBM {
     /**
@@ -42,8 +42,8 @@ class BMBtnSkillRandomBMTriskill extends BMBtnSkillRandomBM {
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
             parent::randomly_select_skills(3, $skillCharArray),
-            4,
-            1
+            0,
+            2
         );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
 
@@ -56,6 +56,6 @@ class BMBtnSkillRandomBMTriskill extends BMBtnSkillRandomBM {
      * @return string
      */
     public static function get_description() {
-        return 'Four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.';
+        return 'Four regular dice and one swing die, and 3 skills each appearing a total of 2 times on various dice.';
     }
 }
