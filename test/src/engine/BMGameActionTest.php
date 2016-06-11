@@ -669,9 +669,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_friendly_message_reroll_chance() {
         $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'reroll_chance', 2, array(
-            'preReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):4'),
-            'postReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 11, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):11'),
-            'gainedInitiative' => FALSE,
+            'origRecipe' => 'c(20)', 'origValue' => 4, 'rerollRecipe' => 'c(20)', 'rerollValue' => 11, 'gainedInitiative' => FALSE,
         ));
         $this->assertEquals(
             "gameaction02 rerolled a chance die, but did not gain initiative: c(20) rerolled 4 => 11",
@@ -696,7 +694,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_init_decline()
      */
     public function test_friendly_message_init_decline() {
-        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'init_decline', 2, array('initDecline' => TRUE));
+        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'init_decline', 2, array());
         $this->assertEquals(
             "gameaction02 chose not to try to gain initiative using chance or focus dice",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -718,7 +716,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_reserve()
      */
     public function test_friendly_message_decline_reserve() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'decline_reserve', 2, array('declineReserve' => TRUE));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'decline_reserve', 2, array());
         $this->assertEquals(
             "gameaction02 chose not to add a reserve die",
             $this->object->friendly_message($this->playerIdNames, 0, 0)

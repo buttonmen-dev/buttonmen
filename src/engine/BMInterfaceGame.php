@@ -1178,7 +1178,7 @@ class BMInterfaceGame extends BMInterface {
                     $game->log_action(
                         'decline_reserve',
                         $player->playerId,
-                        array('declineReserve' => TRUE)
+                        array()
                     );
                     $this->set_message('Declined reserve dice');
                     break;

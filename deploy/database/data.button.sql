@@ -1171,19 +1171,19 @@ SET flavor_text='This button gets a different random recipe in each game, with f
 WHERE name='RandomBMMonoskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 2 skills appearing a total of 5 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 2 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMDuoskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 3 skills appearing a total of 7 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 3 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMTriskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 4 skills appearing a total of 10 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 4 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMTetraskill';
 
 UPDATE button
-SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 5 skills appearing a total of 13 times on various dice.'
+SET flavor_text='This button gets a different random recipe in each game, with four regular dice and one swing die, and 5 skills each appearing a total of 2 times on various dice.'
 WHERE name='RandomBMPentaskill';
 
 UPDATE button
