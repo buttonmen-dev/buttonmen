@@ -1804,6 +1804,49 @@ class BMGame {
         }
     }
 
+    public function set_turbo_sizes(array $turboSizeArray) {
+        if (empty($turboSizeArray)) {
+            return TRUE;
+        }
+
+        if (BMGameState::CHOOSE_TURBO_SWING != $this->gameState) {
+            $this->message = 'Wrong game state to choose turbo swing sizes.';
+            return FALSE;
+        }
+
+        $playerIdx = $this->attack['attackerPlayerIdx'];
+        $nDice = count($this->playerArray[$playerIdx]->activeDieArray);
+        foreach (array_keys($turboSizeArray) as $key) {
+            if (!is_int($key) || ($key < 0)) {
+                $this->message = 'The turbo size array must be keyed with non-negative integer die indices';
+                return FALSE;
+            }
+
+            if ($key > $nDice - 1) {
+                $this->message = 'The turbo size array seems to refer to a die index that does not exist';
+                return FALSE;
+            }
+        }
+
+        // set turbo sizes
+        foreach ($turboSizeArray as $dieIdx => $dieSize) {
+            $die = $this->playerArray[$playerIdx]->activeDieArray[$dieIdx];
+            if (($die instanceof BMDieSwing) &&
+                $die->has_skill('Turbo') &&
+                $die->has_flag('IsAttacker')) {
+                $setSuccess = $die->set_swingValue(array($die->swingType => $dieSize));
+                if (!$setSuccess) {
+                    $this->message = 'Invalid swing value for turbo die';
+                    return FALSE;
+                }
+            }
+        }
+
+        $this->playerArray[$playerIdx]->waitingOnAction = FALSE;
+
+        return TRUE;
+    }
+
     /**
      * Update game state from BMGameState::choose_turbo_swing if necessary
      */

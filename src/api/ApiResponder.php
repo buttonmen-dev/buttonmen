@@ -449,6 +449,7 @@ class ApiResponder {
             $args['attackType'],
             (int)$args['attackerIdx'],
             (int)$args['defenderIdx'],
+            $args['turboVals'],
             $args['chat']
         );
 

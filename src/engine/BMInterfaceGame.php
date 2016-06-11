@@ -751,6 +751,7 @@ class BMInterfaceGame extends BMInterface {
         $attackType,
         $attackerIdx,
         $defenderIdx,
+        $turboSizeArray,
         $chat
     ) {
         try {
@@ -814,6 +815,16 @@ class BMInterfaceGame extends BMInterface {
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
+                if (!$this->set_turbo_sizes(
+                    $playerId,
+                    $game,
+                    $roundNumber,
+                    $submitTimestamp,
+                    $turboSizeArray
+                )) {
+                    return NULL;
+                }
+
                 $this->save_game($game);
 
                 // On success, don't set a message, because one will be set from the action log
@@ -1415,6 +1426,45 @@ class BMInterfaceGame extends BMInterface {
                 $e->getMessage()
             );
             $this->set_message('Internal error while adjusting fire dice');
+            return FALSE;
+        }
+    }
+
+    public function set_turbo_sizes(
+        $playerId,
+        $game,
+        $roundNumber,
+        $submitTimestamp,
+        $turboSizeArray
+    ) {
+        try {
+            if (empty($turboSizeArray)) {
+                return TRUE;
+            }
+
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_TURBO_SWING,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
+                $this->set_message('Turbo die sizes cannot be set');
+                return FALSE;
+            }
+
+            $isSuccessful = $game->set_turbo_sizes($turboSizeArray);
+            if (!$isSuccessful) {
+                $this->set_message('Invalid turbo die sizes chosen');
+            }
+
+            return $isSuccessful;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::set_turbo_sizes: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while setting turbo sizes');
             return FALSE;
         }
     }
