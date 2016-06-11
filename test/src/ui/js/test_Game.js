@@ -1583,17 +1583,31 @@ test("test_Game.createDieBorderDiv", function(assert) {
   assert.ok(borderDiv.is('div'));
   assert.equal(borderDiv.prop('class'), 'die_border');
   assert.equal(borderDiv.css('border-top-style'), 'solid');
-  assert.equal(borderDiv.css('border-top-color'), 'red');
   assert.equal(borderDiv.css('border-top-width'), '2px');
   assert.equal(borderDiv.css('border-left-style'), 'solid');
-  assert.equal(borderDiv.css('border-left-color'), 'red');
   assert.equal(borderDiv.css('border-left-width'), '2px');
   assert.equal(borderDiv.css('border-bottom-style'), 'solid');
-  assert.equal(borderDiv.css('border-bottom-color'), 'red');
   assert.equal(borderDiv.css('border-bottom-width'), '2px');
   assert.equal(borderDiv.css('border-right-style'), 'solid');
-  assert.equal(borderDiv.css('border-right-color'), 'red');
   assert.equal(borderDiv.css('border-right-width'), '2px');
+
+  // need to account for differences in encoding between browsers
+  assert.ok(
+    (borderDiv.css('border-top-color') == 'red') ||
+    (borderDiv.css('border-top-color') == 'rgb(255, 0, 0)')
+  );
+  assert.ok(
+    (borderDiv.css('border-left-color') == 'red') ||
+    (borderDiv.css('border-left-color') == 'rgb(255, 0, 0)')
+  );
+  assert.ok(
+    (borderDiv.css('border-bottom-color') == 'red') ||
+    (borderDiv.css('border-bottom-color') == 'rgb(255, 0, 0)')
+  );
+  assert.ok(
+    (borderDiv.css('border-right-color') == 'red') ||
+    (borderDiv.css('border-right-color') == 'rgb(255, 0, 0)')
+  );
 });
 
 test("test_Game.createDieContainerDivAlive", function(assert) {
