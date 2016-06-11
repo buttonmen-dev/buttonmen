@@ -2702,26 +2702,26 @@ Game.gamePlayerDice = function(player, player_active) {
   });
 
   var die;
-  var dieDiv;
   var dieIndex;
-  var dieRecipeDiv;
-  var dieContainerDiv;
-  var dieBorderDiv;
   var isClickable;
   var isSelected;
+
+  var dieDiv;
+  var dieBorderDiv;
+  var dieRecipeDiv;
+  var dieContainerDiv;
 
   for (var i = 0; i < Api.game[player].activeDieArray.length; i++) {
     die = Api.game[player].activeDieArray[i];
     dieIndex = Game.dieIndexId(player, i);
     isClickable = Game.isDieClickable(player_active, player, die);
-    dieDiv = Game.createDieDiv(player, die.value, isClickable);
-    dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
-
     isSelected = ('dieSelectStatus' in Game.activity) &&
                  (dieIndex in Game.activity.dieSelectStatus) &&
                  (Game.activity.dieSelectStatus[dieIndex]);
-
-    dieContainerDiv = Game.createDieContainerDiv(
+    dieDiv = Game.createDieDiv(player, die.value, isClickable);
+    dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
+    dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
+    dieContainerDiv = Game.createDieContainerDivAlive(
       player,
       die,
       isClickable,
@@ -2729,7 +2729,6 @@ Game.gamePlayerDice = function(player, player_active) {
       dieIndex,
       player_active
     );
-    dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
 
     dieBorderDiv.append(dieDiv);
     if (player == 'player') {
@@ -2746,16 +2745,10 @@ Game.gamePlayerDice = function(player, player_active) {
   // having been captured just now.
   $.each(Api.game[nonplayer].capturedDieArray, function(_idx, die) {
     if (die.properties.indexOf('WasJustCaptured') >= 0) {
-      dieContainerDiv = Game.createDieContainerDiv(
-        player,
-        die,
-        Game.isDieClickable(player_active, player, die),
-        dieIndex,
-        player_active
-      );
-      dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
       dieDiv = Game.createDieDiv(player, die.value, false);
+      dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
+      dieContainerDiv = Game.createDieContainerDivDead();
 
       dieBorderDiv.append(dieDiv);
       if (player == 'player') {
@@ -2797,7 +2790,7 @@ Game.createDieBorderDiv = function(color) {
   });
 };
 
-Game.createDieContainerDiv = function(
+Game.createDieContainerDivAlive = function(
   player,
   die,
   isClickable,
@@ -2838,14 +2831,7 @@ Game.createDieContainerDiv = function(
     }
     Game.dieFocusOutlineHandler(dieContainerDiv);
   } else {
-    if (die.properties.indexOf('WasJustCaptured') >= 0) {
-      dieContainerDiv = $('<div>', {
-        'class': 'die_container die_dead' ,
-        'title':
-          'This die was just captured in the last attack and is no longer ' +
-          'in play.',
-      });
-    } else if (isPlayerActive) {
+    if (isPlayerActive) {
       var prevTitle = dieContainerDiv.prop('title');
       if (player == 'player') {
         dieContainerDiv.prop('title', prevTitle +
@@ -2859,6 +2845,15 @@ Game.createDieContainerDiv = function(
   }
 
   return dieContainerDiv;
+};
+
+Game.createDieContainerDivDead = function() {
+  return $('<div>', {
+    'class': 'die_container die_dead',
+    'title':
+      'This die was just captured in the last attack and is no longer ' +
+      'in play.',
+  });
 };
 
 Game.createDieDiv = function(player, value, isClickable) {

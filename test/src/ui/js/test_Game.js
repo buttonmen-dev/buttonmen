@@ -1577,8 +1577,8 @@ test("test_Game.isDieClickable", function(assert) {
   assert.equal(Game.isDieClickable(true, 'player', die), true);
 });
 
-test("test_Game.createBorderDiv", function(assert) {
-  var borderDiv = Game.createBorderDiv('red');
+test("test_Game.createDieBorderDiv", function(assert) {
+  var borderDiv = Game.createDieBorderDiv('red');
 
   assert.ok(borderDiv.is('div'));
   assert.equal(borderDiv.prop('class'), 'die_border');
@@ -1596,7 +1596,7 @@ test("test_Game.createBorderDiv", function(assert) {
   assert.equal(borderDiv.css('border-right-width'), '2px');
 });
 
-test("test_Game.createContainerDiv", function(assert) {
+test("test_Game.createDieContainerDivAlive", function(assert) {
   var die = {
     description: "6-sided die",
     properties: [],
@@ -1606,7 +1606,7 @@ test("test_Game.createContainerDiv", function(assert) {
     value: 2
   };
 
-  var containerDiv = Game.createContainerDiv(
+  var containerDiv = Game.createDieContainerDivAlive(
     'opponent',  // player
     die,         // die
     true,        // isClickable
@@ -1620,7 +1620,7 @@ test("test_Game.createContainerDiv", function(assert) {
   assert.equal(containerDiv.prop('class'), 'die_container die_alive hide_focus selected');
   assert.equal(containerDiv.prop('title'), '6-sided die');
 
-  containerDiv = Game.createContainerDiv(
+  containerDiv = Game.createDieContainerDivAlive(
     'opponent',  // player
     die,         // die
     true,        // isClickable
@@ -1634,7 +1634,7 @@ test("test_Game.createContainerDiv", function(assert) {
   assert.equal(containerDiv.prop('class'), 'die_container die_alive hide_focus unselected_opponent');
   assert.equal(containerDiv.prop('title'), '6-sided die');
 
-  containerDiv = Game.createContainerDiv(
+  containerDiv = Game.createDieContainerDivAlive(
     'opponent',  // player
     die,         // die
     false,       // isClickable
@@ -1648,7 +1648,7 @@ test("test_Game.createContainerDiv", function(assert) {
   assert.equal(containerDiv.prop('class'), 'die_container die_alive');
   assert.equal(containerDiv.prop('title'), '6-sided die. (This die is a Warrior die and can\'t be targeted.)');
 
-  containerDiv = Game.createContainerDiv(
+  containerDiv = Game.createDieContainerDivAlive(
     'player',    // player
     die,         // die
     false,       // isClickable
@@ -1661,16 +1661,10 @@ test("test_Game.createContainerDiv", function(assert) {
   assert.equal(containerDiv.prop('tabindex'), undefined);
   assert.equal(containerDiv.prop('class'), 'die_container die_alive');
   assert.equal(containerDiv.prop('title'), '6-sided die. (This die is dizzy because it was turned down.  It can\'t be used during this attack.)');
+});
 
-  die.properties = ['WasJustCaptured'];
-  containerDiv = Game.createContainerDiv(
-    'player',    // player
-    die,         // die
-    false,       // isClickable
-    false,       // isSelected
-    2,           // dieIndex
-    true         // isPlayerActive
-  );
+test("test_Game.createDieContainerDivDead", function(assert) {
+  containerDiv = Game.createDieContainerDivDead();
 
   assert.ok(containerDiv.is('div'));
   assert.equal(containerDiv.prop('tabindex'), undefined);

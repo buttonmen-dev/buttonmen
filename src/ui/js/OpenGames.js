@@ -283,6 +283,9 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           }));
         });
       } else {
+        console.log(game.victimButton);
+        console.log(buttons);
+
         gameRow.append($('<td>', { 'class': 'victimButton' }).append(
           Env.buildButtonLink(
             game.victimButton,
