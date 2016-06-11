@@ -455,6 +455,59 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type add_reserve
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_add_reserve($action_log_id) {
+        try {
+            $query = 'SELECT die_recipe FROM game_action_log_type_add_reserve ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            return array(
+                'dieRecipe' => (string)$row['die_recipe'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_add_reserve: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type add_reserve
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_add_reserve($action_log_id, $params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_add_reserve ' .
+                     '(action_log_id, die_recipe) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :die_recipe)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':die_recipe' => $params['dieRecipe']));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_add_reserve: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Helper function which asks the database for the ID of the last inserted row
      *
      * @return int
