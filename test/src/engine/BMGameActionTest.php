@@ -705,9 +705,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_add_reserve()
      */
     public function test_friendly_message_add_reserve() {
-        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'add_reserve', 2, array(
-            'die' => array('recipe' => 'r(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'r(6):')
-        ));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'add_reserve', 2, array('dieRecipe' => 'r(6)'));
         $this->assertEquals(
             "gameaction02 added a reserve die: r(6)",
             $this->object->friendly_message($this->playerIdNames, 0, 0)

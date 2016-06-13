@@ -839,7 +839,7 @@ class BMGameAction {
      */
     protected function friendly_message_add_reserve() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                   ' added a reserve die: ' . $this->params['die']['recipe'];
+                   ' added a reserve die: ' . $this->params['dieRecipe'];
         return $message;
     }
 
