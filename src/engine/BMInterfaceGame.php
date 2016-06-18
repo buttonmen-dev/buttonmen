@@ -815,14 +815,18 @@ class BMInterfaceGame extends BMInterface {
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
-                if (!$this->set_turbo_sizes(
-                    $playerId,
-                    $game,
-                    $roundNumber,
-                    $submitTimestamp,
-                    $turboSizeArray
-                )) {
-                    return NULL;
+                $game->proceed_to_next_user_action();
+
+                if (BMGameState::CHOOSE_TURBO_SWING == $game->gameState) {
+                    if (!$this->set_turbo_sizes(
+                        $playerId,
+                        $game,
+                        $roundNumber,
+                        $submitTimestamp,
+                        $turboSizeArray
+                    )) {
+                        return NULL;
+                    }
                 }
 
                 $this->save_game($game);
@@ -1453,12 +1457,11 @@ class BMInterfaceGame extends BMInterface {
                 return FALSE;
             }
 
-            $isSuccessful = $game->set_turbo_sizes($turboSizeArray);
-            if (!$isSuccessful) {
-                $this->set_message('Invalid turbo die sizes chosen');
+            if (!$game->set_turbo_sizes($turboSizeArray)) {
+                return FALSE;
             }
 
-            return $isSuccessful;
+            return TRUE;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::set_turbo_sizes: ' .
@@ -1571,6 +1574,11 @@ class BMInterfaceGame extends BMInterface {
             $doesGameStateAgree;
 
         if (!$isGameStateCurrent) {
+        var_dump($doesTimeStampAgree);
+        var_dump($doesRoundNumberAgree);
+        var_dump($doesGameStateAgree);
+        var_dump($expectedGameState);
+        var_dump($game->gameState);
             $this->set_message('Game state is not current');
         }
 
