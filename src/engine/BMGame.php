@@ -1338,6 +1338,10 @@ class BMGame {
      * Perform the logic required at BMGameState::adjust_fire_dice
      */
     protected function do_next_step_adjust_fire_dice() {
+        if ($this->playerArray[$this->attack['attackerPlayerIdx']]->waitingOnAction) {
+            return;
+        }
+
         if ($this->needs_firing() || $this->allows_fire_overshooting()) {
             $this->playerArray[$this->attack['attackerPlayerIdx']]->waitingOnAction = TRUE;
         }
@@ -3979,28 +3983,16 @@ class BMGame {
         }
 
         if (isset($swingRequestArrayArray[$playerIdx])) {
-            foreach ($swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
-                if ($swingdice[0] instanceof BMDieTwin) {
-                    if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
-                        $swingdie = $swingdice[0]->dice[0];
-                    } elseif ($swingdice[0]->dice[1] instanceof BMDieSwing) {
-                        $swingdie = $swingdice[0]->dice[1];
-                    } else {
-                        throw new LogicException(
-                            'At least one of the subdice of a twin swing die should be a swing die'
-                        );
-                    }
-                } else {
-                    $swingdie = $swingdice[0];
+            foreach (array_keys($swingRequestArrayArray[$playerIdx]) as $swingtype) {
+                $swingRequestArray[$swingtype] = BMDieSwing::swing_range($swingtype);
+            }
+        }
+
+        foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
+            if ($die->has_skill('Turbo')) {
+                if (!($die instanceof BMDieOption)) {
+                    $swingRequestArray[$die->swingType] = BMDieSwing::swing_range($die->swingType);
                 }
-                if ($swingdie instanceof BMDieSwing) {
-                    $validRange = $swingdie->swing_range($swingtype);
-                } else {
-                    throw new LogicException(
-                        'Tried to put die in swingRequestArray which is not a swing die: ' . $swingdie
-                    );
-                }
-                $swingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
             }
         }
 
