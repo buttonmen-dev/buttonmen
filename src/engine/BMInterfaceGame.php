@@ -1458,6 +1458,7 @@ class BMInterfaceGame extends BMInterface {
             }
 
             if (!$game->set_turbo_sizes($turboSizeArray)) {
+                $this->set_message($game->message);
                 return FALSE;
             }
 

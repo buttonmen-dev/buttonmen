@@ -218,6 +218,10 @@ Game.showStatePage = function() {
 
   // Now lay out the page
   Login.arrangePage(Game.page, Game.form, '#game_action_button');
+
+  // after the page has loaded (or possibly reloaded), update turbo visibility
+  // based on whether or not turbo dice are selected
+  Game.updateTurboVisibility();
 };
 
 /////
@@ -2600,8 +2604,6 @@ Game.pageAddTurboTable = function() {
 
   turboDiv.append(turboSpan);
   Game.page.append(turboDiv);
-
-  turboDiv.hide();
 };
 
 Game.createTurboOptionSelector = function(idx, vals) {
