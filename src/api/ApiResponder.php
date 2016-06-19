@@ -443,7 +443,7 @@ class ApiResponder {
         if (!(array_key_exists('turboVals', $args))) {
             $args['turboVals'] = array();
         }
-        
+
         $retval = $interface->game()->submit_turn(
             $_SESSION['user_id'],
             $args['game'],
@@ -453,8 +453,8 @@ class ApiResponder {
             $args['attackType'],
             (int)$args['attackerIdx'],
             (int)$args['defenderIdx'],
-            $args['turboVals'],
-            $args['chat']
+            $args['chat'],
+            $args['turboVals']
         );
 
         if (isset($retval)) {

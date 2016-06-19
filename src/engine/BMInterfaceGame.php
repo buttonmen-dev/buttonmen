@@ -751,8 +751,8 @@ class BMInterfaceGame extends BMInterface {
         $attackType,
         $attackerIdx,
         $defenderIdx,
-        $turboSizeArray,
-        $chat
+        $chat,
+        $turboSizeArray
     ) {
         try {
             $game = $this->load_game($gameId);
