@@ -2746,7 +2746,7 @@ Game.gamePlayerDice = function(player, player_active) {
   $.each(Api.game[nonplayer].capturedDieArray, function(_idx, die) {
     if (die.properties.indexOf('WasJustCaptured') >= 0) {
       dieDiv = Game.createDieDiv(player, die.value, false);
-      dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
+      dieBorderDiv = Game.createDieBorderDiv(Game.color[player], false);
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
       dieContainerDiv = Game.createDieContainerDivDead();
 
@@ -2784,15 +2784,15 @@ Game.isDieClickable = function(isPlayerActive, player, die) {
 };
 
 Game.createDieBorderDiv = function(color, isSelected) {
-  borderDiv = $('<div>', {
-    'class': 'die_border',
-  });
+  var divOpts = {
+    'class': 'die_border'
+  };
 
-  if (isSelected) {
-    dieBorderDiv.attr('style', '2px solid ' + color);
+  if (!isSelected) {
+    divOpts.style = 'border: 2px solid ' + color;
   }
 
-  return borderDiv;
+  return $('<div>', divOpts);
 };
 
 Game.createDieContainerDivAlive = function(
