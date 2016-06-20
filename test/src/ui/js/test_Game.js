@@ -1580,21 +1580,60 @@ test("test_Game.isDieClickable", function(assert) {
 test("test_Game.createDieBorderDiv", function(assert) {
   var borderDiv = Game.createDieBorderDiv('blue', true);
 
+  // the unit tests here need to work across multiple browsers, thus the
+  // multiple possible representations of CSS
+
   // the default style, as defined in gui.css should kick in here
   assert.ok(borderDiv.is('div'));
   assert.equal(borderDiv.prop('class'), 'die_border');
-  assert.equal(borderDiv.css('border-top-style'), '');
-  assert.equal(borderDiv.css('border-top-width'), '');
-  assert.equal(borderDiv.css('border-left-style'), '');
-  assert.equal(borderDiv.css('border-left-width'), '');
-  assert.equal(borderDiv.css('border-bottom-style'), '');
-  assert.equal(borderDiv.css('border-bottom-width'), '');
-  assert.equal(borderDiv.css('border-right-style'), '');
-  assert.equal(borderDiv.css('border-right-width'), '');
-  assert.ok(borderDiv.css('border-top-color') == '');
-  assert.ok(borderDiv.css('border-left-color') == '');
-  assert.ok(borderDiv.css('border-bottom-color') == '');
-  assert.ok(borderDiv.css('border-right-color') == '');
+  assert.ok(
+    (borderDiv.css('border-top-style') == '') ||
+    (borderDiv.css('border-top-style') == 'none')
+  );
+  assert.ok(
+    (borderDiv.css('border-top-width') == '') ||
+    (borderDiv.css('border-top-width') == '0px')
+  );
+  assert.ok(
+    (borderDiv.css('border-left-style') == '') ||
+    (borderDiv.css('border-left-style') == 'none')
+  );
+  assert.ok(
+    (borderDiv.css('border-left-width') == '') ||
+    (borderDiv.css('border-left-width') == '0px')
+  );
+  assert.ok(
+    (borderDiv.css('border-bottom-style') == '') ||
+    (borderDiv.css('border-bottom-style') == 'none')
+  );
+  assert.ok(
+    (borderDiv.css('border-bottom-width') == '') ||
+    (borderDiv.css('border-bottom-width') == '0px')
+  );
+  assert.ok(
+    (borderDiv.css('border-right-style') == '') ||
+    (borderDiv.css('border-right-style') == 'none')
+  );
+  assert.ok(
+    (borderDiv.css('border-right-width') == '') ||
+    (borderDiv.css('border-right-width') == '0px')
+  );
+  assert.ok(
+    (borderDiv.css('border-top-color') == '') ||
+    (borderDiv.css('border-top-color') == 'rgb(0, 0, 0)')
+  );
+assert.ok(
+    (borderDiv.css('border-left-color') == '') ||
+    (borderDiv.css('border-left-color') == 'rgb(0, 0, 0)')
+  );
+assert.ok(
+    (borderDiv.css('border-bottom-color') == '') ||
+    (borderDiv.css('border-bottom-color') == 'rgb(0, 0, 0)')
+  );
+assert.ok(
+    (borderDiv.css('border-right-color') == '') ||
+    (borderDiv.css('border-right-color') == 'rgb(0, 0, 0)')
+  );
 
   borderDiv = Game.createDieBorderDiv('blue', false);
   assert.equal(borderDiv.prop('class'), 'die_border');
@@ -1607,7 +1646,6 @@ test("test_Game.createDieBorderDiv", function(assert) {
   assert.equal(borderDiv.css('border-right-style'), 'solid');
   assert.equal(borderDiv.css('border-right-width'), '2px');
 
-    // need to account for differences in encoding between browsers
   assert.ok(
     (borderDiv.css('border-top-color') == 'blue') ||
     (borderDiv.css('border-top-color') == 'rgb(0, 0, 255)')
