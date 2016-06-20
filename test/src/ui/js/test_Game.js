@@ -1578,9 +1578,25 @@ test("test_Game.isDieClickable", function(assert) {
 });
 
 test("test_Game.createDieBorderDiv", function(assert) {
-  var borderDiv = Game.createDieBorderDiv('red');
+  var borderDiv = Game.createDieBorderDiv('blue', true);
 
+  // the default style, as defined in gui.css should kick in here
   assert.ok(borderDiv.is('div'));
+  assert.equal(borderDiv.prop('class'), 'die_border');
+  assert.equal(borderDiv.css('border-top-style'), '');
+  assert.equal(borderDiv.css('border-top-width'), '');
+  assert.equal(borderDiv.css('border-left-style'), '');
+  assert.equal(borderDiv.css('border-left-width'), '');
+  assert.equal(borderDiv.css('border-bottom-style'), '');
+  assert.equal(borderDiv.css('border-bottom-width'), '');
+  assert.equal(borderDiv.css('border-right-style'), '');
+  assert.equal(borderDiv.css('border-right-width'), '');
+  assert.ok(borderDiv.css('border-top-color') == '');
+  assert.ok(borderDiv.css('border-left-color') == '');
+  assert.ok(borderDiv.css('border-bottom-color') == '');
+  assert.ok(borderDiv.css('border-right-color') == '');
+
+  borderDiv = Game.createDieBorderDiv('blue', false);
   assert.equal(borderDiv.prop('class'), 'die_border');
   assert.equal(borderDiv.css('border-top-style'), 'solid');
   assert.equal(borderDiv.css('border-top-width'), '2px');
@@ -1591,22 +1607,22 @@ test("test_Game.createDieBorderDiv", function(assert) {
   assert.equal(borderDiv.css('border-right-style'), 'solid');
   assert.equal(borderDiv.css('border-right-width'), '2px');
 
-  // need to account for differences in encoding between browsers
+    // need to account for differences in encoding between browsers
   assert.ok(
-    (borderDiv.css('border-top-color') == 'red') ||
-    (borderDiv.css('border-top-color') == 'rgb(255, 0, 0)')
+    (borderDiv.css('border-top-color') == 'blue') ||
+    (borderDiv.css('border-top-color') == 'rgb(0, 0, 255)')
   );
   assert.ok(
-    (borderDiv.css('border-left-color') == 'red') ||
-    (borderDiv.css('border-left-color') == 'rgb(255, 0, 0)')
+    (borderDiv.css('border-left-color') == 'blue') ||
+    (borderDiv.css('border-left-color') == 'rgb(0, 0, 255)')
   );
   assert.ok(
-    (borderDiv.css('border-bottom-color') == 'red') ||
-    (borderDiv.css('border-bottom-color') == 'rgb(255, 0, 0)')
+    (borderDiv.css('border-bottom-color') == 'blue') ||
+    (borderDiv.css('border-bottom-color') == 'rgb(0, 0, 255)')
   );
   assert.ok(
-    (borderDiv.css('border-right-color') == 'red') ||
-    (borderDiv.css('border-right-color') == 'rgb(255, 0, 0)')
+    (borderDiv.css('border-right-color') == 'blue') ||
+    (borderDiv.css('border-right-color') == 'rgb(0, 0, 255)')
   );
 });
 

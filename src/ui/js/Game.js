@@ -2734,13 +2734,7 @@ Game.gamePlayerDice = function(player, player_active) {
         Api.game.player.dieBackgroundType
       )
     );
-
-    dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
-    // deal with the case where we're regenerating an invalid attack
-    if (isClickable && isSelected) {
-      dieBorderDiv.attr('style', '');
-    }
-
+    dieBorderDiv = Game.createDieBorderDiv(Game.color[player], isSelected);
     dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
     dieContainerDiv = Game.createDieContainerDivAlive(
       player,
@@ -2811,11 +2805,16 @@ Game.isDieClickable = function(isPlayerActive, player, die) {
   }
 };
 
-Game.createDieBorderDiv = function(color) {
-  return $('<div>', {
-    'class': 'die_border',
-    'style': 'border: 2px solid ' + color,
-  });
+Game.createDieBorderDiv = function(color, isSelected) {
+  var divOpts = {
+    'class': 'die_border'
+  };
+
+  if (!isSelected) {
+    divOpts.style = 'border: 2px solid ' + color;
+  }
+
+  return $('<div>', divOpts);
 };
 
 Game.createDieContainerDivAlive = function(
