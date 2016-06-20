@@ -2718,7 +2718,7 @@ Game.gamePlayerDice = function(player, player_active) {
     isSelected = ('dieSelectStatus' in Game.activity) &&
                  (dieIndex in Game.activity.dieSelectStatus) &&
                  (Game.activity.dieSelectStatus[dieIndex]);
-    dieDiv = Game.createDieDiv(player, die.value, isClickable);
+    dieDiv = Game.createDieDiv(player, die.value, isClickable, false);
     dieBorderDiv = Game.createDieBorderDiv(Game.color[player], isSelected);
     dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
     dieContainerDiv = Game.createDieContainerDivAlive(
@@ -2745,7 +2745,7 @@ Game.gamePlayerDice = function(player, player_active) {
   // having been captured just now.
   $.each(Api.game[nonplayer].capturedDieArray, function(_idx, die) {
     if (die.properties.indexOf('WasJustCaptured') >= 0) {
-      dieDiv = Game.createDieDiv(player, die.value, false);
+      dieDiv = Game.createDieDiv(player, die.value, false, true);
       dieBorderDiv = Game.createDieBorderDiv(Game.color[player], false);
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
       dieContainerDiv = Game.createDieContainerDivDead();
@@ -2861,12 +2861,14 @@ Game.createDieContainerDivDead = function() {
   });
 };
 
-Game.createDieDiv = function(player, value, isClickable) {
+Game.createDieDiv = function(player, value, isClickable, isDead) {
   var dieDiv = $('<div>', {
     'class': 'die_img',
   });
 
-  if (!isClickable) {
+  if (isDead) {
+    dieDiv.addClass('die_dead');
+  } else if (!isClickable) {
     dieDiv.addClass('die_greyed');
   }
 
