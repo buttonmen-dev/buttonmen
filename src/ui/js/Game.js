@@ -2723,7 +2723,7 @@ Game.gamePlayerDice = function(player, player_active) {
       die.value,
       die.sides,
       isClickable,
-      false,
+      true,
       Api.game.player.dieBackgroundType
     );
     dieDiv.css(
@@ -2765,12 +2765,12 @@ Game.gamePlayerDice = function(player, player_active) {
         die.value,
         die.sides,
         false,
-        true,
+        false,
         Api.game.player.dieBackgroundType
       );
-      dieBorderDiv = Game.createBorderDiv(Game.color[player]);
+      dieBorderDiv = Game.createDieBorderDiv(Game.color[player]);
       dieRecipeDiv = Game.createRecipeDiv(player, Game.dieRecipeText(die));
-      dieContainerDiv = Game.createContainerDivDead();
+      dieContainerDiv = Game.createDieContainerDivDead();
 
       dieBorderDiv.append(dieDiv);
       if (player == 'player') {
@@ -2888,14 +2888,14 @@ Game.createDieDiv = function(
   value,
   sides,
   isClickable,
-  isCaptured,
+  isAlive,
   dieBackgroundType
 ) {
   var dieDiv = $('<div>', {
     'class': 'die_img',
   });
 
-  if (isCaptured) {
+  if (!isAlive) {
     dieDiv.addClass('die_dead');
   } else if (!isClickable) {
     dieDiv.addClass('die_greyed');

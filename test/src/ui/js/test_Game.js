@@ -1704,7 +1704,7 @@ test("test_Game.createDieContainerDivDead", function(assert) {
 });
 
 test("test_Game.createDieDiv", function(assert) {
-  var dieDiv = Game.createDieDiv('opponent', 5, 8, true, false, 'symmetric');
+  var dieDiv = Game.createDieDiv('opponent', 5, 8, true, true, 'symmetric');
 
   assert.ok(dieDiv.is('div'), 'active dieDiv is a div');
   assert.equal(dieDiv.prop('class'), 'die_img', 'active dieDiv class is correct');
@@ -1714,7 +1714,7 @@ test("test_Game.createDieDiv", function(assert) {
   assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'active dieSpan has correct classes');
   assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'active dieSpan contents are correct');
 
-  dieDiv = Game.createDieDiv('opponent', 5, 8, false, false, 'symmetric');
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false, true, 'symmetric');
   assert.ok(dieDiv.is('div'), 'inactive dieDiv is a div');
   assert.equal(dieDiv.prop('class'), 'die_img die_greyed', 'inactive dieDiv classes are correct');
 
@@ -1722,7 +1722,7 @@ test("test_Game.createDieDiv", function(assert) {
   assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent', 'inactive dieDiv has correct classes');
   assert.equal(dieSpan.html(), '&nbsp;5&nbsp;', 'inactive dieSpan contents are correct');
 
-  dieDiv = Game.createDieDiv('opponent', 5, 8, false, true, 'symmetric');
+  dieDiv = Game.createDieDiv('opponent', 5, 8, false, false, 'symmetric');
   assert.ok(dieDiv.is('div'), 'dead dieDiv is a div');
   assert.equal(dieDiv.prop('class'), 'die_img die_dead', 'dead dieDiv classes are correct');
 
