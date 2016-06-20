@@ -1704,7 +1704,7 @@ test("test_Game.createDieContainerDivDead", function(assert) {
 });
 
 test("test_Game.createDieDiv", function(assert) {
-  var dieDiv = Game.createDieDiv('opponent', 4, true);
+  var dieDiv = Game.createDieDiv('opponent', 4, true, false);
 
   assert.ok(dieDiv.is('div'));
   assert.equal(dieDiv.prop('class'), 'die_img');
@@ -1714,9 +1714,13 @@ test("test_Game.createDieDiv", function(assert) {
   assert.equal(dieSpan.prop('class'), 'die_overlay die_number_opponent');
   assert.equal(dieSpan.html(), '&nbsp;4&nbsp;');
 
-  dieDiv = Game.createDieDiv('opponent', 4, false);
+  dieDiv = Game.createDieDiv('opponent', 4, false, false);
   assert.ok(dieDiv.is('div'));
   assert.equal(dieDiv.prop('class'), 'die_img die_greyed');
+
+  dieDiv = Game.createDieDiv('opponent', 4, false, true);
+  assert.ok(dieDiv.is('div'));
+  assert.equal(dieDiv.prop('class'), 'die_img die_dead');
 });
 
 test("test_Game.createRecipeDiv", function(assert) {
