@@ -257,16 +257,17 @@ select.center {
     margin: auto;
 }
 
-.die_dead .die_overlay {
+.die_container_dead .die_overlay {
     color: white;
 }
 
-.die_dead span {
+.die_container_dead span {
     text-decoration: line-through;
 }
 
-/* This matches any .die_dead element that immediately follows a .die_alive */
-.die_alive + .die_dead {
+/* This matches any .die_container_dead element that immediately follows a
+   .die_container_alive */
+.die_container_alive + .die_container_dead {
     margin-left: 40px;
 }
 

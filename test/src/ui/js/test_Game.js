@@ -764,7 +764,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    assert.deepEqual(item.className, 'die_container die_alive hide_focus selected',
+    assert.deepEqual(item.className, 'die_container die_container_alive hide_focus selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     assert.ok(item.innerHTML.match('selected'),
@@ -1491,7 +1491,7 @@ test("test_Game.gamePlayerDice", function(assert) {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
     var htmlout = Game.page.html();
-    assert.ok(htmlout.match('die_container die_alive hide_focus unselected'),
+    assert.ok(htmlout.match('die_container die_container_alive hide_focus unselected'),
       "dice should include some text with the correct CSS class");
     start();
   });
@@ -1647,7 +1647,7 @@ test("test_Game.createDieContainerDivAlive", function(assert) {
 
   assert.ok(containerDiv.is('div'));
   assert.equal(containerDiv.prop('tabindex'), 0);
-  assert.equal(containerDiv.prop('class'), 'die_container die_alive hide_focus selected');
+  assert.equal(containerDiv.prop('class'), 'die_container die_container_alive hide_focus selected');
   assert.equal(containerDiv.prop('title'), '6-sided die');
 
   containerDiv = Game.createDieContainerDivAlive(
@@ -1661,7 +1661,7 @@ test("test_Game.createDieContainerDivAlive", function(assert) {
 
   assert.ok(containerDiv.is('div'));
   assert.equal(containerDiv.prop('tabindex'), 0);
-  assert.equal(containerDiv.prop('class'), 'die_container die_alive hide_focus unselected_opponent');
+  assert.equal(containerDiv.prop('class'), 'die_container die_container_alive hide_focus unselected_opponent');
   assert.equal(containerDiv.prop('title'), '6-sided die');
 
   containerDiv = Game.createDieContainerDivAlive(
@@ -1675,7 +1675,7 @@ test("test_Game.createDieContainerDivAlive", function(assert) {
 
   assert.ok(containerDiv.is('div'));
   assert.equal(containerDiv.prop('tabindex'), undefined);
-  assert.equal(containerDiv.prop('class'), 'die_container die_alive');
+  assert.equal(containerDiv.prop('class'), 'die_container die_container_alive');
   assert.equal(containerDiv.prop('title'), '6-sided die. (This die is a Warrior die and can\'t be targeted.)');
 
   containerDiv = Game.createDieContainerDivAlive(
@@ -1689,7 +1689,7 @@ test("test_Game.createDieContainerDivAlive", function(assert) {
 
   assert.ok(containerDiv.is('div'));
   assert.equal(containerDiv.prop('tabindex'), undefined);
-  assert.equal(containerDiv.prop('class'), 'die_container die_alive');
+  assert.equal(containerDiv.prop('class'), 'die_container die_container_alive');
   assert.equal(containerDiv.prop('title'), '6-sided die. (This die is dizzy because it was turned down.  It can\'t be used during this attack.)');
 });
 
@@ -1698,7 +1698,7 @@ test("test_Game.createDieContainerDivDead", function(assert) {
 
   assert.ok(containerDiv.is('div'));
   assert.equal(containerDiv.prop('tabindex'), undefined);
-  assert.equal(containerDiv.prop('class'), 'die_container die_dead');
+  assert.equal(containerDiv.prop('class'), 'die_container die_container_dead');
   assert.equal(containerDiv.prop('title'), 'This die was just captured in the last attack and is no longer in play.');
 
 });
@@ -1965,16 +1965,16 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_player'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_player'),
       "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_container_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_player'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_player'),
       "die is unselected after second click");
 
     start();
@@ -1993,16 +1993,16 @@ test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_opponent'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_opponent'),
       "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_container_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_opponent'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_opponent'),
       "die is unselected after second click");
 
     start();

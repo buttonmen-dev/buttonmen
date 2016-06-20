@@ -2828,7 +2828,7 @@ Game.createDieContainerDivAlive = function(
   var dieContainerDiv = $('<div>', {
     'id': dieIndex,
     'title': die.description,
-    'class': 'die_container die_alive',
+    'class': 'die_container die_container_alive',
   });
 
   if (isClickable) {
@@ -2876,7 +2876,7 @@ Game.createDieContainerDivAlive = function(
 
 Game.createDieContainerDivDead = function() {
   return $('<div>', {
-    'class': 'die_container die_dead',
+    'class': 'die_container die_container_dead',
     'title':
       'This die was just captured in the last attack and is no longer ' +
       'in play.',
