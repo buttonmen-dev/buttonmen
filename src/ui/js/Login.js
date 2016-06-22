@@ -244,7 +244,6 @@ Login.stateLoggedIn = function(welcomeText) {
     'id': 'login_action_button',
     'text': 'Logout?',
   }));
-  Login.message.append(Login.getLoginForm());
 
   Api.getNextNewPostId(Login.addMainNavbar);
   Login.form = Login.formLogout;
