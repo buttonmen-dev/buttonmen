@@ -95,7 +95,7 @@ function auth_session_exists() {
         $resultArray = $query->fetchAll();
         if (count($resultArray) == 1) {
             update_session($auth_userid, $resultArray[0]['name_ingame']);
-            set_authorisation_cookies($auth_userid, $auth_key, $_COOKIE['expiry_time'] > 0);
+            set_authorisation_cookies($auth_userid, $auth_key, (bool)$_COOKIE['stay_logged_in']);
             return TRUE;
         }
     }
@@ -121,7 +121,7 @@ function set_authorisation_cookies($userId, $key, $doStayLoggedIn) {
 
     setcookie('auth_userid', $userId, $expiryTime, '/', '', FALSE);
     setcookie('auth_key', $key, $expiryTime, '/', '', FALSE);
-    setcookie('expiry_time', $expiryTime, $expiryTime, '/', '', FALSE);
+    setcookie('stay_logged_in', (int)$doStayLoggedIn, $expiryTime, '/', '', FALSE);
 }
 
 /**
@@ -150,7 +150,7 @@ function logout() {
 
         setcookie('auth_key', '', time()-3600, '/');
         setcookie('auth_userid', '', time()-3600, '/');
-        setcookie('expiry_time', '', time()-3600, '/');
+        setcookie('stay_logged_in', '', time()-3600, '/');
 
         $params = session_get_cookie_params();
         setcookie(
