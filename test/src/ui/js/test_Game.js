@@ -1484,28 +1484,176 @@ test("test_Game.gamePlayerStatusWithValue", function(assert) {
   });
 });
 
+// This test shows a mat of the opponent's dice
+// Opponent's dice have the correct set of classes defined for the opponent,
+// and the recipe appears after the dice
 test("test_Game.gamePlayerDice", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.page.append(Game.gamePlayerDice('opponent', true));
-    var htmlout = Game.page.html();
-    assert.ok(htmlout.match('die_container die_alive unselected'),
-      "dice should include some text with the correct CSS class");
+    var diceJQuery = Game.gamePlayerDice('opponent', true);
+    var expectedDiceProps = [
+      "DIV", { "class": "dice_opponent" }, [
+
+        // dieIdx 0: q(T=2)
+        [ "DIV", {
+            "class": "hide_focus die_container die_alive unselected_opponent",
+            "id": "playerIdx_1_dieIdx_0",
+            "tabindex": "0",
+            "title": "Queer T Swing Die (with 2 sides)"
+          }, [
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
+              [ "DIV", { "class": "die_img" }, [
+                [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "1" ] ] ]
+              ] ]
+            ],
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_opponent" }, [ "q(T=2)" ] ] ]
+            ]
+          ]
+        ],
+
+        // dieIdx 1: q(T=2)
+        [ "DIV", {
+            "class": "hide_focus die_container die_alive unselected_opponent",
+            "id": "playerIdx_1_dieIdx_1",
+            "tabindex": "0",
+            "title": "Queer W Swing Die (with 4 sides)"
+          }, [
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
+              [ "DIV", { "class": "die_img" }, [
+                [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "4" ] ] ]
+              ] ]
+            ],
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_opponent" }, [ "q(W=4)" ] ] ]
+            ]
+          ]
+        ],
+
+        // dieIdx 2: q(X=4)
+        [ "DIV", {
+            "class": "hide_focus die_container die_alive unselected_opponent",
+            "id": "playerIdx_1_dieIdx_2",
+            "tabindex": "0",
+            "title": "Queer X Swing Die (with 4 sides)"
+          }, [
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
+              [ "DIV", { "class": "die_img" }, [
+                [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "3" ] ] ]
+              ] ]
+            ],
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_opponent" }, [ "q(X=4)" ] ] ]
+            ]
+          ]
+        ],
+
+        // dieIdx 3: z(S=20)
+        [ "DIV", {
+            "class": "hide_focus die_container die_alive unselected_opponent",
+            "id": "playerIdx_1_dieIdx_3",
+            "tabindex": "0",
+            "title": "Speed S Swing Die (with 20 sides)"
+          }, [
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
+              [ "DIV", { "class": "die_img" }, [
+                [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "12" ] ] ]
+              ] ]
+            ],
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_opponent" }, [ "z(S=20)" ] ] ]
+            ]
+          ]
+        ]
+      ]
+    ];
+    assert.deepEqual(BMTestUtils.DOMNodePropArray(diceJQuery[0]), expectedDiceProps);
     start();
   });
 });
 
+// This test shows a mat of the player's dice when it is the opponent's turn
+// so all the dice are greyed.
+// The recipe appears before the dice.
 test("test_Game.gamePlayerDice_disabled", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_startturn_inactive';
   Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.page.append(Game.gamePlayerDice('player', false));
-    var htmlout = Game.page.html();
-    assert.ok(htmlout.match('die_img die_greyed'),
-      "dice should include some text with the correct CSS class");
+    var diceJQuery = Game.gamePlayerDice('player', false);
+    var expectedDiceProps = [
+      "DIV", { "class": "dice_player" }, [
+
+        // dieIdx 0: (4)
+        [ "DIV", {
+            "class": "die_container die_alive",
+            "id": "playerIdx_0_dieIdx_0",
+            "title": "4-sided die"
+          }, [
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_player" }, [ "(4)" ] ] ]
+            ],
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
+              [ "DIV", { "class": "die_img die_greyed" }, [
+                [ "SPAN", { "class": "die_overlay die_number_player" }, [ "3" ] ]
+              ] ]
+            ] ]
+          ]
+        ],
+
+        // dieIdx 1: (6)
+        [ "DIV", {
+            "class": "die_container die_alive",
+            "id": "playerIdx_0_dieIdx_1",
+            "title": "6-sided die"
+          }, [
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
+            ],
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
+              [ "DIV", { "class": "die_img die_greyed" }, [
+                [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ]
+              ] ]
+            ] ]
+          ]
+        ],
+
+        // dieIdx 2: (12)
+        [ "DIV", {
+            "class": "die_container die_alive",
+            "id": "playerIdx_0_dieIdx_2",
+            "title": "12-sided die"
+          }, [
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_player" }, [ "(12)" ] ]
+            ] ],
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
+              [ "DIV", { "class": "die_img die_greyed" }, [
+                [ "SPAN", { "class": "die_overlay die_number_player" }, [ "5" ] ]
+              ] ]
+            ] ]
+          ]
+        ],
+
+        // dieIdx 3: (X=5)
+        [ "DIV", {
+            "class": "die_container die_alive",
+            "id": "playerIdx_0_dieIdx_3",
+            "title": "X Swing Die (with 5 sides)"
+          }, [
+            [ "DIV", {}, [
+              [ "SPAN", { "class": "die_recipe_player" }, [ "(X=5)" ] ]
+            ] ],
+            [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
+              [ "DIV", { "class": "die_img die_greyed" }, [
+                [ "SPAN", { "class": "die_overlay die_number_player" }, [ "3" ] ]
+              ] ]
+            ] ]
+          ]
+        ]
+      ]
+    ];
+    assert.deepEqual(BMTestUtils.DOMNodePropArray(diceJQuery[0]), expectedDiceProps);
     start();
   });
 });
