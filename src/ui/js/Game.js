@@ -3163,13 +3163,20 @@ Game.dieBorderTogglePlayerHandler = function() {
 };
 
 Game.updateTurboVisibility = function() {
-  $('.turbo_div').hide();
-  $('.turbo_subspan').hide();
+  var turboDiv = $('.turbo_div');
+  var turboSubspanAll = $('.turbo_subspan');
+  var turboDiceAll = $('.turbo');
+  var turboSubspan;
 
-  $('.turbo').each(function() {
+  turboDiv.hide();
+  turboSubspanAll.hide();
+
+  turboDiceAll.each(function() {
     if ($(this).hasClass('selected')) {
-      $('#turbo_subspan' + $(this).attr('id').match(/[^_]+$/)).show();
-      $('.turbo_div').show();
+      turboSubspan =
+        $('#turbo_subspan' + $(this).attr('id').match(/[^_]+$/));
+      turboSubspan.parents().show();
+      turboSubspan.show();
     }
   });
 };

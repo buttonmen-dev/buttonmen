@@ -1753,6 +1753,55 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
   });
 });
 
+test("test_Game.updateTurboVisibility", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+
+    var dieDiv = $('<div>', {
+      'class': 'turbo unselected_player',
+      'id': 'playerIdx_0_dieIdx_2',
+    });
+
+    var turboDiv = $('<div>', {'class': 'turbo_div'});
+    var turboSpan = $('<span>', {'class': 'turbo_span'});
+    var turboSubspan1 = $('<span>', {
+      'class': 'turbo_subspan',
+      'id': 'turbo_subspan1',
+      'text': 'turbo subspan 1',
+    });
+    var turboSubspan2 = $('<span>', {
+      'class': 'turbo_subspan',
+      'id': 'turbo_subspan2',
+      'text': 'turbo subspan 2',
+    });
+
+    turboSpan.append(turboSubspan1);
+    turboSpan.append(turboSubspan2);
+    turboDiv.append(turboSpan);
+
+    Game.page.append(dieDiv);
+    Game.page.append(turboDiv);
+
+    Login.arrangePage(Game.page, null, null);
+    Game.updateTurboVisibility();
+
+    assert.ok(!$('.turbo_div').is(':visible'), 'turbo div should be invisible');
+    assert.ok(!$('#turbo_subspan1').is(':visible'), 'turbo subspan 1 should be invisible');
+    assert.ok(!$('#turbo_subspan2').is(':visible'), 'turbo subspan 2 should be invisible');
+
+    $('.turbo').toggleClass('selected unselected_player');
+    Game.updateTurboVisibility();
+
+    assert.ok($('.turbo_div').is(":visible"), 'turbo div should be visible');
+    assert.ok(!$('#turbo_subspan1').is(':visible'), 'turbo subspan 1 should be invisible');
+    assert.ok($('#turbo_subspan2').is(':visible'), 'turbo subspan 2 should be visible');
+
+    start();
+  });
+});
+
 test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
