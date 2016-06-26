@@ -8413,6 +8413,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
+    /**
+     * @depends test_request_savePlayerInfo
+     */
     public function test_interface_game_019() {
 
         // responder003 is the POV player, so if you need to fake
@@ -8831,6 +8834,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameActionLogCount'] = 17;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        // Now load the game as responder004 and check its state
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $expData['currentPlayerIdx'] = 1;
+        $expData['playerDataArray'][0]['playerColor'] = '#ddffdd';
+        $expData['playerDataArray'][1]['playerColor'] = '#dd99dd';
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
     }
 
     /**
