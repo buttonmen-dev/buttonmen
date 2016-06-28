@@ -1693,7 +1693,7 @@ Game.readCurrentGameActivity = function() {
 
   // Read turbo values
   Game.activity.turboVals = {};
-  $('[id^=turbo_element]:visible').each(function(idx) {
+  $('[id^=turbo_element]:visible').each(function() {
     Game.activity.turboVals[$(this).attr('pos')] = $(this).val();
   });
 
