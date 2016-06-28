@@ -253,6 +253,10 @@ select.center {
     margin-left: 12px;
 }
 
+#turbo_die_info_table {
+    margin-top: 6px;
+}
+
 .winner_name {
     font-size: 150%;
 }

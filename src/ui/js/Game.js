@@ -2607,18 +2607,38 @@ Game.pageAddTurboTable = function() {
   if (hasTurboDice) {
     turboDiv.append(turboSpan);
     Game.page.append(turboDiv);
+
+    var allSwingRanges = $.extend(
+      {},
+      Api.game.player.swingRequestArray,
+      Api.game.opponent.swingRequestArray
+    );
+
+    // convert to array to allow sorting by key
+    allSwingRanges = $.makeArray(allSwingRanges)[0];
+
+    // sort array function taken from
+    // http://stackoverflow.com/questions/5467129/sort-javascript-object-by-key
+    allSwingRanges = Object.keys(allSwingRanges).sort().reduce(
+      function (result, key) {
+        result[key] = allSwingRanges[key];
+        return result;
+      },
+      {}
+    );
+
     Game.page.append(Game.swingRangeTable(
-      $.extend(
-        {},
-        Api.game.player.swingRequestArray,
-        Api.game.opponent.swingRequestArray
-      ),
-      'die_specify_table',
+      allSwingRanges,
+      'turbo_die_info_table',
       false,
       false
     ));
   }
 };
+
+Game.getAllSwingRangesSorted = function() {
+
+}
 
 Game.createTurboOptionSelector = function(idx, vals) {
   var select = $('<select>', {
