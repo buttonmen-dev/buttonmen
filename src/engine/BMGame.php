@@ -1694,9 +1694,7 @@ class BMGame {
         $this->log_action(
             'fire_cancel',
             $this->playerArray[$this->activePlayerIdx]->playerId,
-            array(
-                'action' => 'cancel',
-            )
+            array()
         );
 
         return TRUE;

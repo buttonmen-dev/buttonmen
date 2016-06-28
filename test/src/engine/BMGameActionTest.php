@@ -106,7 +106,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_fire_cancel()
      */
     public function test_friendly_message_fire_cancel() {
-        $this->object = new BMGameAction(BMGameState::START_TURN, 'fire_cancel', 1, array('action' => 'cancel'));
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'fire_cancel', 1, array());
         $this->assertEquals(
             "gameaction01 chose to abandon this attack and start over",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
