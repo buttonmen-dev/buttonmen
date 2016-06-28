@@ -1833,7 +1833,7 @@ class BMGame {
         // set turbo sizes
         foreach ($turboSizeArray as $dieIdx => $dieSize) {
             $die = $this->playerArray[$playerIdx]->activeDieArray[$dieIdx];
-            if (($die instanceof BMDieSwing) &&
+            if (isset($die->swingType) &&
                 $die->has_skill('Turbo') &&
                 $die->has_flag('IsAttacker')) {
                 $setSuccess = $die->set_swingValue(array($die->swingType => $dieSize));
