@@ -2571,6 +2571,7 @@ Game.pageAddTurboTable = function() {
     'text': 'Turbo resize:',
   });
 
+  var hasTurboDice = false;
   var turboSubspan;
   var turboElement;
   var die;
@@ -2578,6 +2579,7 @@ Game.pageAddTurboTable = function() {
   for (var idx = 0; idx < Api.game.player.activeDieArray.length; idx++) {
     die = Api.game.player.activeDieArray[idx];
     if ($.inArray('Turbo', die.skills) > -1) {
+      hasTurboDice = true;
       turboSubspan = $('<span>', {
         'id': 'turbo_subspan' + idx,
         'class': 'turbo_subspan',
@@ -2602,8 +2604,20 @@ Game.pageAddTurboTable = function() {
     }
   }
 
-  turboDiv.append(turboSpan);
-  Game.page.append(turboDiv);
+  if (hasTurboDice) {
+    turboDiv.append(turboSpan);
+    Game.page.append(turboDiv);
+    Game.page.append(Game.swingRangeTable(
+      $.extend(
+        {},
+        Api.game.player.swingRequestArray,
+        Api.game.opponent.swingRequestArray
+      ),
+      'die_specify_table',
+      false,
+      false
+    ));
+  }
 };
 
 Game.createTurboOptionSelector = function(idx, vals) {
