@@ -1575,11 +1575,6 @@ class BMInterfaceGame extends BMInterface {
             $doesGameStateAgree;
 
         if (!$isGameStateCurrent) {
-        var_dump($doesTimeStampAgree);
-        var_dump($doesRoundNumberAgree);
-        var_dump($doesGameStateAgree);
-        var_dump($expectedGameState);
-        var_dump($game->gameState);
             $this->set_message('Game state is not current');
         }
 
