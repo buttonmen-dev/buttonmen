@@ -2636,10 +2636,6 @@ Game.pageAddTurboTable = function() {
   }
 };
 
-Game.getAllSwingRangesSorted = function() {
-
-}
-
 Game.createTurboOptionSelector = function(idx, vals) {
   var select = $('<select>', {
     'id': 'turbo_element' + idx,
