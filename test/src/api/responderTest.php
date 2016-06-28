@@ -10475,8 +10475,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 12;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array();
-        $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['gameActionLog'][0]['message'] = 'responder003 set swing values: X=4, Z=4';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: Y=1 and option dice: ds(1/15=1), `G(5/10=5)'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [k(7):5, p(X=4)?:4, o(Z=4)!:4, G(3,17):7, t(5):4, g`(2):2], responder004 rolled [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1)!:1, wHz(12):12]. responder003 has dice which are not counted for initiative due to die skills: [G(3,17), t(5), g`(2)]. responder004 has dice which are not counted for initiative due to die skills: [ft(5), `G(5/10=5), wHz(12)].'));
@@ -10487,7 +10487,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 03 - responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1)!:1] against [G(3,17):7]
-        // [k(7):5, p(X=4)?:4, o(Z=4):4, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1)!:1, wHz(12):12]
+        // [k(7):5, p(X=4)?:4, o(Z=4)!:4, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1)!:1, wHz(12):12]
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
@@ -10532,7 +10532,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 04 - responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1)!:1]
-        // [k(7):5, p(X=4)?:4, o(Z=4):4, (3,17):7, t(5):4, g`(2):2] => [ft(5):3, ds(1/15=1):1, (5/10=5):3, p(Y=1)!:1, wHz(12):12]
+        // [k(7):5, p(X=4)?:4, o(Z=4)!:4, (3,17):7, t(5):4, g`(2):2] => [ft(5):3, ds(1/15=1):1, (5/10=5):3, p(Y=1)!:1, wHz(12):12]
 
         $this->verify_api_submitTurn(
             array(3, 9, 1),
@@ -10550,6 +10550,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(array(0, array('value' => 1, 'sides' => 1, 'recipe' => 'p(Y)!')))
         );
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('Twin');
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('Twin');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1)!:1]; Defender p(Y=1)! was captured; Attacker p(X=4)? changed size from 4 to 10 sides, recipe changed from p(X=4)? to p(X=10)?, rerolled 4 => 9'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003\'s idle ornery dice rerolled at end of turn: o(Z=4)! rerolled 4 => 1'));
@@ -10560,7 +10561,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 05 - responder004 performed Skill attack using [ft(5):3,ds(1/15=1):1] against [t(5):4]
-        // [k(7):5, p(X=10)?:9, o(Z=4):1, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
+        // [k(7):5, p(X=10)?:9, o(Z=4)!:1, (3,17):7, t(5):4, g`(2):2] <= [ft(5):3, ds(1/15=1):1, (5/10=5):3, wHz(12):12]
 
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
@@ -12431,7 +12432,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "X Swing Die (with 17 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 17;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 23;
         $expData['playerDataArray'][1]['sideScore'] = 13.7;

@@ -3958,12 +3958,23 @@ class BMGame {
      * @return array
      */
     protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
-        // do not show swing requests unless this information is actually necessary
-        if ($this->gameState > BMGameState::SPECIFY_DICE) {
-            return array();
+        $swingRequestArray = array();
+
+        // include turbo swing ranges during START_TURN
+        if ($this->gameState == BMGameState::START_TURN) {
+            foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
+                if ($die->has_skill('Turbo')) {
+                    if (!($die instanceof BMDieOption)) {
+                        $swingRequestArray[$die->swingType] = BMDieSwing::swing_range($die->swingType);
+                    }
+                }
+            }
         }
 
-        $swingRequestArray = array();
+        // hide non-turbo swing requests when this information is not necessary
+        if ($this->gameState > BMGameState::SPECIFY_DICE) {
+            return $swingRequestArray;
+        }
 
         if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
             $swingRequestArrayArray = $this->get_all_swing_requests(TRUE);
@@ -3983,14 +3994,6 @@ class BMGame {
         if (isset($swingRequestArrayArray[$playerIdx])) {
             foreach (array_keys($swingRequestArrayArray[$playerIdx]) as $swingtype) {
                 $swingRequestArray[$swingtype] = BMDieSwing::swing_range($swingtype);
-            }
-        }
-
-        foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
-            if ($die->has_skill('Turbo')) {
-                if (!($die instanceof BMDieOption)) {
-                    $swingRequestArray[$die->swingType] = BMDieSwing::swing_range($die->swingType);
-                }
             }
         }
 
