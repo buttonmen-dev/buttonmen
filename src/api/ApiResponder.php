@@ -444,18 +444,11 @@ class ApiResponder {
             $args['turboVals'] = array();
         }
 
-        $retval = $interface->game()->submit_turn(
-            $_SESSION['user_id'],
-            $args['game'],
-            $args['roundNumber'],
-            $args['timestamp'],
-            $args['dieSelectStatus'],
-            $args['attackType'],
-            (int)$args['attackerIdx'],
-            (int)$args['defenderIdx'],
-            $args['chat'],
-            $args['turboVals']
-        );
+        $args['playerId'] = $_SESSION['user_id'];
+        $args['attackerIdx'] = (int)$args['attackerIdx'];
+        $args['defenderIdx'] = (int)$args['defenderIdx'];
+
+        $retval = $interface->game()->submit_turn($args);
 
         if (isset($retval)) {
             $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
