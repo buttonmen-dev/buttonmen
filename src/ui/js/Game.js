@@ -2778,8 +2778,14 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
   var divOpts = {
     'class': 'die_img',
   };
+
+  // the following classes are now not strictly necessary since die images are
+  // specified explicitly, but is probably good to leave this here for other
+  // potential implementations of the UI
   if ((dieStatus == 'active') && !(isClickable)) {
     divOpts['class'] += ' die_greyed';
+  } else if (dieStatus == 'captured') {
+    divOpts['class'] += ' die_dead';
   }
 
   var dieNumberSpanOpts = {
@@ -2793,7 +2799,65 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
 
   var dieDiv = $('<div>', divOpts);
   dieDiv.append($('<span>', dieNumberSpanOpts));
+
+  dieDiv.css(
+    'background-image',
+    Game.backgroundImagePath(
+      die.sides,
+      dieStatus,
+      isClickable
+    )
+  );
+
   return dieDiv;
+};
+
+/*
+ * Calculate the background image path
+ *
+ * @param  int     sides          Number of sides of the die
+ * @param  string  dieStatus      Status of the die ('active' or 'captured')
+ * @param  boolean isClickable    Is the die clickable?
+ * @param  string  backgroundType Type of die background, one of
+ *                                'circle', 'symmetric', 'realistic'
+ * @return string
+ */
+Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
+  var sidesRoundedUp;
+  var imageType;
+
+  if (sides <= 2) {
+    sidesRoundedUp = 2;
+  } else if (sides <= 4) {
+    sidesRoundedUp = 4;
+  } else if (sides <= 6) {
+    sidesRoundedUp = 6;
+  } else if (sides <= 8) {
+    sidesRoundedUp = 8;
+  } else if (sides <= 10) {
+    sidesRoundedUp = 10;
+  } else if (sides <= 12) {
+    sidesRoundedUp = 12;
+  } else if (sides <= 20) {
+    sidesRoundedUp = 20;
+  } else {
+    sidesRoundedUp = 30;
+  }
+
+  if ((dieStatus == 'active') && !(isClickable)) {
+    imageType = 'inactive';
+  } else if (dieStatus == 'captured') {
+    imageType = 'taken';
+  } else {
+    imageType = 'active';
+  }
+
+  return 'url(images/die/' +
+         Api.game.player.dieBackgroundType +
+         '/d' +
+         sidesRoundedUp +
+         imageType +
+         '.png)';
 };
 
 /**
@@ -2875,9 +2939,9 @@ Game.getDieContainerDivOptions = function(
   }
 
   if (dieStatus == 'active') {
-    divOptions.class += ' die_alive';
+    divOptions.class += ' die_container_alive';
   } else {
-    divOptions.class += ' die_dead';
+    divOptions.class += ' die_container_dead';
   }
 
   // configure clickable dice to be selectable via keyboard,
@@ -3008,7 +3072,7 @@ Game.gamePlayerDice = function(player, player_active) {
         die, player, 'captured', player_active);
 
       dieContainerDiv = Game.createDieContainerDiv(
-	die, player, player_active, 'captured', null,
+	      die, player, player_active, 'captured', null,
         dieClickableInfo, false);
       allDice.append(dieContainerDiv);
     }

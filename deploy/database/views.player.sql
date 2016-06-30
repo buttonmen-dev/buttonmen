@@ -28,6 +28,7 @@ AS SELECT
     i.homepage,
     i.favorite_button_id,
     i.favorite_buttonset_id,
+    i.die_background,
     i.player_color,
     i.opponent_color,
     i.neutral_color_a,

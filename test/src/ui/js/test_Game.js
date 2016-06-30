@@ -764,7 +764,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    assert.deepEqual(item.className, 'die_container die_alive hide_focus selected',
+    assert.deepEqual(item.className, 'die_container die_container_alive hide_focus selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     assert.ok(item.innerHTML.match('selected'),
@@ -1534,7 +1534,7 @@ test("test_Game.getDieContainerDivOptions", function(assert) {
     { 'isClickable': false, 'reason': 'because captured', },
     false);
   var expectedDivOpts = {
-    "class": "die_container die_dead",
+    "class": "die_container die_container_dead",
     "title": "because captured"
   };
   assert.deepEqual(containerDivOpts, expectedDivOpts, "Got expected div options for a captured die");
@@ -1544,7 +1544,7 @@ test("test_Game.getDieContainerDivOptions", function(assert) {
     { 'isClickable': false, 'reason': 'because not clickable', },
     false);
   var expectedDivOpts = {
-    "class": "die_container die_alive",
+    "class": "die_container die_container_alive",
     "id": "indexindex",
     "title": "6-sided die. (because not clickable)"
   };
@@ -1555,7 +1555,7 @@ test("test_Game.getDieContainerDivOptions", function(assert) {
     { 'isClickable': true, 'reason': 'just because', },
     true);
   var expectedDivOpts = {
-    "class": "die_container die_alive hide_focus selected",
+    "class": "die_container die_container_alive hide_focus selected",
     "id": "indexindexindex",
     "tabIndex": 0,
     "title": "6-sided die",
@@ -1574,6 +1574,8 @@ test("test_Game.getDieContainerDivOptions", function(assert) {
  * * placing the recipe above or below the die
  */
 test("test_Game.createDieContainerDiv", function(assert) {
+  Api.game = { player: { dieBackgroundType: 'symmetric' } };
+
   var die = {
     description: "6-sided die",
     properties: [],
@@ -1592,7 +1594,7 @@ test("test_Game.createDieContainerDiv", function(assert) {
     false);
   var dieContainerDivProps = BMTestUtils.DOMNodePropArray(dieContainerDivJQuery[0]);
   var expectedDivProps = [ "DIV", {
-      "class": "die_container die_alive hide_focus unselected_player",
+      "class": "die_container die_container_alive hide_focus unselected_player",
       "id": "2",
       "tabindex": "0",
       "title": "6-sided die"
@@ -1601,7 +1603,7 @@ test("test_Game.createDieContainerDiv", function(assert) {
         [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
       ],
       [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-        [ "DIV", { "class": "die_img" }, [
+        [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/symmetric/d6active.png\");" }, [
           [ "SPAN", { "class": "die_overlay die_number_player" }, [ "2" ] ] ]
         ] ]
       ]
@@ -1614,13 +1616,13 @@ test("test_Game.createDieContainerDiv", function(assert) {
     false);
   dieContainerDivProps = BMTestUtils.DOMNodePropArray(dieContainerDivJQuery[0]);
   expectedDivProps = [ "DIV", {
-      "class": "die_container die_alive hide_focus unselected_opponent",
+      "class": "die_container die_container_alive hide_focus unselected_opponent",
       "id": "2",
       "tabindex": "0",
       "title": "6-sided die"
     }, [
       [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-        [ "DIV", { "class": "die_img" }, [
+        [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/symmetric/d6active.png\");" }, [
           [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
         ] ]
       ],
@@ -1648,7 +1650,7 @@ test("test_Game.createGameMatDieWithBorderDiv", function(assert) {
         "class": "die_border",
         "style": "border: 2px solid #ddffdd"
       }, [
-        [ "DIV", { "class": "die_img" }, [
+        [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d20active.png\");" }, [
           [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "12" ] ] ]
         ]
       ]
@@ -1671,23 +1673,25 @@ test("test_Game.createGameMatDieDiv", function(assert) {
     value: 2
   };
 
+  Api.game = { player: { dieBackgroundType: 'symmetric' } };
+
   var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'active', true);
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
-  var expectedDivProps = [ "DIV", { "class": "die_img" }, [
+  var expectedDivProps = [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/symmetric/d6active.png\");" }, [
     [ "SPAN", { "class": "die_overlay die_number_player" }, [ "2" ] ] ]
   ];
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for clickable active die");
 
-  var dieDivJQuery = Game.createGameMatDieDiv(die, 'opponent', 'active', false);
+  var dieDivJQuery = Game.createGameMatDieDiv(die, 'opponent', 'active', false, 'symmetric');
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
-  var expectedDivProps = [ "DIV", { "class": "die_img die_greyed" }, [
+  var expectedDivProps = [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/symmetric/d6inactive.png\");" }, [
     [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
   ];
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for unclickable active die");
 
-  var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'captured', false);
+  var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'captured', false, 'symmetric');
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
-  var expectedDivProps = [ "DIV", { "class": "die_img" }, [
+  var expectedDivProps = [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(\"images/die/symmetric/d6taken.png\");" }, [
     [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "2" + "\u00A0" ] ] ]
   ];
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for captured die");
@@ -1752,13 +1756,13 @@ test("test_Game.gamePlayerDice", function(assert) {
 
     // dieIdx 0: q(T=2)
     var expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_opponent",
+        "class": "die_container die_container_alive hide_focus unselected_opponent",
         "id": "playerIdx_1_dieIdx_0",
         "tabindex": "0",
         "title": "Queer T Swing Die (with 2 sides)"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img" , "style": "background-image: url(\"images/die/realistic/d2active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "1" ] ] ]
           ] ]
         ],
@@ -1771,13 +1775,13 @@ test("test_Game.gamePlayerDice", function(assert) {
 
     // dieIdx 3: z(S=20)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_opponent",
+        "class": "die_container die_container_alive hide_focus unselected_opponent",
         "id": "playerIdx_1_dieIdx_3",
         "tabindex": "0",
         "title": "Speed S Swing Die (with 20 sides)"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d20active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "12" ] ] ]
           ] ]
         ],
@@ -1809,7 +1813,7 @@ test("test_Game.gamePlayerDice_disabled", function(assert) {
 
     // dieIdx 1: (6)
     var expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive",
+        "class": "die_container die_container_alive",
         "id": "playerIdx_0_dieIdx_1",
         "title": "6-sided die"
       }, [
@@ -1817,7 +1821,7 @@ test("test_Game.gamePlayerDice_disabled", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img die_greyed" }, [
+          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/realistic/d6inactive.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ]
           ] ]
         ] ]
@@ -1846,7 +1850,7 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
 
     // dieIdx 0: (6)
     var expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_player",
+        "class": "die_container die_container_alive hide_focus unselected_player",
         "id": "playerIdx_0_dieIdx_0",
         "tabindex": "0",
         "title": "6-sided die"
@@ -1855,7 +1859,7 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d6active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "5" ] ] ]
           ] ]
         ]
@@ -1865,14 +1869,14 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
 
     // dead die: (4)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_dead",
+        "class": "die_container die_container_dead",
         "title": "This die was just captured in the last attack and is no longer in play."
       }, [
         [ "DIV", {}, [
           [ "SPAN", { "class": "die_recipe_player" }, [ "(4)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(\"images/die/realistic/d4taken.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "2" + "\u00A0" ] ] ]
           ] ]
         ]
@@ -1882,14 +1886,14 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
 
     // dead die: (20)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_dead",
+        "class": "die_container die_container_dead",
         "title": "This die was just captured in the last attack and is no longer in play."
       }, [
         [ "DIV", {}, [
           [ "SPAN", { "class": "die_recipe_player" }, [ "(20)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(\"images/die/realistic/d20taken.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "8" + "\u00A0" ] ] ]
           ] ]
         ]
@@ -1920,13 +1924,13 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // opponent dieIdx 2: z(12)
     var expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_opponent",
+        "class": "die_container die_container_alive hide_focus unselected_opponent",
         "id": "playerIdx_1_dieIdx_2",
         "tabindex": "0",
         "title": "Speed 12-sided die"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d12active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "7" ] ] ]
           ] ]
         ],
@@ -1939,12 +1943,12 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // opponent dieIdx 5: `(6)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive",
+        "class": "die_container die_container_alive",
         "id": "playerIdx_1_dieIdx_5",
         "title": "Warrior 6-sided die. (This die is a Warrior die and can't be targeted.)"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img die_greyed" }, [
+          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/realistic/d6inactive.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "6" ] ] ]
           ] ]
         ],
@@ -1968,7 +1972,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // player dieIdx 0: (1)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_player",
+        "class": "die_container die_container_alive hide_focus unselected_player",
         "id": "playerIdx_0_dieIdx_0",
         "tabindex": "0",
         "title": "1-sided die"
@@ -1977,7 +1981,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(1)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d2active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ] ]
           ] ]
         ]
@@ -1987,7 +1991,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // player dieIdx 3: `(6)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_player",
+        "class": "die_container die_container_alive hide_focus unselected_player",
         "id": "playerIdx_0_dieIdx_3",
         "tabindex": "0",
         "title": "Warrior 6-sided die"
@@ -1996,7 +2000,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "`(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d6active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "6" ] ] ]
           ] ]
         ]
@@ -2048,13 +2052,13 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // opponent dieIdx 2: z(12)
     var expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus unselected_opponent",
+        "class": "die_container die_container_alive hide_focus unselected_opponent",
         "id": "playerIdx_0_dieIdx_2",
         "tabindex": "0",
         "title": "10-sided die"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d10active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "5" ] ] ]
           ] ]
         ],
@@ -2067,13 +2071,13 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // opponent dieIdx 4: c(X=6)
     var expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus selected",
+        "class": "die_container die_container_alive hide_focus selected",
         "id": "playerIdx_0_dieIdx_4",
         "tabindex": "0",
         "title": "Chance X Swing Die (with 6 sides)",
       }, [
         [ "DIV", { "class": "die_border" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d6active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
           ] ]
         ],
@@ -2097,7 +2101,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // player dieIdx 0: (4)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive hide_focus selected",
+        "class": "die_container die_container_alive hide_focus selected",
         "id": "playerIdx_1_dieIdx_0",
         "tabindex": "0",
         "title": "4-sided die"
@@ -2106,7 +2110,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(4)" ] ] ]
         ],
         [ "DIV", { "class": "die_border" }, [
-          [ "DIV", { "class": "die_img" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d4active.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "3" ] ] ]
           ] ]
         ]
@@ -2116,7 +2120,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // player dieIdx 2: f(8)
     expectedDieProps = [ "DIV", {
-        "class": "die_container die_alive",
+        "class": "die_container die_container_alive",
         "id": "playerIdx_1_dieIdx_2",
         "title": "Focus 8-sided die. (This die is dizzy because it was turned down.  It can't be used during this attack.)"
       }, [
@@ -2124,7 +2128,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "f(8)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img die_greyed" }, [
+          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/realistic/d8inactive.png\");" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ] ]
           ] ]
         ]
@@ -2290,16 +2294,16 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_player'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_player'),
       "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_container_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_player'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_player'),
       "die is unselected after second click");
 
     start();
@@ -2318,16 +2322,16 @@ test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_opponent'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_opponent'),
       "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_container_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive hide_focus unselected_opponent'),
+    assert.ok(html.match('die_container die_container_alive hide_focus unselected_opponent'),
       "die is unselected after second click");
 
     start();
