@@ -2778,7 +2778,7 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
   var divOpts = {
     'class': 'die_img',
   };
-  if ((dieStatus == 'active') && !(isClickable)) {
+  if ((dieStatus == 'active') && !isClickable) {
     divOpts['class'] += ' die_greyed';
   }
 
@@ -2810,7 +2810,7 @@ Game.createGameMatBorderDiv = function(player, isSelected) {
   var borderDivOpts = {
     'class': 'die_border',
   };
-  if (!(isSelected)) {
+  if (!isSelected) {
     borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
   }
 
@@ -2869,7 +2869,7 @@ Game.getDieContainerDivOptions = function(
     divOptions.title = dieClickableInfo.reason;
   } else {
     divOptions.title = die.description;
-    if ((player_active) && !(dieClickableInfo.isClickable)) {
+    if (player_active && !dieClickableInfo.isClickable) {
       divOptions.title += '. (' + dieClickableInfo.reason + ')';
     }
   }
@@ -2992,7 +2992,7 @@ Game.gamePlayerDice = function(player, player_active) {
       die, player, 'active', player_active);
     isSelected = (('dieSelectStatus' in Game.activity) &&
       (dieIndex in Game.activity.dieSelectStatus) &&
-      (Game.activity.dieSelectStatus[dieIndex]));
+      Game.activity.dieSelectStatus[dieIndex]);
 
     dieContainerDiv = Game.createDieContainerDiv(
       die, player, player_active, 'active', dieIndex,
