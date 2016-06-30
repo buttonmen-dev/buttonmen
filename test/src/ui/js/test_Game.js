@@ -1535,9 +1535,20 @@ test("test_Game.getDieContainerDivOptions", function(assert) {
     false);
   var expectedDivOpts = {
     "class": "die_container die_dead",
-    "title": "6-sided die. (because captured)"
+    "title": "because captured"
   };
   assert.deepEqual(containerDivOpts, expectedDivOpts, "Got expected div options for a captured die");
+
+  var containerDivOpts = Game.getDieContainerDivOptions(
+    die, 'player', true, 'active', 'indexindex',
+    { 'isClickable': false, 'reason': 'because not clickable', },
+    false);
+  var expectedDivOpts = {
+    "class": "die_container die_alive",
+    "id": "indexindex",
+    "title": "6-sided die. (because not clickable)"
+  };
+  assert.deepEqual(containerDivOpts, expectedDivOpts, "Got expected div options for an unclickable die");
 
   var containerDivOpts = Game.getDieContainerDivOptions(
     die, 'player', true, 'active', 'indexindexindex',

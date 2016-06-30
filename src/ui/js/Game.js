@@ -2864,15 +2864,13 @@ Game.getDieContainerDivOptions = function(
     divOptions.id = dieIndex;
   }
 
-  divOptions.title = die.description;
-
-  // If the loading player is active, describe why any unclickable dice
-  // are not clickable
-  if ((player_active) && !(dieClickableInfo.isClickable)) {
-    if (divOptions.title) {
+  // Set descriptions for active, captured, and unclickable dice
+  if (dieStatus == 'captured') {
+    divOptions.title = dieClickableInfo.reason;
+  } else {
+    divOptions.title = die.description;
+    if ((player_active) && !(dieClickableInfo.isClickable)) {
       divOptions.title += '. (' + dieClickableInfo.reason + ')';
-    } else {
-      divOptions.title = dieClickableInfo.reason;
     }
   }
 
