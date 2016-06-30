@@ -1697,6 +1697,77 @@ test("test_Game.createGameMatDieDiv", function(assert) {
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for captured die");
 });
 
+test("test_Game.backgroundImagePath", function(assert) {
+  Api.game = { player: { dieBackgroundType: 'symmetric' } };
+
+  assert.ok(Game.backgroundImagePath(1, 'active', true, 'symmetric').indexOf('images/die/symmetric/d2active.png') >= 0, 'active d1');
+  assert.ok(Game.backgroundImagePath(2, 'active', true, 'symmetric').indexOf('images/die/symmetric/d2active.png') >= 0, 'active d2');
+  assert.ok(Game.backgroundImagePath(3, 'active', true, 'symmetric').indexOf('images/die/symmetric/d4active.png') >= 0, 'active d3');
+  assert.ok(Game.backgroundImagePath(4, 'active', true, 'symmetric').indexOf('images/die/symmetric/d4active.png') >= 0, 'active d4');
+  assert.ok(Game.backgroundImagePath(5, 'active', true, 'symmetric').indexOf('images/die/symmetric/d6active.png') >= 0, 'active d5');
+  assert.ok(Game.backgroundImagePath(6, 'active', true, 'symmetric').indexOf('images/die/symmetric/d6active.png') >= 0, 'active d6');
+  assert.ok(Game.backgroundImagePath(7, 'active', true, 'symmetric').indexOf('images/die/symmetric/d8active.png') >= 0, 'active d7');
+  assert.ok(Game.backgroundImagePath(8, 'active', true, 'symmetric').indexOf('images/die/symmetric/d8active.png') >= 0, 'active d8');
+  assert.ok(Game.backgroundImagePath(9, 'active', true, 'symmetric').indexOf('images/die/symmetric/d10active.png') >= 0, 'active d9');
+
+  Api.game.player.dieBackgroundType = 'realistic';
+
+  assert.ok(Game.backgroundImagePath(10, 'active', true, 'realistic').indexOf('images/die/realistic/d10active.png') >= 0, 'active d10');
+  assert.ok(Game.backgroundImagePath(11, 'active', true, 'realistic').indexOf('images/die/realistic/d12active.png') >= 0, 'active d11');
+  assert.ok(Game.backgroundImagePath(12, 'active', true, 'realistic').indexOf('images/die/realistic/d12active.png') >= 0, 'active d12');
+  assert.ok(Game.backgroundImagePath(13, 'active', true, 'realistic').indexOf('images/die/realistic/d20active.png') >= 0, 'active d13');
+  assert.ok(Game.backgroundImagePath(19, 'active', true, 'realistic').indexOf('images/die/realistic/d20active.png') >= 0, 'active d19');
+  assert.ok(Game.backgroundImagePath(20, 'active', true, 'realistic').indexOf('images/die/realistic/d20active.png') >= 0, 'active d20');
+  assert.ok(Game.backgroundImagePath(21, 'active', true, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d21');
+  assert.ok(Game.backgroundImagePath(29, 'active', true, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d29');
+  assert.ok(Game.backgroundImagePath(30, 'active', true, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d30');
+  assert.ok(Game.backgroundImagePath(31, 'active', true, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d31');
+
+  Api.game.player.dieBackgroundType = 'symmetric';
+
+  assert.ok(Game.backgroundImagePath(1, 'active', false, 'symmetric').indexOf('images/die/symmetric/d2inactive.png') >= 0, 'inactive d1');
+  assert.ok(Game.backgroundImagePath(2, 'active', false, 'symmetric').indexOf('images/die/symmetric/d2inactive.png') >= 0, 'inactive d2');
+  assert.ok(Game.backgroundImagePath(3, 'active', false, 'symmetric').indexOf('images/die/symmetric/d4inactive.png') >= 0, 'inactive d3');
+  assert.ok(Game.backgroundImagePath(4, 'active', false, 'symmetric').indexOf('images/die/symmetric/d4inactive.png') >= 0, 'inactive d4');
+  assert.ok(Game.backgroundImagePath(5, 'active', false, 'symmetric').indexOf('images/die/symmetric/d6inactive.png') >= 0, 'inactive d5');
+  assert.ok(Game.backgroundImagePath(6, 'active', false, 'symmetric').indexOf('images/die/symmetric/d6inactive.png') >= 0, 'inactive d6');
+  assert.ok(Game.backgroundImagePath(7, 'active', false, 'symmetric').indexOf('images/die/symmetric/d8inactive.png') >= 0, 'inactive d7');
+  assert.ok(Game.backgroundImagePath(8, 'active', false, 'symmetric').indexOf('images/die/symmetric/d8inactive.png') >= 0, 'inactive d8');
+  assert.ok(Game.backgroundImagePath(9, 'active', false, 'symmetric').indexOf('images/die/symmetric/d10inactive.png') >= 0, 'inactive d9');
+  assert.ok(Game.backgroundImagePath(10, 'active', false, 'symmetric').indexOf('images/die/symmetric/d10inactive.png') >= 0, 'inactive d10');
+  assert.ok(Game.backgroundImagePath(11, 'active', false, 'symmetric').indexOf('images/die/symmetric/d12inactive.png') >= 0, 'inactive d11');
+  assert.ok(Game.backgroundImagePath(12, 'active', false, 'symmetric').indexOf('images/die/symmetric/d12inactive.png') >= 0, 'inactive d12');
+  assert.ok(Game.backgroundImagePath(13, 'active', false, 'symmetric').indexOf('images/die/symmetric/d20inactive.png') >= 0, 'inactive d13');
+  assert.ok(Game.backgroundImagePath(19, 'active', false, 'symmetric').indexOf('images/die/symmetric/d20inactive.png') >= 0, 'inactive d19');
+  assert.ok(Game.backgroundImagePath(20, 'active', false, 'symmetric').indexOf('images/die/symmetric/d20inactive.png') >= 0, 'inactive d20');
+  assert.ok(Game.backgroundImagePath(21, 'active', false, 'symmetric').indexOf('images/die/symmetric/d30inactive.png') >= 0, 'inactive d21');
+  assert.ok(Game.backgroundImagePath(29, 'active', false, 'symmetric').indexOf('images/die/symmetric/d30inactive.png') >= 0, 'inactive d29');
+  assert.ok(Game.backgroundImagePath(30, 'active', false, 'symmetric').indexOf('images/die/symmetric/d30inactive.png') >= 0, 'inactive d30');
+  assert.ok(Game.backgroundImagePath(31, 'active', false, 'symmetric').indexOf('images/die/symmetric/d30inactive.png') >= 0, 'inactive d31');
+
+  Api.game.player.dieBackgroundType = 'realistic';
+
+  assert.ok(Game.backgroundImagePath(1, 'captured', false, 'realistic').indexOf('images/die/realistic/d2taken.png') >= 0, 'taken d1');
+  assert.ok(Game.backgroundImagePath(2, 'captured', false, 'realistic').indexOf('images/die/realistic/d2taken.png') >= 0, 'taken d2');
+  assert.ok(Game.backgroundImagePath(3, 'captured', false, 'realistic').indexOf('images/die/realistic/d4taken.png') >= 0, 'taken d3');
+  assert.ok(Game.backgroundImagePath(4, 'captured', false, 'realistic').indexOf('images/die/realistic/d4taken.png') >= 0, 'taken d4');
+  assert.ok(Game.backgroundImagePath(5, 'captured', false, 'realistic').indexOf('images/die/realistic/d6taken.png') >= 0, 'taken d5');
+  assert.ok(Game.backgroundImagePath(6, 'captured', false, 'realistic').indexOf('images/die/realistic/d6taken.png') >= 0, 'taken d6');
+  assert.ok(Game.backgroundImagePath(7, 'captured', false, 'realistic').indexOf('images/die/realistic/d8taken.png') >= 0, 'taken d7');
+  assert.ok(Game.backgroundImagePath(8, 'captured', false, 'realistic').indexOf('images/die/realistic/d8taken.png') >= 0, 'taken d8');
+  assert.ok(Game.backgroundImagePath(9, 'captured', false, 'realistic').indexOf('images/die/realistic/d10taken.png') >= 0, 'taken d9');
+  assert.ok(Game.backgroundImagePath(10, 'captured', false, 'realistic').indexOf('images/die/realistic/d10taken.png') >= 0, 'taken d10');
+  assert.ok(Game.backgroundImagePath(11, 'captured', false, 'realistic').indexOf('images/die/realistic/d12taken.png') >= 0, 'taken d11');
+  assert.ok(Game.backgroundImagePath(12, 'captured', false, 'realistic').indexOf('images/die/realistic/d12taken.png') >= 0, 'taken d12');
+  assert.ok(Game.backgroundImagePath(13, 'captured', false, 'realistic').indexOf('images/die/realistic/d20taken.png') >= 0, 'taken d13');
+  assert.ok(Game.backgroundImagePath(19, 'captured', false, 'realistic').indexOf('images/die/realistic/d20taken.png') >= 0, 'taken d19');
+  assert.ok(Game.backgroundImagePath(20, 'captured', false, 'realistic').indexOf('images/die/realistic/d20taken.png') >= 0, 'taken d20');
+  assert.ok(Game.backgroundImagePath(21, 'captured', false, 'realistic').indexOf('images/die/realistic/d30taken.png') >= 0, 'taken d21');
+  assert.ok(Game.backgroundImagePath(29, 'captured', false, 'realistic').indexOf('images/die/realistic/d30taken.png') >= 0, 'taken d29');
+  assert.ok(Game.backgroundImagePath(30, 'captured', false, 'realistic').indexOf('images/die/realistic/d30taken.png') >= 0, 'taken d30');
+  assert.ok(Game.backgroundImagePath(31, 'captured', false, 'realistic').indexOf('images/die/realistic/d30taken.png') >= 0, 'taken d31');
+});
+
 /**
  * This test uses hand-created (not API) data to test Game.createGameMatBorderDiv()
  */

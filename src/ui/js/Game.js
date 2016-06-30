@@ -2818,8 +2818,6 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
  * @param  int     sides          Number of sides of the die
  * @param  string  dieStatus      Status of the die ('active' or 'captured')
  * @param  boolean isClickable    Is the die clickable?
- * @param  string  backgroundType Type of die background, one of
- *                                'circle', 'symmetric', 'realistic'
  * @return string
  */
 Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
