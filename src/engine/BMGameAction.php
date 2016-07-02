@@ -800,8 +800,8 @@ class BMGameAction {
         } else {
             $message .= ', but did not gain initiative';
         }
-        $message .= ': ' . $this->params['preReroll']['recipe'] . ' rerolled ' .
-                    $this->params['preReroll']['value'] . ' => ' . $this->params['postReroll']['value'];
+        $message .= ': ' . $this->params['origRecipe'] . ' rerolled ' .
+                    $this->params['origValue'] . ' => ' . $this->params['rerollValue'];
         return $message;
     }
 
@@ -839,7 +839,7 @@ class BMGameAction {
      */
     protected function friendly_message_add_reserve() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                   ' added a reserve die: ' . $this->params['die']['recipe'];
+                   ' added a reserve die: ' . $this->params['dieRecipe'];
         return $message;
     }
 
