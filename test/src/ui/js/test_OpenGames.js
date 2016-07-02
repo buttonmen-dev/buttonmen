@@ -108,6 +108,14 @@ test("test_OpenGames.buildGameTable", function(assert) {
       'recipe': 'Apples: (8) (8) (2/12) (8/16) (20/24)',
       'greyed': false,
     },
+    'Bauer': {
+      'recipe': 'Bauer: (8) (10) (12) (20) (X)',
+      'greyed': false,
+    },
+    'Stark': {
+      'recipe': 'Stark: (4) (6) (8) (X) (X)',
+      'greyed': false,
+    },
     'Von Pinn': {
       'recipe': 'Von Pinn: (4) p(6,6) (10) (20) (W)',
       'greyed': false,
