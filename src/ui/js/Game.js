@@ -2604,6 +2604,17 @@ Game.pageAddTurboTable = function() {
     }
   }
 
+  // also consider whether the opponent has turbo dice, if the player doesn't
+  if (!hasTurboDice) {
+    for (var idx = 0; idx < Api.game.opponent.activeDieArray.length; idx++) {
+      die = Api.game.opponent.activeDieArray[idx];
+      if ($.inArray('Turbo', die.skills) > -1) {
+        hasTurboDice = true;
+        break;
+      }
+    }
+  }
+
   if (hasTurboDice) {
     turboDiv.append(turboSpan);
     Game.page.append(turboDiv);

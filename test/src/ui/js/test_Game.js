@@ -1489,6 +1489,12 @@ test("test_Game.gamePlayerStatus", function(assert) {
   Game.getCurrentGame(function() {
     var statusJQuery = Game.gamePlayerStatus('player', false, true);
     var statusPropArr = BMTestUtils.DOMNodePropArray(statusJQuery[0]);
+//    var expectedPropArr = [
+//      "DIV", { "class": "status_player" }, [
+//        [ "DIV", {}, [ "W/L/T: 1/1/0 (3)", "foobar", [ "B", {}, [ "Score: 13 (-30.7 sides)" ] ] ] ],
+//        [ "DIV", {}, [ [ "SPAN", {}, [ "Dice captured: q(Z=4)" ] ] ] ],
+//      ]
+//    ];
     assert.equal(statusPropArr[0], "DIV", "Game.gamePlayerStatus() returns a DIV");
     assert.equal(statusPropArr[1]['class'], "status_player", "Game.gamePlayerStatus() sets correct class for active player");
 

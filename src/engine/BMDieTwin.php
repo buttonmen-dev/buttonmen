@@ -165,7 +165,7 @@ class BMDieTwin extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                if (('Mood' != $skill) && 'Mad' != $skill && 'Turbo' != $skill) {
+                if (('Mood' != $skill) && ('Mad' != $skill) && ('Turbo' != $skill)) {
                     $skillStr .= "$skill ";
                 }
             }
