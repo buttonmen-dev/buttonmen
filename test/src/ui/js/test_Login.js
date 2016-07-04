@@ -23,6 +23,7 @@ module("Login", {
     delete Api.forumNavigation;
     delete Env.window.location.href;
     delete Login.message;
+    delete Login.logged_in;
     delete Env.window.location.search;
     delete Env.window.location.hash;
     delete Env.history.state;
@@ -194,7 +195,46 @@ test("test_Login.stateLoggedIn", function(assert) {
 });
 
 test("test_Login.stateLoggedOut", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.stateLoggedOut not implemented");
+  Login.status_type = Login.STATUS_NO_ACTIVITY;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "P", {}, [
+    "example welcome text: ",
+    "You are not logged in. ",
+    [ "FORM", { "action": "javascript:void(0);", "id": "login_action_form" },
+      [
+        "Username: ",
+        [ "INPUT", { "id": "login_name", "name": "login_name", "name": "login_name", "type": "text" }, [] ],
+        " Password: ",
+        [ "INPUT", { "id": "login_pass", "name": "login_pass", "name": "login_pass", "type": "password" }, [] ],
+        " ",
+        [ "BUTTON", { "id": "login_action_button" }, [ "Login" ] ],
+        [ "FONT", {}, [ " or ", [ "A", { "href": "create_user.html" }, [ "Create an account" ] ] ] ]
+      ]
+    ] ]
+  ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after no login activity");
+
+  Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  expectedMessage[2][1] = [ "FONT", { "color": "green" }, [ "Logout succeeded - login again?" ] ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after successful logout");
+
+  Login.status_type = Login.STATUS_ACTION_FAILED;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  expectedMessage[2][1] = [
+    "FONT", { "color": "red" }, [ "Login failed - username or password invalid, or email address has not been verified" ] ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after failed login");
+
+  Login.status_type = 0;
 });
 
 test("test_Login.addMainNavbar", function(assert) {
