@@ -22,6 +22,7 @@ module("Login", {
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Env.window.location.href;
+    delete Login.footer;
     delete Login.message;
     delete Login.logged_in;
     delete Env.window.location.search;
@@ -60,7 +61,32 @@ test("test_Login.getLoginHeader", function(assert) {
 });
 
 test("test_Login.getFooter", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.getFooter not implemented");
+  expect(4);
+
+  // mock Login.getBody() because it is not the target of this test
+  var cached_function = Login.getBody;
+  Login.getBody = function() {
+    assert.ok(true, "Login.getBody is called");
+  }
+  Login.getFooter();
+  var footerProps = BMTestUtils.DOMNodePropArray(Login.footer[0]);
+  var expectedProps = [ "DIV", {}, [
+    [ "DIV", {}, [
+      "Button Men is copyright 1999, 2016 James Ernest and Cheapass Games: ",
+      [ "A", { "href": "http://www.cheapass.com" }, [ "www.cheapass.com" ] ],
+      " and ",
+      [ "A", { "href": "http://www.beatpeopleup.com" }, [ "www.beatpeopleup.com" ] ],
+      ", and is used with permission." ]
+    ],
+    [ "DIV", {}, [
+      "If you have any trouble with this website, you can open a ticket at ",
+      [ "A", { "href": "https://github.com/buttonmen-dev/buttonmen/issues/new" }, [ "the buttonweavers issue tracker" ] ],
+      " or e-mail us at help@buttonweavers.com." ]
+    ] ]
+  ];
+  assert.deepEqual(footerProps, expectedProps, "Footer contents are expected");
+
+  Login.getBody = cached_function;
 });
 
 test("test_Login.getBody", function(assert) {
@@ -68,7 +94,29 @@ test("test_Login.getBody", function(assert) {
 });
 
 test("test_Login.showLoginHeader", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
+  expect(4);
+
+  // mock Login.getLoginHeader() because it is not the target of this test
+  var cached_function = Login.getLoginHeader;
+  Login.getLoginHeader = function() {
+    assert.ok(true, "Login.getLoginHeader is called");
+  }
+
+  // Empty the page container to test the contents the code will add
+  $('#container').remove();
+  Login.showLoginHeader('fakemodule');
+  var containerProps = BMTestUtils.DOMNodePropArray($('#container')[0]);
+  var expectedProps = [ "DIV", { "id": "container" }, [
+    [ "DIV", { "id": "c_header" }, [
+      [ "DIV", { "id": "login_header" }, [] ],
+      [ "HR", { "id": "header_separator" }, [] ] ]
+    ],
+    [ "DIV", { "id": "c_body" }, [] ],
+    [ "DIV", { "id": "c_footer" }, [] ] ]
+  ];
+  assert.deepEqual(containerProps, expectedProps, "This function correctly assembles the empty page frame");
+
+  Login.getLoginHeader = cached_function;
 });
 
 test("test_Login.showLoginHeader_auto", function(assert) {
