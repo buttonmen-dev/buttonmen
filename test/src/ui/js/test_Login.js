@@ -24,6 +24,7 @@ module("Login", {
     delete Env.window.location.href;
     delete Login.footer;
     delete Login.message;
+    delete Login.player;
     delete Login.logged_in;
     delete Env.window.location.search;
     delete Env.window.location.hash;
@@ -239,7 +240,29 @@ test("test_Login.getLoginForm", function(assert) {
 });
 
 test("test_Login.stateLoggedIn", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.stateLoggedIn not implemented");
+  expect(6);
+  Login.player = 'foobar';
+
+  // mock Api.getNextNewPostId() because it is not the target of this test
+  var cached_function = Api.getNextNewPostId;
+  Api.getNextNewPostId = function(callback) {
+    assert.equal(callback, Login.addMainNavbar, "Api.getNextNewPostId is called with expected callback");
+  }
+
+  Login.stateLoggedIn('example welcome text');
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "P", {}, [
+    [ "FORM", { "action": "javascript:void(0);", "id": "login_action_form" }, [
+      "example welcome text: You are logged in as foobar. ", [
+        "BUTTON", { "id": "login_action_button" }, [ "Logout?" ] ]
+      ]
+    ] ]
+  ];
+  assert.equal(Login.logged_in, true, "Login.logged_in is set to true");
+  assert.equal(Login.form, Login.formLogout, "Login.form is set correctly");
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly");
+
+  Api.getNextNewPostId = cached_function;
 });
 
 test("test_Login.stateLoggedOut", function(assert) {
@@ -286,7 +309,40 @@ test("test_Login.stateLoggedOut", function(assert) {
 });
 
 test("test_Login.addMainNavbar", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.addMainNavbar not implemented");
+  expect(4);
+  Login.player = 'foobar';
+  Login.message = $('<div>');
+
+  // mock Login.addNewPostLink() because it is not the target of this test
+  var cached_function = Login.addNewPostLink;
+  Login.addNewPostLink = function(callback) {
+    assert.ok(true, "Login.addNewPostLink is called");
+  }
+
+  Login.addMainNavbar();
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "DIV", {}, [
+    [ "TABLE", {}, [
+      [ "TBODY", {}, [
+        [ "TR", { "class": "headerNav" }, [
+          [ "TD", {}, [ [ "A", { "href": "index.html" }, [ "Overview" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=monitor" }, [ "Monitor" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "create_game.html" }, [ "Create game" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "open_games.html" }, [ "Open games" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "prefs.html" }, [ "Preferences" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "profile.html?player=foobar" }, [ "Profile" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "history.html" }, [ "History" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "buttons.html" }, [ "Buttons" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "active_players.html" }, [ "Who's online" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "forum.html" }, [ "Forum" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=nextGame" }, [ "Next game" ] ] ] ] ]
+        ] ]
+      ] ]
+    ] ]
+  ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message has expected contents");
+
+  Login.addNewPostLink = cached_function;
 });
 
 test("test_Login.addNewPostLink", function(assert) {
