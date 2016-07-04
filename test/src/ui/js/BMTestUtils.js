@@ -112,6 +112,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_active') { return '1902'; }
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_nonplayer') { return '1903'; }
   if (gameDesc == 'pikathulhu_phoenix_reacttoinitiative_inactive') { return '1914'; }
+  if (gameDesc == 'pikathulhu_phoenix_startturn_dizzy_secondplayer') { return '1917'; }
 
   if (gameDesc == 'blackomega_thefool_reacttoinitiative') { return '2302'; }
   if (gameDesc == 'blackomega_thefool_captured_value_die') { return '2306'; }

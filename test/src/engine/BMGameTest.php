@@ -920,6 +920,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::react_to_initiative_chance
      */
     public function test_do_next_step_react_to_initiative_perform_chance() {
+        // override RNG and require the test to specify all die values used
+        global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
+        $BM_RAND_REQUIRE_OVERRIDE = TRUE;
+
         // load buttons
         $button1 = new BMButton;
         $button1->load('(4) (8) (10) c(10) c(4)', 'FuzzFaceAltered');
@@ -931,6 +935,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
+        // Set initial die values
+        $BM_RAND_VALS = array(4, 6, 6, 6, 4, 4, 4, 4, 4, 4);
         $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
 
         // check that a reaction to initiative cannot yet occur
@@ -938,20 +944,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $game->react_to_initiative(array('action' => 'chance',
                                              'playerIdx' => 0,
                                              'rerolledDieIdx' => 4)));
-
-        // manually set die values
-        $activeDieArrayArray = $game->activeDieArrayArray;
-        $activeDieArrayArray[0][0]->value = 4;
-        $activeDieArrayArray[0][1]->value = 6;
-        $activeDieArrayArray[0][2]->value = 6;
-        $activeDieArrayArray[0][3]->value = 6;
-        $activeDieArrayArray[0][4]->value = 4;
-        $activeDieArrayArray[1][0]->value = 4;
-        $activeDieArrayArray[1][1]->value = 4;
-        $activeDieArrayArray[1][2]->value = 4;
-        $activeDieArrayArray[1][3]->value = 4;
-        $activeDieArrayArray[1][4]->value = 4;
-        $game->activeDieArrayArray = $activeDieArrayArray;
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
@@ -994,10 +986,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'rerolledDieIdx' => 0)));
 
         // test correct 'chance' action
+        $BM_RAND_VALS = array(3);
         $reactResponse = $game->react_to_initiative(array('action' => 'chance',
                                                           'playerIdx' => 0,
-                                                          'rerolledDieIdx' => 4,
-                                                          'TESTrerolledDieValue' => 3));
+                                                          'rerolledDieIdx' => 4));
         $this->assertTrue(array_key_exists('gainedInitiative', $reactResponse));
         $this->assertTrue($reactResponse['gainedInitiative']);
 
@@ -1024,6 +1016,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::react_to_initiative_chance
      */
     public function test_do_next_step_react_to_initiative_multiple_chance() {
+        // override RNG and require the test to specify all die values used
+        global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
+        $BM_RAND_REQUIRE_OVERRIDE = TRUE;
+
         // load buttons
         $button1 = new BMButton;
         $button1->load('(4) (8) (10) c(10) c(12)', 'FuzzFace');
@@ -1035,6 +1031,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
+        // specify initial die values
+        $BM_RAND_VALS = array(4, 4, 4, 4, 5, 4, 4, 4, 4, 4);
         $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
 
         // check that a reaction to initiative cannot yet occur
@@ -1042,20 +1040,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $game->react_to_initiative(array('action' => 'chance',
                                              'playerIdx' => 0,
                                              'rerolledDieIdx' => 4)));
-
-        // manually set die values
-        $activeDieArrayArray = $game->activeDieArrayArray;
-        $activeDieArrayArray[0][0]->value = 4;
-        $activeDieArrayArray[0][1]->value = 4;
-        $activeDieArrayArray[0][2]->value = 4;
-        $activeDieArrayArray[0][3]->value = 4;
-        $activeDieArrayArray[0][4]->value = 5;
-        $activeDieArrayArray[1][0]->value = 4;
-        $activeDieArrayArray[1][1]->value = 4;
-        $activeDieArrayArray[1][2]->value = 4;
-        $activeDieArrayArray[1][3]->value = 4;
-        $activeDieArrayArray[1][4]->value = 4;
-        $game->activeDieArrayArray = $activeDieArrayArray;
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
@@ -1073,12 +1057,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $game->activeDieArrayArray[1][4]->value);
 
         // test correct 'chance' action by player 1
+        $BM_RAND_VALS = array(3);
         $this->assertTrue(
             array_key_exists('gainedInitiative',
             $game->react_to_initiative(array('action' => 'chance',
                                              'playerIdx' => 0,
-                                             'rerolledDieIdx' => 4,
-                                             'TESTrerolledDieValue' => 3))));
+                                             'rerolledDieIdx' => 4))));
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
@@ -1102,13 +1086,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($game->activeDieArrayArray[0][4]->has_flag('Disabled'));
 
         // test correct 'chance' action by player 2
+        $BM_RAND_VALS = array(2);
         $this->assertTrue(
             array_key_exists(
                 'gainedInitiative',
                 $game->react_to_initiative(array('action' => 'chance',
                                                  'playerIdx' => 1,
-                                                 'rerolledDieIdx' => 4,
-                                                 'TESTrerolledDieValue' => 2)))
+                                                 'rerolledDieIdx' => 4)))
         );
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
@@ -1134,12 +1118,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($game->activeDieArrayArray[1][4]->has_flag('Disabled'));
 
         // test correct 'chance' action by player 1
+        $BM_RAND_VALS = array(1);
         $this->assertTrue(
             array_key_exists('gainedInitiative',
             $game->react_to_initiative(array('action' => 'chance',
                                              'playerIdx' => 0,
-                                             'rerolledDieIdx' => 4,
-                                             'TESTrerolledDieValue' => 1))));
+                                             'rerolledDieIdx' => 4))));
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);

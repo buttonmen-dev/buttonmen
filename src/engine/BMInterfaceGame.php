@@ -1169,7 +1169,7 @@ class BMInterfaceGame extends BMInterface {
                     $game->log_action(
                         'add_reserve',
                         $player->playerId,
-                        array( 'die' => $die->get_action_log_data(), )
+                        array( 'dieRecipe' => $die->get_recipe(TRUE), )
                     );
                     $this->set_message('Reserve die chosen successfully');
                     break;
@@ -1178,7 +1178,7 @@ class BMInterfaceGame extends BMInterface {
                     $game->log_action(
                         'decline_reserve',
                         $player->playerId,
-                        array('declineReserve' => TRUE)
+                        array()
                     );
                     $this->set_message('Declined reserve dice');
                     break;
