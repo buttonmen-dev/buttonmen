@@ -2797,17 +2797,16 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
     dieNumberSpanOpts.html = '&nbsp;' + die.value + '&nbsp;';
   }
 
+  divOpts['style'] = 'background-image: ' + Game.backgroundImagePath(
+    die.sides,
+    dieStatus,
+    isClickable
+  );
+
   var dieDiv = $('<div>', divOpts);
   dieDiv.append($('<span>', dieNumberSpanOpts));
 
-  dieDiv.css(
-    'background-image',
-    Game.backgroundImagePath(
-      die.sides,
-      dieStatus,
-      isClickable
-    )
-  );
+  console.log(dieNumberSpanOpts);
 
   return dieDiv;
 };

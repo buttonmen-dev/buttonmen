@@ -1603,7 +1603,7 @@ test("test_Game.createDieContainerDiv", function(assert) {
         [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
       ],
       [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-        [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/symmetric/d6active.png\");" }, [
+        [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/symmetric/d6active.png)" }, [
           [ "SPAN", { "class": "die_overlay die_number_player" }, [ "2" ] ] ]
         ] ]
       ]
@@ -1622,7 +1622,7 @@ test("test_Game.createDieContainerDiv", function(assert) {
       "title": "6-sided die"
     }, [
       [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-        [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/symmetric/d6active.png\");" }, [
+        [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/symmetric/d6active.png)" }, [
           [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
         ] ]
       ],
@@ -1650,7 +1650,7 @@ test("test_Game.createGameMatDieWithBorderDiv", function(assert) {
         "class": "die_border",
         "style": "border: 2px solid #ddffdd"
       }, [
-        [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d20active.png\");" }, [
+        [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d20active.png)" }, [
           [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "12" ] ] ]
         ]
       ]
@@ -1677,21 +1677,21 @@ test("test_Game.createGameMatDieDiv", function(assert) {
 
   var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'active', true);
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
-  var expectedDivProps = [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/symmetric/d6active.png\");" }, [
+  var expectedDivProps = [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/symmetric/d6active.png)" }, [
     [ "SPAN", { "class": "die_overlay die_number_player" }, [ "2" ] ] ]
   ];
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for clickable active die");
 
   var dieDivJQuery = Game.createGameMatDieDiv(die, 'opponent', 'active', false, 'symmetric');
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
-  var expectedDivProps = [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/symmetric/d6inactive.png\");" }, [
+  var expectedDivProps = [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(images/die/symmetric/d6inactive.png)" }, [
     [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
   ];
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for unclickable active die");
 
   var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'captured', false, 'symmetric');
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
-  var expectedDivProps = [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(\"images/die/symmetric/d6taken.png\");" }, [
+  var expectedDivProps = [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(images/die/symmetric/d6taken.png)" }, [
     [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "2" + "\u00A0" ] ] ]
   ];
   assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for captured die");
@@ -1833,7 +1833,7 @@ test("test_Game.gamePlayerDice", function(assert) {
         "title": "Queer T Swing Die (with 2 sides)"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img" , "style": "background-image: url(\"images/die/realistic/d2active.png\");" }, [
+          [ "DIV", { "class": "die_img" , "style": "background-image: url(images/die/realistic/d2active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "1" ] ] ]
           ] ]
         ],
@@ -1852,7 +1852,7 @@ test("test_Game.gamePlayerDice", function(assert) {
         "title": "Speed S Swing Die (with 20 sides)"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d20active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d20active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "12" ] ] ]
           ] ]
         ],
@@ -1892,7 +1892,7 @@ test("test_Game.gamePlayerDice_disabled", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/realistic/d6inactive.png\");" }, [
+          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(images/die/realistic/d6inactive.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ]
           ] ]
         ] ]
@@ -1930,7 +1930,7 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d6active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d6active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "5" ] ] ]
           ] ]
         ]
@@ -1947,7 +1947,7 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(4)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(\"images/die/realistic/d4taken.png\");" }, [
+          [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(images/die/realistic/d4taken.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "2" + "\u00A0" ] ] ]
           ] ]
         ]
@@ -1964,7 +1964,7 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(20)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(\"images/die/realistic/d20taken.png\");" }, [
+          [ "DIV", { "class": "die_img die_dead", "style": "background-image: url(images/die/realistic/d20taken.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "8" + "\u00A0" ] ] ]
           ] ]
         ]
@@ -2001,7 +2001,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
         "title": "Speed 12-sided die"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d12active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d12active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "7" ] ] ]
           ] ]
         ],
@@ -2019,7 +2019,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
         "title": "Warrior 6-sided die. (This die is a Warrior die and can't be targeted.)"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/realistic/d6inactive.png\");" }, [
+          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(images/die/realistic/d6inactive.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "6" ] ] ]
           ] ]
         ],
@@ -2052,7 +2052,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(1)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d2active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d2active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ] ]
           ] ]
         ]
@@ -2071,7 +2071,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "`(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d6active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d6active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "6" ] ] ]
           ] ]
         ]
@@ -2129,7 +2129,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
         "title": "10-sided die"
       }, [
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d10active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d10active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "5" ] ] ]
           ] ]
         ],
@@ -2148,7 +2148,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
         "title": "Chance X Swing Die (with 6 sides)",
       }, [
         [ "DIV", { "class": "die_border" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d6active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d6active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
           ] ]
         ],
@@ -2181,7 +2181,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "(4)" ] ] ]
         ],
         [ "DIV", { "class": "die_border" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(\"images/die/realistic/d4active.png\");" }, [
+          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d4active.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "3" ] ] ]
           ] ]
         ]
@@ -2199,7 +2199,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "f(8)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(\"images/die/realistic/d8inactive.png\");" }, [
+          [ "DIV", { "class": "die_img die_greyed", "style": "background-image: url(images/die/realistic/d8inactive.png)" }, [
             [ "SPAN", { "class": "die_overlay die_number_player" }, [ "1" ] ] ]
           ] ]
         ]
