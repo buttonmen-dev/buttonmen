@@ -2806,8 +2806,6 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
   var dieDiv = $('<div>', divOpts);
   dieDiv.append($('<span>', dieNumberSpanOpts));
 
-  console.log(dieNumberSpanOpts);
-
   return dieDiv;
 };
 
