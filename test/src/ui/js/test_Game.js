@@ -764,7 +764,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
     Game.actionPlayTurnActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    assert.deepEqual(item.className, 'hide_focus die_container die_alive selected',
+    assert.deepEqual(item.className, 'die_container die_alive hide_focus selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     assert.ok(item.innerHTML.match('selected'),
@@ -1484,6 +1484,256 @@ test("test_Game.gamePlayerStatusWithValue", function(assert) {
   });
 });
 
+/**
+ * This test uses hand-written test data (not API data)
+ */
+test("test_Game.dieClickableInfo", function(assert) {
+  var die = {
+    description: "6-sided die",
+    properties: [],
+    recipe: '(6)',
+    sides: 6,
+    skills: [],
+    value: 2
+  };
+
+  assert.deepEqual(
+    Game.dieClickableInfo(die, 'player', 'active', false),
+    { "isClickable": false, "reason": "The game is not awaiting action from the player loading the mat." },
+    "If the player is not active, the die should not be clickable");
+  assert.equal(Game.dieClickableInfo(die, 'player', 'active', true).isClickable, true, "If the player is active, the player's die the should be clickable");
+  assert.equal(Game.dieClickableInfo(die, 'opponent', 'active', true).isClickable, true, "If the player is active, the opponent's die the should be clickable");
+
+  die.properties = ['Dizzy'];
+  assert.equal(Game.dieClickableInfo(die, 'player', 'active', true).isClickable, false, "If the die is dizzy, it should not be clickable");
+
+  die.properties = ['WasJustCaptured'];
+  assert.equal(Game.dieClickableInfo(die, 'player', 'captured', false).isClickable, false, "If the die was captured, it should not be clickable");
+
+  die.properties = [];
+  die.skills = ['Warrior'];
+  assert.equal(Game.dieClickableInfo(die, 'player', 'active', true).isClickable, true, "The active player's own warrior die should be clickable");
+  assert.equal(Game.dieClickableInfo(die, 'opponent', 'active', true).isClickable, false, "The active player's opponent's warrior die should not be clickable");
+});
+
+/**
+ * This test uses hand-written test data (not API data).
+ *
+ */
+test("test_Game.getDieContainerDivOptions", function(assert) {
+  var die = {
+    description: "6-sided die",
+    properties: [],
+    recipe: '(6)',
+    sides: 6,
+    skills: [],
+    value: 2
+  };
+  var containerDivOpts = Game.getDieContainerDivOptions(
+    die, 'player', true, 'captured', null,
+    { 'isClickable': false, 'reason': 'because captured', },
+    false);
+  var expectedDivOpts = {
+    "class": "die_container die_dead",
+    "title": "because captured"
+  };
+  assert.deepEqual(containerDivOpts, expectedDivOpts, "Got expected div options for a captured die");
+
+  var containerDivOpts = Game.getDieContainerDivOptions(
+    die, 'player', true, 'active', 'indexindex',
+    { 'isClickable': false, 'reason': 'because not clickable', },
+    false);
+  var expectedDivOpts = {
+    "class": "die_container die_alive",
+    "id": "indexindex",
+    "title": "6-sided die. (because not clickable)"
+  };
+  assert.deepEqual(containerDivOpts, expectedDivOpts, "Got expected div options for an unclickable die");
+
+  var containerDivOpts = Game.getDieContainerDivOptions(
+    die, 'player', true, 'active', 'indexindexindex',
+    { 'isClickable': true, 'reason': 'just because', },
+    true);
+  var expectedDivOpts = {
+    "class": "die_container die_alive hide_focus selected",
+    "id": "indexindexindex",
+    "tabIndex": 0,
+    "title": "6-sided die",
+  };
+  assert.deepEqual(containerDivOpts, expectedDivOpts, "Got expected div options for an active selected die");
+
+});
+
+/**
+ * This test uses hand-written test data (not API data).
+ *
+ * It does not test very deeply, because Game.createDieContainerDiv()
+ * is primarily a wrapper which invokes other functions.  The major
+ * pieces of logic within the function itself are:
+ * * adding the keyboard handlers, which is hard to test
+ * * placing the recipe above or below the die
+ */
+test("test_Game.createDieContainerDiv", function(assert) {
+  var die = {
+    description: "6-sided die",
+    properties: [],
+    recipe: '(6)',
+    sides: 6,
+    skills: [],
+    value: 2
+  };
+  var dieClickableInfo = {
+    'isClickable': 'false',
+    'reason': 'no reason',
+  };
+
+  var dieContainerDivJQuery = Game.createDieContainerDiv(
+    die, 'player', false, 'active', 2, dieClickableInfo,
+    false);
+  var dieContainerDivProps = BMTestUtils.DOMNodePropArray(dieContainerDivJQuery[0]);
+  var expectedDivProps = [ "DIV", {
+      "class": "die_container die_alive hide_focus unselected_player",
+      "id": "2",
+      "tabindex": "0",
+      "title": "6-sided die"
+    }, [
+      [ "DIV", {}, [
+        [ "SPAN", { "class": "die_recipe_player" }, [ "(6)" ] ] ]
+      ],
+      [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
+        [ "DIV", { "class": "die_img" }, [
+          [ "SPAN", { "class": "die_overlay die_number_player" }, [ "2" ] ] ]
+        ] ]
+      ]
+    ]
+  ];
+  assert.deepEqual(dieContainerDivProps, expectedDivProps, "Player's die should have expected properties, including recipe above die");
+
+  dieContainerDivJQuery = Game.createDieContainerDiv(
+    die, 'opponent', true, 'active', 2, dieClickableInfo,
+    false);
+  dieContainerDivProps = BMTestUtils.DOMNodePropArray(dieContainerDivJQuery[0]);
+  expectedDivProps = [ "DIV", {
+      "class": "die_container die_alive hide_focus unselected_opponent",
+      "id": "2",
+      "tabindex": "0",
+      "title": "6-sided die"
+    }, [
+      [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [
+        [ "DIV", { "class": "die_img" }, [
+          [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
+        ] ]
+      ],
+      [ "DIV", {}, [
+        [ "SPAN", { "class": "die_recipe_opponent" }, [ "(6)" ] ] ]
+      ]
+    ]
+  ];
+  assert.deepEqual(dieContainerDivProps, expectedDivProps, "Opponent's die should have expected properties, including recipe below die");
+});
+
+/**
+ * This test uses API data to test Game.createGameMatDieWithBorderDiv(),
+ * a wrapper function which assembles a div of a die surrounded by a border
+ */
+test("test_Game.createGameMatDieWithBorderDiv", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
+  Game.getCurrentGame(function() {
+    var die = Api.game.opponent.activeDieArray[3];
+    var dieBorderDivJQuery = Game.createGameMatDieWithBorderDiv(die, 'opponent', 'active', true, false);
+    var dieBorderDivProps = BMTestUtils.DOMNodePropArray(dieBorderDivJQuery[0]);
+
+    var expectedDivProps = [ "DIV", {
+        "class": "die_border",
+        "style": "border: 2px solid #ddffdd"
+      }, [
+        [ "DIV", { "class": "die_img" }, [
+          [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "12" ] ] ]
+        ]
+      ]
+    ];
+    assert.deepEqual(dieBorderDivProps, expectedDivProps);
+    start();
+  });
+});
+
+/**
+ * This test uses hand-created (not API) data to test Game.createGameMatDieDiv()
+ */
+test("test_Game.createGameMatDieDiv", function(assert) {
+  var die = {
+    description: "6-sided die",
+    properties: [],
+    recipe: '(6)',
+    sides: 6,
+    skills: [],
+    value: 2
+  };
+
+  var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'active', true);
+  var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
+  var expectedDivProps = [ "DIV", { "class": "die_img" }, [
+    [ "SPAN", { "class": "die_overlay die_number_player" }, [ "2" ] ] ]
+  ];
+  assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for clickable active die");
+
+  var dieDivJQuery = Game.createGameMatDieDiv(die, 'opponent', 'active', false);
+  var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
+  var expectedDivProps = [ "DIV", { "class": "die_img die_greyed" }, [
+    [ "SPAN", { "class": "die_overlay die_number_opponent" }, [ "2" ] ] ]
+  ];
+  assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for unclickable active die");
+
+  var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'captured', false);
+  var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
+  var expectedDivProps = [ "DIV", { "class": "die_img" }, [
+    [ "SPAN", { "class": "die_overlay die_number_player" }, [ "\u00A0" + "2" + "\u00A0" ] ] ]
+  ];
+  assert.deepEqual(dieDivProps, expectedDivProps, "dieDiv looks correct for captured die");
+});
+
+/**
+ * This test uses hand-created (not API) data to test Game.createGameMatBorderDiv()
+ */
+test("test_Game.createGameMatBorderDiv", function(assert) {
+  var dieBorderJQuery = Game.createGameMatBorderDiv('player', true);
+  var dieBorderProps = BMTestUtils.DOMNodePropArray(dieBorderJQuery[0]);
+  var expectedDivProps = [ "DIV", { "class": "die_border" }, [] ];
+  assert.deepEqual(dieBorderProps, expectedDivProps, "die border looks correct for player's selected die");
+
+  var dieBorderJQuery = Game.createGameMatBorderDiv('player', false);
+  var dieBorderProps = BMTestUtils.DOMNodePropArray(dieBorderJQuery[0]);
+  var expectedDivProps = [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [] ];
+  assert.deepEqual(dieBorderProps, expectedDivProps, "die border looks correct for player's unselected die");
+
+  var dieBorderJQuery = Game.createGameMatBorderDiv('opponent', false);
+  var dieBorderProps = BMTestUtils.DOMNodePropArray(dieBorderJQuery[0]);
+  var expectedDivProps = [ "DIV", { "class": "die_border", "style": "border: 2px solid #ddffdd" }, [] ];
+  assert.deepEqual(dieBorderProps, expectedDivProps, "die border looks correct for opponent's unselected die");
+});
+
+
+/**
+ * This test uses API data to test Game.createGameMatDieRecipeDiv(),
+ * a simple wrapper function which assembles a recipe div
+ */
+test("test_Game.createGameMatDieRecipeDiv", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
+  Game.getCurrentGame(function() {
+    var die = Api.game.opponent.activeDieArray[3];
+    var recipeDivJQuery = Game.createGameMatDieRecipeDiv(die, 'opponent');
+    var recipeDivProps = BMTestUtils.DOMNodePropArray(recipeDivJQuery[0]);
+
+    var expectedDivProps = [ "DIV", {}, [
+      [ "SPAN", { "class": "die_recipe_opponent" }, [ "z(S=20)" ] ] ]
+    ];
+    assert.deepEqual(recipeDivProps, expectedDivProps);
+    start();
+  });
+});
+
 // This test shows a mat of the opponent's dice
 // Opponent's dice have the correct set of classes defined for the opponent,
 // and the recipe appears after the dice
@@ -1502,7 +1752,7 @@ test("test_Game.gamePlayerDice", function(assert) {
 
     // dieIdx 0: q(T=2)
     var expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_opponent",
+        "class": "die_container die_alive hide_focus unselected_opponent",
         "id": "playerIdx_1_dieIdx_0",
         "tabindex": "0",
         "title": "Queer T Swing Die (with 2 sides)"
@@ -1517,11 +1767,11 @@ test("test_Game.gamePlayerDice", function(assert) {
         ]
       ]
     ];
-    assert.deepEqual(diceProps[2][0], expectedDieProps);
+    assert.deepEqual(diceProps[2][0], expectedDieProps, "Opponent's unselected die q(T=2) has expected properties");
 
     // dieIdx 3: z(S=20)
     expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_opponent",
+        "class": "die_container die_alive hide_focus unselected_opponent",
         "id": "playerIdx_1_dieIdx_3",
         "tabindex": "0",
         "title": "Speed S Swing Die (with 20 sides)"
@@ -1596,7 +1846,7 @@ test("test_Game.gamePlayerDice_captured", function(assert) {
 
     // dieIdx 0: (6)
     var expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_player",
+        "class": "die_container die_alive hide_focus unselected_player",
         "id": "playerIdx_0_dieIdx_0",
         "tabindex": "0",
         "title": "6-sided die"
@@ -1670,7 +1920,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // opponent dieIdx 2: z(12)
     var expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_opponent",
+        "class": "die_container die_alive hide_focus unselected_opponent",
         "id": "playerIdx_1_dieIdx_2",
         "tabindex": "0",
         "title": "Speed 12-sided die"
@@ -1718,7 +1968,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // player dieIdx 0: (1)
     expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_player",
+        "class": "die_container die_alive hide_focus unselected_player",
         "id": "playerIdx_0_dieIdx_0",
         "tabindex": "0",
         "title": "1-sided die"
@@ -1737,7 +1987,7 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
 
     // player dieIdx 3: `(6)
     expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_player",
+        "class": "die_container die_alive hide_focus unselected_player",
         "id": "playerIdx_0_dieIdx_3",
         "tabindex": "0",
         "title": "Warrior 6-sided die"
@@ -1798,7 +2048,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // opponent dieIdx 2: z(12)
     var expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive unselected_opponent",
+        "class": "die_container die_alive hide_focus unselected_opponent",
         "id": "playerIdx_0_dieIdx_2",
         "tabindex": "0",
         "title": "10-sided die"
@@ -1817,7 +2067,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // opponent dieIdx 4: c(X=6)
     var expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive selected",
+        "class": "die_container die_alive hide_focus selected",
         "id": "playerIdx_0_dieIdx_4",
         "tabindex": "0",
         "title": "Chance X Swing Die (with 6 sides)",
@@ -1847,7 +2097,7 @@ test("test_Game.gamePlayerDice_dizzy_selected", function(assert) {
 
     // player dieIdx 0: (4)
     expectedDieProps = [ "DIV", {
-        "class": "hide_focus die_container die_alive selected",
+        "class": "die_container die_alive hide_focus selected",
         "id": "playerIdx_1_dieIdx_0",
         "tabindex": "0",
         "title": "4-sided die"
@@ -2040,16 +2290,16 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive unselected_player'),
+    assert.ok(html.match('die_container die_alive hide_focus unselected_player'),
       "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive unselected_player'),
+    assert.ok(html.match('die_container die_alive hide_focus unselected_player'),
       "die is unselected after second click");
 
     start();
@@ -2068,16 +2318,16 @@ test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive unselected_opponent'),
+    assert.ok(html.match('die_container die_alive hide_focus unselected_opponent'),
       "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_alive hide_focus selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    assert.ok(html.match('die_container die_alive unselected_opponent'),
+    assert.ok(html.match('die_container die_alive hide_focus unselected_opponent'),
       "die is unselected after second click");
 
     start();
