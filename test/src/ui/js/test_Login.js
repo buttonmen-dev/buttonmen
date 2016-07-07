@@ -22,7 +22,10 @@ module("Login", {
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Env.window.location.href;
+    delete Login.footer;
     delete Login.message;
+    delete Login.player;
+    delete Login.logged_in;
     delete Env.window.location.search;
     delete Env.window.location.hash;
     delete Env.history.state;
@@ -59,7 +62,32 @@ test("test_Login.getLoginHeader", function(assert) {
 });
 
 test("test_Login.getFooter", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.getFooter not implemented");
+  expect(4);
+
+  // mock Login.getBody() because it is not the target of this test
+  var cached_function = Login.getBody;
+  Login.getBody = function() {
+    assert.ok(true, "Login.getBody is called");
+  }
+  Login.getFooter();
+  var footerProps = BMTestUtils.DOMNodePropArray(Login.footer[0]);
+  var expectedProps = [ "DIV", {}, [
+    [ "DIV", {}, [
+      "Button Men is copyright 1999, 2016 James Ernest and Cheapass Games: ",
+      [ "A", { "href": "http://www.cheapass.com" }, [ "www.cheapass.com" ] ],
+      " and ",
+      [ "A", { "href": "http://www.beatpeopleup.com" }, [ "www.beatpeopleup.com" ] ],
+      ", and is used with permission." ]
+    ],
+    [ "DIV", {}, [
+      "If you have any trouble with this website, you can open a ticket at ",
+      [ "A", { "href": "https://github.com/buttonmen-dev/buttonmen/issues/new" }, [ "the buttonweavers issue tracker" ] ],
+      " or e-mail us at help@buttonweavers.com." ]
+    ] ]
+  ];
+  assert.deepEqual(footerProps, expectedProps, "Footer contents are expected");
+
+  Login.getBody = cached_function;
 });
 
 test("test_Login.getBody", function(assert) {
@@ -67,7 +95,29 @@ test("test_Login.getBody", function(assert) {
 });
 
 test("test_Login.showLoginHeader", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
+  expect(4);
+
+  // mock Login.getLoginHeader() because it is not the target of this test
+  var cached_function = Login.getLoginHeader;
+  Login.getLoginHeader = function() {
+    assert.ok(true, "Login.getLoginHeader is called");
+  }
+
+  // Empty the page container to test the contents the code will add
+  $('#container').remove();
+  Login.showLoginHeader('fakemodule');
+  var containerProps = BMTestUtils.DOMNodePropArray($('#container')[0]);
+  var expectedProps = [ "DIV", { "id": "container" }, [
+    [ "DIV", { "id": "c_header" }, [
+      [ "DIV", { "id": "login_header" }, [] ],
+      [ "HR", { "id": "header_separator" }, [] ] ]
+    ],
+    [ "DIV", { "id": "c_body" }, [] ],
+    [ "DIV", { "id": "c_footer" }, [] ] ]
+  ];
+  assert.deepEqual(containerProps, expectedProps, "This function correctly assembles the empty page frame");
+
+  Login.getLoginHeader = cached_function;
 });
 
 test("test_Login.showLoginHeader_auto", function(assert) {
@@ -190,15 +240,109 @@ test("test_Login.getLoginForm", function(assert) {
 });
 
 test("test_Login.stateLoggedIn", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.stateLoggedIn not implemented");
+  expect(6);
+  Login.player = 'foobar';
+
+  // mock Api.getNextNewPostId() because it is not the target of this test
+  var cached_function = Api.getNextNewPostId;
+  Api.getNextNewPostId = function(callback) {
+    assert.equal(callback, Login.addMainNavbar, "Api.getNextNewPostId is called with expected callback");
+  }
+
+  Login.stateLoggedIn('example welcome text');
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "P", {}, [
+    [ "FORM", { "action": "javascript:void(0);", "id": "login_action_form" }, [
+      "example welcome text: You are logged in as foobar. ", [
+        "BUTTON", { "id": "login_action_button" }, [ "Logout?" ] ]
+      ]
+    ] ]
+  ];
+  assert.equal(Login.logged_in, true, "Login.logged_in is set to true");
+  assert.equal(Login.form, Login.formLogout, "Login.form is set correctly");
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly");
+
+  Api.getNextNewPostId = cached_function;
 });
 
 test("test_Login.stateLoggedOut", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.stateLoggedOut not implemented");
+  Login.status_type = Login.STATUS_NO_ACTIVITY;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "P", {}, [
+    "example welcome text: ",
+    "You are not logged in. ",
+    [ "FORM", { "action": "javascript:void(0);", "id": "login_action_form" },
+      [
+        "Username: ",
+        [ "INPUT", { "id": "login_name", "name": "login_name", "name": "login_name", "type": "text" }, [] ],
+        " Password: ",
+        [ "INPUT", { "id": "login_pass", "name": "login_pass", "name": "login_pass", "type": "password" }, [] ],
+        " ",
+        [ "BUTTON", { "id": "login_action_button" }, [ "Login" ] ],
+        [ "FONT", {}, [ " or ", [ "A", { "href": "create_user.html" }, [ "Create an account" ] ] ] ]
+      ]
+    ] ]
+  ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after no login activity");
+
+  Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  expectedMessage[2][1] = [ "FONT", { "color": "green" }, [ "Logout succeeded - login again?" ] ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after successful logout");
+
+  Login.status_type = Login.STATUS_ACTION_FAILED;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  expectedMessage[2][1] = [
+    "FONT", { "color": "red" }, [ "Login failed - username or password invalid, or email address has not been verified" ] ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after failed login");
+
+  Login.status_type = 0;
 });
 
 test("test_Login.addMainNavbar", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.addMainNavbar not implemented");
+  expect(4);
+  Login.player = 'foobar';
+  Login.message = $('<div>');
+
+  // mock Login.addNewPostLink() because it is not the target of this test
+  var cached_function = Login.addNewPostLink;
+  Login.addNewPostLink = function(callback) {
+    assert.ok(true, "Login.addNewPostLink is called");
+  }
+
+  Login.addMainNavbar();
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "DIV", {}, [
+    [ "TABLE", {}, [
+      [ "TBODY", {}, [
+        [ "TR", { "class": "headerNav" }, [
+          [ "TD", {}, [ [ "A", { "href": "index.html" }, [ "Overview" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=monitor" }, [ "Monitor" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "create_game.html" }, [ "Create game" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "open_games.html" }, [ "Open games" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "prefs.html" }, [ "Preferences" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "profile.html?player=foobar" }, [ "Profile" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "history.html" }, [ "History" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "buttons.html" }, [ "Buttons" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "active_players.html" }, [ "Who's online" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "forum.html" }, [ "Forum" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=nextGame" }, [ "Next game" ] ] ] ] ]
+        ] ]
+      ] ]
+    ] ]
+  ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message has expected contents");
+
+  Login.addNewPostLink = cached_function;
 });
 
 test("test_Login.addNewPostLink", function(assert) {
