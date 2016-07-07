@@ -16,6 +16,9 @@ Login.nextGameRefreshCallback = false;
 // Which module is responsible for loading the main part of the page
 Login.pageModule = null;
 
+// These elements contribute to the form, if there is a form
+Login.formElements = null;
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Action flow through every page:

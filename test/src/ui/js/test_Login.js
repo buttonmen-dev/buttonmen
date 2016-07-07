@@ -38,6 +38,7 @@ module("Login", {
     $('#header_separator').remove();
 
     Login.pageModule = null;
+    Login.formElements = null;
 
     // Page elements
     $('#login_header').remove();
@@ -247,16 +248,14 @@ test("test_Login.stateLoggedIn", function(assert) {
   var cached_function = Api.getNextNewPostId;
   Api.getNextNewPostId = function(callback) {
     assert.equal(callback, Login.addMainNavbar, "Api.getNextNewPostId is called with expected callback");
-  }
+  };
 
   Login.stateLoggedIn('example welcome text');
   var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
   var expectedMessage = [ "P", {}, [
-    [ "FORM", { "action": "javascript:void(0);", "id": "login_action_form" }, [
-      "example welcome text: You are logged in as foobar. ", [
-        "BUTTON", { "id": "login_action_button" }, [ "Logout?" ] ]
-      ]
-    ] ]
+      "example welcome text: You are logged in as foobar. ",
+      [ "BUTTON", { "id": "login_action_button" }, [ "Logout?" ] ]
+    ]
   ];
   assert.equal(Login.logged_in, true, "Login.logged_in is set to true");
   assert.equal(Login.form, Login.formLogout, "Login.form is set correctly");
@@ -271,29 +270,44 @@ test("test_Login.stateLoggedOut", function(assert) {
   assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
   assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
   var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+
   var expectedMessage = [ "P", {}, [
-    "example welcome text: ",
-    "You are not logged in. ",
-    [ "FORM", { "action": "javascript:void(0);", "id": "login_action_form" },
-      [
-        "Username: ",
-        [ "INPUT", { "id": "login_name", "name": "login_name", "name": "login_name", "type": "text" }, [] ],
-        " Password: ",
-        [ "INPUT", { "id": "login_pass", "name": "login_pass", "name": "login_pass", "type": "password" }, [] ],
-        " ",
-        [ "BUTTON", { "id": "login_action_button" }, [ "Login" ] ],
-        [ "FONT", {}, [ " or ", [ "A", { "href": "create_user.html" }, [ "Create an account" ] ] ] ]
-      ]
-    ] ]
+      "example welcome text: ",
+      "You are not logged in. ",
+      [ "A", { "href": "create_user.html" }, [ "Create an account" ] ]
+    ]
   ];
+
   assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after no login activity");
+
+  var formElements = BMTestUtils.DOMNodePropArray(Login.formElements[0]);
+  var expectedForm = [
+    "DIV",
+    { "class": "login" },
+    [ [
+        "FORM", { "action": "javascript:void(0);", "id": "login_action_form" },
+        [
+          "Username: ",
+          [ "INPUT", { "id": "login_name", "name": "login_name", "type": "text" }, [] ],
+          " ",
+          "Password: ",
+          [ "INPUT", { "id": "login_pass", "name": "login_pass", "type": "password" }, [] ],
+          " ",
+          [ "BUTTON", { "id": "login_action_button" }, [ "Login" ] ],
+          " ",
+          [ "INPUT", { "id": "login_checkbox", "name": "login_checkbox", "type": "checkbox"}, [] ],
+          "Keep me logged in"
+      ] ]
+    ]
+  ];
+  assert.deepEqual(formElements, expectedForm, "Login.formElements is set correctly after no login activity");
 
   Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
   Login.stateLoggedOut('example welcome text');
   assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
   assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
   msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
-  expectedMessage[2][1] = [ "FONT", { "color": "green" }, [ "Logout succeeded - login again?" ] ];
+  expectedMessage[2][1] = [ "FONT", { "color": "green" }, [ "Logout succeeded - login again? " ] ];
   assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after successful logout");
 
   Login.status_type = Login.STATUS_ACTION_FAILED;
@@ -302,7 +316,7 @@ test("test_Login.stateLoggedOut", function(assert) {
   assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
   msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
   expectedMessage[2][1] = [
-    "FONT", { "color": "red" }, [ "Login failed - username or password invalid, or email address has not been verified" ] ];
+    "FONT", { "color": "red" }, [ "Login failed - username or password invalid, or email address has not been verified. " ] ];
   assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after failed login");
 
   Login.status_type = 0;
