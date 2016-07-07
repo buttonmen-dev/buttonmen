@@ -16,6 +16,7 @@ class ApiSpec {
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
+    const VACATION_MESSAGE_MAX_LENGTH = 255;
     const GAME_DESCRIPTION_MAX_LENGTH = 255;
 
     // These are API methods that might get called automatically, e.g. via the
@@ -544,6 +545,10 @@ class ApiSpec {
                     'minvalue' => 80,
                 ),
                 'uses_gravatar' => 'boolean',
+                'vacation_message' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::VACATION_MESSAGE_MAX_LENGTH,
+                ),
                 'current_password' => 'string',
                 'new_password' => 'string',
                 'new_email' => 'email',

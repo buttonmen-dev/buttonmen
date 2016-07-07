@@ -9,7 +9,8 @@
  * This class contains all the logic to do with instantiating and activating buttons
  *
  * @property      string  $name                  Name of button
- * @property      string  $recipe                String representation of the button recipe
+ * @property      string  $originalRecipe        String representation of the original button recipe
+ * @property      string  $recipe                String representation of the current button recipe
  * @property-read string  $artFilename           Filename in the image directory containing button art
  * @property-read array   $dieArray              Array of BMDie
  * @property      BMGame  $ownerObject           BMGame that owns the BMButton
@@ -28,7 +29,14 @@ class BMButton extends BMCanHaveSkill {
     protected $name;
 
     /**
-     * String representation of the button recipe
+     * String representation of the original button recipe
+     *
+     * @var string
+     */
+    protected $originalRecipe;
+
+    /**
+     * String representation of the current button recipe
      *
      * @var string
      */

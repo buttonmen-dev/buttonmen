@@ -1,0 +1,51 @@
+#!/usr/bin/python
+#####
+# Utility to migrate end_winner action log entries to new format
+
+import json
+import re
+import MySQLdb
+
+END_WINNER_OLD_STRING_RE = re.compile('^won round (\d+) \((-?\d+(?:\.\d+)?) vs (-?\d+(?:\.\d+)?)\)$')
+
+def migrate_to_type_log_end_winner(row, crs):
+  row_id = row[0]
+  try:
+    msgdata = json.loads(row[1])
+    round_number = msgdata['roundNumber']
+    assert(len(msgdata['roundScoreArray']) == 2)
+    winning_round_score = max([float(x) for x in msgdata['roundScoreArray']])
+    losing_round_score = min([float(x) for x in msgdata['roundScoreArray']])
+    surrendered = bool('resultForced' in msgdata and msgdata['resultForced'])
+  except ValueError:
+    mobj = END_WINNER_OLD_STRING_RE.match(row[1])
+    if not mobj:
+      raise ValueError, "Could not match string: %s" % row[1]
+    round_number = mobj.group(1)
+    winning_round_score = max(float(mobj.group(2)), float(mobj.group(3)))
+    losing_round_score = min(float(mobj.group(2)), float(mobj.group(3)))
+    surrendered = False
+
+
+  insert_sql = 'INSERT INTO game_action_log_type_end_winner ' + \
+    '(action_log_id, round_number, winning_round_score, losing_round_score, surrendered) VALUES ' + \
+    '(%s, %s, %s, %s, %s);' % (row_id, round_number, winning_round_score, losing_round_score, surrendered)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
+  result = crs.execute(update_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+  print "Moved row %s message %s to game_action_log_type_end_winner" % (row[0], row[1])
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,message FROM game_action_log WHERE action_type="end_winner" ' + \
+  'AND message IS NOT NULL')
+if results > 0:
+  for row in crs.fetchall():
+    migrate_to_type_log_end_winner(row, crs)
+conn.commit()
