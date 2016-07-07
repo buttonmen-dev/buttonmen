@@ -2797,7 +2797,7 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
     dieNumberSpanOpts.html = '&nbsp;' + die.value + '&nbsp;';
   }
 
-  divOpts['style'] = 'background-image: ' + Game.backgroundImagePath(
+  divOpts.style = 'background-image: ' + Game.backgroundImagePath(
     die.sides,
     dieStatus,
     isClickable
@@ -3067,7 +3067,7 @@ Game.gamePlayerDice = function(player, player_active) {
         die, player, 'captured', player_active);
 
       dieContainerDiv = Game.createDieContainerDiv(
-	      die, player, player_active, 'captured', null,
+        die, player, player_active, 'captured', null,
         dieClickableInfo, false);
       allDice.append(dieContainerDiv);
     }
