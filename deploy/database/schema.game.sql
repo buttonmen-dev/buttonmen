@@ -128,6 +128,13 @@ CREATE TABLE game_action_log_type_add_reserve (
     INDEX (action_log_id)
 );
 
+CREATE TABLE game_action_log_type_play_another_turn (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    cause              VARCHAR(20) NOT NULL,
+    INDEX (action_log_id)
+);
+
 CREATE TABLE game_chat_log (
     id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
