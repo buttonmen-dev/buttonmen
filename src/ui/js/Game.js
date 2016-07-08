@@ -2818,25 +2818,16 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
  * @return string
  */
 Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
-  var sidesRoundedUp;
   var imageType;
 
-  if (sides <= 2) {
-    sidesRoundedUp = 2;
-  } else if (sides <= 4) {
-    sidesRoundedUp = 4;
-  } else if (sides <= 6) {
-    sidesRoundedUp = 6;
-  } else if (sides <= 8) {
-    sidesRoundedUp = 8;
-  } else if (sides <= 10) {
-    sidesRoundedUp = 10;
-  } else if (sides <= 12) {
-    sidesRoundedUp = 12;
-  } else if (sides <= 20) {
-    sidesRoundedUp = 20;
-  } else {
-    sidesRoundedUp = 30;
+  var sidesRoundedArray = [2, 4, 6, 8, 10, 12, 20, 30];
+  var sidesRoundedUp = Math.max.apply(null, sidesRoundedArray);
+
+  for (var sidesIdx = 0; sidesIdx < sidesRoundedArray.length; sidesIdx++) {
+    if (sides <= sidesRoundedArray[sidesIdx]) {
+      sidesRoundedUp = sidesRoundedArray[sidesIdx];
+      break;
+    }
   }
 
   if ((dieStatus == 'active') && !(isClickable)) {

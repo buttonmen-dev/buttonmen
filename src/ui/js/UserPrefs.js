@@ -295,12 +295,12 @@ UserPrefs.actionSetPrefs = function() {
       'source': dieBackgroundDefaults,
     },
     'noImages': {
-      'text': '(only this browser) Don\'t load button or player images',
+      'text': '(only applies to the current browser) Don\'t load button or player images',
       'type': 'checkbox',
       'checked': Env.getCookieNoImages(),
     },
     'compactMode': {
-      'text': '(only this browser) Use compact version of game interface',
+      'text': '(only applies to the current browser) Use compact version of game interface',
       'type': 'checkbox',
       'checked': Env.getCookieCompactMode(),
     }
