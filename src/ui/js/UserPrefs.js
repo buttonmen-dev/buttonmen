@@ -295,15 +295,13 @@ UserPrefs.actionSetPrefs = function() {
       'source': dieBackgroundDefaults,
     },
     'noImages': {
-      'text': '(only applies to the current browser) ' +
-              'Don\'t load button or player images',
-      'type': 'checkbox',
+      'text': 'Don\'t load button or player images',
+      'type': 'checkboxBrowser',
       'checked': Env.getCookieNoImages(),
     },
     'compactMode': {
-      'text': '(only applies to the current browser) ' +
-              'Use compact version of game interface',
-      'type': 'checkbox',
+      'text': 'Use compact version of game interface',
+      'type': 'checkboxBrowser',
       'checked': Env.getCookieCompactMode(),
     }
   };
@@ -654,6 +652,20 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
       defaultColorLink.click(function() {
         colorPicker.spectrum('set', UserPrefs.DEFAULT_COLORS[entryKey]);
       });
+      break;
+    case 'checkboxBrowser':
+      entryInput.append($('<input>', {
+        'type': 'checkbox',
+        'name': entryKey,
+        'id': 'userprefs_' + entryKey,
+        'value': entryInfo.value,
+        'checked': entryInfo.checked,
+        'maxlength': entryInfo.length,
+      }));
+      entryInput.append($('<span>', {
+        'text': '(only applies to the current browser)',
+        'class': 'current_browser_only',
+      }));
       break;
     default:
       entryInput.append($('<input>', {

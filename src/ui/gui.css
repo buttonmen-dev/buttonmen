@@ -334,6 +334,11 @@ select.center {
     outline: 0;
 }
 
+span.current_browser_only {
+    padding-left: 20px;
+    color: gray;
+}
+
 span.skill_title {
     font-weight: bold;
     line-height: 1.5;
