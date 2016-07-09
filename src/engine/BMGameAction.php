@@ -742,15 +742,15 @@ class BMGameAction {
             $dieMessages = array();
             if (count($this->params['swingValues']) > 0) {
                 $swingStrs = array();
-                foreach ($this->params['swingValues'] as $swingType => $swingValue) {
-                    $swingStrs[] = $swingType . '=' . $swingValue;
+                foreach ($this->params['swingValues'] as $swing) {
+                    $swingStrs[] = $swing['swingType'] . '=' . $swing['swingValue'];
                 }
                 $dieMessages[] = 'swing values: ' . implode(", ", $swingStrs);
             }
             if (count($this->params['optionValues']) > 0) {
                 $optionStrs = array();
-                foreach ($this->params['optionValues'] as $dieRecipe => $optionValue) {
-                    $optionStrs[] = str_replace(')', '=' . $optionValue . ')', $dieRecipe);
+                foreach ($this->params['optionValues'] as $option) {
+                    $optionStrs[] = str_replace(')', '=' . $option['optionValue'] . ')', $option['recipe']);
                 }
                 $dieMessages[] = 'option dice: ' . implode(", ", $optionStrs);
             }
