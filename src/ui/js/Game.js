@@ -2820,8 +2820,9 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
 Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
   var imageType;
 
+  // the logic below requires sidesRoundedArray to be sorted in ascending order
   var sidesRoundedArray = [2, 4, 6, 8, 10, 12, 20, 30];
-  var sidesRoundedUp = Math.max.apply(null, sidesRoundedArray);
+  var sidesRoundedUp = sidesRoundedArray[sidesRoundedArray.length - 1];
 
   for (var sidesIdx = 0; sidesIdx < sidesRoundedArray.length; sidesIdx++) {
     if (sides <= sidesRoundedArray[sidesIdx]) {
