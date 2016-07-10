@@ -1,0 +1,40 @@
+#!/usr/bin/python
+#####
+# Utility to migrate turndown_focus action log entries to new format
+
+import json
+import MySQLdb
+
+def migrate_to_type_log_turndown_focus(row, crs):
+  row_id = row[0]
+  msgdata = json.loads(row[1])
+  pre_turndown = msgdata['preTurndown']
+  post_turndown = msgdata['postTurndown']
+  assert(len(pre_turndown) == len(post_turndown))
+
+  for i in range(len(pre_turndown)):
+    recipe = pre_turndown[i]['recipe']
+    orig_value = pre_turndown[i]['value']
+    turndown_value = post_turndown[i]['value']
+    insert_sql = 'INSERT INTO game_action_log_type_turndown_focus_die ' + \
+      '(action_log_id, recipe, orig_value, turndown_value) VALUES ' + \
+      '(%s, "%s", %s, %s);' % (row[0], recipe, orig_value, turndown_value)
+    result = crs.execute(insert_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
+  result = crs.execute(update_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+  print "Moved row %s message %s to game_action_log_type_turndown_focus_die" % (row[0], row[1])
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,message FROM game_action_log WHERE action_type="turndown_focus" ' + \
+  'AND message IS NOT NULL')
+if results > 0:
+  for row in crs.fetchall():
+    migrate_to_type_log_turndown_focus(row, crs)
+conn.commit()
