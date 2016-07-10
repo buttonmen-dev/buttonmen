@@ -78,7 +78,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_active_games()
     self.assertEqual(r.status, 'ok', 'loadActiveGames returns successfully')
     known_keys = [
-      'gameDescriptionArray', 'gameIdArray', 'gameStateArray', 
+      'gameDescriptionArray', 'gameIdArray', 'gameStateArray',
       'inactivityArray', 'inactivityRawArray',
       'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray',
       'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
@@ -96,7 +96,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_completed_games()
     self.assertEqual(r.status, 'ok', 'loadCompletedGames returns successfully')
     known_keys = [
-      'gameDescriptionArray', 'gameIdArray', 'gameStateArray', 
+      'gameDescriptionArray', 'gameIdArray', 'gameStateArray',
       'inactivityArray', 'inactivityRawArray',
       'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray',
       'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
@@ -142,7 +142,8 @@ class TestBMClient(unittest.TestCase):
 
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
-      'gameScoreArray', 'hasDismissedGame', 'isOnVacation', 'lastActionTime', 
+      'dieBackgroundType', 'gameScoreArray', 'hasDismissedGame',
+      'isOnVacation', 'lastActionTime',
       'optRequestArray', 'outOfPlayDieArray',
       'playerColor', 'playerId', 'playerName',
       'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',

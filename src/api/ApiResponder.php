@@ -252,6 +252,7 @@ class ApiResponder {
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = ('true' == $args['automatically_monitor']);
+        $infoArray['die_background'] = $args['die_background'];
         $infoArray['player_color'] = $args['player_color'];
         $infoArray['opponent_color'] = $args['opponent_color'];
         $infoArray['neutral_color_a'] = $args['neutral_color_a'];
@@ -422,7 +423,7 @@ class ApiResponder {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
         }
-        $retval = $interface->game()->submit_chat(
+        $retval = $interface->game_chat()->submit_chat(
             $_SESSION['user_id'],
             $args['game'],
             $args['edit'],

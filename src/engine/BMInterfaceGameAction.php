@@ -508,6 +508,59 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type play_another_turn
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_play_another_turn($action_log_id) {
+        try {
+            $query = 'SELECT cause FROM game_action_log_type_play_another_turn ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            return array(
+                'cause' => (string)$row['cause'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_play_another_turn: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type play_another_turn
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_play_another_turn($action_log_id, $params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_play_another_turn ' .
+                     '(action_log_id, cause) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :cause)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':cause' => $params['cause']));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_play_another_turn: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Load the parameters for a single game action log message of type fire_cancel
      *
      * @return array
