@@ -7741,46 +7741,70 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @coversNothing
      */
     public function test_morph_on_unsuccessful_trip_bug() {
-        while (1) {
-            // load buttons
-            $button1 = new BMButton;
-            $button1->load('(1) (1) mt(1)', 'MorphingTrip');
+        // override RNG and require the test to specify all die values used
+        global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
+        $BM_RAND_REQUIRE_OVERRIDE = TRUE;
 
-            $button2 = new BMButton;
-            $button2->load('(99) (99)', 'BigDice');
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1) (1) mt(1)', 'MorphingTrip');
 
-            $game = $this->object;
-            $this->assertEquals(BMGameState::START_GAME, $game->gameState);
-            $this->assertEquals(2, $game->maxWins);
-            $game->buttonArray = array($button1, $button2);
-            $game->waitingOnActionArray = array(FALSE, FALSE);
-            $game->proceed_to_next_user_action();
+        $button2 = new BMButton;
+        $button2->load('s(99) s(99)', 'BigDice');
 
-            $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-            $this->assertEquals(0, $game->playerWithInitiativeIdx);
+        $game = $this->object;
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+        $this->assertEquals(2, $game->maxWins);
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $BM_RAND_VALS = array(1, 1, 1, 45, 55); // initial die rolls for both buttons
+        $game->proceed_to_next_user_action();
 
-            // player 1 performs valid trip attack with trip morphing die
-            $game->attack = array(0,        // attackerPlayerIdx
-                                  1,        // defenderPlayerIdx
-                                  array(2), // attackerAttackDieIdxArray
-                                  array(0), // defenderAttackDieIdxArray
-                                  'Trip');  // attackType
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
 
-            $game->proceed_to_next_user_action();
+        // player 1 performs valid trip attack with trip morphing die
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(2), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Trip');  // attackType
 
-            if (1 == count($game->activeDieArrayArray[1])) {
-                // either there was a successful trip attack, which should have triggered morphing
-                $this->assertEquals(1, count($game->capturedDieArrayArray[0]));
-                $this->assertEquals(1, $game->capturedDieArrayArray[0][0]->value);
-                $this->assertEquals(99, $game->activeDieArrayArray[0][2]->max);
-            } else {
-                // or there was an unsuccessful trip attack, which shouldn't have triggered morphing
-                $this->assertEquals(0, count($game->capturedDieArrayArray[0]));
-                $this->assertGreaterThan(1, $game->activeDieArrayArray[1][0]->value);
-                $this->assertEquals(1, $game->activeDieArrayArray[0][2]->max);
-                break;
-            }
-        }
+        // first trip attack should be unsuccessful, and should not trigger morphing
+        $BM_RAND_VALS = array(1, 62);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(0, count($game->capturedDieArrayArray[0]));
+        $this->assertGreaterThan(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][2]->max);
+
+        // player 2 should pass
+        $this->assertEquals(FALSE, $game->playerArray[0]->waitingOnAction);
+        $this->assertEquals(TRUE, $game->playerArray[1]->waitingOnAction);
+        $game->attack = array(1,       // attackerPlayerIdx
+                              0,       // defenderPlayerIdx
+                              array(), // attackerAttackDieIdxArray
+                              array(), // defenderAttackDieIdxArray
+                              'Pass'); // attackType
+        $game->proceed_to_next_user_action();
+
+        // player 1 performs valid trip attack with trip morphing die
+        $this->assertEquals(TRUE, $game->playerArray[0]->waitingOnAction);
+        $this->assertEquals(FALSE, $game->playerArray[1]->waitingOnAction);
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(2), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Trip');  // attackType
+
+        // second trip attack should be successful, and should trigger morphing,
+        // requiring another die-roll for the attacker's post-morph value
+        $BM_RAND_VALS = array(1, 1, 32);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(1, count($game->activeDieArrayArray[1]));
+        $this->assertEquals(1, count($game->capturedDieArrayArray[0]));
+        $this->assertEquals(1, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(99, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(32, $game->activeDieArrayArray[0][2]->value);
     }
 
     /**
