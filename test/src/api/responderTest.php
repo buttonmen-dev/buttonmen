@@ -493,7 +493,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
-		    'isOnVacation' => false,
+                    'dieBackgroundType' => 'realistic',
+                    'isOnVacation' => false,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -512,7 +513,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
-		    'isOnVacation' => false,
+                    'dieBackgroundType' => 'realistic',
+                    'isOnVacation' => false,
                 ),
             ),
             'gameActionLog' => array(),
@@ -1290,6 +1292,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'autopass' => 'false',
             'fire_overshooting' => 'false',
             'uses_gravatar' => 'false',
+            'die_background' => 'symmetric',
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',
             'neutral_color_a' => '#cccccc',
@@ -1329,6 +1332,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'autopass' => 'true',
             'fire_overshooting' => 'false',
             'uses_gravatar' => 'false',
+            'die_background' => 'realistic',
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',
             'neutral_color_a' => '#cccccc',
@@ -1753,10 +1757,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $akeys = array_keys($retval['data']['user_prefs']);
         sort($akeys);
-        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'die_background', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
         $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
         $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
+        $this->assertEquals($retval['data']['user_prefs']['die_background'], 'realistic');
 
         // loadPlayerName takes no args, so store this as the sole reference API output
         // after changing the username to match the UI tests' expectations
@@ -2388,6 +2393,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // in test_request_savePlayerInfo() responder002 was set to be on vacation - make sure the game reflects that.
         $expData['playerDataArray'][1]['isOnVacation'] = TRUE;
+        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
+        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);

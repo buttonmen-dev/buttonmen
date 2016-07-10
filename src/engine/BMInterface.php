@@ -151,7 +151,8 @@ class BMInterface {
                 $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
-
+                $data['playerDataArray'][$gamePlayerIdx]['dieBackgroundType'] =
+                    $this->load_die_background_type($gamePlayer->playerId);
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
@@ -1391,7 +1392,7 @@ class BMInterface {
                 $parameterName = ':skipped_game_id_' . $index;
                 $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
                 $parameters[$parameterName] = $skippedGameId;
-            };
+            }
             $query = $query .
                      'ORDER BY g.last_action_time ASC '.
                      'LIMIT 1';
@@ -1906,6 +1907,13 @@ class BMInterface {
             return $count . ' ' . $noun . 'es';
         }
         return $count . ' ' . $noun . 's';
+    }
+
+    // Retrieves the die background type chosen by the current player
+    protected function load_die_background_type($playerId) {
+        $playerInfoArray = $this->player()->get_player_info($playerId);
+
+        return $playerInfoArray['user_prefs']['die_background'];
     }
 
     // Retrieves the colors that the user has saved in their preferences

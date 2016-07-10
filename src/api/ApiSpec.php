@@ -16,6 +16,7 @@ class ApiSpec {
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
+    const DIE_BACKGROUND_MAX_LENGTH = 10;
     const VACATION_MESSAGE_MAX_LENGTH = 255;
     const GAME_DESCRIPTION_MAX_LENGTH = 255;
 
@@ -529,6 +530,10 @@ class ApiSpec {
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
                 'automatically_monitor' => 'boolean',
+                'die_background' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::DIE_BACKGROUND_MAX_LENGTH,
+                ),
                 'player_color' => 'color',
                 'opponent_color' => 'color',
                 'neutral_color_a' => 'color',

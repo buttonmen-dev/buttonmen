@@ -83,6 +83,7 @@ class BMInterfacePlayer extends BMInterface {
             'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
             'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
             'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
+            'die_background' => $infoArray['die_background'],
             'comment' => $infoArray['comment'],
             'vacation_message' => $infoArray['vacation_message'],
             'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
