@@ -567,12 +567,8 @@ class ApiResponder {
     protected function get_interface_response_login($interface, $args) {
         assert(!is_array($interface));
 
-        if (isset($args['doStayLoggedIn'])) {
-            $doStayLoggedIn = ('true' == $args['doStayLoggedIn']);
-        } else {
-            $doStayLoggedIn = FALSE;
-        }
-
+        $doStayLoggedIn = isset($args['doStayLoggedIn']) &&
+                          ('true' == $args['doStayLoggedIn']);
         $login_success = login($args['username'], $args['password'], $doStayLoggedIn);
 
         if ($login_success) {

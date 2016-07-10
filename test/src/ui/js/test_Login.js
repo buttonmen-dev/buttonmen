@@ -289,8 +289,7 @@ test("test_Login.stateLoggedOut", function(assert) {
         [
           "Username: ",
           [ "INPUT", { "id": "login_name", "name": "login_name", "type": "text" }, [] ],
-          " ",
-          "Password: ",
+          " Password: ",
           [ "INPUT", { "id": "login_pass", "name": "login_pass", "type": "password" }, [] ],
           " ",
           [ "BUTTON", { "id": "login_action_button" }, [ "Login" ] ],
@@ -309,6 +308,9 @@ test("test_Login.stateLoggedOut", function(assert) {
   msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
   expectedMessage[2][1] = [ "FONT", { "color": "green" }, [ "Logout succeeded - login again? " ] ];
   assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after successful logout");
+  formElements = BMTestUtils.DOMNodePropArray(Login.formElements[0]);
+  // james: expected form should not change here
+  assert.deepEqual(formElements, expectedForm, "Login.formElements is set correctly after successful logout");
 
   Login.status_type = Login.STATUS_ACTION_FAILED;
   Login.stateLoggedOut('example welcome text');
@@ -318,6 +320,9 @@ test("test_Login.stateLoggedOut", function(assert) {
   expectedMessage[2][1] = [
     "FONT", { "color": "red" }, [ "Login failed - username or password invalid, or email address has not been verified. " ] ];
   assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after failed login");
+  formElements = BMTestUtils.DOMNodePropArray(Login.formElements[0]);
+  // james: expected form should not change here
+  assert.deepEqual(formElements, expectedForm, "Login.formElements is set correctly after failed login");
 
   Login.status_type = 0;
 });

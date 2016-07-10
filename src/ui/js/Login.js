@@ -288,8 +288,7 @@ Login.stateLoggedOut = function(welcomeText) {
     'id': 'login_name',
     'name': 'login_name',
   }));
-  loginExisting.append(' ');
-  loginExisting.append('Password: ');
+  loginExisting.append(' Password: ');
   loginExisting.append($('<input>', {
     'type': 'password',
     'id': 'login_pass',
