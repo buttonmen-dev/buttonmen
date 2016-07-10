@@ -57,9 +57,6 @@ class BMGameAction {
         $actingPlayerId,
         $params
     ) {
-        if (!$params) {
-            throw new Exception("BMGameAction error: params can't be empty");
-        }
         $this->gameState = $gameState;
         $this->actionType = $actionType;
         $this->actingPlayerId = $actingPlayerId;
@@ -97,9 +94,6 @@ class BMGameAction {
             if ($this->actionType == 'attack') {
                 return $playerIdNames[$this->actingPlayerId] . ' ' . $this->params;
             }
-            if ($this->actionType == 'end_winner') {
-                return ('End of round: ' . $playerIdNames[$this->actingPlayerId] . ' ' . $this->params);
-            }
             return($this->params);
         }
     }
@@ -112,8 +106,8 @@ class BMGameAction {
     protected function friendly_message_end_draw() {
         $message = 'Round ' . $this->params['roundNumber'] .
                    ' ended in a draw (' .
-                   $this->params['roundScoreArray'][0] . ' vs. ' .
-                   $this->params['roundScoreArray'][1] . ')';
+                   $this->params['roundScore'] . ' vs. ' .
+                   $this->params['roundScore'] . ')';
         return $message;
     }
 
@@ -125,11 +119,11 @@ class BMGameAction {
     protected function friendly_message_end_winner() {
         $message = 'End of round: ' . $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' won round ' . $this->params['roundNumber'];
-        if (array_key_exists('resultForced', $this->params) && ($this->params['resultForced'])) {
+        if ($this->params['surrendered']) {
             $message .= ' because opponent surrendered';
         } else {
-            $message .= ' (' .  max($this->params['roundScoreArray']) . ' vs. ' .
-                        min($this->params['roundScoreArray']) . ')';
+            $message .= ' (' .  $this->params['winningRoundScore'] . ' vs. ' .
+                        $this->params['losingRoundScore'] . ')';
         }
         return $message;
     }
@@ -806,8 +800,8 @@ class BMGameAction {
         } else {
             $message .= ', but did not gain initiative';
         }
-        $message .= ': ' . $this->params['preReroll']['recipe'] . ' rerolled ' .
-                    $this->params['preReroll']['value'] . ' => ' . $this->params['postReroll']['value'];
+        $message .= ': ' . $this->params['origRecipe'] . ' rerolled ' .
+                    $this->params['origValue'] . ' => ' . $this->params['rerollValue'];
         return $message;
     }
 
@@ -819,9 +813,9 @@ class BMGameAction {
     protected function friendly_message_turndown_focus() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' gained initiative by turning down focus dice';
         $focusStrs = array();
-        foreach ($this->params['preTurndown'] as $idx => $die) {
-            $focusStrs[] = $die['recipe'] . ' from ' . $die['value'] . ' to ' .
-                           $this->params['postTurndown'][$idx]['value'];
+        foreach ($this->params['turndownDice'] as $die) {
+            $focusStrs[] = $die['recipe'] . ' from ' . $die['origValue'] . ' to ' .
+                           $die['turndownValue'];
         }
         $message .= ': ' . implode(", ", $focusStrs);
         return $message;
@@ -845,7 +839,7 @@ class BMGameAction {
      */
     protected function friendly_message_add_reserve() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                   ' added a reserve die: ' . $this->params['die']['recipe'];
+                   ' added a reserve die: ' . $this->params['dieRecipe'];
         return $message;
     }
 
@@ -872,7 +866,7 @@ class BMGameAction {
         if (($this->outputRoundNumber != $this->params['roundNumber']) ||
             ($this->outputGameState != BMGameState::CHOOSE_AUXILIARY_DICE)) {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                       ' chose to use auxiliary die ' . $this->params['die']['recipe'] .
+                       ' chose to use auxiliary die ' . $this->params['dieRecipe'] .
                        ' in this game';
         } else {
             // Otherwise, return nothing - the fact that this player has made a choice

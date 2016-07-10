@@ -31,6 +31,7 @@ CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED,
     button_id          SMALLINT UNSIGNED,
+    original_recipe    VARCHAR(100),
     alt_recipe         VARCHAR(100),
     position           TINYINT UNSIGNED NOT NULL,
     did_win_initiative BOOLEAN DEFAULT FALSE,
@@ -72,6 +73,66 @@ CREATE TABLE game_action_log (
     acting_player      SMALLINT UNSIGNED NOT NULL,
     message            TEXT,
     INDEX (game_id)
+);
+
+CREATE TABLE game_action_log_type_end_draw (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    round_number       TINYINT UNSIGNED NOT NULL,
+    round_score        VARCHAR(10) NOT NULL,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_end_winner (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    round_number        TINYINT UNSIGNED NOT NULL,
+    winning_round_score VARCHAR(10) NOT NULL,
+    losing_round_score  VARCHAR(10) NOT NULL,
+    surrendered         BOOLEAN DEFAULT FALSE,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_add_auxiliary (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    round_number       TINYINT UNSIGNED NOT NULL,
+    die_recipe         VARCHAR(20) NOT NULL,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_turndown_focus_die (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    recipe             VARCHAR(20) NOT NULL,
+    orig_value         SMALLINT,
+    turndown_value     SMALLINT,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_reroll_chance (
+    id                INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id     INTEGER UNSIGNED NOT NULL,
+    orig_recipe       VARCHAR(20) NOT NULL,
+    orig_value        SMALLINT,
+    reroll_recipe     VARCHAR(20) NOT NULL,
+    reroll_value      SMALLINT,
+    gained_initiative BOOLEAN DEFAULT FALSE,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_add_reserve (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    die_recipe         VARCHAR(20) NOT NULL,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_play_another_turn (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    cause              VARCHAR(20) NOT NULL,
+    INDEX (action_log_id)
 );
 
 CREATE TABLE game_chat_log (

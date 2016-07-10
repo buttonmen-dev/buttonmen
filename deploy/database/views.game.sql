@@ -6,6 +6,7 @@ AS SELECT
     m.game_id,
     m.player_id,
     m.button_id,
+    m.original_recipe,
     m.alt_recipe,
     m.position,
     m.did_win_initiative,
@@ -22,6 +23,7 @@ AS SELECT
     p.name_ingame AS player_name,
     p.autopass,
     p.fire_overshooting,
+    (length(p.vacation_message) > 0) as is_on_vacation,
     b.name AS button_name,
     g.n_target_wins
 FROM game_player_map AS m

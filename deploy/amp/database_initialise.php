@@ -5,7 +5,7 @@
 <body>
     <?php
 
-// james: uncomment the following lines to also initialise the 
+// james: uncomment the following lines to also initialise the
 //        primary 'buttonmen' database
 //
 //        recreate_database('buttonmen');

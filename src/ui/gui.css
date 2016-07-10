@@ -249,42 +249,30 @@ select.center {
     background-size: 50px 50px;
     min-width: 50px;
     display: inline-block;
+    vertical-align: middle;
     color: blue;
     margin: 4px;
     cursor: default;
 }
 
 .die_img {
-    border-radius: 50%;
-    background-color: #ffffff;
-    border: 1px black solid;
     height: 49px;
     width: 49px;
     background-size: 100%;
     margin: auto;
 }
 
-.die_greyed {
-    background-color: #cccccc;
-    border-radius: 50%;
-    color:darkslateblue;
-}
-
-.die_dead .die_img {
-    background-color: black;
-    border-radius: 50%;
-}
-
-.die_dead .die_overlay {
+.die_container_dead .die_overlay {
     color: white;
 }
 
-.die_dead span {
+.die_container_dead span {
     text-decoration: line-through;
 }
 
-/* This matches any .die_dead element that immediately follows a .die_alive */
-.die_alive + .die_dead {
+/* This matches any .die_container_dead element that immediately follows a
+   .die_container_alive */
+.die_container_alive + .die_container_dead {
     margin-left: 40px;
 }
 
@@ -349,6 +337,11 @@ select.center {
  * default is visible when this class is not present */
 .hide_focus {
     outline: 0;
+}
+
+span.current_browser_only {
+    padding-left: 20px;
+    color: gray;
 }
 
 span.skill_title {
@@ -435,6 +428,10 @@ table.profileTable td.partialValue {
     vertical-align: top;
 }
 
+table.profileTable td.emphasize{
+    background-color: #ffcc66;
+}
+
 table.activePlayerList td.player,
 table.activePlayerList th.player {
     text-align: right;
@@ -456,6 +453,12 @@ table.activePlayerList th.idleness {
     color: blue;
     text-decoration: underline;
     cursor: pointer;
+}
+
+.playerFlag {
+   cursor: default;
+   vertical-align: middle;
+   margin: 0px 3px;
 }
 
 #newgame_create_table th,
@@ -925,4 +928,8 @@ div.forum div.splitRight {
 
 #buttons_page table.skills p.interaction {
     font-style: italic;
+}
+
+#zoom {
+  background-color: green;
 }
