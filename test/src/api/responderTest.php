@@ -3194,7 +3194,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * In this scenario, a 1-round Haruspex mirror battle is played,
      * letting us test a completed game, and a number of "continue
