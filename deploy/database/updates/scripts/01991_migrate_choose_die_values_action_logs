@@ -1,0 +1,58 @@
+#!/usr/bin/python
+#####
+# Utility to migrate choose_die_values action log entries to new format
+
+import json
+import MySQLdb
+
+def migrate_to_type_log_choose_die_values(row, crs):
+  row_id = row[0]
+  msgdata = json.loads(row[1])
+  round_number = msgdata['roundNumber']
+  swing_values = {}
+  if 'swingValues' in msgdata:
+    swing_values = msgdata['swingValues']
+  option_values = {}
+  if 'optionValues' in msgdata:
+    option_values = msgdata['optionValues']
+
+  insert_sql = 'INSERT INTO game_action_log_type_choose_die_values ' + \
+    '(action_log_id, round_number) VALUES ' + \
+    '(%s, %s);' % (row[0], round_number)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  if len(swing_values) > 0:
+    for [swing_type, swing_value] in sorted(swing_values.items()):
+      insert_sql = 'INSERT INTO game_action_log_type_choose_die_values_swing ' + \
+        '(action_log_id, swing_type, swing_value) VALUES ' + \
+        '(%s, "%s", %s);' % (row[0], swing_type, swing_value)
+      result = crs.execute(insert_sql)
+      if not result == 1:
+        raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  if len(option_values) > 0:
+    for [recipe, option_value] in sorted(option_values.items()):
+      insert_sql = 'INSERT INTO game_action_log_type_choose_die_values_option ' + \
+        '(action_log_id, recipe, option_value) VALUES ' + \
+        '(%s, "%s", %s);' % (row[0], recipe, option_value)
+      result = crs.execute(insert_sql)
+      if not result == 1:
+        raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
+  result = crs.execute(update_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+  print "Moved row %s message %s to game_action_log_type_choose_die_values*" % (row[0], row[1])
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,message FROM game_action_log WHERE action_type="choose_die_values" ' + \
+  'AND message IS NOT NULL')
+if results > 0:
+  for row in crs.fetchall():
+    migrate_to_type_log_choose_die_values(row, crs)
+conn.commit()
