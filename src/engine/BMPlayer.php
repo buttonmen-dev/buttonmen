@@ -32,6 +32,7 @@
  * @property      int      $lastActionTime         Time of last action
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  * @property      bool     $isOnVacation           Is player on vacation? (Used by BMInterface only)
+ * @property      bool     $isChatPrivate          Has player set chat to private for this game?
  *
  * @SuppressWarnings(PMD.TooManyFields)
  */
@@ -237,6 +238,13 @@ class BMPlayer {
      * @var bool
      */
     protected $isOnVacation;
+
+    /**
+     * Has current player set chat to private? Currently only used by BMInterface*.
+     *
+     * @var bool
+     */
+    protected $isChatPrivate;
 
     /**
      * Find indices of active dice that do not have reserve
@@ -481,6 +489,19 @@ class BMPlayer {
         }
 
         $this->isOnVacation = $value;
+    }
+
+    /**
+     * Set isChatPrivate
+     *
+     * @param bool $value
+     */
+    protected function set__isChatPrivate($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException('isChatPrivate must be a boolean');
+        }
+
+        $this->isChatPrivate = $value;
     }
 
     // utility methods

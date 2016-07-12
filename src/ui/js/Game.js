@@ -2155,6 +2155,7 @@ Game.pageAddLogFooter = function() {
       $.each(Api.game.chatLog, function(logindex, logentry) {
         var chatrow = $('<tr>');
         var chatplayer;
+        var chatplayeropts;
         if (logentry.player == Api.game.player.playerName) {
           chatplayer = 'player';
         } else if (logentry.player == Api.game.opponent.playerName) {
@@ -2162,13 +2163,17 @@ Game.pageAddLogFooter = function() {
         } else {
           chatplayer = 'noone';
         }
-        chatrow.append($('<td>', {
+        chatplayeropts = {
           'class': 'chat',
           'style': 'background-color: ' + Game.color[chatplayer],
           'nowrap': 'nowrap',
-          'text': logentry.player + ' (' +
-            Env.formatTimestamp(logentry.timestamp) + ')',
-        }));
+          'text': logentry.player,
+        };
+        if (logentry.timestamp > 0) {
+          chatplayeropts.text += ' (' +
+            Env.formatTimestamp(logentry.timestamp) + ')';
+        }
+        chatrow.append($('<td>', chatplayeropts));
         var messageClass = 'left logmessage';
         if (Api.game.isParticipant && Api.game.player.lastActionTime &&
           logentry.timestamp > Api.game.player.lastActionTime) {

@@ -3588,6 +3588,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
+        // now load the game as a non-player, and verify that chat
+	// text from the current game is shown, but chat from a
+	// previous game is not shown
+        $expData['gameChatEditable'] = FALSE;
+        $expData['currentPlayerIdx'] = FALSE;
+        $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
+        $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['gameChatLogCount'] = 2;
+        $savedChat = array_splice($expData['gameChatLog'], 2, 1);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['gameChatEditable'] = 'TIMESTAMP';
+        $expData['currentPlayerIdx'] = 0;
+        $expData['playerDataArray'][0]['playerColor'] = '#dd99dd';
+        $expData['playerDataArray'][1]['playerColor'] = '#ddffdd';
+        $expData['gameChatLogCount'] = 3;
+        $expData['gameChatLog'][]= $savedChat;
+
+
         ////////////////////
         // Move 02 (game 3) - player 2 wins game without chatting
 
@@ -3667,6 +3688,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        // Now load the game as a non-player, and verify that chat
+        // text from a previous game is not shown
+        $expData['gameChatEditable'] = FALSE;
+        $expData['currentPlayerIdx'] = FALSE;
+        $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
+        $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['gameChatLogCount'] = 1;
+        array_splice($expData['gameChatLog'], 1, 2);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
     }
 
     /**
