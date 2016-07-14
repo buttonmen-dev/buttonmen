@@ -236,9 +236,39 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the size of the captured die, and then decay',
                 ),
             ),
+            'RandomBMDuoskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 2 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
             'RandomBMMixed' => array(
                 'code' => '',
                 'description' => '5 dice, no swing dice, three skills chosen from all existing skills except %&+?DF`mrw, with each skill dealt out twice randomly and independently over all dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMMonoskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 1 skill appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMPentaskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 5 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMSoldiers' => array(
+                'code' => '',
+                'description' => 'A recipe similar to the Soldiers set: Four regular dice and one X swing die, no skills.',
+                'interacts' => array(),
+            ),
+            'RandomBMTetraskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 4 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMTriskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 3 skills each appearing a total of 2 times on various dice.',
                 'interacts' => array(),
             ),
             'Rage' => array(
