@@ -14717,6 +14717,72 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 
+    /**
+     * @group fulltest_deps
+     * @depends test_request_savePlayerInfo
+     *
+     * This is a test of a trip mighty die performing a valid trip attack
+     * against a konstant die with a value larger than the current size
+     */
+    public function test_interface_game_047() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 47;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $gameId = $this->verify_api_createGame(
+            array(
+                0, 2, 3, 3, 5,          // die sizes for r3: 4, 8, 10, 10, 20
+                7, 6, 18,               // die skills for r3: H, M, t
+                0, 3, 2, 1, 0, 1,       // distribution of skills onto dice for r3
+                0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
+                19, 0, 5,               // die skills for r4: B, k, v
+                3, 4, 2, 1, 2, 1,       // distribution of skills onto dice for r4
+                1, 1, 1,                // initial die rolls for r3 (note: Maximum dice don't use random values)
+                3, 2, 5, 2, 3           // initial die rolls for r4
+            ),
+            'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
+        );
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Berserk', 'Konstant', 'Maximum', 'Mighty', 'RandomBMMixed', 'Trip', 'Value'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'Ht(4) Mt(8) M(10) H(10) (20)', 'originalRecipe' => 'Ht(4) Mt(8) M(10) H(10) (20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'RandomBMMixed', 'recipe' => '(4) Bk(4) Bk(6) v(10) v(20)', 'originalRecipe' => '(4) Bk(4) Bk(6) v(10) v(20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 1, 'sides' => 4, 'skills' => array('Mighty', 'Trip'), 'properties' => array(), 'recipe' => 'Ht(4)', 'description' => 'Mighty Trip 4-sided die'),
+            array('value' => 8, 'sides' => 8, 'skills' => array('Maximum', 'Trip'), 'properties' => array(), 'recipe' => 'Mt(8)', 'description' => 'Maximum Trip 8-sided die'),
+            array('value' => 10, 'sides' => 10, 'skills' => array('Maximum'), 'properties' => array(), 'recipe' => 'M(10)', 'description' => 'Maximum 10-sided die'),
+            array('value' => 1, 'sides' => 10, 'skills' => array('Mighty'), 'properties' => array(), 'recipe' => 'H(10)', 'description' => 'Mighty 10-sided die'),
+            array('value' => 1, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 3, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => 2, 'sides' => 4, 'skills' => array('Berserk', 'Konstant'), 'properties' => array(), 'recipe' => 'Bk(4)', 'description' => 'Berserk Konstant 4-sided die'),
+            array('value' => 5, 'sides' => 6, 'skills' => array('Berserk', 'Konstant'), 'properties' => array(), 'recipe' => 'Bk(6)', 'description' => 'Berserk Konstant 6-sided die'),
+            array('value' => 2, 'sides' => 10, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(10)', 'description' => 'Value 10-sided die'),
+            array('value' => 3, 'sides' => 20, 'skills' => array('Value'), 'properties' => array('ValueRelevantToScore'), 'recipe' => 'v(20)', 'description' => 'Value 20-sided die'),
+        );
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 26;
+        $expData['playerDataArray'][1]['roundScore'] = 9.5;
+        $expData['playerDataArray'][0]['sideScore'] = 11.0;
+        $expData['playerDataArray'][1]['sideScore'] = -11.0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [Ht(4):1, Mt(8):8, M(10):10, H(10):1, (20):1], responder004 rolled [(4):3, Bk(4):2, Bk(6):5, v(10):2, v(20):3]. responder003 has dice which are not counted for initiative due to die skills: [Ht(4), Mt(8)].'));
+        $expData['gameActionLogCount'] = 1;
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Trip');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(2),
+            'responder003 performed Trip attack using [Ht(4):1] against [Bk(6):5]; Attacker Ht(4) recipe changed from Ht(4) to Ht(6), rerolled 1 => 2; Defender Bk(6) does not reroll, was not captured. ',
+            $retval, array(array(0, 0), array(1, 2)),
+            $gameId, 1, 'Trip', 0, 1, '');
+    }
 
     /**
      * @depends test_request_savePlayerInfo
