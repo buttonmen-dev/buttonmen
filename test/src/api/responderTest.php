@@ -14718,7 +14718,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      *
      * This is a test of a trip mighty die performing a valid trip attack
