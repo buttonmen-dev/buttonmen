@@ -1139,7 +1139,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function verify_api_submitTurn(
         $postSubmitDieRolls, $expMessage, $prevData, $participatingDice,
         $gameId, $roundNum, $attackType, $attackerIdx, $defenderIdx, $chat,
-        $turboVals = array()
+        $turboVals = NULL
     ) {
         global $BM_RAND_VALS;
         $BM_RAND_VALS = $postSubmitDieRolls;
@@ -1154,8 +1154,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'attackerIdx' => $attackerIdx,
             'defenderIdx' => $defenderIdx,
             'chat' => $chat,
-            'turboVals' => $turboVals,
         );
+        if ($turboVals != NULL) {
+            $args['turboVals'] = $turboVals;
+        }
+
         $retval = $this->verify_api_success($args);
         $this->assertEquals($expMessage, $retval['message']);
         $this->assertEquals(TRUE, $retval['data']);

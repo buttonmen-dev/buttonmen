@@ -1834,12 +1834,32 @@ class BMGame {
         // set turbo sizes
         foreach ($turboSizeArray as $dieIdx => $dieSize) {
             $die = $this->playerArray[$playerIdx]->activeDieArray[$dieIdx];
-            if (isset($die->swingType) &&
-                $die->has_skill('Turbo') &&
-                $die->has_flag('IsAttacker')) {
+
+            if (!$die->has_skill('Turbo')) {
+                $this->message = 'Cannot set turbo size for a non-turbo die';
+                return FALSE;
+            }
+
+            if (!$die->has_flag('IsAttacker')) {
+                $this->message = 'Only attacking turbo dice can set turbo size';
+                return FALSE;
+            }
+
+            if (isset($die->swingType)) {
                 $setSuccess = $die->set_swingValue(array($die->swingType => $dieSize));
                 if (!$setSuccess) {
                     $this->message = 'Invalid swing value for turbo die';
+                    return FALSE;
+                }
+            } elseif ($die instanceof BMDieOption) {
+                $setSuccess = $die->set_optionValue($dieSize);
+                if (!$setSuccess) {
+                    $this->message = 'Invalid option value for turbo die';
+                    return FALSE;
+                }
+            } else {
+                if ($dieSize !== $die->max) {
+                    $this->message = 'Cannot change die size for a non-swing, non-option turbo die';
                     return FALSE;
                 }
             }
@@ -4042,9 +4062,11 @@ class BMGame {
                 if ($die->has_skill('Turbo')) {
                     if ($die instanceof BMDieOption) {
                         $turboSizeArray[$dieIdx] = $die->optionValueArray;
-                    } else {
+                    } elseif (isset($die->swingType)) {
                         $swingRange = BMDieSwing::swing_range($die->swingType);
                         $turboSizeArray[$dieIdx] = range($swingRange[0], $swingRange[1]);
+                    } else {
+                        $turboSizeArray[$dieIdx] = array($die->max);
                     }
                 }
             }

@@ -2633,7 +2633,9 @@ Game.createTurboSelector = function(idx, vals) {
   });
 
   // add an empty item as the initial default selection
-  vals.unshift('');
+  if (vals.length > 1) {
+    vals.unshift('');
+  }
 
   $.each(vals, function(_idx_, val) {
     select.append($('<option>', {
