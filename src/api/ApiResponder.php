@@ -252,6 +252,7 @@ class ApiResponder {
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = ('true' == $args['automatically_monitor']);
+        $infoArray['die_background'] = $args['die_background'];
         $infoArray['player_color'] = $args['player_color'];
         $infoArray['opponent_color'] = $args['opponent_color'];
         $infoArray['neutral_color_a'] = $args['neutral_color_a'];
@@ -563,7 +564,11 @@ class ApiResponder {
 
     protected function get_interface_response_login($interface, $args) {
         assert(!is_array($interface));
-        $login_success = login($args['username'], $args['password']);
+
+        $doStayLoggedIn = isset($args['doStayLoggedIn']) &&
+                          ('true' == $args['doStayLoggedIn']);
+        $login_success = login($args['username'], $args['password'], $doStayLoggedIn);
+
         if ($login_success) {
             return array('userName' => $args['username']);
         } else {

@@ -581,6 +581,126 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
+     * Load the parameters for a single game action log message of type choose_die_values
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_choose_die_values($action_log_id) {
+        try {
+            // choose_die_values has a base set of secondary parameters,
+            // plus secondary parameters for each swing or option choice.
+            // * $optionValues needs to be an array of arrays rather than a hash
+            //   because a button may have multiple option dice with identical recipes.
+            // * $swingValues doesn't need to be an array of arrays, but make it one
+            //   anyway so the code will be consistent.
+
+            // load the base params
+            $query = 'SELECT round_number FROM game_action_log_type_choose_die_values ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            $roundNumber = (int)$row['round_number'];
+
+            // load swing die settings
+            $swingValues = array();
+            $query = 'SELECT swing_type,swing_value FROM game_action_log_type_choose_die_values_swing ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            while ($row = $statement->fetch()) {
+                $swingValues[] = array(
+                    'swingType'  => (string)$row['swing_type'],
+                    'swingValue' => (int)$row['swing_value'],
+                );
+            }
+
+            // load option die settings
+            $optionValues = array();
+            $query = 'SELECT recipe,option_value FROM game_action_log_type_choose_die_values_option ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            while ($row = $statement->fetch()) {
+                $optionValues[] = array(
+                    'recipe'      => (string)$row['recipe'],
+                    'optionValue' => (int)$row['option_value'],
+                );
+            }
+
+
+            return array(
+                'roundNumber'  => $roundNumber,
+                'swingValues'  => $swingValues,
+                'optionValues' => $optionValues,
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_choose_die_values: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type choose_die_values
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_choose_die_values($action_log_id, $params) {
+        try {
+            // save the base params
+            $query = 'INSERT INTO game_action_log_type_choose_die_values ' .
+                     '(action_log_id, round_number) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :round_number)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':round_number'  => $params['roundNumber']));
+
+            // choose_die_values has one set of secondary parameters for each swing type which was set
+            $query = 'INSERT INTO game_action_log_type_choose_die_values_swing ' .
+                     '(action_log_id, swing_type, swing_value) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :swing_type, :swing_value)';
+            foreach ($params['swingValues'] as $swing) {
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(
+                    ':action_log_id'  => $action_log_id,
+                    ':swing_type'     => $swing['swingType'],
+                    ':swing_value'    => $swing['swingValue']));
+            }
+
+            // choose_die_values has one set of secondary parameters for each option die which was set
+            $query = 'INSERT INTO game_action_log_type_choose_die_values_option ' .
+                     '(action_log_id, recipe, option_value) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :recipe, :option_value)';
+            foreach ($params['optionValues'] as $option) {
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(
+                    ':action_log_id'  => $action_log_id,
+                    ':recipe'         => $option['recipe'],
+                    ':option_value'   => $option['optionValue']));
+            }
+
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_choose_die_values: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
      * Helper function which asks the database for the ID of the last inserted row
      *
      * @return int

@@ -151,7 +151,8 @@ class BMInterface {
                 $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
-
+                $data['playerDataArray'][$gamePlayerIdx]['dieBackgroundType'] =
+                    $this->load_die_background_type($gamePlayer->playerId);
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
@@ -165,8 +166,8 @@ class BMInterface {
                 $data['gameActionLogCount'] = $actionLogArray['nEntries'];
             }
 
-            $chatLogArray = $this->game_chat()->load_game_chat_log($game, $logEntryLimit);
-            if (empty($actionLogArray)) {
+            $chatLogArray = $this->game_chat()->load_game_chat_log($playerId, $game, $logEntryLimit);
+            if (empty($chatLogArray)) {
                 $data['gameChatLog'] = NULL;
                 $data['gameChatLogCount'] = 0;
             } else {
@@ -284,7 +285,8 @@ class BMInterface {
                  'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp, '.
                  'v.was_game_dismissed, '.
                  'v.has_player_accepted, '.
-                 'v.is_on_vacation '.
+                 'v.is_on_vacation, '.
+                 'v.is_chat_private '.
                  'FROM game AS g '.
                  'LEFT JOIN game_status AS s '.
                  'ON s.id = g.status_id '.
@@ -396,6 +398,7 @@ class BMInterface {
         }
 
         $player->isOnVacation = (bool) $row['is_on_vacation'];
+        $player->isChatPrivate = (bool) $row['is_chat_private'];
 
         if (isset($row['current_player_id']) &&
             isset($row['player_id']) &&
@@ -1391,7 +1394,7 @@ class BMInterface {
                 $parameterName = ':skipped_game_id_' . $index;
                 $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
                 $parameters[$parameterName] = $skippedGameId;
-            };
+            }
             $query = $query .
                      'ORDER BY g.last_action_time ASC '.
                      'LIMIT 1';
@@ -1832,12 +1835,12 @@ class BMInterface {
     // different action and chat log SELECT queries
     protected function build_game_log_query_restrictions(
         BMGame $game,
-        $isChat,
+        $doQueryPreviousGame,
         $isCount,
         array &$sqlParameters
     ) {
         $restrictions = 'WHERE game_id = :game_id ';
-        if ($isChat && $game->gameState < BMGameState::END_GAME && !is_null($game->previousGameId)) {
+        if ($doQueryPreviousGame) {
             $restrictions .= 'OR game_id = :previous_game_id ';
             $sqlParameters[':previous_game_id'] = $game->previousGameId;
         }
@@ -1906,6 +1909,13 @@ class BMInterface {
             return $count . ' ' . $noun . 'es';
         }
         return $count . ' ' . $noun . 's';
+    }
+
+    // Retrieves the die background type chosen by the current player
+    protected function load_die_background_type($playerId) {
+        $playerInfoArray = $this->player()->get_player_info($playerId);
+
+        return $playerInfoArray['user_prefs']['die_background'];
     }
 
     // Retrieves the colors that the user has saved in their preferences

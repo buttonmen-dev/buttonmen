@@ -33,8 +33,14 @@ div#c_footer {
     height:100px;           // height of the footer
 }
 
-div#login_header{
+div#login_header {
     text-align: left;
+}
+
+div.login {
+    text-align: left;
+    padding-left: 5px;
+    padding-bottom: 5px;
 }
 
 div#login_header p {
@@ -118,7 +124,6 @@ table.spaced {
 
 table.dice {
     padding: 0px;
-    spacing: 0px;
 }
 
 td {
@@ -265,42 +270,30 @@ select.center {
     background-size: 50px 50px;
     min-width: 50px;
     display: inline-block;
+    vertical-align: middle;
     color: blue;
     margin: 4px;
     cursor: default;
 }
 
 .die_img {
-    border-radius: 50%;
-    background-color: #ffffff;
-    border: 1px black solid;
     height: 49px;
     width: 49px;
     background-size: 100%;
     margin: auto;
 }
 
-.die_greyed {
-    background-color: #cccccc;
-    border-radius: 50%;
-    color:darkslateblue;
-}
-
-.die_dead .die_img {
-    background-color: black;
-    border-radius: 50%;
-}
-
-.die_dead .die_overlay {
+.die_container_dead .die_overlay {
     color: white;
 }
 
-.die_dead span {
+.die_container_dead span {
     text-decoration: line-through;
 }
 
-/* This matches any .die_dead element that immediately follows a .die_alive */
-.die_alive + .die_dead {
+/* This matches any .die_container_dead element that immediately follows a
+   .die_container_alive */
+.die_container_alive + .die_container_dead {
     margin-left: 40px;
 }
 
@@ -365,6 +358,11 @@ select.center {
  * default is visible when this class is not present */
 .hide_focus {
     outline: 0;
+}
+
+span.current_browser_only {
+    padding-left: 20px;
+    color: gray;
 }
 
 span.skill_title {

@@ -628,7 +628,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     public function test_friendly_message_choose_die_values() {
         $this->object = new BMGameAction(
             BMGameState::SPECIFY_DICE, 'choose_die_values', 1,
-            array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13), 'optionValues' => array()));
+            array('roundNumber' => 1, 'swingValues' => array(array('swingType' => 'X', 'swingValue' => 5), array('swingType' => 'Y', 'swingValue' => 13)), 'optionValues' => array()));
         $this->assertEquals(
             "gameaction01 set swing values: X=5, Y=13",
             $this->object->friendly_message($this->playerIdNames, 2, BMGameState::SPECIFY_DICE)
@@ -638,7 +638,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 1, BMGameState::SPECIFY_DICE)
         );
 
-        $this->object = new BMGameAction(BMGameState::SPECIFY_DICE, 'choose_die_values', 1, array('roundNumber' => 1, 'swingValues' => array(), 'optionValues' => array('(3/6)' => 3, 'z(4/7)' => 7)));
+        $this->object = new BMGameAction(BMGameState::SPECIFY_DICE, 'choose_die_values', 1, array('roundNumber' => 1, 'swingValues' => array(), 'optionValues' => array(array('recipe' => '(3/6)', 'optionValue' => 3), array('recipe' => 'z(4/7)', 'optionValue' => 7))));
         $this->assertEquals(
             "gameaction01 set option dice: (3/6=3), z(4/7=7)",
             $this->object->friendly_message($this->playerIdNames, 2, BMGameState::SPECIFY_DICE)

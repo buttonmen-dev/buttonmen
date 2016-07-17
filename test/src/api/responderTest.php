@@ -236,9 +236,39 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the size of the captured die, and then decay',
                 ),
             ),
+            'RandomBMDuoskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 2 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
             'RandomBMMixed' => array(
                 'code' => '',
                 'description' => '5 dice, no swing dice, three skills chosen from all existing skills except !%&+?DF`mrw, with each skill dealt out twice randomly and independently over all dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMMonoskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 1 skill appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMPentaskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 5 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMSoldiers' => array(
+                'code' => '',
+                'description' => 'A recipe similar to the Soldiers set: Four regular dice and one X swing die, no skills.',
+                'interacts' => array(),
+            ),
+            'RandomBMTetraskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 4 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMTriskill' => array(
+                'code' => '',
+                'description' => 'Four regular dice and one swing die, and 3 skills each appearing a total of 2 times on various dice.',
                 'interacts' => array(),
             ),
             'Rage' => array(
@@ -502,7 +532,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
-		    'isOnVacation' => false,
+                    'dieBackgroundType' => 'realistic',
+                    'isOnVacation' => false,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -521,7 +552,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
-		    'isOnVacation' => false,
+                    'dieBackgroundType' => 'realistic',
+                    'isOnVacation' => false,
                 ),
             ),
             'gameActionLog' => array(),
@@ -1301,6 +1333,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'autopass' => 'false',
             'fire_overshooting' => 'false',
             'uses_gravatar' => 'false',
+            'die_background' => 'symmetric',
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',
             'neutral_color_a' => '#cccccc',
@@ -1340,6 +1373,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'autopass' => 'true',
             'fire_overshooting' => 'false',
             'uses_gravatar' => 'false',
+            'die_background' => 'realistic',
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',
             'neutral_color_a' => '#cccccc',
@@ -1764,10 +1798,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $akeys = array_keys($retval['data']['user_prefs']);
         sort($akeys);
-        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'die_background', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
         $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
         $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
+        $this->assertEquals($retval['data']['user_prefs']['die_background'], 'realistic');
 
         // loadPlayerName takes no args, so store this as the sole reference API output
         // after changing the username to match the UI tests' expectations
@@ -2399,6 +2434,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // in test_request_savePlayerInfo() responder002 was set to be on vacation - make sure the game reflects that.
         $expData['playerDataArray'][1]['isOnVacation'] = TRUE;
+        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
+        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -3592,6 +3629,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
+        // now load the game as a non-player, and verify that chat
+	// text from the current game is shown, but chat from a
+	// previous game is not shown
+        $expData['gameChatEditable'] = FALSE;
+        $expData['currentPlayerIdx'] = FALSE;
+        $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
+        $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['gameChatLogCount'] = 2;
+        $savedChat = array_splice($expData['gameChatLog'], 2, 1);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['gameChatEditable'] = 'TIMESTAMP';
+        $expData['currentPlayerIdx'] = 0;
+        $expData['playerDataArray'][0]['playerColor'] = '#dd99dd';
+        $expData['playerDataArray'][1]['playerColor'] = '#ddffdd';
+        $expData['gameChatLogCount'] = 3;
+        $expData['gameChatLog'][]= $savedChat;
+
+
         ////////////////////
         // Move 02 (game 3) - player 2 wins game without chatting
 
@@ -3671,6 +3729,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        // Now load the game as a non-player, and verify that chat
+        // text from a previous game is not shown
+        $expData['gameChatEditable'] = FALSE;
+        $expData['currentPlayerIdx'] = FALSE;
+        $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
+        $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['gameChatLogCount'] = 1;
+        array_splice($expData['gameChatLog'], 1, 2);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
     }
 
     /**

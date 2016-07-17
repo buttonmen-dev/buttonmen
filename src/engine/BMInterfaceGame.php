@@ -632,22 +632,34 @@ class BMInterfaceGame extends BMInterface {
 
             $this->set_option_values($optionValueArray, $currentPlayerIdx, $game);
 
-            // Create the action log entry for choosing die values
-            // now, so it will happen before any initiative actions.
+            // Create the action log entries for choosing die values
+            // now, so they will happen before any initiative actions.
             // If the swing/option selection is unsuccessful,
             // save_game() won't be called, so this action log entry
             // will simply be dropped.
+            $swingLogArray = array();
+            foreach ($swingValueArray as $swingType => $swingValue) {
+                $swingLogArray[] = array(
+                    'swingType'  => $swingType,
+                    'swingValue' => $swingValue,
+                );
+            }
+
             $optionLogArray = array();
             foreach ($optionValueArray as $dieIdx => $optionValue) {
                 $dieRecipe = $game->playerArray[$currentPlayerIdx]->activeDieArray[$dieIdx]->recipe;
-                $optionLogArray[$dieRecipe] = $optionValue;
+                $optionLogArray[] = array(
+                    'recipe'      => $dieRecipe,
+                    'optionValue' => $optionValue,
+                );
             }
+
             $game->log_action(
                 'choose_die_values',
                 $game->playerArray[$currentPlayerIdx]->playerId,
                 array(
                     'roundNumber' => $game->roundNumber,
-                    'swingValues' => $swingValueArray,
+                    'swingValues' => $swingLogArray,
                     'optionValues' => $optionLogArray,
                 )
             );
