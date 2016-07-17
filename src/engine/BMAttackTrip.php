@@ -153,7 +153,13 @@ class BMAttackTrip extends BMAttack {
             return TRUE;
         }
 
-        if ($def->has_skill('Konstant') && ($att->max < $def->value)) {
+        if ($att->has_skill('Konstant')) {
+            $attMaxVal = $att->value;
+        } else {
+            $attMaxVal = self::post_trip_roll_max($att);
+        }
+
+        if ($def->has_skill('Konstant') && ($attMaxVal < $def->value)) {
             $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
             return TRUE;
         }
