@@ -2646,7 +2646,7 @@ Game.createTurboSelector = function(idx, vals) {
   });
 
   return select;
-}
+};
 
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,
@@ -2800,8 +2800,8 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
  * and a string describing the reason why or why not.
  *
  * @param  object  die            The die to be displayed
- * @param  boolean die_status     Status of the die ('active' or 'captured')
  * @param  string  player         Whose is the die? ('player' or 'opponent')
+ * @param  boolean die_status     Status of the die ('active' or 'captured')
  * @param  boolean player_active  Is the player displaying the die active?
  * @return object
  */
