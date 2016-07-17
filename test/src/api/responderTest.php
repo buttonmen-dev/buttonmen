@@ -523,6 +523,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'optRequestArray' => array(),
                     'prevSwingValueArray' => array(),
                     'prevOptValueArray' => array(),
+                    'turboSizeArray' => array(),
                     'waitingOnAction' => TRUE,
                     'roundScore' => NULL,
                     'sideScore' => NULL,
@@ -543,6 +544,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'optRequestArray' => array(),
                     'prevSwingValueArray' => array(),
                     'prevOptValueArray' => array(),
+                    'turboSizeArray' => array(),
                     'waitingOnAction' => TRUE,
                     'roundScore' => NULL,
                     'sideScore' => NULL,
@@ -10445,7 +10447,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @group fulltest_deps
      * @depends test_request_savePlayerInfo
      */
     public function test_interface_game_030() {
@@ -10546,8 +10547,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 12;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('Z' => array(4, 30));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => range(4, 30));
+        $expData['playerDataArray'][1]['turboSizeArray'] = array(3 => range(1, 20));
         $expData['gameActionLog'][0]['message'] = 'responder003 set swing values: X=4, Z=4';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: Y=1 and option dice: ds(1/15=1), `G(5/10=5)'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [k(7):5, p(X=4)?:4, o(Z=4)!:4, G(3,17):7, t(5):4, g`(2):2], responder004 rolled [ft(5):3, ds(1/15=1):1, `G(5/10=5):5, p(Y=1)!:1, wHz(12):12]. responder003 has dice which are not counted for initiative due to die skills: [G(3,17), t(5), g`(2)]. responder004 has dice which are not counted for initiative due to die skills: [ft(5), `G(5/10=5), wHz(12)].'));
@@ -10622,6 +10625,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('Twin');
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][1]['turboSizeArray'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('Twin');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [p(X=4)?:4] against [p(Y=1)!:1]; Defender p(Y=1)! was captured; Attacker p(X=4)? changed size from 4 to 10 sides, recipe changed from p(X=4)? to p(X=10)?, rerolled 4 => 9'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003\'s idle ornery dice rerolled at end of turn: o(Z=4)! rerolled 4 => 1'));
@@ -11106,6 +11110,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 7;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30));
         $expData['playerDataArray'][1]['roundScore'] = 40;
         $expData['playerDataArray'][1]['sideScore'] = 14.3;
         $expData['playerWithInitiativeIdx'] = 0;
@@ -11171,6 +11176,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 37;
         $expData['playerDataArray'][0]['sideScore'] = 2.7;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11230,6 +11236,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['canStillWin'] = true;
         $expData['playerDataArray'][0]['optRequestArray'] = array("1" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(1 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 42;
         $expData['playerDataArray'][0]['sideScore'] = 7.7;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11294,7 +11301,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 19;
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array();
-        $expData['playerDataArray'][0]['optRequestArray'] = array(array(1, 30));
+        $expData['playerDataArray'][0]['optRequestArray'] = array(0 => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(0 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 55;
         $expData['playerDataArray'][0]['sideScore'] = 13.7;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11392,6 +11400,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "6" => array(1, 30));
         $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 30);
         $expData['playerDataArray'][0]['prevSwingValueArray'] = array("R" => 5);
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
         $expData['playerDataArray'][0]['roundScore'] = null;
         $expData['playerDataArray'][0]['sideScore'] = null;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11468,6 +11477,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 1;
         $expData['playerDataArray'][0]['prevOptValueArray'] = array();
         $expData['playerDataArray'][0]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30), 4 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 10;
         $expData['playerDataArray'][0]['sideScore'] = -20;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 7;
@@ -11523,6 +11533,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 29.5;
         $expData['playerDataArray'][0]['sideScore'] = -1;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11594,6 +11605,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 48;
         $expData['playerDataArray'][0]['sideScore'] = 16;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11655,6 +11667,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("1" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(1 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 61;
         $expData['playerDataArray'][0]['sideScore'] = 22;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -11705,6 +11718,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['optRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
         $expData['playerDataArray'][0]['roundScore'] = 46;
         $expData['playerDataArray'][0]['sideScore'] = -8;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 15;
@@ -11737,6 +11751,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['activePlayerIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Trip');
         $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30), 4 => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30), 4 => array(1, 30));
         $expData['playerDataArray'][0]['capturedDieArray'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'] = array();
         $expData['playerDataArray'][0]['gameScoreArray']['W'] = 1;
@@ -11780,6 +11795,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['prevSwingValueArray'] = array('R' => '14');
         $expData['playerDataArray'][0]['prevOptValueArray'] = array(3 => '30', 4 => '1');
         $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30), 6 => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
         $expData['playerDataArray'][0]['gameScoreArray']['L'] = 2;
         $expData['playerDataArray'][1]['gameScoreArray']['W'] = 2;
         $expData['playerDataArray'][0]['roundScore'] = NULL;
@@ -12503,7 +12519,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "X Swing Die (with 17 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 17;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 8;
-        $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(4 => range(6, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['roundScore'] = 23;
         $expData['playerDataArray'][1]['sideScore'] = 13.7;
@@ -13381,6 +13398,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['roundScore'] = -6;
         $expData['playerDataArray'][0]['sideScore'] = -15;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30));
         $expData['playerDataArray'][0]['waitingOnAction'] = false;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
@@ -13426,6 +13444,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 1;
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = -7.5;
         $expData['playerDataArray'][0]['sideScore'] = -18;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -13488,6 +13507,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
         $expData['playerDataArray'][0]['roundScore'] = -2;
         $expData['playerDataArray'][0]['sideScore'] = -13;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -13697,6 +13717,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['roundScore'] = -1.5;
         $expData['playerDataArray'][0]['sideScore'] = -12;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30), 4 => array(1, 30));
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
@@ -13776,6 +13797,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30), "3" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(1, 30), 3 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = -6.5;
         $expData['playerDataArray'][0]['sideScore'] = -24;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -13872,6 +13894,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 7;
         $expData['playerDataArray'][0]['sideScore'] = -11;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -13929,6 +13952,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][3]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
         $expData['playerDataArray'][0]['roundScore'] = 17.5;
         $expData['playerDataArray'][0]['sideScore'] = -1;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 6;
@@ -14101,6 +14125,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['roundScore'] = 31.5;
         $expData['playerDataArray'][0]['sideScore'] = 10;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(3 => array(1, 30), 5 => array(1, 30));
         $expData['playerDataArray'][0]['waitingOnAction'] = false;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 1;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
@@ -14156,6 +14181,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 25;
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['optRequestArray'] = array("2" => array(1, 30), "4" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(1, 30), 4 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 30;
         $expData['playerDataArray'][0]['sideScore'] = 7;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -14243,6 +14269,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("1" => array(1, 30), "3" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(1 => array(1, 30), 3 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 25;
         $expData['playerDataArray'][0]['sideScore'] = -5;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -14325,6 +14352,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['canStillWin'] = true;
         $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array("0" => array(1, 30), "2" => array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(0 => array(1, 30), 2 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 44;
         $expData['playerDataArray'][0]['sideScore'] = 14;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -14394,6 +14422,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['capturedDieArray'][2]['properties'] = array();
         $expData['playerDataArray'][0]['optRequestArray'] = array(array(1, 30), array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(0 => array(1, 30), 1 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 48;
         $expData['playerDataArray'][0]['sideScore'] = 12;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -14450,6 +14479,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         $expData['playerDataArray'][0]['canStillWin'] = false;
         $expData['playerDataArray'][0]['optRequestArray'] = array(array(1, 30));
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(0 => array(1, 30));
         $expData['playerDataArray'][0]['roundScore'] = 33;
         $expData['playerDataArray'][0]['sideScore'] = -18;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
@@ -14551,6 +14581,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['gameScoreArray'] = array("D" => 0, "L" => 3, "W" => 0);
         $expData['playerDataArray'][0]['optRequestArray'] = array();
         $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 30, "5" => 30);
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
         $expData['playerDataArray'][0]['roundScore'] = 0;
         $expData['playerDataArray'][0]['sideScore'] = 0;
         $expData['playerDataArray'][0]['waitingOnAction'] = false;

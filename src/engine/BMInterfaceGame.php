@@ -1261,7 +1261,8 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             if (empty($turboSizeArray)) {
-                return TRUE;
+                $this->set_message('You attacked with a turbo die but did not specify any turbo die values');
+                return FALSE;
             }
 
             if (!$this->is_action_current(

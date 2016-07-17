@@ -1808,7 +1808,8 @@ class BMGame {
 
     public function set_turbo_sizes(array $turboSizeArray) {
         if (empty($turboSizeArray)) {
-            return TRUE;
+            $this->message = 'You attacked with a turbo die but did not specify any turbo die values';
+            return FALSE;
         }
 
         if (BMGameState::CHOOSE_TURBO_SWING != $this->gameState) {
@@ -3498,6 +3499,7 @@ class BMGame {
                 'optRequestArray'     => $player->optRequestArray,
                 'prevSwingValueArray' => $player->prevSwingValueArray,
                 'prevOptValueArray'   => $player->prevOptValueArray,
+                'turboSizeArray'      => $this->get_turboSizeArray($playerIdx),
 // BMGame may lie about who's actually waiting
                 'waitingOnAction'     => $this->isWaitingOnAction($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $player->roundScore,
@@ -3958,23 +3960,12 @@ class BMGame {
      * @return array
      */
     protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
-        $swingRequestArray = array();
-
-        // include turbo swing ranges during START_TURN
-        if ($this->gameState == BMGameState::START_TURN) {
-            foreach ($this->playerArray[$playerIdx]->activeDieArray as $die) {
-                if ($die->has_skill('Turbo')) {
-                    if (!($die instanceof BMDieOption)) {
-                        $swingRequestArray[$die->swingType] = BMDieSwing::swing_range($die->swingType);
-                    }
-                }
-            }
-        }
-
         // hide non-turbo swing requests when this information is not necessary
         if ($this->gameState > BMGameState::SPECIFY_DICE) {
-            return $swingRequestArray;
+            return array();
         }
+
+        $swingRequestArray = array();
 
         if ($this->gameState == BMGameState::CHOOSE_AUXILIARY_DICE) {
             $swingRequestArrayArray = $this->get_all_swing_requests(TRUE);
@@ -4041,6 +4032,25 @@ class BMGame {
         }
 
         return $swingRequestArrayArray;
+    }
+
+    protected function get_turboSizeArray($playerIdx) {
+        $turboSizeArray = array();
+
+        if (BMGameState::START_TURN == $this->gameState) {
+            foreach ($this->playerArray[$playerIdx]->activeDieArray as $dieIdx => $die) {
+                if ($die->has_skill('Turbo')) {
+                    if ($die instanceof BMDieOption) {
+                        $turboSizeArray[$dieIdx] = $die->optionValueArray;
+                    } else {
+                        $swingRange = BMDieSwing::swing_range($die->swingType);
+                        $turboSizeArray[$dieIdx] = range($swingRange[0], $swingRange[1]);
+                    }
+                }
+            }
+        }
+
+        return $turboSizeArray;
     }
 
     /**

@@ -1507,11 +1507,26 @@ Game.formPlayTurnActive = function() {
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
-
   } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
       'text': 'You must select an attack type',
+    };
+    return Game.redrawGamePageFailure();
+  }
+
+  var turboFieldsFilled = true;
+  $.each(Game.activity.turboVals, function(position) {
+    var value = $('#turbo_element' + position).val();
+    if (!($.isNumeric(value))) {
+      turboFieldsFilled = false;
+      return false;
+    }
+  });
+  if (!turboFieldsFilled) {
+    Env.message = {
+      'type': 'error',
+      'text': 'Some turbo values missing or nonnumeric',
     };
     return Game.redrawGamePageFailure();
   }
@@ -2581,6 +2596,8 @@ Game.pageAddTurboTable = function() {
   var turboElement;
   var die;
 
+  // this logic only considers turbo dice owned by the current player, since
+  // it explicitly does not deal with displaying swing ranges for information
   for (var idx = 0; idx < Api.game.player.activeDieArray.length; idx++) {
     die = Api.game.player.activeDieArray[idx];
     if ($.inArray('Turbo', die.skills) > -1) {
@@ -2592,72 +2609,31 @@ Game.pageAddTurboTable = function() {
         'text': Game.dieRecipeText(die) + ' ',
       });
 
-      // james: in the future, there will need to be more code here to deal
-      // with the interaction of turbo with skills like morphing
-
-      if (/\(.*\/.*\)/.test(die.recipe)) {
-        turboElement = Game.createTurboOptionSelector(
-          idx,
-          Api.game.player.optRequestArray[idx]
-        );
-      } else {
-        turboElement = Game.createTurboSwingSelector(idx);
-      }
-
+      turboElement = Game.createTurboSelector(
+        idx,
+        Api.game.player.turboSizeArray[idx]
+      );
       turboSpan.append(turboSubspan);
       turboSubspan.append(turboElement);
-    }
-  }
-
-  // also consider whether the opponent has turbo dice, if the player doesn't
-  if (!hasTurboDice) {
-    for (var idx = 0; idx < Api.game.opponent.activeDieArray.length; idx++) {
-      die = Api.game.opponent.activeDieArray[idx];
-      if ($.inArray('Turbo', die.skills) > -1) {
-        hasTurboDice = true;
-        break;
-      }
     }
   }
 
   if (hasTurboDice) {
     turboDiv.append(turboSpan);
     Game.page.append(turboDiv);
-
-    var allSwingRanges = $.extend(
-      {},
-      Api.game.player.swingRequestArray,
-      Api.game.opponent.swingRequestArray
-    );
-
-    // convert to array to allow sorting by key
-    allSwingRanges = $.makeArray(allSwingRanges)[0];
-
-    // sort array function taken from
-    // http://stackoverflow.com/questions/5467129/sort-javascript-object-by-key
-    allSwingRanges = Object.keys(allSwingRanges).sort().reduce(
-      function (result, key) {
-        result[key] = allSwingRanges[key];
-        return result;
-      },
-      {}
-    );
-
-    Game.page.append(Game.swingRangeTable(
-      allSwingRanges,
-      'turbo_die_info_table',
-      false,
-      false
-    ));
   }
 };
 
-Game.createTurboOptionSelector = function(idx, vals) {
+Game.createTurboSelector = function(idx, vals) {
   var select = $('<select>', {
     'id': 'turbo_element' + idx,
     'name': 'turbo_element' + idx,
+    'class': 'turbo_element',
     'pos': idx,
   });
+
+  // add an empty item as the initial default selection
+  vals.unshift('');
 
   $.each(vals, function(_idx_, val) {
     select.append($('<option>', {
@@ -2668,18 +2644,7 @@ Game.createTurboOptionSelector = function(idx, vals) {
   });
 
   return select;
-};
-
-Game.createTurboSwingSelector = function(idx) {
-  var input = $('<input>', {
-    'id': 'turbo_element' + idx,
-    'type': 'text',
-    'class': 'swing',
-    'pos': idx,
-  });
-
-  return input;
-};
+}
 
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,
