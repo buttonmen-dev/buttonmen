@@ -1458,19 +1458,25 @@ test("test_Game.createTurboSelector", function(assert) {
 
   var children = select.children();
 
-  assert.equal(children.length, 2);
+  assert.equal(children.length, 3);
 
-  var child1 = children.first();
+  var child1 = children.eq(0);
   assert.ok(child1.is('option'), 'First element must be an option');
-  assert.equal(child1.attr('value'), 1);
-  assert.equal(child1.attr('label'), 1);
-  assert.equal(child1.text(), 1);
+  assert.equal(child1.attr('value'), '');
+  assert.equal(child1.attr('label'), '');
+  assert.equal(child1.text(), '');
 
-  var child2 = children.last();
+  var child2 = children.eq(1);
   assert.ok(child2.is('option'), 'Second element must be an option');
-  assert.equal(child2.attr('value'), 30);
-  assert.equal(child2.attr('label'), 30);
-  assert.equal(child2.text(), 30);
+  assert.equal(child2.attr('value'), 1);
+  assert.equal(child2.attr('label'), 1);
+  assert.equal(child2.text(), 1);
+
+  var child3 = children.eq(2);
+  assert.ok(child3.is('option'), 'Third element must be an option');
+  assert.equal(child3.attr('value'), 30);
+  assert.equal(child3.attr('label'), 30);
+  assert.equal(child3.text(), 30);
 });
 
 test("test_Game.gamePlayerStatus", function(assert) {
