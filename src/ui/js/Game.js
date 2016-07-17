@@ -2699,11 +2699,11 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
  * The return object contains a boolean saying whether the die is clickable,
  * and a string describing the reason why or why not.
  *
- * @param  object  die            The die to be displayed
- * @param  boolean die_status     Status of the die ('active' or 'captured')
- * @param  string  player         Whose is the die? ('player' or 'opponent')
- * @param  boolean player_active  Is the player displaying the die active?
- * @return object
+ * @param  {object}  die            The die to be displayed
+ * @param  {boolean} die_status     Status of the die ('active' or 'captured')
+ * @param  {string}  player         Whose is the die? ('player' or 'opponent')
+ * @param  {boolean} player_active  Is the player displaying the die active?
+ * @returns {object}
  */
 Game.dieClickableInfo = function(die, player, die_status, player_active) {
   if (die_status == 'captured') {
@@ -2754,9 +2754,9 @@ Game.dieClickableInfo = function(die, player, die_status, player_active) {
 /**
  * Return a div containing a die recipe for use in a game battle mat
  *
- * @param  object die      The die whose recipe is to be displayed
- * @param  string player   Whose is the die? ('player' or 'opponent')
- * @return object          jQuery containing the recipe DIV
+ * @param  {object} die      The die whose recipe is to be displayed
+ * @param  {string} player   Whose is the die? ('player' or 'opponent')
+ * @returns {object}         jQuery containing the recipe DIV
  */
 Game.createGameMatDieRecipeDiv = function(die, player) {
   var dieRecipeDiv = $('<div>');
@@ -2773,11 +2773,11 @@ Game.createGameMatDieRecipeDiv = function(die, player) {
  * This function creates the circular die image itself, and any
  * background or decoration which attaches directly to the image.
  *
- * @param  object  die          The die whose recipe is to be displayed
- * @param  string  player       Whose is the die? ('player' or 'opponent')
- * @param  string  dieStatus    Status of the die ('active' or 'captured')
- * @param  boolean isClickable  Is the die clickable?
- * @return object               jQuery containing the die DIV
+ * @param  {object}  die          The die whose recipe is to be displayed
+ * @param  {string}  player       Whose is the die? ('player' or 'opponent')
+ * @param  {string}  dieStatus    Status of the die ('active' or 'captured')
+ * @param  {boolean} isClickable  Is the die clickable?
+ * @returns {object}              jQuery containing the die DIV
  */
 Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
   var divOpts = {
@@ -2858,9 +2858,9 @@ Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
  * If the die is not currently selected, insert a border in the
  * background color of the player's mat, to hide the visible red border.
  *
- * @param  string  player       Whose is the die? ('player' or 'opponent')
- * @param  boolean isSelected   Is the die currently selected?
- * @return object               jQuery containing the border DIV
+ * @param  {string}  player       Whose is the die? ('player' or 'opponent')
+ * @param  {boolean} isSelected   Is the die currently selected?
+ * @returns {object}              jQuery containing the border DIV
  */
 Game.createGameMatBorderDiv = function(player, isSelected) {
   var borderDivOpts = {
@@ -2881,12 +2881,12 @@ Game.createGameMatBorderDiv = function(player, isSelected) {
  * This is a thin wrapper which creates the die div, creates
  * the border div, and attaches the die to the border.
  *
- * @param  object  die          The die whose recipe is to be displayed
- * @param  string  player       Whose is the die? ('player' or 'opponent')
- * @param  string  dieStatus    Status of the die ('active' or 'captured')
- * @param  boolean isClickable  Is the die clickable?
- * @param  boolean isSelected   Is the die currently selected?
- * @return object               jQuery containing the die/border DIV
+ * @param  {object}  die          The die whose recipe is to be displayed
+ * @param  {string}  player       Whose is the die? ('player' or 'opponent')
+ * @param  {string}  dieStatus    Status of the die ('active' or 'captured')
+ * @param  {boolean} isClickable  Is the die clickable?
+ * @param  {boolean} isSelected   Is the die currently selected?
+ * @returns {object}               jQuery containing the die/border DIV
  */
 Game.createGameMatDieWithBorderDiv = function(
     die, player, dieStatus, isClickable, isSelected) {
@@ -2900,15 +2900,16 @@ Game.createGameMatDieWithBorderDiv = function(
  * Return a dict containing the set of attributes to be attached to the
  * outside container for any battle mat die
  *
- * @param  object  die              The die whose recipe is to be displayed
- * @param  string  player           Whose is the die? ('player' or 'opponent')
- * @param  boolean player_active    Is the game awaiting action from the player
- *                                  who is loading the page?
- * @param  string  dieStatus        Status of the die ('active' or 'captured')
- * @param  string  dieIndex         Backend index for this die, or null if the
- *                                  die is captured
- * @param  object  dieClickableInfo Whether the die is clickable, and why
- * @return object                   dict containing the div options to use
+ * @param  {object}  die              The die whose recipe is to be displayed
+ * @param  {string}  player           Whose is the die? ('player' or 'opponent')
+ * @param  {boolean} player_active    Is the game awaiting action from the
+ *                                    player who is loading the page?
+ * @param  {string}  dieStatus        Status of the die ('active' or 'captured')
+ * @param  {string}  dieIndex         Backend index for this die, or null if the
+ *                                    die is captured
+ * @param  {object}  dieClickableInfo Whether the die is clickable, and why
+ * @param  {boolean} isSelected       Whether the die is selected
+ * @returns {object}                  dict containing the div options to use
  */
 Game.getDieContainerDivOptions = function(
     die, player, player_active, dieStatus, dieIndex, dieClickableInfo,
@@ -2959,16 +2960,16 @@ Game.getDieContainerDivOptions = function(
  * inclusion on a battle mat.  It is largely a wrapper which calls
  * other functions and assembles the divs they return.
  *
- * @param  object  die              The die which is to be displayed
- * @param  string  player           Whose is the die? ('player' or 'opponent')
- * @param  boolean player_active    Is the game awaiting action from the player
- *                                  who is loading the page?
- * @param  string  dieStatus        Status of the die ('active' or 'captured')
- * @param  string  dieIndex         Backend index for this die, or null if the
- *                                  die is captured
- * @param  object  dieClickableInfo Whether the die is clickable, and why
- * @param  boolean isSelected       Is the die currently selected?
- * @return object                   jQuery containing the die container DIV
+ * @param  {object}  die              The die which is to be displayed
+ * @param  {string}  player           Whose is the die? ('player' or 'opponent')
+ * @param  {boolean} player_active    Is the game awaiting action from the
+ *                                    player who is loading the page?
+ * @param  {string}  dieStatus        Status of the die ('active' or 'captured')
+ * @param  {string}  dieIndex         Backend index for this die, or null if the
+ *                                    die is captured
+ * @param  {object}  dieClickableInfo Whether the die is clickable, and why
+ * @param  {boolean} isSelected       Is the die currently selected?
+ * @returns {object}                  jQuery containing the die container DIV
  */
 Game.createDieContainerDiv = function(
     die, player, player_active, dieStatus, dieIndex, dieClickableInfo,
@@ -3019,10 +3020,10 @@ Game.createDieContainerDiv = function(
  * Return a game-mat-style display of all dice belonging to the
  * requested player
  *
- * @param  string  player        Whose dice to display ('player' or 'opponent')
- * @param  boolean player_active Is the game awaiting action from the player
- *                               who is loading the page?
- * @return object                jQuery containing the div of dice
+ * @param  {string}  player        Whose dice to display ('player' / 'opponent')
+ * @param  {boolean} player_active Is the game awaiting action from the player
+ *                                 who is loading the page?
+ * @returns {object}               jQuery containing the div of dice
  */
 Game.gamePlayerDice = function(player, player_active) {
   var nonplayer;
