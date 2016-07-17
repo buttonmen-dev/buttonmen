@@ -14291,7 +14291,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(23, 5),
             'responder003 performed Trip attack using [tz(1/30=30)!:30] against [(6):1]; Attacker tz(1/30=30)! rerolled 30 => 23; Defender (6) rerolled 1 => 5, was captured. ',
             $retval, array(array(0, 1), array(1, 1)),
-            $gameId, 3, 'Trip', 0, 1, '', array(0 => 30));
+            $gameId, 3, 'Trip', 0, 1, '', array(1 => 30));
 
         $expData['activePlayerIdx'] = 1;
         array_pop($expData['gameActionLog']);
