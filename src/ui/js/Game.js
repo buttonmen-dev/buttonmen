@@ -2756,7 +2756,7 @@ Game.dieClickableInfo = function(die, player, die_status, player_active) {
  *
  * @param   {object} die      The die whose recipe is to be displayed
  * @param   {string} player   Whose is the die? ('player' or 'opponent')
- * @returns {object}         jQuery containing the recipe DIV
+ * @returns {object}          jQuery containing the recipe DIV
  */
 Game.createGameMatDieRecipeDiv = function(die, player) {
   var dieRecipeDiv = $('<div>');
