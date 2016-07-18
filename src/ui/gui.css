@@ -287,16 +287,8 @@ select.center {
 .die_overlay {
     position:relative;
     font-size: 21px;
-    top: 14px;
-}
-
-/* Added slightly different vertical spacing for Firefox only */
-@-moz-document url-prefix() {
-    .die_overlay{
-        position:relative;
-        font-size: 21px;
-        top: 17px;
-    }
+    line-height: 25px;
+    top: 13.5px;
 }
 
 .die_number_player {
