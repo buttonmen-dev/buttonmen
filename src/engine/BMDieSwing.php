@@ -208,14 +208,7 @@ class BMDieSwing extends BMDie {
             throw new InvalidArgumentException('isValueRequired must be boolean');
         }
 
-        $skillStr = '';
-        if (count($this->skillList) > 0) {
-            foreach (array_keys($this->skillList) as $skill) {
-                if (('Mood' != $skill) && ('Mad' != $skill) && 'Turbo' != $skill) {
-                    $skillStr .= "$skill ";
-                }
-            }
-        }
+        $skillStr = $this->skill_string();
 
         $moodStr = '';
         if ($this->has_skill('Mad')) {
@@ -247,6 +240,19 @@ class BMDieSwing extends BMDie {
                   " Swing Die{$sideStr}{$valueStr}";
 
         return $result;
+    }
+
+    protected function skill_string() {
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                if (('Mood' != $skill) && ('Mad' != $skill) && 'Turbo' != $skill) {
+                    $skillStr .= "$skill ";
+                }
+            }
+        }
+
+        return $skillStr;
     }
 
     /**
