@@ -423,7 +423,7 @@ Overview.addScoreCol = function(gameRow, gameInfo) {
 
 Overview.addDescCol = function(gameRow, description) {
   var descText = '';
-  if (typeof(description) == "string") {
+  if (typeof(description) == 'string') {
     descText = description.substring(0, 30) +
                ((description.length > 30) ? '...' : '');
   }
