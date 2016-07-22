@@ -623,18 +623,30 @@ class responderTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /**
+     * Hack warning: there is no clean interface to BMInterface's
+     * random button selection, so we basically have to duplicate it
+     * here.  The logic for excluding unimplemented buttons has to
+     * match assemble_button_data() and the logic for picking a
+     * random button from the array has to match resolve_random_button_selection()
+     */
     protected function find_button_random_indices($lookForButtons) {
 
         // Start with the output of loadButtonData
         $retval = $this->verify_api_success(
             array(
                 'type' => 'loadButtonData',
-                'forceImplemented' => 'true',
                 'tagArray' => array('exclude_from_random' => 'false'),
             )
         );
 
-        $implementedButtons = $retval['data'];
+        // Now exclude unimplemented buttons the way assemble_button_data() does
+        $implementedButtons = array();
+        foreach ($retval['data'] as $buttonData) {
+            if (!$buttonData['hasUnimplementedSkill']) {
+                $implementedButtons[]= $buttonData;
+            }
+        }
 
         // Now that our indices should match the ones the real
         // randomization code uses, actually look for the buttons we want,

@@ -300,7 +300,6 @@ class ApiResponder {
     protected function get_interface_response_loadButtonData($interface, $args) {
         $buttonName = NULL;
         $buttonSet = NULL;
-        $forceImplemented = FALSE;
         $tagArray = NULL;
 
         if (isset($args['buttonName'])) {
@@ -309,13 +308,10 @@ class ApiResponder {
         if (isset($args['buttonSet'])) {
             $buttonSet = $args['buttonSet'];
         }
-        if (isset($args['forceImplemented'])) {
-            $forceImplemented = ($args['forceImplemented'] === 'true');
-        }
         if (isset($args['tagArray'])) {
             $tagArray = $args['tagArray'];
         }
-        return $interface->get_button_data($buttonName, $buttonSet, $forceImplemented, $tagArray);
+        return $interface->get_button_data($buttonName, $buttonSet, FALSE, $tagArray);
     }
 
     /**

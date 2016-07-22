@@ -1477,7 +1477,7 @@ class BMInterface {
      *
      * @param string $buttonName         Return a particular button
      * @param string $setName            Return buttons in a particular set
-     * @param boolean $forceImplemented  Do we only want buttons with fully implemented skills?
+     * @param bool $forceImplemented     Do we only want buttons with fully implemented skills?
      * @param array $tagArray            Filter by tag (either positively or negatively)
      * @return NULL|array
      */
@@ -1495,7 +1495,12 @@ class BMInterface {
 
             $buttons = array();
             while ($row = $statement->fetch()) {
-                $currentButton = $this->assemble_button_data($row, $site_type, $single_button, $forceImplemented);
+                $currentButton = $this->assemble_button_data(
+                    $row,
+                    $site_type,
+                    $single_button,
+                    $forceImplemented
+                );
                 if ($currentButton) {
                     $buttons[] = $currentButton;
                 }
