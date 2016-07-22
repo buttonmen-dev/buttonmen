@@ -378,7 +378,7 @@ Overview.addGameCol = function(gameRow, gameInfo, gameType) {
   gameLinkTd.append($('<a>', {
     'href': 'game.html?game=' + gameInfo.gameId,
     'text': Overview.linkTextStub(gameInfo, gameType) +
-            ' Game ' + gameInfo.gameId,
+            ' ' + gameInfo.gameId,
   }));
 
   gameRow.append(gameLinkTd);
