@@ -298,17 +298,24 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadButtonData($interface, $args) {
+        $buttonName = NULL;
+        $buttonSet = NULL;
+        $forceImplemented = FALSE;
+        $tagArray = NULL;
+
         if (isset($args['buttonName'])) {
             $buttonName = $args['buttonName'];
-        } else {
-            $buttonName = NULL;
         }
         if (isset($args['buttonSet'])) {
             $buttonSet = $args['buttonSet'];
-        } else {
-            $buttonSet = NULL;
         }
-        return $interface->get_button_data($buttonName, $buttonSet);
+        if (isset($args['forceImplemented'])) {
+            $forceImplemented = ($args['forceImplemented'] === 'true');
+        }
+        if (isset($args['tagArray'])) {
+            $tagArray = $args['tagArray'];
+        }
+        return $interface->get_button_data($buttonName, $buttonSet, $forceImplemented, $tagArray);
     }
 
     /**
