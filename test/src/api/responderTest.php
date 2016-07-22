@@ -706,7 +706,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function find_button_random_indices($lookForButtons) {
 
         // Start with the output of loadButtonData
-        $retval = $this->verify_api_success(array('type' => 'loadButtonData'));
+        $retval = $this->verify_api_success(
+            array(
+                'type' => 'loadButtonData',
+                'tagArray' => array('exclude_from_random' => 'false'),
+            )
+        );
 
         // Now exclude unimplemented buttons the way assemble_button_data() does
         $implementedButtons = array();

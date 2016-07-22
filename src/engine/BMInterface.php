@@ -722,7 +722,12 @@ class BMInterface {
             }
 
             if (empty($allButtonData)) {
-                $allButtonData = $this->get_button_data(NULL, NULL, TRUE);
+                $allButtonData = $this->get_button_data(
+                    NULL,
+                    NULL,
+                    TRUE,
+                    array('exclude_from_random' => 'false')
+                );
                 $nButtons = count($allButtonData);
             }
 
@@ -1499,24 +1504,48 @@ class BMInterface {
         }
     }
 
-    // Retrieves a list of buttons along with associated information, including
-    // their names, recipes, special abilities, sets and TL status.
-    // If $buttonName is specified, it only returns that one button. It also
-    // includes extra textual data (flavor text, special ability and skill
-    // descriptions) that is otherwise omitted for efficiency.
-    // If $setName is specified, it only returns buttons in that set.
-    // If neither is specified, it returns all buttons.
-    // Set $forceImplemented to TRUE to only retrieve buttons with fully implemented skills.
-    public function get_button_data($buttonName = NULL, $setName = NULL, $forceImplemented = FALSE) {
+    /**
+     * Retrieves a list of buttons along with associated information, including
+     * their names, recipes, special abilities, sets and TL status.
+     *
+     * If $buttonName is specified, it only returns that one button. It also
+     * includes extra textual data (flavor text, special ability and skill
+     * descriptions) that is otherwise omitted for efficiency.
+     *
+     * If $setName is specified, it only returns buttons in that set.
+     *
+     * If neither is specified, it returns all buttons.
+     *
+     * If $tagArray is specified, filter the buttons by tag. Each element in $tagArray
+     * has the tag name as a key, and a boolean (indicating positive or negative filtering)
+     * as the value.
+     *
+     * @param string $buttonName         Return a particular button
+     * @param string $setName            Return buttons in a particular set
+     * @param bool $forceImplemented     Do we only want buttons with fully implemented skills?
+     * @param array $tagArray            Filter by tag (either positively or negatively)
+     * @return NULL|array
+     */
+    public function get_button_data(
+        $buttonName = NULL,
+        $setName = NULL,
+        $forceImplemented = FALSE,
+        $tagArray = NULL
+    ) {
         try {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
             $single_button = ($buttonName !== NULL);
-            $statement = $this->execute_button_data_query($buttonName, $setName);
+            $statement = $this->execute_button_data_query($buttonName, $setName, $tagArray);
 
             $buttons = array();
             while ($row = $statement->fetch()) {
-                $currentButton = $this->assemble_button_data($row, $site_type, $single_button, $forceImplemented);
+                $currentButton = $this->assemble_button_data(
+                    $row,
+                    $site_type,
+                    $single_button,
+                    $forceImplemented
+                );
                 if ($currentButton) {
                     $buttons[] = $currentButton;
                 }
@@ -1539,20 +1568,43 @@ class BMInterface {
         }
     }
 
-    protected function execute_button_data_query($buttonName, $setName) {
+    protected function execute_button_data_query($buttonName, $setName, $tagArray) {
         $parameters = array();
         $query =
             'SELECT b.id, b.name, b.recipe, b.btn_special, b.tourn_legal, b.flavor_text, ' .
             '       s.name AS set_name ' .
             'FROM button AS b ' .
             'LEFT JOIN buttonset AS s ON b.set_id = s.id ';
+
+        if (($buttonName !== NULL) || ($setName !== NULL) || ($tagArray !== NULL)) {
+            $query .= 'WHERE TRUE ';
+        }
         if ($buttonName !== NULL) {
-            $query .= 'WHERE b.name = :button_name ';
+            $query .= 'AND b.name = :button_name ';
             $parameters[':button_name'] = $buttonName;
         } elseif ($setName !== NULL) {
-            $query .= 'WHERE s.name = :set_name ';
+            $query .= 'AND s.name = :set_name ';
             $parameters[':set_name'] = $setName;
         }
+
+        if ($tagArray !== NULL) {
+            $tagIdx = 0;
+            foreach ($tagArray as $tag => $isTagTrue) {
+                $tagQuery = 'b.id ';
+                if ('false' === $isTagTrue) {
+                    $tagQuery .= 'NOT ';
+                }
+                $tagQuery .= 'IN (SELECT m.button_id FROM button_tag_map as m '.
+                                 'WHERE m.tag_id = '.
+                                   '(SELECT t.id FROM tag as t '.
+                                    'WHERE t.name = :tag_name' . $tagIdx . ')) ';
+                $tagQueryArray[] = $tagQuery;
+                $parameters[':tag_name' . $tagIdx] = $tag;
+                $tagIdx++;
+            }
+            $query .= 'AND ' . implode('AND ', $tagQueryArray);
+        }
+
         $query .=
             'ORDER BY s.sort_order ASC, b.sort_order ASC, b.name ASC;';
 
