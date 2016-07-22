@@ -14663,9 +14663,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 - responder004 submits die values
         $_SESSION = $this->mock_test_user_login('responder004');
-        $this->verify_api_submitDieValues(
-            array(0, 0, 0, 0, 0, 15), // BUG #2041: Dead Guy's dice shouldn't be rerolled
-            $gameId, 1, array('X' => 20), NULL);
+        $this->verify_api_submitDieValues(array(15), $gameId, 1, array('X' => 20), NULL);
         $_SESSION = $this->mock_test_user_login('responder003');
 
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: X=20'));

@@ -931,7 +931,7 @@ class BMGame {
                     }
                 }
 
-                if (empty($die->value)) {
+                if (!isset($die->value)) {
                     $player->activeDieArray[$dieIdx] = $die->make_play_die(FALSE);
                 }
             }
