@@ -21,7 +21,7 @@ class BMInterfaceGame extends BMInterface {
      * @param int|NULL $previousGameId
      * @param int|NULL $currentPlayerId
      * @param bool $autoAccept
-     * @return type
+     * @return array|NULL
      */
     public function create_game(
         array $playerIdArray,
@@ -393,6 +393,14 @@ class BMInterfaceGame extends BMInterface {
         return (bool)$fetchData[0];
     }
 
+    /**
+     * Save decision about whether or not to join a game
+     *
+     * @param int $playerId
+     * @param int $gameId
+     * @param string $decision
+     * @return bool
+     */
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (('accept' != $decision) && ('reject' != $decision)) {
             throw new InvalidArgumentException('decision must be either accept or reject');
@@ -1244,6 +1252,13 @@ class BMInterfaceGame extends BMInterface {
         }
     }
 
+    /**
+     * Dismiss game link from overview page
+     *
+     * @param int $playerId
+     * @param int $gameId
+     * @return bool
+     */
     public function dismiss_game($playerId, $gameId) {
         try {
             $query =

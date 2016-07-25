@@ -76,6 +76,7 @@ class BMInterfaceNewuser {
      * @param string $username
      * @param string $password
      * @param string $email
+     * @return NULL|array
      */
     public function create_user($username, $password, $email) {
         try {
