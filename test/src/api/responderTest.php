@@ -1491,16 +1491,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $this->verify_api_failure($args, 'Game create failed because a button name was not valid.');
 
-        // Make sure that the first player in a game is the current logged in player
-        $args = array(
-            'type' => 'createGame',
-            'playerInfoArray' => array(array('responder001', 'Avis'),
-                                       array('responder004', 'Avis')),
-            'maxWins' => '3',
-        );
-        $this->verify_api_failure($args, 'Game create failed because you must be the first player.');
-
-
         // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
@@ -1527,6 +1517,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
 
         $this->cache_json_api_output('createGame', 'Avis_None', $retval);
+
+
+        // Check that the first player in a game can be different from the current logged in player
+        $retval = $this->verify_api_createGame(
+            array(1, 1, 1, 1, 2, 2, 2, 2),
+            'responder001', 'responder002', 'Avis', 'Avis', 3, '', NULL, 'data'
+        );
+
+        $this->assertEquals('ok', $retval['status'], 'Game creation should succeed');
+        $this->assertEquals(array('gameId'), array_keys($retval['data']));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+        $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
     }
 
     public function test_request_joinOpenGame() {
