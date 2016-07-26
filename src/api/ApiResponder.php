@@ -8,6 +8,8 @@
 /**
  * This class specifies the link between the public API functions and
  * BMInterface
+ *
+ * @SuppressWarnings(PMD.BooleanGetMethodName)
  */
 class ApiResponder {
 
@@ -1025,6 +1027,13 @@ class ApiResponder {
 // This function exists when we're running under apache, but not when we're
 // running PHP unit tests, so we need to fake so things don't fail miserably.
 if (!function_exists('apache_note')) {
+    /**
+     * Mock the PHP function apache_note when running PHP unit tests
+     *
+     * @param string $note_name
+     * @param mixed $note_value
+     * @return mixed
+     */
     function apache_note($note_name, $note_value) {
         if (strpos($note_name, 'BM') !== 0) {
             throw new Exception('Note name should be prefixed with "BM"');
