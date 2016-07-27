@@ -10,9 +10,10 @@
  *
  * @param string $username
  * @param string $password
+ * @param bool $doStayLoggedIn
  * @return bool
  */
-function login($username, $password) {
+function login($username, $password, $doStayLoggedIn) {
     require_once '../database/mysql.inc.php';
     $conn = conn();
 
@@ -54,13 +55,9 @@ function login($username, $password) {
             $query->execute(array(':id'       => $result['id'],
                                   ':auth_key' => $auth_key));
 
-            // set authorisation cookie
-            setcookie('auth_userid', $result['id'], 0, '/', '', FALSE);
-            setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
-            session_regenerate_id(TRUE);
-            $_SESSION['user_id'] = $result['id'];
-            $_SESSION['user_name'] = $result['name_ingame'];
-            $_SESSION['user_lastactive'] = time();
+            update_session($result['id'], $result['name_ingame']);
+            set_authorisation_cookies($result['id'], $auth_key, $doStayLoggedIn);
+
             $returnValue = TRUE;
         }
     }
@@ -98,17 +95,47 @@ function auth_session_exists() {
                               ':auth_key' => $auth_key));
         $resultArray = $query->fetchAll();
         if (count($resultArray) == 1) {
-            $name_ingame = $resultArray[0]['name_ingame'];
-            session_regenerate_id(TRUE);
-            $_SESSION['user_id'] = $auth_userid;
-            $_SESSION['user_name'] = $name_ingame;
-            $_SESSION['user_lastactive'] = time();
+            update_session($auth_userid, $resultArray[0]['name_ingame']);
+            set_authorisation_cookies($auth_userid, $auth_key, (bool)$_COOKIE['stay_logged_in']);
             return TRUE;
         }
     }
 
     // neither session nor cookie lookup worked, so the user is not logged in
     return FALSE;
+}
+
+/**
+ * Update session in browser
+ *
+ * @param int $userId
+ * @param string $userName
+ */
+function update_session($userId, $userName) {
+    session_regenerate_id(TRUE);
+    $_SESSION['user_id'] = $userId;
+    $_SESSION['user_name'] = $userName;
+    $_SESSION['user_lastactive'] = time();
+}
+
+/**
+ * Set authorisation cookies in browser
+ *
+ * @param int $userId
+ * @param string $key
+ * @param bool $doStayLoggedIn
+ */
+function set_authorisation_cookies($userId, $key, $doStayLoggedIn) {
+    if ($doStayLoggedIn) {
+        // an expiry time of one year in the future should be sufficient
+        $expiryTime = time() + 365 * 24 * 60 * 60;
+    } else {
+        $expiryTime = 0;
+    }
+
+    setcookie('auth_userid', $userId, $expiryTime, '/', '', FALSE);
+    setcookie('auth_key', $key, $expiryTime, '/', '', FALSE);
+    setcookie('stay_logged_in', (int)$doStayLoggedIn, $expiryTime, '/', '', FALSE);
 }
 
 /**
@@ -137,6 +164,7 @@ function logout() {
 
         setcookie('auth_key', '', time()-3600, '/');
         setcookie('auth_userid', '', time()-3600, '/');
+        setcookie('stay_logged_in', '', time()-3600, '/');
 
         $params = session_get_cookie_params();
         setcookie(

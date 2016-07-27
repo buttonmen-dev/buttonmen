@@ -38,7 +38,7 @@ class BMInterfaceGameChat extends BMInterface {
             foreach ($game->playerArray as $gamePlayer) {
                 $playerNameArray[] = $this->get_player_name_from_id($gamePlayer->playerId);
             }
-            $chatArray = $this->load_game_chat_log($game, 1);
+            $chatArray = $this->load_game_chat_log($playerId, $game, 1);
             $lastChatEntryList = $chatArray['chatEntries'];
             $logArray = $this->game_action()->load_game_action_log($game, 1);
             $lastActionEntryList = $logArray['logEntries'];
@@ -104,12 +104,19 @@ class BMInterfaceGameChat extends BMInterface {
     /**
      * Load previously-stored chat log entries from the database
      *
-     * @param BMGame $game
-     * @param int|NULL $logEntryLimit
+     * @param int      $playerId       ID of player loading the chat
+     * @param BMGame   $game           Game for which chat is being loaded
+     * @param int|NULL $logEntryLimit  Maximum number of chat entries to load
      * @return array
      */
-    protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_chat_log($playerId, BMGame $game, $logEntryLimit) {
         try {
+            $isParticipant = (array_search($playerId, $game->playerIdArray) !== FALSE);
+            $doQueryPreviousGame = (
+                $game->gameState < BMGameState::END_GAME &&
+                !is_null($game->previousGameId) &&
+                $isParticipant);
+
             $sqlParameters = array(':game_id' => $game->gameId);
             $query =
                 'SELECT ' .
@@ -117,17 +124,34 @@ class BMInterfaceGameChat extends BMInterface {
                     'chatting_player, ' .
                     'message ' .
                 'FROM game_chat_log ';
-            $query .= $this->build_game_log_query_restrictions($game, TRUE, FALSE, $sqlParameters);
+
+            $query .= $this->build_game_log_query_restrictions($game, $doQueryPreviousGame, FALSE, $sqlParameters);
 
             $statement = self::$conn->prepare($query);
             $statement->execute($sqlParameters);
+
             $chatEntries = array();
-            while ($row = $statement->fetch()) {
+
+            // Notify the viewing player that chat is hidden, if necessary
+            $canViewChat = $this->can_player_view_game_chat($isParticipant, $game);
+            if (!$canViewChat) {
                 $chatEntries[] = array(
-                    'timestamp' => (int)$row['chat_timestamp'],
-                    'player' => $this->get_player_name_from_id($row['chatting_player']),
-                    'message' => $row['message'],
+                    'timestamp' => 0,
+                    'player' => '',
+                    'message' => "The chat for this game is private",
                 );
+            }
+
+            while ($row = $statement->fetch()) {
+                // Even a player who can't view chat messages should be able to see non-chat entries
+                // like continuation messages which are stored in the chat stream
+                if ($canViewChat || $row['chatting_player'] == 0) {
+                    $chatEntries[] = array(
+                        'timestamp' => (int)$row['chat_timestamp'],
+                        'player' => $this->get_player_name_from_id($row['chatting_player']),
+                        'message' => $row['message'],
+                    );
+                }
             }
 
             $nEntries = count($chatEntries);
@@ -146,6 +170,27 @@ class BMInterfaceGameChat extends BMInterface {
             $this->set_message('Internal error while reading chat entries');
             return NULL;
         }
+    }
+
+    /**
+     * Can the current player view the chat for this game?
+     *
+     * Game chat is visible if the player is a participant in the game
+     * or if neither player has set the game chat to private.
+     *
+     * @param bool     $isParticipant  Is the player loading the chat a participant in the game
+     * @param BMGame   $game           Game for which chat is being loaded
+     * @return bool
+     */
+    protected function can_player_view_game_chat($isParticipant, BMGame $game) {
+        if (!$isParticipant) {
+            foreach ($game->playerArray as $player) {
+                if ($player->isChatPrivate) {
+                    return FALSE;
+                }
+            }
+        }
+        return TRUE;
     }
 
     /**

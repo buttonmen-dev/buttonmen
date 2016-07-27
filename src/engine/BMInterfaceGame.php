@@ -21,7 +21,7 @@ class BMInterfaceGame extends BMInterface {
      * @param int|NULL $previousGameId
      * @param int|NULL $currentPlayerId
      * @param bool $autoAccept
-     * @return type
+     * @return array|NULL
      */
     public function create_game(
         array $playerIdArray,
@@ -393,6 +393,14 @@ class BMInterfaceGame extends BMInterface {
         return (bool)$fetchData[0];
     }
 
+    /**
+     * Save decision about whether or not to join a game
+     *
+     * @param int $playerId
+     * @param int $gameId
+     * @param string $decision
+     * @return bool
+     */
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (('accept' != $decision) && ('reject' != $decision)) {
             throw new InvalidArgumentException('decision must be either accept or reject');
@@ -632,22 +640,34 @@ class BMInterfaceGame extends BMInterface {
 
             $this->set_option_values($optionValueArray, $currentPlayerIdx, $game);
 
-            // Create the action log entry for choosing die values
-            // now, so it will happen before any initiative actions.
+            // Create the action log entries for choosing die values
+            // now, so they will happen before any initiative actions.
             // If the swing/option selection is unsuccessful,
             // save_game() won't be called, so this action log entry
             // will simply be dropped.
+            $swingLogArray = array();
+            foreach ($swingValueArray as $swingType => $swingValue) {
+                $swingLogArray[] = array(
+                    'swingType'  => $swingType,
+                    'swingValue' => $swingValue,
+                );
+            }
+
             $optionLogArray = array();
             foreach ($optionValueArray as $dieIdx => $optionValue) {
                 $dieRecipe = $game->playerArray[$currentPlayerIdx]->activeDieArray[$dieIdx]->recipe;
-                $optionLogArray[$dieRecipe] = $optionValue;
+                $optionLogArray[] = array(
+                    'recipe'      => $dieRecipe,
+                    'optionValue' => $optionValue,
+                );
             }
+
             $game->log_action(
                 'choose_die_values',
                 $game->playerArray[$currentPlayerIdx]->playerId,
                 array(
                     'roundNumber' => $game->roundNumber,
-                    'swingValues' => $swingValueArray,
+                    'swingValues' => $swingLogArray,
                     'optionValues' => $optionLogArray,
                 )
             );
@@ -1232,6 +1252,13 @@ class BMInterfaceGame extends BMInterface {
         }
     }
 
+    /**
+     * Dismiss game link from overview page
+     *
+     * @param int $playerId
+     * @param int $gameId
+     * @return bool
+     */
     public function dismiss_game($playerId, $gameId) {
         try {
             $query =

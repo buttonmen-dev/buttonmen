@@ -33,8 +33,14 @@ div#c_footer {
     height:100px;           // height of the footer
 }
 
-div#login_header{
+div#login_header {
     text-align: left;
+}
+
+div.login {
+    text-align: left;
+    padding-left: 5px;
+    padding-bottom: 5px;
 }
 
 div#login_header p {
@@ -118,7 +124,6 @@ table.spaced {
 
 table.dice {
     padding: 0px;
-    spacing: 0px;
 }
 
 td {
@@ -281,8 +286,9 @@ select.center {
 
 .die_overlay {
     position:relative;
-    font-size: 24px;
-    top: 13px;
+    font-size: 21px;
+    line-height: 25px;
+    top: 13.5px;
 }
 
 .die_number_player {
