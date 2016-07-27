@@ -10,6 +10,7 @@
  *
  * @param string $username
  * @param string $password
+ * @param bool $doStayLoggedIn
  * @return bool
  */
 function login($username, $password, $doStayLoggedIn) {
@@ -104,6 +105,12 @@ function auth_session_exists() {
     return FALSE;
 }
 
+/**
+ * Update session in browser
+ *
+ * @param int $userId
+ * @param string $userName
+ */
 function update_session($userId, $userName) {
     session_regenerate_id(TRUE);
     $_SESSION['user_id'] = $userId;
@@ -111,6 +118,13 @@ function update_session($userId, $userName) {
     $_SESSION['user_lastactive'] = time();
 }
 
+/**
+ * Set authorisation cookies in browser
+ *
+ * @param int $userId
+ * @param string $key
+ * @param bool $doStayLoggedIn
+ */
 function set_authorisation_cookies($userId, $key, $doStayLoggedIn) {
     if ($doStayLoggedIn) {
         // an expiry time of one year in the future should be sufficient
