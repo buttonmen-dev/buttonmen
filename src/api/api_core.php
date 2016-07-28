@@ -95,8 +95,14 @@ function auth_session_exists() {
                               ':auth_key' => $auth_key));
         $resultArray = $query->fetchAll();
         if (count($resultArray) == 1) {
+            // update old cookies which don't have the stay_logged_in key
+            if (array_key_exists('stay_logged_in', $_COOKIE)) {
+                $stay_logged_in = (bool)$_COOKIE['stay_logged_in'];
+            } else {
+                $stay_logged_in = FALSE;
+            }
             update_session($auth_userid, $resultArray[0]['name_ingame']);
-            set_authorisation_cookies($auth_userid, $auth_key, (bool)$_COOKIE['stay_logged_in']);
+            set_authorisation_cookies($auth_userid, $auth_key, $stay_logged_in);
             return TRUE;
         }
     }
