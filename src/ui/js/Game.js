@@ -2845,7 +2845,7 @@ Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
   }
 
   return 'url(images/die/' +
-         Api.game.player.dieBackgroundType +
+         Api.game.dieBackgroundType +
          '/d' +
          sidesRoundedUp +
          imageType +
