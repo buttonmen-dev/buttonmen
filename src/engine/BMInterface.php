@@ -152,7 +152,7 @@ class BMInterface {
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['dieBackgroundType'] =
-                    $this->load_die_background_type($gamePlayer->playerId);
+                    $this->load_die_background_type($playerId);
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
             }
