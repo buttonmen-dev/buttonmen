@@ -523,7 +523,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
-                    'dieBackgroundType' => 'realistic',
                     'isOnVacation' => false,
                 ),
                 array(
@@ -543,7 +542,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'canStillWin' => NULL,
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
-                    'dieBackgroundType' => 'realistic',
                     'isOnVacation' => false,
                 ),
             ),
@@ -552,6 +550,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'gameChatLog' => array(),
             'gameChatLogCount' => 0,
             'gameChatEditable' => FALSE,
+            'dieBackgroundType' => 'realistic',
         );
         return $expData;
     }
@@ -2421,8 +2420,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['optRequestArray'] = array('4' => array(2, 20));
 
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
 
         // in test_request_savePlayerInfo() responder002 was set to be on vacation - make sure the game reflects that.
         $expData['playerDataArray'][1]['isOnVacation'] = TRUE;
@@ -2433,12 +2431,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game as non-participating player responder003 and check its state
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
 
         ////////////////////
         // Move 01 - specify option dice
@@ -2481,12 +2477,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // check the game state as a nonplayer so the UI tests have access to a game in START_TURN from a nonplayer perspective
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
 
 
         ////////////////////
@@ -3637,12 +3631,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameChatLogCount'] = 2;
         $savedChat = array_splice($expData['gameChatLog'], 2, 1);
         $_SESSION = $this->mock_test_user_login('responder002');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
 
         $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['currentPlayerIdx'] = 0;
@@ -3742,12 +3734,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['gameChatLogCount'] = 1;
         array_splice($expData['gameChatLog'], 1, 2);
         $_SESSION = $this->mock_test_user_login('responder002');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
     }
 
     /**
@@ -5212,12 +5202,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game as non-participating player responder001 and check its state
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
 
         ////////////////////
         // Move 07 - responder003 abandons the Fire-assisted Skill attack and gets another attack
@@ -6493,12 +6481,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game as non-participating player responder001 and check its state
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
 
         ////////////////////
         // Move 15 - responder004 added a reserve die: rz(S)
@@ -8590,12 +8576,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game as non-participating player responder001 and check its state
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
 
 
         // responder003 rerolled a chance die, but did not gain initiative: c(6) rerolled 3 => 4
@@ -9643,12 +9627,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game as non-participating player responder001 and check its state
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
 
         ////////////////////
         // Move 01 - responder003 chose to use auxiliary die +s(X) in this game
@@ -12990,12 +12972,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load the game as non-participating player responder001 and check its state
         $_SESSION = $this->mock_test_user_login('responder001');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'symmetric';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'symmetric';
+        $expData['dieBackgroundType'] = 'symmetric';
         $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder005');
-        $expData['playerDataArray'][0]['dieBackgroundType'] = 'realistic';
-        $expData['playerDataArray'][1]['dieBackgroundType'] = 'realistic';
+        $expData['dieBackgroundType'] = 'realistic';
 
         ////////////////////
         // Move 07 - responder005 abandons the Fire-assisted Skill attack and gets another attack

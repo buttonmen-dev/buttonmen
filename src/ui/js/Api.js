@@ -485,6 +485,7 @@ var Api = (function () {
     my.game.chatLog = data.gameChatLog;
     my.game.chatLogCount = data.gameChatLogCount;
     my.game.chatEditable = data.gameChatEditable;
+    my.game.dieBackgroundType = data.dieBackgroundType;
 
     // Do some sanity-checking of the data we have
 
