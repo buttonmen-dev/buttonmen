@@ -20,6 +20,7 @@ AS SELECT
     m.was_game_dismissed,
     m.is_button_random,
     m.has_player_accepted,
+    m.is_chat_private,
     p.name_ingame AS player_name,
     p.autopass,
     p.fire_overshooting,

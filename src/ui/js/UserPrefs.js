@@ -101,6 +101,12 @@ UserPrefs.actionSetPrefs = function() {
   genderDefaults[UserPrefs.ALTERNATE_GENDER_OPTION] =
     UserPrefs.ALTERNATE_GENDER_OPTION;
 
+  var dieBackgroundDefaults = {
+    'circle': 'circle',
+    'symmetric': 'symmetric',
+    'realistic': 'realistic',
+  };
+
   var profileBlurb = 'These settings affect what appears on your profile page.';
   var profileSettings = {
     'name_irl': {
@@ -279,17 +285,23 @@ UserPrefs.actionSetPrefs = function() {
     },
   };
 
-  var browserBlurb = 'These preferences will only apply to the browser ' +
-    'you\'re currently using.';
-  var browserPrefs = {
+  var matBlurb = 'These preferences control the look and feel of the ' +
+    'game mat.';
+  var matPrefs = {
+    'die_background_select': {
+      'text': 'Die background',
+      'type': 'select',
+      'value': Api.user_prefs.die_background,
+      'source': dieBackgroundDefaults,
+    },
     'noImages': {
       'text': 'Don\'t load button or player images',
-      'type': 'checkbox',
+      'type': 'checkboxBrowser',
       'checked': Env.getCookieNoImages(),
     },
     'compactMode': {
       'text': 'Use compact version of game interface',
-      'type': 'checkbox',
+      'type': 'checkboxBrowser',
       'checked': Env.getCookieCompactMode(),
     }
   };
@@ -305,10 +317,10 @@ UserPrefs.actionSetPrefs = function() {
     gameplayBlurb, gameplayPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Color Preferences',
     colorBlurb, colorPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Game Mat Preferences',
+    matBlurb, matPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
     accountBlurb, accountSettings);
-  UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
-    browserBlurb, browserPrefs);
 
   // Gender and gravatar inputs are dynamic
   var genderText = prefsTable.find('#userprefs_gender_text');
@@ -402,6 +414,7 @@ UserPrefs.formSetPrefs = function() {
   var confirm_new_password = $('#userprefs_confirm_new_password').val();
   var new_email = $('#userprefs_new_email').val();
   var confirm_new_email = $('#userprefs_confirm_new_email').val();
+  var die_background = $('#userprefs_die_background_select').val();
   var noImages = $('#userprefs_noImages').prop('checked');
   var compactMode = $('#userprefs_compactMode').prop('checked');
 
@@ -505,6 +518,7 @@ UserPrefs.formSetPrefs = function() {
       'current_password': current_password,
       'new_password': new_password,
       'new_email': new_email,
+      'die_background': die_background,
     },
     {
       'ok': { 'type': 'fixed', 'text': 'User details set successfully.', },
@@ -638,6 +652,20 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
       defaultColorLink.click(function() {
         colorPicker.spectrum('set', UserPrefs.DEFAULT_COLORS[entryKey]);
       });
+      break;
+    case 'checkboxBrowser':
+      entryInput.append($('<input>', {
+        'type': 'checkbox',
+        'name': entryKey,
+        'id': 'userprefs_' + entryKey,
+        'value': entryInfo.value,
+        'checked': entryInfo.checked,
+        'maxlength': entryInfo.length,
+      }));
+      entryInput.append($('<span>', {
+        'text': '(only applies to the current browser)',
+        'class': 'current_browser_only',
+      }));
       break;
     default:
       entryInput.append($('<input>', {

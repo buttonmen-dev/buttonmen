@@ -1,0 +1,83 @@
+#!/usr/bin/python
+#####
+# Utility to install DHS site stats using a JSON file of compiled stats
+
+import datetime
+import json
+import MySQLdb
+import sys
+
+STAT_FILE=sys.argv[1]
+
+def get_dhs_button_id(button_name):
+  select_sql = 'SELECT dhs_button_id from dhs_button WHERE dhs_button_name="%s"' % button_name
+  result = crs.execute(select_sql)
+  if result != 1:
+    raise ValueError, "Expected to find one button with name %s, found: %s" % (button_name, result)
+  row = crs.fetchone()
+  return row[0]
+
+def get_or_create_dhs_player_id(player):
+  select_sql = 'SELECT dhs_player_id from dhs_player WHERE dhs_player_name="%s"' % player
+  result = crs.execute(select_sql)
+  if result > 1:
+    raise ValueError, "Expected to find at most one player with name %s, found: %s" % (player, result)
+  if result == 1:
+    row = crs.fetchone()
+    return row[0]
+  bw_select_sql = 'SELECT id from player WHERE name_ingame="%s"' % player
+  result = crs.execute(bw_select_sql)
+  if result > 1:
+    raise ValueError, "Expected to find at most one buttonweavers player with name %s, found: %s" % (player, result)
+  if result == 1:
+    row = crs.fetchone()
+    bw_id = row[0]
+  else:
+    bw_id = 0
+  insert_sql = 'INSERT INTO dhs_player ' + \
+    '(dhs_player_name, bw_player_id) VALUES ' + \
+    '("%s", %s)' % (player, bw_id)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+  return get_or_create_dhs_player_id(player)
+
+def insert_button_vs_button_stats(crs, stat_data):
+  for row in stat_data['button_vs_button']:
+    [button_a, button_b, games_button_a_won, games_button_b_won, date_compiled] = row
+    button_id_a = get_dhs_button_id(button_a)
+    button_id_b = get_dhs_button_id(button_b)
+    datestr_compiled = datetime.datetime.fromtimestamp(date_compiled).strftime("%Y-%m-%d %H:%M:%S")
+    insert_sql = 'INSERT INTO dhs_site_button_vs_button_stats ' + \
+      '(dhs_button_id_a, dhs_button_id_b, games_button_a_won, games_button_b_won, date_compiled) VALUES ' + \
+      '(%s, %s, %s, %s, "%s")' % (button_id_a, button_id_b, games_button_a_won, games_button_b_won, datestr_compiled)
+    result = crs.execute(insert_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+def insert_button_player_stats(crs, stat_data):
+  for row in stat_data['button_player']:
+    [button, player, games_won_using, games_lost_using, games_won_against, games_lost_against, date_compiled] = row
+    button_id = get_dhs_button_id(button)
+    player_id = get_or_create_dhs_player_id(player)
+    datestr_compiled = datetime.datetime.fromtimestamp(date_compiled).strftime("%Y-%m-%d %H:%M:%S")
+    insert_sql = 'INSERT INTO dhs_site_button_player_stats ' + \
+      '(dhs_button_id, dhs_player_id, games_won_using, games_lost_using, games_won_against, games_lost_against, date_compiled) VALUES ' + \
+      '(%s, %s, %s, %s, %s, %s, "%s")' % (button_id, player_id, games_won_using, games_lost_using, games_won_against, games_lost_against, datestr_compiled)
+    result = crs.execute(insert_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+def read_dhs_stats(infile):
+  stat_data = json.load(open(infile,'r'))
+  return stat_data
+
+stat_data = read_dhs_stats(STAT_FILE)
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+
+insert_button_player_stats(crs, stat_data)
+insert_button_vs_button_stats(crs, stat_data)
+
+conn.commit()

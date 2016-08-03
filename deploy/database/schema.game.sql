@@ -45,6 +45,7 @@ CREATE TABLE game_player_map (
     was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL,
     is_button_random   BOOLEAN DEFAULT FALSE NOT NULL,
     has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL,
+    is_chat_private    BOOLEAN DEFAULT FALSE NOT NULL,
     INDEX (game_id, player_id)
 );
 
@@ -125,6 +126,36 @@ CREATE TABLE game_action_log_type_add_reserve (
     id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     action_log_id      INTEGER UNSIGNED NOT NULL,
     die_recipe         VARCHAR(20) NOT NULL,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_play_another_turn (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    cause              VARCHAR(20) NOT NULL,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_choose_die_values (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    round_number       TINYINT UNSIGNED NOT NULL,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_choose_die_values_swing (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    swing_type         CHAR NOT NULL,
+    swing_value        TINYINT UNSIGNED,
+    INDEX (action_log_id)
+);
+
+CREATE TABLE game_action_log_type_choose_die_values_option (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    action_log_id      INTEGER UNSIGNED NOT NULL,
+    recipe             VARCHAR(20) NOT NULL,
+    option_value       TINYINT UNSIGNED,
     INDEX (action_log_id)
 );
 

@@ -16,11 +16,15 @@ class ApiSpec {
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
+    const DIE_BACKGROUND_MAX_LENGTH = 10;
     const VACATION_MESSAGE_MAX_LENGTH = 255;
     const GAME_DESCRIPTION_MAX_LENGTH = 255;
 
-    // These are API methods that might get called automatically, e.g. via the
-    // monitor
+    /**
+     * These are API methods that might get called automatically, e.g. via the monitor
+     *
+     * @var array
+     */
     private $automatableApiCalls = array(
         'loadNextPendingGame',
         'loadNextNewPost',
@@ -35,9 +39,13 @@ class ApiSpec {
         'loadPlayerName',
     );
 
-    // expected arguments for every API function:
-    // * mandatory: argument which must be present
-    // * permitted: additional argument which may be present
+    /**
+     * expected arguments for every API function:
+     * - mandatory: argument which must be present
+     * - permitted: additional argument which may be present
+     *
+     * @var array
+     */
     private $functionArgs = array(
         'adjustFire' => array(
             'mandatory' => array(
@@ -402,7 +410,9 @@ class ApiSpec {
                 'username' => 'alnum',
                 'password' => 'string',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'doStayLoggedIn' => 'boolean',
+            ),
         ),
         'logout' => array(
             'mandatory' => array(),
@@ -529,6 +539,10 @@ class ApiSpec {
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
                 'automatically_monitor' => 'boolean',
+                'die_background' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::DIE_BACKGROUND_MAX_LENGTH,
+                ),
                 'player_color' => 'color',
                 'opponent_color' => 'color',
                 'neutral_color_a' => 'color',
@@ -618,9 +632,14 @@ class ApiSpec {
         ),
     );
 
-    // This function looks at the provided arguments other than
-    // type, and verifies that they are syntactically correct for
-    // what the specified type expects.
+    /**
+     * This function looks at the provided arguments other than
+     * type, and verifies that they are syntactically correct for
+     * what the specified type expects.
+     *
+     * @param array $args
+     * @return array
+     */
     public function verify_function_args($args) {
         if (array_key_exists('type', $args) &&
             array_key_exists($args['type'], $this->functionArgs)) {
@@ -671,6 +690,13 @@ class ApiSpec {
         }
     }
 
+    /**
+     * Determine expected type of an argument
+     *
+     * @param string $argName
+     * @param array $argsExpected
+     * @return string
+     */
     private function determineExpectedType($argName, $argsExpected) {
         if (array_key_exists($argName, $argsExpected['mandatory'])) {
             return $argsExpected['mandatory'][$argName];
@@ -681,7 +707,13 @@ class ApiSpec {
         return NULL;
     }
 
-    // Returns the missing argument name if one is missing or NULL if all are present
+    /**
+     * Returns the missing argument name if one is missing or NULL if all are present
+     *
+     * @param array $argsExpected
+     * @param array $args
+     * @return string
+     */
     private function find_missing_mandatory_arguments($argsExpected, $args) {
         foreach (array_keys($argsExpected['mandatory']) as $argRequired) {
             if (!(array_key_exists($argRequired, $args))) {
@@ -690,7 +722,13 @@ class ApiSpec {
         }
     }
 
-    // landing function for verifying that an argument is of the correct type
+    /**
+     * landing function for verifying that an argument is of the correct type
+     *
+     * @param mixed $arg
+     * @param array|string $argtype
+     * @return bool
+     */
     protected function verify_argument_type($arg, $argtype) {
         if (is_array($argtype)) {
             switch ($argtype['arg_type']) {
@@ -716,8 +754,14 @@ class ApiSpec {
         }
     }
 
-    // verify that the argument is an array, and verify the types
-    // of each of its elements
+    /**
+     * verify that the argument is an array, and verify the types
+     * of each of its elements
+     *
+     * @param array $arg
+     * @param array $argtype
+     * @return bool
+     */
     protected function verify_argument_array_type($arg, $argtype) {
         if (is_array($arg)) {
             if (array_key_exists('minlength', $argtype)) {
@@ -751,12 +795,23 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is one of the exact strings permitted
+    /**
+     * verify that the argument is one of the exact strings permitted
+     *
+     * @param string $arg
+     * @param array $values
+     * @return bool
+     */
     protected function verify_argument_exact_string_type($arg, $values) {
         return (is_string($arg) && in_array($arg, $values));
     }
 
-    // verify that the argument is an alphanumeric string (allow underscores)
+    /**
+     * verify that the argument is an alphanumeric string (allow underscores)
+     *
+     * @param string $arg
+     * @return boolean
+     */
     protected function verify_argument_of_type_alnum($arg) {
         if (is_string($arg) &&
             preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
@@ -765,7 +820,12 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is a string containing a boolean
+    /**
+     * verify that the argument is a string containing a boolean
+     *
+     * @param string $arg
+     * @return boolean
+     */
     protected function verify_argument_of_type_boolean($arg) {
         if (is_string($arg) &&
             in_array(strtolower($arg), array("true", "false"))) {
@@ -774,14 +834,20 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is a string containing a valid button name
-    // In general, it's probably fine for button names to contain
-    // most ASCII characters --- it'd be nice to avoid backtick and semicolon.
-    // This regexp should be kept in sync with data.button.sql.
-    // Currently, it is intended to match:
-    // * alphanumeric characters
-    // * space
-    // * these special characters: . ' ( ) ! & + _ -
+
+    /**
+     * verify that the argument is a string containing a valid button name
+     * In general, it's probably fine for button names to contain
+     * most ASCII characters --- it'd be nice to avoid backtick and semicolon.
+     * This regexp should be kept in sync with data.button.sql.
+     * Currently, it is intended to match:
+     * - alphanumeric characters
+     * - space
+     * - these special characters: . ' ( ) ! & + _ -
+     *
+     * @param string $arg
+     * @return bool
+     */
     protected function verify_argument_of_type_button($arg) {
         if (is_string($arg) &&
             preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]+$/', $arg)) {
@@ -790,7 +856,12 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is a string containing a valid e-mail address
+    /**
+     * verify that the argument is a string containing a valid e-mail address
+     *
+     * @param string $arg
+     * @return bool
+     */
     protected function verify_argument_of_type_email($arg) {
         if (is_string($arg) &&
             preg_match('/^[A-Za-z0-9\._+-]+@[A-Za-z0-9\.-]+$/', $arg)) {
@@ -799,7 +870,13 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is a nonnegative integer
+    /**
+     * verify that the argument is a nonnegative integer
+     *
+     * @param int|string $arg
+     * @param array $argtype
+     * @return boolean
+     */
     protected function verify_argument_of_type_number($arg, $argtype = array()) {
         if ((is_int($arg) && $arg >= 0) ||
             (is_string($arg) && ctype_digit($arg))) {
@@ -815,7 +892,13 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is a string
+    /**
+     * verify that the argument is a string
+     *
+     * @param string $arg
+     * @param array $argtype
+     * @return bool
+     */
     protected function verify_argument_of_type_string($arg, $argtype = array()) {
         if (is_string($arg)) {
             $length = mb_strlen($arg, mb_detect_encoding($arg));
@@ -830,7 +913,12 @@ class ApiSpec {
         return FALSE;
     }
 
-    // verify that the argument is a string
+    /**
+     * verify that the argument is a string
+     *
+     * @param string $arg
+     * @return bool
+     */
     protected function verify_argument_of_type_color($arg) {
         if (is_string($arg) &&
             preg_match('/^#[0-9a-f]{6}$/i', $arg)) {

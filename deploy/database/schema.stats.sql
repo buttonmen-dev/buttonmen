@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS dhs_player;
 CREATE TABLE dhs_player (
-    dhs_player_id   SMALLINT UNSIGNED NOT NULL,
+    dhs_player_id   SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     dhs_player_name VARCHAR(40) NOT NULL,
     bw_player_id    SMALLINT UNSIGNED,
     INDEX (bw_player_id)
