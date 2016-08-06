@@ -3049,6 +3049,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003' . ' won initiative for round 1. Initial die values: ' . 'responder003' . ' rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], ' . 'responder004' . ' rolled [(20):5, (20):8, (20):12, (X=4):4].'));
         $expData['gameActionLogCount'] = 3;
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
 
         // load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -3172,6 +3174,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'] = array();
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'V' => array(6, 12));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][0]['canStillWin'] = null;
+        $expData['playerDataArray'][1]['canStillWin'] = null;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003' . ' passed'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1'));
@@ -3222,6 +3226,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 2;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004' . ' set swing values: X=7'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003' . ' won initiative for round 2. Initial die values: ' . 'responder003' . ' rolled [p(20):8, s(20):6, (V=6):1, (X=10):1], ' . 'responder004' . ' rolled [(20):7, (20):2, (20):17, (X=7):2].'));
         array_pop($expData['gameActionLog']);
@@ -11113,6 +11119,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array("Power", "Trip");
         $expData['gameActionLogCount'] = 2;
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -11480,6 +11488,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 20;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Trip");
         $expData['gameActionLogCount'] = 14;
 
@@ -11809,6 +11819,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = NULL;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = NULL;
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
+        $expData['playerDataArray'][0]['canStillWin'] = null;
+        $expData['playerDataArray'][1]['canStillWin'] = null;
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
         $this->verify_api_reactToReserve(
@@ -13400,6 +13412,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array("Power", "Skill");
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -13652,6 +13666,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['roundNumber'] = 2;
         $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][0]['canStillWin'] = null;
+        $expData['playerDataArray'][1]['canStillWin'] = null;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -13713,6 +13729,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
         $expData['playerWithInitiativeIdx'] = 0;
         $expData['validAttackTypeArray'] = array("Power", "Skill", "Shadow", "Speed", "Trip");
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -14051,6 +14069,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
         $expData['roundNumber'] = 3;
         $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][0]['canStillWin'] = null;
+        $expData['playerDataArray'][1]['canStillWin'] = null;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -14119,6 +14139,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
         $expData['playerWithInitiativeIdx'] = 1;
         $expData['validAttackTypeArray'] = array("Power", "Skill");
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = true;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -14729,7 +14751,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => 6, 'sides' => 12, 'recipe' => 's(12)', 'properties' => array('WasJustCaptured')),
             array('value' => 7, 'sides' => 20, 'recipe' => 'B(20)', 'properties' => array('WasJustCaptured')),
         );
-        # Bug #2040 - Vicious can no longer win at this point
+        $expData['playerDataArray'][0]['canStillWin'] = true;
+        $expData['playerDataArray'][1]['canStillWin'] = false;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }

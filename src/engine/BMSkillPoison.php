@@ -63,13 +63,4 @@ class BMSkillPoison extends BMSkill {
                        'current value rather than on their number of sides',
         );
     }
-
-    /**
-     * Does this skill prevent the determination of whether a player can win?
-     *
-     * @return bool
-     */
-    public static function prevents_win_determination() {
-        return TRUE;
-    }
 }
