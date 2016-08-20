@@ -127,7 +127,7 @@ class TestBMClient(unittest.TestCase):
   def test_load_game_data(self):
     known_keys = [
       'activePlayerIdx', 'currentPlayerIdx', 'description',
-      'gameActionLog', 'gameActionLogCount',
+      'dieBackgroundType', 'gameActionLog', 'gameActionLogCount',
       'gameChatEditable', 'gameChatLog', 'gameChatLogCount',
       'gameId', 'gameSkillsInfo',
       'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
@@ -142,7 +142,7 @@ class TestBMClient(unittest.TestCase):
 
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
-      'dieBackgroundType', 'gameScoreArray', 'hasDismissedGame',
+      'gameScoreArray', 'hasDismissedGame',
       'isOnVacation', 'lastActionTime',
       'optRequestArray', 'outOfPlayDieArray',
       'playerColor', 'playerId', 'playerName',

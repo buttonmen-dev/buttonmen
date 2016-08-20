@@ -10,6 +10,7 @@
  *
  * @param string $username
  * @param string $password
+ * @param bool $doStayLoggedIn
  * @return bool
  */
 function login($username, $password, $doStayLoggedIn) {
@@ -94,8 +95,14 @@ function auth_session_exists() {
                               ':auth_key' => $auth_key));
         $resultArray = $query->fetchAll();
         if (count($resultArray) == 1) {
+            // update old cookies which don't have the stay_logged_in key
+            if (array_key_exists('stay_logged_in', $_COOKIE)) {
+                $stay_logged_in = (bool)$_COOKIE['stay_logged_in'];
+            } else {
+                $stay_logged_in = FALSE;
+            }
             update_session($auth_userid, $resultArray[0]['name_ingame']);
-            set_authorisation_cookies($auth_userid, $auth_key, (bool)$_COOKIE['stay_logged_in']);
+            set_authorisation_cookies($auth_userid, $auth_key, $stay_logged_in);
             return TRUE;
         }
     }
@@ -104,6 +111,12 @@ function auth_session_exists() {
     return FALSE;
 }
 
+/**
+ * Update session in browser
+ *
+ * @param int $userId
+ * @param string $userName
+ */
 function update_session($userId, $userName) {
     session_regenerate_id(TRUE);
     $_SESSION['user_id'] = $userId;
@@ -111,6 +124,13 @@ function update_session($userId, $userName) {
     $_SESSION['user_lastactive'] = time();
 }
 
+/**
+ * Set authorisation cookies in browser
+ *
+ * @param int $userId
+ * @param string $key
+ * @param bool $doStayLoggedIn
+ */
 function set_authorisation_cookies($userId, $key, $doStayLoggedIn) {
     if ($doStayLoggedIn) {
         // an expiry time of one year in the future should be sufficient

@@ -307,8 +307,9 @@ select.center {
 
 .die_overlay {
     position:relative;
-    font-size: 24px;
-    top: 13px;
+    font-size: 21px;
+    line-height: 25px;
+    top: 13.5px;
 }
 
 .die_number_player {

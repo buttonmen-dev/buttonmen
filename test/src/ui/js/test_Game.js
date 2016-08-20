@@ -1611,7 +1611,7 @@ test("test_Game.getDieContainerDivOptions", function(assert) {
  * * placing the recipe above or below the die
  */
 test("test_Game.createDieContainerDiv", function(assert) {
-  Api.game = { player: { dieBackgroundType: 'symmetric' } };
+  Api.game = { dieBackgroundType: 'symmetric' };
 
   var die = {
     description: "6-sided die",
@@ -1710,7 +1710,7 @@ test("test_Game.createGameMatDieDiv", function(assert) {
     value: 2
   };
 
-  Api.game = { player: { dieBackgroundType: 'symmetric' } };
+  Api.game = { dieBackgroundType: 'symmetric' };
 
   var dieDivJQuery = Game.createGameMatDieDiv(die, 'player', 'active', true);
   var dieDivProps = BMTestUtils.DOMNodePropArray(dieDivJQuery[0]);
@@ -1735,7 +1735,7 @@ test("test_Game.createGameMatDieDiv", function(assert) {
 });
 
 test("test_Game.backgroundImagePath", function(assert) {
-  Api.game = { player: { dieBackgroundType: 'symmetric' } };
+  Api.game = { dieBackgroundType: 'symmetric' };
 
   assert.ok(Game.backgroundImagePath(1, 'active', true, 'symmetric').indexOf('images/die/symmetric/d2active.png') >= 0, 'active d1');
   assert.ok(Game.backgroundImagePath(2, 'active', true, 'symmetric').indexOf('images/die/symmetric/d2active.png') >= 0, 'active d2');
@@ -1747,7 +1747,7 @@ test("test_Game.backgroundImagePath", function(assert) {
   assert.ok(Game.backgroundImagePath(8, 'active', true, 'symmetric').indexOf('images/die/symmetric/d8active.png') >= 0, 'active d8');
   assert.ok(Game.backgroundImagePath(9, 'active', true, 'symmetric').indexOf('images/die/symmetric/d10active.png') >= 0, 'active d9');
 
-  Api.game.player.dieBackgroundType = 'realistic';
+  Api.game.dieBackgroundType = 'realistic';
 
   assert.ok(Game.backgroundImagePath(10, 'active', true, 'realistic').indexOf('images/die/realistic/d10active.png') >= 0, 'active d10');
   assert.ok(Game.backgroundImagePath(11, 'active', true, 'realistic').indexOf('images/die/realistic/d12active.png') >= 0, 'active d11');
@@ -1760,7 +1760,7 @@ test("test_Game.backgroundImagePath", function(assert) {
   assert.ok(Game.backgroundImagePath(30, 'active', true, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d30');
   assert.ok(Game.backgroundImagePath(31, 'active', true, 'realistic').indexOf('images/die/realistic/d30active.png') >= 0, 'active d31');
 
-  Api.game.player.dieBackgroundType = 'symmetric';
+  Api.game.dieBackgroundType = 'symmetric';
 
   assert.ok(Game.backgroundImagePath(1, 'active', false, 'symmetric').indexOf('images/die/symmetric/d2inactive.png') >= 0, 'inactive d1');
   assert.ok(Game.backgroundImagePath(2, 'active', false, 'symmetric').indexOf('images/die/symmetric/d2inactive.png') >= 0, 'inactive d2');
@@ -1782,7 +1782,7 @@ test("test_Game.backgroundImagePath", function(assert) {
   assert.ok(Game.backgroundImagePath(30, 'active', false, 'symmetric').indexOf('images/die/symmetric/d30inactive.png') >= 0, 'inactive d30');
   assert.ok(Game.backgroundImagePath(31, 'active', false, 'symmetric').indexOf('images/die/symmetric/d30inactive.png') >= 0, 'inactive d31');
 
-  Api.game.player.dieBackgroundType = 'realistic';
+  Api.game.dieBackgroundType = 'realistic';
 
   assert.ok(Game.backgroundImagePath(1, 'captured', false, 'realistic').indexOf('images/die/realistic/d2taken.png') >= 0, 'taken d1');
   assert.ok(Game.backgroundImagePath(2, 'captured', false, 'realistic').indexOf('images/die/realistic/d2taken.png') >= 0, 'taken d2');
