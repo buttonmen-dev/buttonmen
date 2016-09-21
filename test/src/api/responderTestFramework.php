@@ -701,6 +701,8 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $playerId2 = $this->user_ids[$username2];
         $expData = array(
             'gameId' => $gameId,
+            'tournamentId' => NULL,
+            'tournamentRoundNumber' => NULL,
             'gameState' => $gameState,
             'activePlayerIdx' => NULL,
             'playerWithInitiativeIdx' => NULL,

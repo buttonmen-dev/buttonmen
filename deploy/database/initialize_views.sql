@@ -4,5 +4,6 @@ source views.config.sql;
 source views.button.sql;
 source views.player.sql;
 source views.game.sql;
+source views.tourn.sql;
 source views.stats.sql;
 source views.forum.sql;

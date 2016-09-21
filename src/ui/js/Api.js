@@ -128,6 +128,7 @@ var Api = (function () {
   my.apiFormPost = function(
       args, messages, submitButton, callback, failcallback) {
     my.disableSubmitButton(submitButton);
+
     $.post(
       Env.api_location,
       JSON.stringify(args),
@@ -168,6 +169,7 @@ var Api = (function () {
           } else if (messages.notok.type == 'function') {
             messages.notok.msgfunc(rs.message);
           }
+
           return failcallback();
         }
       }
@@ -471,6 +473,7 @@ var Api = (function () {
 
     // Store some initial high-level game elements
     my.game.gameId = data.gameId;
+    my.game.tournamentId = data.tournamentId;
     my.game.gameState = data.gameState;
     my.game.roundNumber = data.roundNumber;
     my.game.maxWins = data.maxWins;
@@ -669,6 +672,104 @@ var Api = (function () {
     my.cancel_game_result.success = data;
     return true;
   };
+
+  ////////////////////////////////////////////////////////////
+  // Tournament-related methods
+
+  my.getTournsData = function(callbackfunc) {
+    my.tourns = {};
+    var parserargs = [];
+    parserargs.target = my.tourns;
+    parserargs.isSplit = false;
+    my.apiParsePost(
+      {'type': 'loadTourns',},
+      'tourns',
+      my.packageTournData,
+      callbackfunc,
+      callbackfunc,
+      parserargs
+    );
+  };
+
+  my.packageTournData = function(data, _apikey, parserargs) {
+    parserargs.target.tourns = [];
+    parserargs.target.nTourns = data.tournIdArray.length;
+
+    for (var i = 0; i < parserargs.target.nTourns; i++) {
+      var tournInfo = {
+        'tournId': data.tournIdArray[i],
+        'creatorName': data.creatorNameArray[i],
+        'tournType': data.tournTypeArray[i],
+        'tournDescription': data.tournDescriptionArray[i],
+        'nPlayers': data.nPlayersArray[i],
+        'nPlayersJoined': data.nPlayersJoinedArray[i],
+        'maxWins': data.nTargetWinsArray[i],
+        'tournState': data.tournStateArray[i],
+        'status': data.statusArray[i],
+        'roundNumber': data.roundNumberArray[i],
+        'startTime': data.startTimeArray[i],
+        'isCreator': data.isCreatorArray[i],
+        'hasJoined': data.hasJoinedArray[i],
+        'isWatched': data.isWatchedArray[i],
+      };
+
+      parserargs.target.tourns.push(tournInfo);
+    }
+
+    return true;
+  };
+
+  my.getTournData = function(tourn, callback) {
+    activity.tournamentId = tourn;
+    Api.apiParsePost(
+      { type: 'loadTournData', tourn: tourn },
+      'tourn',
+      my.parseTournData,
+      callback,
+      callback
+    );
+  };
+
+  // Utility routine to parse the tournament data returned by the server
+  // Adds tournament data:
+  //   Api.tourn.*: metadata about the entire tournament
+  my.parseTournData = function(data) {
+    // Store some initial high-level tournament elements
+    my.tourn.tournamentId = data.tournamentId;
+    my.tourn.tournamentState = data.tournamentState;
+    my.tourn.roundNumber = data.tournamentRoundNumber;
+    my.tourn.type = data.type;
+    my.tourn.nPlayers = data.nPlayers;
+    my.tourn.maxWins = data.maxWins;
+    my.tourn.description = data.description;
+    my.tourn.playerDataArray = data.playerDataArray;
+    my.tourn.gameIdArrayArray = data.gameIdArrayArray;
+    my.tourn.remainCountArray = data.remainCountArray;
+
+    my.tourn.timestamp = data.timestamp;
+
+    // Do some sanity-checking of the data we have
+    if (activity.tournamentId != my.tourn.tournamentId) {
+      return false;
+    }
+
+    my.tourn.creatorId = data.creatorDataArray.creatorId;
+    my.tourn.creatorName = data.creatorDataArray.creatorName;
+    my.tourn.isCreator = data.isCreator;
+
+    if ($.isNumeric(data.currentPlayerIdx)) {
+      my.tourn.isParticipant = true;
+    } else {
+      my.tourn.isParticipant = false;
+    }
+
+    my.tourn.isWatched = data.isWatched;
+
+    return true;
+  };
+
+  // End of Tournament-related methods
+  ////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////
   // Forum-related methods

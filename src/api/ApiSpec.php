@@ -19,6 +19,7 @@ class ApiSpec {
     const DIE_BACKGROUND_MAX_LENGTH = 10;
     const VACATION_MESSAGE_MAX_LENGTH = 255;
     const GAME_DESCRIPTION_MAX_LENGTH = 255;
+    const TOURNAMENT_DESCRIPTION_MAX_LENGTH = 255;
 
     /**
      * These are API methods that might get called automatically, e.g. via the monitor
@@ -47,6 +48,15 @@ class ApiSpec {
      * @var array
      */
     private $functionArgs = array(
+        'actTourn' => array(
+            'mandatory' => array(
+                'tourn' => 'number',
+                'action' => 'alnum',
+            ),
+            'permitted' => array(
+                'button_names' => 'string',
+            ),
+        ),
         'adjustFire' => array(
             'mandatory' => array(
                 'game' => 'number',
@@ -66,6 +76,12 @@ class ApiSpec {
                     'elem_type' => 'number',
                 ),
             ),
+        ),
+        'cancelOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(),
         ),
         // countPendingGames returns:
         //   count: int,
@@ -135,14 +151,6 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
-        'createUser' => array(
-            'mandatory' => array(
-                'username' => 'alnum',
-                'password' => 'string',
-                'email'    => 'email',
-            ),
-            'permitted' => array(),
-        ),
         'createGame' => array(
             'mandatory' => array(
                 'playerInfoArray' => array(
@@ -176,16 +184,36 @@ class ApiSpec {
                 ),
             ),
         ),
-        'reactToNewGame' => array(
+        'createTournament' => array(
             'mandatory' => array(
-                'gameId' => 'number',
-                'action' => 'string',
+                'tournamentType' => 'string',
+                'nPlayer' => 'number',
+                'maxWins'  => 'number',
+            ),
+            'permitted' => array(
+                'description' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::TOURNAMENT_DESCRIPTION_MAX_LENGTH,
+                ),
+            ),
+        ),
+        'createUser' => array(
+            'mandatory' => array(
+                'username' => 'alnum',
+                'password' => 'string',
+                'email'    => 'email',
             ),
             'permitted' => array(),
         ),
         'dismissGame' => array(
             'mandatory' => array(
                 'gameId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        'dismissTourn' => array(
+            'mandatory' => array(
+                'tournId' => 'number',
             ),
             'permitted' => array(),
         ),
@@ -218,6 +246,12 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'followTourn' => array(
+            'mandatory' => array(
+                'tournId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'forgotPassword' => array(
             'mandatory' => array(
                 'username' => 'alnum',
@@ -232,12 +266,6 @@ class ApiSpec {
                 'buttonName' => 'button',
             ),
         ),
-        'cancelOpenGame' => array(
-            'mandatory' => array(
-                'gameId' => 'number',
-            ),
-            'permitted' => array(),
-        ),
         'loadActiveGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -247,49 +275,6 @@ class ApiSpec {
                 'numberOfPlayers' => 'number',
             ),
             'permitted' => array(),
-        ),
-        'searchGameHistory' => array(
-            'mandatory' => array(
-                'sortColumn' => array(
-                    'arg_type' => 'exactString',
-                    'values' => array(
-                        'gameId',
-                        'playerNameA',
-                        'buttonNameA',
-                        'playerNameB',
-                        'buttonNameB',
-                        'gameStart',
-                        'lastMove',
-                        'winningPlayer',
-                        'status',
-                    ),
-                ),
-                'sortDirection' => array(
-                    'arg_type' => 'exactString',
-                    'values' => array('ASC', 'DESC'),
-                ),
-                'numberOfResults' => 'number',
-                'page' => 'number'
-            ),
-            'permitted' => array(
-                'gameId' => 'number',
-                'playerNameA' => 'alnum',
-                'buttonNameA' => 'button',
-                'playerNameB' => 'alnum',
-                'buttonNameB' => 'button',
-                'gameStartMin' => 'number',
-                'gameStartMax' => 'number',
-                'lastMoveMin' => 'number',
-                'lastMoveMax' => 'number',
-                'winningPlayer' => array(
-                    'arg_type' => 'exactString',
-                    'values' => array('A', 'B', 'Tie'),
-                ),
-                'status' => array(
-                    'arg_type' => 'exactString',
-                    'values' => array('ACTIVE', 'UNSTARTED', 'COMPLETE', 'CANCELLED'),
-                ),
-            ),
         ),
         'loadButtonData' => array(
             'mandatory' => array(),
@@ -440,6 +425,16 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'loadTournData' => array(
+            'mandatory' => array(
+                'tourn' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        'loadTourns' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         'login' => array(
             'mandatory' => array(
                 'username' => 'alnum',
@@ -544,6 +539,13 @@ class ApiSpec {
                 ),
             ),
         ),
+        'reactToNewGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+                'action' => 'string',
+            ),
+            'permitted' => array(),
+        ),
         'reactToReserve' => array(
             'mandatory' => array(
                 'game' => 'number',
@@ -607,6 +609,49 @@ class ApiSpec {
                 'current_password' => 'string',
                 'new_password' => 'string',
                 'new_email' => 'email',
+            ),
+        ),
+        'searchGameHistory' => array(
+            'mandatory' => array(
+                'sortColumn' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array(
+                        'gameId',
+                        'playerNameA',
+                        'buttonNameA',
+                        'playerNameB',
+                        'buttonNameB',
+                        'gameStart',
+                        'lastMove',
+                        'winningPlayer',
+                        'status',
+                    ),
+                ),
+                'sortDirection' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('ASC', 'DESC'),
+                ),
+                'numberOfResults' => 'number',
+                'page' => 'number'
+            ),
+            'permitted' => array(
+                'gameId' => 'number',
+                'playerNameA' => 'alnum',
+                'buttonNameA' => 'button',
+                'playerNameB' => 'alnum',
+                'buttonNameB' => 'button',
+                'gameStartMin' => 'number',
+                'gameStartMax' => 'number',
+                'lastMoveMin' => 'number',
+                'lastMoveMax' => 'number',
+                'winningPlayer' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('A', 'B', 'Tie'),
+                ),
+                'status' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('ACTIVE', 'UNSTARTED', 'COMPLETE', 'CANCELLED'),
+                ),
             ),
         ),
         'setChatVisibility' => array(
@@ -677,6 +722,12 @@ class ApiSpec {
                     'maxlength' => self::GAME_CHAT_MAX_LENGTH,
                 ),
             ),
+        ),
+        'unfollowTourn' => array(
+            'mandatory' => array(
+                'tournId' => 'number',
+            ),
+            'permitted' => array(),
         ),
         'verifyUser' => array(
             'mandatory' => array(
