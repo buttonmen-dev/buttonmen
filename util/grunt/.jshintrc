@@ -19,7 +19,8 @@
     "Env": true,
     "Login": true,
     "moment": true,
-    "Config": true
+    "Config": true,
+    "Newgame": true
   },
 
   "es5": true,
