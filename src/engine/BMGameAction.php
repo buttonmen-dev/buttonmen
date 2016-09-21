@@ -103,8 +103,12 @@ class BMGameAction {
      * @return string
      */
     protected function friendly_message_create_game() {
-        $message = 'Game created by ' .
-                   $this->outputPlayerIdNames[$this->params['creatorId']];
+        if (!$this->params['creatorId']) {
+            $message = 'Game created automatically';
+        } else {
+            $message = 'Game created by ' .
+                       $this->outputPlayerIdNames[$this->params['creatorId']];
+        }
         return $message;
     }
 
