@@ -331,7 +331,11 @@ Newgame.createDescRow = function() {
   return descRow;
 };
 
-Newgame.createButtonOptionsTable = function() {
+Newgame.createButtonOptionsTable = function(doShowOpponent) {
+  if (typeof doShowOpponent === 'undefined') {
+    doShowOpponent = true;
+  }
+
   var buttonOptionsTable = $('<table>', {'id': 'newgame_button_table', });
 
   // Load buttons and recipes into dicts for use in selects
@@ -344,6 +348,7 @@ Newgame.createButtonOptionsTable = function() {
     'no': true,
   };
   Newgame.activity.anyUnimplementedButtons = false;
+
   $.each(Api.button.list, function(button, buttoninfo) {
     Newgame.activity.buttonSets[buttoninfo.buttonSet] = true;
     $.each(buttoninfo.dieSkills, function(i, dieSkill) {
@@ -366,43 +371,59 @@ Newgame.createButtonOptionsTable = function() {
   if (!('playerButton' in Newgame.activity)) {
     Newgame.activity.playerButton = null;
   }
-  if (!('opponentButton' in Newgame.activity)) {
-    Newgame.activity.opponentButton = null;
+  if (doShowOpponent) {
+    if (!('opponentButton' in Newgame.activity)) {
+      Newgame.activity.opponentButton = null;
+    }
   }
 
   // Set the initial list of selectable buttons for each player
   Newgame.activity.buttonList = {};
   Newgame.updateButtonList('player', null);
-  Newgame.updateButtonList('opponent', null);
+
+  if (doShowOpponent) {
+    Newgame.updateButtonList('opponent', null);
+  }
 
   // table header
-  var headerRow = $('<tr>');
-  headerRow.append($('<th>', {'text': 'Your button:', }));
-  headerRow.append($('<th>', {'text': 'Opponent\'s button:', }));
-  buttonOptionsTable.append(headerRow);
+  if (doShowOpponent) {
+    var headerRow = $('<tr>');
+    headerRow.append($('<th>', {'text': 'Your button:', }));
+    headerRow.append($('<th>', {'text': 'Opponent\'s button:', }));
+    buttonOptionsTable.append(headerRow);
+  }
 
   // button limit rows
   buttonOptionsTable.append(Newgame.getButtonLimitRow(
     'Button set:',
     'button_sets',
-    Newgame.activity.buttonSets
+    Newgame.activity.buttonSets,
+    true,
+    doShowOpponent
   ));
   buttonOptionsTable.append(Newgame.getButtonLimitRow(
     'Tournament legal:',
     'tourn_legal',
     Newgame.activity.tournLegal,
-    false
+    false,
+    doShowOpponent
   ));
   buttonOptionsTable.append(Newgame.getButtonLimitRow(
     'Die skill:',
     'die_skills',
-    Newgame.activity.dieSkills
+    Newgame.activity.dieSkills,
+    true,
+    doShowOpponent
   ));
 
   // button selection row
   var selectRow = $('<tr>');
   selectRow.append(Newgame.getButtonSelectTd('player', true));
-  selectRow.append(Newgame.getButtonSelectTd('opponent', true));
+
+  if (doShowOpponent) {
+    selectRow.append(Newgame.getButtonSelectTd('opponent', true));
+  }
+
   buttonOptionsTable.append(selectRow);
 
   // custom button recipe row
@@ -894,15 +915,19 @@ Newgame.reactToButtonChange = function(player, button) {
   }
 };
 
-Newgame.getButtonLimitRow = function(desctext, limitid, choices, multi) {
+Newgame.getButtonLimitRow = function(
+  desctext, limitid, choices, multi, doShowOpponent
+) {
   // Default to multi-selects
   if (multi === undefined) { multi = true; }
 
   var limitRow = $('<tr>');
   limitRow.append(Newgame.getButtonLimitTd(
     'player', desctext, limitid, choices, multi));
-  limitRow.append(Newgame.getButtonLimitTd(
-    'opponent', desctext, limitid, choices, multi));
+  if (doShowOpponent) {
+    limitRow.append(Newgame.getButtonLimitTd(
+      'opponent', desctext, limitid, choices, multi));
+  }
   return limitRow;
 };
 
