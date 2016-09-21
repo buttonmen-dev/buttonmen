@@ -177,7 +177,7 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
             3
         );
         $this->assertNull($retval);
-        $this->assertEquals('Game create failed because a button name was not valid.',
+        $this->assertEquals('The first button needs to be set.',
                             $this->object->message);
 
         // attempt to create a game with no first player
