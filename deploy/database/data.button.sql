@@ -155,7 +155,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (16, 'Oni',                    '(4) (10) f(12) f(12) (V)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (17, 'Spite',                  'p(6) (6) (6) s(X) (X)',                           0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (18, 'Super Germ',             'p(10) p(12) p(16) p(20) p(24) p(30) p(30) p(X)',  0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(19, 'Cheese Weasel',          '(6) (8) (12) (16) (20)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(19, 'Cheese Weasel',          '(6) (8) (12) (16) (20)',                          1, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # The old site used raGe dice instead of Game dice in the following recipes.
 (20, 'Delt',                    'R(4) R(4) (10) (12) R(X)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (21, 'Reggie',                  '(8) (10) R(12) (20) R(20)',                       0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
