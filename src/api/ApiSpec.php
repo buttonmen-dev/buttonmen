@@ -276,6 +276,14 @@ class ApiSpec {
             'permitted' => array(
                 'buttonName' => 'button',
                 'buttonSet' => 'string',
+                'forceImplemented' => 'boolean',
+                'tagArray' => array(
+                    'arg_type' => 'array',
+                    'minlength' => 1,
+                    'has_keys' => TRUE,
+                    'key_type' => 'alnum',
+                    'elem_type' => 'boolean',
+                ),
             ),
         ),
         'loadButtonSetData' => array(

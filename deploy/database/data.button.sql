@@ -1358,3 +1358,11 @@ UPDATE button SET flavor_text="Sagittarius is a philosopher with a tendency to w
 UPDATE button SET flavor_text="Scorpio understands deeper layers of the psyche but is unable to communicate this so she is often misjudged. She is passionate and sometimes intrigued by the dark side of life. She likes the hero, secrets, being in opposition, and beating people up." WHERE name="Scorpio";
 UPDATE button SET flavor_text="Taurus is stubborn by nature and will stand her ground to the bitter end. She is full of strength, stamina and will. She loves to teach others patiently, is endlessly generous with her time, and seeks pleasure in beating people up." WHERE name="Taurus";
 UPDATE button SET flavor_text="Virgo is delightful to chat with due to her charm and her remarkable memory. She is an excellent teammate and works well with others. She needs balance in her life, otherwise she becomes short-tempered and impatient, and starts beating people up." WHERE name="Virgo";
+
+INSERT INTO tag (name) VALUES ('exclude_from_random');
+
+INSERT INTO button_tag_map (button_id, tag_id)
+VALUES (
+  (SELECT id FROM button WHERE name = 'Dead Guy'),
+  (SELECT id FROM tag WHERE name = 'exclude_from_random')
+);
