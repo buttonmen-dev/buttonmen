@@ -287,7 +287,7 @@ Overview.addTableStructure = function(tableClass, sectionHeader, showDismiss) {
     // add table header
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
-    headerRow.append($('<th>', {'text': 'Game #', }));
+    headerRow.append($('<th>', {'text': 'Game', }));
     headerRow.append($('<th>', {'html': 'Your Button', }));
     headerRow.append($('<th>', {'html': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
