@@ -207,7 +207,7 @@ test("test_Overview.addTableStructure", function(assert) {
         '<table class="gameList testTableClass">' +
           '<thead>' +
             '<tr>' +
-              '<th>Game #</th>' +
+              '<th>Game</th>' +
               '<th>Your Button</th>' +
               '<th>Opponent\'s Button</th>' +
               '<th>Opponent</th>' +
@@ -234,7 +234,7 @@ test("test_Overview.addTableStructure", function(assert) {
         '<table class="gameList testTableClass">' +
           '<thead>' +
             '<tr>' +
-              '<th>Game #</th>' +
+              '<th>Game</th>' +
               '<th>Your Button</th>' +
               '<th>Opponent\'s Button</th>' +
               '<th>Opponent</th>' +
