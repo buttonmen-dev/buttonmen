@@ -14801,7 +14801,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Move 06 - responder004 submits die values
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitDieValues(
-            array(0, 0, 0, 0, 0, 15),
+            array(15),
             $gameId, 2, array('X' => 20), NULL);
         $_SESSION = $this->mock_test_user_login('responder003');
 
@@ -14868,8 +14868,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => 2, 'sides' => 6, 'recipe' => '(6)', 'properties' => array('WasJustCaptured')),
             array('value' => 7, 'sides' => 20, 'recipe' => 'B(20)', 'properties' => array('WasJustCaptured')),
         );
-        $expData['playerDataArray'][0]['canStillWin'] = NULL;
-        $expData['playerDataArray'][1]['canStillWin'] = NULL;
+        $expData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][1]['canStillWin'] = TRUE;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
      }
