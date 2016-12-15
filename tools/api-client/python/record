@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+
+##### record.py
+#
+# Show overall record of a button or a player.
+
+### Imports
+
+# Import stuff from the future.
+
+from __future__ import division
+
+# Import regular stuff.
+
+import ConfigParser
+import argparse
+import os
+import sys
+
+# Import Button Men utilities.
+
+sys.path.append('lib')
+import bmutils
+
+### Functions
+
+## parse_arguments
+
+def parse_arguments():
+
+  # Set up the main parser and subparser.
+
+  parser = argparse.ArgumentParser(description="Show record of a button or a player.")
+
+  subparsers = parser.add_subparsers(dest='type', title="Type of thing to show",
+                                     help="more help: record <subcommand> --help")
+
+  # Set up the button subparser.
+
+  parser_button = subparsers.add_parser('button', help="show record of a button")
+
+  parser_button.add_argument('name', help="button to show")
+
+  # Set up the player subparser.
+
+  parser_player = subparsers.add_parser('player', help="show record of a player")
+
+  parser_player.add_argument('name', help="player to show")
+
+  # Add general optional arguments.
+
+  parser.add_argument('--config', '-c',
+                      default='~/.bmrc',
+                      help="config file containing site parameters")
+
+  parser.add_argument('--site',
+                      default = 'www',
+                      help = "site to check ('www' by default)")
+
+  # Return the parser.
+
+  return parser.parse_args()
+          
+## print_record
+#
+# Print the overall record of a thing.
+
+def print_record(bmconn, type, thing):
+
+  apicmd = { 'type': 'searchGameHistory',
+             'sortColumn': 'lastMove',
+             'sortDirection': 'DESC',
+             'numberOfResults': 20,
+             'page': 1,
+             type + 'NameA': thing,
+             'status': 'COMPLETE' }
+
+  result = bmconn._make_request(apicmd)
+
+  # If we don't get an ok result, print some helpful info, and give up.
+
+  if result.status != 'ok':
+    print "WARNING: Couldn't get data about {0}".format(thing)
+    print "Result status: {0}".format(result.status)
+    print "Result message: {0}\n".format(result.message)
+    return
+
+  # If we're still here, set some variables, figure out the win
+  # percentage, and print the answer.
+
+  wins = result.data['summary']['gamesWonA']
+  losses = result.data['summary']['gamesWonB']
+  games = result.data['summary']['gamesCompleted']
+
+  try:
+    winpct = (wins / games) * 100
+  except ZeroDivisionError:
+    winpct = 0
+
+  print "{0} overall record: {1} - {2} ({3:.2f}%)".format(thing, wins, losses, winpct)
+
+### Main body
+
+args = parse_arguments()
+
+# Connect to the site.
+
+try:
+  bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
+except ConfigParser.NoSectionError as e:
+  print "ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site)
+  print "(Exception: {0}: {1})".format(e.__module__, e.message)
+  sys.exit(1)
+
+if not bmconn.verify_login():
+  print "ERROR: Could not log in to {0}".format(args.site)
+  sys.exit(1)
+
+# Print the overall record of the thing.
+
+print_record (bmconn, args.type, args.name)
