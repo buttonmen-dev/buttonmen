@@ -207,7 +207,7 @@ test("test_Overview.addTableStructure", function(assert) {
         '<table class="gameList testTableClass">' +
           '<thead>' +
             '<tr>' +
-              '<th>Game #</th>' +
+              '<th>Game</th>' +
               '<th>Your Button</th>' +
               '<th>Opponent\'s Button</th>' +
               '<th>Opponent</th>' +
@@ -234,7 +234,7 @@ test("test_Overview.addTableStructure", function(assert) {
         '<table class="gameList testTableClass">' +
           '<thead>' +
             '<tr>' +
-              '<th>Game #</th>' +
+              '<th>Game</th>' +
               '<th>Your Button</th>' +
               '<th>Opponent\'s Button</th>' +
               '<th>Opponent</th>' +
@@ -287,7 +287,7 @@ test("test_Overview.addGameCol", function(assert) {
   assert.equal(
     gameRow.html(),
     '<td style=\"background-color: #fedcba\">' +
-      '<a href=\"game.html?game=500\">Play Game 500</a>' +
+      '<a href=\"game.html?game=500\">Play 500</a>' +
     '</td>'
   );
 
@@ -303,7 +303,7 @@ test("test_Overview.addGameCol", function(assert) {
   assert.equal(
     gameRow.html(),
     '<td style=\"background-color: #abcdef\">' +
-      '<a href=\"game.html?game=500\">View Game 500</a>' +
+      '<a href=\"game.html?game=500\">View 500</a>' +
     '</td>'
   );
   assert.ok(!gameRow.hasClass('staleGame'));
@@ -320,7 +320,7 @@ test("test_Overview.addGameCol", function(assert) {
   assert.equal(
     gameRow.html(),
     '<td style=\"background-color: #abcdef\">' +
-      '<a href=\"game.html?game=500\">View Game 500</a>' +
+      '<a href=\"game.html?game=500\">View 500</a>' +
     '</td>'
   );
   assert.ok(gameRow.hasClass('staleGame'));

@@ -155,7 +155,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (16, 'Oni',                    '(4) (10) f(12) f(12) (V)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (17, 'Spite',                  'p(6) (6) (6) s(X) (X)',                           0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (18, 'Super Germ',             'p(10) p(12) p(16) p(20) p(24) p(30) p(30) p(X)',  0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-(19, 'Cheese Weasel',          '(6) (8) (12) (16) (20)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+(19, 'Cheese Weasel',          '(6) (8) (12) (16) (20)',                          1, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # The old site used raGe dice instead of Game dice in the following recipes.
 (20, 'Delt',                    'R(4) R(4) (10) (12) R(X)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (21, 'Reggie',                  '(8) (10) R(12) (20) R(20)',                       0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -689,7 +689,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (574, 'Carrow',          's(4) s(8) s(12) s(20) s(X)',        0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
 (575, 'Nara',            '(6) (8) (12) (20) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
-(576, 'Peri',            '(6) (6) (10) (X) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
+(576, 'Perf',            '(6) (6) (10) (X) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
 (577, 'Glorion',         '(10) (12) (16) (20) (X)',           0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
 (578, 'The Assassin',    '(6) (10) p(10) (12) s(X)',          0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
 (579, 'Wren',            '(4) (8) (12) (12) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="ZOECon"));
