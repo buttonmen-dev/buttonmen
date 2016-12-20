@@ -80,13 +80,13 @@ test("test_Game.showLoggedInPage", function(assert) {
   var getCurrentGameCalled = false;
   Game.showStatePage = function() {
     assert.ok(getCurrentGameCalled, "Game.getCurrentGame is called before Game.showStatePage");
-  }
+  };
   Game.getCurrentGame = function(callback) {
     getCurrentGameCalled = true;
     assert.equal(callback, Game.showStatePage,
       "Game.getCurrentGame is called with Game.showStatePage as an argument");
     callback();
-  }
+  };
 
   Game.showLoggedInPage();
   var item = document.getElementById('game_page');
@@ -275,7 +275,7 @@ test("test_Game.showStatePage_turn_active", function(assert) {
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
     assert.ok(!Game.page.is('.compactMode'),
-      "The created page should be in normal mode")
+      "The created page should be in normal mode");
     start();
   });
 });
@@ -290,7 +290,7 @@ test("test_Game.showStatePage_turn_active_compactMode", function(assert) {
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
     assert.ok(Game.page.is('.compactMode'),
-      "The created page should be in compact mode")
+      "The created page should be in compact mode");
     start();
   });
 });
@@ -445,7 +445,7 @@ test("test_Game.buttonTableWithoutDice", function(assert) {
       } else if (idx === 1) {
         assert.ok($(this).hasClass('button_opponent'));
       }
-    })
+    });
     // the contents of the tds is further tested in test_Game.buttonImageDisplay
     start();
   });
@@ -1433,7 +1433,6 @@ test("test_Game.pageAddDieBattleTable", function(assert) {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
-    var htmlout = Game.page.html();
     assert.ok(Game.page.find('div.battle_mat_player').length > 0,
       "die battle table should insert player battle mat");
     assert.ok(Game.page.find('div.battle_mat_opponent').length > 0,
@@ -1442,18 +1441,56 @@ test("test_Game.pageAddDieBattleTable", function(assert) {
   });
 });
 
+test("test_Game.pageAddTurboTable", function(assert) {
+  stop();
+  // james: currently incomplete because I need the JSON for an appropriate
+  // test game
+  start();
+});
+
+test("test_Game.createTurboSelector", function(assert) {
+  var select = Game.createTurboSelector(3, [1,30]);
+
+  assert.ok(select.is('select'), 'Turbo selector must be a select field');
+  assert.equal(select.attr('id'), 'turbo_element3');
+  assert.equal(select.attr('name'), 'turbo_element3');
+  assert.equal(select.attr('pos'), 3);
+
+  var children = select.children();
+
+  assert.equal(children.length, 3);
+
+  var child1 = children.eq(0);
+  assert.ok(child1.is('option'), 'First element must be an option');
+  assert.equal(child1.attr('value'), '');
+  assert.equal(child1.attr('label'), '');
+  assert.equal(child1.text(), '');
+
+  var child2 = children.eq(1);
+  assert.ok(child2.is('option'), 'Second element must be an option');
+  assert.equal(child2.attr('value'), 1);
+  assert.equal(child2.attr('label'), 1);
+  assert.equal(child2.text(), 1);
+
+  var child3 = children.eq(2);
+  assert.ok(child3.is('option'), 'Third element must be an option');
+  assert.equal(child3.attr('value'), 30);
+  assert.equal(child3.attr('label'), 30);
+  assert.equal(child3.text(), 30);
+});
+
 test("test_Game.gamePlayerStatus", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
   Game.getCurrentGame(function() {
     var statusJQuery = Game.gamePlayerStatus('player', false, true);
     var statusPropArr = BMTestUtils.DOMNodePropArray(statusJQuery[0]);
-    var expectedPropArr = [
-      "DIV", { "class": "status_player" }, [
-        [ "DIV", {}, [ "W/L/T: 1/1/0 (3)", "foobar", [ "B", {}, [ "Score: 13 (-30.7 sides)" ] ] ] ],
-        [ "DIV", {}, [ [ "SPAN", {}, [ "Dice captured: q(Z=4)" ] ] ] ],
-      ]
-    ];
+//    var expectedPropArr = [
+//      "DIV", { "class": "status_player" }, [
+//        [ "DIV", {}, [ "W/L/T: 1/1/0 (3)", "foobar", [ "B", {}, [ "Score: 13 (-30.7 sides)" ] ] ] ],
+//        [ "DIV", {}, [ [ "SPAN", {}, [ "Dice captured: q(Z=4)" ] ] ] ],
+//      ]
+//    ];
     assert.equal(statusPropArr[0], "DIV", "Game.gamePlayerStatus() returns a DIV");
     assert.equal(statusPropArr[1]['class'], "status_player", "Game.gamePlayerStatus() sets correct class for active player");
 
@@ -2376,6 +2413,55 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
     var html = $('<div>').append(dieobj.clone()).remove().html();
     assert.ok(html.match('die_container die_container_alive hide_focus unselected_player'),
       "die is unselected after second click");
+
+    start();
+  });
+});
+
+test("test_Game.updateTurboVisibility", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+
+    var dieDiv = $('<div>', {
+      'class': 'turbo unselected_player',
+      'id': 'playerIdx_0_dieIdx_2',
+    });
+
+    var turboDiv = $('<div>', {'class': 'turbo_div'});
+    var turboSpan = $('<span>', {'class': 'turbo_span'});
+    var turboSubspan1 = $('<span>', {
+      'class': 'turbo_subspan',
+      'id': 'turbo_subspan1',
+      'text': 'turbo subspan 1',
+    });
+    var turboSubspan2 = $('<span>', {
+      'class': 'turbo_subspan',
+      'id': 'turbo_subspan2',
+      'text': 'turbo subspan 2',
+    });
+
+    turboSpan.append(turboSubspan1);
+    turboSpan.append(turboSubspan2);
+    turboDiv.append(turboSpan);
+
+    Game.page.append(dieDiv);
+    Game.page.append(turboDiv);
+
+    Login.arrangePage(Game.page, null, null);
+    Game.updateTurboVisibility();
+
+    assert.ok(!$('.turbo_div').is(':visible'), 'turbo div should be invisible');
+    assert.ok(!$('#turbo_subspan1').is(':visible'), 'turbo subspan 1 should be invisible');
+    assert.ok(!$('#turbo_subspan2').is(':visible'), 'turbo subspan 2 should be invisible');
+
+    $('.turbo').toggleClass('selected unselected_player');
+    Game.updateTurboVisibility();
+
+    assert.ok($('.turbo_div').is(":visible"), 'turbo div should be visible');
+    assert.ok(!$('#turbo_subspan1').is(':visible'), 'turbo subspan 1 should be invisible');
+    assert.ok($('#turbo_subspan2').is(':visible'), 'turbo subspan 2 should be visible');
 
     start();
   });

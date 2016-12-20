@@ -6,7 +6,8 @@
  */
 
 /**
- * This class contains code specific to the turbo die skill
+ * This class contains code specific to the turbo die skill.
+ * Note that this supports both turbo swing and turbo option.
  */
 class BMSkillTurbo extends BMSkill {
     /**
@@ -17,6 +18,14 @@ class BMSkillTurbo extends BMSkill {
      */
     public static $hooked_methods = array();
 
+    /**
+     * Determine if a skill abbreviation should appear before the die recipe
+     *
+     * @return bool
+     */
+    public static function do_print_skill_preceding() {
+        return FALSE;
+    }
 
     /**
      * Description of skill

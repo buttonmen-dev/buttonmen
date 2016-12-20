@@ -56,13 +56,13 @@ test("test_Profile.showLoggedInPage", function(assert) {
   var getProfileCalled = false;
   Profile.showPage = function() {
     assert.ok(getProfileCalled, "Profile.getProfile is called before Profile.showPage");
-  }
+  };
   Profile.getProfile = function(callback) {
     getProfileCalled = true;
     assert.equal(callback, Profile.showPage,
       "Profile.getProfile is called with Profile.showPage as an argument");
     callback();
-  }
+  };
 
   Profile.showLoggedInPage();
   var item = document.getElementById('profile_page');

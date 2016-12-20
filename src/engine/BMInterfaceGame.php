@@ -751,36 +751,30 @@ class BMInterfaceGame extends BMInterface {
     /**
      * Submit a turn
      *
-     * @param int $playerId
-     * @param int $gameId
-     * @param int $roundNumber
-     * @param int $submitTimestamp
-     * @param array $dieSelectStatus
-     * @param string $attackType
-     * @param int $attackerIdx
-     * @param int $defenderIdx
-     * @param string $chat
+     * @param array $args
      * @return bool
+     *
+     * $args contains the following parameters:
+     *   int playerId
+     *   int game
+     *   int roundNumber
+     *   int Timestamp
+     *   array dieSelectStatus
+     *   string attackType
+     *   int attackerIdx
+     *   int defenderIdx
+     *   string chat
+     *   array turboSizeArray
      */
-    public function submit_turn(
-        $playerId,
-        $gameId,
-        $roundNumber,
-        $submitTimestamp,
-        $dieSelectStatus,
-        $attackType,
-        $attackerIdx,
-        $defenderIdx,
-        $chat
-    ) {
+    public function submit_turn($args) {
         try {
-            $game = $this->load_game($gameId);
+            $game = $this->load_game($args['game']);
             if (!$this->is_action_current(
                 $game,
                 BMGameState::START_TURN,
-                $submitTimestamp,
-                $roundNumber,
-                $playerId
+                $args['timestamp'],
+                $args['roundNumber'],
+                $args['playerId']
             )) {
                 $this->set_message('It is not your turn to attack right now');
                 return NULL;
@@ -789,7 +783,7 @@ class BMInterfaceGame extends BMInterface {
             // N.B. dieSelectStatus should contain boolean values of whether each
             // die is selected, starting with attacker dice and concluding with
             // defender dice
-
+            //
             // attacker and defender indices are provided in POST
             $attackers = array();
             $defenders = array();
@@ -797,43 +791,57 @@ class BMInterfaceGame extends BMInterface {
             $defenderDieIdx = array();
 
             // divide selected dice up into attackers and defenders
-            $nAttackerDice = count($game->playerArray[$attackerIdx]->activeDieArray);
-            $nDefenderDice = count($game->playerArray[$defenderIdx]->activeDieArray);
+            $nAttackerDice = count($game->playerArray[$args['attackerIdx']]->activeDieArray);
+            $nDefenderDice = count($game->playerArray[$args['defenderIdx']]->activeDieArray);
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
                 if (filter_var(
-                    $dieSelectStatus["playerIdx_{$attackerIdx}_dieIdx_{$dieIdx}"],
+                    $args['dieSelectStatus']["playerIdx_{$args['attackerIdx']}_dieIdx_{$dieIdx}"],
                     FILTER_VALIDATE_BOOLEAN
                 )) {
-                    $attackers[] = $game->playerArray[$attackerIdx]->activeDieArray[$dieIdx];
+                    $attackers[] = $game->playerArray[$args['attackerIdx']]->activeDieArray[$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }
             }
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
                 if (filter_var(
-                    $dieSelectStatus["playerIdx_{$defenderIdx}_dieIdx_{$dieIdx}"],
+                    $args['dieSelectStatus']["playerIdx_{$args['defenderIdx']}_dieIdx_{$dieIdx}"],
                     FILTER_VALIDATE_BOOLEAN
                 )) {
-                    $defenders[] = $game->playerArray[$defenderIdx]->activeDieArray[$dieIdx];
+                    $defenders[] = $game->playerArray[$args['defenderIdx']]->activeDieArray[$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
             }
 
             // populate BMAttack object for the specified attack
-            $game->attack = array($attackerIdx, $defenderIdx,
+            $game->attack = array($args['attackerIdx'], $args['defenderIdx'],
                                   $attackerDieIdx, $defenderDieIdx,
-                                  $attackType);
-            $attack = BMAttack::create($attackType);
+                                  $args['attackType']);
+            $attack = BMAttack::create($args['attackType']);
 
             foreach ($attackers as $attackDie) {
                 $attack->add_die($attackDie);
             }
 
-            $game->add_chat($playerId, $chat);
+            $game->add_chat($args['playerId'], $args['chat']);
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
+                $game->proceed_to_next_user_action();
+
+                if (BMGameState::CHOOSE_TURBO_SWING == $game->gameState) {
+                    if (!$this->set_turbo_sizes(
+                        $args['playerId'],
+                        $game,
+                        $args['roundNumber'],
+                        $args['timestamp'],
+                        $args['turboVals']
+                    )) {
+                        return NULL;
+                    }
+                }
+
                 $this->save_game($game);
 
                 // On success, don't set a message, because one will be set from the action log
@@ -1248,6 +1256,56 @@ class BMInterfaceGame extends BMInterface {
                 $e->getMessage()
             );
             $this->set_message('Internal error while adjusting fire dice');
+            return FALSE;
+        }
+    }
+
+    /**
+     * Set turbo die sizes
+     *
+     * @param int $playerId
+     * @param BMGame $game
+     * @param int $roundNumber
+     * @param int $submitTimestamp
+     * @param array $turboSizeArray
+     * @return bool
+     */
+    public function set_turbo_sizes(
+        $playerId,
+        $game,
+        $roundNumber,
+        $submitTimestamp,
+        $turboSizeArray
+    ) {
+        try {
+            if (empty($turboSizeArray)) {
+                $this->set_message('You attacked with a turbo die but did not specify any turbo die values');
+                return FALSE;
+            }
+
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_TURBO_SWING,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
+                $this->set_message('Turbo die sizes cannot be set');
+                return FALSE;
+            }
+
+            if (!$game->set_turbo_sizes($turboSizeArray)) {
+                $this->set_message($game->message);
+                return FALSE;
+            }
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::set_turbo_sizes: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while setting turbo sizes');
             return FALSE;
         }
     }

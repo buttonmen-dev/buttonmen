@@ -62,11 +62,11 @@ test("test_Buttons.showLoggedInPage", function(assert) {
   Api.getButtonSetData = function(passedSetName) {
     assert.equal(passedSetName, null,
       'No set name should get passed to Api.getButtonSetData');
-  }
+  };
 
   Api.getButtonData = function() {
     assert.ok(false, 'Api.getButtonData should not be invoked');
-  }
+  };
 
   Buttons.showLoggedInPage();
 });
@@ -80,11 +80,11 @@ test("test_Buttons.showLoggedInPage_set", function(assert) {
   Api.getButtonSetData = function(passedSetName) {
     assert.equal(passedSetName, expectedSetName,
       'Set name should get passed to Api.getButtonSetData');
-  }
+  };
 
   Api.getButtonData = function() {
     assert.ok(false, 'Api.getButtonData should not be invoked');
-  }
+  };
 
   Buttons.showLoggedInPage();
 });
@@ -98,11 +98,11 @@ test("test_Buttons.showLoggedInPage_button", function(assert) {
   Api.getButtonData = function(passedButtonName) {
     assert.equal(passedButtonName, expectedButtonName,
       'Button name should get passed to Api.getButtonData');
-  }
+  };
 
   Api.getButtonSetData = function() {
     assert.ok(false, 'Api.getButtonSetData should not be invoked');
-  }
+  };
 
   Buttons.showLoggedInPage();
 });
@@ -208,7 +208,6 @@ test("test_Buttons.showSetList", function(assert) {
       },
       'Fantasy': {
         'setName': 'Fantasy',
-        'setName': 'Soldiers',
         'numberOfButtons': '14',
         'dieSkills': [ ],
         'dieTypes': [ 'Option' ],
@@ -216,7 +215,6 @@ test("test_Buttons.showSetList", function(assert) {
       },
       'Samurai': {
         'setName': 'Samurai',
-        'setName': 'Soldiers',
         'numberOfButtons': '7',
         'dieSkills': [ 'Focus' ],
         'dieTypes': [ 'V Swing', 'X Swing' ],
