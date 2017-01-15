@@ -422,6 +422,13 @@ Forum.arrangePage = function() {
 // These are events that are triggered by user actions
 
 Forum.formLinkToSubPage = function(e) {
+  // Don't let confused browsers execute click events for things that 
+  // aren't proper clicks!
+  var button = (e.which || e.button);
+  if (button > 1 || e.ctrlKey || e.metaKey || e.shiftKey) {
+    return;
+  }
+
   e.preventDefault();
   var state = Forum.readStateFromElement(this);
   Env.history.pushState(state, Forum.pageTitle, Forum.buildUrlHash(state));

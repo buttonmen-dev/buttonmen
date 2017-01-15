@@ -287,7 +287,7 @@ Overview.addTableStructure = function(tableClass, sectionHeader, showDismiss) {
     // add table header
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
-    headerRow.append($('<th>', {'text': 'Game #', }));
+    headerRow.append($('<th>', {'text': 'Game', }));
     headerRow.append($('<th>', {'html': 'Your Button', }));
     headerRow.append($('<th>', {'html': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Opponent', }));
@@ -378,7 +378,7 @@ Overview.addGameCol = function(gameRow, gameInfo, gameType) {
   gameLinkTd.append($('<a>', {
     'href': 'game.html?game=' + gameInfo.gameId,
     'text': Overview.linkTextStub(gameInfo, gameType) +
-            ' Game ' + gameInfo.gameId,
+            ' ' + gameInfo.gameId,
   }));
 
   gameRow.append(gameLinkTd);
