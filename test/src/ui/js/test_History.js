@@ -71,18 +71,18 @@ test("test_History.showLoggedInPage", function(assert) {
   History.showPage = function() {
     assert.ok(getFiltersCalled, "History.getFilters is called before History.showPage");
     assert.ok(getHistoryCalled, "History.getHistory is called before History.showPage");
-  }
+  };
   History.getFilters = function(callback) {
     getFiltersCalled = true;
     assert.ok(true, "History.getFilters is called");
     callback();
-  }
+  };
   History.getHistory = function(callback) {
     getHistoryCalled = true;
     assert.equal(callback, History.showPage,
       "History.getHistory is called with History.showPage as an argument");
     callback();
-  }
+  };
 
   History.showLoggedInPage();
 
@@ -211,13 +211,13 @@ test("test_History.buildSearchButtonDiv", function(assert) {
   }));
   var div = History.buildSearchButtonDiv();
   var button = div.find('#searchButton');
-  assert.ok(button.length > 0, "Search button is created")
+  assert.ok(button.length > 0, "Search button is created");
 });
 
 test("test_History.buildHiddenFields", function(assert) {
   var div = History.buildHiddenFields();
   var button = div.find('#parameter_page');
-  assert.ok(button.length > 0, "Page number field is created")
+  assert.ok(button.length > 0, "Page number field is created");
 });
 
 test("test_History.buildResultsTableHeader", function(assert) {

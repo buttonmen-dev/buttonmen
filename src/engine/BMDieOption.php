@@ -137,8 +137,15 @@ class BMDieOption extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                $skillStr .= "$skill ";
+                if ('Turbo' != $skill) {
+                    $skillStr .= "$skill ";
+                }
             }
+        }
+
+        $turboStr = '';
+        if ($this->has_skill('Turbo')) {
+            $turboStr = 'Turbo ';
         }
 
         $sideStr = '';
@@ -157,7 +164,7 @@ class BMDieOption extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}Option Die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$turboStr}Option Die{$sideStr}{$valueStr}";
 
         return $result;
     }

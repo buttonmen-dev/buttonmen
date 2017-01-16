@@ -142,7 +142,7 @@ class BMClient():
       args['previousGameId'] = use_prev_game
     return self._make_request(args)
 
-  def submit_turn(self, gameId, attackerIdx, defenderIdx, dieSelectStatus, attackType, roundNumber, timestamp, chat=''):
+  def submit_turn(self, gameId, attackerIdx, defenderIdx, dieSelectStatus, attackType, roundNumber, timestamp, turboVals, chat=''):
     args = {
       'type': 'submitTurn',
       'game': gameId,
@@ -155,6 +155,8 @@ class BMClient():
     }
     for statkey in sorted(dieSelectStatus.keys()):
       args['dieSelectStatus[%s]' % statkey] = dieSelectStatus[statkey]
+    for sizekey in sorted(turboVals.keys()):
+      args['turboVals[%s]' % sizekey] = turboVals[sizekey]
     return self._make_request(args)
 
   def submit_die_values(self, gameId, swingArray, optionArray, roundNumber, timestamp):

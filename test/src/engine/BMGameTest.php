@@ -866,7 +866,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // manually set die values
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -937,7 +937,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // Set initial die values
         $BM_RAND_VALS = array(4, 6, 6, 6, 4, 4, 4, 4, 4, 4);
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // check that a reaction to initiative cannot yet occur
         $this->assertFalse(
@@ -1033,7 +1033,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // specify initial die values
         $BM_RAND_VALS = array(4, 4, 4, 4, 5, 4, 4, 4, 4, 4);
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // check that a reaction to initiative cannot yet occur
         $this->assertFalse(
@@ -1156,7 +1156,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // manually set die values
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -1230,7 +1230,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // manually set die values
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -1296,7 +1296,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // check that a reaction to initiative cannot yet occur
         $this->assertFalse(
@@ -1535,7 +1535,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = $this->object;
         $game->buttonArray = array($button1, $button2);
 
-        $game->proceed_to_next_user_action(BMGameState::DETERMINE_INITIATIVE);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::DETERMINE_INITIATIVE));
 
         // manually set die values
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -1619,7 +1619,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activePlayerIdx = 0;
         $this->object->waitingOnActionArray = array(FALSE, FALSE);
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $this->object->gameState);
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $this->object->gameState);
         //james: need to check that the attack has been carried out
     }
 
@@ -5755,6 +5755,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
         $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $game->gameState);
+
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $game->gameState);
+
+        $game->update_game_state();
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
 
         $game->do_next_step();
@@ -6520,6 +6526,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
         $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
 
         $game->do_next_step();
@@ -6543,6 +6553,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $game->do_next_step();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $game->gameState);
+        $game->do_next_step();
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
@@ -6574,7 +6588,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->do_next_step();
         $this->assertEquals(BMGameState::END_ROUND, $game->gameState);
 
-        $game->proceed_to_next_user_action(BMGameState::START_TURN);
+        $game->proceed_to_next_user_action(array('gameStateBreakpoint' => BMGameState::START_TURN));
         $game->do_next_step();
         $this->assertEquals(1, array_sum($game->waitingOnActionArray));
 
@@ -9709,6 +9723,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->update_game_state();
 
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $game->gameState);
+        $game->do_next_step();
+        $game->update_game_state();
+
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
         $this->assertNull($game->firingAmount);
         $this->assertTrue($game->activeDieArrayArray[0][0]->has_flag('IsAttacker'));
@@ -9797,6 +9815,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test that a valid turndown is possible
         $game->attack = array(0, 1, array(0, 1, 2), array(0), 'Skill');
         $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->update_game_state();
+
+        $this->assertEquals(BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP, $game->gameState);
+        $game->do_next_step();
         $game->update_game_state();
 
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);

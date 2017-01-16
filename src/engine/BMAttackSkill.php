@@ -165,10 +165,10 @@ class BMAttackSkill extends BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @param double $helpValue
+     * @param array $args
      * @return bool
      */
-    public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
+    public function validate_attack($game, array $attackers, array $defenders, array $args = array()) {
         $this->validationMessage = '';
 
         if (count($attackers) < 1) {
@@ -204,6 +204,12 @@ class BMAttackSkill extends BMAttack {
 
         if ($this->is_direct_attack_valid($attackers, $dval)) {
             return TRUE;
+        }
+
+        $helpValue = NULL;
+
+        if (array_key_exists('helpValue', $args)) {
+            $helpValue = $args['helpValue'];
         }
 
         return $this->is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue);
