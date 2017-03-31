@@ -165,6 +165,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => '&',
                 'description' => 'These are a subcategory of Swing dice, whose size changes randomly when rerolled. At the very start of the game (and again after any round they lose, just as with normal Swing dice) the player sets the initial size of Mad Swing dice, but from then on whenever they are rolled their size is set randomly to any even-numbered legal size for that Swing type. The initial size of a Mad Swing die may be set to an odd number.',
                 'interacts' => array(
+                    'Ornery' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
                 ),
             ),
             'Maximum' => array(
@@ -209,6 +210,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'Ornery dice reroll every time the player makes any attack - whether the Ornery dice participated in it or not. The only time they don\'t reroll is if the player passes, making no attack whatsoever.',
                 'interacts' => array(
                     'Konstant' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+                    'Mad' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
                     'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
                 ),
             ),
@@ -235,6 +237,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
                     'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the size of the captured die, and then decay',
                 ),
+            ),
+            'TheFlyingSquirrel' => array(
+                'code' => '',
+                'description' => 'Cannot perform skill attacks.',
+                'interacts' => array(),
+            ),
+            'RandomBMAnime' => array(
+                'code' => '',
+                'description' => '4 normal dice and 4 reserve dice, chosen from standard die sizes.',
+                'interacts' => array(),
             ),
             'RandomBMDuoskill' => array(
                 'code' => '',
