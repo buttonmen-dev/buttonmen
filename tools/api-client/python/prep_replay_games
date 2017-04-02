@@ -1,0 +1,19 @@
+#!/usr/bin/python
+##### prep_replay_games
+
+import sys
+sys.path.append('lib')
+
+import random_ai
+
+########################################################################
+# Initial setup
+if len(sys.argv) < 2:
+  raise ValueError("Usage: prep_replay_games <dirname>")
+
+DIRNAME = sys.argv[1]
+
+d = random_ai.PHPBMClientOutputWriter(DIRNAME)
+for gamepath in d.find_games():
+  sys.stderr.write("Prepping game for replay from: %s\n" % gamepath)
+  d.translate_game(gamepath)
