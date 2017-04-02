@@ -1,0 +1,72 @@
+#!/usr/bin/python
+##### test_log_games
+
+import os
+import sys
+sys.path.append('lib')
+
+CONFIGPATH = "%s/share/buttonmen/.bmrc" % os.getenv('HOME')
+
+import bmapi
+import random_ai
+import time
+
+########################################################################
+# Custom classes
+class LoggingBMClient(random_ai.LoggingBMClient):
+  # If you need to make any changes to random game-playing logic in
+  # order to support initial plays of games containing the new
+  # functionality in this PR, make those overrides here for
+  # clarity during testing
+  pass
+
+########################################################################
+# Initial setup
+if len(sys.argv) < 2:
+  raise ValueError("Usage: test_log_games <play_games> [<b1_criteria>] [<b2_criteria>]")
+
+nextarg = 1
+N_GAMES = int(sys.argv[nextarg])
+nextarg += 1
+
+b1 = bmapi.BMClient(CONFIGPATH, 'localr3')
+b2 = bmapi.BMClient(CONFIGPATH, 'localr4')
+if not b1.login():
+  print "Could not login as responder003"
+  sys.exit(1)
+
+if not b2.login():
+  print "Could not login as responder004"
+  sys.exit(1)
+
+b1_criteria = {}
+if len(sys.argv) > nextarg:
+  for critstr in sys.argv[nextarg].split(';'):
+    if not critstr: continue
+    key, value = critstr.split('=')
+    b1_criteria[key.strip()] = value.strip().split(',')
+nextarg += 1
+
+if len(sys.argv) > nextarg:
+  b2_criteria = {}
+  for critstr in sys.argv[nextarg].split(';'):
+    if not critstr: continue
+    key, value = critstr.split('=')
+    b2_criteria[key.strip()] = value.strip().split(',')
+else:
+  b2_criteria = b1_criteria
+nextarg += 1
+
+buttons = random_ai.ButtonSelectionClient(b1)
+
+game_id = False
+firstgame = True
+for i in range(1, N_GAMES + 1):
+  if not firstgame:
+    time.sleep(1)
+  print "Starting game %d" % i
+  c = LoggingBMClient(b1, b2)
+  button1 = buttons.select_button(b1_criteria)
+  button2 = buttons.select_button(b2_criteria)
+  c.log_test_game(i, button1, button2)
+  firstgame = False
