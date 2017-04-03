@@ -121,7 +121,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'When a Doppelganger Die performs a Power Attack on another die, the Doppelganger Die becomes an exact copy of the die it captured. The newly copied die is then rerolled, and has all the abilities of the captured die. For instance, if a Doppelganger Die copies a Turbo Swing Die, then it may change its size as per the rules of Turbo Swing Dice. Usually a Doppelganger Die will lose its Doppelganger ability when it copies another die, unless that die is itself a Doppelganger Die.',
                 'interacts' => array(
                     'Radioactive' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
+                    'Rage' => 'A Doppelganger die that captures a Rage die with a Power attack will retain Rage after it transforms',
                 ),
+            ),
+            'Echo' => array(
+                'code' => '',
+                'description' => 'Copies the opponent\'s button recipe.',
+                'interacts' => array(),
             ),
             'Fire' => array(
                 'code' => 'F',
@@ -243,6 +249,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'Cannot perform skill attacks.',
                 'interacts' => array(),
             ),
+            'TheJapaneseBeetle' => array(
+                'code' => '',
+                'description' => 'Cannot be attacked by skill attacks.',
+                'interacts' => array(),
+            ),
             'RandomBMAnime' => array(
                 'code' => '',
                 'description' => '4 normal dice and 4 reserve dice, chosen from standard die sizes.',
@@ -251,6 +262,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'RandomBMDuoskill' => array(
                 'code' => '',
                 'description' => 'Four regular dice and one swing die, and 2 skills each appearing a total of 2 times on various dice.',
+                'interacts' => array(),
+            ),
+            'RandomBMFixed' => array(
+                'code' => '',
+                'description' => '5 dice, no swing dice, two of them having a single skill chosen from c, f, and d (the same skill on both).',
                 'interacts' => array(),
             ),
             'RandomBMMixed' => array(
@@ -283,10 +299,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'Four regular dice and one swing die, and 3 skills each appearing a total of 2 times on various dice.',
                 'interacts' => array(),
             ),
+            'RandomBMVanilla' => array(
+                'code' => '',
+                'description' => '5 dice, no swing dice, no skills.',
+                'interacts' => array(),
+            ),
             'Rage' => array(
                 'code' => 'G',
                 'description' => 'If a Rage die is captured, then the owner of the Rage Die adds a new die to their pool of the same size and ability of the Rage die that was taken, except that it loses the Rage ability. If a Rage Die participates in an Attack, it loses its Rage ability. IMPORTANT: Rage dice do not count for determining who goes first.',
-                'interacts' => array(),
+                'interacts' => array(
+                    'Doppelganger' => 'A Doppelganger die that captures a Rage die with a Power attack will retain Rage after it transforms',
+                )
             ),
             'Reserve' => array(
                 'code' => 'r',
