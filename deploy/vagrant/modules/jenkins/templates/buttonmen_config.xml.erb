@@ -27,13 +27,13 @@
   <triggers class="vector"/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
+    <hudson.tasks.Shell>
+      <command>sh ./util/grunt/jenkins-grunt.sh</command>
+    </hudson.tasks.Shell>
     <hudson.tasks.Ant>
       <targets></targets>
       <buildFile>deploy/jenkins/build.xml</buildFile>
     </hudson.tasks.Ant>
-    <hudson.tasks.Shell>
-      <command>sh ./util/grunt/jenkins-grunt.sh</command>
-    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.plugins.checkstyle.CheckStylePublisher>
