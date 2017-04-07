@@ -6,5 +6,7 @@
   | grep -v "Caught exception in BMDie::create_from_string_components: Illegal die size: C" \
   | grep -v "Caught exception in BMDie::create_from_string_components: Invalid recipe: &" \
   | grep -v "Caught exception in BMDie::create_from_string_components: Invalid recipe: ," \
-  | grep -v "File does not exist: /var/www/test-ui/js/Env.js," \
-  | grep -v "File does not exist: /var/www/ui/images/button/"
+  | grep -v "File does not exist: " \
+  | grep -v " not found or unable to stat" \
+  | grep -v " Graceful restart requested, doing restart" \
+  | grep -v " resuming normal operations"

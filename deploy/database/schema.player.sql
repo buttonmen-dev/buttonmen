@@ -27,6 +27,7 @@ CREATE TABLE player (
     homepage            VARCHAR(100),
     favorite_button_id      SMALLINT UNSIGNED,
     favorite_buttonset_id   SMALLINT UNSIGNED,
+    die_background      VARCHAR(10) DEFAULT 'circle',
     player_color        VARCHAR(7),
     opponent_color      VARCHAR(7),
     neutral_color_a     VARCHAR(7),
@@ -37,6 +38,7 @@ CREATE TABLE player (
     fanatic_button_id   SMALLINT UNSIGNED,
     n_games_won         SMALLINT UNSIGNED DEFAULT 0,
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
+    vacation_message	VARCHAR(255),
     INDEX (name_ingame),
     CONSTRAINT fk_fav_button_id
       FOREIGN KEY  (favorite_button_id)    REFERENCES button(id),

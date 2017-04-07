@@ -90,14 +90,7 @@ test("test_Verify.getVerifyParams", function(assert) {
 });
 
 test("test_Verify.showStatePage", function(assert) {
-  Env.setupEnvStub();
-  Env.message = {
-    'type': 'error',
-    'text': 'test error',
-  };
-  Verify.showStatePage();
-  var item = document.getElementById('env_message');
-  assert.ok(item.innerHTML.match('test error'), "env message is set by this function");
+// FIXME: put a test here that actually meaningfully tests the code
 });
 
 test("test_Verify.setVerifyUserSuccessMessage", function(assert) {

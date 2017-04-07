@@ -1,0 +1,35 @@
+#!/usr/bin/python
+#####
+# Utility to migrate add_auxiliary action log entries to new format
+
+import json
+import MySQLdb
+
+def migrate_to_type_log_add_auxiliary(row, crs):
+  row_id = row[0]
+  msgdata = json.loads(row[1])
+  round_number = msgdata['roundNumber']
+  die_recipe = msgdata['die']['recipe']
+
+  insert_sql = 'INSERT INTO game_action_log_type_add_auxiliary ' + \
+    '(action_log_id, round_number, die_recipe) VALUES ' + \
+    '(%s, %s, "%s");' % (row[0], round_number, die_recipe)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
+  result = crs.execute(update_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+  print "Moved row %s message %s to game_action_log_type_add_auxiliary" % (row[0], row[1])
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,message FROM game_action_log WHERE action_type="add_auxiliary" ' + \
+  'AND message IS NOT NULL')
+if results > 0:
+  for row in crs.fetchall():
+    migrate_to_type_log_add_auxiliary(row, crs)
+conn.commit()

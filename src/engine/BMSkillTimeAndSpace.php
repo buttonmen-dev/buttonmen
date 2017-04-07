@@ -20,6 +20,7 @@ class BMSkillTimeAndSpace extends BMSkill {
     /**
      * Hooked method applied after rolling a die
      *
+     * @param array $args
      * @return string
      */
     public static function post_roll($args) {
@@ -42,6 +43,10 @@ class BMSkillTimeAndSpace extends BMSkill {
             return;
         }
 
+        if (!$die->doesReroll) {
+            return;
+        }
+
         if ($die->value & 1) {
             $game->nextPlayerIdx = $game->activePlayerIdx;
         }
@@ -53,8 +58,8 @@ class BMSkillTimeAndSpace extends BMSkill {
      * @return string
      */
     protected static function get_description() {
-        return 'If a Time and Space Die is rerolled after it participates in ' .
-               'an attack and rolls odd, then the player will take another ' .
+        return 'If a Time and Space Die participates in an attack and rerolls ' .
+               'an odd number, then the player will take another ' .
                'turn. If multiple Time and Space dice are rerolled and show odd, ' .
                'only one extra turn is given per reroll.';
     }

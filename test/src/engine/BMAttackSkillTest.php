@@ -260,6 +260,35 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($sk->validate_attack($game, array($die1, $die2), array($die3)));
     }
 
+        /**
+     * @covers BMAttackSkill::validate_attack
+     */
+    public function testValidate_attack_insult() {
+        $game = new TestDummyGame;
+
+        $sk = $this->object;
+
+        $die1 = BMDie::create(6);
+        $die1->value = 3;
+
+        $die2 = BMDie::create(6);
+        $die2->value = 4;
+
+        $die3 = BMDie::create(10);
+        $die3->add_skill('Insult');
+        $die3->value = 7;
+
+        // Naturally created during the flow of the game, need to make
+        // by hand here
+        $sk->reset();
+        $sk->add_die($die1);
+        $sk->add_die($die2);
+        $game->attackerAllDieArray = array($die1, $die2);
+        $sk->make_hit_table();
+
+        $this->assertFalse($sk->validate_attack($game, array($die1, $die2), array($die3)));
+    }
+
     /**
      * @covers BMAttackSkill::validate_attack
      */

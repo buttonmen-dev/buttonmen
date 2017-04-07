@@ -9,13 +9,14 @@
  * This class contains all the logic to do with instantiating and activating buttons
  *
  * @property      string  $name                  Name of button
- * @property      string  $recipe                String representation of the button recipe
+ * @property      string  $originalRecipe        String representation of the original button recipe
+ * @property      string  $recipe                String representation of the current button recipe
  * @property-read string  $artFilename           Filename in the image directory containing button art
  * @property-read array   $dieArray              Array of BMDie
  * @property      BMGame  $ownerObject           BMGame that owns the BMButton
  * @property      BMGame  $playerIdx             BMGame index of the player that owns the BMButton
- * @property      boolean $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
- * @property      boolean $hasAlteredRecipe      Flag signalling if the recipe has changed
+ * @property      bool    $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
+ * @property      bool    $hasAlteredRecipe      Flag signalling if the recipe has changed
  */
 class BMButton extends BMCanHaveSkill {
     // properties
@@ -28,7 +29,14 @@ class BMButton extends BMCanHaveSkill {
     protected $name;
 
     /**
-     * String representation of the button recipe
+     * String representation of the original button recipe
+     *
+     * @var string
+     */
+    protected $originalRecipe;
+
+    /**
+     * String representation of the current button recipe
      *
      * @var string
      */
@@ -114,7 +122,7 @@ class BMButton extends BMCanHaveSkill {
         if (!is_null($name)) {
             $this->name = $name;
             $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $name);
-        
+
             if (class_exists("BMBtnSkill$standardName")) {
                 $this->add_skill($standardName);
             }
@@ -233,6 +241,8 @@ class BMButton extends BMCanHaveSkill {
      * Activate all dice in dieArray. This causes clones of the dice to be
      * added to their ownerObjects. Since their ownerObjects should be the
      * BMGame that owns the button, this effectively adds dice to the game.
+     *
+     * @param bool $forceSwingRequest
      */
     public function activate($forceSwingRequest = FALSE) {
         foreach ($this->dieArray as $die) {
@@ -251,7 +261,7 @@ class BMButton extends BMCanHaveSkill {
             return;
         }
 
-        foreach ($this->ownerObject->activeDieArrayArray[$playerIdx] as $die) {
+        foreach ($this->ownerObject->playerArray[$playerIdx]->activeDieArray as $die) {
             $recipe .= ' ' . $die->recipe;
         }
 
@@ -349,7 +359,7 @@ class BMButton extends BMCanHaveSkill {
      * Define behaviour of isset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __isset($property) {
         return isset($this->$property);
@@ -359,7 +369,7 @@ class BMButton extends BMCanHaveSkill {
      * Define behaviour of unset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __unset($property) {
         if (isset($this->$property)) {

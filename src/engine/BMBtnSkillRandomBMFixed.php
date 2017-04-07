@@ -23,7 +23,7 @@ class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
      * Hooked method applied when specifying recipes
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function specify_recipes(array $args) {
         if (!parent::specify_recipes($args)) {
@@ -35,7 +35,7 @@ class BMBtnSkillRandomBMFixed extends BMBtnSkillRandomBM {
         $dieSizeArray = parent::generate_die_sizes($nDice);
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills(array('c', 'f', 'd'), 1),
+            parent::randomly_select_skills(1, array('c', 'f', 'd')),
             0,
             2,
             1

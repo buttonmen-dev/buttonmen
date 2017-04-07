@@ -7,6 +7,7 @@ module("Login", {
       $('body').append($('<div>', {'id': 'container', }));
       $('#container').append($('<div>', {'id': 'c_body'}));
       $('#c_body').append($('<div>', {'id': 'login_header', }));
+      $('#container').append($('<div>', {'id': 'c_footer'}));
     }
   },
   'teardown': function(assert) {
@@ -21,7 +22,10 @@ module("Login", {
     delete Api.gameNavigation;
     delete Api.forumNavigation;
     delete Env.window.location.href;
+    delete Login.footer;
     delete Login.message;
+    delete Login.player;
+    delete Login.logged_in;
     delete Env.window.location.search;
     delete Env.window.location.hash;
     delete Env.history.state;
@@ -34,6 +38,7 @@ module("Login", {
     $('#header_separator').remove();
 
     Login.pageModule = null;
+    Login.formElements = null;
 
     // Page elements
     $('#login_header').remove();
@@ -57,8 +62,63 @@ test("test_Login.getLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.getLoginHeader not implemented");
 });
 
+test("test_Login.getFooter", function(assert) {
+  expect(4);
+
+  // mock Login.getBody() because it is not the target of this test
+  var cached_function = Login.getBody;
+  Login.getBody = function() {
+    assert.ok(true, "Login.getBody is called");
+  }
+  Login.getFooter();
+  var footerProps = BMTestUtils.DOMNodePropArray(Login.footer[0]);
+  var expectedProps = [ "DIV", {}, [
+    [ "DIV", {}, [
+      "Button Men is copyright 1999, 2016 James Ernest and Cheapass Games: ",
+      [ "A", { "href": "http://www.cheapass.com" }, [ "www.cheapass.com" ] ],
+      " and ",
+      [ "A", { "href": "http://www.beatpeopleup.com" }, [ "www.beatpeopleup.com" ] ],
+      ", and is used with permission." ]
+    ],
+    [ "DIV", {}, [
+      "If you have any trouble with this website, you can open a ticket at ",
+      [ "A", { "href": "https://github.com/buttonmen-dev/buttonmen/issues/new" }, [ "the buttonweavers issue tracker" ] ],
+      " or e-mail us at help@buttonweavers.com." ]
+    ] ]
+  ];
+  assert.deepEqual(footerProps, expectedProps, "Footer contents are expected");
+
+  Login.getBody = cached_function;
+});
+
+test("test_Login.getBody", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Login.getBody not implemented");
+});
+
 test("test_Login.showLoginHeader", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
+  expect(4);
+
+  // mock Login.getLoginHeader() because it is not the target of this test
+  var cached_function = Login.getLoginHeader;
+  Login.getLoginHeader = function() {
+    assert.ok(true, "Login.getLoginHeader is called");
+  }
+
+  // Empty the page container to test the contents the code will add
+  $('#container').remove();
+  Login.showLoginHeader('fakemodule');
+  var containerProps = BMTestUtils.DOMNodePropArray($('#container')[0]);
+  var expectedProps = [ "DIV", { "id": "container" }, [
+    [ "DIV", { "id": "c_header" }, [
+      [ "DIV", { "id": "login_header" }, [] ],
+      [ "HR", { "id": "header_separator" }, [] ] ]
+    ],
+    [ "DIV", { "id": "c_body" }, [] ],
+    [ "DIV", { "id": "c_footer" }, [] ] ]
+  ];
+  assert.deepEqual(containerProps, expectedProps, "This function correctly assembles the empty page frame");
+
+  Login.getLoginHeader = cached_function;
 });
 
 test("test_Login.showLoginHeader_auto", function(assert) {
@@ -79,7 +139,23 @@ test("test_Login.showLoginHeader_auto", function(assert) {
 });
 
 test("test_Login.arrangeHeader", function(assert) {
-  expect(5); // tests + 2 teardown
+  expect(3); // tests + 2 teardown
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  assert.equal($('#login_header').length, 1,
+    "Login header div should be created");
+});
+
+test("test_Login.arrangeBody", function(assert) {
+  expect(3);
 
   Login.message = 'Hello.';
   Login.pageModule = {
@@ -91,16 +167,33 @@ test("test_Login.arrangeHeader", function(assert) {
   };
 
   BMTestUtils.setupFakeLogin();
-  Login.arrangeHeader();
+  Login.arrangeBody();
   BMTestUtils.cleanupFakeLogin();
 
   var bodyDiv = $('#' + Login.pageModule.bodyDivId);
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
+});
 
-  assert.equal($('#env_message').length, 1,
-    "Env message div should be created");
+test("test_Login.arrangeFooter", function(assert) {
+  expect(3);
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  BMTestUtils.setupFakeLogin();
+  Login.arrangeFooter();
+  BMTestUtils.cleanupFakeLogin();
+
+  assert.equal($('#footer').length, 1,
+    "Login footer div should be created");
 });
 
 test("test_Login.arrangePage", function(assert) {
@@ -148,15 +241,127 @@ test("test_Login.getLoginForm", function(assert) {
 });
 
 test("test_Login.stateLoggedIn", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.stateLoggedIn not implemented");
+  expect(6);
+  Login.player = 'foobar';
+
+  // mock Api.getNextNewPostId() because it is not the target of this test
+  var cached_function = Api.getNextNewPostId;
+  Api.getNextNewPostId = function(callback) {
+    assert.equal(callback, Login.addMainNavbar, "Api.getNextNewPostId is called with expected callback");
+  };
+
+  Login.stateLoggedIn('example welcome text');
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "P", {}, [
+      "example welcome text: You are logged in as foobar. ",
+      [ "BUTTON", { "id": "login_action_button" }, [ "Logout?" ] ]
+    ]
+  ];
+  assert.equal(Login.logged_in, true, "Login.logged_in is set to true");
+  assert.equal(Login.form, Login.formLogout, "Login.form is set correctly");
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly");
+
+  Api.getNextNewPostId = cached_function;
 });
 
 test("test_Login.stateLoggedOut", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.stateLoggedOut not implemented");
+  Login.status_type = Login.STATUS_NO_ACTIVITY;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+
+  var expectedMessage = [ "P", {}, [
+      "example welcome text: ",
+      "You are not logged in. ",
+      [ "A", { "href": "create_user.html" }, [ "Create an account" ] ]
+    ]
+  ];
+
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after no login activity");
+
+  var formElements = BMTestUtils.DOMNodePropArray(Login.formElements[0]);
+  var expectedForm = [
+    "DIV",
+    { "class": "login" },
+    [ [
+        "FORM", { "action": "javascript:void(0);", "id": "login_action_form" },
+        [
+          "Username: ",
+          [ "INPUT", { "id": "login_name", "name": "login_name", "type": "text" }, [] ],
+          " Password: ",
+          [ "INPUT", { "id": "login_pass", "name": "login_pass", "type": "password" }, [] ],
+          " ",
+          [ "BUTTON", { "id": "login_action_button" }, [ "Login" ] ],
+          " ",
+          [ "INPUT", { "id": "login_checkbox", "name": "login_checkbox", "type": "checkbox"}, [] ],
+          "Keep me logged in"
+      ] ]
+    ]
+  ];
+  assert.deepEqual(formElements, expectedForm, "Login.formElements is set correctly after no login activity");
+
+  Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  expectedMessage[2][1] = [ "FONT", { "color": "green" }, [ "Logout succeeded - login again? " ] ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after successful logout");
+  formElements = BMTestUtils.DOMNodePropArray(Login.formElements[0]);
+  // james: expected form should not change here
+  assert.deepEqual(formElements, expectedForm, "Login.formElements is set correctly after successful logout");
+
+  Login.status_type = Login.STATUS_ACTION_FAILED;
+  Login.stateLoggedOut('example welcome text');
+  assert.equal(Login.logged_in, false, "Login.logged_in is set to false");
+  assert.equal(Login.form, Login.formLogin, "Login.form is set correctly");
+  msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  expectedMessage[2][1] = [
+    "FONT", { "color": "red" }, [ "Login failed - username or password invalid, or email address has not been verified. " ] ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message is set correctly after failed login");
+  formElements = BMTestUtils.DOMNodePropArray(Login.formElements[0]);
+  // james: expected form should not change here
+  assert.deepEqual(formElements, expectedForm, "Login.formElements is set correctly after failed login");
+
+  Login.status_type = 0;
 });
 
 test("test_Login.addMainNavbar", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.addMainNavbar not implemented");
+  expect(4);
+  Login.player = 'foobar';
+  Login.message = $('<div>');
+
+  // mock Login.addNewPostLink() because it is not the target of this test
+  var cached_function = Login.addNewPostLink;
+  Login.addNewPostLink = function(callback) {
+    assert.ok(true, "Login.addNewPostLink is called");
+  }
+
+  Login.addMainNavbar();
+  var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
+  var expectedMessage = [ "DIV", {}, [
+    [ "TABLE", {}, [
+      [ "TBODY", {}, [
+        [ "TR", { "class": "headerNav" }, [
+          [ "TD", {}, [ [ "A", { "href": "index.html" }, [ "Overview" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=monitor" }, [ "Monitor" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "create_game.html" }, [ "Create game" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "open_games.html" }, [ "Open games" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "prefs.html" }, [ "Preferences" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "profile.html?player=foobar" }, [ "Profile" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "history.html" }, [ "History" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "buttons.html" }, [ "Buttons" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "active_players.html" }, [ "Who's online" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "forum.html" }, [ "Forum" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=nextGame" }, [ "Next game" ] ] ] ] ]
+        ] ]
+      ] ]
+    ] ]
+  ];
+  assert.deepEqual(msgProps, expectedMessage, "Login.message has expected contents");
+
+  Login.addNewPostLink = cached_function;
 });
 
 test("test_Login.addNewPostLink", function(assert) {

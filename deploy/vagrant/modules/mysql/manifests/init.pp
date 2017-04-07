@@ -1,9 +1,12 @@
 # Configuration for a buttonmen mysql server
 class mysql::server {
 
-  # Install mysql-server and php5-mysql packages
   package {
+    # Install mysql-server and php5-mysql packages
     "mysql-server": ensure => installed;
     "php5-mysql": ensure => installed;
+
+    # Install python-mysqldb for use by helper scripts
+    "python-mysqldb": ensure => installed;
   }
 }

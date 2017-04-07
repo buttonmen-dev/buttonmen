@@ -7,7 +7,7 @@
 $BM_RAND_VALS = array();
 $BM_RAND_REQUIRE_OVERRIDE = FALSE;
 
-function bm_rand($min, $max) {
+function bm_rand($min = FALSE, $max = FALSE) {
     global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
 
     if (count($BM_RAND_VALS) > 0) {
@@ -16,7 +16,11 @@ function bm_rand($min, $max) {
     if ($BM_RAND_REQUIRE_OVERRIDE) {
         throw new Exception("Called bm_rand() from a test requiring overrides, but BM_RAND_VALS is empty");
     }
-    return mt_rand($min, $max);
+
+    if (is_numeric($min) && is_numeric($max)) {
+        return mt_rand($min, $max);
+    }
+    return mt_rand();
 }
 
 // Now include the bootstrap file from the code itself

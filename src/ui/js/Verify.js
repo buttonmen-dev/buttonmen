@@ -50,10 +50,13 @@ Verify.getVerifyParams = function(callbackfunc) {
 };
 
 Verify.showStatePage = function() {
+  Verify.page = $('<div>');
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
+
+  Login.arrangePage(Verify.page);
 };
 
 Verify.setVerifyUserSuccessMessage = function(message) {

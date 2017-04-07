@@ -58,10 +58,18 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Generic routine for API POST used to parse data
 
-  my.apiParsePost = function(args, apikey, parser, callback, failcallback) {
-    my[apikey] = {
-      'load_status': 'failed',
-    };
+  my.apiParsePost = function(
+    args,
+    apikey,
+    parser,
+    callback,
+    failcallback,
+    parserargs
+  ) {
+    if (typeof my[apikey] === 'undefined') {
+      my[apikey] = {};
+    }
+    my[apikey].load_status = 'failed';
     args.automatedApiCall = my.automatedApiCall;
     $.post(
       Env.api_location,
@@ -75,7 +83,7 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (parser(rs.data, apikey)) {
+          if (parser(rs.data, apikey, parserargs)) {
             my[apikey].load_status = 'ok';
             return callback();
           } else {
@@ -96,11 +104,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not connect to Button Men server, please try again'
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
@@ -153,11 +172,22 @@ var Api = (function () {
         }
       }
     ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling ' + args.type,
-        };
+      function(XMLHttpRequest) {
+        // when the client fails to connect to the server at all, then
+        // the request is not initialised (readyState = 0) and there is
+        // no response
+        if ((0 === XMLHttpRequest.status) &&
+            (0 === XMLHttpRequest.readyState)) {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not connect to Button Men server, please try again'
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling ' + args.type,
+          };
+        }
         return failcallback();
       }
     );
@@ -190,7 +220,6 @@ var Api = (function () {
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
-
   my.getButtonData = function(buttonName, callbackfunc) {
     my.apiParsePost(
       {
@@ -279,60 +308,99 @@ var Api = (function () {
   // Load and parse the current player's list of new games
 
   my.getNewGamesData = function(callbackfunc) {
+    my.new_games = {};
+    var parserargs = [];
+    parserargs.target = my.new_games;
+    parserargs.isSplit = true;
     my.apiParsePost(
       {'type': 'loadNewGames', },
       'new_games',
-      my.parseNewGamesData,
+      my.packageGameData,
       callbackfunc,
-      callbackfunc
+      callbackfunc,
+      parserargs
     );
-  };
-
-  my.parseNewGamesData = function(data) {
-    my.new_games.games = [];
-    my.new_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.new_games.nGames) {
-      var gameInfo = {
-        'gameId': data.gameIdArray[i],
-        'opponentId': data.opponentIdArray[i],
-        'opponentName': data.opponentNameArray[i],
-        'playerButtonName': data.myButtonNameArray[i],
-        'opponentButtonName': data.opponentButtonNameArray[i],
-        'isAwaitingAction': data.isAwaitingActionArray[i],
-        'maxWins': data.nTargetWinsArray[i],
-      };
-      my.new_games.games.push(gameInfo);
-      i += 1;
-    }
-    return true;
   };
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the current player's list of active games
 
   my.getActiveGamesData = function(callbackfunc) {
+    my.active_games = {};
+    var parserargs = [];
+    parserargs.target = my.active_games;
+    parserargs.isSplit = true;
     my.apiParsePost(
       {'type': 'loadActiveGames', },
       'active_games',
-      my.parseActiveGamesData,
+      my.packageGameData,
       callbackfunc,
-      callbackfunc
+      callbackfunc,
+      parserargs
     );
   };
 
-  my.parseActiveGamesData = function(data) {
-    my.active_games.games = {
-      'awaitingPlayer': [],
-      'awaitingOpponent': [],
-    };
-    my.active_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.active_games.nGames) {
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the current player's list of completed games
+
+  my.getCompletedGamesData = function(callbackfunc) {
+    my.completed_games = {};
+    var parserargs = [];
+    parserargs.target = my.completed_games;
+    parserargs.isSplit = false;
+    my.apiParsePost(
+      {'type': 'loadCompletedGames', },
+      'completed_games',
+      my.packageGameData,
+      callbackfunc,
+      callbackfunc,
+      parserargs
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the current player's list of cancelled games
+
+  my.getCancelledGamesData = function(callbackfunc) {
+    my.cancelled_games = {};
+    var parserargs = [];
+    parserargs.target = my.cancelled_games;
+    parserargs.isSplit = false;
+    my.apiParsePost(
+      {'type': 'loadCancelledGames', },
+      'cancelled_games',
+      my.packageGameData,
+      callbackfunc,
+      callbackfunc,
+      parserargs
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Generic parser and repackager of the data returned from the database
+
+  my.packageGameData = function(data, _apikey, parserargs) {
+    // the output format is one of the following:
+    // - split into games awaiting the player and games awaiting the opponent
+    // - made entirely of games not awaiting action
+    if (parserargs.isSplit) {
+      parserargs.target.games = {
+        'awaitingPlayer': [],
+        'awaitingOpponent': [],
+      };
+    } else {
+      parserargs.target.games = [];
+    }
+
+    parserargs.target.nGames = data.gameIdArray.length;
+    parserargs.target.nGamesAwaitingAction = 0;
+    for (var i = 0; i < parserargs.target.nGames; i++) {
       var gameInfo = {
         'gameId': data.gameIdArray[i],
+        'gameDescription': data.gameDescriptionArray[i],
         'opponentId': data.opponentIdArray[i],
         'opponentName': data.opponentNameArray[i],
+        'isOpponentOnVacation': data.isOpponentOnVacationArray[i],
         'playerButtonName': data.myButtonNameArray[i],
         'opponentButtonName': data.opponentButtonNameArray[i],
         'gameScoreDict': {
@@ -349,55 +417,16 @@ var Api = (function () {
         'playerColor': data.playerColorArray[i],
         'opponentColor': data.opponentColorArray[i],
       };
-      if (gameInfo.isAwaitingAction == '1') {
-        my.active_games.games.awaitingPlayer.push(gameInfo);
+      if (parserargs.isSplit) {
+        if (gameInfo.isAwaitingAction == '1') {
+          parserargs.target.games.awaitingPlayer.push(gameInfo);
+          parserargs.target.nGamesAwaitingAction++;
+        } else {
+          parserargs.target.games.awaitingOpponent.push(gameInfo);
+        }
       } else {
-        my.active_games.games.awaitingOpponent.push(gameInfo);
+        parserargs.target.games.push(gameInfo);
       }
-      i += 1;
-    }
-    return true;
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-  // Load and parse the current player's list of completed games
-
-  my.getCompletedGamesData = function(callbackfunc) {
-    my.apiParsePost(
-      {'type': 'loadCompletedGames', },
-      'completed_games',
-      my.parseCompletedGamesData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.parseCompletedGamesData = function(data) {
-    my.completed_games.games = [];
-    my.completed_games.nGames = data.gameIdArray.length;
-    var i = 0;
-    while (i < my.completed_games.nGames) {
-      var gameInfo = {
-        'gameId': data.gameIdArray[i],
-        'opponentId': data.opponentIdArray[i],
-        'opponentName': data.opponentNameArray[i],
-        'playerButtonName': data.myButtonNameArray[i],
-        'opponentButtonName': data.opponentButtonNameArray[i],
-        'gameScoreDict': {
-          'W': data.nWinsArray[i],
-          'L': data.nLossesArray[i],
-          'D': data.nDrawsArray[i],
-        },
-        'isAwaitingAction': data.isAwaitingActionArray[i],
-        'maxWins': data.nTargetWinsArray[i],
-        'gameState': data.gameStateArray[i],
-        'status': data.statusArray[i],
-        'inactivity': data.inactivityArray[i],
-        'playerColor': data.playerColorArray[i],
-        'opponentColor': data.opponentColorArray[i],
-      };
-      my.completed_games.games.push(gameInfo);
-      i += 1;
     }
     return true;
   };
@@ -456,6 +485,7 @@ var Api = (function () {
     my.game.chatLog = data.gameChatLog;
     my.game.chatLogCount = data.gameChatLogCount;
     my.game.chatEditable = data.gameChatEditable;
+    my.game.dieBackgroundType = data.dieBackgroundType;
 
     // Do some sanity-checking of the data we have
 
@@ -483,10 +513,6 @@ var Api = (function () {
     my.game.opponent = my.parseGamePlayerData(
                          data.playerDataArray[my.game.opponentIdx],
                          my.game.opponentIdx);
-
-    // Parse game WLT text into a string for convenience
-    my.game.player.gameScoreStr = my.playerWLTText('player');
-    my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
 
     my.game.pendingGameCount = data.pendingGameCount;
 
@@ -529,14 +555,6 @@ var Api = (function () {
     }
 
     return data;
-  };
-
-  my.playerWLTText = function(player) {
-    var text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
-               '/' + Api.game[player].gameScoreArray.L +
-               '/' + Api.game[player].gameScoreArray.D +
-               ' (' + Api.game.maxWins + ')';
-    return text;
   };
 
   my.disableSubmitButton = function(button) {

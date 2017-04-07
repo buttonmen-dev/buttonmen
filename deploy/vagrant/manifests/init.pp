@@ -17,6 +17,9 @@ node default {
     "54.83.36.215": {
       $puppet_hostname = "dev.buttonweavers.com"
     }
+    "54.235.150.227": {
+      $puppet_hostname = "staging.buttonweavers.com"
+    }
     "54.83.36.209": {
       $puppet_hostname = "www.buttonweavers.com"
     }

@@ -47,7 +47,7 @@ class BMInterfaceNewuser {
     /**
      * Constructor
      *
-     * @param boolean $isTest
+     * @param bool $isTest
      */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
@@ -76,6 +76,7 @@ class BMInterfaceNewuser {
      * @param string $username
      * @param string $password
      * @param string $email
+     * @return NULL|array
      */
     public function create_user($username, $password, $email) {
         try {
@@ -178,7 +179,7 @@ class BMInterfaceNewuser {
      *
      * @param int $playerId
      * @param string $playerKey
-     * @return boolean
+     * @return bool
      */
     public function verify_user($playerId, $playerKey) {
         try {
@@ -250,7 +251,7 @@ class BMInterfaceNewuser {
         $statement->execute(array(':playerId' => $playerId));
 
         // generate a new verification code and insert it into the table
-        $playerKey = md5(mt_rand());
+        $playerKey = md5(bm_rand());
         if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
             $ipaddr = $_SERVER['REMOTE_ADDR'];
         } else {

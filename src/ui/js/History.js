@@ -70,14 +70,15 @@ History.searchParameterInfo = {
       '(for completed games, this is the player who won)',
   },
   'status': {
-    'text': 'Completed?',
+    'text': 'Game status',
     'inputType': 'select',
     'source': {
       'COMPLETE': 'Completed',
       'ACTIVE': 'In Progress',
+      'CANCELLED': 'Cancelled',
     },
     'dataType': 'string',
-    'toolTip': 'Search or sort by whether the game is completed or in progress',
+    'toolTip': 'Search or sort by the game status',
   },
   'sortColumn': {
     'inputType': 'hidden',
@@ -642,27 +643,17 @@ History.buildResultsTableBody = function() {
       'text': Env.formatTimestamp(game.lastMove, 'date'),
     }));
 
-    var score = game.roundsWonA + '/' + game.roundsWonB + '/' +
-      game.roundsDrawn + ' (' + game.targetWins + ')';
-
-    var winnerColor;
-    if (game.roundsWonA >= game.targetWins) {
-      winnerColor = game.colorA;
-    } else if (game.roundsWonB >= game.targetWins) {
-      winnerColor = game.colorB;
-    } else {
-      winnerColor = '#ffffff';
-    }
-
-    gameRow.append($('<td>', {
-      'text': score,
-      'style': 'background-color: ' + winnerColor + ';',
-    }));
+    gameRow.append(History.scoreCol(game));
 
     if (game.status == 'COMPLETE') {
       gameRow.append($('<td>', {
         'text': 'Completed',
         'style': 'font-weight: bold;'
+      }));
+    } else if (game.status == 'CANCELLED') {
+      gameRow.append($('<td>', {
+        'text': 'Cancelled',
+        'style': 'color: #aaaaaa;'
       }));
     } else {
       gameRow.append($('<td>', {
@@ -673,6 +664,32 @@ History.buildResultsTableBody = function() {
   });
 
   return body;
+};
+
+History.scoreCol = function(game) {
+  var score;
+  if (game.status == 'CANCELLED') {
+    score = '–/–/–';
+  } else {
+    score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;
+  }
+  score += ' (' + game.targetWins + ')';
+
+  var winnerColor;
+  if (game.roundsWonA >= game.targetWins) {
+    winnerColor = game.colorA;
+  } else if (game.roundsWonB >= game.targetWins) {
+    winnerColor = game.colorB;
+  } else {
+    winnerColor = '#ffffff';
+  }
+
+  var column = $('<td>', {
+    'text': score,
+    'style': 'background-color: ' + winnerColor + ';',
+  });
+
+  return column;
 };
 
 History.buildResultsTableFooter = function() {

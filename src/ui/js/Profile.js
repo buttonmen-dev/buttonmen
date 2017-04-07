@@ -2,6 +2,7 @@
 var Profile = {};
 
 Profile.bodyDivId = 'profile_page';
+Profile.pageTitle = 'Profile &mdash; Button Men Online';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -20,6 +21,8 @@ Profile.showLoggedInPage = function() {
 
 Profile.getProfile = function(callback) {
   var playerName = Env.getParameterByName('player');
+
+  $('title').html(playerName + ' &mdash; Profile &mdash; Button Men Online');
 
   Api.loadProfileInfo(playerName, callback);
 };
@@ -48,10 +51,16 @@ Profile.showPage = function() {
 Profile.buildProfileTable = function() {
   var table = $('<table>', { 'class': 'profileTable', });
 
+  var profileName=$('<span>');
+  if (Api.profile_info.vacation_message) {
+    profileName.append(Env.buildVacationImage('large'));
+  }
+  profileName.append(Api.profile_info.name_ingame);
+
   var thead = $('<thead>');
   table.append(thead);
   thead.append(Profile.buildProfileTableRow('Profile',
-    Api.profile_info.name_ingame, 'unknown'));
+    profileName, 'unknown'));
 
   var tbody = $('<tbody>');
   table.append(tbody);
@@ -117,6 +126,14 @@ Profile.buildProfileTable = function() {
     commentHolder = $('<span>');
     var cookedComment = Env.prepareRawTextForDisplay(Api.profile_info.comment);
     commentHolder.append(cookedComment);
+  }
+
+  var vacationHolder = null;
+  if (Api.profile_info.vacation_message) {
+    vacationHolder = $('<span>');
+    var cookedVacation =
+      Env.prepareRawTextForDisplay(Api.profile_info.vacation_message);
+    vacationHolder.append(cookedVacation);
   }
 
   var homepageLink = null;
@@ -204,6 +221,10 @@ Profile.buildProfileTable = function() {
     homepageLink, 'homeless', false));
   tbody.append(Profile.buildProfileTableRow('Comment',
     commentHolder, 'none', false));
+  if (vacationHolder) {
+    tbody.append(Profile.buildProfileTableRow('Vacation Message',
+      vacationHolder, 'none', false, 'emphasize'));
+  }
 
   if (!Env.getCookieNoImages()) {
     var url;
@@ -231,10 +252,13 @@ Profile.buildProfileTable = function() {
 };
 
 Profile.buildProfileTableRow = function(
-    label, value, missingValue, shrinkable) {
-  var valueClass = (shrinkable ? 'partialValue' : 'value');
+    label, value, missingValue, shrinkable, extraClass) {
+
+  var valueClass = (shrinkable ? 'partialValue' : 'value') +
+     (extraClass ? ' ' + extraClass : '');
   var tr = $('<tr>');
   tr.append($('<td>', { 'text': label + ':', 'class': 'label' }));
+
   if (value) {
     if (value instanceof jQuery) {
       tr.append($('<td>', {

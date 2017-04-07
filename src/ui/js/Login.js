@@ -16,44 +16,30 @@ Login.nextGameRefreshCallback = false;
 // Which module is responsible for loading the main part of the page
 Login.pageModule = null;
 
-// If not logged in, display an option to login
-// If logged in, set an element, #player_name
-Login.getLoginHeader = function() {
-  if (Login.status_type === 0) {
-    Login.status_type = Login.STATUS_NO_ACTIVITY;
-  }
-  $.post(
-    Env.api_location,
-    { type: 'loadPlayerName' },
-    function(rs) {
-      var player_name = null;
-      if (rs.status == 'ok') {
-        player_name = rs.data.userName;
-      }
-      Login.player = player_name;
-      var welcomeText = 'Welcome to Button Men';
-      if (Config.siteType == 'development') {
-        $('#login_header').css('background-color', '#cccccc');
-        $('head').append(
-          $('<link>', {
-            'type': 'image/x-icon',
-            'rel': 'shortcut icon',
-            'href': '/dev_favicon.ico',
-          }));
-        welcomeText += ' Dev Site';
-      } else if (Config.siteType != 'production') {
-        $('#login_header').css('background-color', '#ff7777');
-        welcomeText += ' CONFIG ERROR';
-      }
-      if (Login.player === null) {
-        Login.stateLoggedOut(welcomeText);
-      } else {
-        Login.stateLoggedIn(welcomeText);
-      }
-      return Login.arrangeHeader();
-    }
-  );
-};
+// These elements contribute to the form, if there is a form
+Login.formElements = null;
+
+////////////////////////////////////////////////////////////////////////
+//
+// Action flow through every page:
+// * Login.showLoginHeader() is the landing function. Always call this first. It
+//   sets which module this page will be using (Overview, Game, History, etc.),
+//   then calls Login.getLoginHeader()
+// * Login.getLoginHeader() calls the API to see if the user is logged in and
+//   constructs an appropriate header based on that. It then calls
+//   Login.getFooter().
+// * Login.getFooter() constructs the footer. Then it calls Login.getBody().
+// * Login.getBody(), depending on A) whether or not the user is logged in and
+//   B) whether or not the page module provides its own logged-out page,
+//   either calls showLoggedInPage() or showLoggedOutPage() on the module
+//   (each of which is expected to finish by calling Login.arrangePage())
+//   *or* sets up a message that the user needs to log in and then calls
+//   Login.arrangePage() itself.
+// * Login.arrangePage() calls Login.arrangeHeader(), Login.arrangeBody() and
+//   Login.arrangeFooter() to display everything that was constructed in the
+//   previous three steps.
+//
+////////////////////////////////////////////////////////////////////////
 
 // pageModule is the module that's responsible for loading the main part of the
 // page, such as Overview or Game. It needs to have a bodyDivId property and
@@ -87,38 +73,73 @@ Login.showLoginHeader = function(pageModule) {
   Login.getLoginHeader();
 };
 
-Login.arrangeHeader = function() {
-  $('#login_header').empty();
-  $('#login_header').append(Login.message);
-
-  if (Login.form) {
-    $('#login_name').focus();
-    $('#login_action_button').click(Login.form);
+// If not logged in, display an option to login
+// If logged in, set an element, #player_name
+Login.getLoginHeader = function() {
+  if (Login.status_type === 0) {
+    Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
+  $.post(
+    Env.api_location,
+    { type: 'loadPlayerName' },
+    function(rs) {
+      var player_name = null;
+      if (rs.status == 'ok') {
+        player_name = rs.data.userName;
+      }
+      Login.player = player_name;
+      var welcomeText = 'Welcome to Button Men';
+      if (Config.siteType == 'development') {
+        $('#login_header').css('background-color', '#cccccc');
+        $('#favicon').attr('href', '/dev_favicon.ico');
+        welcomeText += ' Dev Site';
+      } else if (Config.siteType != 'production') {
+        $('#login_header').css('background-color', '#ff7777');
+        welcomeText += ' CONFIG ERROR';
+      }
+      if (Login.player === null) {
+        Login.stateLoggedOut(welcomeText);
+      } else {
+        Login.stateLoggedIn(welcomeText);
+      }
 
-  // Set up necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if (Login.pageModule && Login.pageModule.bodyDivId) {
-    if ($('#' + Login.pageModule.bodyDivId).length === 0) {
-      $('#c_body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
+      Login.getFooter();
     }
-  } else {
-    Env.message = {
-      'type': 'error',
-      'text':
-        'This page failed to load. Your browser may have cached an outdated ' +
-        'version of it. Try reloading the page, and if that doesn\'t work, ' +
-        'please drop us a line at help@buttonweavers.com or file a bug ' +
-        'report. Sorry for the inconvenience.',
-    };
-    // If we can't create the main section of the page, then jump straight to
-    // rendering what little we have and then bail out
-    Login.arrangePage();
-    return;
-  }
+  );
+};
 
+Login.getFooter = function() {
+  Login.footer = $('<div>');
+
+  var copyright = $('<div>');
+  Login.footer.append(copyright);
+  copyright.append(
+    'Button Men is copyright 1999, 2016 James Ernest and Cheapass Games: ');
+  copyright.append($('<a>', {
+    'href': 'http://www.cheapass.com',
+    'text': 'www.cheapass.com',
+  }));
+  copyright.append(' and ');
+  copyright.append($('<a>', {
+    'href': 'http://www.beatpeopleup.com',
+    'text': 'www.beatpeopleup.com',
+  }));
+  copyright.append(', and is used with permission.');
+
+  var contact = $('<div>');
+  Login.footer.append(contact);
+  contact.append(
+    'If you have any trouble with this website, you can open a ticket at ');
+  contact.append($('<a>', {
+    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
+    'text': 'the buttonweavers issue tracker',
+  }));
+  contact.append(' or e-mail us at help@buttonweavers.com.');
+
+  Login.getBody();
+};
+
+Login.getBody = function() {
   if (Login.logged_in) {
     return Login.pageModule.showLoggedInPage();
   } else if (Login.pageModule.showLoggedOutPage) {
@@ -128,7 +149,7 @@ Login.arrangeHeader = function() {
       'type': 'error',
       'text': 'You must be logged in in order to view this page.',
     };
-    Env.showStatusMessage();
+    Login.arrangePage();
   }
 };
 
@@ -136,18 +157,71 @@ Login.arrangePage = function(page, form, submitSelector) {
   // Now that the player is being given control, we're no longer automated
   Api.automatedApiCall = false;
 
+  Login.arrangeHeader();
+
+  // Set up necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  Login.arrangeBody(page, form, submitSelector);
+
+  Login.arrangeFooter();
+
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
+};
 
-  if (Login.pageModule && Login.pageModule.bodyDivId) {
-    $('#' + Login.pageModule.bodyDivId).empty();
-    $('#' + Login.pageModule.bodyDivId).append(page);
+Login.arrangeHeader = function() {
+  $('#login_header').empty();
+  $('#login_header').append(Login.message);
+
+  if (Login.formElements) {
+    $('#login_header').append(Login.formElements);
   }
+
+  if (Login.form) {
+    $('#login_name').focus();
+    $('#login_action_button').click(Login.form);
+  }
+};
+
+Login.arrangeBody = function(page, form, submitSelector) {
+  // Make sure the div element that we will need exists in the page body
+  if (!Login.pageModule || !Login.pageModule.bodyDivId) {
+    Env.message = {
+      'type': 'error',
+      'text':
+        'This page failed to load. Your browser may have cached an outdated ' +
+        'version of it. Try reloading the page, and if that doesn\'t work, ' +
+        'please drop us a line at help@buttonweavers.com or file a bug ' +
+        'report. Sorry for the inconvenience.',
+    };
+    return;
+  }
+
+  if ($('#' + Login.pageModule.bodyDivId).length === 0) {
+    $('#c_body').append($('<div>', {
+      'id': Login.pageModule.bodyDivId,
+      'class': 'mainBody',
+    }));
+  }
+
+  $('#' + Login.pageModule.bodyDivId).empty();
+  $('#' + Login.pageModule.bodyDivId).append(page);
 
   if (form && submitSelector) {
     $(submitSelector).click(form);
   }
+};
+
+Login.arrangeFooter = function() {
+  $('#c_footer').empty();
+  $('#c_footer').append('<br />');
+  $('#c_footer').append($('<hr>', { 'id': 'footer_separator', }));
+  $('#c_footer').append($('<div>', {'id': 'footer', }));
+
+  $('#footer').empty();
+  $('#footer').append(Login.footer);
 };
 
 // Get an empty form of the Login type
@@ -161,20 +235,19 @@ Login.getLoginForm = function() {
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible logged in state
-// The function should setup a header and a form
+// The function should set up a header and a form
 
 Login.stateLoggedIn = function(welcomeText) {
+  Login.formElements = null;
   Login.message = $('<p>');
-  var loginform = Login.getLoginForm();
-  loginform.append(
+  Login.message.append(
     welcomeText + ': You are logged in as ' + Login.player + '. '
   );
-  loginform.append($('<button>', {
+  Login.message.append($('<button>', {
     'id': 'login_action_button',
     'text': 'Logout?',
   }));
 
-  Login.message.append(loginform);
   Api.getNextNewPostId(Login.addMainNavbar);
   Login.form = Login.formLogout;
   Login.logged_in = true;
@@ -188,44 +261,54 @@ Login.stateLoggedOut = function(welcomeText) {
       $('<font>', {
         'color': Env.messageTypeColors.error,
         'text': 'Login failed - username or password invalid, or email ' +
-                'address has not been verified',
+                'address has not been verified. ',
       }));
   } else if (Login.status_type == Login.STATUS_ACTION_SUCCEEDED) {
     Login.message.append(
       $('<font>', {
         'color': Env.messageTypeColors.success,
-        'text': 'Logout succeeded - login again?',
+        'text': 'Logout succeeded - login again? ',
       }));
   } else {
     Login.message.append('You are not logged in. ');
   }
 
-  var loginform = Login.getLoginForm();
-  loginform.append('Username: ');
-  loginform.append($('<input>', {
+  Login.message.append($('<a>', {
+    'href': 'create_user.html',
+    'text': 'Create an account',
+  }));
+
+  Login.formElements = $('<div>', {
+    'class': 'login',
+  });
+  var loginExisting = Login.getLoginForm();
+  loginExisting.append('Username: ');
+  loginExisting.append($('<input>', {
     'type': 'text',
     'id': 'login_name',
     'name': 'login_name',
   }));
-  loginform.append(' Password: ');
-  loginform.append($('<input>', {
+  loginExisting.append(' Password: ');
+  loginExisting.append($('<input>', {
     'type': 'password',
     'id': 'login_pass',
     'name': 'login_pass',
   }));
-  loginform.append(' ');
-  loginform.append($('<button>', {
+  loginExisting.append(' ');
+  loginExisting.append($('<button>', {
     'id': 'login_action_button',
     'text': 'Login',
   }));
-  var createoption = $('<font>', { 'text': ' or ', });
-  createoption.append($('<a>', {
-    'href': 'create_user.html',
-    'text': 'Create an account',
+  loginExisting.append(' ');
+  loginExisting.append($('<input>', {
+    'type': 'checkbox',
+    'id': 'login_checkbox',
+    'name': 'login_checkbox',
   }));
-  loginform.append(createoption);
+  loginExisting.append('Keep me logged in');
 
-  Login.message.append(loginform);
+  Login.formElements.append(loginExisting);
+
   Login.form = Login.formLogin;
   Login.logged_in = false;
 };
@@ -327,17 +410,22 @@ Login.formLogout = function() {
 Login.formLogin = function() {
   var username = null;
   var password = null;
-  $('input#login_name').each(function(index, element) {
+  var doStayLoggedIn = false;
+  $('input#login_name').each(function(_index, element) {
     username = $.trim($(element).val());
   });
-  $('input#login_pass').each(function(index, element) {
+  $('input#login_pass').each(function(_index, element) {
     password = $(element).val();
+  });
+  $('input#login_checkbox').each(function(_index, element) {
+    doStayLoggedIn = $(element).is(':checked');
   });
 
   var loginargs = {
     'type': 'login',
     'username': username,
     'password': password,
+    'doStayLoggedIn': doStayLoggedIn,
   };
   Login.postToResponder(loginargs);
 };

@@ -24,7 +24,7 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
      * Hooked method applied when specifying recipes
      *
      * @param array $args
-     * @return boolean
+     * @return bool
      */
     public static function specify_recipes(array $args) {
         if (!parent::specify_recipes($args)) {
@@ -41,7 +41,7 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
         $dieSizeArray = parent::generate_die_sizes($nDice);
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills($skillCharArray, 3),
+            parent::randomly_select_skills(3, $skillCharArray),
             0,
             2
         );
@@ -61,37 +61,5 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
                implode(self::excluded_skill_char_array()) .
                ', with each skill dealt out twice ' .
                'randomly and independently over all dice.';
-    }
-
-    /**
-     * Array containing excluded die skill names
-     *
-     * @return array
-     */
-    protected static function excluded_skill_array() {
-        // Actively exclude possibly problematic skills
-        // The current selection is conservative, and should be whittled down in time,
-        // after we deal with bugs that arise from strange skill combinations
-        return array(
-            'Auxiliary', 'Reserve', 'Warrior', // game-level skills
-            'Doppelganger', 'Mad', 'Mood',
-            'Morphing', 'Radioactive', // recipe-changing skills
-            'Fire', // skills that add an extra step to attacks
-            'Slow', // skills excluded because they're no fun
-        );
-    }
-
-    /**
-     * Array containing excluded die skill characters
-     *
-     * @return array
-     */
-    protected static function excluded_skill_char_array() {
-        $skillCharArray = array_map(
-            'BMSkill::abbreviate_skill_name',
-            self::excluded_skill_array()
-        );
-        sort($skillCharArray);
-        return $skillCharArray;
     }
 }

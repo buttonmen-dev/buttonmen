@@ -17,6 +17,7 @@ module("Api", {
     delete Api.new_games;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.cancelled_games;
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
@@ -293,21 +294,26 @@ test("test_Api.parsePlayerData_failure", function(assert) {
   assert.equal(retval, false, "Api.parsePlayerData({}) returns false");
 });
 
+test("test_Api.getNewGamesData", function(assert) {
+  stop();
+  Api.getNewGamesData(function() {
+    assert.equal(Api.new_games.load_status, 'ok',
+         'Successfully loaded new games data');
+    assert.equal(Api.new_games.nGames, 0, 'Got expected number of new games');
+    start();
+  });
+});
+
 test("test_Api.getActiveGamesData", function(assert) {
   stop();
   Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    assert.equal(Api.active_games.nGames, 16, 'Got expected number of active games');
-    start();
-  });
-});
-
-test("test_Api.parseActiveGamesData", function(assert) {
-  stop();
-  Api.getActiveGamesData(function() {
-    assert.equal(Api.active_games.games.awaitingPlayer.length, 10,
-          "expected number of games parsed as waiting for the active player");
+    assert.ok(Api.active_games.nGames > 0, 'Parsed some active games');
+    assert.ok(Api.active_games.games.awaitingPlayer.length > 0,
+          "Parsed some games as waiting for the active player");
+    assert.ok(Api.active_games.nGames > Api.active_games.games.awaitingPlayer.length,
+          "Parsed more active games than games waiting for the active player");
     start();
   });
 });
@@ -317,16 +323,21 @@ test("test_Api.getCompletedGamesData", function(assert) {
   Api.getCompletedGamesData(function() {
     assert.equal(Api.completed_games.load_status, 'ok',
          'Successfully loaded completed games data');
-    assert.equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
+    assert.ok(Api.completed_games.nGames > 0, 'Parsed some completed games');
+    assert.equal(Api.completed_games.games[0]['status'], 'COMPLETE',
+          "Completed game has expected status");
     start();
   });
 });
 
-test("test_Api.parseCompletedGamesData", function(assert) {
+test("test_Api.getCancelledGamesData", function(assert) {
   stop();
-  Api.getCompletedGamesData(function() {
-    assert.equal(Api.completed_games.games[0].gameId, 5,
-          "expected completed game ID exists");
+  Api.getCancelledGamesData(function() {
+    assert.equal(Api.cancelled_games.load_status, 'ok',
+         'Successfully loaded cancelled games data');
+    assert.ok(Api.cancelled_games.nGames > 0, 'Parsed some cancelled games');
+    assert.equal(Api.cancelled_games.games[0]['status'], 'CANCELLED',
+          "Cancelled game has expected status");
     start();
   });
 });
@@ -438,7 +449,8 @@ test("test_Api.parseGamePlayerData", function(assert) {
     assert.deepEqual(Api.game.player.button, {
                 'name': 'Frasquito',
                 'recipe': '(4) (6) (8) (12) (2/20)',
-                'artFilename': 'BMdefaultRound.png',
+                'originalRecipe': '(4) (6) (8) (12) (2/20)',
+                'artFilename': 'frasquito.png',
               }, "recipe data should be parsed from API response");
     assert.deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
               "die descriptions should be parsed");
@@ -463,17 +475,6 @@ test("test_Api.parseGamePlayerData_option", function(assert) {
     assert.deepEqual(Api.game.player.optRequestArray, {
       4: ["2", "20"],
     });
-    start();
-  });
-});
-
-test("test_Api.playerWLTText", function(assert) {
-  stop();
-  var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');
-  Api.getGameData(gameId, 10, function() {
-    var text = Api.playerWLTText('opponent');
-    assert.ok(text.match('3/1/0'),
-       "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
 });
@@ -576,7 +577,7 @@ test("test_Api.loadForumThread", function(assert) {
 
 test("test_Api.getActivePlayers", function(assert) {
   stop();
-  Api.getActivePlayers(20,
+  Api.getActivePlayers(50,
     function() {
       assert.equal(Api.active_players.load_status, 'ok',
         'Successfully retrieved active players');
@@ -586,7 +587,7 @@ test("test_Api.getActivePlayers", function(assert) {
 
 test("test_Api.parseActivePlayers", function(assert) {
   stop();
-  Api.getActivePlayers(20,
+  Api.getActivePlayers(50,
     function() {
       assert.ok(Api.active_players.players.length,
         "Successfully parsed active players info");
@@ -633,7 +634,7 @@ test("test_Api.parseOpenGames", function(assert) {
 
 test("test_Api.joinOpenGame", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  Api.joinOpenGame(4400, 'Avis',
     function() {
       assert.equal(Api.join_game_result.load_status, 'ok',
         'Successfully retrieved open games');
@@ -647,7 +648,7 @@ test("test_Api.joinOpenGame", function(assert) {
 
 test("test_Api.parseJoinGameResult", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  Api.joinOpenGame(4400, 'Avis',
     function() {
       assert.equal(Api.join_game_result.success, true,
         "Successfully parsed join game result");
@@ -682,7 +683,7 @@ test("test_Api.parseSearchResults_games", function(assert) {
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    assert.equal(Api.game_history.games.length, 1,
+    assert.ok(Api.game_history.games.length > 0,
       "Successfully parsed search results games list");
     start();
   });
@@ -696,10 +697,11 @@ test("test_Api.parseSearchResults_summary", function(assert) {
             'numberOfResults': '20',
             'page': '1',
             'playerNameA': 'tester2',
+            'buttonNameA': 'Avis',
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    assert.equal(Api.game_history.summary.matchesFound, 2,
+    assert.ok(Api.game_history.summary.matchesFound > 0,
       "Successfully parsed search results summary data");
     start();
   });

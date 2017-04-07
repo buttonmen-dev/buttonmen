@@ -24,8 +24,8 @@ class BMAttackTrip extends BMAttack {
      * These include skill attacks involving warrior dice.
      *
      * @param BMGame $game
-     * @param boolean $includeOptional
-     * @return boolean
+     * @param bool $includeOptional
+     * @return bool
      */
     public function find_attack($game, $includeOptional = TRUE) {
         $targets = $game->defenderAllDieArray;
@@ -39,7 +39,7 @@ class BMAttackTrip extends BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     public function validate_attack($game, array $attackers, array $defenders) {
         $this->validationMessage = '';
@@ -87,7 +87,7 @@ class BMAttackTrip extends BMAttack {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
@@ -134,7 +134,7 @@ class BMAttackTrip extends BMAttack {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function is_disabled_by_konstant($attArray, $defArray) {
         if (1 != count($attArray)) {
@@ -153,7 +153,13 @@ class BMAttackTrip extends BMAttack {
             return TRUE;
         }
 
-        if ($def->has_skill('Konstant') && ($att->max < $def->value)) {
+        if ($att->has_skill('Konstant')) {
+            $attMaxVal = $att->value;
+        } else {
+            $attMaxVal = self::post_trip_roll_max($att);
+        }
+
+        if ($def->has_skill('Konstant') && ($attMaxVal < $def->value)) {
             $this->validationMessage = 'The attacking die cannot roll high enough to capture the target die';
             return TRUE;
         }
@@ -173,7 +179,7 @@ class BMAttackTrip extends BMAttack {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     protected function is_disabled_by_maximum($attArray, $defArray) {
         if (1 != count($attArray)) {

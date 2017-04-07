@@ -75,7 +75,7 @@ abstract class BMAttack {
             $attackTypeArray['Skill'] = 'Skill';
 
             if ($attacker->ownerObject instanceof BMGame) {
-                $ownerButton = $attacker->ownerObject->buttonArray[$attacker->playerIdx];
+                $ownerButton = $attacker->ownerObject->playerArray[$attacker->playerIdx]->button;
                 $ownerButton->run_hooks(
                     'attack_list',
                     array('attackTypeArray' => &$attackTypeArray)
@@ -219,6 +219,9 @@ abstract class BMAttack {
     /**
      * Determine the help bounds for a specific attack in a current BMGame
      *
+     * @param BMGame $game
+     * @param array $attackers
+     * @param array $defenders
      * @return array
      */
     public function help_bounds_specific($game, array $attackers, array $defenders) {
@@ -236,8 +239,8 @@ abstract class BMAttack {
      * These include skill attacks involving warrior dice.
      *
      * @param BMGame $game
-     * @param boolean $includeOptional
-     * @return boolean
+     * @param bool $includeOptional
+     * @return bool
      */
     abstract public function find_attack($game, $includeOptional = TRUE);
 
@@ -247,7 +250,7 @@ abstract class BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     abstract public function validate_attack($game, array $attackers, array $defenders);
 
@@ -256,7 +259,7 @@ abstract class BMAttack {
      *
      * @param array $attArray
      * @param array $defArray
-     * @return boolean
+     * @return bool
      */
     abstract protected function are_skills_compatible(array $attArray, array $defArray);
 
@@ -264,7 +267,7 @@ abstract class BMAttack {
      * Determine if any of the attackers is dizzy
      *
      * @param array $attackers
-     * @return boolean
+     * @return bool
      */
     public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
@@ -282,7 +285,7 @@ abstract class BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     public function commit_attack(&$game, array &$attackers, array &$defenders) {
         // Paranoia
@@ -291,7 +294,9 @@ abstract class BMAttack {
         }
 
         if ('Surrender' == $game->attack['attackType']) {
-            $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+            foreach ($game->playerArray as $player) {
+                $player->waitingOnAction = FALSE;
+            }
             $winnerArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
             $game->forceRoundResult = $winnerArray;
@@ -369,7 +374,7 @@ abstract class BMAttack {
      * Change the attack type specified in $game->attack from 'default' into
      * the actual attack type
      *
-     * @param type $game
+     * @param BMGame $game
      */
     public function resolve_default_attack(&$game) {
         if ('Default' == $game->attack['attackType'] &&
@@ -407,7 +412,7 @@ abstract class BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     protected function search_onevone($game, $attackers, $defenders) {
         // Sanity check
@@ -438,7 +443,7 @@ abstract class BMAttack {
      * @param array $one
      * @param array $many
      * @param function $compare
-     * @return boolean
+     * @return bool
      */
     protected function search_ovm_helper($game, $one, $many, $compare) {
         // Sanity check
@@ -480,7 +485,7 @@ abstract class BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     protected function search_onevmany($game, array $attackers, array $defenders) {
         $myself = $this;
@@ -501,7 +506,7 @@ abstract class BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @return boolean
+     * @return bool
      */
     protected function search_manyvone($game, array $attackers, array $defenders) {
         $myself = $this;
@@ -600,7 +605,7 @@ abstract class BMAttack {
      * Define behaviour of isset()
      *
      * @param string $property
-     * @return boolean
+     * @return bool
      */
     public function __isset($property) {
         return isset($this->$property);

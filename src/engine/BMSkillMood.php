@@ -21,7 +21,7 @@ class BMSkillMood extends BMSkill {
      * Hooked method applied before die roll
      *
      * @param array $args Array of arguments to hooked method
-     * @return boolean
+     * @return bool
      */
     public static function pre_roll(&$args) {
         if (!self::does_skill_trigger_on_pre_roll($args)) {
@@ -51,6 +51,12 @@ class BMSkillMood extends BMSkill {
         return TRUE;
     }
 
+    /**
+     * Checks whether this skill triggers on pre_roll
+     *
+     * @param BMDie $args
+     * @return bool
+     */
     protected static function does_skill_trigger_on_pre_roll($args) {
         if (!($args['die'] instanceof BMDie)) {
             return FALSE;
@@ -59,6 +65,10 @@ class BMSkillMood extends BMSkill {
         $die = $args['die'];
 
         if (empty($die->value) && !$die->has_flag('HasJustSplit')) {
+            return FALSE;
+        }
+
+        if ($die->has_flag('JustPerformedTripAttack')) {
             return FALSE;
         }
 
@@ -99,7 +109,7 @@ class BMSkillMood extends BMSkill {
      * Returns whether an object can have the mood swing skill
      *
      * @param mixed $obj
-     * @return boolean
+     * @return bool
      */
     protected static function can_have_mood($obj) {
         // Mood only has an effect on swing dice and twin swing dice
