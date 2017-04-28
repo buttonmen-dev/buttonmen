@@ -256,15 +256,17 @@ class PHPBMClientOutputWriter():
       entry['attacker_indices'], entry['defender_indices'],
       entry['all_attackers'], entry['all_defenders'],
       entry['attacker'], entry['defender'])
+    php_turbo_vals = 'array(%s)' % ', '.join(['%s => %s' % (k, v) for k, v in sorted(entry['turbo_vals'].items())])
     self.f.write("""
         $this->verify_api_submitTurn(
             %s,
             '%s',
             $retval, %s,
-            $gameId, %s, '%s', %d, %d, '');
+            $gameId, %s, '%s', %d, %d, '', %s);
 """ % (
       randstr, self._php_get_message(entry['retval']), php_attack_str,
-      entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender']))
+      entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender'],
+      php_turbo_vals))
 
   def _write_entry_type_datachange_numeric(self, entry):
     self.f.write("        $expData%s = %s;\n" % (entry['suffix'], json.dumps(entry['newval'])))
@@ -451,7 +453,7 @@ class PHPBMClientOutputWriter():
         self._write_php_diff_flat_dict_key(suffix, newdata[pkey], olddata[pkey], True)
       elif pkey in ['prevOptValueArray', ]:
         self._write_php_diff_prev_opt_value_array(suffix, newdata[pkey], olddata[pkey])
-      elif pkey == 'optRequestArray':
+      elif pkey in ['optRequestArray', 'turboSizeArray', ]:
         self._write_php_diff_opt_request_array(suffix, newdata[pkey], olddata[pkey])
       elif pkey in NUMERIC_KEYS:
         self._write_php_diff_numeric_key(suffix, newdata[pkey], olddata[pkey])
@@ -819,6 +821,17 @@ class LoggingBMClient():
       post_trip_sides = self._next_mighty_value(post_trip_sides)
     if 'Weak' in die['skills']:
       post_trip_sides = self._next_weak_value(post_trip_sides)
+    # TODO: make attack-selection in general aware of Turbo, don't
+    # just hack in the max possible value
+    if 'Turbo' in die['skills']:
+      # TODO: don't hardcode ranges, parse turboVals
+      if '/' in die['recipe']:
+        post_trip_sides = int(die['recipe'].split('/')[1].split(')')[0])
+      else:
+        swing_size = die['recipe'].split(',')[1].split(')')[0]
+        if not swing_size in SWING_RANGES:
+          raise ValueError("Could not figure out turbo trip die: %s" % die)
+        post_trip_sides = SWING_RANGES[swing_size][-1]
     return post_trip_sides
 
   def _min_trip_value(self, die):
@@ -842,6 +855,31 @@ class LoggingBMClient():
     sizes = [1, 2, 4, 6, 8, 10, 12, 16, 20, 30]
     if sides <= sizes[0]: return sizes[0]  # or should this return sides?
     return [x for x in sizes if sides > x][-1]
+
+  def _generate_turbo_val_arrays(self, part_attackers, attack_type):
+    turbovals = {}
+    attackerData = self.loaded_data['playerDataArray'][self.attacker]
+
+    # If we're given a list, convert it to a dict
+    if type(attackerData['turboSizeArray']) == list:
+      turboSizeData = {}
+      for i in range(len(attackerData['turboSizeArray'])):
+        turboSizeData[i] = attackerData['turboSizeArray'][i]
+    elif type(attackerData['turboSizeArray']) == dict:
+      turboSizeData = attackerData['turboSizeArray']
+    else:
+      raise ValueError, "Unexpected type: %s in data: %s" % (attackerData['turboSizeArray'], attackerData)
+
+    for key, values in sorted(turboSizeData.items()):
+      if int(key) in part_attackers:
+        if attack_type == 'Trip':
+	  # FIXME: this is a cheat to prevent having to recompute trip attack validity,
+          # but obviously we'd get a better test without a cheat
+          turbo_choice = values[-1]
+        else:
+          turbo_choice = self._random_array_element(values)
+        turbovals[key] = turbo_choice
+    return turbovals
 
   def _is_valid_attack_of_type_Skill(self, attackers, defenders, non_attackers):
     self.debug_skill_tries.append("ATT=%s, DEF=%s" % (attackers, defenders))
@@ -1032,9 +1070,10 @@ class LoggingBMClient():
       choice.append(die_idx)
     b.login()
     retval = b.choose_auxiliary_dice(self.game_id, action, die_idx)
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("API choose_auxiliary_dice(%s, %s, %s) unexpectedly failed: %s" % (
-        self.game_id, action, die_idx, retval.message))
+        self.game_id, action, die_idx,
+        retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'reactToAuxiliary',
@@ -1062,9 +1101,10 @@ class LoggingBMClient():
       choice.append(die_idx)
     b.login()
     retval = b.choose_reserve_dice(self.game_id, action, die_idx)
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("API choose_reserve_dice(%s, %s, %s) unexpectedly failed: %s" % (
-        self.game_id, action, die_idx, retval.message))
+        self.game_id, action, die_idx,
+        retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'reactToReserve',
@@ -1131,11 +1171,11 @@ class LoggingBMClient():
     retval = b.adjust_fire_dice(
       self.game_id, choice, idx_array, value_array,
       self.loaded_data['roundNumber'], self.loaded_data['timestamp'])
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("API adjust_fire_dice(%s, %s, %s, %s, %s, %s) unexpectedly failed: %s" % (
         self.game_id, choice, idx_array, value_array,
         self.loaded_data['roundNumber'], self.loaded_data['timestamp'],
-        retval.message))
+        retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'adjustFire',
@@ -1181,11 +1221,11 @@ class LoggingBMClient():
     retval = b.react_to_initiative(
       self.game_id, choice, idx_array, value_array,
       self.loaded_data['roundNumber'], self.loaded_data['timestamp'])
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("API react_to_initiative(%s, %s, %s, %s, %s, %s) unexpectedly failed: %s" % (
         self.game_id, choice, idx_array, value_array,
         self.loaded_data['roundNumber'], self.loaded_data['timestamp'],
-        retval.message))
+        retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'reactToInitiative',
@@ -1223,11 +1263,11 @@ class LoggingBMClient():
     retval = b.submit_die_values(
       self.game_id, swing_array, option_array,
       self.loaded_data['roundNumber'], self.loaded_data['timestamp'])
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("API submit_die_values(%s, %s, %s, %s, %s) unexpectedly failed: %s" % (
 	self.game_id, swing_array, option_array,
 	self.loaded_data['roundNumber'], self.loaded_data['timestamp'],
-	retval.message))
+        retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'submitDieValues',
@@ -1250,16 +1290,18 @@ class LoggingBMClient():
         chosenAttackFunction, chosenAttackType))
     [attacker_indices, defender_indices] = getattr(self, chosenAttackFunction)(b, attackerData, defenderData)
     attack = self._generate_attack_array(attacker_indices, defender_indices)
+    turbo_vals = self._generate_turbo_val_arrays(attacker_indices, chosenAttackType)
     b.login()
     retval = b.submit_turn(
       self.game_id, self.attacker, self.defender, attack,
       chosenAttackType, self.loaded_data['roundNumber'],
-      self.loaded_data['timestamp'])
+      self.loaded_data['timestamp'], turbo_vals)
     if not (retval and retval.status == 'ok'):
-      self.bug("API submit_turn(%s, %s, %s, %s, %s, %s, %s) unexpectedly failed: %s" % (
+      self.bug("API submit_turn(%s, %s, %s, %s, %s, %s, %s, %s) unexpectedly failed: %s" % (
 	self.game_id, self.attacker, self.defender,
 	attack, chosenAttackType, self.loaded_data['roundNumber'],
-	self.loaded_data['timestamp'], retval and retval.message or "NULL"))
+	self.loaded_data['timestamp'], turbo_vals,
+        retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'submitTurn',
@@ -1272,6 +1314,7 @@ class LoggingBMClient():
       'all_defenders': self.loaded_data['playerDataArray'][self.defender]['activeDieArray'],
       'attacker': self.attacker,
       'defender': self.defender,
+      'turbo_vals': turbo_vals,
     })
     self._add_php_post_action_block(b)
     self.record_load_game_data()
@@ -1381,9 +1424,10 @@ class LoggingBMClient():
   def record_create_game(self, button1, button2, max_wins=3, use_prev_game=False):
     self.player_client.login()
     retval = self.player_client.create_game(button1, button2, self.opponent_client.username, max_wins, use_prev_game)
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("create_game(%s, %s, %d) unexpectedly failed: %s" % (
-        button1, button2, max_wins, retval.message))
+        button1, button2, max_wins,
+        retval and retval.message or "NULL"))
 
     self.game_id = retval.data['gameId']
     self.log.append({
@@ -1421,9 +1465,10 @@ class LoggingBMClient():
     if not retval:
       self.bug("load_game_data(%s) unexpectedly returned False" % (
         self.game_id))
-    if not retval.status == 'ok':
+    if not (retval and retval.status == 'ok'):
       self.bug("load_game_data(%s) unexpectedly failed: %s" % (
-        self.game_id, retval.message))
+        self.game_id,
+        retval and retval.message or "NULL"))
     updating = True
     if updating and self.loaded_data:
       self.log.append({
