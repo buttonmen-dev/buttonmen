@@ -254,6 +254,7 @@ class BMInterface {
             $this->load_option_values_from_last_round($game);
             $this->load_option_values_from_this_round($game);
             $this->load_die_attributes($game);
+            $this->load_turbo_cache($game);
 
             $this->recreate_optRequestArrayArray($game);
 
@@ -571,6 +572,21 @@ class BMInterface {
         $game->outOfPlayDieArrayArray = $outOfPlayDieArrayArray;
     }
 
+    protected function load_turbo_cache($game) {
+        $turboCache = array();
+
+        $query = 'SELECT * '.
+                 'FROM game_turbo_cache '.
+                 'WHERE game_id = :game_id';
+        $statement2 = self::$conn->prepare($query);
+        $statement2->execute(array(':game_id' => $game->gameId));
+        while ($row = $statement2->fetch()) {
+            $turboCache[$row['die_idx']] = $row['turbo_size'];
+        }
+
+        $game->turboCache = $turboCache;
+    }
+
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
         if (isset($die->swingType) && !$die instanceof BMDieTwin) {
             $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
@@ -670,6 +686,7 @@ class BMInterface {
             $this->mark_existing_dice_as_deleted($game);
             $this->save_active_dice($game);
             $this->save_captured_dice($game);
+            $this->save_turbo_cache($game);
             $this->save_out_of_play_dice($game);
             $this->delete_dice_marked_as_deleted($game);
             $this->game_action()->save_action_log($game);
@@ -1084,6 +1101,30 @@ class BMInterface {
 
     protected function save_captured_dice($game) {
         $this->save_dice($game, $game->capturedDieArrayArray, 'CAPTURED');
+    }
+
+    protected function save_turbo_cache(BMGame $game) {
+        // delete previously saved turbo cache
+        $query = 'DELETE FROM game_turbo_cache '.
+                 'WHERE game_id = :game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $game->gameId));
+
+        if (empty($game->turboCache)) {
+            return;
+        }
+
+        // now add the new turbo cache
+        foreach ($game->turboCache as $dieIdx => $turboSize) {
+            $query = 'INSERT INTO game_turbo_cache '.
+                     '    (game_id, die_idx, turbo_size) '.
+                     'VALUES '.
+                     '    (:game_id, :die_idx, :turbo_size);';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId,
+                                      ':die_idx' => $dieIdx,
+                                      ':turbo_size' => $turboSize));
+        }
     }
 
     protected function save_out_of_play_dice($game) {

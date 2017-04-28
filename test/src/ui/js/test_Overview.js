@@ -83,13 +83,13 @@ test("test_Overview.showLoggedInPage", function(assert) {
   var getOverviewCalled = false;
   Overview.showPage = function() {
     assert.ok(getOverviewCalled, "Overview.getOverview is called before Overview.showPage");
-  }
+  };
   Overview.getOverview = function(callback) {
     getOverviewCalled = true;
     assert.equal(callback, Overview.showPage,
       "Overview.getOverview is called with Overview.showPage as an argument");
     callback();
-  }
+  };
 
   Overview.showLoggedInPage();
   var item = document.getElementById('overview_page');
@@ -289,7 +289,7 @@ test("test_Overview.addGameCol", function(assert) {
     '<td style=\"background-color: #fedcba\">' +
       '<a href=\"game.html?game=500\">Play 500</a>' +
     '</td>'
-  )
+  );
 
   // active game awaiting opponent, not stale
   gameInfo = [];
@@ -305,7 +305,7 @@ test("test_Overview.addGameCol", function(assert) {
     '<td style=\"background-color: #abcdef\">' +
       '<a href=\"game.html?game=500\">View 500</a>' +
     '</td>'
-  )
+  );
   assert.ok(!gameRow.hasClass('staleGame'));
 
   // active game awaiting opponent, stale
@@ -322,7 +322,7 @@ test("test_Overview.addGameCol", function(assert) {
     '<td style=\"background-color: #abcdef\">' +
       '<a href=\"game.html?game=500\">View 500</a>' +
     '</td>'
-  )
+  );
   assert.ok(gameRow.hasClass('staleGame'));
 });
 
@@ -334,7 +334,7 @@ test("test_Overview.addButtonCol", function(assert) {
     '<td>' +
       '<a href=\"buttons.html?button=testButtonName\">testButtonName</a>' +
     '</td>'
-  )
+  );
 });
 
 test("test_Overview.addPlayerCol", function(assert) {
@@ -345,7 +345,7 @@ test("test_Overview.addPlayerCol", function(assert) {
     '<td style=\"background-color: #fdcfff\">' +
       '<a href=\"profile.html?player=testPlayerName\">testPlayerName</a>' +
     '</td>'
-  )
+  );
   var gameRow = $('<tr>');
   Overview.addPlayerCol(gameRow, 'testPlayerName', 1, '#fdcfff');
   assert.ok(gameRow.html().match('vacation16.png'),
@@ -665,7 +665,7 @@ test("test_Overview.pageAddGameTable", function(assert) {
 
 test("test_Overview.toggleStaleGame", function(assert) {
   // james: currently don't know how to do this testing
-})
+});
 
 test("test_Overview.pageAddIntroText", function(assert) {
   Overview.page = $('<div>');
