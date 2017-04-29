@@ -1374,7 +1374,7 @@ test("test_Game.swingRangeTable", function(assert) {
     assert.equal(2, htmlobj[0].rows[0].cells[1].firstChild.getAttribute('maxlength'));
     assert.equal('swing_X', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('id'));
     assert.equal('swing', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('class'));
-    assert.equal('text', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('type'));
+    assert.equal('number', htmlobj[0].rows[0].cells[1].firstChild.getAttribute('type'));
 
     // second row deals with Y swing
     assert.equal(2, htmlobj[0].rows[1].cells.length);
@@ -1382,7 +1382,7 @@ test("test_Game.swingRangeTable", function(assert) {
     assert.equal(2, htmlobj[0].rows[1].cells[1].firstChild.getAttribute('maxlength'));
     assert.equal('swing_Y', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('id'));
     assert.equal('swing', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('class'));
-    assert.equal('text', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('type'));
+    assert.equal('number', htmlobj[0].rows[1].cells[1].firstChild.getAttribute('type'));
 
     start();
   });
