@@ -114,7 +114,7 @@ Login.getFooter = function() {
   var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
-    'Button Men is copyright 1999, 2016 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2017 James Ernest and Cheapass Games: ');
   copyright.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',
