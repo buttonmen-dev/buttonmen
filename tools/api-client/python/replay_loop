@@ -1,0 +1,157 @@
+#!/usr/bin/python
+##### replay_loop
+# This loop is designed for use on a VM which is recording games
+# for use in replay-testing of new code, or on a VM which is
+# replay-testing new code against recorded games.  It does:
+# 1. Play 100 new games using random_ai, generating replay logs in
+#    an internal log format, and caching it in pickle files
+# 2. Translate the 100 games into responderTest's PHP replay format
+# 3. If games are being recorded for future use, tar those generated
+#    files and cache them in an expected archive location
+# 4. Look for any new recorded files which may have showed up in the
+#    archive location, translate them into responderTest's PHP replay
+#    format, and use responderTest to test them.
+# These steps repeat indefinitely.  If steps 1 or 2 fail, the loop
+# will blow up and stop running.  Failures in step 4 are saved in
+# log files for later inspection, but the loop continues.
+
+import os
+import re
+import subprocess
+import sys
+import time
+import datetime
+
+HOSTNAME = subprocess.check_output(['hostname', ]).strip()
+COMMITID = None
+
+PARENTDIR = '/srv/bmgames/chaos-test'
+GAMESDIR = '%s/archive' % (PARENTDIR)
+STATEDIR = '%s/replay_state/%s' % (PARENTDIR, HOSTNAME)
+STATEFILE = '%s/filesread' % (STATEDIR)
+SRCDIR = '/buttonmen/src'
+TESTDIR = '/buttonmen/test'
+TESTFILE = '%s/src/api/responderTest.php' % TESTDIR
+
+SLEEPSECS = 60
+
+# e.g. 390b58027049ef07562b17ff9503471d0f2aae38.games.20160205.163427.tar.bz2
+GAMEFILE_RE = re.compile('^([0-9a-f]{40})\.games\.([0-9]{8}\.[0-9]{6})\.tar\.bz2$')
+
+ORIGDIR = os.getcwd()
+HOMEBMDIR = "%s/src/buttonmen" % ORIGDIR
+
+ARCHIVE_GAMES = len(sys.argv) > 1 and sys.argv[1] in [ '-a', '--archive', ]
+SKIP_INIT_NEW_GAMES = len(sys.argv) > 1 and sys.argv[1] in [ '-s', '--skip-init', ]
+
+def setup():
+  global COMMITID
+  if not os.path.isdir(STATEDIR):
+    os.mkdir(STATEDIR)
+  os.chdir(SRCDIR)
+  if not os.path.isfile('%s.test' % TESTFILE):
+    testlines = int(subprocess.check_output(['wc', '-l', TESTFILE]).split()[0])
+    os.system('sudo -u ubuntu sh -c "head -%d %s > %s.test"' % (testlines - 1, TESTFILE, TESTFILE))
+  if ARCHIVE_GAMES:
+    f = open('/buttonmen/.git/FETCH_HEAD')
+    COMMITID = f.readline().split()[0]
+    f.close()
+
+def load_state():
+  if os.path.isfile(STATEFILE):
+    f = open(STATEFILE, 'r')
+    state = [l.strip() for l in f.readlines()]
+    f.close()
+  else:
+    state = []
+  return state
+
+def save_state(state):
+  f = open(STATEFILE, 'w')
+  for l in state:
+    f.write('%s\n' % l)
+  f.close()
+
+def find_next_file(state):
+  newest_file = None
+  newest_timestamp = None
+  dirfiles = os.listdir(GAMESDIR)
+  for dirfile in dirfiles:
+    if dirfile in state: continue
+    mobj = GAMEFILE_RE.match(dirfile)
+    if mobj:
+      if not newest_timestamp or mobj.group(2) > newest_timestamp:
+        newest_timestamp = mobj.group(2)
+        newest_file = dirfile
+  return newest_file
+
+def test_file(filename):
+  ## prep test file for replay
+  os.chdir(HOMEBMDIR)
+  os.system('tar xf %s/%s' % (GAMESDIR, filename))
+  os.system('sudo -u ubuntu cp -f %s.test %s' % (TESTFILE, TESTFILE))
+  os.system('sudo chown chaos %s' % TESTFILE)
+  retval = os.system('./update_replay_games ./output >> %s' % TESTFILE)
+  if retval != 0:
+    sys.exit(1)
+  os.system('/bin/rm ./output/*')
+  os.system('echo "}" >> %s' % (TESTFILE))
+  os.chdir(SRCDIR)
+
+  # actually run the test, capturing output
+  logfile = '%s/%s.output' % (STATEDIR, filename)
+  cmdargs = 'sudo -u ubuntu sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/responderTest.php 2>&1" | tee %s' % (logfile)
+  print "About to execute: %s" % cmdargs
+  os.system(cmdargs)
+  return
+
+def test_new_games():
+  # If we're running in archive mode, this will generate new games
+  # and archive them for replay testing on this and other sites.
+  # Otherwise, it will simply run the tests and discard the results.
+  #
+  # Regardless, this is intended to blow up if any exceptions are
+  # received.
+
+  # Reset primary and test databases
+  os.system('echo "drop database buttonmen" | mysql -u root')
+  os.system('/usr/local/bin/create_buttonmen_databases')
+  os.system('cat ~/example_players.sql | mysql -u root')
+
+  os.chdir(HOMEBMDIR)
+  retval = os.system('./test_log_games 100')
+  if retval != 0:
+    sys.exit(1)
+
+  target_file = ARCHIVE_GAMES and './output/allgames.php' or '/dev/null'
+  retval = os.system('./prep_replay_games ./output > %s' % target_file)
+  if retval != 0:
+    sys.exit(1)
+
+  if ARCHIVE_GAMES:
+    timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
+    targetpath = '%s/%s.games.%s.tar' % (GAMESDIR, COMMITID, timestamp)
+    os.system('tar cf %s ./output' % (targetpath))
+    os.system('bzip2 %s' % (targetpath))
+  os.system('rm ./output/*')
+  os.chdir(SRCDIR)
+
+########################################################################
+setup()
+state = load_state()
+skip_init_new_games = SKIP_INIT_NEW_GAMES
+while True:
+  if skip_init_new_games:
+    print "Skipping new games the first time"
+    skip_init_new_games = False
+  else:
+    test_new_games()
+  nextfile = find_next_file(state)
+  if nextfile:
+    print "Testing %s..." % nextfile
+    test_file(nextfile)
+    state.append(nextfile)
+    save_state(state)
+  else:
+    print "No new files; sleeping..."
+    time.sleep(SLEEPSECS)

@@ -45,7 +45,7 @@ test("test_Env.getParameterByName", function(assert) {
   expect(4); // number of tests plus 2 for the teardown test
 
   Env.window.location.search = '?game=29';
-  Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis'
+  Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis';
 
   var gameId = Env.getParameterByName('game');
   assert.equal(gameId, '29', 'Query string parameter is found');
@@ -70,7 +70,7 @@ test("test_Env.removeParameterByName", function(assert) {
   Env.window.location.origin = 'http://buttonweavers.com:4444';
   Env.window.location.pathname = '/testpage.html';
   Env.window.location.search = '?game=7&auto=true&sparrow=African';
-  Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis'
+  Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis';
 
   Env.removeParameterByName('auto');
   assert.equal(
@@ -83,7 +83,7 @@ test("test_Env.removeParameterByName", function(assert) {
   Env.window.location.origin = 'http://buttonweavers.com';
   Env.window.location.pathname = '/game.html';
   Env.window.location.search = '?game=7';
-  Env.window.location.hash = ''
+  Env.window.location.hash = '';
 
   Env.removeParameterByName('auto');
   assert.equal(
@@ -210,15 +210,15 @@ test("test_Env.addClickKeyboardHandlers", function(assert) {
   var mouseClicked;
   var registerMouseClick = function() {
     mouseClicked = true;
-  }
+  };
   var spacePressed;
   var registerSpacePress = function() {
     spacePressed = true;
-  }
+  };
   var returnPressed;
   var registerReturnPress = function() {
     returnPressed = true;
-  }
+  };
   Env.addClickKeyboardHandlers(item, registerMouseClick, registerSpacePress, registerReturnPress);
 
   var spacePress = jQuery.Event('keydown');

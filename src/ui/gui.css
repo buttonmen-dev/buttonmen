@@ -241,6 +241,31 @@ select.center {
     border-radius: 5px;
 }
 
+.turbo_div {
+    padding: 5px;
+    margin: 7px;
+}
+
+.turbo_span {
+    padding: 9px 9px;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.turbo_subspan {
+    padding: 6px 6px;
+    border-radius: 5px;
+    margin-left: 12px;
+}
+
+.disabled_turbo {
+    color: grey;
+}
+
+#turbo_die_info_table {
+    margin-top: 6px;
+}
+
 .winner_name {
     font-size: 150%;
 }

@@ -51,7 +51,7 @@ class BMAttackDefault extends BMAttack {
      * @param array $defenders
      * @return bool
      */
-    public function validate_attack($game, array $attackers, array $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders, array $args = array()) {
         $this->validationMessage = '';
         $this->resolvedType = '';
 
@@ -65,7 +65,7 @@ class BMAttackDefault extends BMAttack {
                     $attack->add_die($die);
                 }
             }
-            if ($attack->validate_attack($game, $attackers, $defenders)) {
+            if ($attack->validate_attack($game, $attackers, $defenders, $args)) {
                 $validAttackTypeArray[] = $attackType;
             }
         }

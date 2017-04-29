@@ -289,7 +289,13 @@ abstract class BMAttack {
      */
     public function commit_attack(&$game, array &$attackers, array &$defenders) {
         // Paranoia
-        if (!$this->validate_attack($game, $attackers, $defenders, $game->firingAmount)) {
+        if (!$this->validate_attack(
+            $game,
+            $attackers,
+            $defenders,
+            array('helpValue' => $game->firingAmount)
+        )
+        ) {
             return FALSE;
         }
 
@@ -414,7 +420,7 @@ abstract class BMAttack {
      * @param array $defenders
      * @return bool
      */
-    protected function search_onevone($game, $attackers, $defenders) {
+    protected function search_onevone($game, $attackers, $defenders, array $args = array()) {
         // Sanity check
 
         if (count($attackers) < 1 || count($defenders) < 1) {
@@ -427,7 +433,7 @@ abstract class BMAttack {
 
         foreach ($aIt as $att) {
             foreach ($dIt as $def) {
-                if ($this->validate_attack($game, $att, $def)) {
+                if ($this->validate_attack($game, $att, $def, $args)) {
                     return TRUE;
                 }
             }

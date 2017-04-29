@@ -19,6 +19,11 @@ class BMAPIResponse():
     self.data = response_dict['data']
     self.message = response_dict['message']
     self.status = response_dict['status']
+    self.rand_vals = None
+    # Only replay testing uses this return value.
+    # A production site should never return it.
+    if 'BM_RAND_VALS_ROLLED' in response_dict:
+      self.rand_vals = response_dict['BM_RAND_VALS_ROLLED']
 
 class BMClient():
   def _read_rcfile(self, rcfile, site):
@@ -51,7 +56,10 @@ class BMClient():
     self._setup_cookies()
 
   def _make_request(self, args):
-    data = urllib.urlencode(args, True)
+    tuples = []
+    for [key, value] in sorted(args.items()):
+      tuples.append((key, value))
+    data = urllib.urlencode(tuples, True)
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -113,14 +121,15 @@ class BMClient():
     }
     return self._make_request(args)
 
-  def load_game_data(self, gameId):
+  def load_game_data(self, gameId, logEntryLimit=10):
     args = {
       'type': 'loadGameData',
       'game': gameId,
+      'logEntryLimit': logEntryLimit,
     }
     return self._make_request(args)
 
-  def create_game(self, pbutton, obutton=None, opponent=None, max_wins=3):
+  def create_game(self, pbutton, obutton=None, opponent=None, max_wins=3, use_prev_game=False):
     player_info = [self.username, pbutton, ]
     opponent_info = [opponent, obutton, ]
     args = {
@@ -129,4 +138,86 @@ class BMClient():
       'playerInfoArray[1][]': opponent_info,
       'maxWins': max_wins,
     }
+    if use_prev_game:
+      args['previousGameId'] = use_prev_game
+    return self._make_request(args)
+
+  def submit_turn(self, gameId, attackerIdx, defenderIdx, dieSelectStatus, attackType, roundNumber, timestamp, turboVals, chat=''):
+    args = {
+      'type': 'submitTurn',
+      'game': gameId,
+      'attackerIdx': attackerIdx,
+      'defenderIdx': defenderIdx,
+      'attackType': attackType,
+      'roundNumber': roundNumber,
+      'timestamp': timestamp,
+      'chat': chat,
+    }
+    for statkey in sorted(dieSelectStatus.keys()):
+      args['dieSelectStatus[%s]' % statkey] = dieSelectStatus[statkey]
+    for sizekey in sorted(turboVals.keys()):
+      args['turboVals[%s]' % sizekey] = turboVals[sizekey]
+    return self._make_request(args)
+
+  def submit_die_values(self, gameId, swingArray, optionArray, roundNumber, timestamp):
+    args = {
+      'type': 'submitDieValues',
+      'game': gameId,
+      'roundNumber': roundNumber,
+      'timestamp': timestamp,
+    }
+    if swingArray:
+      for [key, value] in sorted(swingArray.items()):
+        args['swingValueArray[%s]' % key] = value
+    if optionArray:
+      for [key, value] in sorted(optionArray.items()):
+        args['optionValueArray[%s]' % key] = value
+    return self._make_request(args)
+
+  def react_to_initiative(self, gameId, action, idxArray, valueArray, roundNumber, timestamp):
+    args = {
+      'type': 'reactToInitiative',
+      'game': gameId,
+      'roundNumber': roundNumber,
+      'timestamp': timestamp,
+      'action': action,
+    }
+    for i in range(len(idxArray)):
+      args['dieIdxArray[%d]' % i] = idxArray[i]
+    for i in range(len(valueArray)):
+      args['dieValueArray[%d]' % i] = valueArray[i]
+    return self._make_request(args)
+
+  def adjust_fire_dice(self, gameId, action, idxArray, valueArray, roundNumber, timestamp):
+    args = {
+      'type': 'adjustFire',
+      'game': gameId,
+      'roundNumber': roundNumber,
+      'timestamp': timestamp,
+      'action': action,
+    }
+    for i in range(len(idxArray)):
+      args['dieIdxArray[%d]' % i] = idxArray[i]
+    for i in range(len(valueArray)):
+      args['dieValueArray[%d]' % i] = valueArray[i]
+    return self._make_request(args)
+
+  def choose_reserve_dice(self, gameId, action, dieIdx):
+    args = {
+      'type': 'reactToReserve',
+      'game': gameId,
+      'action': action,
+    }
+    if dieIdx:
+      args['dieIdx'] = dieIdx
+    return self._make_request(args)
+
+  def choose_auxiliary_dice(self, gameId, action, dieIdx):
+    args = {
+      'type': 'reactToAuxiliary',
+      'game': gameId,
+      'action': action,
+    }
+    if dieIdx:
+      args['dieIdx'] = dieIdx
     return self._make_request(args)

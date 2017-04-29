@@ -19,6 +19,7 @@ Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
 Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
 Game.GAME_STATE_START_ROUND = 'START_ROUND';
 Game.GAME_STATE_START_TURN = 'START_TURN';
+Game.GAME_STATE_CHOOSE_TURBO_SWING_FOR_TRIP = 'CHOOSE_TURBO_SWING_FOR_TRIP';
 Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
 Game.GAME_STATE_COMMIT_ATTACK = 'COMMIT_ATTACK';
 Game.GAME_STATE_CHOOSE_TURBO_SWING = 'CHOOSE_TURBO_SWING';
@@ -218,6 +219,10 @@ Game.showStatePage = function() {
 
   // Now lay out the page
   Login.arrangePage(Game.page, Game.form, '#game_action_button');
+
+  // after the page has loaded (or possibly reloaded), update turbo visibility
+  // based on whether or not turbo dice are selected
+  Game.updateTurboVisibility();
 };
 
 /////
@@ -420,11 +425,11 @@ Game.actionSpecifyDiceActive = function() {
         'id': 'option_' + position,
         'name': 'option_' + position,
       });
-      $.each(vals, function(idx) {
+      $.each(vals, function(_idx_, val) {
         optselect.append($('<option>', {
-          'value': vals[idx],
-          'label': vals[idx],
-          'text': vals[idx],
+          'value': val,
+          'label': val,
+          'text': val,
         }));
       });
       optinput.append(optselect);
@@ -825,7 +830,6 @@ Game.actionReactToInitiativeNonplayer = function() {
 };
 
 Game.actionPlayTurnActive = function() {
-
   // Function to invoke on button click
   Game.form = Game.formPlayTurnActive;
 
@@ -835,6 +839,11 @@ Game.actionPlayTurnActive = function() {
   }
   Game.pageAddGameHeader('Your turn to attack');
   Game.pageAddDieBattleTable(true);
+
+  // james : add fire turndown
+
+  Game.pageAddTurboTable();
+
   Game.page.append($('<br>'));
 
   var attackdiv = $('<div>');
@@ -1498,11 +1507,26 @@ Game.formPlayTurnActive = function() {
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
-
   } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
       'text': 'You must select an attack type',
+    };
+    return Game.redrawGamePageFailure();
+  }
+
+  var turboFieldsFilled = true;
+  $.each(Game.activity.turboVals, function(position) {
+    var value = $('#turbo_element' + position).val();
+    if (!($.isNumeric(value))) {
+      turboFieldsFilled = false;
+      return false;
+    }
+  });
+  if (!turboFieldsFilled) {
+    Env.message = {
+      'type': 'error',
+      'text': 'Some turbo values missing or nonnumeric',
     };
     return Game.redrawGamePageFailure();
   }
@@ -1516,6 +1540,7 @@ Game.formPlayTurnActive = function() {
       defenderIdx: Api.game.opponentIdx,
       dieSelectStatus: Game.activity.dieSelectStatus,
       attackType: Game.activity.attackType,
+      turboVals: Game.activity.turboVals,
       chat: Game.activity.chat,
       roundNumber: Api.game.roundNumber,
       timestamp: Api.game.timestamp,
@@ -1674,12 +1699,21 @@ Game.readCurrentGameActivity = function() {
   for (i = 0 ; i < Api.game.opponent.activeDieArray.length; i++) {
     Game.activity.dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
   }
-  $('div.selected').each(function(index, element) {
+  $('div.selected').each(function(_idx_, element) {
     Game.activity.dieSelectStatus[$(element).attr('id')] = true;
   });
 
   // Get the specified attack type
   Game.activity.attackType = $('#attack_type_select').val();
+
+  // Read turbo values
+  Game.activity.turboVals = {};
+
+  $('[id^=turbo_element]').filter(function() {
+    return ($(this).prop('disabled') === false);
+  }).each(function() {
+    Game.activity.turboVals[$(this).attr('pos')] = $(this).val();
+  });
 
   // Store the game chat in recent activity (minus trailing whitespace)
   var chat = $('#game_chat').val();
@@ -2548,6 +2582,121 @@ Game.pageAddDieBattleTable = function(clickable) {
   return true;
 };
 
+Game.pageAddTurboTable = function() {
+  var turboDiv = $('<div>', {
+    'class': 'turbo_div',
+  });
+
+  var turboSpan = $('<span>', {
+    'id': 'turbo_span',
+    'class': 'turbo_span',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+    'text': 'Turbo resize:',
+  });
+
+  var hasTurboDice = false;
+  var turboSubspan;
+  var turboElement;
+  var die;
+  var prevVal;
+  var turboSwingRange;
+  var turboSizeArray;
+
+  // this logic only considers turbo dice owned by the current player, since
+  // it explicitly does not deal with displaying swing ranges for information
+  for (var idx = 0; idx < Api.game.player.activeDieArray.length; idx++) {
+    die = Api.game.player.activeDieArray[idx];
+    if ($.inArray('Turbo', die.skills) > -1) {
+      hasTurboDice = true;
+      turboSubspan = $('<span>', {
+        'id': 'turbo_subspan' + idx,
+        'class': 'turbo_subspan',
+        'style': 'background: none repeat scroll 0 0 #ffffff',
+        'text': Game.dieRecipeText(die) + ' ',
+      });
+
+      prevVal = die.sides;
+      if (die.properties.indexOf('Twin') >= 0) {
+        prevVal = die.sides / 2;
+      }
+
+      if (
+        (typeof Game.activity.turboVals !== 'undefined') &&
+        (typeof Game.activity.turboVals[idx] !== 'undefined')
+      ) {
+        prevVal = Game.activity.turboVals[idx];
+      }
+
+      turboSizeArray = Api.game.player.turboSizeArray[idx];
+
+      // Currently, we detect here whether a die is an option die by using
+      // recipe parsing. However, this represents dice like (8)! with a swing
+      // setting box, instead of with a dropdown, which would be more obvious.
+      // This is blocked on the fact that 'swing'/'option' should be properties
+      // in the API. See Issue 2163.
+      if (-1 === die.recipe.indexOf('/')) {
+        turboElement = Game.createTurboSelectorSwing(idx, prevVal);
+        turboSpan.append(turboSubspan);
+        turboSubspan.append(turboElement);
+
+        turboSwingRange = $('<span>', {
+          'text': ' (' + turboSizeArray[0] + '-' +
+                  turboSizeArray[turboSizeArray.length - 1] + ')',
+        });
+
+        turboSubspan.append(turboSwingRange);
+      } else {
+        turboElement = Game.createTurboSelectorOption(
+          idx,
+          turboSizeArray,
+          prevVal
+        );
+        turboSpan.append(turboSubspan);
+        turboSubspan.append(turboElement);
+      }
+    }
+  }
+
+  if (hasTurboDice) {
+    turboDiv.append(turboSpan);
+    Game.page.append(turboDiv);
+  }
+};
+
+Game.createTurboSelectorSwing = function(idx, prevVal) {
+  var input = $('<input>', {
+    'type': 'text',
+    'id': 'turbo_element' + idx,
+    'name': 'turbo_element' + idx,
+    'class': 'swing',
+    'pos': idx,
+    'value': prevVal,
+  });
+
+  return input;
+};
+
+Game.createTurboSelectorOption = function(idx, vals, prevVal) {
+  var select = $('<select>', {
+    'id': 'turbo_element' + idx,
+    'name': 'turbo_element' + idx,
+    'class': 'turbo_element',
+    'pos': idx,
+  });
+
+  $.each(vals, function(_idx_, val) {
+    select.append($('<option>', {
+      'value': val,
+      'label': val,
+      'text': val,
+    }));
+  });
+
+  select.val(prevVal);
+
+  return select;
+};
+
 // return a TD containing the button image for the player or opponent
 // button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
@@ -2700,8 +2849,8 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
  * and a string describing the reason why or why not.
  *
  * @param   {object}  die            The die to be displayed
- * @param   {boolean} die_status     Status of the die ('active' or 'captured')
  * @param   {string}  player         Whose is the die? ('player' or 'opponent')
+ * @param   {boolean} die_status     Status of the die ('active' or 'captured')
  * @param   {boolean} player_active  Is the player displaying the die active?
  * @returns {object}
  */
@@ -2947,6 +3096,12 @@ Game.getDieContainerDivOptions = function(
     } else {
       divOptions.class += ' unselected_' + player;
     }
+  }
+
+  if ((typeof die.skills !== 'undefined') &&
+      (die.skills.indexOf('Turbo') >= 0) &&
+      (player == 'player')) {
+    divOptions['class'] += ' turbo';
   }
 
   return divOptions;
@@ -3284,6 +3439,36 @@ Game.dieBorderTogglePlayerHandler = function() {
   } else {
     borderDiv.attr('style', '');
   }
+
+  if ($(this).hasClass('turbo')) {
+    Game.updateTurboVisibility();
+  }
+};
+
+Game.updateTurboVisibility = function() {
+  var turboDiv = $('.turbo_div');
+  var turboSubspanAll = $('.turbo_subspan');
+  var turboDiceAll = $('.turbo');
+  var turboElementAll = $( '[id^=\'turbo_element\']' );
+  var turboSubspan;
+  var turboElement;
+
+  turboDiv.css({'visibility':'hidden'});
+  turboSubspanAll.addClass('disabled_turbo');
+  turboElementAll.addClass('disabled_turbo');
+  turboElementAll.prop('disabled', true);
+
+  turboDiceAll.each(function() {
+    if ($(this).hasClass('selected')) {
+      turboSubspan = $('#turbo_subspan' + $(this).attr('id').match(/[^_]+$/));
+      turboDiv.css({'visibility':'visible'});
+      turboSubspan.removeClass('disabled_turbo');
+
+      turboElement = $('#turbo_element' + $(this).attr('id').match(/[^_]+$/));
+      turboElement.prop('disabled', false);
+      turboElement.removeClass('disabled_turbo');
+    }
+  });
 };
 
 Game.dieBorderToggleOpponentHandler = function() {

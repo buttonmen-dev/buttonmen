@@ -770,7 +770,6 @@ class BMDie extends BMCanHaveSkill {
 
     /**
      * Return all information about a die which is useful when
-     *
      * constructing an action log entry, in the form of an array.
      * This function exists so that BMGame can easily compare the
      * die state before the attack to the die state after the attack.
@@ -795,8 +794,27 @@ class BMDie extends BMCanHaveSkill {
             $actionLogInfo['forceReportDieSize'] = TRUE;
         }
 
+        if ($this->forceHideDieReroll()) {
+            $actionLogInfo['forceHideDieReroll'] = TRUE;
+        }
+
+        $this->addFlagInfoToActionLog($actionLogInfo);
+
+        return($actionLogInfo);
+    }
+
+    /**
+     * Add flag information to the action log.
+     *
+     * @param array $actionLogInfo
+     */
+    protected function addFlagInfoToActionLog(array &$actionLogInfo) {
         if ($this->has_flag('HasJustMorphed')) {
             $actionLogInfo['hasJustMorphed'] = TRUE;
+        }
+
+        if ($this->has_flag('HasJustTurboed')) {
+            $actionLogInfo['hasJustTurboed'] = $this->flagList['HasJustTurboed']->value();
         }
 
         if ($this->has_flag('HasJustRerolledOrnery')) {
@@ -840,8 +858,6 @@ class BMDie extends BMCanHaveSkill {
         if ($this->has_flag('IsRageTargetReplacement')) {
             $actionLogInfo['isRageTargetReplacement'] = TRUE;
         }
-
-        return($actionLogInfo);
     }
 
     /**
@@ -852,7 +868,19 @@ class BMDie extends BMCanHaveSkill {
      */
     public function forceReportDieSize() {
         return ($this->has_skill('Mood') || $this->has_skill('Mad') ||
-                $this->has_flag('HasJustMorphed'));
+                $this->has_flag('HasJustMorphed') ||
+                $this->has_flag('HasJustTurboed'));
+    }
+
+    /**
+     * Determine whether the die reroll needs to be suppressed.
+     *
+     * @return bool
+     */
+    public function forceHideDieReroll() {
+        return ($this->has_skill('Turbo') &&
+                ($this->has_flag('IsAttacker') ||
+                 $this->has_flag('JustPerformedTripAttack')));
     }
 
     /**
@@ -957,6 +985,29 @@ class BMDie extends BMCanHaveSkill {
     public function getDieTypes() {
         $typesList = array();
         return $typesList;
+    }
+
+    /**
+     * Attempt to do a turbo size set
+     *
+     * @param int $size
+     */
+    public function setTurboSize($size) {
+        if (isset($this->swingType)) {
+            $setSuccess = $this->set_swingValue(array($this->swingType => $size));
+            if (!$setSuccess) {
+                throw new LogicException('Invalid swing value for turbo die');
+            }
+        } elseif ($this instanceof BMDieOption) {
+            $setSuccess = $this->set_optionValue($size);
+            if (!$setSuccess) {
+                throw new LogicException('Invalid option value for turbo die');
+            }
+        } else {
+            if ((int)$size !== $this->max) {
+                throw new LogicException('Cannot change die size for a non-swing, non-option turbo die');
+            }
+        }
     }
 
     /**
