@@ -309,11 +309,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If a Rage die is captured, then the owner of the Rage Die adds a new die to their pool of the same size and ability of the Rage die that was taken, except that it loses the Rage ability. If a Rage Die participates in an Attack, it loses its Rage ability. IMPORTANT: Rage dice do not count for determining who goes first.',
                 'interacts' => array(
                     'Doppelganger' => 'A Doppelganger die that captures a Rage die with a Power attack will retain Rage after it transforms',
-                )
+                ),
             ),
             'Reserve' => array(
                 'code' => 'r',
                 'description' => 'These are extra dice which may be brought into play part way through a game. Each time you lose a round you may choose another of your Reserve Dice; it will then be in play for all future rounds.',
+                'interacts' => array(),
+            ),
+            'Rush' => array(
+                'code' => '#',
+                'description' => 'Rush Dice cannot perform Skill attacks, but can perform Speed attacks',
                 'interacts' => array(),
             ),
             'Shadow' => array(
@@ -9876,10 +9881,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                2, 8, 18,          // die skills for r3: c, n, t
+                2, 8, 19,          // die skills for r3: c, n, t
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                13, 6, 9,          // die skills for r4: s, M, o
+                14, 6, 9,          // die skills for r4: s, M, o
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 5, 7,           // initial die rolls for r4
@@ -11015,7 +11020,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 5, 10, 8,          // die skills for r3: k, p, n
                 0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
                 4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
-                20, 5, 6,          // die skills for r4: h, k, M
+                21, 5, 6,          // die skills for r4: h, k, M
                 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
                 1, 3, 6, 3, 3,     // initial die rolls for r3
                 5, 2, 7,           // initial die rolls for r4
@@ -12070,10 +12075,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
-                0, 15, 20,            // die skills for r3: B, d, h
+                0, 16, 21,            // die skills for r3: B, d, h
                 2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
                 5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
-                19, 1, 1, 11,         // die skills for r4: v, b, q
+                20, 1, 1, 11,         // die skills for r4: v, b, q
                 4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
                 4, 4, 1, 2, 2,        // initial die rolls for r3
                 2, 2, 4, 2, 13,       // initial die rolls for r4
@@ -12654,10 +12659,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 3, 0, 2, 5, 3,          // die sizes for r3: 6, 8, 10, 10, 20
-                6, 7, 19,               // die skills for r3: H, M, v
+                6, 7, 20,               // die skills for r3: H, M, v
                 0, 3, 2, 0, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                19, 0, 19, 18,          // die skills for r4: B, t, v
+                20, 0, 20, 19,          // die skills for r4: B, t, v
                 2, 4, 2, 2, 2, 1, 2, 1, // distribution of skills onto dice for r4
                 7, 10, 20,              // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 1, 1, 1, 3           // initial die rolls for r4
@@ -14874,10 +14879,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 2, 3, 3, 5,          // die sizes for r3: 4, 8, 10, 10, 20
-                7, 6, 18,               // die skills for r3: H, M, t
+                7, 6, 19,               // die skills for r3: H, M, t
                 0, 3, 2, 1, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                19, 0, 5,               // die skills for r4: B, k, v
+                20, 0, 5,               // die skills for r4: B, k, v
                 3, 4, 2, 1, 2, 1,       // distribution of skills onto dice for r4
                 1, 1, 1,                // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 2, 5, 2, 3           // initial die rolls for r4
