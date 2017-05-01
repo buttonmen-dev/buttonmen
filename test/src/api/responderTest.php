@@ -24,6 +24,7 @@ $RANDOMBM_SKILL_ARRAY = array(
   'p', // Poison
   'q', // Queer
   'G', // Rage
+  '#', // Rush
   's', // Shadow
   'z', // Speed
   'd', // Stealth
@@ -337,11 +338,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If a Rage die is captured, then the owner of the Rage Die adds a new die to their pool of the same size and ability of the Rage die that was taken, except that it loses the Rage ability. If a Rage Die participates in an Attack, it loses its Rage ability. IMPORTANT: Rage dice do not count for determining who goes first.',
                 'interacts' => array(
                     'Doppelganger' => 'A Doppelganger die that captures a Rage die with a Power attack will retain Rage after it transforms',
-                )
+                ),
             ),
             'Reserve' => array(
                 'code' => 'r',
                 'description' => 'These are extra dice which may be brought into play part way through a game. Each time you lose a round you may choose another of your Reserve Dice; it will then be in play for all future rounds.',
+                'interacts' => array(),
+            ),
+            'Rush' => array(
+                'code' => '#',
+                'description' => 'A Rush Die can perform a Rush Attack, in which it can capture two enemy dice with values that add up exactly to its value. However, Rush Dice are also vulnerable to the same kind of attack. Any die can make a Rush Attack if the target dice include at least one Rush Die.',
                 'interacts' => array(),
             ),
             'Shadow' => array(

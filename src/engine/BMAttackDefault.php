@@ -78,8 +78,10 @@ class BMAttackDefault extends BMAttack {
                 $this->validationMessage = 'There is no valid attack corresponding to the dice selected.';
                 return FALSE;
             default:
-                if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders, $validAttackTypeArray)) {
+                if ($this->is_one_on_two_no_frills_attack($attackers, $defenders, $validAttackTypeArray) ||
+                    $this->is_one_on_one_no_frills_attack($game, $attackers, $defenders, $validAttackTypeArray)) {
                     $this->resolvedType = $validAttackTypeArray[0];
+                    $this->validationMessage = '';
                     return TRUE;
                 }
 
@@ -204,6 +206,43 @@ class BMAttackDefault extends BMAttack {
         }
 
         return FALSE;
+    }
+
+    /**
+     * Check whether the specified attack is one-vs-two and unambiguous
+     *
+     * @param array $attackers
+     * @param array $defenders
+     * @param array $validAttackTypes
+     * @return bool
+     */
+    protected function is_one_on_two_no_frills_attack(
+        array $attackers,
+        array $defenders,
+        array $validAttackTypes
+    ) {
+        $messageRoot = 'Default attack is ambiguous. ';
+        $messageAttackTypes = 'Possible attack types: ' .
+            implode(', ', $validAttackTypes) . '.';
+
+        if (1 != count($attackers)) {
+            $this->validationMessage = $messageRoot . $messageAttackTypes;
+            return FALSE;
+        }
+
+        if (2 != count($defenders)) {
+            $this->validationMessage = $messageRoot . $messageAttackTypes;
+            return FALSE;
+        }
+
+        // deal with attacks with side effects
+        if (in_array('Berserk', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'A berserk attack will trigger the berserk skill, while other attack types will not.';
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     /**
