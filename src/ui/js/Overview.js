@@ -511,7 +511,7 @@ Overview.pageAddIntroText = function() {
       '</span> version of ' +
       'the Buttonweavers implementation of ');
     infopar.append($('<a>', {
-      'href': 'http://www.cheapass.com/node/39',
+      'href': 'http://cheapass.com/free-games/button-men/',
       'text': 'Button Men',
     }));
     infopar.append('.');
@@ -521,7 +521,7 @@ Overview.pageAddIntroText = function() {
 
     infopar = $('<p>');
     infopar.append(
-      'If you\r looking for the Button Men open alpha, please head over to ');
+      'If you\'re looking for the Button Men open alpha, please head over to ');
     infopar.append($('<a>', {
       'href': 'http://www.buttonweavers.com',
       'text': 'www.buttonweavers.com',
