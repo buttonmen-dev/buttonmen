@@ -49,6 +49,19 @@ UNUSED_DURING_AUTOPLAY_KEYS = [
   'dieBackgroundType',
 ]
 
+# TODO: we shouldn't need to hardcode this, there should always be
+# another source of the information - place a TODO anywhere we use this
+SWING_RANGES = {
+  'S': (6, 20),
+  'T': (2, 12),
+  'U': (8, 30),
+  'V': (6, 12),
+  'W': (4, 12),
+  'X': (4, 20),
+  'Y': (1, 20),
+  'Z': (4, 30),
+}
+
 # Because of vagaries of how responderTest writes per-turn API data
 # files, it can't handle running loadGameData more than 99 times.
 # So if the game contains more than 99 instances of loadGameData,
