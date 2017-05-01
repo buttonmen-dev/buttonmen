@@ -31,7 +31,7 @@ class BMSkillFocus extends BMSkill {
         // cache focus die values and then set the die value to minimum
         $valueCacheArray = array();
         foreach ($activeDieArray as $dieIdx => &$activeDie) {
-            if (array_search('BMSkillFocus', $activeDie->skillList)) {
+            if (array_search(get_called_class(), $activeDie->skillList)) {
                 $valueCacheArray[$dieIdx] = $activeDie->value;
                 $activeDie->value = $activeDie->min;
             }
@@ -43,7 +43,7 @@ class BMSkillFocus extends BMSkill {
 
         // reset die values
         foreach ($activeDieArray as $dieIdx => &$activeDie) {
-            if (array_search('BMSkillFocus', $activeDie->skillList)) {
+            if (array_search(get_called_class(), $activeDie->skillList)) {
                 $activeDie->value = $valueCacheArray[$dieIdx];
             }
         }
