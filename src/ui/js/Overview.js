@@ -503,13 +503,15 @@ Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
 
   var infopar;
-  if (Config.siteType == 'development') {
+  if (Config.siteType == 'development' || Config.siteType == 'staging') {
     infopar = $('<p>');
     infopar.append(
-      'This is the <span style="color: red;">DEVELOPMENT</span> version of ' +
+      'This is the <span style="color: red;">' +
+      Config.siteType.toUpperCase() +
+      '</span> version of ' +
       'the Buttonweavers implementation of ');
     infopar.append($('<a>', {
-      'href': 'http://www.cheapass.com/node/39',
+      'href': 'http://cheapass.com/free-games/button-men/',
       'text': 'Button Men',
     }));
     infopar.append('.');
@@ -519,7 +521,7 @@ Overview.pageAddIntroText = function() {
 
     infopar = $('<p>');
     infopar.append(
-      'If you\r looking for the Button Men open alpha, please head over to ');
+      'If you\'re looking for the Button Men open alpha, please head over to ');
     infopar.append($('<a>', {
       'href': 'http://www.buttonweavers.com',
       'text': 'www.buttonweavers.com',
@@ -529,7 +531,9 @@ Overview.pageAddIntroText = function() {
 
     infopar = $('<p>');
     infopar.append(
-      'If you\'re interested in joining the development site as a tester, ' +
+      'If you\'re interested in joining the ' +
+      Config.siteType +
+      ' site as a tester, ' +
       'then check out our ');
     infopar.append($('<a>', {
       'href': 'https://github.com/buttonmen-dev/buttonmen/wiki/Tester-guide',
