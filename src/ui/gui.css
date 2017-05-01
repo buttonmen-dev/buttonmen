@@ -256,6 +256,11 @@ select.center {
     padding: 6px 6px;
     border-radius: 5px;
     margin-left: 12px;
+    background: none repeat scroll 0 0 #ffffff;
+}
+
+.turbo_subspan.disabled_turbo {
+    background: none repeat scroll 0 0 #d7d7d7;
 }
 
 .disabled_turbo {

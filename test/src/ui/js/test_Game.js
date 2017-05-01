@@ -2472,7 +2472,7 @@ test("test_Game.updateTurboVisibility", function(assert) {
     Login.arrangePage(Game.page, null, null);
     Game.updateTurboVisibility();
 
-    assert.equal($('.turbo_div').css('visibility'), 'hidden', 'turbo div should be invisible');
+    assert.equal($('.turbo_div').css('visibility'), 'visible', 'turbo div should be visible');
     assert.ok($('#turbo_subspan1').hasClass('disabled_turbo'), 'turbo subspan 1 should look disabled');
     assert.ok($('#turbo_element1').hasClass('disabled_turbo'), 'turbo element 1 should look disabled');
     assert.ok($('#turbo_element1').prop('disabled'), 'turbo element 1 should be disabled');

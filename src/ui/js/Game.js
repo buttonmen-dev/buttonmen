@@ -2611,7 +2611,6 @@ Game.pageAddTurboTable = function() {
       turboSubspan = $('<span>', {
         'id': 'turbo_subspan' + idx,
         'class': 'turbo_subspan',
-        'style': 'background: none repeat scroll 0 0 #ffffff',
         'text': Game.dieRecipeText(die) + ' ',
       });
 
@@ -3446,14 +3445,12 @@ Game.dieBorderTogglePlayerHandler = function() {
 };
 
 Game.updateTurboVisibility = function() {
-  var turboDiv = $('.turbo_div');
   var turboSubspanAll = $('.turbo_subspan');
   var turboDiceAll = $('.turbo');
   var turboElementAll = $( '[id^=\'turbo_element\']' );
   var turboSubspan;
   var turboElement;
 
-  turboDiv.css({'visibility':'hidden'});
   turboSubspanAll.addClass('disabled_turbo');
   turboElementAll.addClass('disabled_turbo');
   turboElementAll.prop('disabled', true);
@@ -3461,7 +3458,6 @@ Game.updateTurboVisibility = function() {
   turboDiceAll.each(function() {
     if ($(this).hasClass('selected')) {
       turboSubspan = $('#turbo_subspan' + $(this).attr('id').match(/[^_]+$/));
-      turboDiv.css({'visibility':'visible'});
       turboSubspan.removeClass('disabled_turbo');
 
       turboElement = $('#turbo_element' + $(this).attr('id').match(/[^_]+$/));
