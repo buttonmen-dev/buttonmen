@@ -2611,7 +2611,6 @@ Game.pageAddTurboTable = function() {
       turboSubspan = $('<span>', {
         'id': 'turbo_subspan' + idx,
         'class': 'turbo_subspan',
-        'style': 'background: none repeat scroll 0 0 #ffffff',
         'text': Game.dieRecipeText(die) + ' ',
       });
 
