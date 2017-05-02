@@ -32,7 +32,7 @@ fi
 
 # Substitute variables into config file, and also comment out network
 # port setting that we don't use with AWS
-sed -i .orig \
+sed -i.orig \
     -e "s,BUTTONMEN_ACCESS_KEY_ID,$BUTTONMEN_ACCESS_KEY_ID," \
     -e "s,BUTTONMEN_SECRET_ACCESS_KEY,$BUTTONMEN_SECRET_ACCESS_KEY," \
     -e "s,BUTTONMEN_SSH_KEYPAIR_NAME,$BUTTONMEN_SSH_KEYPAIR_NAME," \

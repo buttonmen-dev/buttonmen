@@ -189,6 +189,13 @@ CREATE TABLE die_status (
     name               VARCHAR(20) NOT NULL
 );
 
+CREATE TABLE game_turbo_cache (
+    game_id      MEDIUMINT UNSIGNED NOT NULL,
+    die_idx      TINYINT UNSIGNED NOT NULL,
+    turbo_size   TINYINT UNSIGNED NOT NULL,
+    INDEX (game_id, die_idx)
+);
+
 CREATE TABLE open_game_possible_buttons (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     button_id          SMALLINT UNSIGNED NOT NULL

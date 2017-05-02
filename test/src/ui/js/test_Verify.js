@@ -57,13 +57,13 @@ test("test_Verify.showLoggedInPage", function(assert) {
   var getVerifyParamsCalled = false;
   Verify.showStatePage = function() {
     assert.ok(getVerifyParamsCalled, "Verify.getVerifyParams is called before Verify.showStatePage");
-  }
+  };
   Verify.getVerifyParams = function(callback) {
     getVerifyParamsCalled = true;
     assert.equal(callback, Verify.showStatePage,
       "Verify.getVerifyParams is called with Verify.showStatePage as an argument");
     callback();
-  }
+  };
 
   Verify.showLoggedInPage();
   var item = document.getElementById('verify_page');

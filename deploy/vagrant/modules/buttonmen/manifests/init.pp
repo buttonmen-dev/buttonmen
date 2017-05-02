@@ -74,6 +74,14 @@ class buttonmen::server {
           require => Exec["buttonmen_src_rsync"];
       }
     }
+    "staging.buttonweavers.com": {
+      exec {
+        "buttonmen_update_config_sitetype":
+          command =>
+            "/bin/sed -i -e '/^Config.siteType =/s/production/staging/' /var/www/ui/js/Config.js",
+          require => Exec["buttonmen_src_rsync"];
+      }
+    }
   }
 
   cron {

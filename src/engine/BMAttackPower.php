@@ -39,10 +39,10 @@ class BMAttackPower extends BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
-     * @param int|NULL $helpValue
+     * @param array $args
      * @return bool
      */
-    public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
+    public function validate_attack($game, array $attackers, array $defenders, array $args = array()) {
         $this->validationMessage = '';
 
         if (1 != count($attackers)) {
@@ -63,6 +63,12 @@ class BMAttackPower extends BMAttack {
         if (!$this->are_skills_compatible($attackers, $defenders)) {
             // validation message set within $this->are_skills_compatible()
             return FALSE;
+        }
+
+        $helpValue = NULL;
+
+        if (array_key_exists('helpValue', $args)) {
+            $helpValue = $args['helpValue'];
         }
 
         if (is_null($helpValue)) {

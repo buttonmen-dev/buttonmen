@@ -64,13 +64,13 @@ test("test_Newgame.showLoggedInPage", function(assert) {
   var getNewgameDataCalled = false;
   Newgame.showPage = function() {
     assert.ok(getNewgameDataCalled, "Newgame.getNewgameData is called before Newgame.showPage");
-  }
+  };
   Newgame.getNewgameData = function(callback) {
     getNewgameDataCalled = true;
     assert.equal(callback, Newgame.showPage,
       "Newgame.getNewgameData is called with Newgame.showPage as an argument");
     callback();
-  }
+  };
 
   Newgame.showLoggedInPage();
 
@@ -90,13 +90,13 @@ test("test_Newgame.showLoggedInPage_logged_out", function(assert) {
   var getNewgameDataCalled = false;
   Newgame.showPage = function() {
     assert.ok(getNewgameDataCalled, "Newgame.getNewgameData is called before Newgame.showPage");
-  }
+  };
   Newgame.getNewgameData = function(callback) {
     getNewgameDataCalled = true;
     assert.equal(callback, Newgame.showPage,
       "Newgame.getNewgameData is called with Newgame.showPage as an argument");
     callback();
-  }
+  };
 
   Newgame.showLoggedInPage();
 

@@ -655,17 +655,15 @@ class ApiResponder {
         if (!(array_key_exists('chat', $args))) {
             $args['chat'] = '';
         }
-        $retval = $interface->game()->submit_turn(
-            $_SESSION['user_id'],
-            $args['game'],
-            $args['roundNumber'],
-            $args['timestamp'],
-            $args['dieSelectStatus'],
-            $args['attackType'],
-            (int)$args['attackerIdx'],
-            (int)$args['defenderIdx'],
-            $args['chat']
-        );
+        if (!(array_key_exists('turboVals', $args))) {
+            $args['turboVals'] = array();
+        }
+
+        $args['playerId'] = $_SESSION['user_id'];
+        $args['attackerIdx'] = (int)$args['attackerIdx'];
+        $args['defenderIdx'] = (int)$args['defenderIdx'];
+
+        $retval = $interface->game()->submit_turn($args);
 
         if (isset($retval)) {
             $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);

@@ -208,20 +208,18 @@ class BMDieSwing extends BMDie {
             throw new InvalidArgumentException('isValueRequired must be boolean');
         }
 
-        $skillStr = '';
-        if (count($this->skillList) > 0) {
-            foreach (array_keys($this->skillList) as $skill) {
-                if (('Mood' != $skill) && ('Mad' != $skill)) {
-                    $skillStr .= "$skill ";
-                }
-            }
-        }
+        $skillStr = $this->skill_string();
 
         $moodStr = '';
         if ($this->has_skill('Mad')) {
             $moodStr = ' Mad';
         } elseif ($this->has_skill('Mood')) {
             $moodStr = ' Mood';
+        }
+
+        $turboStr = '';
+        if ($this->has_skill('Turbo')) {
+            $turboStr = 'Turbo ';
         }
 
         $sideStr = '';
@@ -238,9 +236,28 @@ class BMDieSwing extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}{$this->swingType}{$moodStr} Swing Die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$turboStr}{$this->swingType}{$moodStr}" .
+                  " Swing Die{$sideStr}{$valueStr}";
 
         return $result;
+    }
+
+    /**
+     * Get the skill string for this die
+     *
+     * @return string
+     */
+    protected function skill_string() {
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                if (('Mood' != $skill) && ('Mad' != $skill) && 'Turbo' != $skill) {
+                    $skillStr .= "$skill ";
+                }
+            }
+        }
+
+        return $skillStr;
     }
 
     /**
