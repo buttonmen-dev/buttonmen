@@ -4172,7 +4172,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // o(W)? idle rerolls, goes to 4 sides (idx 0) and value 2
         $this->verify_api_submitTurn(
             array(5, 10, 3, 3, 4, 10, 3, 3, 0, 2),
-            'responder003' . ' performed Skill attack using [o(X=4)?:4,o(Y=1)?:1,o(Z=4)?:4] against [o(X=10)?:9]; Defender o(X=10)? was captured; Attacker o(X=4)? changed size from 4 to 20 sides, recipe changed from o(X=4)? to o(X=20)?, rerolled 4 => 10; Attacker o(Y=1)? changed size from 1 to 6 sides, recipe changed from o(Y=1)? to o(Y=6)?, rerolled 1 => 3; Attacker o(Z=4)? changed size from 4 to 12 sides, recipe changed from o(Z=4)? to o(Z=12)?, rerolled 4 => 10. ' . 'responder003' . '\'s idle ornery dice rerolled at end of turn: o(V=6)? changed size from 6 to 12 sides, recipe changed from o(V=6)? to o(V=12)?, rerolled 2 => 3; o(W=4)? remained the same size, rerolled 2 => 2. ',
+            'responder003' . ' performed Skill attack using [o(X=4)?:4,o(Y=1)?:1,o(Z=4)?:4] against [o(X=10)?:9]; Defender o(X=10)? was captured; Attacker o(X=4)? changed size from 4 to 20 sides, recipe changed from o(X=4)? to o(X=20)?, rerolled 4 => 10; Attacker o(Y=1)? changed size from 1 to 6 sides, recipe changed from o(Y=1)? to o(Y=6)?, rerolled 1 => 3; Attacker o(Z=4)? changed size from 4 to 12 sides, recipe changed from o(Z=4)? to o(Z=12)?, rerolled 4 => 10. ' . 'responder003' . '\'s idle ornery dice rerolled at end of turn: o(V=6)? changed size from 6 to 12 sides, recipe changed from o(V=6)? to o(V=12)?, rerolled 2 => 3; o(W=4)? remained the same size, recipe remained o(W=4)?, rerolled 2 => 2. ',
             $retval, array(array(0, 2), array(0, 3), array(0, 4), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, '');
 
@@ -4197,13 +4197,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 10;
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 3;
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 10;
-        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustRerolledOrnery');
-        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('HasJustBeenMoody');
         $expData['playerDataArray'][0]['capturedDieArray'][] =
             array('value' => 9, 'sides' => '10', 'recipe' => 'o(X)?', 'properties' => array('WasJustCaptured'));
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003' . ' performed Skill attack using [o(X=4)?:4,o(Y=1)?:1,o(Z=4)?:4] against [o(X=10)?:9]; Defender o(X=10)? was captured; Attacker o(X=4)? changed size from 4 to 20 sides, recipe changed from o(X=4)? to o(X=20)?, rerolled 4 => 10; Attacker o(Y=1)? changed size from 1 to 6 sides, recipe changed from o(Y=1)? to o(Y=6)?, rerolled 1 => 3; Attacker o(Z=4)? changed size from 4 to 12 sides, recipe changed from o(Z=4)? to o(Z=12)?, rerolled 4 => 10'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003' . '\'s idle ornery dice rerolled at end of turn: o(V=6)? changed size from 6 to 12 sides, recipe changed from o(V=6)? to o(V=12)?, rerolled 2 => 3; o(W=4)? remained the same size, rerolled 2 => 2'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003' . '\'s idle ornery dice rerolled at end of turn: o(V=6)? changed size from 6 to 12 sides, recipe changed from o(V=6)? to o(V=12)?, rerolled 2 => 3; o(W=4)? remained the same size, recipe remained o(W=4)?, rerolled 2 => 2'));
         $expData['gameActionLogCount'] = 5;
 
         // now load the game and check its state
@@ -4247,8 +4250,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 18;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
-        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('HasJustBeenMoody');
         array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 1);
         $expData['playerDataArray'][1]['capturedDieArray'][] =
             array('value' => 10, 'sides' => '20', 'recipe' => 'o(X)?', 'properties' => array('WasJustCaptured'));
@@ -4281,8 +4291,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['roundScore'] = 35;
         $expData['playerDataArray'][0]['sideScore'] = 16.7;
         $expData['playerDataArray'][1]['sideScore'] = -16.7;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
         $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 10;
         $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 12;
@@ -9556,7 +9572,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Speed', 'Trip'),
             array(17, 35, -12.0, 12.0),
-            array(array(1, 4, array('value' => 4, 'sides' => 16, 'properties' => array('Twin'), 'description' => 'Shadow Twin R Mood Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 1), array('sides' => 8, 'value' => 3))))),
+            array(array(1, 4, array('value' => 4, 'sides' => 16, 'properties' => array('HasJustBeenMoody', 'Twin'), 'description' => 'Shadow Twin R Mood Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 1), array('sides' => 8, 'value' => 3))))),
             array(array(0, 4)),
             array(),
             array(array(1, array('value' => 3, 'sides' => 20, 'recipe' => 'sF(20)')))
@@ -10669,7 +10685,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Trip'),
             array(7.5, 31.5, -16.0, 16.0),
-            array(array(0, 1, array('value' => 9, 'sides' => '10', 'description' => 'Poison X Mood Swing Die (with 10 sides)')),
+            array(array(0, 1, array('value' => 9, 'sides' => '10', 'properties' => array('HasJustBeenMoody'), 'description' => 'Poison X Mood Swing Die (with 10 sides)')),
                   array(0, 2, array('value' => 1, 'properties' => array('HasJustRerolledOrnery')))),
             array(array(1, 3)),
             array(array(1, 0)),
@@ -10702,6 +10718,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $expData, 0, array('Power', 'Skill'),
             array(5, 36.5, -21.0, 21.0),
             array(array(1, 0, array('value' => 5)),
+                  array(0, 1, array('properties' => array())),
                   array(0, 2, array('properties' => array()))),
             array(array(0, 4)),
             array(array(0, 0)),
@@ -10857,7 +10874,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill'),
             array(42, 50, -5.3, 5.3),
-            array(array(0, 1, array('value' => 8, 'sides' => 12, 'description' => 'Mighty Ornery W Mood Swing Die (with 12 sides)', 'properties' => array('HasJustGrown', 'HasJustRerolledOrnery'))),
+            array(array(0, 1, array('value' => 8, 'sides' => 12, 'description' => 'Mighty Ornery W Mood Swing Die (with 12 sides)', 'properties' => array('HasJustBeenMoody', 'HasJustGrown', 'HasJustRerolledOrnery'))),
                   array(0, 3, array('value' => 3))),
             array(array(1, 0)),
             array(),
@@ -12016,6 +12033,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['waitingOnAction'] = false;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "Y Mad Swing Die (with 6 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array('HasJustBeenMoody');
         $expData['playerDataArray'][1]['roundScore'] = 18;
         $expData['playerDataArray'][1]['sideScore'] = 0.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
@@ -12041,6 +12059,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = -10.3;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
         $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "(10)";
         $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 10;
@@ -13189,7 +13208,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 15, // attacker rolls 15
                 4,  // defender rolls 4
             ),
-            'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured. ',
+            'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured. ',
             $retval, array(array(0, 1), array(1, 5)),
             $gameId, 1, 'Trip', 0, 1, '');
 
@@ -13206,10 +13225,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 20;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 15;
         $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array('Shadow', 'Trip', 'Mood');
-        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('JustPerformedTripAttack');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody', 'JustPerformedTripAttack');
         $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = 'st(S)?';
         $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Shadow Trip S Mood Swing Die (with 20 sides)';
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured'));
         $expData['gameActionLogCount'] += 1;
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
