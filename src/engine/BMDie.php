@@ -839,6 +839,11 @@ class BMDie extends BMCanHaveSkill {
             $actionLogInfo['hasJustTurboed'] = $this->flagList['HasJustTurboed']->value();
         }
 
+        if ($this->has_flag('HasJustBeenMoody')) {
+            $actionLogInfo['hasJustBeenMoody'] =
+                $this->flagList['HasJustBeenMoody']->value();
+        }
+
         if ($this->has_flag('HasJustRerolledOrnery')) {
             $actionLogInfo['hasJustRerolledOrnery'] = TRUE;
         }
@@ -889,9 +894,9 @@ class BMDie extends BMCanHaveSkill {
      * @return bool
      */
     public function forceReportDieSize() {
-        return ($this->has_skill('Mood') || $this->has_skill('Mad') ||
-                $this->has_flag('HasJustMorphed') ||
-                $this->has_flag('HasJustTurboed'));
+        return $this->has_flag('HasJustBeenMoody') ||
+               $this->has_flag('HasJustMorphed') ||
+               $this->has_flag('HasJustTurboed');
     }
 
     /**

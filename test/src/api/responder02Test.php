@@ -418,7 +418,7 @@ class responder02Test extends responderTestFramework {
         $this->update_expected_data_after_normal_attack(
             $expData, 0, array('Power', 'Skill', 'Speed', 'Trip'),
             array(17, 35, -12.0, 12.0),
-            array(array(1, 4, array('value' => 4, 'sides' => 16, 'properties' => array('Twin'), 'description' => 'Shadow Twin R Mood Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 1), array('sides' => 8, 'value' => 3))))),
+            array(array(1, 4, array('value' => 4, 'sides' => 16, 'properties' => array('HasJustBeenMoody', 'Twin'), 'description' => 'Shadow Twin R Mood Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 1), array('sides' => 8, 'value' => 3))))),
             array(array(0, 4)),
             array(),
             array(array(1, array('value' => 3, 'sides' => 20, 'recipe' => 'sF(20)')))
@@ -1541,7 +1541,7 @@ class responder02Test extends responderTestFramework {
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Trip'),
             array(7.5, 31.5, -16.0, 16.0),
-            array(array(0, 1, array('value' => 9, 'sides' => '10', 'description' => 'Poison X Mood Swing Die (with 10 sides)')),
+            array(array(0, 1, array('value' => 9, 'properties' => array('HasJustBeenMoody'), 'sides' => '10', 'description' => 'Poison X Mood Swing Die (with 10 sides)')),
                   array(0, 2, array('value' => 1, 'properties' => array('HasJustRerolledOrnery')))),
             array(array(1, 3)),
             array(array(1, 0)),
@@ -1574,6 +1574,7 @@ class responder02Test extends responderTestFramework {
             $expData, 0, array('Power', 'Skill'),
             array(5, 36.5, -21.0, 21.0),
             array(array(1, 0, array('value' => 5)),
+                  array(0, 1, array('properties' => array())),
                   array(0, 2, array('properties' => array()))),
             array(array(0, 4)),
             array(array(0, 0)),
@@ -1730,7 +1731,7 @@ class responder02Test extends responderTestFramework {
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill'),
             array(42, 50, -5.3, 5.3),
-            array(array(0, 1, array('value' => 8, 'sides' => 12, 'description' => 'Mighty Ornery W Mood Swing Die (with 12 sides)', 'properties' => array('HasJustGrown', 'HasJustRerolledOrnery'))),
+            array(array(0, 1, array('value' => 8, 'sides' => 12, 'description' => 'Mighty Ornery W Mood Swing Die (with 12 sides)', 'properties' => array('HasJustBeenMoody', 'HasJustGrown', 'HasJustRerolledOrnery'))),
                   array(0, 3, array('value' => 3))),
             array(array(1, 0)),
             array(),
@@ -2905,6 +2906,7 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][0]['waitingOnAction'] = false;
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "Y Mad Swing Die (with 6 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array('HasJustBeenMoody');
         $expData['playerDataArray'][1]['roundScore'] = 18;
         $expData['playerDataArray'][1]['sideScore'] = 0.3;
         $expData['playerDataArray'][1]['waitingOnAction'] = true;
@@ -2930,6 +2932,7 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][0]['sideScore'] = -10.3;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
         $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "(10)";
         $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 10;

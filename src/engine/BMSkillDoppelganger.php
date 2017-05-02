@@ -39,6 +39,8 @@ class BMSkillDoppelganger extends BMSkillMorphing {
         $activeDieArrayArray = $game->activeDieArrayArray;
 
         $newAttackDie = self::create_morphing_clone_target($args['caller'], $defender);
+        // give the copy that mood/mad trigger afterwards
+        $newAttackDie->value = $defender->value;
 
         $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;

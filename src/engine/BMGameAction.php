@@ -685,7 +685,15 @@ class BMGameAction {
     }
 
     /**
-     * Describes a die recipe change
+     * Describes a die recipe change.
+     *
+     * There are six possible scenarios here:
+     * - no recipe change
+     * - a non-mood recipe change
+     * - a mood recipe no change
+     * - a mood recipe change
+     * - a non-mood recipe change with a mood recipe no change
+     * - a non-mood recipe change with a mood recipe change
      *
      * @param array $preInfo
      * @param array $postInfo
@@ -694,17 +702,52 @@ class BMGameAction {
      */
     protected function message_recipe_change(array $preInfo, array $postInfo, $showFrom = TRUE) {
         $message = '';
+        $fromMessage = '';
 
-        if ($preInfo['recipe'] != $postInfo['recipe']) {
-            $message = 'recipe changed';
-
-            if ($showFrom) {
-                $message .= ' from ' . $preInfo['recipe'];
-            }
-
-            $message .= ' to ' . $postInfo['recipe'];
+        if ($showFrom) {
+            $fromMessage = ' from ' . $preInfo['recipe'];
         }
 
+        $hasJustBeenMoody = array_key_exists('hasJustBeenMoody', $postInfo);
+
+
+        if (!$hasJustBeenMoody) {
+            if ($preInfo['recipe'] == $postInfo['recipe']) {
+                // no change in recipe, do nothing
+            } else {
+                // non-mood change in recipe
+                $message .= 'recipe changed' .
+                            $fromMessage .
+                            ' to ' . $postInfo['recipe'];
+            }
+        } else {
+            if ($preInfo['recipe'] == $postInfo['hasJustBeenMoody']) {
+                if ($postInfo['hasJustBeenMoody'] == $postInfo['recipe']) {
+                    // no non-mood change in recipe, followed by a mood change to the same recipe
+                    $message .= 'recipe remained ' .
+                                $postInfo['recipe'];
+                } else {
+                    // no non-mood change in recipe, followed by a mood change to a new recipe
+                    $message .= 'recipe changed' .
+                                $fromMessage .
+                                ' to ' . $postInfo['recipe'];
+                }
+            } else {
+                if ($postInfo['hasJustBeenMoody'] == $postInfo['recipe']) {
+                    // non-mood change in recipe, followed by a mood change to the same recipe
+                    $message .= 'recipe changed' .
+                                $fromMessage .
+                                ' to ' . $postInfo['hasJustBeenMoody'] .
+                                ' then remained unchanged';
+                } else {
+                    // non-mood change in recipe, followed by a mood change to a new recipe
+                    $message .= 'recipe changed' .
+                                $fromMessage .
+                                ' to ' . $postInfo['hasJustBeenMoody'] .
+                                ' and then to ' . $postInfo['recipe'];
+                }
+            }
+        }
         return $message;
     }
 
