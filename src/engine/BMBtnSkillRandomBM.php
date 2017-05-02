@@ -223,7 +223,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         // after we deal with bugs that arise from strange skill combinations
         return array(
             'Auxiliary', 'Reserve', 'Warrior', // game-level skills
-            'Doppelganger', 'Mad', 'Mood',
+            'Doppelganger', 'Mad', 'Mood', 'Turbo',
             'Morphing', 'Radioactive', // recipe-changing skills
             'Fire', // skills that add an extra step to attacks
             'Slow', // skills excluded because they're no fun

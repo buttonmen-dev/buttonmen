@@ -63,13 +63,13 @@ test("test_UserPrefs.showLoggedInPage", function(assert) {
   var getterCalled = false;
   UserPrefs.assemblePage = function() {
     assert.ok(getterCalled, "Env.callAsyncInParallel is called before UserPrefs.assemblePage");
-  }
+  };
   Env.callAsyncInParallel = function(scripts, callback) {
     getterCalled = true;
     assert.equal(callback, UserPrefs.assemblePage,
       "Env.callAsyncInParallel is called with UserPrefs.assemblePage as an argument");
     callback();
-  }
+  };
 
   UserPrefs.showLoggedInPage();
   var item = document.getElementById('userprefs_page');

@@ -270,33 +270,43 @@ class BMGame {
      */
     protected $fireCache;
 
+    /**
+     * Internal cache of turbo size info, used to store turbo size selections
+     * when the game pauses in BMGameState::ADJUST_FIRE_DICE
+     */
+    protected $turboCache;
+
     // methods
     /**
      * This is a generic caller function that calls each
      * do_next_step_*() function, based on the current game state.
+     *
+     * @param array $args
      */
-    public function do_next_step() {
+    public function do_next_step(array $args = array()) {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
         }
 
         $funcName = 'do_next_step_'.
                     strtolower(BMGameState::as_string($this->gameState));
-        $this->$funcName();
+        $this->$funcName($args);
     }
 
     /**
      * This is a generic caller function that calls each
      * update_game_state_*() function, based on the current game state.
+     *
+     * @param array $args
      */
-    public function update_game_state() {
+    public function update_game_state(array $args = array()) {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
         }
 
         $funcName = 'update_game_state_'.
                     strtolower(BMGameState::as_string($this->gameState));
-        $this->$funcName();
+        $this->$funcName($args);
     }
 
     /**
@@ -364,7 +374,7 @@ class BMGame {
             throw new LogicException(
                 'maxWins must be set before applying handicaps.'
             );
-        };
+        }
 
         $nWins = 0;
 
@@ -1160,8 +1170,10 @@ class BMGame {
 
     /**
      * Update game state from BMGameState::start_turn if necessary
+     *
+     * @param array $args
      */
-    protected function update_game_state_start_turn() {
+    protected function update_game_state_start_turn($args) {
         if ($this->isWaitingOnAnyAction()) {
             return;
         }
@@ -1171,7 +1183,7 @@ class BMGame {
             return;
         }
 
-        $instance = $this->create_attack_instance();
+        $instance = $this->create_attack_instance($args);
         if (FALSE === $instance) {
             $this->attack = NULL;
             return;
@@ -1180,7 +1192,7 @@ class BMGame {
         $this->add_flag_to_attackers();
         $this->add_flag_to_attack_targets();
 
-        $this->gameState = BMGameState::ADJUST_FIRE_DICE;
+        $this->gameState = BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP;
     }
 
     /**
@@ -1216,9 +1228,11 @@ class BMGame {
      * Create a BMAttack instance that corresponds to the attack
      * specified in $this->attack
      *
+     * @param array $args
+     *
      * @return array|FALSE
      */
-    protected function create_attack_instance() {
+    protected function create_attack_instance(array $args = array()) {
         if (!isset($this->attack)) {
             $this->regenerate_attack();
         }
@@ -1249,11 +1263,17 @@ class BMGame {
             $attack->add_die($attackDie);
         }
 
+        $turboVals = array();
+        if (array_key_exists('turboVals', $args)) {
+            $turboVals = $args['turboVals'];
+        }
+
         $valid = $attack->validate_attack(
             $this,
             $attAttackDieArray,
             $defAttackDieArray,
-            $this->firingAmount
+            array('helpValue' => $this->firingAmount,
+                  'turboVals' => $turboVals)
         );
 
         if (!$valid) {
@@ -1335,9 +1355,45 @@ class BMGame {
     }
 
     /**
+     * Perform the logic required at BMGameState::choose_turbo_swing_for_trip
+     */
+    protected function do_next_step_choose_turbo_swing_for_trip() {
+        if ($this->attack['attackType'] != 'Trip') {
+            return;
+        }
+
+        $attackDice = $this->get__attackerAttackDieArray();
+
+        if (count($attackDice) != 1) {
+            throw new LogicException('There should only be one attacker for a trip attack');
+        }
+
+        $attackDie = $attackDice[0];
+
+        if ($attackDie->has_skill('Turbo') &&
+            $attackDie->doesReroll) {
+            $attacker = $this->playerArray[$this->attack['attackerPlayerIdx']];
+            $attacker->waitingOnAction = TRUE;
+        }
+    }
+
+    /**
+     * Update game state from BMGameState::choose_turbo_swing_for_trip
+     */
+    protected function update_game_state_choose_turbo_swing_for_trip() {
+        if (!$this->isWaitingOnAnyAction()) {
+            $this->gameState = BMGameState::ADJUST_FIRE_DICE;
+        }
+    }
+
+    /**
      * Perform the logic required at BMGameState::adjust_fire_dice
      */
     protected function do_next_step_adjust_fire_dice() {
+        if ($this->playerArray[$this->attack['attackerPlayerIdx']]->waitingOnAction) {
+            return;
+        }
+
         if ($this->needs_firing() || $this->allows_fire_overshooting()) {
             $this->playerArray[$this->attack['attackerPlayerIdx']]->waitingOnAction = TRUE;
         }
@@ -1383,7 +1439,7 @@ class BMGame {
             $this,
             $attackerDieArray,
             $defenderDieArray,
-            0
+            array('helpValue' => 0)
         ));
 
         if ($needsFiring) {
@@ -1459,7 +1515,7 @@ class BMGame {
             $this,
             $attackerDieArray,
             $defenderDieArray,
-            max(1, $defenderDie->value - $attackerDie->value + 1)
+            array('helpValue' => max(1, $defenderDie->value - $attackerDie->value + 1))
         )) {
             $this->log_action(
                 'allows_firing',
@@ -1596,7 +1652,7 @@ class BMGame {
             $this,
             $instance['attAttackDieArray'],
             $instance['defAttackDieArray'],
-            $firingAmount
+            array('helpValue' => $firingAmount)
         )) {
             $this->message = $instance['attack']->validationMessage;
             return FALSE;
@@ -1649,7 +1705,7 @@ class BMGame {
             $this,
             $instance['attAttackDieArray'],
             $instance['defAttackDieArray'],
-            0
+            array('helpValue' => 0)
         )) {
             $this->message = $instance['attack']->validationMessage;
             return FALSE;
@@ -1792,14 +1848,133 @@ class BMGame {
      * Perform the logic required at BMGameState::choose_turbo_swing
      */
     protected function do_next_step_choose_turbo_swing() {
+        if ($this->attack['attackType'] == 'Trip') {
+            return;
+        }
 
+        $attacker = $this->playerArray[$this->attack['attackerPlayerIdx']];
+        foreach ($attacker->activeDieArray as $activeDie) {
+            if ($activeDie->has_skill('Turbo') &&
+                $activeDie->has_flag('IsAttacker') &&
+                $activeDie->doesReroll) {
+                $attacker->waitingOnAction = TRUE;
+            }
+        }
+    }
+
+    /**
+     * Attempt to set the sizes of the attacking turbo dice
+     *
+     * @param array $turboSizeArray
+     * @return boolean
+     */
+    public function set_turbo_sizes(array $turboSizeArray) {
+        if (!$this->validate_turbo_sizes($turboSizeArray)) {
+            return FALSE;
+        }
+
+        $playerIdx = $this->attack['attackerPlayerIdx'];
+        $preTurboDice = array();
+        $postTurboDice = array();
+
+        // set turbo sizes
+        foreach ($turboSizeArray as $dieIdx => $dieSize) {
+            $die = $this->playerArray[$playerIdx]->activeDieArray[$dieIdx];
+
+            if (!$die->has_skill('Turbo')) {
+                $this->message = 'Cannot set turbo size for a non-turbo die';
+                return FALSE;
+            }
+
+            if (!$die->has_flag('IsAttacker')) {
+                $this->message = 'Only attacking turbo dice can set turbo size';
+                return FALSE;
+            }
+
+            $preTurboDice[] = $die->get_action_log_data();
+            $oldRecipe = $die->get_recipe(TRUE);
+            unset($die->value);
+            if (isset($die->dice)) {
+                foreach ($die->dice as $subdie) {
+                    unset($subdie->value);
+                }
+            }
+
+            try {
+                $die->setTurboSize($dieSize);
+            } catch (LogicException $e) {
+                $this->message = $e->getMessage();
+                return FALSE;
+            }
+
+            $die->roll();
+            $die->add_flag('HasJustTurboed', $oldRecipe);
+            $postTurboDice[] = $die->get_action_log_data();
+        }
+
+        $this->log_action(
+            'set_turbo',
+            $this->playerArray[$playerIdx]->playerId,
+            array(
+                'attackType' => $this->attack['attackType'],
+                'preTurboDice' => $preTurboDice,
+                'postTurboDice' => $postTurboDice
+            )
+        );
+
+        $this->playerArray[$playerIdx]->waitingOnAction = FALSE;
+
+        return TRUE;
+    }
+
+    /**
+     * Do some basic validation of the submitted turbo sizes
+     *
+     * @param array $turboSizeArray
+     * @return boolean
+     */
+    protected function validate_turbo_sizes(array $turboSizeArray) {
+        if ((BMGameState::CHOOSE_TURBO_SWING != $this->gameState) &&
+            (BMGameState::CHOOSE_TURBO_SWING_FOR_TRIP != $this->gameState)) {
+            $this->message = 'Wrong game state to choose turbo swing sizes.';
+            return FALSE;
+        }
+
+        $playerIdx = $this->attack['attackerPlayerIdx'];
+        $nDice = count($this->playerArray[$playerIdx]->activeDieArray);
+        foreach (array_keys($turboSizeArray) as $key) {
+            if (!is_int($key) || ($key < 0)) {
+                $this->message = 'The turbo size array must be keyed with non-negative integer die indices';
+                return FALSE;
+            }
+
+            if ($key > $nDice - 1) {
+                $this->message = 'The turbo size array seems to refer to a die index that does not exist';
+                return FALSE;
+            }
+        }
+
+        foreach ($this->playerArray[$playerIdx]->activeDieArray as $dieIdx => $die) {
+            if ($die->has_skill('Turbo') &&
+                $die->has_flag('IsAttacker') &&
+                !array_key_exists($dieIdx, $turboSizeArray) &&
+                !$die->has_flag('HasJustMorphed')) {
+                $this->message = 'Not all turbo values were specified';
+                return FALSE;
+            }
+        }
+
+        return TRUE;
     }
 
     /**
      * Update game state from BMGameState::choose_turbo_swing if necessary
      */
     protected function update_game_state_choose_turbo_swing() {
-        $this->gameState = BMGameState::END_TURN;
+        if (!$this->isWaitingOnAnyAction()) {
+            unset($this->turboCache);
+            $this->gameState = BMGameState::END_TURN;
+        }
     }
 
     /**
@@ -2007,16 +2182,21 @@ class BMGame {
      * (i) the game requires a player action, or
      * (ii) the game reaches a game state that signals that it has ended
      *
-     * The variable $gameStateBreakpoint is used for debugging purposes only.
-     * If used, the game will stop as soon as the game state becomes
-     * the value of $gameStateBreakpoint.
+     * The parameter 'gameStateBreakpoint' (as part of $args) is used for
+     * debugging purposes only. If used, the game will stop as soon as the
+     * game state becomes the value of $gameStateBreakpoint.
      *
-     * @param int $gameStateBreakpoint
+     * @param array $args
      */
-    public function proceed_to_next_user_action($gameStateBreakpoint = NULL) {
+    public function proceed_to_next_user_action(array $args = array()) {
         $repeatCount = 0;
         $initialGameState = $this->gameState;
-        $this->update_game_state();
+        $this->update_game_state($args);
+
+        $gameStateBreakpoint = NULL;
+        if (array_key_exists('gameStateBreakpoint', $args)) {
+            $gameStateBreakpoint = $args['gameStateBreakpoint'];
+        }
 
         if (isset($gameStateBreakpoint) &&
             ($gameStateBreakpoint == $this->gameState) &&
@@ -2024,18 +2204,18 @@ class BMGame {
             return;
         }
 
-        $this->do_next_step();
+        $this->do_next_step($args);
 
         while (!$this->isWaitingOnAnyAction()) {
             $tempGameState = $this->gameState;
-            $this->update_game_state();
+            $this->update_game_state($args);
 
             if (isset($gameStateBreakpoint) &&
                 ($gameStateBreakpoint == $this->gameState)) {
                 return;
             }
 
-            $this->do_next_step();
+            $this->do_next_step($args);
 
             if ($this->gameState >= BMGameState::END_GAME) {
                 return;
@@ -3442,6 +3622,7 @@ class BMGame {
                 'optRequestArray'     => $player->optRequestArray,
                 'prevSwingValueArray' => $player->prevSwingValueArray,
                 'prevOptValueArray'   => $player->prevOptValueArray,
+                'turboSizeArray'      => $this->get_turboSizeArray($playerIdx),
 // BMGame may lie about who's actually waiting
                 'waitingOnAction'     => $this->isWaitingOnAction($playerIdx, $requestingPlayerIdx),
                 'roundScore'          => $player->roundScore,
@@ -3902,7 +4083,7 @@ class BMGame {
      * @return array
      */
     protected function get_swingRequestArray($playerIdx, $requestingPlayerIdx) {
-        // do not show swing requests unless this information is actually necessary
+        // hide non-turbo swing requests when this information is not necessary
         if ($this->gameState > BMGameState::SPECIFY_DICE) {
             return array();
         }
@@ -3925,28 +4106,8 @@ class BMGame {
         }
 
         if (isset($swingRequestArrayArray[$playerIdx])) {
-            foreach ($swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
-                if ($swingdice[0] instanceof BMDieTwin) {
-                    if ($swingdice[0]->dice[0] instanceof BMDieSwing) {
-                        $swingdie = $swingdice[0]->dice[0];
-                    } elseif ($swingdice[0]->dice[1] instanceof BMDieSwing) {
-                        $swingdie = $swingdice[0]->dice[1];
-                    } else {
-                        throw new LogicException(
-                            'At least one of the subdice of a twin swing die should be a swing die'
-                        );
-                    }
-                } else {
-                    $swingdie = $swingdice[0];
-                }
-                if ($swingdie instanceof BMDieSwing) {
-                    $validRange = $swingdie->swing_range($swingtype);
-                } else {
-                    throw new LogicException(
-                        'Tried to put die in swingRequestArray which is not a swing die: ' . $swingdie
-                    );
-                }
-                $swingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
+            foreach (array_keys($swingRequestArrayArray[$playerIdx]) as $swingtype) {
+                $swingRequestArray[$swingtype] = BMDieSwing::swing_range($swingtype);
             }
         }
 
@@ -3994,6 +4155,33 @@ class BMGame {
         }
 
         return $swingRequestArrayArray;
+    }
+
+    /**
+     * Get the array of turbo sizes possible for all active dice for a particular player
+     *
+     * @param int $playerIdx
+     * @return array
+     */
+    protected function get_turboSizeArray($playerIdx) {
+        $turboSizeArray = array();
+
+        if (BMGameState::START_TURN == $this->gameState) {
+            foreach ($this->playerArray[$playerIdx]->activeDieArray as $dieIdx => $die) {
+                if ($die->has_skill('Turbo')) {
+                    if ($die instanceof BMDieOption) {
+                        $turboSizeArray[$dieIdx] = $die->optionValueArray;
+                    } elseif (isset($die->swingType)) {
+                        $swingRange = BMDieSwing::swing_range($die->swingType);
+                        $turboSizeArray[$dieIdx] = range($swingRange[0], $swingRange[1]);
+                    } else {
+                        $turboSizeArray[$dieIdx] = array($die->max);
+                    }
+                }
+            }
+        }
+
+        return $turboSizeArray;
     }
 
     /**

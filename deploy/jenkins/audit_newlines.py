@@ -11,6 +11,7 @@ SKIPPATHS = [
   './src/dev_favicon.ico',
   './src/favicon.ico',
   './src/favicon_monitor.ico',
+  './src/staging_favicon.ico',
   './src/ui/images',
   './src/ui/js/extern/images',
 

@@ -204,6 +204,15 @@ class BMGameAction {
         // in some way we want to report prior to being captured
         if ($attackType == 'Trip') {
             $defenderRerollsEarly = TRUE;
+
+            // deliberately hide the value of a turbo die performing a trip attack
+            if (FALSE !== strpos(
+                $preAttackDice['attacker'][0]['recipe'],
+                BMSkill::abbreviate_skill_name('Turbo')
+            )) {
+                $preAttackDice['attacker'][0]['recipeStatus'] =
+                    $preAttackDice['attacker'][0]['recipe'];
+            }
         } else {
             $defenderRerollsEarly = FALSE;
         }
@@ -242,7 +251,7 @@ class BMGameAction {
             $message .= $this->trip_message($preAttackDice, $postAttackDice, $messageDefender);
         } else {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
-            $message .= $messageDefender . '; ' . $messageAttacker;
+            $message .= implode('; ', array_filter(array($messageDefender, $messageAttacker)));
         }
 
         return $message;
@@ -400,7 +409,7 @@ class BMGameAction {
      * @return string
      */
     protected function trip_message($preAttackDice, $postAttackDice, $messageDefender) {
-        $message = '';
+        $messageArray = array();
 
         // this only triggers for trip attacks, so there can only be one attacker involved
         $midAttackDice = $preAttackDice;
@@ -415,8 +424,15 @@ class BMGameAction {
                 $postAttackDice['attacker'][0]['recipeAfterTripAttack'];
         }
 
-        $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
-        $message .= '; ' . $messageDefender;
+        if (array_key_exists('forceHideDieReroll', $postAttackDice['attacker'][0])) {
+            $midAttackDice['attacker'][0]['forceHideDieReroll'] =
+                $postAttackDice['attacker'][0]['forceHideDieReroll'];
+            $preAttackDice['attacker'][0]['recipeStatus'] =
+                $preAttackDice['attacker'][0]['recipe'];
+        }
+
+        $messageArray[] = $this->messageAttacker($preAttackDice, $midAttackDice, 'Trip');
+        $messageArray[] = $messageDefender;
 
         $splittingAfterTrip = (count($midAttackDice['attacker']) !=
                                count($postAttackDice['attacker']));
@@ -425,8 +441,10 @@ class BMGameAction {
 
         // deal with splitting after trip
         if ($splittingAfterTrip || $morphingAfterTrip) {
-            $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
+            $messageArray[] = $this->messageAttacker($midAttackDice, $postAttackDice);
         }
+
+        $message = implode('; ', array_filter($messageArray));
 
         return $message;
     }
@@ -436,9 +454,10 @@ class BMGameAction {
      *
      * @param array $preAttackDice
      * @param array $postAttackDice
+     * @param string $attackType
      * @return string
      */
-    protected function messageAttacker($preAttackDice, $postAttackDice) {
+    protected function messageAttacker($preAttackDice, $postAttackDice, $attackType = '') {
         $messageAttackerArray = array();
 
         // deal with the possibility of an attacker that splits
@@ -453,7 +472,6 @@ class BMGameAction {
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $initialAttackerInfo = $attackerInfo;
-
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
 
@@ -483,10 +501,18 @@ class BMGameAction {
                 $postEventsAttacker,
                 $this->message_recipe_change($attackerInfo, $postInfo)
             );
-            $this->message_append(
-                $postEventsAttacker,
-                $this->message_value_change($attackerInfo, $postInfo)
-            );
+            if (array_key_exists('forceHideDieReroll', $postInfo) &&
+                !($attackType == 'Trip')) {
+                $this->message_append(
+                    $postEventsAttacker,
+                    'rerolled from ' . $attackerInfo['value'] . ', changed size due to turbo'
+                );
+            } else {
+                $this->message_append(
+                    $postEventsAttacker,
+                    $this->message_value_change($attackerInfo, $postInfo)
+                );
+            }
             $this->message_append(
                 $postEventsAttacker,
                 $this->message_out_of_play($attackerInfo, $postInfo)
@@ -517,13 +543,15 @@ class BMGameAction {
      * @return int
      */
     protected static function max_from_recipe($recipe) {
+        $matches = array();
+
         if (preg_match('/\(.+=.+\)/', $recipe)) {
             // if there is an equals present, it must be a swing or option die, so play safe and
             // only look for numbers directly after an equals sign
             preg_match_all('/=(\d+)/', $recipe, $matches);
         } elseif (preg_match('/\(.+\/.+\)/', $recipe)) {
             // if there is an unspecified option die (which shouldn't occur), then return no value
-            $matches = array();
+
         } else {
             preg_match_all('/(\d+)/', $recipe, $matches);
         }
@@ -632,7 +660,7 @@ class BMGameAction {
      * @param array $postInfo
      * @return string
      */
-    protected function message_size_change($preInfo, $postInfo) {
+    protected function message_size_change(array $preInfo, array $postInfo) {
         $message = '';
 
         if ($preInfo['max'] != $postInfo['max']) {
@@ -648,26 +676,69 @@ class BMGameAction {
     }
 
     /**
-     * Describes a die recipe change
+     * Describes a die recipe change.
+     *
+     * There are six possible scenarios here:
+     * - no recipe change
+     * - a non-mood recipe change
+     * - a mood recipe no change
+     * - a mood recipe change
+     * - a non-mood recipe change with a mood recipe no change
+     * - a non-mood recipe change with a mood recipe change
      *
      * @param array $preInfo
      * @param array $postInfo
      * @param bool $showFrom
      * @return string
      */
-    protected function message_recipe_change($preInfo, $postInfo, $showFrom = TRUE) {
+    protected function message_recipe_change(array $preInfo, array $postInfo, $showFrom = TRUE) {
         $message = '';
+        $fromMessage = '';
 
-        if ($preInfo['recipe'] != $postInfo['recipe']) {
-            $message = 'recipe changed';
-
-            if ($showFrom) {
-                $message .= ' from ' . $preInfo['recipe'];
-            }
-
-            $message .= ' to ' . $postInfo['recipe'];
+        if ($showFrom) {
+            $fromMessage = ' from ' . $preInfo['recipe'];
         }
 
+        $hasJustBeenMoody = array_key_exists('hasJustBeenMoody', $postInfo);
+
+
+        if (!$hasJustBeenMoody) {
+            if ($preInfo['recipe'] == $postInfo['recipe']) {
+                // no change in recipe, do nothing
+            } else {
+                // non-mood change in recipe
+                $message .= 'recipe changed' .
+                            $fromMessage .
+                            ' to ' . $postInfo['recipe'];
+            }
+        } else {
+            if ($preInfo['recipe'] == $postInfo['hasJustBeenMoody']) {
+                if ($postInfo['hasJustBeenMoody'] == $postInfo['recipe']) {
+                    // no non-mood change in recipe, followed by a mood change to the same recipe
+                    $message .= 'recipe remained ' .
+                                $postInfo['recipe'];
+                } else {
+                    // no non-mood change in recipe, followed by a mood change to a new recipe
+                    $message .= 'recipe changed' .
+                                $fromMessage .
+                                ' to ' . $postInfo['recipe'];
+                }
+            } else {
+                if ($postInfo['hasJustBeenMoody'] == $postInfo['recipe']) {
+                    // non-mood change in recipe, followed by a mood change to the same recipe
+                    $message .= 'recipe changed' .
+                                $fromMessage .
+                                ' to ' . $postInfo['hasJustBeenMoody'] .
+                                ' then remained unchanged';
+                } else {
+                    // non-mood change in recipe, followed by a mood change to a new recipe
+                    $message .= 'recipe changed' .
+                                $fromMessage .
+                                ' to ' . $postInfo['hasJustBeenMoody'] .
+                                ' and then to ' . $postInfo['recipe'];
+                }
+            }
+        }
         return $message;
     }
 
@@ -678,8 +749,10 @@ class BMGameAction {
      * @param array $postInfo
      * @return string
      */
-    protected function message_value_change($preInfo, $postInfo) {
-        if ($postInfo['doesReroll']) {
+    protected function message_value_change(array $preInfo, array $postInfo) {
+        if (array_key_exists('forceHideDieReroll', $postInfo)) {
+            $message = 'rolled ' . $postInfo['value'];
+        } elseif ($postInfo['doesReroll']) {
             $message = 'rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
         } else {
             $message = 'does not reroll';
@@ -700,6 +773,46 @@ class BMGameAction {
         } else {
             $message = 'was not captured';
         }
+
+        return $message;
+    }
+
+    /**
+     * Describes the change of die due to turbo
+     *
+     * @return string
+     */
+    protected function friendly_message_set_turbo() {
+        $messageArray = array();
+
+        $preTurboDice = $this->params['preTurboDice'];
+        $postTurboDice = $this->params['postTurboDice'];
+        $attackType = '';
+        if (array_key_exists('attackType', $this->params)) {
+            $attackType = $this->params['attackType'];
+        }
+
+        if (count($preTurboDice) != count($postTurboDice)) {
+            throw new LogicException('The number of dice does not change due to Turbo');
+        }
+
+        foreach ($preTurboDice as $dieIdx => $preTurboDie) {
+            $postTurboDie = $postTurboDice[$dieIdx];
+
+            $messageSubArray = array();
+            $messageSubArray[] = 'Turbo die ' . $preTurboDie['recipe'] . ' ' .
+                                 $this->message_size_change($preTurboDie, $postTurboDie);
+            $messageSubArray[] = $this->message_recipe_change($preTurboDie, $postTurboDie);
+            if ($attackType != 'Trip') {
+                // intentionally hide the die value change to make it look like it happens
+                // in the trip attack
+                $messageSubArray[] = $this->message_value_change($preTurboDie, $postTurboDie);
+            }
+
+            $messageArray[] = implode(', ', array_filter($messageSubArray));
+        }
+
+        $message = implode('; ', $messageArray);
 
         return $message;
     }

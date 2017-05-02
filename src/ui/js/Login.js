@@ -93,6 +93,10 @@ Login.getLoginHeader = function() {
         $('#login_header').css('background-color', '#cccccc');
         $('#favicon').attr('href', '/dev_favicon.ico');
         welcomeText += ' Dev Site';
+      } else if (Config.siteType == 'staging') {
+        $('#login_header').css('background-color', '#ffffcc');
+        $('#favicon').attr('href', '/staging_favicon.ico');
+        welcomeText += ' Staging Site';
       } else if (Config.siteType != 'production') {
         $('#login_header').css('background-color', '#ff7777');
         welcomeText += ' CONFIG ERROR';
@@ -114,7 +118,7 @@ Login.getFooter = function() {
   var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
-    'Button Men is copyright 1999, 2016 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2017 James Ernest and Cheapass Games: ');
   copyright.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',

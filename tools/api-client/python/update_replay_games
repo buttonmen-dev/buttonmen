@@ -1,0 +1,38 @@
+#!/usr/bin/python
+##### update_replay_games
+# This should have the same functionality as prep_replay_games, but
+# can be modified to adjust the API output to account for changes
+# between the master version against which games were recorded, and
+# the version under test.  One-off changes which will not be needed
+# once the API update is committed should be made in this file and
+# should not be committed.  Support for permanent API changes should
+# be made in random_ai.py.
+
+import sys
+sys.path.append('lib')
+
+import random_ai
+
+########################################################################
+# Custom classes
+class PHPBMClientOutputWriter(random_ai.PHPBMClientOutputWriter):
+  # If you need to make any changes to the syntax of PHP output which is
+  # translated from the internal game state format for regression-testing
+  # previously recorded games against this PR (e.g. if the new code
+  # changes the API and you need to reflect those changes for replays
+  # to succeed), make those overrides here for clarity during testing.
+  #
+  # As a first resort, trying overriding apply_known_changes_to_game_data()
+  pass
+
+########################################################################
+# Initial setup
+if len(sys.argv) < 2:
+  raise ValueError("Usage: update_replay_games <dirname>")
+
+DIRNAME = sys.argv[1]
+
+d = PHPBMClientOutputWriter(DIRNAME)
+for gamepath in d.find_games():
+  sys.stderr.write("Updating and prepping game for replay from: %s\n" % gamepath)
+  d.translate_game(gamepath)
