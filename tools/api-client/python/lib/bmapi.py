@@ -3,19 +3,58 @@
 # The BMClient class provides one function for each API method,
 # which is called with the arguments to be passed to that method,
 # and returns the JSON response to the method invocation.
-import ConfigParser
-import cookielib
+
+### Imports
+
+# Import stuff from the future.
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+# Import regular stuff.
+
 import json
 import os
-import urllib
-import urllib2
+
+# Import Python version specific stuff.
+
+try:
+  import configparser
+except ImportError:
+  import ConfigParser as configparser
+
+try:
+  from http.cookiejar import LWPCookieJar
+except ImportError:
+  from cookielib import LWPCookieJar
+
+try:
+  from urllib.parse import urlparse
+except ImportError:
+  from urlparse import urlparse
+
+try:
+  from urllib.parse import urlencode
+except ImportError:
+  from urllib import urlencode
+
+try:
+  from urllib.error import HTTPError
+except ImportError:
+  from urllib2 import HTTPError
+
+try:
+  from urllib.request import urlopen, Request, HTTPCookieProcessor, build_opener, install_opener
+except ImportError:
+  from urllib2 import urlopen, Request, HTTPCookieProcessor, build_opener, install_opener
+
+### Classes
 
 class BMAPIResponse():
   def __init__(self, response_dict):
     for mandatory_arg in ['data', 'message', 'status']:
       if not mandatory_arg in response_dict:
-        raise ValueError, "Malformed API response is missing key '%s': %s" % (
-          mandatory_arg, response_dict)
+        raise(ValueError, "Malformed API response is missing key '%s': %s" % (
+          mandatory_arg, response_dict))
     self.data = response_dict['data']
     self.message = response_dict['message']
     self.status = response_dict['status']
@@ -30,7 +69,7 @@ class BMAPIResponse():
 
 class BMClient():
   def _read_rcfile(self, rcfile, site):
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(rcfile)
     self.url = config.get(site, "url")
     self.username = config.get(site, "username")
@@ -38,17 +77,17 @@ class BMClient():
     self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
     try:
       self.cachedir = os.path.expanduser(config.get(site, "cachedir"))
-    except ConfigParser.NoOptionError:
+    except (configparser.NoOptionError):
       pass
 
   def _setup_cookies(self):
     # all requests should use the same cookie jar
-    self.cookiejar = cookielib.LWPCookieJar(self.cookiefile)
+    self.cookiejar = LWPCookieJar(self.cookiefile)
     if os.path.isfile(self.cookiefile):
       self.cookiejar.load(ignore_discard=True)
-    self.cookieprocessor = urllib2.HTTPCookieProcessor(self.cookiejar)
-    self.opener = urllib2.build_opener(self.cookieprocessor)
-    urllib2.install_opener(self.opener)
+    self.cookieprocessor = HTTPCookieProcessor(self.cookiejar)
+    self.opener = build_opener(self.cookieprocessor)
+    install_opener(self.opener)
 
   def __init__(self, rcfile, site):
     self.username = None
@@ -62,18 +101,18 @@ class BMClient():
     tuples = []
     for [key, value] in sorted(args.items()):
       tuples.append((key, value))
-    data = urllib.urlencode(tuples, True)
+    data = urlencode(tuples, True)
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
-    req = urllib2.Request(self.url, data, headers)
-    response = urllib2.urlopen(req)
+    req = Request(self.url, data.encode('ascii'), headers)
+    response = urlopen(req)
     jsonval = response.read()
     try:
-      retval = json.loads(jsonval)
+      retval = json.loads(jsonval.decode('ascii'))
       return BMAPIResponse(retval)
-    except Exception, e:
-      print "could not parse return: " + jsonval
+    except (Exception) as e:
+      print("could not parse return: " + jsonval)
       return False
 
   def login(self):
