@@ -383,7 +383,11 @@ span.skill_title {
 span.skill_desc {
     border-bottom: 1px dotted #000000;
     text-decoration: none;
-    cursor: default;
+    cursor: help;
+}
+
+div.hidden_tooltip {
+    display: none;
 }
 
 span.info_icon {
