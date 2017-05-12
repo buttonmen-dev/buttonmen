@@ -317,6 +317,10 @@ test("test_Forum.formSaveEditPost", function(assert) {
   Forum.formSaveEditPost.call(button);
 });
 
+test("test_Forum.jumpToNextNewPost", function(assert) {
+  // currently no test here
+});
+
 test("test_Forum.buildBoardRow", function(assert) {
   var board = {
     'boardId': 3,
