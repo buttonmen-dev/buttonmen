@@ -62,6 +62,18 @@ def parse_arguments():
                       action='store_true',
                       help = "compare opponents to each other as well")
 
+  parser.add_argument('--summary',
+                      action='store_true',
+                      help = "summarize results")
+
+  parser.add_argument('--skip-detail',
+                      action='store_true',
+                      help = "skip the detailed per-opponent breakdown")
+
+  parser.add_argument('--wiki',
+                      action='store_true',
+                      help = "format results as a wiki table")
+
   parser.add_argument('--site',
                       default = 'www',
                       help = "site to check ('www' by default)")
@@ -73,12 +85,12 @@ def parse_arguments():
   # Return the parser.
 
   return parser.parse_args()
-          
-## print_record
-#
-# Print the record between two things.
 
-def print_record(bmconn, type, thing1, thing2):
+## get_record
+#
+# Get the record between two things.
+
+def get_record(bmconn, type, thing1, thing2):
 
   apicmd = { 'type': 'searchGameHistory',
              'sortColumn': 'lastMove',
@@ -104,14 +116,130 @@ def print_record(bmconn, type, thing1, thing2):
 
   wins = result.data['summary']['gamesWonA']
   losses = result.data['summary']['gamesWonB']
-  games = result.data['summary']['gamesCompleted']
 
-  try:
-    winpct = (wins / games) * 100
-  except ZeroDivisionError:
-    winpct = 0
+  return (thing1, thing2, wins, losses)
 
-  print "{0} vs {1}: {2} - {3} ({4:.2f}%)".format(thing1, thing2, wins, losses, winpct)
+## update_win_records
+#
+# Add the win record for both things versus each other to the win_records dictionary.
+
+def update_win_records(thing1, thing2, wins1, wins2):
+  if thing1 not in win_records:
+    win_records[thing1] = { }
+  win_records[thing1][thing2] = wins1
+  
+  if thing2 not in win_records:
+    win_records[thing2] = { }
+  win_records[thing2][thing1] = wins2
+
+## calculate_totals
+#
+# Calculats the total win/loss record for a thing based on the win_records
+
+def calculate_totals(thing):
+  wins = 0
+  for opponent in win_records[thing]:
+    wins += win_records[thing][opponent]
+
+  losses = 0
+  for opponent in win_records:
+    if opponent != thing:
+      losses += win_records[opponent][thing]
+
+  win_percent = calculate_percent(wins, losses)
+
+  return (wins, losses, win_percent)
+          
+## calculate_percent
+#
+# Find the ratio between the first value and the total of the two values
+
+def calculate_percent(first, second):
+  total = first + second
+  if total == 0:
+    return 0
+  return (first / total) * 100
+
+## display_wiki_table
+#
+# Display the win results as the source code of a Wikia-style table
+
+def display_wiki_table(protags, opponents):
+  print "{| class=\"wikitable\" style=\"white-space: nowrap; text-align: center;\""
+  if args.summary:
+    print "! Totals"
+  print "!"
+  if not args.skip_detail:
+    for opponent in opponents:
+      print "! {{{{Button|{0}}}}}".format(opponent)
+    print "!"
+ 
+  for protag in protags:
+    print "|- style=\"vertical-align: top;\""
+    if args.summary:
+      (wins, losses, win_percent) = calculate_totals(protag)
+      cell_text = "'''{0} - {1}'''".format(wins, losses)
+      cell_color = get_cell_color_by_record(wins, losses)
+      print "| style=\"background-color: " + cell_color + ";\" |" + cell_text
+    print "! {{{{Button|{0}}}}}".format(protag)
+    if not args.skip_detail:
+      for opponent in opponents:
+        if protag == opponent:
+          cell_text = ""
+          cell_color = "#e8e8e8"
+        else:
+          cell_text = "'''{0} - {1}'''".format(win_records[protag][opponent], win_records[opponent][protag])
+          cell_color = get_cell_color_by_record(win_records[protag][opponent], win_records[opponent][protag])
+        print "| style=\"background-color: " + cell_color + ";\" |" + cell_text
+      print "! {{{{Button|{0}}}}}".format(protag)
+
+  print "|- style=\"vertical-align: top;\""
+  if args.summary:
+    print "! Totals"
+  print "!"
+  if not args.skip_detail:
+    for opponent in opponents:
+      print "! {{{{Button|{0}}}}}".format(opponent)
+    print "!"
+  print "|}"
+
+def get_cell_color_by_record(wins, losses):
+  if wins + losses == 0:
+    return "#8888ff"
+  if wins + losses < 3:
+    return "#ccccff"
+
+  win_percent = calculate_percent(wins, losses)
+  if win_percent > 65:
+    return "#88ff88"
+  if win_percent < 35:
+    return "#ff8888"
+  if win_percent > 50:
+    return "#ccffcc"
+  if win_percent < 50:
+    return "#ffcccc"
+  # win_percent == 50
+  return "#ffffcc"
+
+## display_flat_results
+#
+# Display the win results as individual lines of text
+
+def display_flat_results(protags, opponents):
+  # Make a local copy of the list since we're going to be modifying it
+  opponents = list(opponents)
+
+  if not args.skip_detail:
+    for protag in protags:
+      opponents.remove(protag)
+      for opponent in opponents:
+        win_percent = calculate_percent(win_records[protag][opponent], win_records[opponent][protag])
+        print "{0} vs {1}: {2} - {3} ({4:.2f}%)".format(protag, opponent, win_records[protag][opponent], win_records[opponent][protag], win_percent)
+
+  if args.summary:
+    for protag in protags:
+      (wins, losses, win_percent) = calculate_totals(protag)
+      print "{0} totals: {1} - {2} ({3:.2f}%)".format(protag, wins, losses, win_percent)
 
 ### Main body
 
@@ -130,17 +258,30 @@ if not bmconn.verify_login():
   print "ERROR: Could not log in to {0}".format(args.site)
   sys.exit(1)
 
-# Get head-to-head info between the main protagonist and each of the
-# opponents.
+# Set up data structions to keep track of which things we're querying and what data we've gotten so far
 
-for opponent in args.opponent:
-  print_record (bmconn, args.type, args.protag, opponent)
-
-# If we're doing an n-way comparison, compare the other pairs too.
-
+protags = [ args.protag ]
 if args.n_way:
-  opponents = args.opponent
-  for protag in args.opponent:
-    opponents = opponents[1:]
-    for opponent in opponents:
-      print_record (bmconn, args.type, protag, opponent)
+  protags.extend(args.opponent)
+
+opponents = [ ]
+if args.n_way:
+  opponents.append(args.protag)
+opponents.extend(args.opponent)
+
+win_records = { }
+
+# Look up all the head-to-head data from the server
+
+for protag in protags:
+  for opponent in opponents:
+    if protag != opponent and (protag not in win_records or opponent not in win_records[protag]):
+      (thing1, thing2, wins, losses) = get_record(bmconn, args.type, protag, opponent)
+      update_win_records(thing1, thing2, wins, losses)
+
+# Render it appropriately
+
+if args.wiki:
+  display_wiki_table(protags, opponents)
+else:
+  display_flat_results(protags, opponents)
