@@ -7,6 +7,34 @@ function auth_session_exists() {
     return $dummyUserLoggedIn;
 }
 
+// Dieroller values which may change over time
+
+// RandomBM skills (used by all RandomBM types except RandomBMFixed)
+$RANDOMBM_SKILL_ARRAY = array(
+  'B', // Berserk
+  'b', // Boom
+  'c', // Chance
+  'f', // Focus
+  'I', // Insult
+  'k', // Konstant
+  'M', // Maximum
+  'H', // Mighty
+  'n', // Null
+  'o', // Ornery
+  'p', // Poison
+  'q', // Queer
+  'G', // Rage
+  's', // Shadow
+  'z', // Speed
+  'd', // Stealth
+  'g', // Stinger
+  '^', // TimeAndSpace
+  't', // Trip
+  'v', // Value
+  'h', // Weak
+);
+$RANDOMBM_SKILL = array_flip($RANDOMBM_SKILL_ARRAY);
+
 class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
@@ -9863,6 +9891,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * This game tests RandomBMMixed and verifies that trip attacks fail against too-large shadow maximum dice
      */
     public function test_interface_game_026() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -9876,10 +9905,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                2, 8, 18,          // die skills for r3: c, n, t
+                $RANDOMBM_SKILL['c'], $RANDOMBM_SKILL['n'], $RANDOMBM_SKILL['t'],
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                13, 6, 9,          // die skills for r4: s, M, o
+                $RANDOMBM_SKILL['s'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['o'],
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 5, 7,           // initial die rolls for r4
@@ -11002,6 +11031,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * 2. responder004 performed Skill attack using [Mhk(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mhk(4) changed size from 4 to 2 sides, recipe changed from Mhk(4) to Mhk(2), does not reroll; Attacker (12) rerolled 7 => 9
      */
     public function test_interface_game_033() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -11012,10 +11042,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
-                5, 10, 8,          // die skills for r3: k, p, n
+                $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['p'], $RANDOMBM_SKILL['n'],
                 0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
                 4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
-                20, 5, 6,          // die skills for r4: h, k, M
+                $RANDOMBM_SKILL['h'], $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['M'],
                 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
                 1, 3, 6, 3, 3,     // initial die rolls for r3
                 5, 2, 7,           // initial die rolls for r4
@@ -12059,6 +12089,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * This game reproduces logging behavior when a die with a second size-changing power makes a Berserk attack
      */
     public function test_interface_game_036() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -12070,10 +12101,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
-                0, 15, 20,            // die skills for r3: B, d, h
+                $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['d'], $RANDOMBM_SKILL['h'],
                 2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
                 5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
-                19, 1, 1, 11,         // die skills for r4: v, b, q
+                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['q'],
                 4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
                 4, 4, 1, 2, 2,        // initial die rolls for r3
                 2, 2, 4, 2, 13,       // initial die rolls for r4
@@ -12643,6 +12674,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * This game regression-tests and fixes the behavior of trip attacks against size-changing Maximum opponents
      */
     public function test_interface_game_040() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -12654,10 +12686,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 3, 0, 2, 5, 3,          // die sizes for r3: 6, 8, 10, 10, 20
-                6, 7, 19,               // die skills for r3: H, M, v
+                $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['v'],
                 0, 3, 2, 0, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                19, 0, 19, 18,          // die skills for r4: B, t, v
+                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['t'],
                 2, 4, 2, 2, 2, 1, 2, 1, // distribution of skills onto dice for r4
                 7, 10, 20,              // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 1, 1, 1, 3           // initial die rolls for r4
@@ -14864,6 +14896,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * against a konstant die with a value larger than the current size
      */
     public function test_interface_game_047() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -14874,10 +14907,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 2, 3, 3, 5,          // die sizes for r3: 4, 8, 10, 10, 20
-                7, 6, 18,               // die skills for r3: H, M, t
+                $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['t'],
                 0, 3, 2, 1, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                19, 0, 5,               // die skills for r4: B, k, v
+                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['k'],
                 3, 4, 2, 1, 2, 1,       // distribution of skills onto dice for r4
                 1, 1, 1,                // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 2, 5, 2, 3           // initial die rolls for r4
