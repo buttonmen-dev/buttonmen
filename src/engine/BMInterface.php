@@ -344,6 +344,7 @@ class BMInterface {
     }
 
     protected function load_game_attributes($game, $row) {
+        $game->creatorId = $row['creator_id'];
         $game->gameState = $row['game_state'];
         $game->maxWins   = $row['n_target_wins'];
         $game->turnNumberInRound = $row['turn_number_in_round'];

@@ -36,7 +36,6 @@ class BMInterfaceGame extends BMInterface {
             $this->validate_game_info(
                 $playerIdArray,
                 $maxWins,
-                $currentPlayerId,
                 $previousGameId
             );
         if (!$isValidInfo) {
@@ -48,16 +47,38 @@ class BMInterfaceGame extends BMInterface {
             return NULL;
         }
 
+        // check that the first button has been specified
+        if (empty($buttonNameArray[0])) {
+            $this->set_message("The first button needs to be set.");
+            return NULL;
+        }
+
         try {
-            $gameId = $this->insert_new_game($playerIdArray, $maxWins, $description, $previousGameId);
+            if (!isset($currentPlayerId)) {
+                throw new LogicException(
+                    "$currentPlayerId must be set"
+                );
+            }
+
+            $gameId = $this->insert_new_game(
+                $playerIdArray,
+                $maxWins,
+                $description,
+                $previousGameId,
+                $currentPlayerId
+            );
 
             foreach ($playerIdArray as $position => $playerId) {
+                $hasAcceptedGame = ($playerId === $currentPlayerId) ||
+                                   $autoAccept ||
+                                   $this->retrieve_player_autoaccept($playerId);
+
                 $this->add_player_to_new_game(
                     $gameId,
                     $playerId,
                     $buttonIdArray[$position],
                     $position,
-                    (0 == $position) || $autoAccept || $this->retrieve_player_autoaccept($playerId)
+                    $hasAcceptedGame
                 );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
@@ -65,7 +86,7 @@ class BMInterfaceGame extends BMInterface {
             // update game state to latest possible
             $game = $this->load_game($gameId);
             if (!($game instanceof BMGame)) {
-                throw new Exception(
+                throw new UnexpectedValueException(
                     "Could not load newly-created game $gameId"
                 );
             }
@@ -100,7 +121,8 @@ class BMInterfaceGame extends BMInterface {
         array $playerIdArray,
         $maxWins = 3,
         $description = '',
-        $previousGameId = NULL
+        $previousGameId = NULL,
+        $creatorId = NULL
     ) {
         try {
             // create basic game details
@@ -127,7 +149,7 @@ class BMInterfaceGame extends BMInterface {
                                       ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
-                                      ':creator_id'    => $playerIdArray[0],
+                                      ':creator_id'    => $creatorId,
                                       ':start_time' => time(),
                                       ':description' => $description,
                                       ':previous_game_id' => $previousGameId));
@@ -203,49 +225,16 @@ class BMInterfaceGame extends BMInterface {
      *
      * @param array $playerIdArray
      * @param int $maxWins
-     * @param int $currentPlayerId
      * @param int|NULL $previousGameId
      * @return bool
      */
     protected function validate_game_info(
         array $playerIdArray,
         $maxWins,
-        $currentPlayerId,
         $previousGameId
     ) {
-        $areAllPlayersPresent = TRUE;
-        // check for the possibility of unspecified players
-        foreach ($playerIdArray as $playerId) {
-            if (is_null($playerId)) {
-                $areAllPlayersPresent = FALSE;
-            }
-        }
-
-        // check for nonunique player ids
-        if ($areAllPlayersPresent &&
-            count(array_flip($playerIdArray)) < count($playerIdArray)) {
-            $this->set_message('Game create failed because a player has been selected more than once.');
+        if (!$this->validate_player_id_array($playerIdArray)) {
             return FALSE;
-        }
-
-        // validate all inputs
-        foreach ($playerIdArray as $playerId) {
-            if (!(is_null($playerId) || is_int($playerId))) {
-                $this->set_message('Game create failed because player ID is not valid.');
-                return FALSE;
-            }
-        }
-
-        // force first player ID to be the current player ID, if specified
-        if (!is_null($currentPlayerId)) {
-            if ($currentPlayerId !== $playerIdArray[0]) {
-                $this->set_message('Game create failed because you must be the first player.');
-                error_log(
-                    'validate_game_info() failed because currentPlayerId (' . $currentPlayerId .
-                    ') does not match playerIdArray[0] (' . $playerIdArray[0] . ')'
-                );
-                return FALSE;
-            }
         }
 
         if (FALSE ===
@@ -265,6 +254,44 @@ class BMInterfaceGame extends BMInterface {
             $this->validate_previous_game_players($previousGameId, $playerIdArray);
         if (!$arePreviousPlayersValid) {
             return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    protected function validate_player_id_array(array $playerIdArray) {
+        // check that the game has at least two players
+        if (count($playerIdArray) < 2) {
+            $this->set_message('Game create failed because there are not enough players.');
+            return FALSE;
+        }
+
+        // check that the first player has been specified
+        if (is_null($playerIdArray[0])) {
+            $this->set_message('Game create failed because the first player was not specified.');
+            return FALSE;
+        }
+
+        $areAllPlayersPresent = TRUE;
+        // check for the possibility of unspecified players
+        foreach ($playerIdArray as $playerId) {
+            if (is_null($playerId)) {
+                $areAllPlayersPresent = FALSE;
+            }
+        }
+
+        // check for nonunique player ids
+        if ($areAllPlayersPresent &&
+            count(array_flip($playerIdArray)) < count($playerIdArray)) {
+            $this->set_message('Game create failed because a player has been selected more than once.');
+            return FALSE;
+        }
+
+        foreach ($playerIdArray as $playerId) {
+            if (!(is_null($playerId) || is_int($playerId))) {
+                $this->set_message('Game create failed because player ID is not valid.');
+                return FALSE;
+            }
         }
 
         return TRUE;

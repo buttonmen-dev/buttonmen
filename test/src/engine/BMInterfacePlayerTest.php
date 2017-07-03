@@ -135,7 +135,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
      * @covers BMInterfacePlayer::update_last_action_time
      */
     public function test_update_last_action_time() {
-        $retval = $this->object->game()->create_game(
+        $retval = $this->create_game_self_first(
             array(self::$userId1WithoutAutopass, self::$userId2WithoutAutopass),
             array('Avis', 'Hammer'),
             4
