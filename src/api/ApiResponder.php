@@ -473,6 +473,21 @@ class ApiResponder {
     }
 
     /**
+     * Interface redirect for setChatVisibility
+     *
+     * @param BMInterface $interface
+     * @param array $args
+     * @return NULL|array
+     */
+    protected function get_interface_response_setChatVisibility($interface, $args) {
+        return $interface->game_chat()->set_chat_visibility(
+            $_SESSION['user_id'],
+            $args['game'],
+            'true' == $args['private']
+        );
+    }
+
+    /**
      * Interface redirect for submitDieValues
      *
      * @param BMInterface $interface

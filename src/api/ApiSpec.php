@@ -566,6 +566,12 @@ class ApiSpec {
                 'new_email' => 'email',
             ),
         ),
+        'setChatVisibility' => array(
+            'mandatory' => array(
+                'game' => 'number',
+                'private' => 'boolean',
+            ),
+        ),
         'submitDieValues' => array(
             'mandatory' => array(
                 'game' => 'number',
