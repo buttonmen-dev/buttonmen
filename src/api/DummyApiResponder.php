@@ -246,6 +246,13 @@ class DummyApiResponder {
         );
     }
 
+    protected function get_interface_response_setChatVisibility($args) {
+        return $this->load_json_data_from_file(
+            'setChatVisibility',
+            $args['game'] . '.json'
+        );
+    }
+
     protected function get_interface_response_submitDieValues($args) {
         return $this->load_json_data_from_file(
             'submitDieValues',

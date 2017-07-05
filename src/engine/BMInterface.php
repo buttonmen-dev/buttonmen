@@ -154,6 +154,9 @@ class BMInterface {
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
+
+                $isChatPrivate = (bool) $game->playerArray[$gamePlayerIdx]->isChatPrivate;
+                $data['playerDataArray'][$gamePlayerIdx]['isChatPrivate'] = $isChatPrivate;
             }
 
             $actionLogArray = $this->game_action()->load_game_action_log($game, $logEntryLimit);

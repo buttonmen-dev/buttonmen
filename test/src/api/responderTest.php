@@ -594,6 +594,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
                     'isOnVacation' => false,
+                    'isChatPrivate' => false,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -614,6 +615,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
                     'isOnVacation' => false,
+                    'isChatPrivate' => false,
                 ),
             ),
             'gameActionLog' => array(),
@@ -1274,6 +1276,23 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $fakeGameNumber = $this->generate_fake_game_id();
         $this->cache_json_api_output('submitChat', $fakeGameNumber, $retval);
+    }
+
+    /**
+     * verify_api_setChatVisibility() - helper routine which calls the API setChatVisibility method
+     */
+    protected function verify_api_setChatVisibility($expMessage, $gameId, $private) {
+        $args = array(
+            'type' => 'setChatVisibility',
+            'game' => $gameId,
+            'private' => $private,
+        );
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($expMessage, $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('setChatVisibility', $fakeGameNumber, $retval);
     }
 
 
@@ -3706,20 +3725,40 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['currentPlayerIdx'] = FALSE;
         $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
         $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['dieBackgroundType'] = 'symmetric';
         $expData['gameChatLogCount'] = 2;
         $savedChat = array_splice($expData['gameChatLog'], 2, 1);
         $_SESSION = $this->mock_test_user_login('responder002');
-        $expData['dieBackgroundType'] = 'symmetric';
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['dieBackgroundType'] = 'realistic';
 
+        // now enable chat privacy, and verify that the non-player
+        // now can't see current game chat either
+        $this->verify_api_setChatVisibility(
+            'Set game chat to private',
+            $gameId, 'true');
+        $expData['playerDataArray'][0]['isChatPrivate'] = TRUE;
+        $expData['gameChatLogCount'] = 2;
+        array_splice($expData['gameChatLog'], 0, 1);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 0, 'player' => '', 'message' => 'The chat for this game is private'));
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        // make sure things still look right for a player after chat has been set to private
         $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['currentPlayerIdx'] = 0;
         $expData['playerDataArray'][0]['playerColor'] = '#dd99dd';
         $expData['playerDataArray'][1]['playerColor'] = '#ddffdd';
+        $expData['dieBackgroundType'] = 'realistic';
         $expData['gameChatLogCount'] = 3;
-        $expData['gameChatLog'][]= $savedChat;
+        $continuedMsg = $expData['gameChatLog'][1]['message'];
+        $expData['gameChatLog'] = array(
+            array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'),
+            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $continuedMsg),
+            $savedChat[0],
+        );
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
         ////////////////////
@@ -6241,7 +6280,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [q(Z=28):22] against [(X=5):3]; Defender (X=5) was captured; Attacker q(Z=28) rerolled 22 => 17'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
@@ -6547,7 +6586,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(X=20):7] against [q(T=2):2]; Defender q(T=2) was captured; Attacker (X=20) rerolled 7 => 20'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'End of round: responder003 won round 2 (80 vs. 18)'));
@@ -6822,7 +6861,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 surrendered'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 3 because opponent surrendered'));
