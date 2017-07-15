@@ -2,7 +2,7 @@
 
 ##### record.py
 #
-# Show overall record of a button or a player.
+# Show overall record of one or more buttons or players.
 
 ### Imports
 
@@ -30,22 +30,26 @@ def parse_arguments():
 
   # Set up the main parser and subparser.
 
-  parser = argparse.ArgumentParser(description="Show record of a button or a player.")
+  parser = argparse.ArgumentParser(description="Show overall record of one or more buttons or players.")
 
   subparsers = parser.add_subparsers(dest='type', title="Type of thing to show",
                                      help="more help: record <subcommand> --help")
 
   # Set up the button subparser.
 
-  parser_button = subparsers.add_parser('button', help="show record of a button")
+  parser_button = subparsers.add_parser('button', help="show button record(s)")
 
-  parser_button.add_argument('name', help="button to show")
+  parser_button.add_argument('names',
+                             nargs = '+',
+                             help="button(s) to show ('all' for all buttons)")
 
   # Set up the player subparser.
 
-  parser_player = subparsers.add_parser('player', help="show record of a player")
+  parser_player = subparsers.add_parser('player', help="show player record(s)")
 
-  parser_player.add_argument('name', help="player to show")
+  parser_player.add_argument('names',
+                             nargs = '+',
+                             help="player(s) to show ('all' for all players)")
 
   # Add general optional arguments.
 
@@ -116,6 +120,35 @@ if not bmconn.verify_login():
   print "ERROR: Could not log in to {0}".format(args.site)
   sys.exit(1)
 
-# Print the overall record of the thing.
+# If the name is 'all', do all the things.
 
-print_record (bmconn, args.type, args.name)
+if args.names == ['all']:
+
+  # Prompt for confirmation first.
+
+  print "WARNING: Getting records for all {}s will take a while and slow down the site. Are you sure?".format(args.type)
+  confirm = raw_input("Type 'yes, really' to continue, anything else to abort: ")
+  if confirm != "yes, really":
+    print "You typed \"{}\", aborting now.".format(confirm)
+    sys.exit(5)
+  
+  # If we're still here, get all the things.
+
+  if args.type == 'button':
+    names = bmconn.wrap_load_button_names()
+  elif args.type == 'player':
+    names = bmconn.wrap_load_player_names()
+  else:
+    print "ERROR: I don't know how print all things of this type ({})".format(args.type)
+    sys.exit(1)
+
+# Otherwise, just do the specified things.
+
+else:
+
+  names = args.names
+
+# Print the overall record of the things.
+
+for name in names:
+  print_record (bmconn, args.type, name)
