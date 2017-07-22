@@ -1,0 +1,141 @@
+#!/usr/bin/env python
+
+##### buttons-with-skills
+#
+# Show a list of buttons who have a set of skills.
+
+### Imports
+
+# Import stuff from the future.
+
+from __future__ import division
+
+# Import regular stuff.
+
+import ConfigParser
+import argparse
+import os
+import sys
+
+# Import Button Men utilities.
+
+sys.path.append('lib')
+import bmutils
+
+### Functions
+
+## parse_arguments
+
+def parse_arguments():
+
+  parser = argparse.ArgumentParser(description="Show a list of buttons who have a set of skills.")
+
+
+  parser.add_argument('skills',
+                      nargs = '*',
+                      help = "skill(s) to match")
+
+  parser.add_argument('--match',
+                      choices = ['any', 'all'],
+                      default = 'all',
+                      help = "match buttons with all the skills, or any of them ('all' by default)")
+
+  # FIXME: It'd be nice if we could also differentiate between a button
+  # with more than one skill on any dice, and a button with more than one
+  # skill on the same die, e.g. "a die with Poison and a die with Speed"
+  # vs "a Poison Speed die". This doesn't seem to be possible at the
+  # moment (2017-07-03) without parsing the button recipe strings.
+
+  parser.add_argument('--name-only',
+                      action = 'store_true',
+                      help = "print only button names, not recipes")
+
+  # Add general optional arguments.
+
+  parser.add_argument('--site',
+                      default = 'www',
+                      help = "site to check ('www' by default)")
+
+  parser.add_argument('--config', '-c',
+                      default='~/.bmrc',
+                      help="config file containing site parameters")
+
+  # Return the parser.
+
+  return parser.parse_args()
+
+### Main body
+
+args = parse_arguments()
+
+# Connect to the site.
+
+try:
+  bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
+except ConfigParser.NoSectionError as e:
+  print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site))
+  print("(Exception: {0}: {1})".format(e.__module__, e.message))
+  sys.exit(1)
+
+if not bmconn.verify_login():
+  print("ERROR: Could not log in to {0}".format(args.site))
+  sys.exit(1)
+
+# Create a map of letters and lowercased skill names to canonical skill names.
+
+skillmap = bmutils.SkillName
+for skill in skillmap.values():
+  skillmap[skill.lower()] = skill
+
+# Create a list of skills, with their names canonicalized.
+
+skills = []
+for skill in [x.lower() for x in args.skills]:
+  if skill in skillmap:
+    skills.append(skillmap[skill])
+  else:
+    print("WARNING: Unknown skill specified ({}), ignoring".format(skill))
+
+# If we didn't find any skills, bail now.
+
+if skills == []:
+  print("ERROR: No known skills specified, exiting")
+  sys.exit(1)
+
+# Fetch the button dict.
+
+buttondict = bmconn.wrap_load_button_names()
+
+# Go through the button dict looking for buttons who match the desired skills.
+
+buttons = set()
+
+for (name, info) in buttondict.items():
+
+  # If we need all the skills, assume that we'll find a match, and set
+  # matched = False if any of the skills aren't matched. If we get through
+  # that and we still matched, add this button to the set.
+
+  if args.match == 'all':
+    matched = True
+    for skill in skills:
+      if skill not in info['dieSkills']:
+        matched = False
+    if matched:
+      buttons.add(name)
+
+  # Otherwise (we only need any one of the skills), add this button to the
+  # list if we find one.
+
+  else:
+    for skill in skills:
+      if skill in info['dieSkills']:
+        buttons.add(name)
+
+# Print out the results.
+
+for button in sorted(buttons):
+  if args.name_only:
+    print (button)
+  else:
+    print ("{}: {}".format(button, buttondict[button]['recipe']))
