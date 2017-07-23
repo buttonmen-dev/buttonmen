@@ -1436,7 +1436,7 @@ class LoggingBMClient():
 
   def record_create_game(self, button1, button2, max_wins=3, use_prev_game=False):
     self.player_client.login()
-    retval = self.player_client.create_game(button1, button2, self.opponent_client.username, max_wins, use_prev_game)
+    retval = self.player_client.create_game(button1, obutton=button2, opponent=self.opponent_client.username, max_wins=max_wins, use_prev_game=use_prev_game)
     if not (retval and retval.status == 'ok'):
       self.bug("create_game(%s, %s, %d) unexpectedly failed: %s" % (
         button1, button2, max_wins,
