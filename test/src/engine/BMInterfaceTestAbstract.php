@@ -54,4 +54,27 @@ class BMInterfaceTestAbstract extends PHPUnit_Framework_TestCase {
         $save_game = self::getMethod('save_game');
         return $save_game->invokeArgs($this->object, array($game));
     }
+
+    protected function create_game_self_first(
+        array $playerIdArray,
+        array $buttonNameArray,
+        $maxWins = 3,
+        $description = '',
+        $previousGameId = NULL,
+        $autoAccept = TRUE
+    ) {
+        if (0 == count($playerIdArray)) {
+            throw new LogicException('The player ID array cannot be empty');
+        }
+
+        return $this->object->game()->create_game(
+            $playerIdArray,
+            $buttonNameArray,
+            $maxWins,
+            $description,
+            $previousGameId,
+            $playerIdArray[0],
+            $autoAccept
+        );
+    }
 }

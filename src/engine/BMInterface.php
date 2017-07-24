@@ -154,6 +154,9 @@ class BMInterface {
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
                 $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
+
+                $isChatPrivate = (bool) $game->playerArray[$gamePlayerIdx]->isChatPrivate;
+                $data['playerDataArray'][$gamePlayerIdx]['isChatPrivate'] = $isChatPrivate;
             }
 
             $actionLogArray = $this->game_action()->load_game_action_log($game, $logEntryLimit);
@@ -344,6 +347,7 @@ class BMInterface {
     }
 
     protected function load_game_attributes($game, $row) {
+        $game->creatorId = $row['creator_id'];
         $game->gameState = $row['game_state'];
         $game->maxWins   = $row['n_target_wins'];
         $game->turnNumberInRound = $row['turn_number_in_round'];
