@@ -21,6 +21,7 @@ NUMERIC_KEYS = [
   'sideScore',
   'waitingOnAction',
   'isOnVacation',
+  'isChatPrivate',
 
   # keys within activeDieArray
   'sides',
