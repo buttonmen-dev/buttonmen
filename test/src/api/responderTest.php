@@ -7,6 +7,34 @@ function auth_session_exists() {
     return $dummyUserLoggedIn;
 }
 
+// Dieroller values which may change over time
+
+// RandomBM skills (used by all RandomBM types except RandomBMFixed)
+$RANDOMBM_SKILL_ARRAY = array(
+  'B', // Berserk
+  'b', // Boom
+  'c', // Chance
+  'f', // Focus
+  'I', // Insult
+  'k', // Konstant
+  'M', // Maximum
+  'H', // Mighty
+  'n', // Null
+  'o', // Ornery
+  'p', // Poison
+  'q', // Queer
+  'G', // Rage
+  's', // Shadow
+  'z', // Speed
+  'd', // Stealth
+  'g', // Stinger
+  '^', // TimeAndSpace
+  't', // Trip
+  'v', // Value
+  'h', // Weak
+);
+$RANDOMBM_SKILL = array_flip($RANDOMBM_SKILL_ARRAY);
+
 class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
@@ -566,6 +594,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
                     'isOnVacation' => false,
+                    'isChatPrivate' => false,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -586,6 +615,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
                     'isOnVacation' => false,
+                    'isChatPrivate' => false,
                 ),
             ),
             'gameActionLog' => array(),
@@ -1248,6 +1278,23 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->cache_json_api_output('submitChat', $fakeGameNumber, $retval);
     }
 
+    /**
+     * verify_api_setChatVisibility() - helper routine which calls the API setChatVisibility method
+     */
+    protected function verify_api_setChatVisibility($expMessage, $gameId, $private) {
+        $args = array(
+            'type' => 'setChatVisibility',
+            'game' => $gameId,
+            'private' => $private,
+        );
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals($expMessage, $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+        $this->cache_json_api_output('setChatVisibility', $fakeGameNumber, $retval);
+    }
+
 
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
@@ -1463,16 +1510,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $this->verify_api_failure($args, 'Game create failed because a button name was not valid.');
 
-        // Make sure that the first player in a game is the current logged in player
-        $args = array(
-            'type' => 'createGame',
-            'playerInfoArray' => array(array('responder001', 'Avis'),
-                                       array('responder004', 'Avis')),
-            'maxWins' => '3',
-        );
-        $this->verify_api_failure($args, 'Game create failed because you must be the first player.');
-
-
         // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
@@ -1499,6 +1536,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
 
         $this->cache_json_api_output('createGame', 'Avis_None', $retval);
+
+
+        // Check that the first player in a game can be different from the current logged in player
+        $retval = $this->verify_api_createGame(
+            array(1, 1, 1, 1, 2, 2, 2, 2),
+            'responder001', 'responder002', 'Avis', 'Avis', 3, '', NULL, 'data'
+        );
+
+        $this->assertEquals('ok', $retval['status'], 'Game creation should succeed');
+        $this->assertEquals(array('gameId'), array_keys($retval['data']));
+        $this->assertTrue(is_numeric($retval['data']['gameId']));
+        $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
     }
 
     public function test_request_joinOpenGame() {
@@ -3676,20 +3725,40 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['currentPlayerIdx'] = FALSE;
         $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
         $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['dieBackgroundType'] = 'symmetric';
         $expData['gameChatLogCount'] = 2;
         $savedChat = array_splice($expData['gameChatLog'], 2, 1);
         $_SESSION = $this->mock_test_user_login('responder002');
-        $expData['dieBackgroundType'] = 'symmetric';
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
-        $expData['dieBackgroundType'] = 'realistic';
 
+        // now enable chat privacy, and verify that the non-player
+        // now can't see current game chat either
+        $this->verify_api_setChatVisibility(
+            'Set game chat to private',
+            $gameId, 'true');
+        $expData['playerDataArray'][0]['isChatPrivate'] = TRUE;
+        $expData['gameChatLogCount'] = 2;
+        array_splice($expData['gameChatLog'], 0, 1);
+        array_unshift($expData['gameChatLog'], array('timestamp' => 0, 'player' => '', 'message' => 'The chat for this game is private'));
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        // make sure things still look right for a player after chat has been set to private
         $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['currentPlayerIdx'] = 0;
         $expData['playerDataArray'][0]['playerColor'] = '#dd99dd';
         $expData['playerDataArray'][1]['playerColor'] = '#ddffdd';
+        $expData['dieBackgroundType'] = 'realistic';
         $expData['gameChatLogCount'] = 3;
-        $expData['gameChatLog'][]= $savedChat;
+        $continuedMsg = $expData['gameChatLog'][1]['message'];
+        $expData['gameChatLog'] = array(
+            array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'),
+            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $continuedMsg),
+            $savedChat[0],
+        );
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
         ////////////////////
@@ -6211,7 +6280,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [q(Z=28):22] against [(X=5):3]; Defender (X=5) was captured; Attacker q(Z=28) rerolled 22 => 17'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 passed'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
@@ -6517,7 +6586,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(X=20):7] against [q(T=2):2]; Defender q(T=2) was captured; Attacker (X=20) rerolled 7 => 20'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'End of round: responder003 won round 2 (80 vs. 18)'));
@@ -6792,7 +6861,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Reserve', 'Focus'), 'properties' => array(), 'recipe' => 'rf(V)', 'description' => 'Reserve Focus V Swing Die'),
         );
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
-        $expData['playerDataArray'][1]['swingRequestArray'] = array('R'	=> array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('R' => array(2, 16), 'S' => array(6, 20), 'T' => array(2, 12), 'U' => array(8, 30), 'V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Z' => array(4, 30));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 surrendered'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 3 because opponent surrendered'));
@@ -9863,6 +9932,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * This game tests RandomBMMixed and verifies that trip attacks fail against too-large shadow maximum dice
      */
     public function test_interface_game_026() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -9876,10 +9946,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                2, 8, 18,          // die skills for r3: c, n, t
+                $RANDOMBM_SKILL['c'], $RANDOMBM_SKILL['n'], $RANDOMBM_SKILL['t'],
                 1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
                 1, 2, 2, 3, 5,     // die sizes for r4
-                13, 6, 9,          // die skills for r4: s, M, o
+                $RANDOMBM_SKILL['s'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['o'],
                 1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
                 4, 3, 3, 5, 5,     // initial die rolls for r3
                 6, 5, 7,           // initial die rolls for r4
@@ -11002,6 +11072,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * 2. responder004 performed Skill attack using [Mhk(4):4,(12):7] against [n(10):3]; Defender n(10) was captured; Attacker Mhk(4) changed size from 4 to 2 sides, recipe changed from Mhk(4) to Mhk(2), does not reroll; Attacker (12) rerolled 7 => 9
      */
     public function test_interface_game_033() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -11012,10 +11083,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
-                5, 10, 8,          // die skills for r3: k, p, n
+                $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['p'], $RANDOMBM_SKILL['n'],
                 0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
                 4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
-                20, 5, 6,          // die skills for r4: h, k, M
+                $RANDOMBM_SKILL['h'], $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['M'],
                 3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
                 1, 3, 6, 3, 3,     // initial die rolls for r3
                 5, 2, 7,           // initial die rolls for r4
@@ -12059,6 +12130,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * This game reproduces logging behavior when a die with a second size-changing power makes a Berserk attack
      */
     public function test_interface_game_036() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -12070,10 +12142,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
-                0, 15, 20,            // die skills for r3: B, d, h
+                $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['d'], $RANDOMBM_SKILL['h'],
                 2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
                 5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
-                19, 1, 1, 11,         // die skills for r4: v, b, q
+                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['q'],
                 4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
                 4, 4, 1, 2, 2,        // initial die rolls for r3
                 2, 2, 4, 2, 13,       // initial die rolls for r4
@@ -12643,6 +12715,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * This game regression-tests and fixes the behavior of trip attacks against size-changing Maximum opponents
      */
     public function test_interface_game_040() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -12654,10 +12727,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 3, 0, 2, 5, 3,          // die sizes for r3: 6, 8, 10, 10, 20
-                6, 7, 19,               // die skills for r3: H, M, v
+                $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['v'],
                 0, 3, 2, 0, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                19, 0, 19, 18,          // die skills for r4: B, t, v
+                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['t'],
                 2, 4, 2, 2, 2, 1, 2, 1, // distribution of skills onto dice for r4
                 7, 10, 20,              // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 1, 1, 1, 3           // initial die rolls for r4
@@ -14864,6 +14937,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * against a konstant die with a value larger than the current size
      */
     public function test_interface_game_047() {
+        global $RANDOMBM_SKILL;
 
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
@@ -14874,10 +14948,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $gameId = $this->verify_api_createGame(
             array(
                 0, 2, 3, 3, 5,          // die sizes for r3: 4, 8, 10, 10, 20
-                7, 6, 18,               // die skills for r3: H, M, t
+                $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['t'],
                 0, 3, 2, 1, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                19, 0, 5,               // die skills for r4: B, k, v
+                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['k'],
                 3, 4, 2, 1, 2, 1,       // distribution of skills onto dice for r4
                 1, 1, 1,                // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 2, 5, 2, 3           // initial die rolls for r4

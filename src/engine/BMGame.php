@@ -9,6 +9,7 @@
  * This class contains all the logic to do with games, specified at each game state
  *
  * @property      int   $gameId                  Game ID number in the database
+ * @property      int   $creatorId               Player ID of the player who created the game
  * @property      array $playerArray             Array of BMPlayer objects
  * @property-read int   $nPlayers                Number of players in the game
  * @property-read int   $roundNumber;            Current round number
@@ -74,6 +75,11 @@ class BMGame {
      * @var int
      */
     protected $gameId;
+
+    /**
+     * Player ID of the player who created the game
+     */
+    protected $creatorId;
 
     /**
      * Array of BMPlayer objects

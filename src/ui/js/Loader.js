@@ -27,17 +27,22 @@ Loader.loadScripts = function(scripts, callback) {
   // Load each script with $.getScript, passing it a callback that checks
   // whether or not it was the last script to finish loading
   $.each(Loader.loadStatus, function(script) {
-    $.getScript(script, function() {
-      Loader.loadStatus[script] = true;
-      var allScriptsAreLoaded = true;
-      $.each(Loader.loadStatus, function(script, status) {
-        if (!status) {
-          allScriptsAreLoaded = false;
+    $.ajax({
+      url: script,
+      dataType: 'script',
+      cache: true,
+      success: function() {
+        Loader.loadStatus[script] = true;
+        var allScriptsAreLoaded = true;
+        $.each(Loader.loadStatus, function(script, status) {
+          if (!status) {
+            allScriptsAreLoaded = false;
+          }
+        });
+        // If this was the last one to finish, then start loading the page!
+        if (allScriptsAreLoaded) {
+          callback();
         }
-      });
-      // If this was the last one to finish, then start loading the page!
-      if (allScriptsAreLoaded) {
-        callback();
       }
     });
   });

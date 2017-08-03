@@ -2469,7 +2469,11 @@ Game.swingRangeTable = function(swingRequestArray, id, allowInput, showPrev) {
       if (allowInput) {
         var swinginput = $('<td>', {});
         swinginput.append($('<input>', {
-          'type': 'text',
+          'type': 'number',
+          'inputmode': 'numeric',
+          'min': range.min,
+          'max': range.max,
+          'pattern': '[0-9]*',
           'class': 'swing',
           'id': 'swing_' + letter,
           'size': '2',
@@ -2664,7 +2668,9 @@ Game.pageAddTurboTable = function() {
 
 Game.createTurboSelectorSwing = function(idx, prevVal) {
   var input = $('<input>', {
-    'type': 'text',
+    'type': 'number',
+    'inputmode': 'numeric',
+    'pattern': '[0-9]*',
     'id': 'turbo_element' + idx,
     'name': 'turbo_element' + idx,
     'class': 'swing',

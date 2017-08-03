@@ -102,6 +102,58 @@ class BMInterfaceGameChat extends BMInterface {
     }
 
     /**
+     * Public API method to update the visibility of game chat
+     *
+     * @param int $playerId
+     * @param int $gameId
+     * @param bool $private
+     * @return bool
+     */
+    public function set_chat_visibility(
+        $playerId,
+        $gameId,
+        $private
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+            if ($currentPlayerIdx < 0) {
+                $this->set_message("You are not a participant in game " . $gameId . " and cannot modify chat settings");
+                return FALSE;
+            }
+
+            // Apply the requested database update
+            $this->db_set_chat_visibility($playerId, $gameId, $private);
+
+            // Now return a message based on the new and opponent states
+            $opponentIsChatPrivate = (bool) $game->playerArray[1 - $currentPlayerIdx]->isChatPrivate;
+            if ($private) {
+                $this->set_message("Set game chat to private");
+                return TRUE;
+            } else {
+                if ($opponentIsChatPrivate) {
+                    $this->set_message(
+                        "Set game chat preference to public (but game chat is not visible to non-participants " .
+                        "because your opponent is requesting private chat)"
+                    );
+                    return TRUE;
+                } else {
+                    $this->set_message("Set game chat to public");
+                    return TRUE;
+                }
+            }
+
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::set_chat_visibility: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while setting chat visibility');
+        }
+    }
+
+    /**
      * Load previously-stored chat log entries from the database
      *
      * @param int      $playerId       ID of player loading the chat
@@ -382,5 +434,23 @@ class BMInterfaceGameChat extends BMInterface {
         $statement->execute(array(':game_id' => $gameId,
                                   ':player_id' => $playerId,
                                   ':timestamp' => $editTimestamp));
+    }
+
+    /**
+     * Set preferred visibility of chat for a player in a game
+     *
+     * @param int  $playerId
+     * @param int  $gameId
+     * @param bool $private
+     */
+    protected function db_set_chat_visibility($playerId, $gameId, $private) {
+        $query = 'UPDATE game_player_map ' .
+                 'SET is_chat_private = :is_chat_private ' .
+                 'WHERE game_id = :game_id ' .
+                 'AND player_id = :player_id ';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $gameId,
+                                  ':player_id' => $playerId,
+                                  ':is_chat_private' => (int)$private));
     }
 }
