@@ -27,7 +27,7 @@ class BMBtnSkillRandomBMMonoskillTest extends PHPUnit_Framework_TestCase {
      * @covers BMBtnSkillRandomBMMonoskill::specify_recipes
      */
     public function testSpecify_recipes_valid_args() {
-        global $BM_RAND_VALS;
+        global $BM_RAND_VALS, $BM_SKILL_RAND_VALS;
 
         $button = new BMButton;
         $args = array('button' => $button);
@@ -37,8 +37,10 @@ class BMBtnSkillRandomBMMonoskillTest extends PHPUnit_Framework_TestCase {
         $BM_RAND_VALS = array(
             1, 5, 3, 4, // die sizes       6, 20, 10, 12
             6,          // swing type      X
-            7,          // skill type      H
             3, 3, 2     // skill position  4th and 3rd die
+        );
+        $BM_SKILL_RAND_VALS = array(
+            7,          // skill type      H
         );
 
         $retval = BMBtnSkillRandomBMMonoskill::specify_recipes($args);

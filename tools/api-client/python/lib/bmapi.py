@@ -20,10 +20,13 @@ class BMAPIResponse():
     self.message = response_dict['message']
     self.status = response_dict['status']
     self.rand_vals = None
-    # Only replay testing uses this return value.
-    # A production site should never return it.
+    self.skill_rand_vals = None
+    # Only replay testing uses these return values.
+    # A production site should never return them.
     if 'BM_RAND_VALS_ROLLED' in response_dict:
       self.rand_vals = response_dict['BM_RAND_VALS_ROLLED']
+    if 'BM_SKILL_RAND_VALS_ROLLED' in response_dict:
+      self.skill_rand_vals = response_dict['BM_SKILL_RAND_VALS_ROLLED']
 
 class BMClient():
   def _read_rcfile(self, rcfile, site):
