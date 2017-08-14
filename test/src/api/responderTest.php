@@ -618,6 +618,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'isChatPrivate' => false,
                 ),
             ),
+            'creatorDataArray' => array(
+                'creatorId' => $playerId1,
+                'creatorName' => $username1,
+            ),
             'gameActionLog' => array(
                 array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'Game created by ' . $username1),
             ),
