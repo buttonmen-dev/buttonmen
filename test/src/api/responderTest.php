@@ -867,10 +867,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * standard assertions about its return value
      */
     protected function verify_api_createGame(
-        $postCreateDieRolls, $player1, $player2, $button1, $button2, $maxWins, $description='', $prevGame=NULL, $returnType='gameId'
+        $bmRandValArray, $player1, $player2, $button1, $button2, $maxWins, $description='', $prevGame=NULL, $returnType='gameId'
     ) {
-        global $BM_RAND_VALS;
-        $BM_RAND_VALS = $postCreateDieRolls;
+        global $BM_RAND_VALS, $BM_SKILL_RAND_VALS;
+        // Allow the caller to provide either a flat array of just miscellaneous random values,
+        // or a dict with both miscellaneous random values and skill selection random values
+        if (array_key_exists('bm_rand', $bmRandValArray)) {
+            $BM_RAND_VALS = $bmRandValArray['bm_rand'];
+            $BM_SKILL_RAND_VALS = $bmRandValArray['bm_skill_rand'];
+        } else {
+            $BM_RAND_VALS = $bmRandValArray;
+            $BM_SKILL_RAND_VALS = array();
+        }
         $args = array(
             'type' => 'createGame',
             'playerInfoArray' => array(array($player1, $button1), array($player2, $button2)),
@@ -9945,14 +9953,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // initial game setup
         $gameId = $this->verify_api_createGame(
             array(
-                4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
-                $RANDOMBM_SKILL['c'], $RANDOMBM_SKILL['n'], $RANDOMBM_SKILL['t'],
-                1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
-                1, 2, 2, 3, 5,     // die sizes for r4
-                $RANDOMBM_SKILL['s'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['o'],
-                1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
-                4, 3, 3, 5, 5,     // initial die rolls for r3
-                6, 5, 7,           // initial die rolls for r4
+                'bm_rand' => array(
+                    4, 3, 0, 3, 4,     // die sizes for r3: 4, 10, 10, 12, 12 (these get sorted)
+                    1, 3, 0, 2, 0, 2,  // distribution of skills onto dice for r3
+                    1, 2, 2, 3, 5,     // die sizes for r4
+                    1, 3, 1, 4, 0, 4,  // distribution of skills onto dice for r4
+                    4, 3, 3, 5, 5,     // initial die rolls for r3
+                    6, 5, 7,           // initial die rolls for r4
+                ),
+                'bm_skill_rand' => array(
+                    $RANDOMBM_SKILL['c'], $RANDOMBM_SKILL['n'], $RANDOMBM_SKILL['t'],
+                    $RANDOMBM_SKILL['s'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['o'],
+                ),
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3);
 
@@ -11082,14 +11094,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $gameId = $this->verify_api_createGame(
             array(
-                0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
-                $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['p'], $RANDOMBM_SKILL['n'],
-                0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
-                4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
-                $RANDOMBM_SKILL['h'], $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['M'],
-                3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
-                1, 3, 6, 3, 3,     // initial die rolls for r3
-                5, 2, 7,           // initial die rolls for r4
+                'bm_rand' => array(
+                    0, 5, 0, 2, 3,     // die sizes for r3: 4, 4, 8, 10, 20 (these get sorted)
+                    0, 0, 1, 2, 1, 2, 3,  // distribution of skills onto dice for r3 (one reroll)
+                    4, 4, 0, 3, 0,     // die sizes for r4: 4, 4, 10, 12, 12 (these get sorted)
+                    3, 0, 0, 0, 0, 2, 0, 1, // distribution of skills onto dice for r4 (some rerolls)
+                    1, 3, 6, 3, 3,     // initial die rolls for r3
+                    5, 2, 7,           // initial die rolls for r4
+                ),
+                'bm_skill_rand' => array(
+                    $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['p'], $RANDOMBM_SKILL['n'],
+                    $RANDOMBM_SKILL['h'], $RANDOMBM_SKILL['k'], $RANDOMBM_SKILL['M'],
+                ),
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
         );
@@ -12141,14 +12157,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $gameId = $this->verify_api_createGame(
             array(
-                4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
-                $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['d'], $RANDOMBM_SKILL['h'],
-                2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
-                5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
-                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['q'],
-                4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
-                4, 4, 1, 2, 2,        // initial die rolls for r3
-                2, 2, 4, 2, 13,       // initial die rolls for r4
+                'bm_rand' => array(
+                    4, 1, 3, 3, 0,        // die sizes for r3: 4, 6, 10, 10, 12
+                    2, 2, 4, 1, 3, 4, 3,  // distribution of skills onto dice for r3
+                    5, 1, 4, 1, 3,        // die sizes for r4: 6, 6, 10, 12, 20
+                    4, 2, 3, 0, 3, 1,     // distribution of skills onto dice for r4
+                    4, 4, 1, 2, 2,        // initial die rolls for r3
+                    2, 2, 4, 2, 13,       // initial die rolls for r4
+                ),
+                'bm_skill_rand' => array(
+                    $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['d'], $RANDOMBM_SKILL['h'],
+                    $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['b'], $RANDOMBM_SKILL['q'],
+                ),
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
         );
@@ -12726,14 +12746,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $gameId = $this->verify_api_createGame(
             array(
+                'bm_rand' => array(
                 3, 0, 2, 5, 3,          // die sizes for r3: 6, 8, 10, 10, 20
-                $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['v'],
                 0, 3, 2, 0, 0, 1,       // distribution of skills onto dice for r3
                 0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['t'],
                 2, 4, 2, 2, 2, 1, 2, 1, // distribution of skills onto dice for r4
                 7, 10, 20,              // initial die rolls for r3 (note: Maximum dice don't use random values)
                 3, 1, 1, 1, 3           // initial die rolls for r4
+                ),
+                'bm_skill_rand' => array(
+                    $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['v'],
+                    $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['t'],
+                ),
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
         );
@@ -14945,14 +14969,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $gameId = $this->verify_api_createGame(
             array(
-                0, 2, 3, 3, 5,          // die sizes for r3: 4, 8, 10, 10, 20
-                $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['t'],
-                0, 3, 2, 1, 0, 1,       // distribution of skills onto dice for r3
-                0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
-                $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['k'],
-                3, 4, 2, 1, 2, 1,       // distribution of skills onto dice for r4
-                1, 1, 1,                // initial die rolls for r3 (note: Maximum dice don't use random values)
-                3, 2, 5, 2, 3           // initial die rolls for r4
+                'bm_rand' => array(
+                    0, 2, 3, 3, 5,          // die sizes for r3: 4, 8, 10, 10, 20
+                    0, 3, 2, 1, 0, 1,       // distribution of skills onto dice for r3
+                    0, 5, 1, 3, 0,          // die sizes for r4: 4, 4, 6, 10, 20
+                    3, 4, 2, 1, 2, 1,       // distribution of skills onto dice for r4
+                    1, 1, 1,                // initial die rolls for r3 (note: Maximum dice don't use random values)
+                    3, 2, 5, 2, 3,          // initial die rolls for r4
+                ),
+                'bm_skill_rand' => array(
+                    $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['t'],
+                    $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['k'],
+                ),
             ),
             'responder003', 'responder004', 'RandomBMMixed', 'RandomBMMixed', 3
         );
