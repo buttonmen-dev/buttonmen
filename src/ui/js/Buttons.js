@@ -142,6 +142,23 @@ Buttons.showButton = function() {
     mainDiv.append(skillsTable);
   }
 
+  mainDiv.append($('<h2>', { 'text': 'Games', }));
+  var historyLinksHolder = $('<div>', { 'class': 'historyLinks', });
+  mainDiv.append(historyLinksHolder);
+  historyLinksHolder.append($('<a>', {
+    'href': Env.ui_root + 'history.html#!buttonNameA=' +
+            encodeURIComponent(button.buttonName) +
+            '&status=ACTIVE',
+    'text': 'Active',
+  }));
+  historyLinksHolder.append(' ');
+  historyLinksHolder.append($('<a>', {
+    'href': Env.ui_root + 'history.html#!buttonNameA=' +
+            encodeURIComponent(button.buttonName) +
+            '&status=COMPLETE',
+    'text': 'Completed',
+  }));
+
   var returnLinkHolder = $('<div>', {
     'class': 'returnLink',
     'text': 'Return to ',
