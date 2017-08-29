@@ -90,13 +90,17 @@ def find_next_file(state):
 def test_file(filename):
   ## prep test file for replay
   os.chdir(HOMEBMDIR)
+  if USERNAME == 'vagrant':
+    write_to_bm_prefix = 'sudo -u %s' % USERNAME
+  else:
+    write_to_bm_prefix = ''
   commands = [
     'tar xf %s/%s' % (GAMESDIR, filename),
     'sudo -u %s cp -f %s.test %s' % (USERNAME, TESTFILE, TESTFILE),
     'sudo chown chaos %s' % TESTFILE,
-    './update_replay_games ./output | sudo -u %s tee -a %s > /dev/null' % (USERNAME, TESTFILE),
+    './update_replay_games ./output | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
     '/bin/rm ./output/*',
-    'echo "}" | sudo -u %s tee -a %s > /dev/null' % (USERNAME, TESTFILE),
+    'echo "}" | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
   ]
   for command in commands:
     retval = os.system(command)
