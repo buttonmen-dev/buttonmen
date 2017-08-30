@@ -175,6 +175,45 @@ test("test_Overview.showPage", function(assert) {
   });
 });
 
+test("test_Overview.updateSectionHeaderCounts", function(assert) {
+  stop();
+  Overview.getOverview(function() {
+    Overview.page = $('<div>');
+    Overview.pageAddGameTables();
+    Overview.updateSectionHeaderCounts('activeGames');
+    Overview.showPage();
+
+    var header = Overview.page.find(
+      'div.activeGamesHolder h2.sectionHeader'
+    );
+
+    assert.equal(
+      header.text(),
+      'Active games (9)',
+      'activeGames section header contains count'
+    );
+
+    // now hide one row, and check that the count updates correctly
+    Overview.page.find(
+      'div.activeGamesHolder table.gameList tbody tr:not(.spacer)'
+    ).first().toggle(false);
+
+    Overview.updateSectionHeaderCounts('activeGames');
+
+    header = Overview.page.find(
+      'div.activeGamesHolder h2.sectionHeader'
+    );
+
+    assert.equal(
+      header.text(),
+      'Active games (8)',
+      'activeGames count only includes visible games'
+    );
+
+    start();
+  });
+});
+
 test("test_Overview.pageAddGameTables", function(assert) {
   stop();
   Overview.getOverview(function() {
@@ -195,31 +234,49 @@ test("test_Overview.addTypeToGameSource", function(assert) {
 });
 
 test("test_Overview.addTableStructure", function(assert) {
+  var div1;
+  var sectionHeader;
+  var table;
+  var tableBody;
+
   stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     // check table creation without dismiss column
-    var tableBody = Overview.addTableStructure('testTableClass', 'testHeader', false);
+    tableBody = Overview.addTableStructure('testTableClass', 'testHeader', false);
+    div1 = Overview.page.children();
+    assert.ok(div1.hasClass('testTableClassHolder'));
+
+    sectionHeader = div1.children('h2');
+    assert.ok(
+      sectionHeader.hasClass('sectionHeader'),
+      'section header has correct class without dismiss column'
+    );
     assert.equal(
-      Overview.page.html(),
-      '<div>' +
-        '<h2>testHeader</h2>' +
-        '<table class="gameList testTableClass">' +
-          '<thead>' +
-            '<tr>' +
-              '<th>Game</th>' +
-              '<th>Your Button</th>' +
-              '<th>Opponent\'s Button</th>' +
-              '<th>Opponent</th>' +
-              '<th>Score<br>W/L/T (Max)</th>' +
-              '<th>Description</th>' +
-              '<th>Inactivity</th>' +
-            '</tr>' +
-          '</thead>' +
-          '<tbody>' +
-          '</tbody>' +
-        '</table>' +
-      '</div>',
+      'testHeader',
+      sectionHeader.attr('data-text'),
+      'section header has correct attributes without dismiss column'
+    );
+
+    table = div1.children('table');
+    assert.ok(table.hasClass('gameList'), 'table has class gameList');
+    assert.ok(table.hasClass('testTableClass'), 'table has class testTableClass');
+
+    assert.equal(
+      table.html(),
+      '<thead>' +
+        '<tr>' +
+          '<th>Game</th>' +
+          '<th>Your Button</th>' +
+          '<th>Opponent\'s Button</th>' +
+          '<th>Opponent</th>' +
+          '<th>Score<br>W/L/T (Max)</th>' +
+          '<th>Description</th>' +
+          '<th>Inactivity</th>' +
+        '</tr>' +
+      '</thead>' +
+      '<tbody>' +
+      '</tbody>',
       'Table structure without dismiss column is correct'
     );
     assert.ok(tableBody.is('tbody'));
@@ -227,27 +284,39 @@ test("test_Overview.addTableStructure", function(assert) {
     Overview.page = $('<div>');
     // check table creation with dismiss column
     var tableBody = Overview.addTableStructure('testTableClass', 'testHeader', true);
+    div1 = Overview.page.children();
+    assert.ok(div1.hasClass('testTableClassHolder'));
+
+    sectionHeader = div1.children('h2');
+    assert.ok(
+      sectionHeader.hasClass('sectionHeader'),
+      'section header has correct class'
+    );
     assert.equal(
-      Overview.page.html(),
-      '<div>' +
-        '<h2>testHeader</h2>' +
-        '<table class="gameList testTableClass">' +
-          '<thead>' +
-            '<tr>' +
-              '<th>Game</th>' +
-              '<th>Your Button</th>' +
-              '<th>Opponent\'s Button</th>' +
-              '<th>Opponent</th>' +
-              '<th>Score<br>W/L/T (Max)</th>' +
-              '<th>Description</th>' +
-              '<th>Inactivity</th>' +
-              '<th>Dismiss</th>' +
-            '</tr>' +
-          '</thead>' +
-          '<tbody>' +
-          '</tbody>' +
-        '</table>' +
-      '</div>',
+      'testHeader',
+      sectionHeader.attr('data-text'),
+      'section header has correct attributes'
+    );
+
+    table = div1.children('table');
+    assert.ok(table.hasClass('gameList'), 'table has class gameList');
+    assert.ok(table.hasClass('testTableClass'), 'table has class testTableClass');
+    assert.equal(
+      table.html(),
+      '<thead>' +
+        '<tr>' +
+          '<th>Game</th>' +
+          '<th>Your Button</th>' +
+          '<th>Opponent\'s Button</th>' +
+          '<th>Opponent</th>' +
+          '<th>Score<br>W/L/T (Max)</th>' +
+          '<th>Description</th>' +
+          '<th>Inactivity</th>' +
+          '<th>Dismiss</th>' +
+        '</tr>' +
+      '</thead>' +
+      '<tbody>' +
+      '</tbody>',
       'Table structure with dismiss column is correct'
     );
     assert.ok(tableBody.is('tbody'));
@@ -656,9 +725,18 @@ test("test_Overview.pageAddGameTable", function(assert) {
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.pageAddGameTable('awaitingPlayer', 'Active games');
-    var htmlout = Overview.page.html();
-    assert.ok(htmlout.match('<h2>Active games'), "Section header should be set");
-    assert.ok(htmlout.match('<table class="gameList activeGames">'), "A table is created");
+
+    var div1 = Overview.page.children();
+    var sectionHeader = div1.children('h2');
+    assert.equal(
+      'Active games',
+      sectionHeader.text(),
+      'Section header should be set'
+    );
+
+    var table = div1.children('table');
+    assert.ok(table.hasClass('gameList'), 'table has class gameList');
+    assert.ok(table.hasClass('activeGames'), 'table has class activeGames');
     start();
   });
 });
