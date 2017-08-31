@@ -1566,7 +1566,7 @@ class ButtonSelectionClient():
     self._process_button_names()
 
   def select_button(self, criteria):
-    KNOWN_KEYS = [ 'name', 'unimplemented', 'and_skills', 'or_skills', 'skipname', ]
+    KNOWN_KEYS = [ 'name', 'random', 'unimplemented', 'and_skills', 'or_skills', 'skipname', ]
     for key in sorted(criteria.keys()):
       if not key in KNOWN_KEYS:
         raise ValueError("Requested search based on key %s which is unknown" % key)
@@ -1577,6 +1577,8 @@ class ButtonSelectionClient():
         if not name in self.button_names:
           raise ValueError("Requested button name %s was not found in list" % name)
       options = criteria['name']
+    elif 'random' in criteria:
+      options = [ '__random', ]
     elif 'unimplemented' in criteria:
       options = self.unimplemented_buttons
     elif 'and_skills' in criteria:
