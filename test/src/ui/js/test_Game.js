@@ -1226,7 +1226,8 @@ test("test_Game.pageAddLogFooter", function(assert) {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    assert.deepEqual(htmlout, "", "Action log footer for a new game should be empty");
+    assert.ok(htmlout.match("Game created by responder001"),
+      "Action log footer for a new game should contain creation record");
     start();
   });
 });

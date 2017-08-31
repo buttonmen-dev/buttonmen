@@ -101,6 +101,59 @@ class BMInterfaceGameAction extends BMInterface {
      * @param int $action_log_id
      * @return array
      */
+    protected function load_params_from_type_log_create_game($action_log_id) {
+        try {
+            $query = 'SELECT creator_id FROM game_action_log_type_create_game ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            return array(
+                'creatorId' => (int)$row['creator_id'],
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_create_game: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type create_game
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_create_game($action_log_id, $params) {
+        try {
+            $query = 'INSERT INTO game_action_log_type_create_game ' .
+                     '(action_log_id, creator_id) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :creator_id)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':creator_id' => $params['creatorId']));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_create_game: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Load the parameters for a single game action log message of type end_draw
+     *
+     * @param int $action_log_id
+     * @return array
+     */
     protected function load_params_from_type_log_end_draw($action_log_id) {
         try {
             $query = 'SELECT round_number,round_score FROM game_action_log_type_end_draw ' .
