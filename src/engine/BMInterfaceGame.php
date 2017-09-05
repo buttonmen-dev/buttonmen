@@ -90,6 +90,13 @@ class BMInterfaceGame extends BMInterface {
                     "Could not load newly-created game $gameId"
                 );
             }
+            $game->log_action(
+                'create_game',
+                0,
+                array(
+                    'creatorId' => $currentPlayerId,
+                )
+            );
             if ($previousGameId) {
                 $chatNotice = '[i]Continued from [game=' . $previousGameId . '][i]';
                 $game->add_chat(-1, $chatNotice);

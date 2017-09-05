@@ -99,6 +99,17 @@ class BMGameAction {
     }
 
     /**
+     * Describes game creation
+     *
+     * @return string
+     */
+    protected function friendly_message_create_game() {
+        $message = 'Game created by ' .
+                   $this->outputPlayerIdNames[$this->params['creatorId']];
+        return $message;
+    }
+
+    /**
      * Describes a draw at the end of a round
      *
      * @return string

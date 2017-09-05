@@ -54,6 +54,17 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_create_game()
+     */
+    public function test_friendly_message_create_game() {
+        $this->object = new BMGameAction(BMGameState::START_GAME, 'create_game', 0, array('creatorId' => 2));
+        $this->assertEquals(
+            "Game created by gameaction02",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_end_draw()
      */
     public function test_friendly_message_end_draw() {

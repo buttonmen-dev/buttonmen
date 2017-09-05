@@ -733,6 +733,7 @@ class BMInterface {
         }
 
         // ensure that the chat and game acceptance have also been cached
+        $this->game_action()->save_action_log($game);
         $this->game_chat()->save_chat_log($game);
         $this->save_player_game_decisions($game);
 
@@ -1826,6 +1827,11 @@ class BMInterface {
         $idNameMapping = array();
         foreach ($game->playerArray as $player) {
             $idNameMapping[$player->playerId] = $this->get_player_name_from_id($player->playerId);
+        }
+
+        // If the game creator is not one of the players, add their name to the mapping as well
+        if (!array_key_exists($game->creatorId, $idNameMapping)) {
+            $idNameMapping[$game->creatorId] = $this->get_player_name_from_id($game->creatorId);
         }
         return $idNameMapping;
     }
