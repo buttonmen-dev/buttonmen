@@ -1364,3 +1364,11 @@ UPDATE button SET flavor_text="The Queen of Hearts is a megalomaniac who enjoys 
 UPDATE button SET flavor_text="(The Jabberwock has no flavor text. The Jabberwock needs no flavor text. You don't taste The Jabberwock, The Jabberwock tastes you.)" WHERE name="The Jabberwock";
 UPDATE button SET flavor_text="Tweedledum takes out his jealousy over his brother's way with the ladies by picking fights over the little things. He enjoys listening to poetry and, of course, beating people up. Tweedledee takes out his jealousy over his brother's superior intellect by breaking Tweedledum's toys. He enjoys reciting poetry and, of course, beating people up." WHERE name="Tweedledum+dee";
 UPDATE button SET flavor_text="The White Rabbit dresses like a dandy and harbors a thinly-veiled animosity towards the opposite sex. He likes cucumbers, kid gloves, and beating people up." WHERE name="White Rabbit";
+
+INSERT INTO tag (name) VALUES ('exclude_from_random');
+
+INSERT INTO button_tag_map (button_id, tag_id)
+VALUES (
+  (SELECT id FROM button WHERE name = 'Dead Guy'),
+  (SELECT id FROM tag WHERE name = 'exclude_from_random')
+);
