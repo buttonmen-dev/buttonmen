@@ -1748,6 +1748,14 @@ Game.pageAddGameHeader = function(action_desc) {
   } else {
     gameTitle += 'Round #' + Api.game.roundNumber;
   }
+
+  // add creator if the game has been created by a third party
+  if (('CHOOSE_JOIN_GAME' == Api.game.gameState) &&
+      (Api.game.creatorId != Api.game.player.playerId) &&
+      (Api.game.creatorId != Api.game.opponent.playerId)) {
+    gameTitle += Game.SPACE_BULLET + 'Created by ' + Api.game.creatorName;
+  }
+
   $('title').html(gameTitle + ' &mdash; Button Men Online');
 
   Game.page.append(

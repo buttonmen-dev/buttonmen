@@ -199,6 +199,9 @@ class BMInterface {
             $data['playerDataArray'][0]['playerColor'] = $gameColors['playerA'];
             $data['playerDataArray'][1]['playerColor'] = $gameColors['playerB'];
 
+            $data['creatorDataArray']['creatorName'] =
+                $this->get_player_name_from_id($data['creatorDataArray']['creatorId']);
+
             return $data;
         }
         return NULL;
