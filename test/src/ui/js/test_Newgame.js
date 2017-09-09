@@ -186,6 +186,8 @@ test("test_Newgame.actionCreateGame_prevvals", function(assert) {
     'playerButton': 'Avis',
     'opponentButton': 'Crab',
     'nRounds': '4',
+    'isPlayer1Unlocked': true,
+    'playerName': 'responder006',
   };
   Newgame.getNewgameData(function() {
     Newgame.actionCreateGame();
@@ -199,6 +201,10 @@ test("test_Newgame.actionCreateGame_prevvals", function(assert) {
           "Opponent button is retained from previous page activity");
     assert.equal($('#n_rounds').val(), '4',
           "Number of rounds is retained from previous page activity");
+    assert.equal($('#player_name').length, 1,
+          "Player 1 selector should have been regenerated");
+    assert.equal($('#player_name').val(), 'responder006',
+          "Player name is retained from previous page activity");
     start();
   });
 });
@@ -217,6 +223,31 @@ test("test_Newgame.formCreateGame", function(assert) {
     $('#player_button').val('Avis');
     $('#opponent_button').val('Avis');
     $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    assert.equal(
+      Env.message.type, "success",
+      "Newgame action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+test("test_Newgame.formCreateThirdPartyGame", function(assert) {
+  stop();
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $.ajaxSetup({ async: false });
+    assert.equal(
+      $('#player_name').length, 0,
+      "Player 1 selector should not exist yet");
+    $('#player1_toggle').trigger('click');
+    assert.equal(
+      $('#player_name').length, 1,
+      "Player 1 selector should exist after being activated");
+    $('#player_name').val('responder005');
+    $('#opponent_name').val('tester2');
+    $('#player_button').val('Avis');
+    $('#opponent_button').val('Avis');
     $('#newgame_action_button').trigger('click');
     assert.equal(
       Env.message.type, "success",
