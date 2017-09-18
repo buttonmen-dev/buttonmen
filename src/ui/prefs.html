@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Preferences &mdash; Button Men Online</title>
-  <link rel="stylesheet" href="gui.css" />
+  <link rel="stylesheet" href="gui.VERSION_COOKIE.css" />
   <link rel="stylesheet" href="js/extern/spectrum.css" />
   <link id="favicon" rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <meta http-equiv="Cache-control" content="no-cache" />
@@ -21,14 +21,14 @@
   <script>
     $(document).ready(function() {
       $.ajax({
-        url: 'js/Loader.js',
+        url: 'js/Loader.VERSION_COOKIE.js',
         dataType: 'script',
         cache: true,
         success: function() {
           Loader.loadScripts([
             'js/extern/jquery-ui.min.js',
             'js/extern/spectrum.js',
-            'js/UserPrefs.js'
+            'js/UserPrefs.VERSION_COOKIE.js'
           ],
           function() {
             Login.showLoginHeader(UserPrefs);
