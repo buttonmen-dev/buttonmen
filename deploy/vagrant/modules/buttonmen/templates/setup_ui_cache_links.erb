@@ -1,0 +1,33 @@
+#!/bin/bash
+##### Setup cache-busting links for buttonmen UI files
+
+set -e
+
+VERSION_COOKIE=$1
+
+WWW_DIR=/var/www
+UI_DIR=${WWW_DIR}/ui
+JS_DIR=${WWW_DIR}/ui/js
+
+cd ${JS_DIR}
+for fname in $(ls *.js | egrep -v "[0-9]"); do
+  if [ -f $fname ] && [ ! -L $fname ]; then
+    fbase=$(basename $fname .js)
+    mv ${fname} ${fbase}.${VERSION_COOKIE}.js
+    ln -s ${fbase}.${VERSION_COOKIE}.js ${fname}
+  fi
+done
+
+cd ${UI_DIR}
+for fname in $(ls *.css | egrep -v "[0-9]"); do
+  if [ -f $fname ] && [ ! -L $fname ]; then
+    fbase=$(basename $fname .css)
+    mv ${fname} ${fbase}.${VERSION_COOKIE}.css
+    ln -s ${fbase}.${VERSION_COOKIE}.css ${fname}
+  fi
+done
+
+cd ${UI_DIR}
+for fname in $(ls *.html); do
+  sed -i -e "s/VERSION_COOKIE/${VERSION_COOKIE}/" $fname
+done

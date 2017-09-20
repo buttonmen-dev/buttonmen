@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Button Men Online</title>
-  <link rel="stylesheet" href="gui.css" />
+  <link rel="stylesheet" href="gui.VERSION_COOKIE.css" />
   <link id="favicon" rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <meta http-equiv="Cache-control" content="no-cache" />
 </head>
@@ -21,13 +21,13 @@
   <script>
     $(document).ready(function() {
       $.ajax({
-        url: 'js/Loader.js',
+        url: 'js/Loader.VERSION_COOKIE.js',
         dataType: 'script',
         cache: true,
         success: function() {
           Loader.loadScripts([
             'js/extern/jquery-ui.min.js',
-            'js/Verify.js'
+            'js/Verify.VERSION_COOKIE.js'
           ],
           function() {
             Login.showLoginHeader(Verify);

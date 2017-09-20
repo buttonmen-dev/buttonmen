@@ -27,6 +27,7 @@ node default {
       $puppet_hostname = "sandbox.buttonweavers.com"
     }
   }
+  $puppet_timestamp = generate('/bin/date', '+%s')
 
   # Generic node configuration
   include "apt::client"
