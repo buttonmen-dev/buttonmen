@@ -1688,6 +1688,24 @@ Game.formDismissGame = function(e) {
   );
 };
 
+// Form for toggling chat visibility
+Game.formToggleChatVisibility = function(e) {
+  e.preventDefault();
+  var formargs = {
+    'type': 'setChatVisibility',
+    'game': Game.game,
+    'private': !(Api.game.player.isChatPrivate),
+  };
+
+  Api.apiFormPost(
+    formargs,
+    { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
+    '#game_chat_privacy_button',
+    Game.redrawGamePageSuccess,
+    Game.redrawGamePageFailure
+  );
+};
+
 Game.readCurrentGameActivity = function() {
   // Initialize the array of die select statuses to all false, then
   // turn on the dice which have been selected
@@ -2192,30 +2210,48 @@ Game.pageAddLogFooter = function() {
     var chattd;
     if (Api.game.chatLog.length > 0) {
       chattd = $('<td>', {'class': 'logtable', });
-      chattd.append($('<p>', {'text': 'Recent game chat', }));
+      var chatprivacy = Game.chatPrivacyHeader();
+      chattd.append(chatprivacy);
       var chattable = $('<table>', {'border': 'on', });
+
+      // Determine whether we need to display a first column of the chat table
+      // by examining each entry
+      var needFirstCol = false;
+      $.each(Api.game.chatLog, function(logindex, logentry) {
+        if (logentry.player == Api.game.player.playerName ||
+            logentry.player == Api.game.opponent.playerName) {
+          needFirstCol = true;
+        }
+        if (logentry.timestamp > 0) {
+          needFirstCol = true;
+        }
+      });
+
+      // Now iterate again and actually draw the table
       $.each(Api.game.chatLog, function(logindex, logentry) {
         var chatrow = $('<tr>');
         var chatplayer;
         var chatplayeropts;
-        if (logentry.player == Api.game.player.playerName) {
-          chatplayer = 'player';
-        } else if (logentry.player == Api.game.opponent.playerName) {
-          chatplayer = 'opponent';
-        } else {
-          chatplayer = 'noone';
+        if (needFirstCol) {
+          if (logentry.player == Api.game.player.playerName) {
+            chatplayer = 'player';
+          } else if (logentry.player == Api.game.opponent.playerName) {
+            chatplayer = 'opponent';
+          } else {
+            chatplayer = 'noone';
+          }
+          chatplayeropts = {
+            'class': 'chat',
+            'style': 'background-color: ' + Game.color[chatplayer],
+            'nowrap': 'nowrap',
+            'text': logentry.player,
+          };
+          if (logentry.timestamp > 0) {
+            chatplayeropts.text += ' (' +
+              Env.formatTimestamp(logentry.timestamp) + ')';
+          }
+          chatrow.append($('<td>', chatplayeropts));
         }
-        chatplayeropts = {
-          'class': 'chat',
-          'style': 'background-color: ' + Game.color[chatplayer],
-          'nowrap': 'nowrap',
-          'text': logentry.player,
-        };
-        if (logentry.timestamp > 0) {
-          chatplayeropts.text += ' (' +
-            Env.formatTimestamp(logentry.timestamp) + ')';
-        }
-        chatrow.append($('<td>', chatplayeropts));
         var messageClass = 'left logmessage';
         if (Api.game.isParticipant && Api.game.player.lastActionTime &&
           logentry.timestamp > Api.game.player.lastActionTime) {
@@ -3574,4 +3610,53 @@ Game.dieFocusOutlineHandler = function(element) {
       $('.die_container').removeClass('hide_focus');
     }
   });
+};
+
+Game.chatPrivacyHeader = function() {
+  var chatheader = $('<p>');
+
+  // Report detailed privacy settings to game participants, and
+  // let each participant toggle their own setting.
+  if (Api.game.isParticipant) {
+    var overallPrivacy;
+    var toggleText;
+    var chatform;
+    var chatbutton;
+
+    // Display current detailed settings
+    if (Api.game.player.isChatPrivate || Api.game.opponent.isChatPrivate) {
+      overallPrivacy = 'private';
+    } else {
+      overallPrivacy = 'public';
+    }
+    chatform = $('<form>', {
+      'id': 'game_chat_privacy_form',
+      'action': 'javascript:void(0);',
+    });
+    chatform.append($('<span>', {
+      'text': 'Game chat: ' + overallPrivacy +
+        ' (you=' +
+        (Api.game.player.isChatPrivate ? 'private' : 'public') +
+        ', opponent=' +
+        (Api.game.opponent.isChatPrivate ? 'private' : 'public') +
+        ') ',
+    }));
+
+    // Display form to change settings
+    if (Api.game.player.isChatPrivate) {
+      toggleText = 'Prefer public chat';
+    } else {
+      toggleText = 'Prefer private chat';
+    }
+    chatbutton = $('<button>', {
+      'id': 'game_chat_privacy_button',
+      'text': toggleText,
+    });
+    chatbutton.click(Game.formToggleChatVisibility);
+    chatform.append(chatbutton);
+    chatheader.append(chatform);
+  } else {
+    chatheader.append('Game chat');
+  }
+  return chatheader;
 };
