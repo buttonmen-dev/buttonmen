@@ -947,7 +947,7 @@ class BMGame {
                     }
                 }
 
-                if (empty($die->value)) {
+                if (!isset($die->value)) {
                     $player->activeDieArray[$dieIdx] = $die->make_play_die(FALSE);
                 }
             }
@@ -3598,6 +3598,7 @@ class BMGame {
             'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
             'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
             'playerDataArray'            => $this->get_playerDataArray($requestingPlayerIdx),
+            'creatorDataArray'           => array('creatorId' => $this->creatorId),
         );
         return $dataArray;
     }

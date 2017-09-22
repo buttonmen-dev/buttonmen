@@ -29,6 +29,7 @@
  * @property      bool     $fireOvershooting       Has player enabled fire overshooting?
  * @property      bool     $hasPlayerAcceptedGame  Has player accepted this game?
  * @property      bool     $hasPlayerDismissedGame Has player dismissed this game?
+ * @property      bool     $isButtonChoiceRandom   Was button chosen at random?
  * @property      int      $lastActionTime         Time of last action
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  * @property      bool     $isOnVacation           Is player on vacation? (Used by BMInterface only)

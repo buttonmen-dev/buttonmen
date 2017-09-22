@@ -43,6 +43,9 @@ Newgame.showLoggedInPage = function() {
   if (!Newgame.activity.nRounds) {
     Newgame.activity.nRounds = Env.getParameterByName('maxWins');
   }
+  if (!Newgame.activity.isPlayer1Unlocked) {
+    Newgame.activity.isPlayer1Unlocked = false;
+  }
 
   // Get all needed information, then display newgame page
   Newgame.getNewgameData(Newgame.showPage);
@@ -120,27 +123,74 @@ Newgame.actionCreateGame = function() {
   // Table of miscellaneous game creation options
   var miscOptionsTable = $('<table>', {'id': 'newgame_create_table', });
 
-  var playerRow = $('<tr>');
-  playerRow.append($('<th>', {'text': 'You:', }));
-  playerRow.append($('<td>', {'text': Login.player, }));
-  miscOptionsTable.append(playerRow);
+  var player1Row = $('<tr>', {'id': 'player1_row', });
+  player1Row.append($('<th>', {'text': 'You:', }));
+
+  var player1Toggle = $('<input>', {
+    'type': 'button',
+    'id': 'player1_toggle',
+    'class': 'player1_toggle',
+    'value': 'Change first player',
+  });
+
+  player1Row.append(
+    $('<td>', {'text': Login.player, }).append(player1Toggle)
+  );
+  miscOptionsTable.append(player1Row);
 
   // Setup opponent choice, including autocomplete from a dropdown
   // FIXME: i couldn't get autocomplete to display properly, so
   // temporarily used a select for the opponent name
-  var playerNames = {};
+  var opponentNames = {};
+  var allPlayerNames = {};
   for (var playerName in Api.player.list) {
+    allPlayerNames[playerName] = playerName;
     if ((playerName != Login.player) &&
         (Api.player.list[playerName].status == 'ACTIVE')) {
-      playerNames[playerName] = playerName;
+      opponentNames[playerName] = playerName;
     }
   }
   if (!('opponentName' in Newgame.activity)) {
     Newgame.activity.opponentName = null;
   }
-  miscOptionsTable.append(
-    Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
-                         null, Newgame.activity.opponentName, 'Anybody'));
+
+  var player2Row = Newgame.getSelectRow(
+    'Opponent',
+    'opponent_name',
+    opponentNames,
+    null,
+    Newgame.activity.opponentName,
+    'Anybody'
+  );
+  player2Row.prop('id', 'player2_row');
+
+  miscOptionsTable.append(player2Row);
+
+  player1Toggle.click(function() {
+    $('#player1_row').remove();
+    $('#player2_row').remove();
+
+    Newgame.getSelectRow(
+      'Player 2',
+      'opponent_name',
+      allPlayerNames,
+      null,
+      Newgame.activity.opponentName,
+      'Anybody'
+    ).prependTo('#newgame_create_table');
+
+    if (!Newgame.activity.playerName) {
+      Newgame.activity.playerName = Login.player;
+    }
+
+    Newgame.getSelectRow(
+      'Player 1',
+      'player_name',
+      allPlayerNames,
+      null,
+      Newgame.activity.playerName
+    ).prependTo('#newgame_create_table');
+  });
 
   // Round selection
   if (!('nRounds' in Newgame.activity) || !Newgame.activity.nRounds) {
@@ -287,6 +337,11 @@ Newgame.actionCreateGame = function() {
 
   // Lay out the page
   Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
+
+  // Unlock player 1 if this was previously unlocked before form submission
+  if (Newgame.activity.isPlayer1Unlocked) {
+    $('#player1_toggle').click();
+  }
 };
 
 
@@ -295,32 +350,44 @@ Newgame.actionCreateGame = function() {
 
 Newgame.formCreateGame = function() {
 
+  if ($('#player_name').length) {
+    Newgame.activity.isPlayer1Unlocked = true;
+    Newgame.activity.playerName = $('#player_name').val();
+  } else {
+    Newgame.activity.isPlayer1Unlocked = false;
+    Newgame.activity.playerName = Login.player;
+  }
+
   Newgame.activity.opponentName = $('#opponent_name').val();
   Newgame.activity.playerButton = $('#player_button').val();
   Newgame.activity.opponentButton = $('#opponent_button').val();
   Newgame.activity.nRounds = $('#n_rounds').val();
   Newgame.activity.description = $('#description').val();
 
-  var validSelect = true;
-  var errorMessage;
+  var errorMessage = '';
 
-  if (!Newgame.activity.playerButton) {
-    validSelect = false;
-    errorMessage = 'Please select a button for yourself.';
+  if (!Newgame.activity.playerName) {
+    errorMessage = 'Please select the first player.';
+  } else if (Newgame.activity.playerName == Newgame.activity.opponentName) {
+    errorMessage = 'The two player names cannot be the same.';
+  } else if (!Newgame.activity.playerButton) {
+    if ($('#player_name').length) {
+      errorMessage = 'Please select a button for player 1';
+    } else {
+      errorMessage = 'Please select a button for yourself.';
+    }
   } else if (Newgame.activity.opponentName &&
     !(Newgame.activity.opponentName in Api.player.list)) {
-    validSelect = false;
     errorMessage =
       'Specified opponent ' + Newgame.activity.opponentName +
       ' is not recognized';
   } else if (Newgame.activity.opponentName &&
     !Newgame.activity.opponentButton) {
-    validSelect = false;
     errorMessage =
       'Please select a button for ' + Newgame.activity.opponentName;
   }
 
-  if (!validSelect) {
+  if (errorMessage.length) {
     Env.message = {
       'type': 'error',
       'text': errorMessage,
@@ -330,7 +397,7 @@ Newgame.formCreateGame = function() {
     // create an array with one element for each player/button combination
     var playerInfoArray = [];
     playerInfoArray[0] = [
-      Login.player,
+      Newgame.activity.playerName,
       Newgame.activity.playerButton,
     ];
     playerInfoArray[1] = [

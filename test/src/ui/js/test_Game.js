@@ -1065,6 +1065,29 @@ test("test_Game.formDismissGame", function(assert) {
   Game.formDismissGame.call(link, $.Event());
 });
 
+test("test_Game.formToggleChatVisibility", function(assert) {
+  stop();
+  // Temporarily back up Api.apiFormPost and replace it with
+  // a mocked version for testing
+  var apiFormPost = Api.apiFormPost;
+  Game.game = 5;
+  Api.game = {
+    'player': {
+      'isChatPrivate': false,
+    },
+    'opponent': {
+      'isChatPrivate': true,
+    },
+  };
+  Api.apiFormPost = function(args) {
+    Api.apiFormPost = apiFormPost;
+    assert.deepEqual(args, { 'type': 'setChatVisibility', 'game': 5, 'private': true, },
+      'Form should toggle current player chat visibility');
+    start();
+  };
+  Game.formToggleChatVisibility.call(null, $.Event());
+});
+
 test("test_Game.readCurrentGameActivity", function(assert) {
   stop();
   BMTestUtils.GameType = 'washu_hooloovoo_cant_win';
@@ -1226,7 +1249,8 @@ test("test_Game.pageAddLogFooter", function(assert) {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    assert.deepEqual(htmlout, "", "Action log footer for a new game should be empty");
+    assert.ok(htmlout.match("Game created by responder001"),
+      "Action log footer for a new game should contain creation record");
     start();
   });
 });
@@ -2702,4 +2726,26 @@ test("test_Game.buildNewGameLink_rematch", function(assert) {
     'create_game.html?opponent=Zebedee&previousGameId=17&maxWins=2';
   assert.equal(link.attr('href'), expectedUrl,
     'Rematch new game link should have the correct URL');
+});
+
+test("test_Game.chatPrivacyHeader", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'washu_hooloovoo_first_comments_inactive';
+  Game.getCurrentGame(function() {
+    var chatheader = Game.chatPrivacyHeader();
+    var html = chatheader.html();
+    assert.ok(html.match('you=public'), "Chat header contains setting for player's own chat privacy.");
+    start();
+  });
+});
+
+test("test_Game.chatPrivacyHeader_nonplayer", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'frasquito_wiseman_startturn_nonplayer';
+  Game.getCurrentGame(function() {
+    var chatheader = Game.chatPrivacyHeader();
+    var html = chatheader.html();
+    assert.ok(!html.match('public|private'), "Chat header contains no chat privacy information when game is loaded by a nonplayer.");
+    start();
+  });
 });

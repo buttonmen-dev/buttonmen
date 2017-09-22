@@ -7,9 +7,10 @@
 <head>
   <meta charset="utf-8" />
   <title>Button Men Online</title>
-  <link rel="stylesheet" href="gui.css" />
+  <link rel="stylesheet" href="gui.VERSION_COOKIE.css" />
   <link id="favicon" rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <meta http-equiv="Cache-control" content="no-cache" />
+  <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
 </head>
 
 <body>
@@ -21,12 +22,13 @@
   <script>
     $(document).ready(function() {
       $.ajax({
-        url: 'js/Loader.js',
+        url: 'js/Loader.VERSION_COOKIE.js',
         dataType: 'script',
         cache: true,
         success: function() {
           Loader.loadScripts([
-            'js/Forum.js'
+            'js/extern/jquery.floatThead.min.js',
+            'js/Forum.VERSION_COOKIE.js'
           ],
           function() {
             Login.showLoginHeader(Forum);

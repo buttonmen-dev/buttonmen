@@ -514,6 +514,9 @@ var Api = (function () {
                          data.playerDataArray[my.game.opponentIdx],
                          my.game.opponentIdx);
 
+    my.game.creatorId = data.creatorDataArray.creatorId;
+    my.game.creatorName = data.creatorDataArray.creatorName;
+
     my.game.pendingGameCount = data.pendingGameCount;
 
     return true;

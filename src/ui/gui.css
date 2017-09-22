@@ -23,14 +23,14 @@ div#container {
 }
 
 div#c_body {
-    padding-bottom:100px;   // height of the footer
+    padding-bottom:100px;   /* height of the footer */
 }
 
 div#c_footer {
     position:absolute;
     bottom:0;
     width:100%;
-    height:100px;           // height of the footer
+    height:100px;           /* height of the footer */
 }
 
 div#login_header {
@@ -232,6 +232,10 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+input.player1_toggle {
+    margin-left: 80px;
 }
 
 select option.greyed {
@@ -635,6 +639,11 @@ div.forum div.breadcrumb {
     font-size: 1.2em;
 }
 
+div.forum > .floatThead-container table {
+    border-collapse: separate;
+    border-spacing: 0em;
+}
+
 div.forum > table {
     width: 100%;
     max-width: 960px;
@@ -643,6 +652,7 @@ div.forum > table {
     table-layout: fixed;
 }
 
+div.forum > .floatThead-container table td,
 div.forum > table td {
     border: 2px solid #cccccc;
     vertical-align: top;
@@ -659,8 +669,11 @@ div.forum td.heading {
   which is, sadly, necessary to make it respect the cell widths when using
   table-layout: fixed, which is necessary to make word-wrap: break-word work.
 */
-div.forum .posts {
-    margin-top: -1.4em;
+div.forum .posts .dummy td {
+    margin: 0px;
+    border: 0px;
+    padding: 0px;
+    height: 0px;
 }
 
 div.forum .mainBreadcrumb {
@@ -675,6 +688,20 @@ div.forum .boards .mainBreadcrumb {
 
 div.forum .subHeader {
     margin: 0.2em 0 0.2em 1.2em;
+}
+
+div.forum .subHeader .linksBack {
+    float: left;
+}
+
+div.forum .subHeader .linksWithin {
+    float: right;
+}
+
+div.forum .subHeader .linksWithin a {
+    color: black;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 div.forum td.notes {

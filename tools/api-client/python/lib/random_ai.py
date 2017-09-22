@@ -21,6 +21,7 @@ NUMERIC_KEYS = [
   'sideScore',
   'waitingOnAction',
   'isOnVacation',
+  'isChatPrivate',
 
   # keys within activeDieArray
   'sides',
@@ -142,7 +143,9 @@ class PHPBMClientOutputWriter():
     self.f.write("\n        $_SESSION = $this->mock_test_user_login('%s');" % entry['user'])
 
   def _write_entry_type_createGame(self, entry):
-    randstr = self._php_rand_str(entry['retval'])
+    # Random skills may be selected during game creation, so use a dict-style randstr
+    # that allows for skill-selection random values
+    randstr = self._php_dict_style_rand_str(entry['retval'])
     self.f.write("""
         $gameId = $this->verify_api_createGame(
             %s,
@@ -295,6 +298,16 @@ class PHPBMClientOutputWriter():
     if retval.rand_vals:
       randstr = ", ".join([str(val) for val in retval.rand_vals])
     return "array(%s)" % randstr
+
+  def _php_dict_style_rand_str(self, retval):
+    randstr = ""
+    if retval.rand_vals:
+      randstr = ", ".join([str(val) for val in retval.rand_vals])
+    skill_randstr = ""
+    if retval.skill_rand_vals:
+      skill_randstr = ", ".join([str(val) for val in retval.skill_rand_vals])
+    return "array('bm_rand' => array(%s), 'bm_skill_rand' => array(%s))" % (
+      randstr, skill_randstr)
 
   def _php_json_decode_blob(self, obj):
     jsonstr = json.dumps(obj)
@@ -1553,7 +1566,7 @@ class ButtonSelectionClient():
     self._process_button_names()
 
   def select_button(self, criteria):
-    KNOWN_KEYS = [ 'name', 'unimplemented', 'and_skills', 'or_skills', 'skipname', ]
+    KNOWN_KEYS = [ 'name', 'random', 'unimplemented', 'and_skills', 'or_skills', 'skipname', ]
     for key in sorted(criteria.keys()):
       if not key in KNOWN_KEYS:
         raise ValueError("Requested search based on key %s which is unknown" % key)
@@ -1564,6 +1577,8 @@ class ButtonSelectionClient():
         if not name in self.button_names:
           raise ValueError("Requested button name %s was not found in list" % name)
       options = criteria['name']
+    elif 'random' in criteria:
+      options = [ '__random', ]
     elif 'unimplemented' in criteria:
       options = self.unimplemented_buttons
     elif 'and_skills' in criteria:
