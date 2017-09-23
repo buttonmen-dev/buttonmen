@@ -25,9 +25,13 @@
         dataType: 'script',
         cache: true,
         success: function() {
-          Loader.loadScripts([ 'js/OpenGames.VERSION_COOKIE.js' ], function() {
+          Loader.loadScripts([
+           'js/OpenGames.VERSION_COOKIE.js'
+          ],
+          function() {
             Login.showLoginHeader(OpenGames);
-          });
+          },
+          'VERSION_COOKIE');
         }
       });
     });
