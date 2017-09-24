@@ -5,19 +5,33 @@ var Loader = {};
 Loader.defaultScripts = [
   'js/extern/jquery.cookie.js',
   'js/extern/moment.js',
-  'js/Api.js',
-  'js/Config.js',
-  'js/Env.js',
-  'js/Login.js',
 ];
 
-Loader.loadScripts = function(scripts, callback) {
+// These BM modules are loaded by every page, and we autoversion them
+// to avoid caching problems after deployments
+Loader.defaultBMModules = [
+  'Api',
+  'Config',
+  'Env',
+  'Login',
+];
+
+Loader.loadScripts = function(scripts, callback, version) {
   // The function to be called when all the scripts have been loaded.
   Loader.callback = callback;
 
   // Tracks which scripts are still loading and which have finished
   Loader.loadStatus = { };
   $.each(Loader.defaultScripts, function(index, script) {
+    Loader.loadStatus[script] = false;
+  });
+  $.each(Loader.defaultBMModules, function(index, module) {
+    var script;
+    if (version) {
+      script = 'js/' + module + '.' + version + '.js';
+    } else {
+      script = 'js/' + module + '.js';
+    }
     Loader.loadStatus[script] = false;
   });
   $.each(scripts, function(index, script) {
