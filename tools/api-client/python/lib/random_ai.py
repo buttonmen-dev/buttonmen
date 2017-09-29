@@ -37,6 +37,7 @@ STRING_KEYS = [
 ]
 
 UNUSED_DURING_AUTOPLAY_KEYS = [
+  'creatorDataArray',
   'gameChatEditable',
   'gameChatLog',
   'gameId',
