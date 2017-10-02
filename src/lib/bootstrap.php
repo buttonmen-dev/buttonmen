@@ -49,9 +49,29 @@ if (!function_exists('bm_rand')) {
      */
     function bm_rand($min = FALSE, $max = FALSE) {
         if (is_numeric($min) && is_numeric($max)) {
-            return mt_rand($min, $max);
+            $value = mt_rand($min, $max);
+        } else {
+            $value = mt_rand();
         }
-        return mt_rand();
+        return $value;
+    }
+}
+
+if (!function_exists('bm_skill_rand')) {
+    /**
+     * Default behaviour of the skill RNG, when not tweaked for unit testing
+     *
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
+     function bm_skill_rand($min = FALSE, $max = FALSE) {
+        if (is_numeric($min) && is_numeric($max)) {
+            $value = mt_rand($min, $max);
+        } else {
+            $value = mt_rand();
+        }
+        return $value;
     }
 }
 

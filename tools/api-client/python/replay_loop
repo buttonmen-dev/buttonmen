@@ -25,6 +25,8 @@ import datetime
 HOSTNAME = subprocess.check_output(['hostname', ]).strip()
 COMMITID = None
 
+USERNAME = 'ubuntu'
+
 PARENTDIR = '/srv/bmgames/chaos-test'
 GAMESDIR = '%s/archive' % (PARENTDIR)
 STATEDIR = '%s/replay_state/%s' % (PARENTDIR, HOSTNAME)
@@ -51,7 +53,7 @@ def setup():
   os.chdir(SRCDIR)
   if not os.path.isfile('%s.test' % TESTFILE):
     testlines = int(subprocess.check_output(['wc', '-l', TESTFILE]).split()[0])
-    os.system('sudo -u ubuntu sh -c "head -%d %s > %s.test"' % (testlines - 1, TESTFILE, TESTFILE))
+    os.system('sudo -u %s sh -c "head -%d %s > %s.test"' % (USERNAME, testlines - 1, TESTFILE, TESTFILE))
   if ARCHIVE_GAMES:
     f = open('/buttonmen/.git/FETCH_HEAD')
     COMMITID = f.readline().split()[0]
@@ -88,19 +90,28 @@ def find_next_file(state):
 def test_file(filename):
   ## prep test file for replay
   os.chdir(HOMEBMDIR)
-  os.system('tar xf %s/%s' % (GAMESDIR, filename))
-  os.system('sudo -u ubuntu cp -f %s.test %s' % (TESTFILE, TESTFILE))
-  os.system('sudo chown chaos %s' % TESTFILE)
-  retval = os.system('./update_replay_games ./output >> %s' % TESTFILE)
-  if retval != 0:
-    sys.exit(1)
-  os.system('/bin/rm ./output/*')
-  os.system('echo "}" >> %s' % (TESTFILE))
+  if USERNAME == 'vagrant':
+    write_to_bm_prefix = 'sudo -u %s' % USERNAME
+  else:
+    write_to_bm_prefix = ''
+  commands = [
+    'tar xf %s/%s' % (GAMESDIR, filename),
+    'sudo -u %s cp -f %s.test %s' % (USERNAME, TESTFILE, TESTFILE),
+    'sudo chown chaos %s' % TESTFILE,
+    './update_replay_games ./output | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
+    '/bin/rm ./output/*',
+    'echo "}" | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
+  ]
+  for command in commands:
+    retval = os.system(command)
+    if retval != 0:
+      print "command failed: %s" % command
+      sys.exit(1)
   os.chdir(SRCDIR)
 
   # actually run the test, capturing output
   logfile = '%s/%s.output' % (STATEDIR, filename)
-  cmdargs = 'sudo -u ubuntu sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/responderTest.php 2>&1" | tee %s' % (logfile)
+  cmdargs = 'sudo -u %s sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/responderTest.php 2>&1" | tee %s' % (USERNAME, logfile)
   print "About to execute: %s" % cmdargs
   os.system(cmdargs)
   return

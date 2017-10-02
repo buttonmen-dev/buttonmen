@@ -63,7 +63,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         $nPossibleSkills = count($possibleSkillArray);
 
         while (count($skillArray) < $nSkills) {
-            $skillArray[$possibleSkillArray[bm_rand(0, $nPossibleSkills - 1)]] = TRUE;
+            $skillArray[$possibleSkillArray[bm_skill_rand(0, $nPossibleSkills - 1)]] = TRUE;
         }
 
         return array_keys($skillArray);
@@ -153,7 +153,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         $nSkillsGenerated = 0;
 
         while ($nSkillsGenerated < $nSkillsToBeGeneratedRandomly) {
-            $skillChosen = $validDieSkillLetterArray[bm_rand(0, $nSkills - 1)];
+            $skillChosen = $validDieSkillLetterArray[bm_skill_rand(0, $nSkills - 1)];
             $dieIdx = bm_rand(0, $nDice - 1);
             if ((count($dieSkillLetterArrayArray[$dieIdx]) < $maxSkillsPerDie) &&
                 (!in_array($skillChosen, $dieSkillLetterArrayArray[$dieIdx]))) {

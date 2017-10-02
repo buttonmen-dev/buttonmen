@@ -105,11 +105,14 @@ Forum.showOverview = function() {
 
   $('title').html(Forum.pageTitle);
 
-  var table = $('<table>', { 'class': 'boards' });
+  var table = $('<table>', { 'class': 'boards floatable' });
   Forum.page.append(table);
 
+  var thead = $('<thead>');
+  table.append(thead);
+
   var headingTr = $('<tr>');
-  table.append(headingTr);
+  thead.append(headingTr);
   var headingTd = $('<td>', { 'class': 'heading' });
   headingTr.append(headingTd);
 
@@ -122,12 +125,15 @@ Forum.showOverview = function() {
 
   headingTr.append($('<td>', { 'class': 'notes', 'html': '&nbsp;', }));
 
+  var tbody = $('<tbody>');
+  table.append(tbody);
+
   $.each(Api.forum_overview.boards, function(index, board) {
-    table.append(Forum.buildBoardRow(board));
+    tbody.append(Forum.buildBoardRow(board));
   });
 
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
-  table.append($('<tr>').append(markReadTd));
+  tbody.append($('<tr>').append(markReadTd));
   var markAllBoardsReadButton = $('<input>', {
     'type': 'button',
     'value': 'Mark all boards as read',
@@ -164,12 +170,15 @@ Forum.showBoard = function() {
     ' &mdash; ' + Forum.pageTitle);
 
   var table = $('<table>', {
-    'class': 'threads'
+    'class': 'threads floatable'
   });
   Forum.page.append(table);
 
+  var thead = $('<thead>');
+  table.append(thead);
+
   var headingTr = $('<tr>');
-  table.append(headingTr);
+  thead.append(headingTr);
   var headingTd = $('<td>', { 'class': 'heading' });
   headingTr.append(headingTd);
   headingTd.css('background-color', Api.forum_board.boardColor);
@@ -200,8 +209,11 @@ Forum.showBoard = function() {
   newThreadTd.append(newThreadButton);
   newThreadButton.click(Forum.toggleNewThreadForm);
 
+  var tbody = $('<tbody>');
+  table.append(tbody);
+
   var newThreadTr = $('<tr>', { 'class': 'writePost' });
-  table.append(newThreadTr);
+  tbody.append(newThreadTr);
   var contentTd = $('<td>', { 'class': 'body' });
   newThreadTr.append(contentTd);
   contentTd.append($('<input>', {
@@ -239,11 +251,11 @@ Forum.showBoard = function() {
   }
 
   $.each(Api.forum_board.threads, function(index, thread) {
-    table.append(Forum.buildThreadRow(thread, Api.forum_board.threadColor));
+    tbody.append(Forum.buildThreadRow(thread, Api.forum_board.threadColor));
   });
 
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
-  table.append($('<tr>').append(markReadTd));
+  tbody.append($('<tr>').append(markReadTd));
   var markBoardReadButton = $('<input>', {
     'id': 'markBoardReadButton',
     'type': 'button',
@@ -284,8 +296,11 @@ Forum.showThread = function() {
 
   $('title').html(pageTitle + ' &mdash; ' + Forum.pageTitle);
 
-  var table = $('<table>', { 'class': 'posts' });
+  var table = $('<table>', { 'class': 'posts floatable' });
   Forum.page.append(table);
+
+  var thead = $('<thead>');
+  table.append(thead);
 
   // Well, this is awkward and ugly, but it *seems* to fix a problem I was
   // having. To wit: using table-layout: fixed; on a table, giving widths to
@@ -294,8 +309,8 @@ Forum.showThread = function() {
   // other rows were ignored. So instead, we'll start the table with a dummy
   // empty row with properly-widthed cells that will hopefully be invisible to
   // everyone.
-  var dummyTr = $('<tr>');
-  table.append(dummyTr);
+  var dummyTr = $('<tr>', { 'class': 'dummy' });
+  thead.append(dummyTr);
   dummyTr.append($('<td>', { 'class': 'attribution' }));
   dummyTr.append($('<td>', { 'class': 'body' }));
 
@@ -303,7 +318,7 @@ Forum.showThread = function() {
     'class': 'heading',
     'colspan': 2,
   });
-  table.append($('<tr>').append(headingTd));
+  thead.append($('<tr>').append(headingTd));
   headingTd.css('background-color', Api.forum_thread.boardThreadColor);
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
@@ -313,26 +328,37 @@ Forum.showThread = function() {
     'text': Api.forum_thread.threadTitle,
   }));
 
-
   var subHeader = $('<div>', { 'class': 'subHeader' });
   headingTd.append(subHeader);
-  subHeader.append($('<a>', {
+
+  var linksBack = $('<div>', { 'class': 'linksBack' });
+  subHeader.append(linksBack);
+
+  linksBack.append($('<a>', {
     'class': 'pseudoLink',
     'text': 'Forum',
   }));
-  subHeader.append(': ');
-  subHeader.append($('<a>', {
+  linksBack.append(': ');
+  linksBack.append($('<a>', {
     'class': 'pseudoLink',
     'text': Api.forum_thread.boardName,
     'data-boardId': Api.forum_thread.boardId,
   }));
 
+  var linksWithin = $('<div>', { 'class': 'linksWithin' });
+  subHeader.append(linksWithin);
+  // We'll populate this div with links later on, after we've created all the
+  // stuff we're linking to
+
+  var tbody = $('<tbody>');
+  table.append(tbody);
+
   $.each(Api.forum_thread.posts, function(index, post) {
-    table.append(Forum.buildPostRow(post));
+    tbody.append(Forum.buildPostRow(post));
   });
 
   var replyTr = $('<tr>', { 'class': 'writePost' });
-  table.append(replyTr);
+  tbody.append(replyTr);
 
   replyTr.append($('<td>', {
     'class': 'attribution'
@@ -346,14 +372,14 @@ Forum.showThread = function() {
   });
   replyBodyTextArea.on('change keyup paste', function() {
     if ('' === $(this).val().trim()) {
-      if ('disabled' == $('#markThreadReadButton').attr('disabled')) {
-        $('#markThreadReadButton').removeAttr('disabled');
-        $('#markThreadReadButton').removeAttr('title');
+      if ('disabled' == $('.markThreadReadButton').attr('disabled')) {
+        $('.markThreadReadButton').removeAttr('disabled');
+        $('.markThreadReadButton').removeAttr('title');
       }
     } else {
-      if ('disabled' != $('#markThreadReadButton').attr('disabled')) {
-        $('#markThreadReadButton').attr('disabled', 'disabled');
-        $('#markThreadReadButton').attr('title',
+      if ('disabled' != $('.markThreadReadButton').attr('disabled')) {
+        $('.markThreadReadButton').attr('disabled', 'disabled');
+        $('.markThreadReadButton').attr('title',
           'Disabled because there is text in the reply box');
       }
     }
@@ -371,7 +397,7 @@ Forum.showThread = function() {
   var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
   table.append($('<tr>').append(markReadTd));
   var markThreadReadButton = $('<input>', {
-    'id': 'markThreadReadButton',
+    'class': 'markThreadReadButton',
     'type': 'button',
     'value': 'Mark thread as read',
   });
@@ -395,6 +421,22 @@ Forum.showThread = function() {
     );
   });
 
+  linksWithin.append($('<a>', {
+    'text': 'Jump to top',
+  }).click(function () { Forum.scrollTo(); }));
+  linksWithin.append(' | ');
+  linksWithin.append($('<a>', {
+    'text': 'Jump to bottom',
+  }).click(function() { Forum.scrollTo(replyTr); }));
+  linksWithin.append(' | ');
+  linksWithin.append($('<a>', {
+    'text': 'Jump to next new post',
+    'data-boardId': Api.forum_thread.boardId,
+    'data-threadId': Api.forum_thread.threadId,
+  }).click(Forum.jumpToNextNewPost));
+  linksWithin.append(' | ');
+  linksWithin.append(markThreadReadButton.clone(true));
+
   // Actually lay out the page
   Forum.arrangePage();
 };
@@ -414,7 +456,13 @@ Forum.arrangePage = function() {
 
   Login.arrangePage(Forum.page);
 
+  $('table.floatable').floatThead();
+
   Forum.scrollTo(Forum.scrollTarget);
+
+  // the page should have stopped loading by now, but add an extra 100 ms
+  // to deal with slow page loads, then reflow the floating header
+  setTimeout(function() { $('table.floatable').trigger('reflow'); }, 100);
 };
 
 
@@ -422,7 +470,7 @@ Forum.arrangePage = function() {
 // These are events that are triggered by user actions
 
 Forum.formLinkToSubPage = function(e) {
-  // Don't let confused browsers execute click events for things that 
+  // Don't let confused browsers execute click events for things that
   // aren't proper clicks!
   var button = (e.which || e.button);
   if (button > 1 || e.ctrlKey || e.metaKey || e.shiftKey) {
@@ -511,14 +559,15 @@ Forum.quotePost = function() {
   replyText += '[quote=' + quotee + ']' + quotedText + '[/quote]' + '\n';
 
   replyBox.val(replyText);
+  replyBox.change();
   replyBox.prop('scrollTop', replyBox.prop('scrollHeight'));
   replyBox.focus();
   Forum.scrollTo(replyBox.closest('tr'));
 };
 
 Forum.editPost = function() {
-  $('#markThreadReadButton').attr('disabled', 'disabled');
-  $('#markThreadReadButton').attr('title', 'Disabled when editing a reply');
+  $('.markThreadReadButton').attr('disabled', 'disabled');
+  $('.markThreadReadButton').attr('title', 'Disabled when editing a reply');
 
   var postRow = $(this).closest('tr');
   var oldText = postRow.find('td.body').attr('data-rawPost');
@@ -553,9 +602,9 @@ Forum.editPost = function() {
 };
 
 Forum.cancelEditPost = function() {
-  if ('disabled' == $('#markThreadReadButton').attr('disabled')) {
-    $('#markThreadReadButton').removeAttr('disabled');
-    $('#markThreadReadButton').removeAttr('title');
+  if ('disabled' == $('.markThreadReadButton').attr('disabled')) {
+    $('.markThreadReadButton').removeAttr('disabled');
+    $('.markThreadReadButton').removeAttr('title');
   }
 
   var postRow = $(this).closest('tr');
@@ -583,6 +632,37 @@ Forum.formSaveEditPost = function() {
   };
 
   Forum.parseFormPost(args, 'forum_thread', $(this), Forum.showThread);
+};
+
+Forum.jumpToNextNewPost = function(e) {
+  // In order to determine which post is the "next" new one, we're going to
+  // pick an arbitrary point a little bit below the header and say that the
+  // first new post below that point is "next"
+  var cutOffPoint = 0;
+  var floatContainer = $('div.forum > .floatThead-container');
+  if (floatContainer.length) {
+    cutOffPoint = floatContainer.offset().top + floatContainer.height() + 20;
+  }
+
+  var newPostId = 0;
+  $('tr:has(.postAnchor):has(.new)').each(function(index, row) {
+    if ($(row).offset().top > cutOffPoint) {
+      newPostId = $(row).find('.postAnchor').attr('data-postId');
+      return false;
+    }
+  });
+
+  if (newPostId > 0) {
+    $(this).attr('data-postId', newPostId);
+
+    // Now that we've primed the link to behave like a pseudolink pointing at
+    // the post in question, simulate a click event as if it were that
+    // pseudolink
+    return Forum.formLinkToSubPage.call(this, e);
+  }
+  else {
+    Forum.scrollTo($('tr.writePost'));
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -864,6 +944,11 @@ Forum.scrollTo = function(scrollTarget) {
   if (scrollTarget) {
     scrollTarget = $(scrollTarget);
     scrollTop = scrollTarget.offset().top - 5;
+
+    var floatContainer = $('div.forum > .floatThead-container');
+    if (floatContainer.length) {
+      scrollTop -= (floatContainer.height() + 8);
+    }
   }
   $('html, body').animate({ scrollTop: scrollTop },
     Forum.SCROLL_ANIMATION_MILLISECONDS);

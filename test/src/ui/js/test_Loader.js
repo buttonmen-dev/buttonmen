@@ -3,6 +3,7 @@ module("Loader", {
     // The usual default scripts would already have loaded with the testing
     // harness, so we'll load a special dummy one instead
     Loader.defaultScripts = [ 'js/dummy1.js', ];
+    Loader.defaultBMModules = [ ];
 
     BMTestUtils.LoaderPre = BMTestUtils.getAllElements();
   },
