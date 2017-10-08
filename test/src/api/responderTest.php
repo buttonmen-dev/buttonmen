@@ -15255,6 +15255,221 @@ class responderTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_request_savePlayerInfo
      *
+     * This is a test to make sure that fire overshooting declining works okay with turbo.
+     *
+     * We're using responder005 because this player has fire overshooting turned on.
+     */
+    public function test_interface_game_049() {
+
+        // responder005 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder005 as soon as you've done so
+        $this->game_number = 48;
+        $_SESSION = $this->mock_test_user_login('responder005');
+
+
+        $gameId = $this->verify_api_createGame(
+            array(6, 1, 6, 5, 12, 11),
+            'responder005', 'responder004', 'North Carolina', 'Wiseman', 3
+        );
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder005', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Fire', 'Ornery', 'Poison', 'Stinger', 'Trip', 'Turbo', 'Weak'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'North Carolina', 'recipe' => 'pF(10) o(10) (V)! gt(V) h(V)', 'originalRecipe' => 'pF(10) o(10) (V)! gt(V) h(V)', 'artFilename' => 'northcarolina.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('V' => array(6, 12));
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 10, 'skills' => array('Poison', 'Fire'), 'properties' => array(), 'recipe' => 'pF(10)', 'description' => 'Poison Fire 10-sided die'),
+            array('value' => NULL, 'sides' => 10, 'skills' => array('Ornery'), 'properties' => array(), 'recipe' => 'o(10)', 'description' => 'Ornery 10-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Turbo'), 'properties' => array(), 'recipe' => '(V)!', 'description' => 'Turbo V Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Stinger', 'Trip'), 'properties' => array(), 'recipe' => 'gt(V)', 'description' => 'Stinger Trip V Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Weak'), 'properties' => array(), 'recipe' => 'h(V)', 'description' => 'Weak V Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        $expData['gameId'] = $gameId;
+        $expData['playerDataArray'][0]['playerId'] = $this->user_ids['responder005'];
+        $expData['playerDataArray'][1]['playerId'] = $this->user_ids['responder004'];
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitDieValues(
+            array(8, 2, 1),
+            $gameId, 1, array('V' => 8), NULL);
+
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 set swing values: V=8'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder005 won initiative for round 1. Initial die values: responder005 rolled [pF(10):6, o(10):1, (V=8)!:8, gt(V=8):2, h(V=8):1], responder004 rolled [(20):6, (20):5, (20):12, (20):11]. responder005 has dice which are not counted for initiative due to die skills: [gt(V=8)].'));
+        $expData['gameActionLogCount'] = 3;
+        $expData['gameState'] = "START_TURN";
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Turbo V Swing Die (with 8 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Stinger Trip V Swing Die (with 8 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Weak V Swing Die (with 8 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 1;
+        $expData['playerDataArray'][0]['roundScore'] = 7;
+        $expData['playerDataArray'][0]['sideScore'] = -22;
+        $expData['playerDataArray'][0]['swingRequestArray'] = array();
+        $expData['playerDataArray'][0]['turboSizeArray'] = array("2" => array(6, 7, 8, 9, 10, 11, 12));
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 12;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 11;
+        $expData['playerDataArray'][1]['roundScore'] = 40;
+        $expData['playerDataArray'][1]['sideScore'] = 22;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array("Power", "Skill", "Trip");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(6, 8, 3, 5),
+            'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5. ',
+            $retval, array(array(0, 1), array(0, 2), array(0, 3), array(0, 4), array(1, 2)),
+            $gameId, 1, 'Skill', 0, 1, '', array(2 => 11));
+
+        $expData['activePlayerIdx'] = 1;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5'));
+        $expData['gameActionLogCount'] = 5;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Turbo V Swing Die (with 11 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array("HasJustTurboed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 5;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = "Weak V Swing Die (with 6 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array("HasJustShrunk");
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 3;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['recipe'] = "(20)";
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['sides'] = 20;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['value'] = 12;
+        $expData['playerDataArray'][0]['roundScore'] = 27.5;
+        $expData['playerDataArray'][0]['sideScore'] = -1.7;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 11;
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][1]['roundScore'] = 30;
+        $expData['playerDataArray'][1]['sideScore'] = 1.7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+        $expData['validAttackTypeArray'] = array("Power", "Skill");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(11),
+            'responder004 performed Power attack using [(20):11] against [gt(V=8):8]; Defender gt(V=8) was captured; Attacker (20) rerolled 11 => 11. ',
+            $retval, array(array(1, 2), array(0, 3)),
+            $gameId, 1, 'Power', 1, 0, '', array());
+
+        $_SESSION = $this->mock_test_user_login('responder005');
+        $expData['activePlayerIdx'] = 0;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(20):11] against [gt(V=8):8]; Defender gt(V=8) was captured; Attacker (20) rerolled 11 => 11'));
+        $expData['gameActionLogCount'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Weak V Swing Die (with 6 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "h(V)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array("Weak");
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 3;
+        array_pop($expData['playerDataArray'][0]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = 23.5;
+        $expData['playerDataArray'][0]['sideScore'] = -9.7;
+        $expData['playerDataArray'][0]['waitingOnAction'] = true;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "gt(V)";
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 8;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 8;
+        $expData['playerDataArray'][1]['roundScore'] = 38;
+        $expData['playerDataArray'][1]['sideScore'] = 9.7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = false;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_submitTurn(
+            array(),
+            'responder005 chose to perform a Power attack using [(V=11)!:5] against [(20):5]; responder005 must decide whether to turn down fire dice. ',
+            $retval, array(array(0, 2), array(1, 1)),
+            $gameId, 1, 'Power', 0, 1, '', array(2 => 9));
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 chose to perform a Power attack using [(V=11)!:5] against [(20):5]; responder005 must decide whether to turn down fire dice'));
+        $expData['gameActionLogCount'] = 7;
+        $expData['gameState'] = "ADJUST_FIRE_DICE";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array("IsAttacker");
+        $expData['playerDataArray'][0]['turboSizeArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array("IsAttackTarget");
+        $expData['validAttackTypeArray'] = array("Power");
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->verify_api_adjustFire(
+            array(4, 1),
+            'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5, changed size due to turbo. Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4. responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1. ',
+            $retval, $gameId, 1, 'no_turndown');
+
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' =>  'Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1'));
+
+        $expData['activePlayerIdx'] = 1;
+        $expData['gameActionLogCount'] = 10;
+        $expData['gameState'] = "START_TURN";
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("HasJustRerolledOrnery");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array("IsAttacker");
+        $expData['playerDataArray'][0]['turboSizeArray'] = array(2 => array(6, 7, 8, 9, 10, 11, 12));
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array("IsAttackTarget");
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 9;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Turbo V Swing Die (with 9 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustTurboed');
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = "Weak V Swing Die (with 6 sides)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['recipe'] = "h(V)";
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['skills'] = array("Weak");
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][1] = $expData['playerDataArray'][1]['activeDieArray'][2];
+        array_pop($expData['playerDataArray'][1]['activeDieArray']);
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['roundScore'] = 42.5;
+        $expData['playerDataArray'][0]['sideScore'] = 9.7;
+        $expData['playerDataArray'][0]['waitingOnAction'] = false;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['properties'] = array('WasJustCaptured');
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['recipe'] = "(20)";
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['sides'] = 20;
+        $expData['playerDataArray'][0]['capturedDieArray'][1]['value'] = 5;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['recipe'] = "gt(V)";
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['sides'] = 8;
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['value'] = 8;
+        $expData['playerDataArray'][1]['roundScore'] = 28;
+        $expData['playerDataArray'][1]['sideScore'] = -9.7;
+        $expData['playerDataArray'][1]['waitingOnAction'] = true;
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
      * This tests load of a game which does not exist
      */
     public function test_interface_game_load_failure() {
