@@ -125,6 +125,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Mighty' => 'Dice with both Berserk and Mighty skills will first halve in size, and then grow',
                     'Radioactive' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
                     'Speed' => 'Dice with both Berserk and Speed skills may choose to make either kind of attack',
+                    'Turbo' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size and then change to the size specified by the Turbo skill',
                     'Weak' => 'Dice with both Berserk and Weak skills will first halve in size, and then shrink',
                 ),
             ),
@@ -397,7 +398,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'Turbo' => array(
                 'code' => '!',
                 'description' => 'After your starting roll, you may change the size of your own Turbo Swing or Option die every time you roll it as part of your attack. Decide on a size first that is valid for the Swing or Option type, then roll the new die as usual.',
-                'interacts' => array(),
+                'interacts' => array(
+                    'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size and then change to the size specified by the Turbo skill',
+                ),
             ),
             'Value' => array(
                 'code' => 'v',
