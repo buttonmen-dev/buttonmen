@@ -83,6 +83,7 @@ class BMSkillWeak extends BMSkill {
         return array(
             'Berserk' => 'Dice with both Berserk and Weak skills will first ' .
                          'halve in size, and then shrink',
+            'Chance' => 'A reroll of a Chance Weak die due to the Chance skill triggers the Weak skill',
             'Fire' => 'Dice with both Fire and Weak skills do not shrink ' .
                       'when firing, only when actually rolling',
         );
