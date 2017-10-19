@@ -76,6 +76,8 @@ class BMSkillTimeAndSpace extends BMSkill {
         return array(
             'Radioactive' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace ' .
                              'when they decay',
+            'Konstant' => 'Attacking Konstant TimeAndSpace dice do not ' .
+                          'trigger the TimeAndSpace skill because they do not reroll',
         );
     }
 }
