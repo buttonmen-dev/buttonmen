@@ -120,6 +120,8 @@ class BMSkillBerserk extends BMSkill {
                              'their previous number of sides, rounding up, and then decay',
             'Speed' => 'Dice with both Berserk and Speed skills may ' .
                        'choose to make either kind of attack',
+            'Turbo' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size ' .
+                       'and then change to the size specified by the Turbo skill',
             'Weak' => 'Dice with both Berserk and Weak skills will first ' .
                          'halve in size, and then shrink',
         );
