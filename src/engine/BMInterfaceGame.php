@@ -122,6 +122,7 @@ class BMInterfaceGame extends BMInterface {
      * @param int $maxWins
      * @param string $description
      * @param int|NULL $previousGameId
+     * @param int|NULL $creatorId
      * @return int|NULL
      */
     protected function insert_new_game(
@@ -266,6 +267,12 @@ class BMInterfaceGame extends BMInterface {
         return TRUE;
     }
 
+    /**
+     * Validate player ID array that required players are specified, unique, and valid
+     *
+     * @param array $playerIdArray
+     * @return bool
+     */
     protected function validate_player_id_array(array $playerIdArray) {
         // check that the game has at least two players
         if (count($playerIdArray) < 2) {
