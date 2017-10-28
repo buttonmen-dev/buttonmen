@@ -1010,7 +1010,14 @@ class BMInterfaceGame extends BMInterface {
                         $this->set_message('Invalid auxiliary choice');
                         return FALSE;
                     }
+
                     $die = $player->activeDieArray[$dieIdx];
+
+                    if (!self::can_button_add_this_aux_die($player->button, $die)) {
+                        $this->set_message('This button cannot add this auxiliary die');
+                        return FALSE;
+                    }
+
                     $die->add_flag('AddAuxiliary');
                     $player->waitingOnAction = FALSE;
                     $game->log_action(
@@ -1046,6 +1053,23 @@ class BMInterfaceGame extends BMInterface {
             $this->set_message('Internal error while making auxiliary decision');
             return FALSE;
         }
+    }
+
+    /**
+     * Can this button add this auxiliary die?
+     *
+     * @param BMButton $button
+     * @param BMDie $die
+     * @return bool
+     */
+    protected static function can_button_add_this_aux_die(BMButton $button, BMDie $die) {
+        $hookResult = $button->run_hooks(
+            __FUNCTION__,
+            array('die' => $die)
+        );
+
+        return (!isset($hookResult['BMBtnSkill'.$button->name][__FUNCTION__]) ||
+                $hookResult['BMBtnSkill'.$button->name][__FUNCTION__]);
     }
 
     /**
