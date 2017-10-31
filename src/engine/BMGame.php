@@ -3684,25 +3684,40 @@ class BMGame {
     }
 
     /**
-     * Perform a deep clone of the active die array array
+     * Perform a deep clone of a die array array
      *
      * This is used so that changes don't propagate back into the
      * real game data
      *
+     * @param string $type
      * @return array
      */
-    protected function clone_activeDieArrayArray() {
-        $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
+    protected function clone_dieArrayArray($type) {
+        $dieArrayArray = array_fill(0, $this->nPlayers, array());
 
         foreach ($this->playerArray as $playerIdx => $player) {
-            if (count($player->activeDieArray) > 0) {
-                foreach ($player->activeDieArray as $dieIdx => $activeDie) {
-                    $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
+            switch ($type) {
+                case 'active':
+                    $originalDieArray = $player->activeDieArray;
+                    break;
+                case 'captured':
+                    $originalDieArray = $player->capturedDieArray;
+                    break;
+                case 'outofplay':
+                    $originalDieArray = $player->outOfPlayDieArray;
+                    break;
+                default:
+                    return NULL;
+            }
+
+            if (count($originalDieArray) > 0) {
+                foreach ($originalDieArray as $dieIdx => $activeDie) {
+                    $dieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
                 }
             }
         }
 
-        return $activeDieArrayArray;
+        return $dieArrayArray;
     }
 
     /**
@@ -3742,7 +3757,7 @@ class BMGame {
         // request dice one at a time
         $valueArrayArray = $this->get_valueArrayArray($requestingPlayerIdx);
         $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
-        $subdieArrayArray = $this->get_subdieArrayArray($requestingPlayerIdx);
+        $subdieArrayArray = $this->get_subdieArrayArray($requestingPlayerIdx, 'active');
         $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
         $diePropertiesArrayArray = $this->get_diePropsArrayArray($requestingPlayerIdx);
         $dieRecipeArrayArray = $this->get_dieRecipeArrayArray();
@@ -3778,14 +3793,25 @@ class BMGame {
      */
     protected function get_capturedDieArray($playerIdx) {
         $capturedDieArray = array();
+
+        // We never hide information for captured dice, so the requesting playerIdx
+        // doesn't matter; use $playerIdx as default.
+        $subdieArrayArray = $this->get_subdieArrayArray($playerIdx, 'captured');
+
         if (!empty($this->playerArray[$playerIdx]->capturedDieArray)) {
-            foreach ($this->playerArray[$playerIdx]->capturedDieArray as $die) {
-                $capturedDieArray[] = array(
+            foreach ($this->playerArray[$playerIdx]->capturedDieArray as $dieIdx => $die) {
+                $capturedDieArray[$dieIdx] = array(
                     'value' => $die->value,
                     'sides' => $die->max,
                     'recipe' => $die->recipe,
                     'properties' => $this->get_dieProps($die),
                 );
+
+                if (isset($subdieArrayArray) &&
+                    isset($subdieArrayArray[$playerIdx][$dieIdx])) {
+                    $capturedDieArray[$dieIdx]['subdieArray'] =
+                        $subdieArrayArray[$playerIdx][$dieIdx];
+                }
             }
         }
         return $capturedDieArray;
@@ -3799,6 +3825,11 @@ class BMGame {
      */
     protected function get_outOfPlayDieArray($playerIdx) {
         $outOfPlayDieArray = array();
+
+        // We never hide information for captured dice, so the requesting playerIdx
+        // doesn't matter; use $playerIdx as default.
+        $subdieArrayArray = $this->get_subdieArrayArray($playerIdx, 'outofplay');
+
         if (!empty($this->playerArray[$playerIdx]->outOfPlayDieArray)) {
             foreach ($this->playerArray[$playerIdx]->outOfPlayDieArray as $die) {
                 $outOfPlayDieArray[] = array(
@@ -3807,6 +3838,12 @@ class BMGame {
                     'recipe' => $die->recipe,
                     'properties' => $this->get_dieProps($die),
                 );
+
+                if (isset($subdieArrayArray) &&
+                    isset($subdieArrayArray[$playerIdx][$dieIdx])) {
+                    $outOfPlayDieArray[$dieIdx]['subdieArray'] =
+                        $subdieArrayArray[$playerIdx][$dieIdx];
+                }
             }
         }
         return $outOfPlayDieArray;
@@ -3822,7 +3859,7 @@ class BMGame {
         $valueArrayArray = array_fill(0, $this->nPlayers, array());
         $swingValsSpecified = TRUE;
 
-        $activeDieArrayArray = $this->clone_activeDieArrayArray();
+        $activeDieArrayArray = $this->clone_dieArrayArray('active');
 
         foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
@@ -3858,7 +3895,7 @@ class BMGame {
     protected function get_sidesArrayArray($requestingPlayerIdx) {
         $sidesArrayArray = array_fill(0, $this->nPlayers, array());
 
-        $activeDieArrayArray = $this->clone_activeDieArrayArray();
+        $activeDieArrayArray = $this->clone_dieArrayArray('active');
 
         foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
@@ -3891,15 +3928,17 @@ class BMGame {
      * Array of arrays of possible arrays of subdie properties
      *
      * @param int $requestingPlayerIdx
+     * @param string $dieType
      * @return array
      */
-    protected function get_subdieArrayArray($requestingPlayerIdx) {
+    protected function get_subdieArrayArray($requestingPlayerIdx, $dieType = 'active') {
         $areAllPropertiesNull = TRUE;
         $subdieArrayArray = array_fill(0, $this->nPlayers, array());
-        $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
-        foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
-            foreach ($activeDieArray as $dieIdx => $die) {
+        $dieArrayArray = $this->clone_dieArrayArray($dieType);
+
+        foreach ($dieArrayArray as $playerIdx => $dieArray) {
+            foreach ($dieArray as $dieIdx => $die) {
                 if (isset($die->dice) && is_array($die->dice)) {
                     foreach ($die->dice as $subdieIdx => $subdie) {
                         if (($subdie instanceof BMDieSwing) &&
@@ -4069,7 +4108,7 @@ class BMGame {
     protected function get_dieDescriptionArrayArray($requestingPlayerIdx) {
         $dieDescArrayArray = array();
 
-        $activeDieArrayArray = $this->clone_activeDieArrayArray();
+        $activeDieArrayArray = $this->clone_dieArrayArray('active');
 
         foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
