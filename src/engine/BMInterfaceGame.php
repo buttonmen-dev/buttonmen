@@ -1327,7 +1327,10 @@ class BMInterfaceGame extends BMInterface {
                         $argArray['fireValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
                     }
                     break;
-                case 'no_turndown':  // fallthrough to allow multiple cases with the same logic
+                case 'no_turndown':
+                    $argArray['dieIdxArray'] = $dieIdxArray;
+                    $argArray['dieValueArray'] = $dieValueArray;
+                    break;
                 case 'cancel':
                     $argArray['dieIdxArray'] = $dieIdxArray;
                     $argArray['dieValueArray'] = $dieValueArray;
@@ -1363,7 +1366,6 @@ class BMInterfaceGame extends BMInterface {
                 'Caught exception in BMInterface::adjust_fire: ' .
                 $e->getMessage()
             );
-            var_dump($e->getMessage());
             $this->set_message('Internal error while adjusting fire dice');
             return FALSE;
         }
