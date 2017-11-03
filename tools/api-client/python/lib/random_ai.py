@@ -37,6 +37,7 @@ STRING_KEYS = [
 ]
 
 UNUSED_DURING_AUTOPLAY_KEYS = [
+  'creatorDataArray',
   'gameChatEditable',
   'gameChatLog',
   'gameId',
@@ -858,6 +859,8 @@ class LoggingBMClient():
         if not swing_size in SWING_RANGES:
           raise ValueError("Could not figure out turbo trip die: %s" % die)
         post_trip_sides = SWING_RANGES[swing_size][-1]
+        if ',' in die['recipe']:
+          post_trip_sides *= 2
     return post_trip_sides
 
   def _min_trip_value(self, die):

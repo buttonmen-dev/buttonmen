@@ -1,0 +1,10 @@
+UPDATE button SET name = 'Carson (promo)' WHERE name = 'Carson(p)';
+UPDATE button SET name = 'MAX (promo)' WHERE name = 'MAX(p)';
+UPDATE button SET name = 'Igor (promo)' WHERE name = 'Igor(p)';
+UPDATE button SET name = 'SC (The Deuce)' WHERE name = 'SC(The Deuce)';
+UPDATE button SET name = 'Echo (Fightball)' WHERE name = 'Echo(Fightball)';
+UPDATE button SET name = 'Gordo (Fightball)' WHERE name = 'Gordo(Fightball)';
+UPDATE button SET name = 'The Japanese Beetle (unofficial)' WHERE name = 'The Japanese Beetle(u)';
+UPDATE button SET name = 'The Flying Squirrel (unofficial)' WHERE name = 'The Flying Squirrel(u)';
+UPDATE button SET name = 'Georgia (US)' WHERE name = 'Georgia(US)';
+UPDATE button SET name = 'Montague (Blademasters)' WHERE name = 'Montague(u)';
