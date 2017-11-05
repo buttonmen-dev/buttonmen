@@ -21,13 +21,43 @@ class BMInterface {
     const DEFAULT_NEUTRAL_COLOR_A = '#cccccc';
     const DEFAULT_NEUTRAL_COLOR_B = '#dddddd';
 
-    // properties
-    protected $message;            // message intended for GUI
-    protected $timestamp;          // timestamp of last game action
-    protected static $conn = NULL; // connection to database
-    protected $parent = NULL;      // allows navigation back to owning BMInterface
+    // properties -- all accessible, but written as protected to enable the use of
+    //               getters and setters
 
-    public $isTest;         // indicates if the interface is for testing
+    /**
+     * Message intended for GUI
+     *
+     * @var string
+     */
+    protected $message;
+
+    /**
+     * Timestamp of last game action
+     *
+     * @var DateTime
+     */
+    protected $timestamp;
+
+    /**
+     * Connection to database
+     *
+     * @var PDO
+     */
+    protected static $conn = NULL;
+
+    /**
+     * Owning BMInterface, allows back navigation
+     *
+     * @var BMInterface
+     */
+    protected $parent = NULL;
+
+    /**
+     * Is the interface for testing?
+     *
+     * @var bool
+     */
+    public $isTest;
 
     /**
      * Constructor
@@ -77,36 +107,67 @@ class BMInterface {
 
     // pseudo-properties, allowing the BMInterface to access methods from
     // daughter classes
+
+    /**
+     * Cast BMInterface to BMInterfaceForum
+     *
+     * @return BMInterfaceForum
+     */
     public function forum() {
         $interface = $this->cast('BMInterfaceForum');
         $interface->parent = $this;
         return $interface;
     }
 
+    /**
+     * Cast BMInterface to BMInterfaceGame
+     *
+     * @return BMInterfaceGame
+     */
     public function game() {
         $interface = $this->cast('BMInterfaceGame');
         $interface->parent = $this;
         return $interface;
     }
 
+    /**
+     * Cast BMInterface to BMInterfaceGameAction
+     *
+     * @return BMInterfaceGameAction
+     */
     public function game_action() {
         $interface = $this->cast('BMInterfaceGameAction');
         $interface->parent = $this;
         return $interface;
     }
 
+    /**
+     * Cast BMInterface to BMInterfaceGameChat
+     *
+     * @return BMInterfaceGameChat
+     */
     public function game_chat() {
         $interface = $this->cast('BMInterfaceGameChat');
         $interface->parent = $this;
         return $interface;
     }
 
+    /**
+     * Cast BMInterface to BMInterfaceHistory
+     *
+     * @return BMInterfaceHistory
+     */
     public function history() {
         $interface = $this->cast('BMInterfaceHistory');
         $interface->parent = $this;
         return $interface;
     }
 
+    /**
+     * Cast BMInterface to BMInterfacePlayer
+     *
+     * @return BMInterfacePlayer
+     */
     public function player() {
         $interface = $this->cast('BMInterfacePlayer');
         $interface->parent = $this;
@@ -115,6 +176,13 @@ class BMInterface {
 
     // methods
 
+    /**
+     * Validate and set homepage URL
+     *
+     * @param string|NULL $homepage
+     * @param array $infoArray
+     * @return bool
+     */
     protected function validate_and_set_homepage($homepage, array &$infoArray) {
         if ($homepage == NULL || $homepage == "") {
             $infoArray['homepage'] = NULL;
@@ -131,6 +199,14 @@ class BMInterface {
         return TRUE;
     }
 
+    /**
+     * Load API game data for a certain game from the perspective of a certain player
+     *
+     * @param int $playerId
+     * @param int $gameId
+     * @param int $logEntryLimit
+     * @return array
+     */
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
         $game = $this->load_game($gameId, $logEntryLimit);
         if ($game) {
@@ -207,6 +283,12 @@ class BMInterface {
         return NULL;
     }
 
+    /**
+     * Count the number of pending games for a certain player
+     *
+     * @param int $playerId
+     * @return array
+     */
     public function count_pending_games($playerId) {
         try {
             $parameters = array(':player_id' => $playerId);
@@ -243,6 +325,13 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load game from database
+     *
+     * @param int $gameId
+     * @param int $logEntryLimit
+     * @return bool
+     */
     protected function load_game($gameId, $logEntryLimit = NULL) {
         try {
             $game = $this->load_game_parameters($gameId);
@@ -277,6 +366,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load all game parameters from database
+     *
+     * @param int $gameId
+     * @return BMGame
+     */
     protected function load_game_parameters($gameId) {
         // check that the gameId exists
         $query = 'SELECT g.*,'.
@@ -349,6 +444,12 @@ class BMInterface {
         return $game;
     }
 
+    /**
+     * Load game attributes
+     *
+     * @param BMGame $game
+     * @param array $row
+     */
     protected function load_game_attributes($game, $row) {
         $game->creatorId = $row['creator_id'];
         $game->gameState = $row['game_state'];
@@ -364,6 +465,13 @@ class BMInterface {
         $this->timestamp = (int)$row['last_action_timestamp'];
     }
 
+    /**
+     * Load button
+     *
+     * @param BMGame $game
+     * @param int $pos
+     * @param array $row
+     */
     protected function load_button($game, $pos, $row) {
         if (isset($row['button_name'])) {
             if (isset($row['alt_recipe'])) {
@@ -393,6 +501,13 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load player attributes
+     *
+     * @param BMGame $game
+     * @param int $pos
+     * @param array $row
+     */
     protected function load_player_attributes($game, $pos, $row) {
         $player = $game->playerArray[$pos];
         switch ($row['is_awaiting_action']) {
@@ -418,6 +533,13 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load last action time
+     *
+     * @param BMGame $game
+     * @param int $pos
+     * @param array $row
+     */
     protected function load_lastActionTime($game, $pos, $row) {
         if (isset($row['player_last_action_timestamp'])) {
             $player = $game->playerArray[$pos];
@@ -425,6 +547,13 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load whether a player has dismissed a certain game
+     *
+     * @param BMGame $game
+     * @param int $pos
+     * @param array $row
+     */
     protected function load_hasPlayerDismissedGame($game, $pos, $row) {
         if (isset($row['was_game_dismissed'])) {
             $player = $game->playerArray[$pos];
@@ -432,6 +561,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Set log entry limit
+     *
+     * @param BMGame $game
+     * @param int $logEntryLimit
+     */
     protected function set_logEntryLimit($game, $logEntryLimit) {
         if ($game->gameState == BMGameState::END_GAME) {
             $game->logEntryLimit = NULL;
@@ -440,6 +575,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load swing values from last round
+     *
+     * @param BMGame $game
+     */
     protected function load_swing_values_from_last_round($game) {
         $query = 'SELECT * '.
                  'FROM game_swing_map '.
@@ -455,6 +595,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load swing values from this round
+     *
+     * @param BMGame $game
+     */
     protected function load_swing_values_from_this_round($game) {
         $query = 'SELECT * '.
                  'FROM game_swing_map '.
@@ -470,6 +615,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load option values from last round
+     *
+     * @param BMGame $game
+     */
     protected function load_option_values_from_last_round($game) {
         $query = 'SELECT * '.
                  'FROM game_option_map '.
@@ -485,6 +635,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load option values from this round
+     *
+     * @param BMGame $game
+     */
     protected function load_option_values_from_this_round($game) {
         $query = 'SELECT * '.
                  'FROM game_option_map '.
@@ -500,6 +655,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Load all die attributes
+     *
+     * @param BMGame $game
+     */
     protected function load_die_attributes($game) {
         // add die attributes
         $query = 'SELECT d.*,'.
@@ -579,6 +739,11 @@ class BMInterface {
         $game->outOfPlayDieArrayArray = $outOfPlayDieArrayArray;
     }
 
+    /**
+     * Load cached turbo values
+     *
+     * @param BMGame $game
+     */
     protected function load_turbo_cache($game) {
         $turboCache = array();
 
@@ -594,6 +759,14 @@ class BMInterface {
         $game->turboCache = $turboCache;
     }
 
+    /**
+     * Set swing max value
+     *
+     * @param BMDieTwin $die
+     * @param int $originalPlayerIdx
+     * @param BMGame $game
+     * @param array $row
+     */
     protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
         if (isset($die->swingType) && !$die instanceof BMDieTwin) {
             $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
@@ -605,6 +778,14 @@ class BMInterface {
         }
     }
 
+    /**
+     * Set twin die max
+     *
+     * @param BMDieTwin $die
+     * @param int $originalPlayerIdx
+     * @param BMGame $game
+     * @param array $row
+     */
     protected function set_twin_max($die, $originalPlayerIdx, $game, $row) {
         if (!($die instanceof BMDieTwin)) {
             return;
@@ -645,6 +826,12 @@ class BMInterface {
         $die->recalc_max_min();
     }
 
+    /**
+     * Set option die max
+     *
+     * @param BMDieOption $die
+     * @param array $row
+     */
     protected function set_option_max($die, $row) {
         if ($die instanceof BMDieOption) {
             if (isset($row['actual_max'])) {
@@ -656,6 +843,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Recreate option dice request arrays
+     *
+     * @param BMGame $game
+     */
     protected function recreate_optRequestArrayArray($game) {
         foreach ($game->playerArray as $player) {
             foreach ($player->activeDieArray as $activeDie) {
@@ -670,6 +862,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save game to database
+     *
+     * @param BMGame $game
+     */
     protected function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
@@ -707,6 +904,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Resolve random button selection
+     *
+     * @param BMGame $game
+     */
     protected function resolve_random_button_selection(BMGame &$game) {
         if (!$this->does_need_random_button_selection($game)) {
             return;
@@ -749,6 +951,12 @@ class BMInterface {
         $game->proceed_to_next_user_action();
     }
 
+    /**
+     * Should random buttons be resolved now?
+     *
+     * @param BMGame $game
+     * @return bool
+     */
     protected function does_need_random_button_selection(BMGame $game) {
         $hasRandomlyChosenButtons = FALSE;
         $hasUnresolvedNames = FALSE;
@@ -782,6 +990,13 @@ class BMInterface {
         return TRUE;
     }
 
+    /**
+     * Choose button
+     *
+     * @param BMGame $game
+     * @param int $buttonId
+     * @param BMPlayer $player
+     */
     protected function choose_button(BMGame $game, $buttonId, $player) {
         // add info to game_player_map
         $query = 'UPDATE game_player_map '.
@@ -797,6 +1012,11 @@ class BMInterface {
                                   ':position'  => $player->position));
     }
 
+    /**
+     * Save basic game parameters
+     *
+     * @param BMGame $game
+     */
     protected function save_basic_game_parameters($game) {
         $query = 'UPDATE game '.
                  'SET last_action_time = NOW(),'.
@@ -823,6 +1043,12 @@ class BMInterface {
                                   ':game_id' => $game->gameId));
     }
 
+    /**
+     * Get current player ID
+     *
+     * @param BMGame $game
+     * @return int
+     */
     protected function get_currentPlayerId($game) {
         if (is_null($game->activePlayerIdx)) {
             $currentPlayerId = NULL;
@@ -833,6 +1059,12 @@ class BMInterface {
         return $currentPlayerId;
     }
 
+    /**
+     * Get game status
+     *
+     * @param BMGame $game
+     * @return string
+     */
     protected function get_game_status($game) {
         if (BMGameState::END_GAME == $game->gameState) {
             $status = 'COMPLETE';
@@ -848,6 +1080,11 @@ class BMInterface {
         return $status;
     }
 
+    /**
+     * Save button recipes
+     *
+     * @param BMGame $game
+     */
     protected function save_button_recipes($game) {
         foreach ($game->playerArray as $player) {
             if ($player->button instanceof BMButton) {
@@ -872,6 +1109,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save random button choice
+     *
+     * @param BMGame $game
+     */
     protected function save_random_button_choice(BMGame $game) {
         if ($game->gameState > BMGameState::START_GAME) {
             return;
@@ -890,6 +1132,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save round scores
+     *
+     * @param BMGame $game
+     */
     protected function save_round_scores($game) {
         foreach ($game->playerArray as $player) {
             $query = 'UPDATE game_player_map '.
@@ -907,6 +1154,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Clear swing values from database
+     *
+     * @param BMGame $game
+     */
     protected function clear_swing_values_from_database($game) {
         $query = 'DELETE FROM game_swing_map '.
                  'WHERE game_id = :game_id;';
@@ -914,6 +1166,11 @@ class BMInterface {
         $statement->execute(array(':game_id' => $game->gameId));
     }
 
+    /**
+     * Clear option values from database
+     *
+     * @param BMGame $game
+     */
     protected function clear_option_values_from_database($game) {
         $query = 'DELETE FROM game_option_map '.
                  'WHERE game_id = :game_id;';
@@ -921,6 +1178,11 @@ class BMInterface {
         $statement->execute(array(':game_id' => $game->gameId));
     }
 
+    /**
+     * Save swing values from last round
+     *
+     * @param BMGame $game
+     */
     protected function save_swing_values_from_last_round($game) {
         foreach ($game->playerArray as $player) {
             if (empty($player->prevSwingValueArray)) {
@@ -942,6 +1204,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save swing values from this round
+     *
+     * @param BMGame $game
+     */
     protected function save_swing_values_from_this_round($game) {
         foreach ($game->playerArray as $player) {
             if (empty($player->swingValueArray)) {
@@ -963,6 +1230,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save option values from last round
+     *
+     * @param BMGame $game
+     */
     protected function save_option_values_from_last_round($game) {
         foreach ($game->playerArray as $player) {
             if (empty($player->prevOptValueArray)) {
@@ -984,6 +1256,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save option values from this round
+     *
+     * @param BMGame $game
+     */
     protected function save_option_values_from_this_round($game) {
         foreach ($game->playerArray as $player) {
             if (empty($player->optValueArray)) {
@@ -1005,6 +1282,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save player decisions about whether to join a proposed game
+     *
+     * @param BMGame $game
+     */
     protected function save_player_game_decisions($game) {
         foreach ($game->playerArray as $player) {
             $query = 'UPDATE game_player_map '.
@@ -1023,6 +1305,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save whether player won initiative
+     *
+     * @param BMGame $game
+     */
     protected function save_player_with_initiative($game) {
         if (isset($game->playerWithInitiativeIdx)) {
             // set all players to not having initiative
@@ -1045,6 +1332,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save players awaiting action
+     *
+     * @param BMGame $game
+     */
     protected function save_players_awaiting_action($game) {
         foreach ($game->playerArray as $player) {
             $query = 'UPDATE game_player_map '.
@@ -1063,6 +1355,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Regenerate essential die flags
+     *
+     * @param BMGame $game
+     */
     protected function regenerate_essential_die_flags($game) {
         foreach ($game->playerArray as $player) {
             if (!empty($player->activeDieArray)) {
@@ -1085,6 +1382,11 @@ class BMInterface {
         }
     }
 
+    /**
+     * Mark existing dice as deleted
+     *
+     * @param BMGame $game
+     */
     protected function mark_existing_dice_as_deleted($game) {
         // set existing dice to have a status of DELETED and get die ids
         //
@@ -1098,6 +1400,13 @@ class BMInterface {
         $statement->execute(array(':game_id' => $game->gameId));
     }
 
+    /**
+     * Save dice
+     *
+     * @param BMGame $game
+     * @param array $dieArrayArray
+     * @param string $status
+     */
     protected function save_dice($game, $dieArrayArray, $status) {
         if (isset($dieArrayArray)) {
             foreach ($dieArrayArray as $playerIdx => $dieArray) {
@@ -1108,14 +1417,29 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save active dice
+     *
+     * @param BMGame $game
+     */
     protected function save_active_dice($game) {
         $this->save_dice($game, $game->activeDieArrayArray, 'NORMAL');
     }
 
+    /**
+     * Save captured dice
+     *
+     * @param BMGame $game
+     */
     protected function save_captured_dice($game) {
         $this->save_dice($game, $game->capturedDieArrayArray, 'CAPTURED');
     }
 
+    /**
+     * Save cached turbo values
+     *
+     * @param BMGame $game
+     */
     protected function save_turbo_cache(BMGame $game) {
         // delete previously saved turbo cache
         $query = 'DELETE FROM game_turbo_cache '.
@@ -1140,10 +1464,20 @@ class BMInterface {
         }
     }
 
+    /**
+     * Save out-of-play dice
+     *
+     * @param BMGame $game
+     */
     protected function save_out_of_play_dice($game) {
         $this->save_dice($game, $game->outOfPlayDieArrayArray, 'OUT_OF_PLAY');
     }
 
+    /**
+     * Delete dice marked as deleted
+     *
+     * @param BMGame $game
+     */
     protected function delete_dice_marked_as_deleted($game) {
         // delete dice with a status of "DELETED" for this game
         $query = 'DELETE FROM die '.
@@ -1154,7 +1488,15 @@ class BMInterface {
         $statement->execute(array(':game_id' => $game->gameId));
     }
 
-    // Actually insert a die into the database - all error checking to be done by caller
+    /**
+     * Actually insert a die into the database - all error checking to be done by caller
+     *
+     * @param BMGame $game
+     * @param int $playerIdx
+     * @param BMDie $activeDie
+     * @param string $status
+     * @param int $dieIdx
+     */
     protected function db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx) {
         $query = 'INSERT INTO die '.
                  '    (owner_id, '.
@@ -1204,8 +1546,13 @@ class BMInterface {
                                   ':flags' => $flags));
     }
 
-    // Get all player games of a certain type (new, active, or inactive) from
-    // the database.
+    /**
+     * Get all player games of a certain type (new, active, or inactive) from the database
+     *
+     * @param int $playerId
+     * @param string $type
+     * @return array
+     */
     protected function get_all_games($playerId, $type) {
         try {
             $this->set_message('All game details retrieved successfully.');
@@ -1259,7 +1606,14 @@ class BMInterface {
         }
     }
 
-    protected function read_game_list_from_db_results($playerId, $results) {
+    /**
+     * Read game list from DB results
+     *
+     * @param int $playerId
+     * @param PDOStatement $statement
+     * @return array
+     */
+    protected function read_game_list_from_db_results($playerId, $statement) {
         // Initialize the arrays
         $gameIdArray = array();
         $gameDescriptionArray = array();
@@ -1288,7 +1642,7 @@ class BMInterface {
         // preferences
         $playerColors = $this->load_player_colors($playerId);
 
-        while ($row = $results->fetch()) {
+        while ($row = $statement->fetch()) {
             $gameColors = $this->determine_game_colors(
                 $playerId,
                 $playerColors,
@@ -1337,22 +1691,52 @@ class BMInterface {
                      'opponentColorArray'      => $opponentColorArray);
     }
 
+    /**
+     * Get all new games
+     *
+     * @param int $playerId
+     * @return array
+     */
     public function get_all_new_games($playerId) {
         return $this->get_all_games($playerId, 'NEW');
     }
 
+    /**
+     * Get all active games
+     *
+     * @param int $playerId
+     * @return array
+     */
     public function get_all_active_games($playerId) {
         return $this->get_all_games($playerId, 'ACTIVE');
     }
 
+    /**
+     * Get all completed games
+     *
+     * @param int $playerId
+     * @return array
+     */
     public function get_all_completed_games($playerId) {
         return $this->get_all_games($playerId, 'COMPLETE');
     }
 
+    /**
+     * Get all cancelled games
+     *
+     * @param int $playerId
+     * @return array
+     */
     public function get_all_cancelled_games($playerId) {
         return $this->get_all_games($playerId, 'CANCELLED');
     }
 
+    /**
+     * Get all open games
+     *
+     * @param int $currentPlayerId
+     * @return array
+     */
     public function get_all_open_games($currentPlayerId) {
         try {
             // Get all the colors the current player has set in his or her
@@ -1432,6 +1816,13 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get next pending game
+     *
+     * @param int $playerId
+     * @param array $skippedGames
+     * @return array
+     */
     public function get_next_pending_game($playerId, $skippedGames) {
         try {
             $parameters = array(':player_id' => $playerId);
@@ -1473,6 +1864,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get active players
+     *
+     * @param int $numberOfPlayers
+     * @return array
+     */
     public function get_active_players($numberOfPlayers) {
         try {
             $query =
@@ -1572,6 +1969,14 @@ class BMInterface {
         }
     }
 
+    /**
+     * Execute button data query
+     *
+     * @param string $buttonName
+     * @param string $setName
+     * @param array $tagArray
+     * @return PDOStatement
+     */
     protected function execute_button_data_query($buttonName, $setName, $tagArray) {
         $parameters = array();
         $query =
@@ -1617,6 +2022,15 @@ class BMInterface {
         return $statement;
     }
 
+    /**
+     * Assemble button data
+     *
+     * @param array $row
+     * @param string $site_type
+     * @param bool $single_button
+     * @param bool $forceImplemented
+     * @return array
+     */
     protected function assemble_button_data($row, $site_type, $single_button, $forceImplemented = FALSE) {
         // Look for unimplemented skills in each button definition.
         $button = new BMButton();
@@ -1681,6 +2095,12 @@ class BMInterface {
         return $currentButton;
     }
 
+    /**
+     * Get button tags
+     *
+     * @param string $buttonName
+     * @return array
+     */
     protected function get_button_tags($buttonName) {
         $tags = array();
 
@@ -1711,12 +2131,19 @@ class BMInterface {
         return $tags;
     }
 
-    // Retrieves a list of button sets along with associated information,
-    // including their name.
-    // If $setName is specified, it only returns that one set. It also
-    // includes the buttons in that set, which are otherwise omitted for
-    // efficiency.
-    // If $setName is not specified, it returns all sets.
+    /**
+     * Retrieves a list of button sets along with associated information,
+     * including their name.
+     *
+     * If $setName is specified, it only returns that one set. It also
+     * includes the buttons in that set, which are otherwise omitted for
+     * efficiency.
+     *
+     * If $setName is not specified, it returns all sets.
+     *
+     * @param string $setName
+     * @return array
+     */
     public function get_button_set_data($setName = NULL) {
         try {
             $parameters = array();
@@ -1786,6 +2213,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get button recipe corresponding to a button name
+     *
+     * @param string $name
+     * @return string
+     */
     protected function get_button_recipe_from_name($name) {
         try {
             $query = 'SELECT recipe FROM button_view '.
@@ -1804,6 +2237,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get player names like a certain string
+     *
+     * @param string $input
+     * @return array
+     */
     public function get_player_names_like($input = '') {
         try {
             $query = 'SELECT name_ingame, status FROM player_view '.
@@ -1830,6 +2269,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get player ID corresponding to a player name
+     *
+     * @param string $name
+     * @return int
+     */
     public function get_player_id_from_name($name) {
         try {
             $query = 'SELECT id FROM player '.
@@ -1853,6 +2298,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get player name corresponding to a player ID
+     *
+     * @param int $playerId
+     * @return string
+     */
     protected function get_player_name_from_id($playerId) {
         try {
             if (empty($playerId)) {
@@ -1878,6 +2329,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get mapping between player ID and player name
+     *
+     * @param BMGame $game
+     * @return array
+     */
     protected function get_player_name_mapping($game) {
         $idNameMapping = array();
         foreach ($game->playerArray as $player) {
@@ -1891,6 +2348,12 @@ class BMInterface {
         return $idNameMapping;
     }
 
+    /**
+     * Get button ID corresponding to a button ID
+     *
+     * @param string $name
+     * @return int
+     */
     protected function get_button_id_from_name($name) {
         try {
             $query = 'SELECT id FROM button '.
@@ -1914,6 +2377,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Get button set ID corresponding to a button set name
+     *
+     * @param string $name
+     * @return int
+     */
     protected function get_buttonset_id_from_name($name) {
         try {
             $query = 'SELECT id FROM buttonset '.
@@ -1936,8 +2405,16 @@ class BMInterface {
         }
     }
 
-    // Build the various different WHERE, ORDER BY and LIMIT clauses for the
-    // different action and chat log SELECT queries
+    /**
+     * Build the various different WHERE, ORDER BY and LIMIT clauses for the
+     * different action and chat log SELECT queries
+     *
+     * @param BMGame $game
+     * @param bool $doQueryPreviousGame
+     * @param bool $isCount
+     * @param array $sqlParameters
+     * @return string
+     */
     protected function build_game_log_query_restrictions(
         BMGame $game,
         $doQueryPreviousGame,
@@ -1956,6 +2433,12 @@ class BMInterface {
         return $restrictions;
     }
 
+    /**
+     * Get value from config table for a certain key
+     *
+     * @param string $conf_key
+     * @return string
+     */
     protected function get_config($conf_key) {
         try {
             $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
@@ -1977,8 +2460,14 @@ class BMInterface {
         }
     }
 
-    // Calculates the difference between two (unix-style) timespans and formats
-    // the result as a friendly approximation like '7 days' or '12 minutes'.
+    /**
+     * Calculates the difference between two (unix-style) timespans and formats
+     * the result as a friendly approximation like '7 days' or '12 minutes'.
+     *
+     * @param int $firstTime
+     * @param int $secondTime
+     * @return string
+     */
     protected function get_friendly_time_span($firstTime, $secondTime) {
         $seconds = (int)($secondTime - $firstTime);
         if ($seconds < 0) {
@@ -2003,9 +2492,15 @@ class BMInterface {
         return $this->count_noun($days, 'day');
     }
 
-    // Turns a number (like 5) and a noun (like 'golden ring') into a phrase
-    // like '5 golden rings', pluralizing if needed.
-    // Note: does not handle funky plurals.
+    /**
+     * Turns a number (like 5) and a noun (like 'golden ring') into a phrase
+     * like '5 golden rings', pluralizing if needed.
+     * Note: does not handle funky plurals.
+     *
+     * @param int $count
+     * @param string $noun
+     * @return string
+     */
     protected function count_noun($count, $noun) {
         if ($count == 1) {
             return $count . ' ' . $noun;
@@ -2016,14 +2511,24 @@ class BMInterface {
         return $count . ' ' . $noun . 's';
     }
 
-    // Retrieves the die background type chosen by the current player
+    /**
+     * Retrieves the die background type chosen by the current player
+     *
+     * @param int $playerId
+     * @return string
+     */
     protected function load_die_background_type($playerId) {
         $playerInfoArray = $this->player()->get_player_info($playerId);
 
         return $playerInfoArray['user_prefs']['die_background'];
     }
 
-    // Retrieves the colors that the user has saved in their preferences
+    /**
+     * Retrieves the colors that the user has saved in their preferences
+     *
+     * @param int $currentPlayerId
+     * @return array
+     */
     protected function load_player_colors($currentPlayerId) {
         $playerInfoArray = $this->player()->get_player_info($currentPlayerId);
 
@@ -2038,11 +2543,19 @@ class BMInterface {
         return $colors;
     }
 
-    // Determines which colors to use for the two players in a game.
-    // $currentPlayerId is the player this is being displayed to.
-    // $playerColors are the colors they've chosen as their preferences
-    // (as returned by load_player_colors())
-    // $gamePlayerIdA and $gamePlayerIdB are the two players in the game
+    /**
+     * Determines which colors to use for the two players in a game.
+     * $currentPlayerId is the player this is being displayed to.
+     * $playerColors are the colors they've chosen as their preferences
+     * (as returned by load_player_colors())
+     * $gamePlayerIdA and $gamePlayerIdB are the two players in the game
+     *
+     * @param int $currentPlayerId
+     * @param array $playerColors
+     * @param int $gamePlayerIdA
+     * @param int $gamePlayerIdB
+     * @return array
+     */
     protected function determine_game_colors($currentPlayerId, $playerColors, $gamePlayerIdA, $gamePlayerIdB) {
         $gameColors = array();
 
@@ -2081,10 +2594,15 @@ class BMInterface {
         return $gameColors;
     }
 
-    // Takes a URL that was entered by a user and returns a version of it that's
-    // safe to insert into an anchor tag (or returns NULL if we can't sensibly do
-    // that).
-    // Based in part on advice from http://stackoverflow.com/questions/205923
+    /**
+     * Takes a URL that was entered by a user and returns a version of it that's
+     * safe to insert into an anchor tag (or returns NULL if we can't sensibly do
+     * that).
+     * Based in part on advice from http://stackoverflow.com/questions/205923
+     *
+     * @param string $url
+     * @return string
+     */
     protected function validate_url($url) {
         // First, check for and reject anything with inappropriate characters
         // (We can expand this list later if it becomes necessary)
@@ -2105,6 +2623,11 @@ class BMInterface {
         return $url;
     }
 
+    /**
+     * Set message
+     *
+     * @param string $message
+     */
     protected function set_message($message) {
         $this->message = $message;
         if (!is_null($this->parent)) {

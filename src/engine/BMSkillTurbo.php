@@ -76,7 +76,10 @@ class BMSkillTurbo extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size ' .
+                         'and then change to the size specified by the Turbo skill',
+        );
     }
 
     /**
