@@ -12,6 +12,7 @@ SKIPPATHS = [
   './src/favicon.ico',
   './src/favicon_monitor.ico',
   './src/staging_favicon.ico',
+  './src/apple-touch-icon.png',
   './src/ui/images',
   './src/ui/js/extern/images',
 
