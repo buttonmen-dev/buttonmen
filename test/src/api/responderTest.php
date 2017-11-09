@@ -946,6 +946,32 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * verify_api_cancelOpenGame() - helper routine which calls the API
+     * cancelOpenGame method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_cancelOpenGame($postCancelDieRolls, $gameId) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $postCancelDieRolls;
+        $args = array(
+            'type' => 'cancelOpenGame',
+            'gameId' => $gameId,
+        );
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals('Successfully cancelled game ' . $gameId, $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+
+        // Fill in the fake number before caching the output
+        $retval['message'] = str_replace($gameId, $fakeGameNumber, $retval['message']);
+
+        $this->cache_json_api_output('cancelOpenGame', $fakeGameNumber, $retval);
+
+        return $retval['data'];
+    }
+
+    /**
      * verify_api_reactToNewGame() - helper routine which calls the API
      * reactToNewGame method using provided fake die rolls, and makes
      * standard assertions about its return value
@@ -1606,6 +1632,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
+    }
+
+    public function test_request_cancelOpenGame() {
+        $this->verify_login_required('cancelOpenGame');
+
+        $this->game_number = 49;
+
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_invalid_arg_rejected('cancelOpenGame');
+        $this->verify_mandatory_args_required(
+            'cancelOpenGame',
+            array('gameId' => 49)
+        );
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder004', '', 'Avis', 'Avis', '3'
+        );
+
+        $this->verify_api_cancelOpenGame(array(), $gameId);
     }
 
     public function test_request_reactToNewGameAccept() {

@@ -162,6 +162,42 @@ OpenGames.displayJoinResult = function(
   }
 };
 
+OpenGames.cancelOpenGame = function() {
+  // Clear any previous error message
+  Env.message = null;
+  Env.showStatusMessage();
+
+  var cancelButton = $(this);
+  var gameId = cancelButton.attr('data-gameId');
+
+  Api.cancelOpenGame(gameId,
+    function() {
+      OpenGames.displayCancelResult(cancelButton, gameId);
+    },
+    function() {
+      OpenGames.displayCancelResult();
+    });
+};
+
+OpenGames.displayCancelResult = function(cancelButton, gameId) {
+  // If an error occurred, display it
+  if (cancelButton === undefined) {
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'An internal error occurred while trying to cancel the game.',
+      };
+    }
+    OpenGames.getOpenGames(OpenGames.showPage);
+    return;
+  }
+
+  cancelButton.hide();
+  cancelButton.after($('<span>', {
+    'text': 'Cancelled Game ' + gameId,
+  }));
+};
+
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
 
@@ -182,6 +218,9 @@ OpenGames.buildGameTable = function(tableType, buttons) {
     headerRow.append($('<th>', { 'text': 'Opponent\'s Button', }));
   }
   headerRow.append($('<th>', { 'text': 'Rounds', }));
+  if (tableType != 'joinable') {
+    headerRow.append($('<th>', { 'text': 'Action', }));
+  }
 
   var tbody = $('<tbody>');
   table.append(tbody);
@@ -314,12 +353,24 @@ OpenGames.buildGameTable = function(tableType, buttons) {
       'text': game.targetWins,
     }));
 
+    if (tableType == 'yours') {
+      var gameCancelTd = $('<td>', { 'class': 'gameAction', });
+      gameRow.append(gameCancelTd);
+      var cancelButton = $('<button>', {
+        'type': 'button',
+        'text': 'Cancel Game',
+        'data-gameId': game.gameId,
+      });
+      gameCancelTd.append(cancelButton);
+      cancelButton.click(OpenGames.cancelOpenGame);
+    }
+
     if (game.description) {
       var descRow = $('<tr>');
       tbody.append(descRow);
       var descTd = $('<td>', {
         'class': 'gameDescDisplay',
-        'colspan': (tableType == 'yours' ? 4 : 5),
+        'colspan': 5,
         'text': game.description,
       });
       descRow.append(descTd);
