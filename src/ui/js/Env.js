@@ -487,6 +487,10 @@ Env.escapeRegexp = function(str) {
 
 // Utility function to link to a profile page given a player name
 Env.buildProfileLink = function(playerName, textOnly) {
+  if ((typeof(playerName) === 'undefined') || (playerName === null)) {
+    return '–';
+  }
+
   var url = 'profile.html?player=' + encodeURIComponent(playerName);
   if (textOnly) {
     return url;

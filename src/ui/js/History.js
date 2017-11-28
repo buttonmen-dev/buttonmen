@@ -75,6 +75,7 @@ History.searchParameterInfo = {
     'source': {
       'COMPLETE': 'Completed',
       'ACTIVE': 'In Progress',
+      'UNSTARTED': 'Unstarted',
       'CANCELLED': 'Cancelled',
     },
     'dataType': 'string',
@@ -655,6 +656,11 @@ History.buildResultsTableBody = function() {
         'text': 'Cancelled',
         'style': 'color: #aaaaaa;'
       }));
+    } else if ((game.status == 'NEW') || (game.status == 'OPEN')) {
+      gameRow.append($('<td>', {
+        'text': 'Unstarted',
+        'style': 'color: #aaaaaa;'
+      }));
     } else {
       gameRow.append($('<td>', {
         'text': 'In Progress',
@@ -668,7 +674,9 @@ History.buildResultsTableBody = function() {
 
 History.scoreCol = function(game) {
   var score;
-  if (game.status == 'CANCELLED') {
+  if ((game.status == 'CANCELLED') ||
+      (game.status == 'NEW') ||
+      (game.status == 'OPEN')) {
     score = '–/–/–';
   } else {
     score = game.roundsWonA + '/' + game.roundsWonB + '/' + game.roundsDrawn;
