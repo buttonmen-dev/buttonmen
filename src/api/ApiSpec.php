@@ -267,7 +267,7 @@ class ApiSpec {
                 ),
                 'status' => array(
                     'arg_type' => 'exactString',
-                    'values' => array('ACTIVE', 'COMPLETE', 'CANCELLED'),
+                    'values' => array('ACTIVE', 'UNSTARTED', 'COMPLETE', 'CANCELLED'),
                 ),
             ),
         ),

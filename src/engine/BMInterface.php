@@ -299,8 +299,8 @@ class BMInterface {
                    'LEFT JOIN game AS g ON g.id = gpm.game_id '.
                 'WHERE gpm.player_id = :player_id '.
                    'AND gpm.is_awaiting_action = 1 '.
-                   'AND g.status_id = '.
-                       '(SELECT id FROM game_status WHERE name = \'ACTIVE\') ';
+                   'AND g.status_id IN '.
+                       '(SELECT id FROM game_status WHERE name IN (\'NEW\', \'ACTIVE\'))';
 
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
@@ -1073,6 +1073,8 @@ class BMInterface {
         } elseif (in_array(NULL, $game->playerIdArray) ||
                   in_array(NULL, $game->buttonArray)) {
             $status = 'OPEN';
+        } elseif (BMGameState::CHOOSE_JOIN_GAME == $game->gameState) {
+            $status = 'NEW';
         } else {
             $status = 'ACTIVE';
         }
@@ -1583,9 +1585,9 @@ class BMInterface {
                      'WHERE v2.player_id = :player_id '.
                      'AND v1.player_id != v2.player_id ';
             if ('ACTIVE' == $type) {
-                $query .= 'AND s.name = "ACTIVE" AND g.game_state > 13 ';
+                $query .= 'AND s.name = "ACTIVE"';
             } elseif ('NEW' == $type) {
-                $query .= 'AND s.name = "ACTIVE" AND g.game_state <= 13 ';
+                $query .= 'AND s.name = "NEW"';
             } elseif ('COMPLETE' == $type) {
                 $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
             } elseif ('CANCELLED' == $type) {
@@ -1832,8 +1834,8 @@ class BMInterface {
                         'LEFT JOIN game AS g ON g.id = gpm.game_id '.
                      'WHERE gpm.player_id = :player_id '.
                         'AND gpm.is_awaiting_action = 1 '.
-                        'AND g.status_id = '.
-                           '(SELECT id FROM game_status WHERE name = \'ACTIVE\') ';
+                        'AND g.status_id IN '.
+                           '(SELECT id FROM game_status WHERE name IN (\'NEW\', \'ACTIVE\'))';
             foreach ($skippedGames as $index => $skippedGameId) {
                 $parameterName = ':skipped_game_id_' . $index;
                 $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
