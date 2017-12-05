@@ -514,6 +514,10 @@ Env.buildVacationImage = function(size) {
 
 // Utility function to link to a button page given a button name
 Env.buildButtonLink = function(buttonName, recipe, textOnly) {
+  if ((typeof(buttonName) === 'undefined') || (buttonName === null)) {
+    return '–';
+  }
+
   var url = 'buttons.html?button=' + encodeURIComponent(buttonName);
   if (textOnly) {
     return url;
