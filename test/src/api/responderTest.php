@@ -1753,7 +1753,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 712);
+        $this->assertEquals(count($retval['data']), 723);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -1809,7 +1809,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 77);
+        $this->assertEquals(count($retval['data']), 78);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }

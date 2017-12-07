@@ -377,13 +377,14 @@ class BMInterfaceHistory extends BMInterface {
         }
 
         if (isset($searchFilters['status'])) {
-            $where .= 'AND s.name = :status_%%% ';
-            $whereParameters[':status_%%%'] = $searchFilters['status'];
-        } else {
-            // We'll only display games that have actually started
-            $where .= 'AND (s.name = "COMPLETE" ' .
-                      'OR s.name = "ACTIVE" ' .
-                      'OR s.name = "CANCELLED") ';
+            if ($searchFilters['status'] == 'UNSTARTED') {
+                $where .= 'AND ((s.name = :status1_%%%) OR (s.name = :status2_%%%)) ';
+                $whereParameters[':status1_%%%'] = 'NEW';
+                $whereParameters[':status2_%%%'] = 'OPEN';
+            } else {
+                $where .= 'AND s.name = :status_%%% ';
+                $whereParameters[':status_%%%'] = $searchFilters['status'];
+            }
         }
     }
 
