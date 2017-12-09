@@ -79,6 +79,7 @@ class BMSkillTurbo extends BMSkill {
         return array(
             'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size ' .
                          'and then change to the size specified by the Turbo skill',
+            'Radioactive' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
         );
     }
 

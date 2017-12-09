@@ -105,8 +105,8 @@ class BMSkillRadioactive extends BMSkill {
         return 'If a radioactive die is either the attacking die or the target die in an attack with a ' .
                'single attacking die and a single target die, the attacking die splits, or "decays", ' .
                'into two as-close-to-equal-sized-as-possible dice that add up to its original size. All ' .
-               'dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood ' .
-               'Swing(?), Time and Space(^), [and, not yet implemented: Jolt(J)]. For example, ' .
+               'dice that decay lose the following skills: Radioactive (%), Turbo (!), Mood ' .
+               'Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, ' .
                'a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die ' .
                'would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a ' .
                'power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.';
@@ -125,11 +125,15 @@ class BMSkillRadioactive extends BMSkill {
             'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack ' .
                          'targeting a SINGLE die are first replaced with non-berserk dice with half ' .
                          'their previous number of sides, rounding up, and then decay',
-            'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
-                          'size of the captured die, and then decay',
             'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then ' .
                               'each of the "decay products" are replaced by exact copies of the ' .
                               'die they captured',
+            'Mood' => 'Dice with both Radioactive and Mood skills lose Mood when they decay',
+            'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
+                          'size of the captured die, and then decay',
+            'TimeAndSpace' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace ' .
+                              'when they decay',
+            'Turbo' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
         );
     }
 }
