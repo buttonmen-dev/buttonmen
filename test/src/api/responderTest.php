@@ -15338,12 +15338,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(6, 8, 3, 5),
-            'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5. ',
+            'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5. ',
             $retval, array(array(0, 1), array(0, 2), array(0, 3), array(0, 4), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, '', array(2 => 11));
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5'));
         $expData['gameActionLogCount'] = 5;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 6;
@@ -15422,10 +15422,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_adjustFire(
             array(4, 1),
-            'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5, changed size due to turbo. Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4. responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1. ',
+            'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5. Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4. responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1. ',
             $retval, $gameId, 1, 'no_turndown');
 
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' =>  'Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1'));
 
