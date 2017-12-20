@@ -193,6 +193,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
                     'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
                     'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+                    'TimeAndSpace' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                     'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
                 ),
             ),
@@ -388,6 +389,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
                     'Radioactive' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace when they decay',
+                    'Konstant' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                 ),
             ),
             'Trip' => array(

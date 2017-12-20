@@ -151,6 +151,8 @@ class BMSkillKonstant extends BMSkill {
             'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
             'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
             'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+            'TimeAndSpace' => 'Attacking Konstant TimeAndSpace dice do not ' .
+                              'trigger the TimeAndSpace skill because they do not reroll',
             'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
         );
     }
