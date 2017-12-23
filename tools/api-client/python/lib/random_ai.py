@@ -1270,9 +1270,19 @@ class LoggingBMClient():
   def _game_action_specify_dice_player(self, b, playerData):
     swing_array = {} 
     if playerData['swingRequestArray']:
+      unique_swing_among_swing = playerData['button']['name'] == 'Guillermo'
+      unique_swing_among_dice = playerData['button']['name'] == 'Gordo'
       for swing_type in sorted(playerData['swingRequestArray'].keys()):
         [swing_min, swing_max] = playerData['swingRequestArray'][swing_type]
         swing_choice = self._random_array_element(range(swing_min, swing_max + 1))
+        # N.B. These loops shouldn't get stuck because Gordo has only 5 dice (so 6 with an aux),
+        # and the most constrained swing type, V, has 7 > 6 choices
+        if unique_swing_among_swing:
+          while swing_choice in swing_array.values():
+            swing_choice = self._random_array_element(range(swing_min, swing_max + 1))
+        if unique_swing_among_dice:
+          while swing_choice in [die['sides'] for die in playerData['activeDieArray']] + swing_array.values():
+            swing_choice = self._random_array_element(range(swing_min, swing_max + 1))
         swing_array[swing_type] = swing_choice
 
     option_array = {}
