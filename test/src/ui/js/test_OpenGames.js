@@ -23,6 +23,7 @@ module("OpenGames", {
     delete Api.button;
     delete Api.open_games;
     delete Api.join_game_result;
+    delete Api.cancel_game_result;
     delete OpenGames.page;
 
     // Page elements
@@ -173,4 +174,51 @@ test("test_OpenGames.displayJoinResult", function(assert) {
   var buttonSpan = victimButtonTd.find('span');
   assert.ok(buttonSpan.length > 0, "button name is displayed");
   assert.equal(buttonSpan.text(), 'Avis', "correct button name is displayed");
+});
+
+test("test_OpenGames.cancelOpenGame", function(assert) {
+  var gameId = 4900;
+
+  var gameRow = $('<tr>');
+  var gameActionTd = $('<td>');
+  gameRow.append(gameActionTd);
+  var cancelButton = $('<button>', {
+    'type': 'button',
+    'text': 'Cancel Game ' + gameId,
+    'data-gameId': gameId,
+  });
+  gameActionTd.append(cancelButton);
+  cancelButton.click(OpenGames.cancelOpenGame);
+
+  // We can't inject our callback into the API call made by this event, so
+  // we'll just make the call asynchronously and run our tests afterward
+  $.ajaxSetup({ async: false });
+  cancelButton.click();
+  $.ajaxSetup({ async: true });
+
+  var cancelSpan = gameActionTd.find('span');
+  assert.ok(cancelSpan.length > 0, 'information span was created');
+  assert.ok(!cancelButton.is(':visible'));
+});
+
+test("test_OpenGames.displayCancelResult", function(assert) {
+  var gameId = 49;
+
+  var gameActionTd = $('<td>');
+  var cancelButton = $('<button>', {
+    'type': 'button',
+    'text': 'Cancel Game ' + gameId,
+    'data-gameId': gameId,
+  });
+  gameActionTd.append(cancelButton);
+
+  OpenGames.displayCancelResult(cancelButton, gameId);
+
+  var cancelSpan = gameActionTd.find('span');
+  assert.ok(cancelSpan.length > 0, 'information span was created');
+  assert.equal(
+    cancelSpan.text(),
+    'Cancelled Game 49',
+    'correct information is displayed'
+  );
 });
