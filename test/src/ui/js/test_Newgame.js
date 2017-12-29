@@ -382,11 +382,72 @@ test("test_Newgame.getButtonSelectTd", function(assert) {
       },
     },
     'buttonGreyed': { 'Adam Spam': true, },
+    'buttonLimits': {
+      'player': {
+        'button_sets': {
+          'ANY': true
+        },
+        'tourn_legal': {
+          'ANY': true
+        },
+        'die_skills': {
+          'ANY': true
+        }
+      },
+      'opponent': {
+        'button_sets': {
+          'ANY': true,
+          'limit_opponent_button_sets_50_states': false
+        },
+        'tourn_legal': {
+          'ANY': true
+        },
+        'die_skills': {
+          'ANY': true
+        }
+      }
+    },
     'playerButton': null,
     'opponentButton': null,
   };
-  var item = Newgame.getButtonSelectTd();
-  assert.equal(item[0].tagName, "TD", "Return value is of type td");
+  var playerTd = Newgame.getButtonSelectTd('player')[0];
+  assert.equal(playerTd.tagName, 'TD', 'Return value is of type td');
+  assert.equal(playerTd.childElementCount, 1, 'player TD should have one child');
+  var playerTdSelect = playerTd.firstChild;
+  assert.equal(playerTdSelect.childElementCount, 3, 'player TD select should have three children');
+  assert.equal(playerTdSelect.children[0].text, 'Choose your button', 'The first row in the player TD select should ask the player to select a button');
+  assert.equal(playerTdSelect.children[0].value, '', 'The first row in the player TD select should have an empty value');
+  assert.equal(playerTdSelect.children[1].text, 'Avis: (4) (4) (10) (12) (X)', 'The second row in the player TD select should show the recipe for Avis');
+  assert.equal(playerTdSelect.children[1].value, 'Avis', 'The second row in the player TD select should have a value of Avis');
+  assert.equal(playerTdSelect.children[2].text, 'Jellybean: p(20) s(20) (V) (X)', 'The third row in the player TD select should show the recipe for Jellybean');
+  assert.equal(playerTdSelect.children[2].value, 'Jellybean', 'The third row in the player TD select should have a value of Jellybean');
+
+  var opponentTd = Newgame.getButtonSelectTd('opponent')[0];
+  assert.equal(opponentTd.tagName, 'TD', 'Return value is of type td');
+  assert.equal(opponentTd.childElementCount, 1, 'opponent TD should have one child');
+  var opponentTdSelect = opponentTd.firstChild;
+  assert.equal(opponentTdSelect.childElementCount, 3, 'opponent TD select should have three children');
+  assert.equal(opponentTdSelect.children[0].text, 'Any button', 'The first row in the opponent TD select should be any button');
+  assert.equal(opponentTdSelect.children[0].value, '', 'The first row in the opponent TD select should have an empty value');
+  assert.equal(opponentTdSelect.children[1].text, 'Avis: (4) (4) (10) (12) (X)', 'The second row in the opponent TD select should show the recipe for Avis');
+  assert.equal(opponentTdSelect.children[1].value, 'Avis', 'The second row in the opponent TD select should have a value of Avis');
+  assert.equal(opponentTdSelect.children[2].text, '-- Adam Spam: F(4) F(6) (6) (12) (X)', 'The third row in the opponent TD select should show the recipe for Adam Spam');
+  assert.equal(opponentTdSelect.children[2].value, 'Adam Spam', 'The third row in the opponent TD select should have a value of Adam Spam');
+
+  Newgame.activity.buttonLimits.opponent.button_sets.ANY = false;
+  Newgame.activity.buttonLimits.opponent.button_sets.limit_opponent_button_sets_50_states = true;
+
+  var opponentTdLimited = Newgame.getButtonSelectTd('opponent')[0];
+  assert.equal(opponentTdLimited.tagName, 'TD', 'Return value is of type td');
+  assert.equal(opponentTdLimited.childElementCount, 1, 'opponent TD should have one child');
+  var opponentTdLimitedSelect = opponentTdLimited.firstChild;
+  assert.equal(opponentTdLimitedSelect.childElementCount, 3, 'limited opponent TD select should have three children');
+  assert.equal(opponentTdLimitedSelect.children[0].text, 'Choose opponent\'s button', 'The first row in the limited opponent TD select should ask the player to select a button for the opponent');
+  assert.equal(opponentTdLimitedSelect.children[0].value, '', 'The first row in the limited opponent TD select should have an empty value');
+  assert.equal(opponentTdLimitedSelect.children[1].text, 'Avis: (4) (4) (10) (12) (X)', 'The second row in the limited opponent TD select should show the recipe for Avis');
+  assert.equal(opponentTdLimitedSelect.children[1].value, 'Avis', 'The second row in the limited opponent TD select should have a value of Avis');
+  assert.equal(opponentTdLimitedSelect.children[2].text, '-- Adam Spam: F(4) F(6) (6) (12) (X)', 'The third row in the limited opponent TD select should show the recipe for Adam Spam');
+  assert.equal(opponentTdLimitedSelect.children[2].value, 'Adam Spam', 'The third row in the limited opponent TD select should have a value of Adam Spam');
 });
 
 test("test_Newgame.updateButtonSelectTd", function(assert) {
