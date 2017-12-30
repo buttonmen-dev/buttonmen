@@ -193,6 +193,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Focus' => 'Dice with both Focus and Konstant skills may be turned down to gain initiative',
                     'Maximum' => 'Dice with both Konstant and Maximum retain their current value when rerolled',
                     'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
+                    'TimeAndSpace' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                     'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
                 ),
             ),
@@ -223,6 +224,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These are a subcategory of Swing dice, whose size changes randomly when rerolled. At the very start of the game (and again after any round they lose, just as with normal Swing dice) the player sets the initial size of Mood Swing dice, but from then on whenever they are rolled their size is set randomly to that of a "real-world" die (i.e. 1, 2, 4, 6, 8, 10, 12, 20, or 30 sides) within the range allowable for that Swing type.',
                 'interacts' => array(
                     'Ornery' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
+                    'Radioactive' => 'Dice with both Radioactive and Mood skills lose Mood when they decay',
                 ),
             ),
             'Morphing' => array(
@@ -266,11 +268,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Radioactive' => array(
                 'code' => '%',
-                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), Time and Space(^), [and, not yet implemented: Jolt(J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
+                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo (!), Mood Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
+                    'Mood' => 'Dice with both Radioactive and Mood skills lose Mood when they decay',
                     'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the size of the captured die, and then decay',
+                    'TimeAndSpace' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace when they decay',
+                    'Turbo' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
                 ),
             ),
             'TheFlyingSquirrel' => array(
@@ -383,6 +388,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => '^',
                 'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
+                    'Radioactive' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace when they decay',
+                    'Konstant' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                 ),
             ),
             'Trip' => array(
@@ -400,6 +407,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'After your starting roll, you may change the size of your own Turbo Swing or Option die every time you roll it as part of your attack. Decide on a size first that is valid for the Swing or Option type, then roll the new die as usual.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size and then change to the size specified by the Turbo skill',
+                    'Radioactive' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
                 ),
             ),
             'Value' => array(
@@ -935,6 +943,32 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval['message'] = str_replace($gameId, $fakeGameNumber, $retval['message']);
 
         $this->cache_json_api_output('joinOpenGame', $fakeGameNumber, $retval);
+
+        return $retval['data'];
+    }
+
+    /**
+     * verify_api_cancelOpenGame() - helper routine which calls the API
+     * cancelOpenGame method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_cancelOpenGame($postCancelDieRolls, $gameId) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $postCancelDieRolls;
+        $args = array(
+            'type' => 'cancelOpenGame',
+            'gameId' => $gameId,
+        );
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals('Successfully cancelled game ' . $gameId, $retval['message']);
+        $this->assertEquals(TRUE, $retval['data']);
+
+        $fakeGameNumber = $this->generate_fake_game_id();
+
+        // Fill in the fake number before caching the output
+        $retval['message'] = str_replace($gameId, $fakeGameNumber, $retval['message']);
+
+        $this->cache_json_api_output('cancelOpenGame', $fakeGameNumber, $retval);
 
         return $retval['data'];
     }
@@ -1600,6 +1634,27 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_api_joinOpenGame(array(1, 1, 1, 1, 2, 2, 2, 2), $gameId);
+    }
+
+    public function test_request_cancelOpenGame() {
+        $this->verify_login_required('cancelOpenGame');
+
+        $this->game_number = 49;
+
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_invalid_arg_rejected('cancelOpenGame');
+        $this->verify_mandatory_args_required(
+            'cancelOpenGame',
+            array('gameId' => 49)
+        );
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $gameId = $this->verify_api_createGame(
+            array(),
+            'responder004', '', 'Avis', 'Avis', '3'
+        );
+
+        $this->verify_api_cancelOpenGame(array(), $gameId);
     }
 
     public function test_request_reactToNewGameAccept() {
@@ -10719,7 +10774,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(1, 3, 2, 14, 1),
-            'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1)!:1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17):16 was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1)! rerolled from 1, changed size due to turbo. Turbo die p(Y=1)! remained the same size, rolled 1. ',
+            'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1)!:1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17):16 was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1)! rerolled from 1. Turbo die p(Y=1)! remained the same size, rolled 1. ',
             $retval, array(array(0, 3), array(1, 1), array(1, 2), array(1, 3)),
             $gameId, 1, 'Skill', 1, 0, '', array(3 => 1));
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -10753,7 +10808,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('HasJustTurboed');
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1)!:1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17):16 was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1)! rerolled from 1, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1)!:1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17):16 was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1)! rerolled from 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'Turbo die p(Y=1)! remained the same size, rolled 1'));
         $expData['gameActionLogCount'] += 2;
 
@@ -10822,7 +10877,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(1, 1),
-            'responder003 performed Skill attack using [o(Z=4)!:1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4)! rerolled from 1, changed size due to turbo; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. Turbo die o(Z=4)! remained the same size, rolled 1. ',
+            'responder003 performed Skill attack using [o(Z=4)!:1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4)! rerolled from 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1. Turbo die o(Z=4)! remained the same size, rolled 1. ',
             $retval, array(array(0, 2), array(0, 4), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, 'Warrior stinger dice must use their full value', array(2 => 4));
 
@@ -10837,7 +10892,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustTurboed');
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15));
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4)!:1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4)! rerolled from 1, changed size due to turbo; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(Z=4)!:1,g`(2):2] against [(5/10=5):3]; Defender (5/10=5) was captured; Attacker o(Z=4)! rerolled from 1; Attacker g`(2) recipe changed from g`(2) to g(2), rerolled 2 => 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die o(Z=4)! remained the same size, rolled 1'));
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Warrior stinger dice must use their full value'));
         $expData['gameActionLogCount'] += 2;
@@ -11661,14 +11716,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(1),
-            'responder003 performed Skill attack using [(1/30=1)!:1] against [(20):1]; Defender (20) was captured; Attacker (1/30=1)! rerolled from 1, changed size due to turbo. Turbo die (1/30=1)! remained the same size, rolled 1. ',
+            'responder003 performed Skill attack using [(1/30=1)!:1] against [(20):1]; Defender (20) was captured; Attacker (1/30=1)! rerolled from 1. Turbo die (1/30=1)! remained the same size, rolled 1. ',
             $retval, array(array(0, 4), array(1, 2)),
             $gameId, 2, 'Skill', 0, 1, '', array(4 => 1));
 
         $expData['activePlayerIdx'] = 1;
         array_pop($expData['gameActionLog']);
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [(1/30=1)!:1] against [(20):1]; Defender (20) was captured; Attacker (1/30=1)! rerolled from 1, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [(1/30=1)!:1] against [(20):1]; Defender (20) was captured; Attacker (1/30=1)! rerolled from 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (1/30=1)! remained the same size, rolled 1'));
         $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('HasJustTurboed');
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array("WasJustCaptured");
@@ -11721,13 +11776,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(12),
-            'responder003 performed Power attack using [tz(1/30=30)!:20] against [(20):7]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 20, changed size due to turbo. Turbo die tz(1/30=30)! remained the same size, rolled 12. ',
+            'responder003 performed Power attack using [tz(1/30=30)!:20] against [(20):7]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 20. Turbo die tz(1/30=30)! remained the same size, rolled 12. ',
             $retval, array(array(0, 3), array(1, 2)),
             $gameId, 2, 'Power', 0, 1, '', array(3 => 30));
 
         $expData['activePlayerIdx'] = 1;
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [tz(1/30=30)!:20] against [(20):7]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 20, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [tz(1/30=30)!:20] against [(20):7]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 20'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=30)! remained the same size, rolled 12'));
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 12;
@@ -11795,13 +11850,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(8),
-            'responder003 performed Power attack using [tz(1/30=30)!:12] against [(20):1]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 12, changed size due to turbo. Turbo die tz(1/30=30)! remained the same size, rolled 8. ',
+            'responder003 performed Power attack using [tz(1/30=30)!:12] against [(20):1]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 12. Turbo die tz(1/30=30)! remained the same size, rolled 8. ',
             $retval, array(array(0, 2), array(1, 1)),
             $gameId, 2, 'Power', 0, 1, '', array(2 => 30));
 
         $expData['activePlayerIdx'] = 1;
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [tz(1/30=30)!:12] against [(20):1]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 12, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [tz(1/30=30)!:12] against [(20):1]; Defender (20) was captured; Attacker tz(1/30=30)! rerolled from 12'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=30)! remained the same size, rolled 8'));
         $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 8;
@@ -13661,12 +13716,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(1),
-            'responder003 performed Speed attack using [tz(1/30=1)!:1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1)! rerolled from 1, changed size due to turbo. Turbo die tz(1/30=1)! remained the same size, rolled 1. ',
+            'responder003 performed Speed attack using [tz(1/30=1)!:1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1)! rerolled from 1. Turbo die tz(1/30=1)! remained the same size, rolled 1. ',
             $retval, array(array(0, 2), array(1, 2)),
             $gameId, 1, 'Speed', 0, 1, '', array(2 => 1));
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Speed attack using [tz(1/30=1)!:1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1)! rerolled from 1, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Speed attack using [tz(1/30=1)!:1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1)! rerolled from 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=1)! remained the same size, rolled 1'));
         $expData['gameActionLogCount'] = 7;
         $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustTurboed');
@@ -14049,13 +14104,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(7, 1, 1),
-            'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1)!:1,(1/30=1)!:1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1)! rerolled from 1, changed size due to turbo; Attacker (1/30=1)! rerolled from 1, changed size due to turbo. Turbo die tz(1/30=1)! remained the same size, rolled 1; Turbo die (1/30=1)! remained the same size, rolled 1. ',
+            'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1)!:1,(1/30=1)!:1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1)! rerolled from 1; Attacker (1/30=1)! rerolled from 1. Turbo die tz(1/30=1)! remained the same size, rolled 1; Turbo die (1/30=1)! remained the same size, rolled 1. ',
             $retval, array(array(0, 1), array(0, 2), array(0, 3), array(1, 0)),
             $gameId, 2, 'Skill', 0, 1, '', array(2 => 1, 3 => 1));
 
         $expData['activePlayerIdx'] = 1;
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1)!:1,(1/30=1)!:1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1)! rerolled from 1, changed size due to turbo; Attacker (1/30=1)! rerolled from 1, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1)!:1,(1/30=1)!:1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1)! rerolled from 1; Attacker (1/30=1)! rerolled from 1'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=1)! remained the same size, rolled 1; Turbo die (1/30=1)! remained the same size, rolled 1'));
         $expData['gameActionLogCount'] = 22;
@@ -14407,13 +14462,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(24),
-            'responder003 performed Power attack using [(1/30=30)!:25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30)! rerolled from 25, changed size due to turbo. Turbo die (1/30=30)! remained the same size, rolled 24. ',
+            'responder003 performed Power attack using [(1/30=30)!:25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30)! rerolled from 25. Turbo die (1/30=30)! remained the same size, rolled 24. ',
             $retval, array(array(0, 4), array(1, 0)),
             $gameId, 3, 'Power', 0, 1, '', array(4 => 30));
 
         $expData['activePlayerIdx'] = 1;
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30)! rerolled from 25, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30)! rerolled from 25'));
         array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (1/30=30)! remained the same size, rolled 24'));
         $expData['gameActionLogCount'] = 36;
@@ -14713,14 +14768,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(16),
-            'responder003 performed Power attack using [(1/30=30)!:24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30)! rerolled from 24, changed size due to turbo. Turbo die (1/30=30)! remained the same size, rolled 16. responder004 passed. ',
+            'responder003 performed Power attack using [(1/30=30)!:24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30)! rerolled from 24. Turbo die (1/30=30)! remained the same size, rolled 16. responder004 passed. ',
             $retval, array(array(0, 0), array(1, 1)),
             $gameId, 3, 'Power', 0, 1, '', array(0 => 30));
 
         array_pop($expData['gameActionLog']);
         array_pop($expData['gameActionLog']);
         array_pop($expData['gameActionLog']);
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30)! rerolled from 24, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30)! rerolled from 24'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (1/30=30)! remained the same size, rolled 16'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
         $expData['gameActionLogCount'] = 49;
@@ -14740,7 +14795,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(6),
-            'responder003 performed Power attack using [(1/30=30)!:16] against [(4):4]; Defender (4) was captured; Attacker (1/30=30)! rerolled from 16, changed size due to turbo. Turbo die (1/30=30)! remained the same size, rolled 6. End of round: responder004 won round 3 (52.5 vs. 48). ',
+            'responder003 performed Power attack using [(1/30=30)!:16] against [(4):4]; Defender (4) was captured; Attacker (1/30=30)! rerolled from 16. Turbo die (1/30=30)! remained the same size, rolled 6. End of round: responder004 won round 3 (52.5 vs. 48). ',
             $retval, array(array(0, 0), array(1, 0)),
             $gameId, 3, 'Power', 0, 1, '', array(0 => 30));
 
@@ -14751,7 +14806,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=15 and option dice: tz(1/30=1)!'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [^(3):3, fsp(R=15):7, ftz(14):14, tz(1/30=1)!:1], responder004 rolled [(2):1, (4):4, (6):1, (10):6, (X=11):11]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=1)!].'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):4] against [^(3):3]; Defender ^(3) was captured; Attacker (4) rerolled 4 => 2'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Speed attack using [tz(1/30=1)!:1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1)! rerolled from 1, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Speed attack using [tz(1/30=1)!:1] against [(6):1]; Defender (6) was captured; Attacker tz(1/30=1)! rerolled from 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=1)! remained the same size, rolled 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(2):1] against [tz(1/30=1)!:1]; Defender tz(1/30=1)! was captured; Attacker (2) rerolled 1 => 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [ftz(14):14] against [(X=11):11]; Defender (X=11) was captured; Attacker ftz(14) rerolled 14 => 2'));
@@ -14766,7 +14821,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(X=11):8] against [ftz(14):8]; Defender ftz(14) was captured; Attacker (X=11) rerolled 8 => 9'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [^(3):1,fsp(R=11):6] against [(10):7]; Defender (10) was captured; Attacker ^(3) rerolled 1 => 3; Attacker fsp(R=11) rerolled 6 => 2'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 gets another turn because a Time and Space die rolled odd'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1)!:1,(1/30=1)!:1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1)! rerolled from 1, changed size due to turbo; Attacker (1/30=1)! rerolled from 1, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [fsp(R=11):2,tz(1/30=1)!:1,(1/30=1)!:1] against [(4):4]; Defender (4) was captured; Attacker fsp(R=11) rerolled 2 => 7; Attacker tz(1/30=1)! rerolled from 1; Attacker (1/30=1)! rerolled from 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=1)! remained the same size, rolled 1; Turbo die (1/30=1)! remained the same size, rolled 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(6):3] against [(1/30=1)!:1]; Defender (1/30=1)! was captured; Attacker (6) rerolled 3 => 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Shadow attack using [fsp(R=11):7] against [(X=11):9]; Defender (X=11) was captured; Attacker fsp(R=11) rerolled 7 => 7'));
@@ -14780,7 +14835,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: R=13 and option dice: tz(1/30=30)!, (1/30=30)!'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 3. Initial die values: responder003 rolled [^(3):1, fsp(R=13):4, ftz(14):1, tz(1/30=30)!:30, z(12):12, (1/30=30)!:25], responder004 rolled [(2):1, (4):2, (6):1, (10):9, (X=11):8]. responder003 has dice which are not counted for initiative due to die skills: [ftz(14), tz(1/30=30)!].'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(2):1] against [^(3):1]; Defender ^(3) was captured; Attacker (2) rerolled 1 => 2'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30)! rerolled from 25, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:25] against [(2):2]; Defender (2) was captured; Attacker (1/30=30)! rerolled from 25'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (1/30=30)! remained the same size, rolled 24'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [(6):1] against [ftz(14):1]; Defender ftz(14) was captured; Attacker (6) rerolled 1 => 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=30)! remained the same size'));
@@ -14792,10 +14847,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die tz(1/30=30)! remained the same size'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tz(1/30=30)!] against [(4):4]; Attacker tz(1/30=30)! rolled 1; Defender (4) rerolled 4 => 3, was not captured'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [(4):3] against [tz(1/30=30)!:1]; Defender tz(1/30=30)! was captured; Attacker (4) rerolled 3 => 4'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30)! rerolled from 24, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:24] against [(X=11):3]; Defender (X=11) was captured; Attacker (1/30=30)! rerolled from 24'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (1/30=30)! remained the same size, rolled 16'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 passed'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:16] against [(4):4]; Defender (4) was captured; Attacker (1/30=30)! rerolled from 16, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [(1/30=30)!:16] against [(4):4]; Defender (4) was captured; Attacker (1/30=30)! rerolled from 16'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (1/30=30)! remained the same size, rolled 6'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'End of round: responder004 won round 3 (52.5 vs. 48)'));
         $expData['gameActionLogCount'] = 52;
@@ -15137,12 +15192,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(6, 8, 3, 8),
-            'responder003 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 8. ',
+            'responder003 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 8. ',
             $retval, array(array(0, 1), array(0, 2), array(0, 3), array(0, 4), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, '', array(2 => 11));
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 8'));
         $expData['gameActionLogCount'] = 5;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 6;
@@ -15338,12 +15393,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_submitTurn(
             array(6, 8, 3, 5),
-            'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5. ',
+            'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3. Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5. ',
             $retval, array(array(0, 1), array(0, 2), array(0, 3), array(0, 4), array(1, 2)),
             $gameId, 1, 'Skill', 0, 1, '', array(2 => 11));
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8, changed size due to turbo; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 performed Skill attack using [o(10):1,(V=8)!:8,gt(V=8):2,h(V=8):1] against [(20):12]; Defender (20) was captured; Attacker o(10) rerolled 1 => 6; Attacker (V=8)! rerolled from 8; Attacker gt(V=8) rerolled 2 => 8; Attacker h(V=8) changed size from 8 to 6 sides, recipe changed from h(V=8) to h(V=6), rerolled 1 => 3'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'Turbo die (V=8)! changed size from 8 to 11 sides, recipe changed from (V=8)! to (V=11)!, rolled 5'));
         $expData['gameActionLogCount'] = 5;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 6;
@@ -15422,10 +15477,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->verify_api_adjustFire(
             array(4, 1),
-            'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5, changed size due to turbo. Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4. responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1. ',
+            'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5. Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4. responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1. ',
             $retval, $gameId, 1, 'no_turndown');
 
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5, changed size due to turbo'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005 chose not to turn down fire dice; Defender (20) was captured; Attacker (V=11)! rerolled from 5'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' =>  'Turbo die (V=11)! changed size from 11 to 9 sides, recipe changed from (V=11)! to (V=9)!, rolled 4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder005', 'message' => 'responder005\'s idle ornery dice rerolled at end of turn: o(10) rerolled 6 => 1'));
 

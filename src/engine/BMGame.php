@@ -910,6 +910,27 @@ class BMGame {
     protected function set_swing_values() {
         foreach ($this->playerArray as $player) {
             if (!$player->waitingOnAction) {
+                // check for unique swing values
+                if (!self::are_unique_swing_values_valid($player)) {
+                    $hookResult = $player->button->run_hooks('unique_swing_setting_fail_message', array());
+
+                    if (is_array($hookResult) &&
+                        array_key_exists('BMBtnSkill'.$player->button->name, $hookResult) &&
+                        array_key_exists(
+                            'unique_swing_setting_fail_message',
+                            $hookResult['BMBtnSkill'.$player->button->name]
+                        )
+                       ) {
+                        $this->message = $hookResult['BMBtnSkill'.$player->button->name]
+                                                    ['unique_swing_setting_fail_message'];
+                    } else {
+                        $this->message = 'The swing values chosen are not unique';
+                    }
+                    $player->swingValueArray = array();
+                    $player->waitingOnAction = TRUE;
+                    return;
+                }
+
                 // apply swing values
                 foreach ($player->activeDieArray as $die) {
                     if (isset($die->swingType)) {
@@ -925,6 +946,25 @@ class BMGame {
                 }
             }
         }
+    }
+
+    /**
+     * Are unique swing values valid?
+     *
+     * @param BMPlayer $player
+     * @return bool
+     */
+    protected static function are_unique_swing_values_valid(BMPlayer $player) {
+        $hookResult = $player->button->run_hooks(
+            __FUNCTION__,
+            array(
+                'activeDieArray' => $player->activeDieArray,
+                'swingValueArray' => $player->swingValueArray
+            )
+        );
+
+        return (!isset($hookResult['BMBtnSkill'.$player->button->name][__FUNCTION__]) ||
+                $hookResult['BMBtnSkill'.$player->button->name][__FUNCTION__]);
     }
 
     /**
@@ -2776,7 +2816,7 @@ class BMGame {
     protected static function is_button_slow($button) {
         $hookResult = $button->run_hooks(
             __FUNCTION__,
-            array('name' => $button->name)
+            array()
         );
 
         $isSlow = isset($hookResult['BMBtnSkill'.$button->name]['is_button_slow']) &&

@@ -179,6 +179,22 @@ class ApiResponder {
     }
 
     /**
+     * Interface redirect for cancelOpenGame
+     *
+     * @param BMInterface $interface
+     * @param array $args
+     * @return bool
+     */
+    protected function get_interface_response_cancelOpenGame($interface, $args) {
+        $success = $interface->game()->cancel_open_game(
+            $_SESSION['user_id'],
+            $args['gameId']
+        );
+
+        return $success;
+    }
+
+    /**
      * Interface redirect for selectButton
      *
      * @param BMInterface $interface

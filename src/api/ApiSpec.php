@@ -218,6 +218,12 @@ class ApiSpec {
                 'buttonName' => 'button',
             ),
         ),
+        'cancelOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'loadActiveGames' => array(
             'mandatory' => array(),
             'permitted' => array(),

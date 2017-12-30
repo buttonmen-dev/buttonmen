@@ -643,8 +643,28 @@ var Api = (function () {
     );
   };
 
+  my.cancelOpenGame = function(gameId, callback, failCallback) {
+    var parameters = {
+      'type': 'cancelOpenGame',
+      'gameId': gameId,
+    };
+
+    my.apiParsePost(
+      parameters,
+      'cancel_game_result',
+      my.parseCancelGameResult,
+      callback,
+      failCallback
+    );
+  };
+
   my.parseJoinGameResult = function(data) {
     my.join_game_result.success = data;
+    return true;
+  };
+
+  my.parseCancelGameResult = function(data) {
+    my.cancel_game_result.success = data;
     return true;
   };
 

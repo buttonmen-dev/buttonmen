@@ -516,7 +516,7 @@ class BMGameAction {
                 !($attackType == 'Trip')) {
                 $this->message_append(
                     $postEventsAttacker,
-                    'rerolled from ' . $attackerInfo['value'] . ', changed size due to turbo'
+                    'rerolled from ' . $attackerInfo['value']
                 );
             } else {
                 $this->message_append(

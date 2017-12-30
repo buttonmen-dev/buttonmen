@@ -775,6 +775,33 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
     }
 
     /**
+     * @covers BMInterfaceGame::cancel_open_game
+     */
+    public function test_cancel_open_game() {
+        // create an open game with an unspecified opponent
+        $retval = $this->create_game_self_first(
+            array(self::$userId1WithoutAutopass, NULL),
+            array('Bauer', 'Stark'),
+            4
+        );
+        $this->assertNotNull($retval);
+        $this->object->game()->cancel_open_game(
+            self::$userId2WithoutAutopass,
+            $retval['gameId']
+        );
+
+        $game = self::load_game($retval['gameId']);
+        $this->assertNotEquals(BMGameState::CANCELLED, $game->gameState);
+                $this->object->game()->cancel_open_game(
+            self::$userId1WithoutAutopass,
+            $retval['gameId']
+        );
+
+        $game = self::load_game($retval['gameId']);
+        $this->assertEquals(BMGameState::CANCELLED, $game->gameState);
+    }
+
+    /**
      * @covers BMInterfaceGame::select_button
      */
     public function test_select_button() {

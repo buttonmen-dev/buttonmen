@@ -131,6 +131,7 @@ Game.showStatePage = function() {
       }
     } else if (Api.game.gameState == Game.GAME_STATE_CANCELLED) {
       Game.actionShowCancelledGame();
+      includeFooter = false;
     } else if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
@@ -1751,11 +1752,21 @@ Game.showFullLogHistory = function() {
 
 // Display header information about the game
 Game.pageAddGameHeader = function(action_desc) {
+  var opponentName = Api.game.opponent.playerName;
+  if (!opponentName) {
+    opponentName = '–';
+  }
+
+  var opponentButtonName = Api.game.opponent.button.name;
+  if (!opponentButtonName) {
+    opponentButtonName = '–';
+  }
+
   var gameTitle =
     'Game #' + Api.game.gameId + Game.SPACE_BULLET +
       Api.game.player.playerName + ' (' + Api.game.player.button.name +
-      ') vs. ' + Api.game.opponent.playerName + ' (' +
-      Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET + ' ';
+      ') vs. ' + opponentName + ' (' +
+      opponentButtonName + ') ' + Game.SPACE_BULLET + ' ';
   if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     gameTitle += 'Completed';
   } else if (Api.game.gameState == Game.GAME_STATE_CANCELLED) {
@@ -1817,7 +1828,9 @@ Game.pageAddGameHeader = function(action_desc) {
 
   Game.page.append($('<br>'));
 
-  if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
+  if (Api.game.isParticipant &&
+      !Api.game.player.hasDismissedGame &&
+      Api.game.opponent.playerId &&
       (Api.game.gameState == Game.GAME_STATE_END_GAME ||
        Api.game.gameState == Game.GAME_STATE_CANCELLED)) {
     var dismissDiv = $('<div>');
@@ -2793,9 +2806,15 @@ Game.buttonImageDisplay = function(player) {
   if (Env.getCookieNoImages() || Env.getCookieCompactMode()) {
     buttonTd.append($('<div>', { 'style': 'height: 150px; width: 150px;', }));
   } else {
+    var artFilename = Api.game[player].button.artFilename;
+
+    if (!Api.game[player].button.artFilename) {
+      artFilename = 'BMDefaultBlk.png';
+    }
+
     buttonTd.append($('<img>', {
       'src':
-        Env.ui_root + 'images/button/' + Api.game[player].button.artFilename,
+        Env.ui_root + 'images/button/' + artFilename,
       'width': '150px',
     }));
   }
