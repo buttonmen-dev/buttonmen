@@ -56,6 +56,7 @@ class BMSkillMad extends BMSkillMood {
     protected static function get_interaction_descriptions() {
         return array(
             'Ornery' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
+            'Radioactive' => 'Dice with the Mad skill lose Mad when they decay due to Radioactive',
         );
     }
 }

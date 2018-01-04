@@ -207,6 +207,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These are a subcategory of Swing dice, whose size changes randomly when rerolled. At the very start of the game (and again after any round they lose, just as with normal Swing dice) the player sets the initial size of Mad Swing dice, but from then on whenever they are rolled their size is set randomly to any even-numbered legal size for that Swing type. The initial size of a Mad Swing die may be set to an odd number.',
                 'interacts' => array(
                     'Ornery' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
+                    'Radioactive' => 'Dice with the Mad skill lose Mad when they decay due to Radioactive',
                 ),
             ),
             'Maximum' => array(
@@ -229,7 +230,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These are a subcategory of Swing dice, whose size changes randomly when rerolled. At the very start of the game (and again after any round they lose, just as with normal Swing dice) the player sets the initial size of Mood Swing dice, but from then on whenever they are rolled their size is set randomly to that of a "real-world" die (i.e. 1, 2, 4, 6, 8, 10, 12, 20, or 30 sides) within the range allowable for that Swing type.',
                 'interacts' => array(
                     'Ornery' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
-                    'Radioactive' => 'Dice with both Radioactive and Mood skills lose Mood when they decay',
+                    'Radioactive' => 'Dice with the Mood skill lose Mood when they decay due to Radioactive',
                 ),
             ),
             'Morphing' => array(
@@ -273,14 +274,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
             ),
             'Radioactive' => array(
                 'code' => '%',
-                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo (!), Mood Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
+                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo (!), Mad Swing (&), Mood Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
-                    'Mood' => 'Dice with both Radioactive and Mood skills lose Mood when they decay',
+                    'Mad' => 'Dice with the Mad skill lose Mad when they decay due to Radioactive',
+                    'Mood' => 'Dice with the Mood skill lose Mood when they decay due to Radioactive',
                     'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the size of the captured die, and then decay',
-                    'TimeAndSpace' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace when they decay',
-                    'Turbo' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
+                    'TimeAndSpace' => 'Dice with the TimeAndSpace skill lose TimeAndSpace when they decay due to Radioactive',
+                    'Turbo' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
                 ),
             ),
             'TheFlyingSquirrel' => array(
@@ -393,7 +395,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => '^',
                 'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
-                    'Radioactive' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace when they decay',
+                    'Radioactive' => 'Dice with the TimeAndSpace skill lose TimeAndSpace when they decay due to Radioactive',
                     'Konstant' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                 ),
             ),
@@ -412,7 +414,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'After your starting roll, you may change the size of your own Turbo Swing or Option die every time you roll it as part of your attack. Decide on a size first that is valid for the Swing or Option type, then roll the new die as usual.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size and then change to the size specified by the Turbo skill',
-                    'Radioactive' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
+                    'Radioactive' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
                 ),
             ),
             'Value' => array(
