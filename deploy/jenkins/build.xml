@@ -28,7 +28,7 @@
 
  <target name="php-audit" description="Audit layout of .php files in the tree to match Button Men standard">
   <exec executable="php" failonerror="true">
-   <arg line="./deploy/pagodabox/audit_php_files.php ." />
+   <arg line="./deploy/jenkins/audit_php_files.php ." />
   </exec>
  </target>
 

@@ -27,7 +27,7 @@ class BMBtnSkillGiantTest extends PHPUnit_Framework_TestCase {
      * @covers BMBtnSkillGiant::is_button_slow
      */
     public function testIs_button_slow() {
-        $retVal = BMBtnSkillGiant::is_button_slow(array('name' => 'Giant'));
+        $retVal = BMBtnSkillGiant::is_button_slow(array());
         $this->assertTrue($retVal['is_button_slow']);
     }
 }

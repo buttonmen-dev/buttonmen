@@ -96,6 +96,13 @@ class DummyApiResponder {
         );
     }
 
+    protected function get_interface_response_cancelOpenGame($args) {
+        return $this->load_json_data_from_file(
+            'cancelOpenGame',
+            $args['gameId'] . '.json'
+        );
+    }
+
     protected function get_interface_response_selectButton($args) {
         return $this->load_json_data_from_file(
             'selectButton',

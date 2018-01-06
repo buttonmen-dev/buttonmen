@@ -74,10 +74,29 @@ class BMAttackSkill extends BMAttack {
                 }
                 $validDice[] = $die;
             }
-
         }
 
+        self::strip_excess_zeros($validDice);
+
         $this->hitTable = new BMUtilityHitTable($validDice);
+    }
+
+    protected static function strip_excess_zeros(&$dieArray) {
+        $zeroCount = 0;
+        $zeroIdxArray = array();
+
+        foreach ($dieArray as $dieIdx => $die) {
+            if (0 === $die->value) {
+                $zeroCount++;
+                $zeroIdxArray[] = $dieIdx;
+            }
+        }
+
+        while ($zeroCount > 2) {
+            $zeroCount--;
+            array_splice($dieArray, $zeroIdxArray[$zeroCount], 1);
+            unset($zeroIdxArray[$zeroCount]);
+        }
     }
 
     /**

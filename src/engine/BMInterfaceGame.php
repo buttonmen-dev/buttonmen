@@ -557,6 +557,51 @@ class BMInterfaceGame extends BMInterface {
     }
 
     /**
+     * Cancel an open game
+     *
+     * @param int $currentPlayerId
+     * @param int $gameId
+     * @return bool
+     */
+    public function cancel_open_game($currentPlayerId, $gameId) {
+        try {
+            $game = $this->load_game($gameId);
+
+            // check that the current player is involved in this game
+            $isPlayerInThisGame = ($game->playerArray[0]->playerId == $currentPlayerId);
+
+            if (!$isPlayerInThisGame) {
+                $this->set_message('You are not involved in this game.');
+                return FALSE;
+            }
+
+            // check that the game state is appropriate
+            if ($game->gameState == BMGameState::CANCELLED) {
+                $this->set_message('This game has already been cancelled.');
+                return FALSE;
+            }
+
+            if ($game->gameState > BMGameState::CHOOSE_JOIN_GAME) {
+                $this->set_message('This game has already started.');
+                return FALSE;
+            }
+
+            $game->gameState = BMGameState::CANCELLED;
+
+            $this->save_game($game);
+            $this->set_message("Successfully cancelled game $gameId");
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::cancel_open_game: ".
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while cancelling open game');
+        }
+    }
+
+    /**
      * Select a button
      *
      * @param int $playerId
@@ -1010,7 +1055,14 @@ class BMInterfaceGame extends BMInterface {
                         $this->set_message('Invalid auxiliary choice');
                         return FALSE;
                     }
+
                     $die = $player->activeDieArray[$dieIdx];
+
+                    if (!self::can_button_add_this_aux_die($player->button, $die)) {
+                        $this->set_message('This button cannot add this auxiliary die');
+                        return FALSE;
+                    }
+
                     $die->add_flag('AddAuxiliary');
                     $player->waitingOnAction = FALSE;
                     $game->log_action(
@@ -1046,6 +1098,23 @@ class BMInterfaceGame extends BMInterface {
             $this->set_message('Internal error while making auxiliary decision');
             return FALSE;
         }
+    }
+
+    /**
+     * Can this button add this auxiliary die?
+     *
+     * @param BMButton $button
+     * @param BMDie $die
+     * @return bool
+     */
+    protected static function can_button_add_this_aux_die(BMButton $button, BMDie $die) {
+        $hookResult = $button->run_hooks(
+            __FUNCTION__,
+            array('die' => $die)
+        );
+
+        return (!isset($hookResult['BMBtnSkill'.$button->name][__FUNCTION__]) ||
+                $hookResult['BMBtnSkill'.$button->name][__FUNCTION__]);
     }
 
     /**

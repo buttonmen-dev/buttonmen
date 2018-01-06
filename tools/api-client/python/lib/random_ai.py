@@ -1091,6 +1091,25 @@ class LoggingBMClient():
     if len(auxiliary_choices) != 1:
       self.bug("In choose_auxiliary_dice for %s with wrong number of auxiliary dice to choose: %s" % (
         b.username, playerData))
+    unique_swing_among_dice = playerData['button']['name'] == 'Gordo'
+    if unique_swing_among_dice:
+      unique_aux_conflict = False
+      aux_die = playerData['activeDieArray'][die_idx]
+      if aux_die['sides']:
+        for other_die_idx in range(len(playerData['activeDieArray'])):
+          if die_idx == other_die_idx: continue
+          if aux_die['sides'] == playerData['activeDieArray'][other_die_idx]['sides']:
+            unique_aux_conflict = True
+      else:
+        # There's no clean way to figure out a die's swing type from the API data, so just use something fast
+        aux_swing_type = aux_die['description'].split(' Swing Die')[0][-1]
+        for other_die_idx in range(len(playerData['activeDieArray'])):
+          if die_idx == other_die_idx: continue
+          # This relies on swing letters not being reused as skill names
+          if aux_swing_type in playerData['activeDieArray'][other_die_idx]['recipe']:
+            unique_aux_conflict = True
+      if unique_aux_conflict:
+        choices.remove('add')
     action = self._random_array_element(choices)
     die_idx = None
     choice = [ action, ]
@@ -1270,9 +1289,19 @@ class LoggingBMClient():
   def _game_action_specify_dice_player(self, b, playerData):
     swing_array = {} 
     if playerData['swingRequestArray']:
+      unique_swing_among_swing = playerData['button']['name'] == 'Guillermo'
+      unique_swing_among_dice = playerData['button']['name'] == 'Gordo'
       for swing_type in sorted(playerData['swingRequestArray'].keys()):
         [swing_min, swing_max] = playerData['swingRequestArray'][swing_type]
         swing_choice = self._random_array_element(range(swing_min, swing_max + 1))
+        # N.B. These loops shouldn't get stuck because Gordo has only 5 dice (so 6 with an aux),
+        # and the most constrained swing type, V, has 7 > 6 choices
+        if unique_swing_among_swing:
+          while swing_choice in swing_array.values():
+            swing_choice = self._random_array_element(range(swing_min, swing_max + 1))
+        if unique_swing_among_dice:
+          while swing_choice in [die['sides'] for die in playerData['activeDieArray']] + swing_array.values():
+            swing_choice = self._random_array_element(range(swing_min, swing_max + 1))
         swing_array[swing_type] = swing_choice
 
     option_array = {}
