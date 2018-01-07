@@ -179,6 +179,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'Cannot win initiative.',
                 'interacts' => array(),
             ),
+            'Gordo' => array(
+                'code' => '',
+                'description' => 'None of Gordo\'s dice can be the same size. Note that a player playing Gordo is required to decline an auxiliary die that would force two of Gordo\'s dice to be the same size',
+                'interacts' => array(),
+            ),
             'Insult' => array(
                 'code' => 'I',
                 'description' => 'Cannot be attacked by skill attacks.',
