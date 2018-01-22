@@ -102,12 +102,57 @@ test("test_Game.redrawGamePageSuccess", function(assert) {
   $.ajaxSetup({ async: false });
   BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.activity.chat = "Some chat text";
+  Game.activity.blip = "generic member test";
   Game.redrawGamePageSuccess();
   var item = document.getElementById('game_page');
   assert.equal(item.nodeName, "DIV",
         "#game_page is a div after redrawGamePageSuccess() is called");
   assert.deepEqual(Game.activity, {},
         "Game.activity is cleared by redrawGamePageSuccess()");
+  $.ajaxSetup({ async: true });
+});
+
+// Use stop()/start() because the AJAX-using operation needs to
+// finish before its results can be tested
+test("test_Game.redrawGamePageSuccess_cacheChat", function(assert) {
+  $.ajaxSetup({ async: false });
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
+  Game.activity.chat = "Some chat text";
+  Game.activity.blip = "generic member test";
+  Game.activity.cacheAcrossCall = true;
+  Game.redrawGamePageSuccess();
+  var item = document.getElementById('game_page');
+  assert.equal(item.nodeName, "DIV",
+        "#game_page is a div after redrawGamePageSuccess() is called");
+  assert.deepEqual(Game.activity, {chat: "Some chat text"},
+        "Game.activity is cleared by redrawGamePageSuccess() except for chat");
+  $.ajaxSetup({ async: true });
+});
+
+test("test_Game.getActivityAfterApiSuccess", function(assert) {
+  $.ajaxSetup({ async: false });
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
+  Game.activity.chat = "Some chat text";
+  Game.activity.blip = "generic member test";
+
+  var activityAfterApiSuccess = Game.getActivityAfterApiSuccess();
+
+  assert.deepEqual(activityAfterApiSuccess, {},
+        "Game.activity is cleared by redrawGamePageSuccess()");
+  $.ajaxSetup({ async: true });
+});
+
+test("test_Game.getActivityAfterApiSuccess_cacheChat", function(assert) {
+  $.ajaxSetup({ async: false });
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
+  Game.activity.chat = "Some chat text";
+  Game.activity.blip = "generic member test";
+  Game.activity.cacheAcrossCall = true;
+
+  var activityAfterApiSuccess = Game.getActivityAfterApiSuccess();
+
+  assert.deepEqual(activityAfterApiSuccess, {chat: "Some chat text"},
+        "Game.activity is cleared by redrawGamePageSuccess() except for chat");
   $.ajaxSetup({ async: true });
 });
 
