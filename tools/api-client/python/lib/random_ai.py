@@ -681,7 +681,7 @@ class LoggingBMClient():
       'ok': [
 	'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus', 'Insult',
 	'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
-	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage',
+	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Rush',
 	'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Turbo', 'Trip',
 	'Value', 'Weak',
       ],
@@ -692,8 +692,8 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Turbo',
-	'Trip', 'Value', 'Weak',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
+	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
     }
@@ -714,7 +714,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Warrior', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
@@ -724,7 +724,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
       ],
       'no': [ 'Warrior', ],
@@ -741,7 +741,7 @@ class LoggingBMClient():
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Focus',
 	'Insult', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
-	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage',
+	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Rush',
 	'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Turbo', 'Trip', 'Value',
 	'Weak',
       ],
@@ -752,7 +752,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
@@ -779,7 +779,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Trip',
+	'Rage', 'Rush', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Trip',
 	'Turbo', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
@@ -789,7 +789,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
@@ -816,8 +816,8 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
-	'Turbo', 'Value', 'Weak',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
+	'TimeAndSpace', 'Turbo', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
     }
@@ -826,8 +826,8 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
-	'Turbo', 'Trip', 'Value', 'Weak',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
+	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
     }
@@ -917,7 +917,7 @@ class LoggingBMClient():
 	'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus', 'Insult',
 	'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
 	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage',
-	'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger', 'TimeAndSpace',
+	'Rush', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Warrior', 'Weak',
       ],
       'no': [ 'Berserk', ],
@@ -926,7 +926,7 @@ class LoggingBMClient():
       'ok': [
 	'Boom', 'Berserk', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing', 'Null',
-	'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Shadow',
+	'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Rush', 'Shadow',
 	'Slow', 'Speed', 'Stealth', 'TimeAndSpace', 'Stinger',
 	'Turbo', 'Trip', 'Value', 'Weak',
       ],
@@ -971,6 +971,44 @@ class LoggingBMClient():
       if sum(attempt) == defender['value']: return True
     return False
 
+  def _is_valid_attack_of_type_Rush(self, attackers, defenders, non_attackers):
+    # Logic here is a little different than some of the other skill checkers.
+    # We need to check that the mandatory skill appears in *at least one of*
+    # the attacker or the defender, and also that no forbidden skills appear
+    # in either the attacker or the defender
+    mandatory_skill_found = False
+    for die in attackers + defenders:
+      if 'Rush' in die['skills']: mandatory_skill_found = True
+    if not mandatory_skill_found: return False
+
+    attack_ok_skills = {
+      'ok': [
+	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
+	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
+	'TimeAndSpace', 'Trip', 'Turbo', 'Value', 'Weak',
+      ],
+      'no': [ 'Stealth', 'Warrior', ],
+    }
+    defend_ok_skills = {
+      'ok': [
+	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
+	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
+	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
+      ],
+      'no': [ 'Stealth', 'Warrior', ],
+    }
+    if self._valid_dice_for_skill(attackers, attack_ok_skills) == False: return False
+    if self._valid_dice_for_skill(defenders, defend_ok_skills) == False: return False
+    defender_sum = 0
+    for defender in defenders:
+      defender_sum += defender['value']
+    attacker = attackers[0]
+    return (attacker['value'] == defender_sum)
+
   def _is_valid_attack_of_type_Speed(self, attackers, defenders, non_attackers):
     attack_skills = {
       'mandatory': [ 'Speed', ],
@@ -978,7 +1016,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Stinger', 'TimeAndSpace', 'Trip',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Stinger', 'TimeAndSpace', 'Trip',
 	'Turbo', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
@@ -988,7 +1026,7 @@ class LoggingBMClient():
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
 	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
-	'Rage', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
+	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Weak',
       ],
       'no': [ 'Stealth', 'Warrior', ],
@@ -1045,6 +1083,11 @@ class LoggingBMClient():
     return self._find_attacker_defender_combo(
       attackerData['activeDieArray'], defenderData['activeDieArray'], 1, 1,
       self._is_valid_attack_of_type_Power)
+
+  def _game_action_start_turn_find_attack_Rush(self, b, attackerData, defenderData):
+    return self._find_attacker_defender_combo(
+      attackerData['activeDieArray'], defenderData['activeDieArray'], 1, 2,
+      self._is_valid_attack_of_type_Rush)
 
   def _game_action_start_turn_find_attack_Shadow(self, b, attackerData, defenderData):
     return self._find_attacker_defender_combo(
