@@ -127,6 +127,7 @@ class BMSkill {
                      'Radioactive'  => '%',
                      'Rage'         => 'G',
                      'Reserve'      => 'r',
+                     'Rush'         => '#',
                      'Shadow'       => 's',
                      'Slow'         => 'w',
                      'Speed'        => 'z',
@@ -167,6 +168,7 @@ class BMSkill {
                      'Default',
                      'Power',
                      'Skill',
+                     'Rush',
                      'Pass',
                      'Surrender');
     }
@@ -226,6 +228,7 @@ class BMSkill {
                      'BMSkillSpeed',
                      'BMSkillTrip',
                      'BMSkillQueer',
+                     'BMSkillRush',
                      'BMSkillBerserk',
                      'BMSkillShadow',
                      'BMSkillSlow',
