@@ -6,7 +6,7 @@ CREATE TABLE player_status (
 CREATE TABLE player (
     id                  SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name_ingame         VARCHAR(25) UNIQUE NOT NULL,
-    password_hashed     VARCHAR(128),
+    password_hashed     VARCHAR(255),
     name_irl            VARCHAR(40) NOT NULL,
     email               VARCHAR(254),
     is_email_public     BOOLEAN DEFAULT 0 NOT NULL,
@@ -51,7 +51,7 @@ CREATE TABLE player (
 CREATE TABLE player_auth (
     id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     player_id  SMALLINT UNSIGNED,
-    auth_key   VARCHAR(253) UNIQUE NOT NULL,
+    auth_key   VARCHAR(255) UNIQUE NOT NULL,
     login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

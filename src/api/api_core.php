@@ -31,9 +31,11 @@ function login($username, $password, $doStayLoggedIn) {
         $result = $resultArray[0];
         $password_hashed = $result['password_hashed'];
         $status = $result['status'];
+        $isHashCorrect = is_hash_correct($password, $password_hashed, $username);
+        $isActive = ($status == 'ACTIVE');
 
         // check if the password is correct and if the account is in active status
-        if (($password_hashed == crypt($password, $password_hashed) && ($status == 'ACTIVE'))) {
+        if ($isHashCorrect && $isActive) {
             // if the user has too many active logins (allow 6), delete the oldest
             $sql = 'SELECT id FROM player_auth WHERE player_id = :id ORDER BY login_time';
             $query = $conn->prepare($sql);
@@ -46,7 +48,12 @@ function login($username, $password, $doStayLoggedIn) {
             }
 
             // create authorisation key
-            $auth_key = crypt(substr(sha1(mt_rand()), 0, 10).$username);
+            // support versions of PHP older than 5.5.0
+            if (version_compare(phpversion(), "5.5.0", "<")) {
+                $auth_key = crypt(substr(sha1(mt_rand()), 0, 10).$username);
+            } else {
+                $auth_key = password_hash(substr(sha1(mt_rand()), 0, 10).$username, PASSWORD_DEFAULT);
+            }
 
             // write authorisation key to database
             $sql = 'INSERT INTO player_auth (player_id, auth_key) VALUES (:id, :auth_key)';
@@ -62,6 +69,31 @@ function login($username, $password, $doStayLoggedIn) {
     }
 
     return $returnValue;
+}
+
+function is_hash_correct($password, $password_hashed, $username) {
+    // support versions of PHP older than 5.5.0
+    if (version_compare(phpversion(), "5.5.0", "<")) {
+        $isHashCorrect = ($password_hashed == crypt($password, $password_hashed));
+    } else {
+        $isHashCorrect = password_verify($password, $password_hashed);
+
+        if ($isHashCorrect && (strlen($password_hashed) < 60)) {
+            // force short hash to be updated to a new longer hash
+            require_once '../database/mysql.inc.php';
+            $conn = conn();
+
+            $sql = 'UPDATE player SET password_hashed = :hash
+                    WHERE name_ingame = :username';
+            $query = $conn->prepare($sql);
+            $query->execute(array(
+                ':hash' => password_hash($password, PASSWORD_DEFAULT),
+                ':username' => $username
+            ));
+        }
+    }
+
+    return $isHashCorrect;
 }
 
 /**
