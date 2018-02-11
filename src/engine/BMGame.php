@@ -4380,12 +4380,45 @@ class BMGame {
         }
 
         $sideScoreArray = $this->get_sideScoreArray();
-        $sidesArray = $this->get_sidesArrayArray(0);
+        $sidesArrayArray = $this->get_sidesArrayArray(0);
+
+        $positiveSidesArrayArray = array_fill(0, $this->nPlayers, array());
+        $negativeSidesArrayArray = array_fill(0, $this->nPlayers, array());
+
+        foreach ($sidesArrayArray as $playerIdx => $sidesArray) {
+            foreach ($sidesArray as $dieIdx => $sides) {
+                // james: I considered using a negative score value as the condition,
+                //        but actually, the current win logic is specifically predicated
+                //        on the special type of scoring that Poison dice enjoy
+                if ($this->playerArray[$playerIdx]->activeDieArray[$dieIdx]->has_skill('Poison')) {
+                    $negativeSidesArrayArray[$playerIdx][] = $sides;
+                } else {
+                    $positiveSidesArrayArray[$playerIdx][] = $sides;
+                }
+            }
+        }
 
         for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
             $opponentIdx = ($playerIdx + 1) % 2;
+
+            // player 1 has positive die sides P1, absolute negative die sides N1,
+            //   and current score S1
+            // player 2 has positive die sides P2, absolute negative die sides N2,
+            //   and current score S2
+            //
+            // max possible score for player 1 = S1 + P2 + N1
+            // min possible score for player 2 = S2 - P2/2 - N1/2
+            //
+            // sides score for player 1 (SSc1) = (S1 - S2)*2/3
+            //
+            // player 1 can win/draw if S1 + P2 + N1 >= S2 - P2/2 - N1/2
+            // => (S1 - S2) + P2*3/2 + N1*3/2 >= 0
+            // => (S1 - S2)*2/3 + P2 + N1 >= 0
+            // => SSc1 + P2 + N1 >= 0
             $canStillWinArray[$playerIdx] =
-                ($sideScoreArray[$playerIdx] + array_sum($sidesArray[$opponentIdx])) >= 0;
+                ($sideScoreArray[$playerIdx] +
+                 array_sum($positiveSidesArrayArray[$opponentIdx]) +
+                 array_sum($negativeSidesArrayArray[$playerIdx])) >= 0;
         }
 
         return $canStillWinArray;
