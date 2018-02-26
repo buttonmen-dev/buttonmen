@@ -984,10 +984,24 @@ Game.actionAdjustFireDiceActive = function() {
 
   var attackerSum = 0;
   var attackerDiffFromMax = 0;
+  var stingerMax = 0;
+  var stingerMin = 0;
+  var hasStingerDice = false;
   $.each(Api.game.player.activeDieArray, function(i, die) {
     if (die.properties.indexOf('IsAttacker') >= 0) {
       attackerDiffFromMax += die.sides - die.value;
       attackerSum += die.value;
+
+      if (die.skills.indexOf('Stinger') >= 0) {
+        hasStingerDice = true;
+
+        if (die.properties.indexOf('subdieArray') >= 0) {
+          stingerMin += die.properties.subdieArray.length;
+        } else {
+          stingerMin += 1;
+        }
+        stingerMax += die.value;
+      }
     }
   });
 
@@ -1008,6 +1022,14 @@ Game.actionAdjustFireDiceActive = function() {
     (attackerDiffFromMax > exactFiringAmount)) {
     fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
                    ' and ' + attackerDiffFromMax;
+  } else if (hasStingerDice && ('Skill' == attackType) &&
+    (attackerDiffFromMax > exactFiringAmount) &&
+    (stingerMax > stingerMin)) {
+    attackerDiffFromMax += stingerMax - stingerMin;
+    fireMessage += 'between ' + Math.max(0, exactFiringAmount) +
+                   ' and ' +
+                   Math.min(exactFiringAmount + stingerMax - stingerMin,
+                            attackerDiffFromMax);
   } else {
     fireMessage += exactFiringAmount;
   }
