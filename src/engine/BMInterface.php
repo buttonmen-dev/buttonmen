@@ -793,7 +793,6 @@ class BMInterface {
 
         if (($die->dice[0] instanceof BMDieSwing) ||
             ($die->dice[1] instanceof BMDieSwing)) {
-
             foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $swingType = $subdie->swingType;

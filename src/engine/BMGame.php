@@ -399,7 +399,6 @@ class BMGame {
      * Perform the logic required at BMGameState::choose_join_game
      */
     protected function do_next_step_choose_join_game() {
-
     }
 
     /**
@@ -624,7 +623,6 @@ class BMGame {
      * Perform the logic required at BMGameState::choose_auxiliary_dice
      */
     protected function do_next_step_choose_auxiliary_dice() {
-
     }
 
     /**
@@ -4078,7 +4076,6 @@ class BMGame {
                 if ($this->wereSwingOrOptionValuesReset() &&
                     ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                     ($playerIdx !== $requestingPlayerIdx)) {
-
                     if ($die instanceof BMDieSwing) {
                         $die->swingValue = NULL;
                         $die->max = NULL;

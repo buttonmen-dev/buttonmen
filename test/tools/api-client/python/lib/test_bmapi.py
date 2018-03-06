@@ -10,7 +10,7 @@ import bmapi
 
 TEST_URLS = {
   'vagrant_local': 'http://localhost/api/dummy_responder',
-  'jenkins': 'http://localhost:8082/dummy_responder.php',
+  'circleci': 'http://localhost/api/dummy_responder.php',
 }
 TEST_TYPE = None
 

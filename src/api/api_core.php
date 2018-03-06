@@ -34,7 +34,6 @@ function login($username, $password, $doStayLoggedIn) {
 
         // check if the password is correct and if the account is in active status
         if (($password_hashed == crypt($password, $password_hashed) && ($status == 'ACTIVE'))) {
-
             // if the user has too many active logins (allow 6), delete the oldest
             $sql = 'SELECT id FROM player_auth WHERE player_id = :id ORDER BY login_time';
             $query = $conn->prepare($sql);
@@ -154,7 +153,6 @@ function logout() {
         array_key_exists('auth_key', $_COOKIE) &&
         array_key_exists('user_id', $_SESSION) &&
         $_SESSION['user_id'] == $_COOKIE['auth_userid']) {
-
         require_once '../database/mysql.inc.php';
         $conn = conn();
 

@@ -74,10 +74,8 @@ class BMUtilityHitTable {
                             // two ways, we just overwrite the old
                             // entry.
                             $this->hits[$newtarget][$newkey] = $newcombo;
-
                         } else {
                             $this->hits[$newtarget] = array($newkey => $newcombo);
-
                         }
                     }
                 }
@@ -91,7 +89,6 @@ class BMUtilityHitTable {
                     $this->hits[$val] = array($die_id => array($die));
                 }
             }
-
         }
 
         foreach ($dice as $dieIdx => $die) {

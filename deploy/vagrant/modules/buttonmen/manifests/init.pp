@@ -12,7 +12,7 @@ class buttonmen::server {
   file {
 
     # Install a .htaccess file containing buttonmen variables
-    "/etc/apache2/conf.d/buttonmen":
+    "/etc/apache2/${puppet_apache_sitesdir}/buttonmen":
       ensure => file,
       content => template("buttonmen/apache.conf.erb"),
       notify => Service["apache2"],

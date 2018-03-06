@@ -302,7 +302,10 @@ class BMDie extends BMCanHaveSkill {
 
             // if all hook results are FALSE, then roll the die
             if (empty($hookResultArray) ||
-                (0 == count(array_filter($hookResultArray, function ($value) { return $value !== FALSE; })))) {
+                (0 == count(array_filter($hookResultArray, function ($value) {
+                    return $value !== FALSE;
+                }
+                )))) {
                 $this->set__value(bm_rand($this->min, $this->max));
             }
         }
@@ -461,7 +464,6 @@ class BMDie extends BMCanHaveSkill {
         }
 
         return $valid;
-
     }
 
     /**

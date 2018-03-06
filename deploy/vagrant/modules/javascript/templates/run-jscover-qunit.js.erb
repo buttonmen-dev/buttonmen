@@ -110,6 +110,7 @@ addLogging = function() {
     });
 };
 
+page.settings.resourceTimeout = 3000;
 page.open(system.args[1], function(status){
     if (status !== "success") {
         console.log("Unable to access network");

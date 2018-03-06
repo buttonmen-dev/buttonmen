@@ -1,3 +1,16 @@
+class javascript::type::circleci {
+  package {
+    "phantomjs": ensure => installed;
+    "jscoverage": ensure => installed;
+  }
+
+  file {
+    "/usr/local/etc/run-jscover-qunit.js":
+      ensure => file,
+      content => template("javascript/run-jscover-qunit.js.erb");
+  }
+}
+
 class javascript::type::jenkins {
 
   # Need a special repo to get a recent node.js
