@@ -906,7 +906,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (619, 'North Dakota',    '(4,4) (8) s(12) n(12) (W)',                      0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (620, 'Ohio',            'H(6) F(7) p(8) (X)? (X)',                        0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (621, 'Oklahoma',        'f(6) f(10) f(12) f(X)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
-(622, 'Oregon',          'z(6) (12) u(R) u(W) u(X)',                       0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
+(622, 'Oregon',          'z(6) (12) (R) (W) (X)',                          0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 # Replaced $f(2) and $s(6) with Uf(2) and Us(6)
 (623, 'Pennsylvania',    'Uf(2) Us(6) %(4) (12) t(20) (Y)?',               0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (624, 'Rhode Island',    '(4) (4) d(6) d(10) (R)',                         0, 0, (SELECT id FROM buttonset WHERE name="50 States")),

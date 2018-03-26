@@ -1332,7 +1332,7 @@ class LoggingBMClient():
   def _game_action_specify_dice_player(self, b, playerData):
     swing_array = {} 
     if playerData['swingRequestArray']:
-      unique_swing_among_swing = playerData['button']['name'] == 'Guillermo'
+      unique_swing_among_swing = playerData['button']['name'] in ['Guillermo', 'Oregon']
       unique_swing_among_dice = playerData['button']['name'] == 'Gordo'
       for swing_type in sorted(playerData['swingRequestArray'].keys()):
         [swing_min, swing_max] = playerData['swingRequestArray'][swing_type]
