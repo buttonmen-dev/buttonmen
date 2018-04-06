@@ -318,7 +318,6 @@ class BMInterfacePlayer extends BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':player_id' => $playerId,
                                       ':game_id' => $gameId));
-
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::update_last_action_time: ' .

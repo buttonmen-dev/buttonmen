@@ -72,15 +72,15 @@ class BMDieSwing extends BMDie {
      * @var array
      */
     private static $swingRanges = array(
-        "R"	=> array(2, 16),
-        "S"	=> array(6, 20),
-        "T"	=> array(2, 12),
-        "U"	=> array(8, 30),
-        "V"	=> array(6, 12),
-        "W"	=> array(4, 12),
-        "X"	=> array(4, 20),
-        "Y"	=> array(1, 20),
-        "Z"	=> array(4, 30));
+        "R" => array(2, 16),
+        "S" => array(6, 20),
+        "T" => array(2, 12),
+        "U" => array(8, 30),
+        "V" => array(6, 12),
+        "W" => array(4, 12),
+        "X" => array(4, 20),
+        "Y" => array(1, 20),
+        "Z" => array(4, 30));
 
     /**
      * Swing range for a specified swing type

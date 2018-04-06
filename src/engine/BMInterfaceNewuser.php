@@ -228,7 +228,6 @@ class BMInterfaceNewuser {
             $this->message = 'Account activated for player ' . $username . '!';
             $result = TRUE;
             return $result;
-
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
             $this->message = 'User create failed: ' . $errorData[2];

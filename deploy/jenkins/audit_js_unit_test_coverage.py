@@ -3,8 +3,10 @@
 
 JSMODDIR = './src/ui/js'
 JSTESTDIR = './test/src/ui/js'
-JSTESTINDEX = './test/src/ui/index.html'
-JSTESTPHANTOMINDEX = './test/src/ui/phantom-index.html'
+JSTESTINDICES = [
+  './test/src/ui/index.html',
+  './test/src/ui/phantom-index.html',
+]
 
 import os
 import re
@@ -65,45 +67,25 @@ def check_index_file_inclusions(testpairs):
   for [modname, srcpath, testpath] in testpairs:
     includes_missing["/ui/js/" + modname + ".js"] = srcpath
     includes_missing["js/test_" + modname + ".js"] = testpath
-  f = open(JSTESTINDEX)
-  for line in f.readlines():
-    mobj = script_include_re.match(line)
-    if mobj:
-      file_included = mobj.group(1) 
-      if file_included in includes_missing:
-        includes_missing.pop(file_included)
+  for JSTESTINDEX in JSTESTINDICES:
+    f = open(JSTESTINDEX)
+    for line in f.readlines():
+      mobj = script_include_re.match(line)
+      if mobj:
+        file_included = mobj.group(1)
+        if file_included in includes_missing:
+          includes_missing.pop(file_included)
 
-  for file_included in sorted(includes_missing.keys()):
-    errors.append(
-      "Test index %s is missing a script include for %s corresponding to %s" \
-      % (JSTESTINDEX, file_included, includes_missing[file_included]))
-
-def check_phantom_index_file_inclusions(testpairs):
-  script_include_re = re.compile('^ *<script src="([^"]+)"')
-
-  includes_missing = {}
-  for [modname, srcpath, testpath] in testpairs:
-    includes_missing["../../../src/ui/js/" + modname + ".js"] = srcpath
-    includes_missing["js/test_" + modname + ".js"] = testpath
-  f = open(JSTESTPHANTOMINDEX)
-  for line in f.readlines():
-    mobj = script_include_re.match(line)
-    if mobj:
-      file_included = mobj.group(1) 
-      if file_included in includes_missing:
-        includes_missing.pop(file_included)
-
-  for file_included in sorted(includes_missing.keys()):
-    errors.append(
-      "Test index %s is missing a script include for %s corresponding to %s" \
-      % (JSTESTPHANTOMINDEX, file_included, includes_missing[file_included]))
+    for file_included in sorted(includes_missing.keys()):
+      errors.append(
+        "Test index %s is missing a script include for %s corresponding to %s" \
+        % (JSTESTINDEX, file_included, includes_missing[file_included]))
 
 testpairs = find_test_files()
 print "Looking for JavaScript unit tests to match Button Men spec: %s" % testpairs
 for [modname, srcpath, testpath] in testpairs:
   check_test_file_functions(modname, srcpath, testpath)
 check_index_file_inclusions(testpairs)
-check_phantom_index_file_inclusions(testpairs)
 
 if len(errors) > 0:
   print "JavaScript code coverage problems were found:"

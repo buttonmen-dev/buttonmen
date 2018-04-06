@@ -10,6 +10,8 @@
       name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
    <exclude
       name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" />
+   <exclude
+      name="PSR2.Methods.FunctionCallSignature.SpaceBeforeCloseBracket" />
 
    <!-- don't require lowercase constants -->
    <exclude name="Generic.PHP.LowerCaseConstant" />

@@ -104,7 +104,6 @@ class BMUtilityXCYIterator implements Iterator {
         if ($this->tail) {
             $this->tail->setPosition($this->position + 1);
             $this->tail->rewind();
-
         }
     }
 

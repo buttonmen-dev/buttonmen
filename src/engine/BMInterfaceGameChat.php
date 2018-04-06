@@ -91,7 +91,6 @@ class BMInterfaceGameChat extends BMInterface {
                     return FALSE;
                 }
             }
-
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::submit_chat: ' .
@@ -143,7 +142,6 @@ class BMInterfaceGameChat extends BMInterface {
                     return TRUE;
                 }
             }
-
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::set_chat_visibility: ' .
