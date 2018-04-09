@@ -45,7 +45,9 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         //
         // Queer sets Power or Skill, unsets Power or Skill
         //
-        // Shadow sets Skill, unsets Power
+        // Shadow sets Shadow, unsets Power
+        //
+        // Rush sets Speed, unsets Skill
         //
         // Berserk sets Berserk, unsets Skill
         //
@@ -59,6 +61,9 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillSpeed',
                                             'BMSkillShadow'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillRush'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillSpeed',
                                             'BMSkillBerserk'));
@@ -84,6 +89,9 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
                                             'BMSkillShadow'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillRush'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
                                             'BMSkillBerserk'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillTrip',
@@ -99,6 +107,9 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
                                             'BMSkillWarrior'));
 
         // Queer
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillRush'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillQueer',
                                             'BMSkillBerserk'));

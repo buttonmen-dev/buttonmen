@@ -105,7 +105,8 @@ class BMSkillRadioactive extends BMSkill {
         return 'If a radioactive die is either the attacking die or the target die in an attack with a ' .
                'single attacking die and a single target die, the attacking die splits, or "decays", ' .
                'into two as-close-to-equal-sized-as-possible dice that add up to its original size. All ' .
-               'dice that decay lose the following skills: Radioactive (%), Turbo (!), Mood ' .
+               'dice that decay lose the following skills: Radioactive (%), Turbo (!), ' .
+               'Mad Swing (&), Mood ' .
                'Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, ' .
                'a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die ' .
                'would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a ' .
@@ -128,12 +129,13 @@ class BMSkillRadioactive extends BMSkill {
             'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then ' .
                               'each of the "decay products" are replaced by exact copies of the ' .
                               'die they captured',
-            'Mood' => 'Dice with both Radioactive and Mood skills lose Mood when they decay',
+            'Mad' => 'Dice with the Mad skill lose Mad when they decay due to Radioactive',
+            'Mood' => 'Dice with the Mood skill lose Mood when they decay due to Radioactive',
             'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
                           'size of the captured die, and then decay',
-            'TimeAndSpace' => 'Dice with both Radioactive and TimeAndSpace skills lose TimeAndSpace ' .
-                              'when they decay',
-            'Turbo' => 'Dice with both Radioactive and Turbo skills lose Turbo when they decay',
+            'TimeAndSpace' => 'Dice with the TimeAndSpace skill lose TimeAndSpace ' .
+                              'when they decay due to Radioactive',
+            'Turbo' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
         );
     }
 }

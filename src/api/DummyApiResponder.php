@@ -410,7 +410,6 @@ class DummyApiResponder {
         // by the real responder
         $argcheck = $this->spec->verify_function_args($args);
         if ($argcheck['ok']) {
-
             // As far as we can easily tell, arguments are okay.
             // Pass them along to the dummy responder functions.
             $retval = $this->get_interface_response($args);

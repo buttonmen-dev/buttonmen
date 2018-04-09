@@ -419,7 +419,7 @@ class BMInterfaceHistory extends BMInterface {
      * @param string $sort
      */
     protected function apply_order_by($searchOptions, &$sort) {
-        switch($searchOptions['sortColumn']) {
+        switch ($searchOptions['sortColumn']) {
             case 'gameId':
                 $sort .= 'game_id ';
                 break;
@@ -456,7 +456,7 @@ class BMInterfaceHistory extends BMInterface {
                 $sort .= 'status ';
                 break;
         }
-        switch($searchOptions['sortDirection']) {
+        switch ($searchOptions['sortDirection']) {
             case 'ASC':
                 $sort .= 'ASC ';
                 break;

@@ -16,6 +16,7 @@
     <exclude name="ExcessiveClassLength" />
     <exclude name="NPathComplexity" />
     <exclude name="TooManyMethods" />
+    <exclude name="TooManyPublicMethods" />
   </rule> 
 
   <!-- Include CyclomaticComplexity with a higher threshold (default is 10) -->

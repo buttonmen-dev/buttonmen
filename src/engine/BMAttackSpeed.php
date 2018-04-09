@@ -132,13 +132,6 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
-        if (!$att->has_skill($this->type)) {
-            $this->validationMessage = 'Dice without ' .
-                                       strtolower($this->type). ' cannot perform ' .
-                                       strtolower($this->type). ' attacks.';
-            return FALSE;
-        }
-
         foreach ($defArray as $def) {
             if ($def->has_skill('Stealth')) {
                 $this->validationMessage = 'Stealth dice cannot be attacked by ' .
@@ -150,6 +143,27 @@ class BMAttackSpeed extends BMAttack {
                 $this->validationMessage = 'Warrior dice cannot be attacked.';
                 return FALSE;
             }
+        }
+
+        if (!$this->are_skills_compatible_specific($attArray, $defArray)) {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Do specific checks for this particular skill for whether skills are compatible
+     *
+     * @param array $attArray
+     * @return bool
+     */
+    protected function are_skills_compatible_specific(array $attArray) {
+        if (!$attArray[0]->has_skill($this->type)) {
+            $this->validationMessage = 'Dice without ' .
+                                       strtolower($this->type). ' cannot perform ' .
+                                       strtolower($this->type). ' attacks.';
+            return FALSE;
         }
 
         return TRUE;

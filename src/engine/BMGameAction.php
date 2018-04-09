@@ -87,7 +87,6 @@ class BMGameAction {
                           . $this->actionType;
             }
             return $result;
-
         } else {
             // Messages should now be arrays, but some old string
             // messages might still be in the DB.  Use the old logic for these
@@ -562,7 +561,6 @@ class BMGameAction {
             preg_match_all('/=(\d+)/', $recipe, $matches);
         } elseif (preg_match('/\(.+\/.+\)/', $recipe)) {
             // if there is an unspecified option die (which shouldn't occur), then return no value
-
         } else {
             preg_match_all('/(\d+)/', $recipe, $matches);
         }

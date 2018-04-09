@@ -60,7 +60,8 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $attackArray = BMAttack::possible_attack_types(array($die1));
         $this->assertEquals(array('Power' => 'Power',
-                                  'Skill' => 'Skill'),
+                                  'Skill' => 'Skill',
+                                  'Rush' => 'Rush'),
                             $attackArray);
 
         $die2 = new BMDie;
@@ -68,12 +69,14 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die2->add_skill('Shadow');
         $attackArray = BMAttack::possible_attack_types(array($die2));
         $this->assertEquals(array('Skill' => 'Skill',
+                                  'Rush' => 'Rush',
                                   'Shadow' => 'Shadow'),
                             $attackArray);
 
         $attackArray = BMAttack::possible_attack_types(array($die2, $die1));
         $this->assertEquals(array('Power' => 'Power',
                                   'Skill' => 'Skill',
+                                  'Rush' => 'Rush',
                                   'Shadow' => 'Shadow'),
                             $attackArray);
 
@@ -83,6 +86,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $attackArray = BMAttack::possible_attack_types(array($die3, $die2, $die1));
         $this->assertEquals(array('Power' => 'Power',
                                   'Skill' => 'Skill',
+                                  'Rush' => 'Rush',
                                   'Berserk' => 'Berserk',
                                   'Shadow' => 'Shadow'),
                             $attackArray);
