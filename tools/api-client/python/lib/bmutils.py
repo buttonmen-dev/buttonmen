@@ -28,6 +28,7 @@ SkillName = {
   '%': 'Radioactive',
   'G': 'Rage',
   'r': 'Reserve',
+  '#': 'Rush',
   's': 'Shadow',
   'w': 'Slow',
   'z': 'Speed',

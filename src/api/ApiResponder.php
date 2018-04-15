@@ -938,7 +938,6 @@ class ApiResponder {
     public function process_request($args) {
         $check = $this->verify_function_access($args);
         if ($check['ok']) {
-
             // now make sure all arguments passed to the function
             // are syntactically reasonable
             $argcheck = $this->spec->verify_function_args($args);
@@ -960,7 +959,6 @@ class ApiResponder {
                     $output['status'] = 'failed';
                 }
             } else {
-
                 // found a problem with the args, report that
                 $output = array(
                     'data' => NULL,
@@ -969,7 +967,6 @@ class ApiResponder {
                 );
             }
         } else {
-
             // found a problem with access to the function, report that
             $output = array(
                 'data' => NULL,

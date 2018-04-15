@@ -104,7 +104,9 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
-        $isDieLargeEnough = ($attacker->max >= $defender->min);
+        $attackerPostTripMax = self::post_trip_roll_max($attacker);
+        $isDieLargeEnough = ($attackerPostTripMax >= $defender->min) ||
+                            is_null($attackerPostTripMax);
 
         return $isDieLargeEnough;
     }

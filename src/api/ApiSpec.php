@@ -668,7 +668,6 @@ class ApiSpec {
     public function verify_function_args($args) {
         if (array_key_exists('type', $args) &&
             array_key_exists($args['type'], $this->functionArgs)) {
-
             $argsExpected = $this->functionArgs[$args['type']];
             foreach ($args as $argname => $argvalue) {
                 if ($argname == 'type') {

@@ -80,7 +80,7 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
-     * Save action log entries generated during the action in progress 
+     * Save action log entries generated during the action in progress
      *
      * Any game action entries which were generated should both be loaded into
      * the message so the calling player can see them, and saved into the database
@@ -742,7 +742,6 @@ class BMInterfaceGameAction extends BMInterface {
                     ':recipe'         => $option['recipe'],
                     ':option_value'   => $option['optionValue']));
             }
-
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_choose_die_values: ' .
