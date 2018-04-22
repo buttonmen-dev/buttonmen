@@ -855,6 +855,11 @@ div.forum div.splitRight {
     width: 40%;
 }
 
+div.forum div.splitRight span.postTag {
+  color: #e0e0e0;
+  margin-right: 2em;
+}
+
 /* END: Forum*/
 
 /* BB Code (OK technically also forum but chat too) */
