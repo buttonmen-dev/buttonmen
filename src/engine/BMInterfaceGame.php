@@ -1412,9 +1412,9 @@ class BMInterfaceGame extends BMInterface {
 
             $isSuccessful = $game->react_to_firing($argArray);
             if ($isSuccessful) {
-                if (isset($game->turboCache) && !empty($game->turboCache)) {
-                    $game->proceed_to_next_user_action();
+                $game->proceed_to_next_user_action();
 
+                if (isset($game->turboCache) && !empty($game->turboCache)) {
                     $this->set_turbo_sizes(
                         $playerId,
                         $game,
