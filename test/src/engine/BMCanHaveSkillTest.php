@@ -114,6 +114,17 @@ class BMCanHaveSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMCanHaveSkill::has_no_skills
+     *
+     * @depends testAdd_skill
+     */
+    public function testHas_no_skills() {
+        $this->assertTrue($this->object->has_no_skills());
+        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
+        $this->assertFalse($this->object->has_no_skills());
+    }
+
+    /**
      * @covers BMCanHaveSkill::remove_skill
      *
      * @depends testAdd_skill
