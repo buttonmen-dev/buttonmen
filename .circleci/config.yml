@@ -39,6 +39,9 @@ jobs:
           name: Install dummy API files created by PHPUnit into test webserver
           command: sudo rsync -av src/api/dummy_data/ /var/www/api/dummy_data/
       - run:
+          name: Verify dummy API files were fully installed
+          command: bash ./deploy/circleci/verify_dummy_responder_files.sh src/api/dummy_data/ /var/www/api/dummy_data/
+      - run:
           name: Run QUnit tests
           command: /usr/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
       - run:
