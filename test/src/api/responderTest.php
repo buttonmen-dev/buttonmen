@@ -254,6 +254,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                      'Value' => 'Dice with both Null and Value skills are Null',
                 ),
             ),
+            'Oregon' => array(
+                'code' => '',
+                'description' => 'Different swing types must be assigned unique values',
+                'interacts' => array(),
+            ),
             'Ornery' => array(
                 'code' => 'o',
                 'description' => 'Ornery dice reroll every time the player makes any attack - whether the Ornery dice participated in it or not. The only time they don\'t reroll is if the player passes, making no attack whatsoever.',
