@@ -60,6 +60,8 @@ class BMSkillChance extends BMSkill {
             'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
             'Konstant' => 'Dice with both Chance and Konstant skills retain their current value ' .
                           'when rerolled due to Chance',
+            'Mighty' => 'A reroll of a Chance Mighty die due to the Chance skill triggers the Mighty skill',
+            'Weak' => 'A reroll of a Chance Weak die due to the Chance skill triggers the Weak skill',
         );
     }
 }

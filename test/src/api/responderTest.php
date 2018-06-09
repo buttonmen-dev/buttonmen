@@ -143,7 +143,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'interacts' => array(
                     'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
                     'Konstant' => 'Dice with both Chance and Konstant skills retain their current value ' .
-                                  'when rerolled due to Chance'
+                                  'when rerolled due to Chance',
+                    'Mighty' => 'A reroll of a Chance Mighty die due to the Chance skill triggers the Mighty skill',
+                    'Weak' => 'A reroll of a Chance Weak die due to the Chance skill triggers the Weak skill',
                 ),
             ),
             'Doppelganger' => array(
@@ -228,6 +230,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'When a Mighty Die rerolls for any reason, it first grows from its current size to the next larger size in the list of "standard" die sizes (1, 2, 4, 6, 8, 10, 12, 16, 20, 30).',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Berserk and Mighty skills will first halve in size, and then grow',
+                    'Chance' => 'A reroll of a Chance Mighty die due to the Chance skill triggers the Mighty skill',
                     'Fire' => 'Dice with both Fire and Mighty skills do not grow when firing, only when actually rolling',
                 ),
             ),
@@ -451,6 +454,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'When a Weak Die rerolls for any reason, it first shrinks from its current size to the next smaller size in the list of "standard" die sizes (1, 2, 4, 6, 8, 10, 12, 16, 20, 30).',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Berserk and Weak skills will first halve in size, and then shrink',
+                    'Chance' => 'A reroll of a Chance Weak die due to the Chance skill triggers the Weak skill',
                     'Fire' => 'Dice with both Fire and Weak skills do not shrink when firing, only when actually rolling',
                 ),
             ),
