@@ -107,11 +107,9 @@ class BMInterfaceNewuser {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':username' => $username));
             $fetchResult = $statement->fetchAll();
-
             if (count($fetchResult) > 0) {
                 $user_id = $fetchResult[0]['id'];
-                $this->message = $username . ' already exists (id=' .
-                                 $user_id . ')';
+                $this->message = $username . ' already exists (id=' . $user_id . ')';
                 return NULL;
             }
 
@@ -123,8 +121,7 @@ class BMInterfaceNewuser {
 
             if (count($fetchResult) > 0) {
                 $user_id = $fetchResult[0]['id'];
-                $this->message = 'Email address ' . $email .
-                                 ' already exists (id=' .  $user_id . ')';
+                $this->message = 'Email address ' . $email . ' already exists (id=' .  $user_id . ')';
                 return NULL;
             }
 
@@ -138,8 +135,16 @@ class BMInterfaceNewuser {
                     '(SELECT ps.id FROM player_status ps WHERE ps.name = :status)' .
                 ');';
             $statement = self::$conn->prepare($query);
+
+            // support versions of PHP older than 5.5.0
+            if (version_compare(phpversion(), "5.5.0", "<")) {
+                $passwordHash = crypt($password);
+            } else {
+                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            }
+
             $statement->execute(array(':username' => $username,
-                                      ':password' => crypt($password),
+                                      ':password' => $passwordHash,
                                       ':email' => $email,
                                       ':status' => 'UNVERIFIED'));
 
@@ -159,7 +164,6 @@ class BMInterfaceNewuser {
 
             // now generate a verification code and e-mail it to the user
             $this->send_email_verification($playerId, $username, $playerEmail);
-
             $this->message = 'User ' . $username . ' created successfully.  ' .
                              'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
                              'Follow the link in that message to start beating people up! ' .
