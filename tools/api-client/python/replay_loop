@@ -99,7 +99,7 @@ def test_file(filename):
     retval = os.system(tar_command)
     if retval == 0:
       break
-    print "tar failed - retrying: %s" % command
+    print "tar failed - retrying: %s" % tar_command
     time.sleep(SLEEPSECS)
   else:
     print "tar failed too many times - giving up"
