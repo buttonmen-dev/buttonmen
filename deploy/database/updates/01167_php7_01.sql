@@ -1,0 +1,2 @@
+ALTER TABLE player MODIFY password_hashed VARCHAR(255);
+ALTER TABLE player_auth MODIFY auth_key VARCHAR(255) UNIQUE NOT NULL;

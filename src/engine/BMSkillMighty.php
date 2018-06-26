@@ -83,6 +83,7 @@ class BMSkillMighty extends BMSkill {
         return array(
             'Berserk' => 'Dice with both Berserk and Mighty skills will first ' .
                          'halve in size, and then grow',
+            'Chance' => 'A reroll of a Chance Mighty die due to the Chance skill triggers the Mighty skill',
             'Fire' => 'Dice with both Fire and Mighty skills do not grow ' .
                       'when firing, only when actually rolling',
         );

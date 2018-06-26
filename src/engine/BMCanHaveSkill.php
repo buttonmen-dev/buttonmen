@@ -186,4 +186,13 @@ class BMCanHaveSkill {
     public function has_skill($skill) {
         return array_key_exists($skill, $this->skillList);
     }
+
+    /**
+     * Check if a die or button has no skills
+     *
+     * @return bool
+     */
+    public function has_no_skills() {
+        return 0 === count($this->skillList);
+    }
 }
