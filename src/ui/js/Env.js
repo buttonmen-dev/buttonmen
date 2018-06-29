@@ -353,6 +353,19 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'closingHtml': '</a>',
       'escapeParameter': true,
     },
+    'forum': {
+      'isAtomic': false,
+      'isLink': true,
+      'openingHtml':
+        '<a class="chatForumLink" href="forum.html#!threadId=###">' +
+        'Forum thread: ',
+      'alternateOpeningHtml':
+        '<a class="chatForumLink" href="forum.html#!threadId=###&postId=$$$">' +
+        'Forum thread: ',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+      'multipleParameters': true,
+    },
     '[': {
       'isAtomic': true,
       'openingHtml': '[',
@@ -360,7 +373,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
   };
 
   var outputHtml = '';
-  var tagStack = [ ];
+  var tagStack = [];
 
   // We want to build a pattern that we can use to identify any single
   // BB code start tag
@@ -423,8 +436,23 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
         tagName = tagStack.pop();
         outputHtml += replacements[tagName].closingHtml;
       } else {
+        var secondTagParameter = '';
+        if (replacements[tagName].multipleParameters) {
+          var parameters = tagParameter.split(',');
+
+          tagParameter = parameters[0];
+          if (parameters.length > 1) {
+            secondTagParameter = parameters[1];
+          }
+        }
+
         var htmlOpeningTag;
-        if (tagParameter && replacements[tagName].alternateOpeningHtml) {
+        // Some replacements have optional parameters and produce different
+        // opening HTML depending on whether or not all the parameters were
+        // provided.
+        if (replacements[tagName].alternateOpeningHtml &&
+            ((replacements[tagName].multipleParameters && secondTagParameter) ||
+            (!replacements[tagName].multipleParameters && tagParameter))) {
           htmlOpeningTag = replacements[tagName].alternateOpeningHtml;
         } else {
           htmlOpeningTag = replacements[tagName].openingHtml;
@@ -434,14 +462,23 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
           // We need to HTML decode the parameter before we URI encode it,
           // and the easiest way is to pretend we're going to render it
           var tempDiv = $('<div>');
+
           tempDiv.html(tagParameter);
           var decodedTagParameter = tempDiv.text();
           htmlOpeningTag = htmlOpeningTag.replace(
             '###',
             encodeURIComponent(decodedTagParameter)
           );
+
+          tempDiv.html(secondTagParameter);
+          var decodedSecondTagParameter = tempDiv.text();
+          htmlOpeningTag = htmlOpeningTag.replace(
+            '$$$',
+            encodeURIComponent(decodedSecondTagParameter)
+          );
         } else {
           htmlOpeningTag = htmlOpeningTag.replace('###', tagParameter);
+          htmlOpeningTag = htmlOpeningTag.replace('$$$', secondTagParameter);
         }
         outputHtml += htmlOpeningTag;
         if (!replacements[tagName].isAtomic) {
@@ -503,8 +540,8 @@ Env.buildProfileLink = function(playerName, textOnly) {
 
 // Utility function to build a vacation image object
 Env.buildVacationImage = function(size) {
-  var image = (size=='large') ? 'vacation22.png' : 'vacation16.png';
-  return  $('<img>', {
+  var image = (size == 'large') ? 'vacation22.png' : 'vacation16.png';
+  return $('<img>', {
     'src': Env.ui_root + 'images/' + image,
     'class': 'playerFlag',
     'title': 'On Vacation'
@@ -564,7 +601,7 @@ Env.toggleSpoiler = function() {
 // function (not counting the callback argument, which will be handled by
 // callAsyncInParallel).
 Env.callAsyncInParallel = function(functions, finalCallback) {
-  var completedFunctions = [ ];
+  var completedFunctions = [];
 
   // First, initialize all the function statuses before we start executing
   // anything
@@ -581,7 +618,7 @@ Env.callAsyncInParallel = function(functions, finalCallback) {
     if (typeof(value) == 'function') {
       functionDetails = {
         'func': value,
-        'args': [ ],
+        'args': [],
       };
     } else {
       functionDetails = value;

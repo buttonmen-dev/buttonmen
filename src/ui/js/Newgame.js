@@ -580,7 +580,9 @@ Newgame.getButtonSelectTd = function(player) {
       Newgame.activity.buttonList.player,
       Newgame.activity.buttonGreyed,
       Newgame.activity.playerButton);
-  } else {
+  } else if (Newgame.activity.buttonLimits.opponent.button_sets.ANY &&
+      Newgame.activity.buttonLimits.opponent.tourn_legal.ANY &&
+      Newgame.activity.buttonLimits.opponent.die_skills.ANY) {
     return Newgame.getSelectTd(
       'Opponent\'s button',
       'opponent_button',
@@ -588,6 +590,13 @@ Newgame.getButtonSelectTd = function(player) {
       Newgame.activity.buttonGreyed,
       Newgame.activity.opponentButton,
      'Any button');
+  } else {
+    return Newgame.getSelectTd(
+      'Opponent\'s button',
+      'opponent_button',
+      Newgame.activity.buttonList.opponent,
+      Newgame.activity.buttonGreyed,
+      Newgame.activity.opponentButton);
   }
 };
 
@@ -601,7 +610,9 @@ Newgame.updateButtonSelectTd = function(player) {
       Newgame.activity.buttonList.player,
       Newgame.activity.buttonGreyed,
       Newgame.activity.playerButton);
-  } else {
+  } else if (Newgame.activity.buttonLimits.opponent.button_sets.ANY &&
+      Newgame.activity.buttonLimits.opponent.tourn_legal.ANY &&
+      Newgame.activity.buttonLimits.opponent.die_skills.ANY) {
     selectid = 'opponent_button';
     optionlist = Newgame.getSelectOptionList(
       'Opponent\'s button',
@@ -609,6 +620,13 @@ Newgame.updateButtonSelectTd = function(player) {
       Newgame.activity.buttonGreyed,
       Newgame.activity.opponentButton,
      'Any button');
+  } else {
+    selectid = 'opponent_button';
+    optionlist = Newgame.getSelectOptionList(
+      'Opponent\'s button',
+      Newgame.activity.buttonList.opponent,
+      Newgame.activity.buttonGreyed,
+      Newgame.activity.opponentButton);
   }
 
   var optioncount = optionlist.length;

@@ -947,7 +947,7 @@ class ApiResponder {
                 // object, invoke the function, and return the result
                 $interface = $this->create_interface($args, $check);
                 apache_note('BMAPIMethod', $args['type']);
-                $data = $this->$check['funcname']($interface, $args);
+                $data = $this->{$check['funcname']}($interface, $args);
 
                 $output = array(
                     'data' => $data,

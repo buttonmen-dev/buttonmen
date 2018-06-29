@@ -826,6 +826,8 @@ Forum.buildPostRow = function(post) {
     'text': postDates,
   }));
   var buttonHolder = $('<div>', { 'class': 'splitRight', });
+  var postTag = '[forum=' + Api.forum_thread.threadId + ',' + post.postId + ']';
+  buttonHolder.append($('<span>', { 'class': 'postTag', 'text': postTag, }));
   if (post.posterName == Login.player && !post.deleted) {
     var editButton = $('<input>', {
       'type': 'button',
@@ -913,6 +915,12 @@ Forum.buildHelp = function() {
   helpDiv.append($('<div>', {
     'class': 'help',
     'html': '[set=Soldiers]: <a href="buttons.html?set=Soldiers">Soldiers</a>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[forum=1,6]text[/forum]: ' +
+            '<a href="forum.html#!threadId=1&postId=6">' +
+            'Forum thread: text</a>',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',

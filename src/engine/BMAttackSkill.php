@@ -55,6 +55,8 @@ class BMAttackSkill extends BMAttack {
      */
     protected $hitTable = NULL;
 
+    const MAX_ZEROS = 2;
+
     /**
      * Create $this->hitTable anew.
      *
@@ -76,26 +78,26 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
-        self::strip_excess_zeros($validDice);
+        self::strip_excess_plain_zeros($validDice);
 
         $this->hitTable = new BMUtilityHitTable($validDice);
     }
 
-    protected static function strip_excess_zeros(&$dieArray) {
-        $zeroCount = 0;
-        $zeroIdxArray = array();
+    protected static function strip_excess_plain_zeros(&$dieArray) {
+        $plainZeroCount = 0;
+        $plainZeroIdxArray = array();
 
         foreach ($dieArray as $dieIdx => $die) {
-            if (0 === $die->value) {
-                $zeroCount++;
-                $zeroIdxArray[] = $dieIdx;
+            if ((0 === $die->value) && $die->has_no_skills()) {
+                $plainZeroCount++;
+                $plainZeroIdxArray[] = $dieIdx;
             }
         }
 
-        while ($zeroCount > 2) {
-            $zeroCount--;
-            array_splice($dieArray, $zeroIdxArray[$zeroCount], 1);
-            unset($zeroIdxArray[$zeroCount]);
+        while ($plainZeroCount > self::MAX_ZEROS) {
+            $plainZeroCount--;
+            array_splice($dieArray, $plainZeroIdxArray[$plainZeroCount], 1);
+            unset($plainZeroIdxArray[$plainZeroCount]);
         }
     }
 
@@ -261,12 +263,16 @@ class BMAttackSkill extends BMAttack {
      * @param double $dval
      * @return bool
      */
-    protected function is_direct_attack_valid($attackers, $dval) {
+    protected function is_direct_attack_valid(array $attackers, $dval) {
         $combos = $this->hitTable->find_hit($dval);
+
+        $attackersStripped = $attackers;
+        $this->strip_excess_plain_zeros($attackersStripped);
+
         if ($combos) {
             foreach ($combos as $c) {
-                if (count($c) == count($attackers) &&
-                    count(array_uintersect($c, $attackers, 'BMAttackSkill::cmp')) ==
+                if (count($c) == count($attackersStripped) &&
+                    count(array_uintersect($c, $attackersStripped, 'BMAttackSkill::cmp')) ==
                       count($c)) {
                     return TRUE;
                 }
@@ -284,7 +290,7 @@ class BMAttackSkill extends BMAttack {
      * @param double $helpValue
      * @return bool
      */
-    protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue) {
+    protected function is_assisted_attack_valid($game, array $attackers, array $defenders, $dval, $helpValue) {
         if (is_null($helpValue)) {
             $bounds = $this->help_bounds(
                 $this->collect_helpers($game, $attackers, $defenders),

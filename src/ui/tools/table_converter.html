@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      function process()
+      {
+        var lengths = [];
+
+        var lines = $('#input').val().split('\n');
+        for (var i = 0; i < lines.length; i++)
+        {
+          var fields = lines[i].split('\t');
+
+          for (var j = 0; j < fields.length; j++)
+          {
+  		    if (lengths[j] == null || lengths[j] < fields[j].length)
+		    {
+		      lengths[j] = fields[j].length;
+            }
+          }
+        }
+
+        var out = "[code]";
+		for (i = 0; i < lines.length; i++)
+		{
+          if (i != 0)
+          {
+            out += '\n';
+          }
+
+		  var fields = lines[i].split('\t');
+
+          for (var j = 0; j < fields.length; j++)
+          {
+            out += fields[j];
+
+            var padding = lengths[j] - fields[j].length + 2;
+            while (padding > 0)
+            {
+              out += ' ';
+              padding--;
+            }
+          }
+		}
+		out += "[/code]";
+
+		$('#output').text(out);
+      }
+    </script>
+  </head>
+  <body>
+    <h2>Convert MS Excel tables into forum tables</h2>
+    <div>Instructions: Copy table from MS Excel, paste it into the box, then click Go.</div>
+    <br>
+    <textarea id="input"></textarea>
+    <input type="button" id="go" onclick="process();" value="Go"></input>
+    <br><br>
+    <textarea id="output" style="border: 1px solid black; padding: 5px;margin: 5px;font-family: monospace; white-space: pre;"></textarea>
+  </body>
+</html>

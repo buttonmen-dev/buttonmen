@@ -128,27 +128,26 @@ class BMInterfacePlayer extends BMInterface {
             return NULL;
         }
 
+        $infoArray['favorite_button_id'] = NULL;
         if (isset($addlInfo['favorite_button'])) {
             $infoArray['favorite_button_id'] =
                 $this->get_button_id_from_name($addlInfo['favorite_button']);
             if (!is_int($infoArray['favorite_button_id'])) {
                 return FALSE;
             }
-        } else {
-            $infoArray['favorite_button_id'] = NULL;
         }
+
+        $infoArray['favorite_buttonset_id'] = NULL;
         if (isset($addlInfo['favorite_buttonset'])) {
             $infoArray['favorite_buttonset_id'] =
                 $this->get_buttonset_id_from_name($addlInfo['favorite_buttonset']);
             if (!is_int($infoArray['favorite_buttonset_id'])) {
                 return FALSE;
             }
-        } else {
-            $infoArray['favorite_buttonset_id'] = NULL;
         }
 
         if (isset($addlInfo['new_password'])) {
-            $infoArray['password_hashed'] = crypt($addlInfo['new_password']);
+            $infoArray['password_hashed'] = $this->password_hashed_universal($addlInfo['new_password']);
         }
 
         if (isset($addlInfo['new_email'])) {
@@ -170,6 +169,20 @@ class BMInterfacePlayer extends BMInterface {
         }
         $this->set_message("Player info updated successfully.");
         return array('playerId' => $playerId);
+    }
+
+    /**
+     * Calculate the password hash, independent of PHP version
+     *
+     * @param string $password
+     * @return string
+     */
+    protected function password_hashed_universal($password) {
+        if (version_compare(phpversion(), "5.5.0", "<")) {
+            return crypt($password);
+        } else {
+            return password_hashed($password);
+        }
     }
 
     /**
@@ -219,7 +232,16 @@ class BMInterfacePlayer extends BMInterface {
                 return FALSE;
             }
             $password_hashed = $passwordResults[0]['password_hashed'];
-            if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
+
+            // support versions of PHP older than 5.5.0
+            if (version_compare(phpversion(), "5.5.0", "<")) {
+                $isHashCorrect =
+                    ($password_hashed == crypt($addlInfo['current_password'], $password_hashed));
+            } else {
+                $isHashCorrect = password_verify($addlInfo['current_password'], $password_hashed);
+            }
+
+            if (!$isHashCorrect) {
                 $this->set_message('Current password is incorrect.');
                 return FALSE;
             }
