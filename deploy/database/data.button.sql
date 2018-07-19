@@ -1424,7 +1424,7 @@ UPDATE button SET flavor_text="Shore is a stay-at-home dad who likes long walks 
 UPDATE button SET flavor_text="Stark once thought she was a train for three days, and she likes to beat people up." WHERE name="Stark";
 UPDATE button SET flavor_text="Agatha Heterodyne is a fledgling mad scientist. She means well, but tends to blow things up." WHERE name="Agatha";
 UPDATE button SET flavor_text="Bangladesh Dupree likes to beat people up." WHERE name="Bang";
-UPDATE button SET flavor_text="Brigid the witch is in tune with the ancient eldritch mysteries. She helps people with het spells and potions and if they laugh at her hat, she beats them up." WHERE name="Brigid";
+UPDATE button SET flavor_text="Brigid the witch is in tune with the ancient eldritch mysteries. She helps people with her spells and potions and if they laugh at her hat, she beats them up." WHERE name="Brigid";
 UPDATE button SET flavor_text="Buck Godot is a zap-gun for hire on New Hong Kong, the planet where the only law is that there is no law. He loves this game." WHERE name="Buck Godot";
 UPDATE button SET flavor_text="Gil is home from school and learning to run the family business - world domination." WHERE name="Gil";
 UPDATE button SET flavor_text="Klaus likes to find out what makes people tick. Usually once he's found out, they don't tick anymore." WHERE name="Klaus";
