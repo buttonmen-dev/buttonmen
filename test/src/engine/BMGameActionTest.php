@@ -766,23 +766,19 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     public function test_friendly_message_determine_initiative() {
         $testParams = array(
             'roundNumber' => 1,
-            'playerData' => array(
+            'initiativeDice' => array(
                 '1' => array(
-                    'initiativeDice' => array(
-                        array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):3', 'included' => true),
-                        array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):1', 'included' => true),
-                    ),
-                    'slowButton' => false,
+                    array('recipe' => '(6)', 'recipeStatus' => '(6):3', 'included' => true),
+                    array('recipe' => '(10)', 'recipeStatus' => '(10):1', 'included' => true),
                 ),
                 '2' => array(
-                    'initiativeDice' => array(
-                        array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):2', 'included' => true),
-                        array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):2', 'included' => true),
-                    ),
-                    'slowButton' => false,
+                    array('recipe' => '(6)', 'recipeStatus' => '(6):2', 'included' => true),
+                    array('recipe' => '(10)', 'recipeStatus' => '(10):2', 'included' => true),
                 ),
             ),
+            'slowButtonPlayers' => array(),
             'initiativeWinnerId' => 1,
+            'isInitiativeTie' => FALSE,
         );
 
         $this->object = new BMGameAction(BMGameState::DETERMINE_INITIATIVE, 'determine_initiative', 0, $testParams);
@@ -791,7 +787,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
 
-        $testParams['playerData']['1']['slowButton'] = true;
+        $testParams['slowButtonPlayers'] = array(1);
         $testParams['initiativeWinnerId'] = 2;
         $this->object = new BMGameAction(BMGameState::DETERMINE_INITIATIVE, 'determine_initiative', 0, $testParams);
         $this->assertEquals(
@@ -799,8 +795,8 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
 
-        $testParams['playerData']['2']['slowButton'] = true;
-        $testParams['tiedPlayerIds'] = array(1, 2);
+        $testParams['slowButtonPlayers'] = array(1, 2);
+        $testParams['isInitiativeTie'] = TRUE;
         $this->object = new BMGameAction(BMGameState::DETERMINE_INITIATIVE, 'determine_initiative', 0, $testParams);
         $this->assertEquals(
             "gameaction02 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2]. Both buttons have the \"slow\" button special, and cannot win initiative normally. Initiative was determined by a coin flip.",

@@ -1,0 +1,59 @@
+#!/usr/bin/python
+#####
+# Utility to migrate determine_initiative action log entries to new format
+
+import json
+import MySQLdb
+
+def migrate_to_type_log_determine_initiative(row, crs):
+  row_id = row[0]
+  msgdata = json.loads(row[1])
+  round_number = msgdata['roundNumber']
+  initiative_winner_id = msgdata['initiativeWinnerId']
+  is_initiative_tie = 'tiedPlayerIds' in msgdata and len(msgdata['tiedPlayerIds']) > 0
+  slow_button_players = []
+  initiative_dice = {}
+  for player_id, player_data in sorted(msgdata['playerData'].items()):
+    initiative_dice[player_id] = player_data['initiativeDice']
+    if 'slowButton' in player_data and player_data['slowButton']:
+      slow_button_players.append(player_id)
+
+  insert_sql = 'INSERT INTO game_action_log_type_determine_initiative ' + \
+    '(action_log_id, winner_id, round_number, is_tie) VALUES ' + \
+    '(%s, %s, %s, %s);' % (row[0], initiative_winner_id, round_number, is_initiative_tie)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  for player_id in slow_button_players:
+    insert_sql = 'INSERT INTO game_action_log_type_determine_initiative_slow_button ' + \
+      '(action_log_id, player_id) VALUES ' + \
+      '(%s, %s);' % (row[0], player_id)
+    result = crs.execute(insert_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  for player_id, player_dice in sorted(initiative_dice.items()):
+    for init_die in player_dice:
+      insert_sql = 'INSERT INTO game_action_log_type_determine_initiative_die ' + \
+        '(action_log_id, player_id, recipe_status, recipe, included) VALUES ' + \
+        '(%s, %s, "%s", "%s", %s);' % (row[0], player_id, init_die['recipeStatus'], init_die['recipe'], init_die['included'])
+      result = crs.execute(insert_sql)
+      if not result == 1:
+        raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+  update_sql = 'UPDATE game_action_log SET message=NULL WHERE id=%d' % (row_id)
+  result = crs.execute(update_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+  print "Moved row %s message %s to game_action_log_type_determine_initiative*" % (row[0], row[1])
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+results = crs.execute(
+  'SELECT id,message FROM game_action_log WHERE action_type="determine_initiative" ' + \
+  'AND message IS NOT NULL')
+if results > 0:
+  for row in crs.fetchall():
+    migrate_to_type_log_determine_initiative(row, crs)
+conn.commit()
