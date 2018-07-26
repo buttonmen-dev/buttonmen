@@ -1842,10 +1842,6 @@ class BMGame {
                 'fireCache' => $fireCache,
             )
         );
-
-        if (isset($this->activePlayerIdx)) {
-            $this->update_active_player();
-        }
     }
 
     /**
@@ -2023,6 +2019,10 @@ class BMGame {
         if (!$this->isWaitingOnAnyAction()) {
             unset($this->turboCache);
             $this->gameState = BMGameState::END_TURN;
+        }
+
+        if (isset($this->activePlayerIdx)) {
+            $this->update_active_player();
         }
     }
 
