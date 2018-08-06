@@ -96,7 +96,7 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
-     * Load the parameters for a single game action log message of type end_draw
+     * Load the parameters for a single game action log message of type create_game
      *
      * @param int $action_log_id
      * @return array
@@ -745,6 +745,133 @@ class BMInterfaceGameAction extends BMInterface {
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_choose_die_values: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while saving log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Load the parameters for a single game action log message of type determine_initiative
+     *
+     * @param int $action_log_id
+     * @return array
+     */
+    protected function load_params_from_type_log_determine_initiative($action_log_id) {
+        try {
+            // determine_initiative has a base set of secondary parameters,
+            // plus two other types of secondary parameters:
+            // * information about slow buttons in the game
+            // * dieData containing data about each die present at the time of the initiative decision
+
+            // load the base params
+            $query = 'SELECT winner_id,round_number,is_tie FROM game_action_log_type_determine_initiative ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            $row = $statement->fetch();
+            $initiativeWinnerId = (int)$row['winner_id'];
+            $roundNumber = (int)$row['round_number'];
+            $isInitiativeTie = (bool)$row['is_tie'];
+
+            // load relevant player data
+            $slowButtonPlayers = array();
+            $query = 'SELECT player_id FROM game_action_log_type_determine_initiative_slow_button ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            while ($row = $statement->fetch()) {
+                $slowButtonPlayers[] = (int)$row['player_id'];
+            }
+
+            // load relevant die data
+            $initiativeDice = array();
+            $query = 'SELECT player_id,recipe_status,recipe,included ' .
+                     'FROM game_action_log_type_determine_initiative_die ' .
+                     'WHERE action_log_id=:action_log_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':action_log_id' => $action_log_id));
+            while ($row = $statement->fetch()) {
+                if (!(array_key_exists((int)$row['player_id'], $initiativeDice))) {
+                    $initiativeDice[(int)$row['player_id']] = array();
+                }
+                $initiativeDice[(int)$row['player_id']][] = array(
+                    'recipeStatus' => (string)$row['recipe_status'],
+                    'recipe'       => (string)$row['recipe'],
+                    'included'     => (bool)$row['included'],
+                );
+            }
+
+            return array(
+                'initiativeWinnerId' => $initiativeWinnerId,
+                'roundNumber'        => $roundNumber,
+                'isInitiativeTie'    => $isInitiativeTie,
+                'slowButtonPlayers'  => $slowButtonPlayers,
+                'initiativeDice'     => $initiativeDice,
+            );
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_params_from_type_log_determine_initiative: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while reading log entries');
+            return NULL;
+        }
+    }
+
+    /**
+     * Save the parameters for a single game action log message of type determine_initiative
+     *
+     * @param int $action_log_id
+     * @param array $params
+     * @return void
+     */
+    protected function save_params_to_type_log_determine_initiative($action_log_id, $params) {
+        try {
+            // save the base params
+            $query = 'INSERT INTO game_action_log_type_determine_initiative ' .
+                     '(action_log_id, winner_id, round_number, is_tie) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :winner_id, :round_number, :is_tie)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':action_log_id' => $action_log_id,
+                ':winner_id'    => $params['initiativeWinnerId'],
+                ':round_number' => $params['roundNumber'],
+                ':is_tie'       => $params['isInitiativeTie']));
+
+            // determine_initiative has one set of secondary parameters for slow buttons
+            $query = 'INSERT INTO game_action_log_type_determine_initiative_slow_button ' .
+                     '(action_log_id, player_id) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :player_id)';
+            foreach ($params['slowButtonPlayers'] as $player_id) {
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(
+                    ':action_log_id'  => $action_log_id,
+                    ':player_id'      => $player_id));
+            }
+
+            // determine_initiative has one set of secondary parameters for each die present at the time
+            $query = 'INSERT INTO game_action_log_type_determine_initiative_die ' .
+                     '(action_log_id, player_id, recipe_status, recipe, included) ' .
+                     'VALUES ' .
+                     '(:action_log_id, :player_id, :recipe_status, :recipe, :included)';
+            foreach ($params['initiativeDice'] as $playerId => $playerDice) {
+                foreach ($playerDice as $playerDie) {
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(
+                        ':action_log_id'  => $action_log_id,
+                        ':player_id'      => $playerId,
+                        ':recipe_status'  => $playerDie['recipeStatus'],
+                        ':recipe'         => $playerDie['recipe'],
+                        ':included'       => $playerDie['included']));
+                }
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::save_params_to_type_log_determine_initiative: ' .
                 $e->getMessage()
             );
             $this->set_message('Internal error while saving log entries');

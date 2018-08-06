@@ -1017,20 +1017,25 @@ class BMGame {
             );
         $hasInitiativeArray = $response['hasPlayerInitiative'];
         $actionLogInfo = array(
-            'roundNumber' => $this->get__roundNumber(),
-            'playerData' => array(),
+            'roundNumber'       => $this->get__roundNumber(),
+            'isInitiativeTie'   => FALSE,
+            'slowButtonPlayers' => array(),
+            'initiativeDice'    => array(),
         );
         foreach ($response['actionLogInfo'] as $playerIdx => $playerActionLogData) {
-            $actionLogInfo['playerData'][$this->playerArray[$playerIdx]->playerId] = $playerActionLogData;
+            if ($playerActionLogData['slowButton']) {
+                $actionLogInfo['slowButtonPlayers'][] = $this->playerArray[$playerIdx]->playerId;
+            }
+            $actionLogInfo['initiativeDice'][$this->playerArray[$playerIdx]->playerId] =
+                $playerActionLogData['initiativeDice'];
         }
 
         if (array_sum($hasInitiativeArray) > 1) {
             $playersWithInit = array();
-            $actionLogInfo['tiedPlayerIds'] = array();
+            $actionLogInfo['isInitiativeTie'] = TRUE;
             foreach ($hasInitiativeArray as $playerIdx => $tempHasInitiative) {
                 if ($tempHasInitiative) {
                     $playersWithInit[] = $playerIdx;
-                    $actionLogInfo['tiedPlayerIds'][] = $this->playerArray[$playerIdx]->playerId;
                 }
             }
             $randIdx = bm_rand(0, count($playersWithInit) - 1);
