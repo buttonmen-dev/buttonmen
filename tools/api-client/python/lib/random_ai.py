@@ -123,7 +123,7 @@ class PHPBMClientOutputWriter():
     n = int(entry['id'])
     self.f.write("""
     /**
-     * @depends test_request_savePlayerInfo
+     * @depends responder00Test::test_request_savePlayerInfo
      * @group fulltest_deps
      */
     public function test_interface_game_%s() {

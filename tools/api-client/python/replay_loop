@@ -33,7 +33,7 @@ STATEDIR = '%s/replay_state/%s' % (PARENTDIR, HOSTNAME)
 STATEFILE = '%s/filesread' % (STATEDIR)
 SRCDIR = '/buttonmen/src'
 TESTDIR = '/buttonmen/test'
-TESTFILE = '%s/src/api/responderTest.php' % TESTDIR
+TESTFILE = '%s/src/api/responder99Test.php' % TESTDIR
 
 SLEEPSECS = 60
 
@@ -51,9 +51,6 @@ def setup():
   if not os.path.isdir(STATEDIR):
     os.mkdir(STATEDIR)
   os.chdir(SRCDIR)
-  if not os.path.isfile('%s.test' % TESTFILE):
-    testlines = int(subprocess.check_output(['wc', '-l', TESTFILE]).split()[0])
-    os.system('sudo -u %s sh -c "head -%d %s > %s.test"' % (USERNAME, testlines - 1, TESTFILE, TESTFILE))
   if ARCHIVE_GAMES:
     f = open('/buttonmen/.git/FETCH_HEAD')
     COMMITID = f.readline().split()[0]
@@ -105,12 +102,17 @@ def test_file(filename):
     print "tar failed too many times - giving up"
     sys.exit(1)
   commands = [
-    'sudo -u %s cp -f %s.test %s' % (USERNAME, TESTFILE, TESTFILE),
+    'sudo -u %s touch %s' % (USERNAME, TESTFILE),
     'sudo chown chaos %s' % TESTFILE,
+    'echo "<?php" | %s tee -a %s' % (write_to_bm_prefix, TESTFILE),
+    'echo "require_once \'responderTestFramework.php\';" | %s tee -a %s' % (write_to_bm_prefix, TESTFILE),
+    'echo "class responder99Test extends responderTestFramework {" | %s tee -a %s' % (write_to_bm_prefix, TESTFILE),
     './update_replay_games ./output | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
     '/bin/rm ./output/*',
     'echo "}" | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
   ]
+  if os.path.isfile(TESTFILE):
+    commands.insert(0, 'sudo -u %s rm -f %s' % (USERNAME, TESTFILE))
   for command in commands:
     retval = os.system(command)
     if retval != 0:
@@ -120,7 +122,7 @@ def test_file(filename):
 
   # actually run the test, capturing output
   logfile = '%s/%s.output' % (STATEDIR, filename)
-  cmdargs = 'sudo -u %s sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/responderTest.php 2>&1" | tee %s' % (USERNAME, logfile)
+  cmdargs = 'sudo -u %s sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1" | tee %s' % (USERNAME, logfile)
   print "About to execute: %s" % cmdargs
   os.system(cmdargs)
   return
