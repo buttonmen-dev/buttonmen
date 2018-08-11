@@ -49,6 +49,7 @@ class BMAttackDefault extends BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
+     * @param array $args
      * @return bool
      */
     public function validate_attack($game, array $attackers, array $defenders, array $args = array()) {
