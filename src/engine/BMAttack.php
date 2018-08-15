@@ -419,6 +419,7 @@ abstract class BMAttack {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
+     * @param array $args
      * @return bool
      */
     protected function search_onevone($game, $attackers, $defenders, array $args = array()) {
