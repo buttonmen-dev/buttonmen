@@ -468,7 +468,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 783);
+        $this->assertEquals(count($retval['data']), 791);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -524,7 +524,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 82);
+        $this->assertEquals(count($retval['data']), 83);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
