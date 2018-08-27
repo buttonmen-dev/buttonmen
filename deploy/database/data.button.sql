@@ -926,13 +926,13 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Peloton   (AnnoDomini)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (778, 'Floriano',        'n(4) f(8) s(10) z(20) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(779, 'Roger',           'd(4) H(8) g(10) G(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(780, 'Doyle',           'k(4) ^(8) M(10) o(20) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(781, 'Julia',           'p(4) t(8) b(10) B(20) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(782, 'Mariusz',         'm(4) G(8) q(10) M(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(783, 'Antonio',         'c(4) f(8) %(10) h(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(784, 'Orlando',         's(4) ^(8) g(10) I(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
-(785, 'Timea',           'q(4) M(8) d(10) z(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton"));
+(779, 'Roger',           'g(4) G(8) c(10) H(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(780, 'Doyle',           'o(4) M(8) ^(10) k(20) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(781, 'Julia',           'f(4) h(8) o(10) B(20) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(782, 'Mariusz',         'm(4) H(8) G(10) q(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(783, 'Antonio',         'c(4) d(8) %(10) h(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(784, 'Orlando',         's(4) k(8) g(10) M(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(785, 'Timea',           'q(4) m(8) d(10) z(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton"));
 
 
 ###############################################
