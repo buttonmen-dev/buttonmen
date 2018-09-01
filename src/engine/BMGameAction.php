@@ -981,12 +981,11 @@ class BMGameAction {
 
         // Now report all the initial die rolls without commentary
         $dieRollStrs = array();
-        $slowButtonPlayers = array();
         $slowDice = array();
-        foreach ($this->params['playerData'] as $playerId => $playerData) {
+        foreach ($this->params['initiativeDice'] as $playerId => $initiativeDice) {
             $dieVals = array();
             $slowDice[$playerId] = array();
-            foreach ($playerData['initiativeDice'] as $initDie) {
+            foreach ($initiativeDice as $initDie) {
                 $dieVals[] = $initDie['recipeStatus'];
                 if (!$initDie['included']) {
                     $slowDice[$playerId][] = $initDie['recipe'];
@@ -994,17 +993,14 @@ class BMGameAction {
             }
             $dieRollStrs[] = $this->outputPlayerIdNames[$playerId] . ' rolled [' .
                              implode(', ', $dieVals) . ']';
-            if ($playerData['slowButton']) {
-                $slowButtonPlayers[] = $playerId;
-            }
         }
         $messageArray[] = 'Initial die values: ' . implode(', ', $dieRollStrs);
 
         // Now report on slow buttons and dice: assume a 2-player game for now
-        if (count($slowButtonPlayers) == 2) {
+        if (count($this->params['slowButtonPlayers']) == 2) {
             $messageArray[] = 'Both buttons have the "slow" button special, and cannot win initiative normally';
-        } elseif (count($slowButtonPlayers) == 1) {
-            $messageArray[] = $this->outputPlayerIdNames[$slowButtonPlayers[0]] .
+        } elseif (count($this->params['slowButtonPlayers']) == 1) {
+            $messageArray[] = $this->outputPlayerIdNames[$this->params['slowButtonPlayers'][0]] .
                               '\'s button has the "slow" button special, and cannot win initiative normally';
         } else {
             foreach ($slowDice as $playerId => $playerSlowDice) {
@@ -1017,7 +1013,7 @@ class BMGameAction {
         }
 
         // Last, if initiative was resolved by coin flip, say that.
-        if (array_key_exists('tiedPlayerIds', $this->params)) {
+        if ($this->params['isInitiativeTie']) {
             $messageArray[] = 'Initiative was determined by a coin flip';
         }
 
