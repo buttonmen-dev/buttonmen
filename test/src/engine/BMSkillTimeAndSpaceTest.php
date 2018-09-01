@@ -29,11 +29,11 @@ class BMSkillTimeAndSpaceTest extends PHPUnit_Framework_TestCase {
     public function testPost_roll()
     {
         $game = new BMGame;
-        $game->activePlayerIdx = 1;
 
         $die = BMDie::create(4);
         $die->value = 3;
         $die->add_skill('TimeAndSpace');
+        $die->playerIdx = 1;
         $die->ownerObject = $game;
         $args = array('die' => $die);
         $this->object->post_roll($args);

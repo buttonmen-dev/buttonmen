@@ -68,17 +68,30 @@ class BMSkillTrip extends BMSkill {
         $defender = self::get_single_defender($args['defenders'], TRUE);
 
         $attacker->add_flag('IsAttacker');
+        $attacker->add_flag('IsAboutToPerformTripAttack');
         $attacker->roll(TRUE);
+        $attackerValue = '';
+        if (isset($attacker->value)) {
+            $attackerValue = $attacker->value;
+        }
+
+        $attacker->remove_flag('IsAboutToPerformTripAttack');
         $attacker->add_flag(
             'JustPerformedTripAttack',
-            $attacker->get_recipe(TRUE) . ':' . $attacker->value
+            $attacker->get_recipe(TRUE) . ':' . $attackerValue
         );
 
         if ($attacker instanceof BMDieTwin) {
             foreach ($attacker->dice as $subdie) {
+                $subdieValue = '';
+
+                if (isset($subdie->value)) {
+                    $subdieValue = $subdie->value;
+                }
+
                 $subdie->add_flag(
                     'JustPerformedTripAttack',
-                    $subdie->recipe . ':' . $subdie->value
+                    $subdie->recipe . ':' . $subdieValue
                 );
             }
         }
