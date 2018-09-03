@@ -64,10 +64,22 @@ Game.showLoggedInPage = function() {
 };
 
 // Redraw the page after a previous action succeeded: to do this,
-// clear all activity variables set by the previous invocation
+// clear all activity variables set by the previous invocation except for
+// items that are currently being actively cached
 Game.redrawGamePageSuccess = function() {
-  Game.activity = {};
+  Game.activity = Game.getActivityAfterApiSuccess();
+
   Game.showLoggedInPage();
+};
+
+Game.getActivityAfterApiSuccess = function() {
+  var activityAfterApiSuccess = {};
+
+  if (('cacheAcrossCall' in Game.activity) && Game.activity.cacheAcrossCall) {
+    activityAfterApiSuccess.chat = Game.activity.chat;
+  }
+
+  return activityAfterApiSuccess;
 };
 
 // Redraw the page after a previous action failed: to do this,
@@ -1718,6 +1730,10 @@ Game.formToggleChatVisibility = function(e) {
     'game': Game.game,
     'private': !(Api.game.player.isChatPrivate),
   };
+
+  // Store the game chat in recent activity
+  Game.activity.chat = $('#game_chat').val();
+  Game.activity.cacheAcrossCall = true;
 
   Api.apiFormPost(
     formargs,
@@ -3617,7 +3633,7 @@ Game.chatBox = function(hidden) {
     'maxlength': Game.GAME_CHAT_MAX_LENGTH,
   });
 
-  // Add previous chat contents from a rejected turn submission if any
+  // Add previous chat contents that have been actively cached
   if ('chat' in Game.activity) {
     chatarea.val(Game.activity.chat);
   }
