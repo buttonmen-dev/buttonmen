@@ -71,6 +71,14 @@ function login($username, $password, $doStayLoggedIn) {
     return $returnValue;
 }
 
+/**
+ * Check whether password hash is correct
+ *
+ * @param string $password
+ * @param string $password_hashed
+ * @param string $username
+ * @return bool
+ */
 function is_hash_correct($password, $password_hashed, $username) {
     // support versions of PHP older than 5.5.0
     if (version_compare(phpversion(), "5.5.0", "<")) {

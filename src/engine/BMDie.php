@@ -296,18 +296,30 @@ class BMDie extends BMCanHaveSkill {
                                            'isTriggeredByAttack' => $isTriggeredByAttack,
                                            'isSubdie' => $isSubdie));
 
-        if (!isset($this->value) ||
-            ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
-            $hookResultArray = $this->run_hooks(__FUNCTION__, array('die' => $this));
+        $hookResultArray = $this->run_hooks(__FUNCTION__, array('die' => $this));
+        $doHooksAllowReroll =
+            empty($hookResultArray) ||
+            (0 == count(array_filter($hookResultArray, function ($value) {
+                return $value !== FALSE;
+            })));
 
-            // if all hook results are FALSE, then roll the die
-            if (empty($hookResultArray) ||
-                (0 == count(array_filter($hookResultArray, function ($value) {
-                    return $value !== FALSE;
-                }
-                )))) {
-                $this->set__value(bm_rand($this->min, $this->max));
-            }
+        $turboDieIsAboutToBeReplaced =
+            is_array($hookResultArray) &&
+            array_key_exists('BMSkillTurbo', $hookResultArray) &&
+            $hookResultArray['BMSkillTurbo'] &&
+            !$this->has_flag('JustPerformedTripAttack') &&
+            !$this->has_flag('IsAboutToPerformTripAttack');
+
+        $needsToReroll =
+            !isset($this->value) ||
+            ($this->doesReroll &&
+             !$this->has_flag('JustPerformedTripAttack') &&
+             $doHooksAllowReroll);
+
+        if ($turboDieIsAboutToBeReplaced) {
+            unset($this->value);
+        } elseif ($needsToReroll) {
+            $this->set__value(bm_rand($this->min, $this->max));
         }
 
         $this->run_hooks('post_roll', array('die' => $this,
@@ -781,15 +793,23 @@ class BMDie extends BMCanHaveSkill {
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
 
+        if (!isset($this->value)) {
+            $value = NULL;
+            $recipeStatus = $recipe;
+        } else {
+            $value = $this->value;
+            $recipeStatus = $recipe . ':' . $value;
+        }
+
         $actionLogInfo = array(
             'recipe' => $recipe,
             'min' => $this->min,
             'max' => $this->max,
-            'value' => $this->value,
+            'value' => $value,
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
             'outOfPlay' => $this->outOfPlay,
-            'recipeStatus' => $recipe . ':' . $this->value,
+            'recipeStatus' => $recipeStatus,
         );
 
         if ($this->forceReportDieSize()) {

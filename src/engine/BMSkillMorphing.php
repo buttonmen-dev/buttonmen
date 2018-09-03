@@ -36,7 +36,11 @@ class BMSkillMorphing extends BMSkill {
             return;
         }
 
-        $defender = self::get_single_defender($args['defenders'], FALSE);
+        if (!self::has_single_defender($args['defenders'])) {
+            return;
+        }
+
+        $defender = self::get_single_defender($args['defenders'], TRUE);
 
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -112,7 +116,8 @@ class BMSkillMorphing extends BMSkill {
      * @return string
      */
     protected static function get_description() {
-        return 'When a Morphing Die is used in any attack, it changes ' .
+        return 'When a Morphing Die is used in any attack ' .
+               'against a single target die, it changes ' .
                'size, becoming the same size as the die that was captured. ' .
                'It is then re-rolled. Morphing Dice change size every time ' .
                'they capture another die. If a Morphing die is captured, ' .

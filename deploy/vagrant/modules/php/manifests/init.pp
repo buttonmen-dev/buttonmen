@@ -23,8 +23,9 @@ class php::base {
 
 class php::base::feature::phpunit {
   exec {
+    # TODO: once we upgrade PHP, start getting the latest version of phpunit again
     "php_wget_phpunit":
-      command => "/usr/bin/wget --no-verbose --no-check-certificate -O /etc/php5/deploy-includes/phpunit.phar https://phar.phpunit.de/phpunit-old.phar",
+      command => "/usr/bin/wget --no-verbose -O /etc/php5/deploy-includes/phpunit.phar http://www.glassonion.org/misc/phpunit-4.8.36.phar",
       creates => "/etc/php5/deploy-includes/phpunit.phar",
       require => File["/etc/php5/deploy-includes"];
   }

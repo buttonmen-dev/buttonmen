@@ -83,6 +83,11 @@ class BMAttackSkill extends BMAttack {
         $this->hitTable = new BMUtilityHitTable($validDice);
     }
 
+    /**
+     * Strip zeros from skill attack to reduce search space
+     *
+     * @param array $dieArray
+     */
     protected static function strip_excess_plain_zeros(&$dieArray) {
         $plainZeroCount = 0;
         $plainZeroIdxArray = array();
