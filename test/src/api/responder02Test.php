@@ -444,11 +444,11 @@ class responder02Test extends responderTestFramework {
         $this->update_expected_data_after_normal_attack(
             $expData, 1, array('Power', 'Skill', 'Shadow'),
             array(38, 27, 7.3, -7.3),
-            array(array(0, 0, array('value' => 6, 'sides' => 16, 'properties' => array('HasJustMorphed', 'Twin'), 'recipe' => 'tm(R,R)', 'description' => 'Trip Morphing Twin R Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 4), array('sides' => 8, 'value' => 2)))),
+            array(array(0, 0, array('value' => 6, 'sides' => 16, 'properties' => array('HasJustMorphed', 'Twin'), 'recipe' => 'tm(R,R)', 'description' => 'Trip Morphing Twin R Swing Die (both with 8 sides)', 'subdieArray' => array(array('sides' => 8, 'value' => 4), array('sides' => 8, 'value' => 2))),),
                   array(0, 3, array('value' => 3))),
             array(array(1, 4)),
             array(),
-            array(array(0, array('value' => 4, 'sides' => 16, 'recipe' => 's(R,R)?', 'properties' => array('WasJustCaptured', 'Twin'))))
+            array(array(0, array('value' => 4, 'sides' => 16, 'recipe' => 's(R,R)?', 'properties' => array('WasJustCaptured', 'Twin'), 'subdieArray' => array(array('sides' => 8, 'value' => 1), array('sides' => 8, 'value' => 3)))))
         );
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [tm(6):3,z(10):1] against [s(R=8,R=8)?:4]; Defender s(R=8,R=8)? was captured; Attacker tm(6) changed size from 6 to 16 sides, recipe changed from tm(6) to tm(R=8,R=8), rerolled 3 => 6; Attacker z(10) rerolled 1 => 3'));
         $expData['gameActionLogCount'] += 1;
@@ -478,6 +478,7 @@ class responder02Test extends responderTestFramework {
         );
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('Twin');
         $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array('ValueRelevantToScore', 'WasJustCaptured', 'Twin');
+        $expData['playerDataArray'][1]['capturedDieArray'][1]['subdieArray'] = array(array('sides' => 8, 'value' => 4), array('sides' => 8, 'value' => 2));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [v(10):6] against [tm(R=8,R=8):6]; Defender tm(R=8,R=8) recipe changed to tmv(R=8,R=8), was captured; Attacker v(10) rerolled 6 => 2'));
         $expData['gameActionLogCount'] += 1;
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -1357,6 +1358,7 @@ class responder02Test extends responderTestFramework {
             array(array(0, array('value' => 17, 'sides' => 30, 'recipe' => 'z(15,15)')))
         );
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['subdieArray'] = array(array('sides' => 15, 'value' => 14), array('sides' => 15, 'value' => 3));
         $expData['playerDataArray'][1]['optRequestArray'] = array(2 => array(4, 20)); // does this usually happen?
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Skill attack using [(1):1,(2):1,z(12):1,z(20):10,`(4):4] against [z(15,15):17]; Defender z(15,15) was captured; Attacker (1) rerolled 1 => 1; Attacker (2) rerolled 1 => 1; Attacker z(12) rerolled 1 => 11; Attacker z(20) rerolled 10 => 8; Attacker `(4) recipe changed from `(4) to (4), rerolled 4 => 1'));
         $expData['gameActionLogCount'] += 1;
@@ -1518,6 +1520,8 @@ class responder02Test extends responderTestFramework {
         );
         $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('HasJustTurboed');
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array('WasJustCaptured', 'Twin');
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['subdieArray'] = array(array('sides' => 3, 'value' => 2), array('sides' => 17, 'value' => 5));
+
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [ds(1/15=1):1,`G(5/10=5):5,p(Y=1)!:1] against [G(3,17):7]; Defender G(3,17) was captured; Defender (3,17):16 was added; Attacker ds(1/15=1) rerolled 1 => 1; Attacker `G(5/10=5) recipe changed from `G(5/10=5) to (5/10=5), rerolled 5 => 3; Attacker p(Y=1)! rerolled from 1'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'Turbo die p(Y=1)! remained the same size, rolled 1'));
         $expData['gameActionLogCount'] += 2;
