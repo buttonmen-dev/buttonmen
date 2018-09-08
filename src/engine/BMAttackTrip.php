@@ -240,8 +240,14 @@ class BMAttackTrip extends BMAttack {
             $postRollMax = $clone->max;
         }
 
-        if ($clone->has_skill('Mood') || $clone->has_skill('Mad')) {
-            $postRollMax = NULL;
+        if ($die->has_skill('Mad')) {
+            if (isset($die->swingType)) {
+                $postRollMax = $die->swingMax - ($die->swingMax % 2);
+            }
+        } elseif ($die->has_skill('Mood')) {
+            if (isset($die->swingType)) {
+                $postRollMax = $die->swingMax;
+            }
         }
 
         return $postRollMax;
