@@ -13,8 +13,7 @@
   // for class compliance
   $php_noncompliant_dirs = array(
     "deploy/amp",
-    "deploy/jenkins",
-    "deploy/pagodabox",
+    "deploy/circleci",
     "src/api",
     "src/database",
     "src/lib",

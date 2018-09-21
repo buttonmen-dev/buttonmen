@@ -63,5 +63,5 @@ module.exports = function(grunt) {
 
   // Default task
   grunt.registerTask('default', ['jshint']);
-  grunt.registerTask('jenkins', ['jshint']); 
+  grunt.registerTask('circleci', ['jshint']);
 };
