@@ -1,6 +1,0 @@
-When a new developer comes on board and sets up a github branch:
- * Create an account for them so they can login and run jobs
- * Add a job from the cli, via:
-sed -e 's/FIXME/username/' /usr/local/etc/jenkins_buttonmen_config.xml | jkcli create-job buttonmen-username
- * Login to the UI and build the job to get a baseline on all
-   existing branches

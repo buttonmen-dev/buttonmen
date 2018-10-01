@@ -90,15 +90,15 @@ def create_games(b, buttons, opponents):
   for opponent in opponents:
     pbutton = random_array_element(buttons)
     obutton = random_array_element(buttons)
-    print "%s (%s) vs. %s (%s)" % (b.username, pbutton, opponent, obutton)
+    print("%s (%s) vs. %s (%s)" % (b.username, pbutton, opponent, obutton))
     time.sleep(3)
-    print b.wrap_create_game(pbutton, obutton, opponent)
+    print(b.wrap_create_game(pbutton, obutton, opponent))
 
 def create_random_game(opponent, b, players=False, usebuttons=False):
   if not players:
     players = lookup_other_players(b)
   if not opponent in players:
-    raise ValueError, "Opponent %s is not known on site" % opponent
+    raise(ValueError, "Opponent %s is not known on site" % opponent)
   buttons = b.wrap_load_button_names()
   while True:
     if usebuttons:
@@ -107,13 +107,13 @@ def create_random_game(opponent, b, players=False, usebuttons=False):
     else:
       pbutton = random_implemented_button(buttons)
       obutton = random_implemented_button(buttons)
-    print "%s (%s: %s) vs.\n%s (%s: %s)" % (
+    print("%s (%s: %s) vs.\n%s (%s: %s)" % (
       b.username, pbutton, buttons[pbutton]['recipe'],
-      opponent, obutton, buttons[obutton]['recipe'])
-    print "  Create this game (y/n)?",
+      opponent, obutton, buttons[obutton]['recipe']))
+    print("  Create this game (y/n)?",)
     confirm = raw_input()
     if confirm.lower() in ['y', 'yes']:
-      print b.wrap_create_game(pbutton, obutton, opponent)
+      print(b.wrap_create_game(pbutton, obutton, opponent))
       return True
 
 def play_all_opponents(opts, b):
@@ -126,12 +126,12 @@ def play_all_opponents(opts, b):
     buttons = b.wrap_load_button_names()
     skillbuttons = get_buttons_with_skills(buttons, args)
     if not skillbuttons:
-      raise ValueError, "No buttons found with requested skills"
+      raise(ValueError, "No buttons found with requested skills")
   else:
     skillbuttons = False
   for player in players:
     if not player in skip_opponents:
-      print "Start game against %s?" % (player),
+      print("Start game against %s?" % (player),)
       confirm = raw_input()
       if confirm.lower() in ['y', 'yes']:
         create_random_game(player, b, players=players, usebuttons=skillbuttons)
@@ -141,7 +141,7 @@ def play_all_opponents(opts, b):
 
 b = bmutils.BMClientParser(opts.config, opts.site)
 if not b.verify_login():
-  print "Could not login"
+  print("Could not login")
   sys.exit(1)
 if opts.opponent:
   create_random_game(opts.opponent, b)
@@ -152,6 +152,6 @@ elif opts.play_all or opts.play_skills:
 elif opts.list_buttons:
   buttons = b.wrap_load_button_names()
   skillbuttons = get_buttons_with_skills(buttons, args)
-  print "Buttons found:"
+  print("Buttons found:")
   for button in skillbuttons:
-    print "  %s: %s" % (button, buttons[button]['recipe'])
+    print("  %s: %s" % (button, buttons[button]['recipe']))

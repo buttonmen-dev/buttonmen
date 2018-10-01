@@ -22,7 +22,8 @@ SKIPPATHS = [
   # vagrant artifacts
   './deploy/vagrant',
 
-  # jenkins artifacts
+  # test artifacts
+  # TODO: some of these might be jenkins-only and thus no longer needed
   './build',
   './stop.txt',
   './util/grunt/node_modules',

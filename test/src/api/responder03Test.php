@@ -2939,7 +2939,7 @@ class responder03Test extends responderTestFramework {
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 14;
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 4, 1);
         $expData['playerDataArray'][0]['capturedDieArray'] = array(
-            array('value' => 2, 'sides' => 12, 'recipe' => '(6,6)', 'properties' => array('WasJustCaptured', 'Twin')),
+            array('value' => 2, 'sides' => 12, 'recipe' => '(6,6)', 'properties' => array('WasJustCaptured', 'Twin'), 'subdieArray' => array(array('sides' => 6, 'value' => 1), array('sides' => 6, 'value' => 1)))
         );
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -2971,7 +2971,7 @@ class responder03Test extends responderTestFramework {
         array_splice($expData['playerDataArray'][0]['activeDieArray'], 1, 1);
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array('Twin');
         $expData['playerDataArray'][1]['capturedDieArray'] = array(
-            array('value' => 6, 'sides' => 6, 'recipe' => 'Mt(6)', 'properties' => array('WasJustCaptured')),
+            array('value' => 6, 'sides' => 6, 'recipe' => 'Mt(6)', 'properties' => array('WasJustCaptured'))
         );
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;

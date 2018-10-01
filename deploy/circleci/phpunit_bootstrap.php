@@ -1,6 +1,6 @@
 <?php
 /* 
- * Bootstrap for phpunit under Jenkins
+ * Bootstrap for phpunit under CircleCI
  */
 
 // Setup bm_rand() override for unrandom tests
