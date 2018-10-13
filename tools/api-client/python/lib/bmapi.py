@@ -157,6 +157,20 @@ class BMClient():
     }
     return self._make_request(args)
 
+  def load_new_games(self):
+    args = {
+      'type': 'loadNewGames',
+    }
+    return self._make_request(args)
+
+  def react_to_new_game(self, gameId, action):
+    args = {
+      'type': 'reactToNewGame',
+      'gameId': gameId,
+      'action':  action
+    }
+    return self._make_request(args)
+
   def load_completed_games(self):
     args = {
       'type': 'loadCompletedGames',
