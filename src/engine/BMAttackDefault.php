@@ -197,7 +197,10 @@ class BMAttackDefault extends BMAttack {
         if ($fireTurndownAvailable > 0) {
             // power attack with the possibility of fire assistance
             if (in_array('Power', $validAttackTypes) && ($attacker->value < $attacker->max)) {
-                return TRUE;
+                if (($attacker->value < $defender->value) ||
+                    $game->fireOvershootingArray[$game->attackerPlayerIdx]) {
+                    return TRUE;
+                }
             }
 
             // skill attack with the need for fire assistance

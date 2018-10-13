@@ -3,6 +3,13 @@
 # Example script which provides "monitor" functionality, polling
 # periodically for games which are waiting for you to act
 
+# Use raw_input for input if it exists (Python 2.x compatibility)
+
+try:
+  input = raw_input
+except NameError:
+  pass
+
 import sys
 sys.path.append('lib')
 
@@ -28,7 +35,7 @@ def parse_args():
 [opts, args] = parse_args()
 b = bmutils.BMClientParser(opts.config, opts.site)
 if not b.verify_login():
-  print "Could not login"
+  print("Could not login")
   sys.exit(1)
 
 while True:
@@ -36,11 +43,11 @@ while True:
   games_active = False
   for game in games:
     if game['isAwaitingAction']:
-      print "%s: %s (%s) vs. %s (%s)" % (
+      print("%s: %s (%s) vs. %s (%s)" % (
         game['gameId'], b.username, game['myButtonName'],
-        game['opponentName'], game['opponentButtonName'])
+        game['opponentName'], game['opponentButtonName']))
       games_active = True
   if games_active:
-    confirm = raw_input()
+    confirm = input()
   else:
     time.sleep(30)

@@ -231,4 +231,128 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
     }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mood_nonswing_large_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(6)?');
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(6)');
+        $die2->value = 1;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mood_nonswing_small_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(6)?');
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(12)');
+        $die2->value = 12;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mood_swing_large_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(X)?');
+        $die1->set_swingValue(array('X' => 6));
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(20)');
+        $die2->value = 20;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mood_swing_small_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(V)?');
+        $die1->set_swingValue(array('V' => 6));
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(20)');
+        $die2->value = 20;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mad_nonswing_large_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(6)&');
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(6)');
+        $die2->value = 1;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mad_nonswing_small_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(6)&');
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(12)');
+        $die2->value = 12;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mad_swing_large_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(X)&');
+        $die1->set_swingValue(array('X' => 6));
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(20)');
+        $die2->value = 20;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_mad_swing_small_targeting_konstant() {
+        $game = new BMGame;
+
+        $die1 = BMDie::create_from_recipe('t(V)&');
+        $die1->set_swingValue(array('V' => 6));
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('k(20)');
+        $die2->value = 20;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
 }
