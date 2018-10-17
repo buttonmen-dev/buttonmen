@@ -63,7 +63,7 @@ class buttonmen::server {
 
     "buttonmen_create_databases":
       command => "/usr/local/bin/create_buttonmen_databases",
-      require => [ Package["mysql-server"],
+      require => [ Service["mysql"],
                    Exec["buttonmen_src_rsync"] ];
 
 
