@@ -1,7 +1,9 @@
 class javascript::type::circleci {
   package {
     "phantomjs": ensure => installed;
-    "jscoverage": ensure => installed;
+#    "jscoverage": ensure => installed;
+    "npm": ensure => installed;
+    "grunt": ensure => installed;
   }
 
   file {
