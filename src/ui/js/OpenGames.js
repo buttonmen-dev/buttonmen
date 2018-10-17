@@ -136,6 +136,12 @@ OpenGames.displayJoinResult = function(
         'type': 'error',
         'text': 'An internal error occurred while trying to join the game.',
       };
+    } else {
+      Env.message = {
+        'type': 'error',
+        'text': 'The list of open games was out of date. ' +
+                'It has been refreshed.',
+      };
     }
     OpenGames.getOpenGames(OpenGames.showPage);
     return;

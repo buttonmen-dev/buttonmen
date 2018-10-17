@@ -2,4 +2,4 @@
 
 cd util/grunt
 npm install
-grunt jenkins --no-color
+grunt circleci --no-color

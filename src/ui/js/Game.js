@@ -221,6 +221,11 @@ Game.showStatePage = function() {
   // Now lay out the page
   Login.arrangePage(Game.page, Game.form, '#game_action_button');
 
+  // Restore chat visibility
+  if (('isChatVisible' in Game.activity) && Game.activity.isChatVisible) {
+    $('.editChat').click();
+  }
+
   // after the page has loaded (or possibly reloaded), update turbo visibility
   // based on whether or not turbo dice are selected
   Game.updateTurboVisibility();
@@ -1719,11 +1724,13 @@ Game.formToggleChatVisibility = function(e) {
     'private': !(Api.game.player.isChatPrivate),
   };
 
+  Game.activity.chat = $('#game_chat').val();
+
   Api.apiFormPost(
     formargs,
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
     '#game_chat_privacy_button',
-    Game.redrawGamePageSuccess,
+    Game.redrawGamePageFailure,  // still want to cache everything after toggle
     Game.redrawGamePageFailure
   );
 };
@@ -1940,6 +1947,7 @@ Game.pageAddUnhideChatButton = function(isChatHidden) {
   var unhideButton = $('<input>', {
     'type': 'button',
     'value': 'Add/Edit Chat',
+    'class': 'editChat',
   });
   unhideButton.click(function() {
     $('.hiddenChatForm').show();
@@ -1949,6 +1957,7 @@ Game.pageAddUnhideChatButton = function(isChatHidden) {
     var chat = $('#game_chat').val();
     $('#game_chat').val('');
     $('#game_chat').val(chat);
+    Game.activity.isChatVisible = true;
   });
 
   var unhideDiv = $('<div>', { 'class': 'unhideChat', });
