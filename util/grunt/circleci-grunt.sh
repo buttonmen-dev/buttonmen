@@ -3,4 +3,4 @@
 cd util/grunt
 ./npm_install_grunt
 npm install
-grunt circleci --no-color
+./node_modules/grunt-cli/bin/grunt circleci --no-color
