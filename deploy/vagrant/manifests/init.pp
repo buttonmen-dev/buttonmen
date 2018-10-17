@@ -46,7 +46,7 @@ node default {
   include "sudo::buttonmen-devs"
 
   # Node configuration needed for the buttonmen server
-  include "apache::server"  
+  include "apache::server::vagrant"
   include "php::base"
   include "mysql::server"  
   include "buttonmen::server"

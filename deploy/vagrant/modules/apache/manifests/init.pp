@@ -14,6 +14,14 @@ class apache::server {
       require => Package["apache2"];
   }
 
+  # Monitor the error log
+  include "apache::server::feature::monitor-logs"
+}
+
+class apache::server::vagrant {
+  # include the base class
+  include "apache::server"
+
   file {
     # Customize apache default site
     "/etc/apache2/sites-available/000-default.conf":
@@ -27,9 +35,6 @@ class apache::server {
       target => "/etc/apache2/sites-available/000-default.conf",
       notify => Service["apache2"];
   }
-
-  # Monitor the error log
-  include "apache::server::feature::monitor-logs"
 }
 
 class apache::server::circleci {
