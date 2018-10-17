@@ -35,10 +35,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(self::$userId1WithoutAutopass, $game->playerIdArray[0]);
         $this->assertEquals(self::$userId2WithoutAutopass, $game->playerIdArray[1]);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-        $this->assertTrue(isset($game->activePlayerIdx));
-        $this->assertTrue(isset($game->playerWithInitiativeIdx));
-        $this->assertFalse(isset($game->attackerPlayerIdx));
-        $this->assertFalse(isset($game->defenderPlayerIdx));
+        $this->assertFalse(is_null($game->activePlayerIdx));
+        $this->assertFalse(is_null($game->playerWithInitiativeIdx));
+        $this->assertTrue(is_null($game->attackerPlayerIdx));
+        $this->assertTrue(is_null($game->defenderPlayerIdx));
         $this->assertEquals(array(FALSE, FALSE), $game->isPrevRoundWinnerArray);
 
         // check buttons
@@ -73,15 +73,15 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                 } else {
                     $this->assertEquals($expectedSizes[$playerIdx][$dieIdx],
                                         $activeDieArray[$dieIdx]->max);
-                    $this->assertTrue(isset($activeDieArray[$dieIdx]->value));
+                    $this->assertFalse(is_null($activeDieArray[$dieIdx]->value));
                 }
             }
         }
 
-        $this->assertFalse(isset($game->attackerAllDieArray));
-        $this->assertFalse(isset($game->defenderAllDieArray));
-        $this->assertFalse(isset($game->attackerAttackDieArray));
-        $this->assertFalse(isset($game->attackerAttackDieArray));
+        $this->assertTrue(is_null($game->attackerAllDieArray));
+        $this->assertTrue(is_null($game->defenderAllDieArray));
+        $this->assertTrue(is_null($game->attackerAttackDieArray));
+        $this->assertTrue(is_null($game->attackerAttackDieArray));
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
 
         // check swing details
@@ -112,7 +112,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(4, $game->maxWins);
 
         // check action info
-        $this->assertFalse(isset($game->attack));
+        $this->assertTrue(is_null($game->attack));
         $this->assertEquals(0, $game->nRecentPasses);
         $this->assertTrue($game->playerArray[$game->activePlayerIdx]->waitingOnAction);
 
@@ -407,10 +407,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                             $game->gameScoreArrayArray);
 
         $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
-        $this->assertFalse(isset($game->swingValueArrayArray[0]['X']));
+        $this->assertTrue(is_null($game->swingValueArrayArray[0]['X']));
         $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
-        $this->assertTrue(isset($game->swingValueArrayArray[1]['V']));
-        $this->assertTrue(isset($game->activeDieArrayArray[1][4]->swingValue));
+        $this->assertNotNull($game->swingValueArrayArray[1]['V']);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->swingValue);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         $this->assertEquals(array(array('X' => NULL), array('V' => 11)),
@@ -1266,7 +1266,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(4,  $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals(10, $game->activeDieArrayArray[0][2]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][3]->max);
-        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertTrue(is_null($game->activeDieArrayArray[0][4]->max));
         $this->assertEquals(0, $game->activeDieArrayArray[0][0]->playerIdx);
         $this->assertEquals(0, $game->activeDieArrayArray[0][1]->playerIdx);
         $this->assertEquals(0, $game->activeDieArrayArray[0][2]->playerIdx);
@@ -1396,7 +1396,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         self::save_game($game);
         $game = self::load_game($game->gameId);
 
-        $this->assertFalse(isset($game->activeDieArrayArray[0][2]->max));
+        $this->assertTrue(is_null($game->activeDieArrayArray[0][2]->max));
 
         // specify option dice partially
         $player = $game->playerArray[0];
@@ -1413,9 +1413,9 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
                             $game->optValueArrayArray);
 
-        $this->assertTrue(isset($game->activeDieArrayArray[0][2]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[0][3]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertNotNull($game->activeDieArrayArray[0][2]->max);
+        $this->assertNotNull($game->activeDieArrayArray[0][3]->max);
+        $this->assertNotNull($game->activeDieArrayArray[0][4]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
@@ -1486,9 +1486,9 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
                             $game->optValueArrayArray);
 
-        $this->assertTrue(isset($game->activeDieArrayArray[1][2]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[1][3]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[1][4]->max));
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->max);
+        $this->assertNotNull($game->activeDieArrayArray[1][3]->max);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->max);
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertEquals(6, $game->activeDieArrayArray[1][3]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[1][4]->max);

@@ -5,7 +5,7 @@ failed_tests=''
 
 # Run audit script to verify PHP file layout
 echo "Auditing PHP file locations"
-php /buttonmen/deploy/jenkins/audit_php_files.php /buttonmen/
+php /buttonmen/deploy/circleci/audit_php_files.php /buttonmen/
 if [ "$?" = "0" ]; then
   echo "Passed"
 else
@@ -30,7 +30,7 @@ echo "------------------------------------------------------------------------"
 # Run PHP unit tests
 echo "Running PHP unit tests"
 cd /buttonmen/src
-php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
+phpunit --bootstrap /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
 if [ "$?" = "0" ]; then
   echo "Passed"
 else

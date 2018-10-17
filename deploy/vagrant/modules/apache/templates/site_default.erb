@@ -2,6 +2,26 @@
     ServerAdmin webmaster@localhost
 
     DocumentRoot /var/www
+
+    # Multiviews is what we use to redirect e.g. responder to responder.php
+    MultiviewsMatch Any
+
+    ## Set environment variables for buttonmen database access
+
+    # Database 1 (primary)
+    SetEnv DB1_HOST 127.0.0.1
+    SetEnv DB1_PORT 3306
+    SetEnv DB1_NAME buttonmen
+    SetEnv DB1_USER bmuser1
+    SetEnv DB1_PASS 79eWZGs2RohkIZMVElU6
+
+    # Database 2 (test)
+    SetEnv DB2_HOST 127.0.0.1
+    SetEnv DB2_PORT 3306
+    SetEnv DB2_NAME buttonmen_test
+    SetEnv DB2_USER bmtest
+    SetEnv DB2_PASS bmtestpass
+
     <Directory />
         Options FollowSymLinks
         AllowOverride None

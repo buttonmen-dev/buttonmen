@@ -1,6 +1,6 @@
 <?php
-/* 
- * Bootstrap for phpunit under Jenkins
+/*
+ * Bootstrap for phpunit under CircleCI
  */
 
 // Setup bm_rand() override for unrandom tests
@@ -39,6 +39,7 @@ function bm_skill_rand($min = FALSE, $max = FALSE) {
     }
     return mt_rand();
 }
+
 
 // Now include the bootstrap file from the code itself
 require_once( "./src/lib/bootstrap.php" );

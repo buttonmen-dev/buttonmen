@@ -1035,6 +1035,10 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             $game = $this->load_game($gameId);
+            if (!$game) {
+                $this->set_message('Invalid game');
+                return FALSE;
+            }
             if (!$this->is_action_current(
                 $game,
                 BMGameState::CHOOSE_AUXILIARY_DICE,
@@ -1414,7 +1418,7 @@ class BMInterfaceGame extends BMInterface {
             if ($isSuccessful) {
                 $game->proceed_to_next_user_action();
 
-                if (isset($game->turboCache) && !empty($game->turboCache)) {
+                if (!is_null($game->turboCache) && (count($game->turboCache) > 0)) {
                     $this->set_turbo_sizes(
                         $playerId,
                         $game,

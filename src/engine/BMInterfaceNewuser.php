@@ -303,4 +303,14 @@ class BMInterfaceNewuser {
                 $this->$property = $value;
         }
     }
+
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return bool
+     */
+    public function __isset($property) {
+        return isset($this->$property);
+    }
 }

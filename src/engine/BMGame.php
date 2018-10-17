@@ -894,7 +894,7 @@ class BMGame {
                     }
                 }
 
-                if (!isset($player->activeDieArray[$dieIdx]->max)) {
+                if (is_null($player->activeDieArray[$dieIdx]->max)) {
                     $player->waitingOnAction = TRUE;
                     continue 2;
                 }
@@ -985,7 +985,7 @@ class BMGame {
                     }
                 }
 
-                if (!isset($die->value)) {
+                if (is_null($die->value)) {
                     $player->activeDieArray[$dieIdx] = $die->make_play_die(FALSE);
                 }
             }
@@ -1885,7 +1885,7 @@ class BMGame {
             }
         }
 
-        unset($this->fireCache);
+        $this->fireCache = NULL;
         $this->gameState = BMGameState::CHOOSE_TURBO_SWING;
     }
 
@@ -1938,10 +1938,10 @@ class BMGame {
 
             $preTurboDice[] = $die->get_action_log_data();
             $oldRecipe = $die->get_recipe(TRUE);
-            unset($die->value);
+            $die->value = NULL;
             if (isset($die->dice)) {
                 foreach ($die->dice as $subdie) {
-                    unset($subdie->value);
+                    $subdie->value = NULL;
                 }
             }
 
@@ -2017,7 +2017,7 @@ class BMGame {
      */
     protected function update_game_state_choose_turbo_swing() {
         if (!$this->isWaitingOnAnyAction()) {
-            unset($this->turboCache);
+            $this->turboCache = NULL;
             $this->gameState = BMGameState::END_TURN;
         }
 
@@ -2842,7 +2842,7 @@ class BMGame {
         // If plasma, then it is unspecified if the skills are unclear.
         // james: not written yet
 
-        return (isset($die->max));
+        return (!is_null($die->max));
     }
 
     /**
@@ -2959,7 +2959,7 @@ class BMGame {
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->setAllToNotWaiting();
-        unset($this->forceRoundResult);
+        $this->forceRoundResult = NULL;
     }
 
     /**
@@ -3613,7 +3613,7 @@ class BMGame {
      */
     public function __unset($property) {
         if (isset($this->$property)) {
-            unset($this->$property);
+            $this->$property = NULL;
             return TRUE;
         } else {
             return FALSE;
@@ -3944,7 +3944,7 @@ class BMGame {
 
         foreach ($dieArrayArray as $playerIdx => $dieArray) {
             foreach ($dieArray as $dieIdx => $die) {
-                if (isset($die->dice) && is_array($die->dice)) {
+                if (!is_null($die->dice) && is_array($die->dice)) {
                     foreach ($die->dice as $subdieIdx => $subdie) {
                         if (($subdie instanceof BMDieSwing) &&
                             $this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
@@ -4013,12 +4013,12 @@ class BMGame {
     ) {
         $areAllPropertiesNull = TRUE;
 
-        if (isset($subdie->max)) {
+        if (!is_null($subdie->max)) {
             $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['sides'] = $subdie->max;
             $areAllPropertiesNull = FALSE;
         }
 
-        if (isset($subdie->value) &&
+        if (!is_null($subdie->value) &&
             !$this->isGameStateBeforeSpecifyingDice()) {
             $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['value'] = $subdie->value;
             $areAllPropertiesNull = FALSE;
@@ -4218,7 +4218,7 @@ class BMGame {
         $courtesySwingArray = array();
 
         foreach ($this->playerArray as $playerIdx => $player) {
-            if (isset($player->button->dieArray)) {
+            if (!is_null($player->button->dieArray)) {
                 foreach ($player->button->dieArray as $die) {
                     if (isset($die->swingType)) {
                         $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;

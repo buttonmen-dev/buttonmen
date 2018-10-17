@@ -102,6 +102,8 @@ Newgame.actionInternalErrorPage = function() {
 
 Newgame.actionCreateGame = function() {
 
+  Newgame.createPlayerLists();
+
   // Create empty page and undefined form objects to be filled later
   Newgame.page = $('<div>');
   if (Newgame.justCreatedGame === true) {
@@ -120,51 +122,90 @@ Newgame.actionCreateGame = function() {
     'action': 'javascript:void(0);',
   });
 
-  // Table of miscellaneous game creation options
+  // add generic options table to the form
+  createform.append(Newgame.createMiscOptionsTable()).append($('<br />'));
+
+  // add table of button selections to the form
+  createform.append(Newgame.createButtonOptionsTable()).append($('<br />'));
+
+  // Form submission button
+  createform.append($('<button>', {
+    'id': 'newgame_action_button',
+    'text': 'Create game!',
+  }));
+  creatediv.append(createform);
+
+  Newgame.page.append(creatediv);
+
+  if (Newgame.activity.anyUnimplementedButtons) {
+    var warningpar = $('<p>');
+    warningpar.append($('<i>', {
+      'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
+              'contain unimplemented skills.  Selecting these buttons is not ' +
+              'recommended.'
+    }));
+    Newgame.page.append(warningpar);
+  }
+
+  // Function to invoke on button click
+  Newgame.form = Newgame.formCreateGame;
+
+  // Lay out the page
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
+
+  // Unlock player 1 if this was previously unlocked before form submission
+  if (Newgame.activity.isPlayer1Unlocked) {
+    $('#player1_toggle').click();
+  }
+
+  // activate all Chosen comboboxes
+  $('.chosen-select').chosen({ search_contains: true });
+};
+
+Newgame.createPlayerLists = function() {
+  Newgame.activity.opponentNames = {};
+  Newgame.activity.allPlayerNames = {};
+  for (var playerName in Api.player.list) {
+    Newgame.activity.allPlayerNames[playerName] = playerName;
+    if ((playerName != Login.player) &&
+        (Api.player.list[playerName].status == 'ACTIVE')) {
+      Newgame.activity.opponentNames[playerName] = playerName;
+    }
+  }
+};
+
+Newgame.createMiscOptionsTable = function() {
   var miscOptionsTable = $('<table>', {'id': 'newgame_create_table', });
 
+  miscOptionsTable.append(Newgame.createPlayer1Row());
+  miscOptionsTable.append(Newgame.createPlayer2Row());
+  miscOptionsTable.append(Newgame.createRoundSelectRow());
+  miscOptionsTable.append(Newgame.createPrevGameRow());
+  miscOptionsTable.append(Newgame.createDescRow());
+
+  return miscOptionsTable;
+};
+
+Newgame.createPlayer1Row = function() {
   var player1Row = $('<tr>', {'id': 'player1_row', });
   player1Row.append($('<th>', {'text': 'You:', }));
 
+  player1Row.append(
+    $('<td>', {'text': Login.player, }).append(
+      Newgame.createPlayer1Toggle()
+    )
+  );
+
+  return player1Row;
+};
+
+Newgame.createPlayer1Toggle = function() {
   var player1Toggle = $('<input>', {
     'type': 'button',
     'id': 'player1_toggle',
     'class': 'player1_toggle',
     'value': 'Change first player',
   });
-
-  player1Row.append(
-    $('<td>', {'text': Login.player, }).append(player1Toggle)
-  );
-  miscOptionsTable.append(player1Row);
-
-  // Setup opponent choice, including autocomplete from a dropdown
-  // FIXME: i couldn't get autocomplete to display properly, so
-  // temporarily used a select for the opponent name
-  var opponentNames = {};
-  var allPlayerNames = {};
-  for (var playerName in Api.player.list) {
-    allPlayerNames[playerName] = playerName;
-    if ((playerName != Login.player) &&
-        (Api.player.list[playerName].status == 'ACTIVE')) {
-      opponentNames[playerName] = playerName;
-    }
-  }
-  if (!('opponentName' in Newgame.activity)) {
-    Newgame.activity.opponentName = null;
-  }
-
-  var player2Row = Newgame.getSelectRow(
-    'Opponent',
-    'opponent_name',
-    opponentNames,
-    null,
-    Newgame.activity.opponentName,
-    'Anybody'
-  );
-  player2Row.prop('id', 'player2_row');
-
-  miscOptionsTable.append(player2Row);
 
   player1Toggle.click(function() {
     $('#player1_row').remove();
@@ -173,9 +214,10 @@ Newgame.actionCreateGame = function() {
     Newgame.getSelectRow(
       'Player 2',
       'opponent_name',
-      allPlayerNames,
+      Newgame.activity.allPlayerNames,
       null,
       Newgame.activity.opponentName,
+      true,
       'Anybody'
     ).prependTo('#newgame_create_table');
 
@@ -186,42 +228,80 @@ Newgame.actionCreateGame = function() {
     Newgame.getSelectRow(
       'Player 1',
       'player_name',
-      allPlayerNames,
+      Newgame.activity.allPlayerNames,
       null,
-      Newgame.activity.playerName
+      Newgame.activity.playerName,
+      true
     ).prependTo('#newgame_create_table');
+
+    // activate all Chosen comboboxes
+    $('.chosen-select').chosen({ search_contains: true });
   });
 
-  // Round selection
+  return player1Toggle;
+};
+
+Newgame.createPlayer2Row = function() {
+  if (!('opponentName' in Newgame.activity)) {
+    Newgame.activity.opponentName = null;
+  }
+
+  var player2Row = Newgame.getSelectRow(
+    'Opponent',
+    'opponent_name',
+    Newgame.activity.opponentNames,
+    null,
+    Newgame.activity.opponentName,
+    true,
+    'Anybody'
+  );
+  player2Row.prop('id', 'player2_row');
+
+  return player2Row;
+};
+
+Newgame.createRoundSelectRow = function() {
   if (!('nRounds' in Newgame.activity) || !Newgame.activity.nRounds) {
     Newgame.activity.nRounds = '3';
   }
-  miscOptionsTable.append(
-    Newgame.getSelectRow('Winner is first player to win', 'n_rounds',
-      {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
-       '4': '4 rounds', '5': '5 rounds', },
-      null, Newgame.activity.nRounds));
+  var selectRow = Newgame.getSelectRow(
+    'Winner is first player to win',
+    'n_rounds',
+    {
+      '1': '1 round',
+      '2': '2 rounds',
+      '3': '3 rounds',
+      '4': '4 rounds',
+      '5': '5 rounds',
+    },
+    null,
+    Newgame.activity.nRounds
+  );
 
-  // Previous game
+  return selectRow;
+};
+
+Newgame.createPrevGameRow = function() {
   if (!('previousGameId' in Newgame.activity)) {
     Newgame.activity.previousGameId = null;
   } else if (Newgame.activity.previousGameId) {
     var prevGameRow = $('<tr>');
-    miscOptionsTable.append(prevGameRow);
     prevGameRow.append($('<th>', {'text': 'Copy chat from:' }));
     var prevGameLink = $('<a>', {
       'text': 'Game ' + Newgame.activity.previousGameId,
       'href': 'game.html?game=' + Newgame.activity.previousGameId,
     });
     prevGameRow.append($('<td>').append(prevGameLink));
-  }
 
-  // Game description text
+    return prevGameRow;
+  }
+};
+
+Newgame.createDescRow = function() {
   if (!('description' in Newgame.activity)) {
     Newgame.activity.description = '';
   }
   var descRow = $('<tr>');
-  miscOptionsTable.append(descRow);
   descRow.append($('<th>', {'text': 'Description (optional):' }));
   var descInput = $('<textarea>', {
     'id': 'description',
@@ -233,11 +313,10 @@ Newgame.actionCreateGame = function() {
   });
   descRow.append($('<td>').append(descInput));
 
-  // add generic options table to the form
-  createform.append(miscOptionsTable);
-  createform.append($('<br>'));
+  return descRow;
+};
 
-  // Table of button selections
+Newgame.createButtonOptionsTable = function() {
   var buttonOptionsTable = $('<table>', {'id': 'newgame_button_table', });
 
   // Load buttons and recipes into dicts for use in selects
@@ -307,43 +386,12 @@ Newgame.actionCreateGame = function() {
 
   // button selection row
   var selectRow = $('<tr>');
-  selectRow.append(Newgame.getButtonSelectTd('player'));
-  selectRow.append(Newgame.getButtonSelectTd('opponent'));
+  selectRow.append(Newgame.getButtonSelectTd('player', true));
+  selectRow.append(Newgame.getButtonSelectTd('opponent', true));
   buttonOptionsTable.append(selectRow);
 
-  // Form submission button
-  createform.append(buttonOptionsTable);
-  createform.append($('<br>'));
-  createform.append($('<button>', {
-    'id': 'newgame_action_button',
-    'text': 'Create game!',
-  }));
-  creatediv.append(createform);
-
-  Newgame.page.append(creatediv);
-
-  if (Newgame.activity.anyUnimplementedButtons) {
-    var warningpar = $('<p>');
-    warningpar.append($('<i>', {
-      'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
-              'contain unimplemented skills.  Selecting these buttons is not ' +
-              'recommended.'
-    }));
-    Newgame.page.append(warningpar);
-  }
-
-  // Function to invoke on button click
-  Newgame.form = Newgame.formCreateGame;
-
-  // Lay out the page
-  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
-
-  // Unlock player 1 if this was previously unlocked before form submission
-  if (Newgame.activity.isPlayer1Unlocked) {
-    $('#player1_toggle').click();
-  }
+  return buttonOptionsTable;
 };
-
 
 ////////////////////////////////////////////////////////////////////////
 // These functions define form submissions, one per action type
@@ -487,6 +535,8 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
     Newgame.justCreatedGame = false;
     $('p#createAnotherGame').hide();
     $('div#newgame_page > div').show();
+    // reset Chosen select dropdowns
+    $('.chosen-select').chosen('destroy').chosen({ search_contains: true });
   });
   anotherGamePar.append(anotherGameBtn);
   gamePar.append(anotherGamePar);
@@ -502,23 +552,29 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
 // These functions generate and return pieces of HTML
 
 Newgame.getSelectRow = function(rowname, selectname, valuedict,
-                                greydict, selectedval, blankOption) {
+                                greydict, selectedval, isComboBox,
+                                blankOption) {
   var selectRow = $('<tr>');
   selectRow.append($('<th>', {'text': rowname + ':', }));
 
-  var selectTd = Newgame.getSelectTd(
-    rowname, selectname, valuedict, greydict, selectedval, blankOption);
+  var selectTd = Newgame.getSelectTd(rowname, selectname, valuedict,
+                                     greydict, selectedval, isComboBox,
+                                     blankOption);
 
   selectRow.append(selectTd);
   return selectRow;
 };
 
 Newgame.getSelectTd = function(nametext, selectname, valuedict,
-                               greydict, selectedval, blankOption) {
+                               greydict, selectedval, isComboBox, blankOption) {
   var select = $('<select>', {
     'id': selectname,
     'name': selectname,
   });
+
+  if (isComboBox) {
+    select.addClass('chosen-select');
+  }
 
   var optionlist = Newgame.getSelectOptionList(
     nametext, valuedict, greydict, selectedval, blankOption);
@@ -572,14 +628,15 @@ Newgame.getSelectOptionList = function(
   return optionlist;
 };
 
-Newgame.getButtonSelectTd = function(player) {
+Newgame.getButtonSelectTd = function(player, isComboBox) {
   if (player == 'player') {
     return Newgame.getSelectTd(
       'Your button',
       'player_button',
       Newgame.activity.buttonList.player,
       Newgame.activity.buttonGreyed,
-      Newgame.activity.playerButton);
+      Newgame.activity.playerButton,
+      isComboBox);
   } else if (Newgame.activity.buttonLimits.opponent.button_sets.ANY &&
       Newgame.activity.buttonLimits.opponent.tourn_legal.ANY &&
       Newgame.activity.buttonLimits.opponent.die_skills.ANY) {
@@ -589,6 +646,7 @@ Newgame.getButtonSelectTd = function(player) {
       Newgame.activity.buttonList.opponent,
       Newgame.activity.buttonGreyed,
       Newgame.activity.opponentButton,
+      isComboBox,
      'Any button');
   } else {
     return Newgame.getSelectTd(
@@ -596,7 +654,8 @@ Newgame.getButtonSelectTd = function(player) {
       'opponent_button',
       Newgame.activity.buttonList.opponent,
       Newgame.activity.buttonGreyed,
-      Newgame.activity.opponentButton);
+      Newgame.activity.opponentButton,
+      isComboBox);
   }
 };
 
@@ -609,7 +668,8 @@ Newgame.updateButtonSelectTd = function(player) {
       'Your button',
       Newgame.activity.buttonList.player,
       Newgame.activity.buttonGreyed,
-      Newgame.activity.playerButton);
+      Newgame.activity.playerButton
+    );
   } else if (Newgame.activity.buttonLimits.opponent.button_sets.ANY &&
       Newgame.activity.buttonLimits.opponent.tourn_legal.ANY &&
       Newgame.activity.buttonLimits.opponent.die_skills.ANY) {
@@ -619,14 +679,16 @@ Newgame.updateButtonSelectTd = function(player) {
       Newgame.activity.buttonList.opponent,
       Newgame.activity.buttonGreyed,
       Newgame.activity.opponentButton,
-     'Any button');
+      'Any button'
+    );
   } else {
     selectid = 'opponent_button';
     optionlist = Newgame.getSelectOptionList(
       'Opponent\'s button',
       Newgame.activity.buttonList.opponent,
       Newgame.activity.buttonGreyed,
-      Newgame.activity.opponentButton);
+      Newgame.activity.opponentButton
+    );
   }
 
   var optioncount = optionlist.length;
@@ -635,6 +697,8 @@ Newgame.updateButtonSelectTd = function(player) {
   for (var i = 0; i < optioncount; i++) {
     select.append(optionlist[i]);
   }
+
+  select.trigger('chosen:updated');
 };
 
 Newgame.updateButtonList = function(player, limitid) {

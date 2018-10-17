@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Bootstrap for phpunit under AMP/NetBeans
  */
 

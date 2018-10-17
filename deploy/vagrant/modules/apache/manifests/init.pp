@@ -14,28 +14,32 @@ class apache::server {
       require => Package["apache2"];
   }
 
-  # Customize apache default site
-  file {
-    "/etc/apache2/sites-available/default":
-      ensure => file,
-      content => template("apache/site_default.erb"),
-      notify => Service["apache2"];
-  }
-
   # Monitor the error log
   include "apache::server::feature::monitor-logs"
 }
 
-class apache::server::circleci {
+class apache::server::vagrant {
   # include the base class
   include "apache::server"
 
-  # Disable the default site, so the buttonmen site will load
   file {
+    # Customize apache default site
+    "/etc/apache2/sites-available/000-default.conf":
+      ensure => file,
+      content => template("apache/site_default.erb"),
+      notify => Service["apache2"];
+
+    # Enable the default site under the default name
     "/etc/apache2/sites-enabled/000-default.conf":
-      ensure => absent,
+      ensure => link,
+      target => "/etc/apache2/sites-available/000-default.conf",
       notify => Service["apache2"];
   }
+}
+
+class apache::server::circleci {
+  # same configuration as vagrant
+  include "apache::server::vagrant"
 }
 
 class apache::server::feature::monitor-logs {

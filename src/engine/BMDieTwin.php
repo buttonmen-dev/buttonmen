@@ -260,7 +260,7 @@ class BMDieTwin extends BMDie {
      */
     public function split() {
         $oldRecipe = $this->get_recipe(TRUE);
-        unset($this->value);
+        $this->value = NULL;
         $newdie = clone $this;
 
         foreach ($this->dice as $dieIdx => &$die) {

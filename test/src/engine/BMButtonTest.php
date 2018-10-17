@@ -319,10 +319,10 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      * @covers BMButton::__isset
      */
     public function test__isset() {
-        $this->assertFalse(isset($this->object->name));
+        $this->assertTrue(is_null($this->object->name));
 
         $this->object->name = 'TestName';
-        $this->assertTrue(isset($this->object->name));
+        $this->assertFalse(is_null($this->object->name));
     }
 
     /**
@@ -334,6 +334,6 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
         $this->object->name = 'TestName';
         unset($this->object->name);
-        $this->assertFalse(isset($this->object->name));
+        $this->assertTrue(is_null($this->object->name));
     }
 }
