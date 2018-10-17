@@ -3,6 +3,7 @@ class javascript::type::circleci {
     "phantomjs": ensure => installed;
 #    "jscoverage": ensure => installed;
     "npm": ensure => installed;
+    "nodejs-legacy": ensure => installed;
   }
 
   file {
