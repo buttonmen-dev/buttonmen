@@ -1,4 +1,8 @@
 class sudo::buttonmen-devs {
+  package {
+    "sudo": ensure => installed;
+  }
+
   file {
     "/etc/sudoers.d/99-buttonmen-dev":
       ensure => file,
