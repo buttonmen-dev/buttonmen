@@ -7,16 +7,16 @@ jobs:
       - checkout
       - run:
           name: Symlink /buttonmen
-          command: sudo ln -s /home/circleci/project /buttonmen
+          command: ln -s /root/project /buttonmen
       - run:
           name: Make sure log dir exists
           command: mkdir -p build/logs
       - run:
           name: Bootstrap puppet
-          command: sudo bash deploy/vagrant/bootstrap.sh
+          command: bash deploy/vagrant/bootstrap.sh
       - run:
           name: Run puppet
-          command: sudo puppet apply --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/circleci/manifests/init.pp
+          command: puppet apply --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/circleci/manifests/init.pp
       - run:
           name: Audit line termination of all files in the tree to match Button Men standard
           command: python deploy/circleci/audit_newlines.py
@@ -37,7 +37,7 @@ jobs:
           command: php /etc/php/7.0/deploy-includes/phpunit.phar --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit build/logs/junit.xml --coverage-clover build/logs/clover.xml --debug test/
       - run:
           name: Install dummy API files created by PHPUnit into test webserver
-          command: sudo rsync -av src/api/dummy_data/ /var/www/api/dummy_data/
+          command: rsync -av src/api/dummy_data/ /var/www/api/dummy_data/
       - run:
           name: Verify dummy API files were fully installed
           command: bash ./deploy/circleci/verify_dummy_responder_files.sh src/api/dummy_data/ /var/www/api/dummy_data/
