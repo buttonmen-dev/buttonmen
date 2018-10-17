@@ -1,6 +1,6 @@
 #!/bin/sh
 
 cd util/grunt
-./npm_install_grunt
+npm install -g grunt-cli
 npm install
-./node_modules/grunt-cli/bin/grunt circleci --no-color
+grunt circleci --no-color
