@@ -34,7 +34,7 @@ jobs:
           command: phpcs --report=checkstyle --report-file=./build/logs/checkstyle.xml --standard=./deploy/circleci/checkstyle/buttonmen.xml ./src/api ./src/engine
       - run:
           name: Run unit tests using PHPUnit and generates junit.xml and clover.xml
-          command: php /etc/php/7.0/deploy-includes/phpunit.phar --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit build/logs/junit.xml --coverage-clover build/logs/clover.xml --debug test/
+          command: phpunit --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit build/logs/junit.xml --coverage-clover build/logs/clover.xml --debug test/
       - run:
           name: Install dummy API files created by PHPUnit into test webserver
           command: rsync -av src/api/dummy_data/ /var/www/api/dummy_data/
