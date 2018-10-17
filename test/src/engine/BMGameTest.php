@@ -5874,7 +5874,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('V', $game->activeDieArrayArray[1][2]->swingType);
         $this->assertEquals(11, $game->activeDieArrayArray[1][2]->swingValue);
         $this->assertEquals(6, $game->activeDieArrayArray[1][2]->max);
-        $this->assertTrue(isset($game->activeDieArrayArray[1][2]->value));
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
 
         $this->assertEquals(array(40.5, -12.0), $game->roundScoreArray);
     }
@@ -9024,9 +9024,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray[0][2]->set_optionValue(12);
         $game->activeDieArrayArray[0][3]->set_optionValue(16);
         $game->activeDieArrayArray[0][4]->set_optionValue(20);
-        $this->assertTrue(isset($game->activeDieArrayArray[0][2]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[0][3]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertNotNull($game->activeDieArrayArray[0][2]->max);
+        $this->assertNotNull($game->activeDieArrayArray[0][3]->max);
+        $this->assertNotNull($game->activeDieArrayArray[0][4]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
@@ -9081,9 +9081,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray[1][2]->set_optionValue(8);
         $game->activeDieArrayArray[1][3]->set_optionValue(6);
         $game->activeDieArrayArray[1][4]->set_optionValue(12);
-        $this->assertTrue(isset($game->activeDieArrayArray[1][2]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[1][3]->max));
-        $this->assertTrue(isset($game->activeDieArrayArray[1][4]->max));
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->max);
+        $this->assertNotNull($game->activeDieArrayArray[1][3]->max);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->max);
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertEquals(6, $game->activeDieArrayArray[1][3]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[1][4]->max);
