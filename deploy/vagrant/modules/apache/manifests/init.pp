@@ -14,11 +14,17 @@ class apache::server {
       require => Package["apache2"];
   }
 
-  # Customize apache default site
   file {
-    "/etc/apache2/sites-available/default":
+    # Customize apache default site
+    "/etc/apache2/sites-available/000-default.conf":
       ensure => file,
       content => template("apache/site_default.erb"),
+      notify => Service["apache2"];
+
+    # Enable the default site under the default name
+    "/etc/apache2/sites-enabled/000-default.conf":
+      ensure => link,
+      target => "/etc/apache2/sites-available/000-default.conf",
       notify => Service["apache2"];
   }
 

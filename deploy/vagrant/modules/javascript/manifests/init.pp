@@ -29,10 +29,10 @@ class javascript::type::jenkins {
     # unzip needed to unpack JSCover
     "unzip": ensure => installed;
 
-    # lighttpd and php5-cgi needed to serve dummy_responder.php for
+    # lighttpd and php-cgi needed to serve dummy_responder.php for
     # automated QUnit tests
     "lighttpd": ensure => installed;
-    "php5-cgi": ensure => installed;
+    "php-cgi": ensure => installed;
   }
 
   # install lighttpd, but don't let it run as a service

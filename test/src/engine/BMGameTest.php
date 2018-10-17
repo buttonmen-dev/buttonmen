@@ -2551,7 +2551,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->activeDieArrayArray = 'abc';
             $this->fail('Active die array array must be an array.');
-        } catch (PHPUnit_Framework_Error $expected) {
+        } catch (TypeError $expected) {
         }
 
         try {
@@ -2729,7 +2729,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->capturedDieArrayArray = 'abc';
             $this->fail('Captured die array array must be an array.');
-        } catch (PHPUnit_Framework_Error $expected) {
+        } catch (TypeError $expected) {
         }
 
         try {
@@ -9981,9 +9981,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               'Default'); // attackType
         $game->proceed_to_next_user_action();
 
-        // james: note that end normally shifts the pointer, so use
-        // call_user_func and array_values to avoid changing the original array
-        $lastLogEntry = call_user_func('end', array_values($game->actionLog));
+        $lastLogEntry = $game->actionLog[count($game->actionLog) - 1];
         $this->assertEquals('attack', $lastLogEntry->actionType);
         $this->assertEquals('Berserk', $lastLogEntry->params['attackType']);
         $this->assertEquals(1, $game->activeDieArrayArray[0][4]->max);
@@ -10005,9 +10003,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               'Default'); // attackType
         $game->proceed_to_next_user_action();
 
-        // james: note that end normally shifts the pointer, so use
-        // call_user_func and array_values to avoid changing the original array
-        $lastLogEntry = call_user_func('end', array_values($game->actionLog));
+        $lastLogEntry = $game->actionLog[count($game->actionLog) - 1];
         $this->assertEquals('attack', $lastLogEntry->actionType);
         $this->assertEquals('Power', $lastLogEntry->params['attackType']);
 
@@ -10027,9 +10023,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               'Default'); // attackType
         $game->proceed_to_next_user_action();
 
-        // james: note that end normally shifts the pointer, so use
-        // call_user_func and array_values to avoid changing the original array
-        $lastLogEntry = call_user_func('end', array_values($game->actionLog));
+        $lastLogEntry = $game->actionLog[count($game->actionLog) - 1];
         $this->assertEquals('attack', $lastLogEntry->actionType);
         $this->assertEquals('Skill', $lastLogEntry->params['attackType']);
 
