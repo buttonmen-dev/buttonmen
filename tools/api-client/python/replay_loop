@@ -136,9 +136,9 @@ def test_new_games():
   # received.
 
   # Reset primary and test databases
-  os.system('echo "drop database buttonmen" | mysql -u root')
-  os.system('/usr/local/bin/create_buttonmen_databases')
-  os.system('cat ~/example_players.sql | mysql -u root')
+  os.system('echo "drop database buttonmen" | sudo mysql')
+  os.system('sudo /usr/local/bin/create_buttonmen_databases')
+  os.system('cat ~/example_players.sql | sudo mysql')
 
   os.chdir(HOMEBMDIR)
   retval = os.system('./test_log_games 100')
