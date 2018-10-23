@@ -95,7 +95,8 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (65, 'Classic Fanatics', 100000),
 
 # Special
-(10000, 'RandomBM', 200000);
+(10000, 'RandomBM', 200000),
+(20000, 'CustomBM', 20);
 
 
 DELETE FROM button;
@@ -1233,7 +1234,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_ord
 (10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 70),
 (10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 80),
 (10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90),
-(10010, 'RandomBMSoldiers',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 100);
+(10010, 'RandomBMSoldiers',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 100),
+(11000, 'CustomBM',           '', 0, 0, (SELECT id FROM buttonset WHERE name="CustomBM"), 0);
 
 
 

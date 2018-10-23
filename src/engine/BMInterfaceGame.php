@@ -21,6 +21,7 @@ class BMInterfaceGame extends BMInterface {
      * @param int|NULL $previousGameId
      * @param int|NULL $currentPlayerId
      * @param bool $autoAccept
+     * @param array $customRecipeArray
      * @return array|NULL
      */
     public function create_game(
@@ -30,7 +31,8 @@ class BMInterfaceGame extends BMInterface {
         $description = '',
         $previousGameId = NULL,
         $currentPlayerId = NULL,
-        $autoAccept = TRUE
+        $autoAccept = TRUE,
+        array $customRecipeArray = array()
     ) {
         $isValidInfo =
             $this->validate_game_info(
@@ -82,6 +84,7 @@ class BMInterfaceGame extends BMInterface {
                 );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
+            $this->set_custom_recipes($gameId, $buttonNameArray, $customRecipeArray);
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
@@ -224,6 +227,57 @@ class BMInterfaceGame extends BMInterface {
 
                 $statement->execute(array(':game_id'   => $gameId,
                                           ':position'  => $position));
+            }
+        }
+    }
+
+    /**
+     * Set custom recipes
+     *
+     * @param int $gameId
+     * @param array $buttonNameArray
+     * @param array $customRecipeArray
+     */
+    protected function set_custom_recipes(
+        $gameId,
+        array $buttonNameArray,
+        array $customRecipeArray
+    ) {
+        if (empty($customRecipeArray)) {
+            return;
+        }
+
+        // validate custom recipes
+        foreach ($buttonNameArray as $position => $buttonName) {
+            if ('__custom' == $buttonName) {
+                $tempButton = new BMButton;
+                try {
+                    $tempButton->load($customRecipeArray[$position], 'CustomBM', TRUE);
+                } catch (InvalidArgumentException $e) {
+                    $this->set_message('Custom recipe ' . $customRecipeArray[$position] .
+                                       ' is invalid.');
+                    return FALSE;
+                }
+
+                if ($tempButton->hasUnimplementedSkill) {
+                    $this->set_message('Custom recipe ' . $customRecipeArray[$position] .
+                                       ' contains unimplemented skills.');
+                    return FALSE;
+                }
+            }
+        }
+
+        foreach ($buttonNameArray as $position => $buttonName) {
+            if ('__custom' == $buttonName) {
+                $query = 'UPDATE game_player_map '.
+                         'SET alt_recipe = :custom_recipe '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':custom_recipe' => $customRecipeArray[$position],
+                                          ':game_id' => $gameId,
+                                          ':position' => $position));
             }
         }
     }
@@ -397,6 +451,9 @@ class BMInterfaceGame extends BMInterface {
             if ('__random' == $buttonName) {
                 $buttonIdArray[] = NULL;
             } elseif (!empty($buttonName)) {
+                if ('__custom' == $buttonName) {
+                    $buttonName = 'CustomBM';
+                }
                 $query = 'SELECT id FROM button '.
                          'WHERE name = :button_name';
                 $statement = self::$conn->prepare($query);

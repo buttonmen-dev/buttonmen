@@ -72,6 +72,7 @@ class BMDieSwing extends BMDie {
      * @var array
      */
     private static $swingRanges = array(
+        "P" => array(1, 30),
         "R" => array(2, 16),
         "S" => array(6, 20),
         "T" => array(2, 12),
@@ -140,7 +141,8 @@ class BMDieSwing extends BMDie {
     public static function create($recipe, array $skills = NULL) {
 
         if (!is_string($recipe) || strlen($recipe) != 1 ||
-            ord("R") > ord($recipe) || ord($recipe) > ord("Z")) {
+            ord("P") > ord($recipe) || ord($recipe) > ord("Z") ||
+            ("Q" == $recipe)) {
             throw new UnexpectedValueException("Invalid recipe: $recipe");
         }
 
