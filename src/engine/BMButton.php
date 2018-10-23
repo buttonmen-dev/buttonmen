@@ -117,8 +117,16 @@ class BMButton extends BMCanHaveSkill {
      * @param string $recipe
      * @param string $name
      * @param bool $isRecipeAltered
+     * @param bool $doPropagateErrors
+     * @param bool $doValidate
      */
-    public function load($recipe, $name = NULL, $isRecipeAltered = FALSE) {
+    public function load(
+        $recipe,
+        $name = NULL,
+        $isRecipeAltered = FALSE,
+        $doPropagateErrors = FALSE,
+        $doValidate = FALSE
+    ) {
         if (!is_null($name)) {
             $this->name = $name;
             $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $name);
@@ -128,7 +136,10 @@ class BMButton extends BMCanHaveSkill {
             }
         }
 
-        $this->validate_recipe($recipe);
+        if ($doValidate) {
+            $this->validate_recipe($recipe);
+        }
+
         $this->recipe = $recipe;
         $this->dieArray = array();
         $this->dieSkills = array();
@@ -146,15 +157,21 @@ class BMButton extends BMCanHaveSkill {
         // set die sides and skills, one die at a time
         foreach ($dieRecipeArray as $dieRecipe) {
             try {
-                $die = BMDie::create_from_recipe($dieRecipe);
-            } catch (BMUnimplementedDieException $e) {
+                $die = BMDie::create_from_recipe($dieRecipe, $doPropagateErrors);
+            } catch (BMExceptionUnimplementedDie $e) {
+                $this->hasUnimplementedSkill = TRUE;
+                continue;
+            } catch (BMExceptionUnimplementedSkill $e) {
                 $this->hasUnimplementedSkill = TRUE;
                 continue;
             } catch (Exception $e) {
-                error_log('Error loading die ' . $dieRecipe . ' for ' . $name);
-                error_log($e);
-                $this->hasUnimplementedSkill = TRUE;
-                continue;
+                if ($doPropagateErrors) {
+                    throw $e;
+                } else {
+                    throw new InvalidArgumentException(
+                        'Error loading die ' . $dieRecipe . ' for button ' . $name . '.'
+                    );
+                }
             }
             if (isset($this->ownerObject)) {
                 $die->ownerObject = $this->ownerObject;
@@ -211,12 +228,45 @@ class BMButton extends BMCanHaveSkill {
     }
 
     /**
-     * Check that a recipe is valid. If it is invalid, an
-     * InvalidArgumentException is thrown.
+     * Check that a recipe is valid. If it is invalid, a
+     * BMExceptionButtonRecipe is thrown.
      *
      * @param string $recipe
      */
-    private function validate_recipe($recipe) {
+    protected function validate_recipe($recipe) {
+        if (empty($recipe)) {
+            return;
+        }
+
+        if (strlen($recipe) >= 150) {
+            throw new BMExceptionButtonRecipe(
+                'Button recipes must be less than 150 characters long.'
+            );
+        }
+
+        if (substr_count($recipe, '+') > 1) {
+            throw new BMExceptionButtonRecipe(
+                'Button recipes may include no more than one auxiliary die.'
+            );
+        }
+
+        if (preg_match('/\+.* .*\(/', $recipe)) {
+            throw new BMExceptionButtonRecipe(
+                'Currently, any auxiliary die must be the last die in the recipe.'
+            );
+        }
+
+        if (substr_count($recipe, '(') > 11) {
+            throw new BMExceptionButtonRecipe(
+                'Button recipes may include no more than eleven dice.'
+            );
+        }
+
+        $this->validate_die_recipes($recipe);
+        $this->validate_total_sides($recipe);
+    }
+
+    protected function validate_die_recipes($recipe) {
         $dieArray = preg_split(
             '/[[:space:]]+/',
             $recipe,
@@ -224,16 +274,152 @@ class BMButton extends BMCanHaveSkill {
             PREG_SPLIT_NO_EMPTY
         );
 
-        if (empty($recipe)) {
-            return;
+        foreach ($dieArray as $dieIdx => $dieRecipe) {
+            if ((0 === $dieIdx) && (FALSE !== strpos($dieRecipe, '+'))) {
+                // see Issue #2636
+                // Two issues are fixed with this:
+                //   - Button containing only an aux die shouldn't be allowed
+                //   - Internal error occurs when the first die is aux and a player declines aux
+                throw new BMExceptionButtonRecipe(
+                    'Currently, the first die cannot be an aux die.'
+                );
+            }
+
+            // check for the following pattern:
+            //   - possible non-parenthesis characters
+            //   - open parenthesis
+            //   - required non-parenthesis characters (which are captured in $matches[1])
+            //   - close parenthesis
+            //   - possible non-parenthesis characters
+            $matches = array();
+            $dieContainsSides = preg_match('/^[^\(\)]*\(([^\(\)]+)\)[^\(\)]*$/', $dieRecipe, $matches);
+            if (1 !== $dieContainsSides) {
+                throw new BMExceptionButtonRecipe(
+                    'Invalid button recipe. ' .
+                    'Check your syntax and make sure that each die recipe contains no whitespace.'
+                );
+            }
+
+            $dieType = $matches[1];
+            $this->validate_turbo_restrictions($dieRecipe, $dieType);
+
+            if ((FALSE !== strpos($dieType, ',')) && (FALSE !== strpos($dieRecipe, 'f'))) {
+                $subdice = explode(',', $dieType);
+                foreach ($subdice as $subdie) {
+                    if ('0' === $subdie) {
+                        throw new BMExceptionButtonRecipe(
+                            'Currently, we do not support focus twin dice where a subdie is zero.'
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    protected function validate_turbo_restrictions($dieRecipe, $dieType) {
+        // Issue #2676 deals with skills that are incompatible with turbo
+        if (FALSE !== strpos($dieRecipe, '!')) {
+            if (FALSE !== strpos($dieRecipe, 'm')) {
+                throw new BMExceptionButtonRecipe(
+                    'Turbo may not be combined with morphing.'
+                );
+            }
+
+            if (FALSE !== strpos($dieRecipe, 'D')) {
+                throw new BMExceptionButtonRecipe(
+                    'Turbo may not be combined with doppelganger.'
+                );
+            }
+
+            if (FALSE !== strpos($dieRecipe, '?')) {
+                throw new BMExceptionButtonRecipe(
+                    'Turbo may not be combined with mood.'
+                );
+            }
+
+            if (FALSE !== strpos($dieRecipe, '&')) {
+                throw new BMExceptionButtonRecipe(
+                    'Turbo may not be combined with mad.'
+                );
+            }
+
+            if (FALSE !== strpos($dieRecipe, 'k')) {
+                throw new BMExceptionButtonRecipe(
+                    'Turbo may not be combined with konstant.'
+                );
+            }
+
+            if (is_numeric(str_replace(',', '', $dieType))) {
+                if (FALSE !== strpos($dieRecipe, 'H')) {
+                    throw new BMExceptionButtonRecipe(
+                        'A static turbo die may not have mighty.'
+                    );
+                }
+
+                if (FALSE !== strpos($dieRecipe, 'h')) {
+                    throw new BMExceptionButtonRecipe(
+                        'A static turbo die may not have weak.'
+                    );
+                }
+
+                if (FALSE !== strpos($dieRecipe, 'B')) {
+                    throw new BMExceptionButtonRecipe(
+                        'A static turbo die may not have berserk.'
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Check that a recipe does not allow too many sides, which might overwhelm our server when
+     * the hit table is being calculated. If it is invalid, a BMExceptionButtonRecipe is thrown.
+     *
+     * @param string $recipe
+     */
+    protected function validate_total_sides($recipe) {
+        preg_match_all('/\(([^\(\)]*)\)/', $recipe, $matchArray);
+
+        $parenthesisContentsArray = $matchArray[1];
+
+        $totalSideCount = 0;
+
+        foreach ($parenthesisContentsArray as $parenthesisContents) {
+            if (FALSE !== strpos($parenthesisContents, ',')) {
+                $subdieArray = explode(',', $parenthesisContents);
+                foreach ($subdieArray as $subdie) {
+                    $totalSideCount += $this->max_side_count($subdie);
+                }
+            } elseif (FALSE !== strpos($parenthesisContents, '/')) {
+                $optionArray = explode('/', $parenthesisContents);
+                $maxVal = 0;
+                foreach ($optionArray as $option) {
+                    $maxVal = max($maxVal, $this->max_side_count($option));
+                }
+                $totalSideCount += $maxVal;
+            } else {
+                $totalSideCount += $this->max_side_count($parenthesisContents);
+            }
         }
 
-        foreach ($dieArray as $tempDie) {
-        // james: this validation is probably incomplete
-            $dieContainsSides = preg_match('/\(.+\)/', $tempDie);
-            if (1 !== $dieContainsSides) {
-                throw new InvalidArgumentException('Invalid button recipe.');
-            }
+        if ($totalSideCount > 200) {
+            throw new BMExceptionButtonRecipe(
+                'Currently, a recipe cannot exceed a total of 200 sides.'
+            );
+        }
+    }
+
+    protected function max_side_count($die) {
+        if (is_numeric($die)) {
+            return $die;
+        } elseif (array_key_exists($die, BMDieSwing::$swingRanges)) {
+            return BMDieSwing::$swingRanges[$die][1];
+        } elseif ('C' === $die) {
+            return 20;
+        } else {
+            throw new BMExceptionButtonRecipe(
+                'Cannot determine max side count of this die type.'
+            );
         }
     }
 

@@ -138,7 +138,7 @@ class BMDie extends BMCanHaveSkill {
             $this->max = 0;
         } else {
             $this->min = 1;
-            $this->max = $sides;
+            $this->max = (int)$sides;
         }
 
         $this->add_multiple_skills($skills);
@@ -192,50 +192,109 @@ class BMDie extends BMCanHaveSkill {
      * @param array $skills
      * @return BMDie
      */
-    protected static function create_from_string_components($recipe, array $skills = NULL) {
+    protected static function create_from_string_components(
+        $recipe,
+        array $skills = NULL,
+        $doPropagateErrors = FALSE
+    ) {
         $die = NULL;
 
         try {
-            // Option dice divide on a /, can contain any die type
-            if (count($optionArray = explode('/', $recipe)) > 1) {
+            if (self::is_valid_option_die($recipe)) {
+                $optionArray = explode('/', $recipe);
                 $die = BMDieOption::create($optionArray, $skills);
-            } elseif (count($twinArray = explode(',', $recipe)) > 1) {
-                // Twin dice divide on a comma, can contain any type but option
+            } elseif (self::is_valid_twin_die($recipe)) {
+                $twinArray = explode(',', $recipe);
                 $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
 //                $die = BMDieWildcard::create($recipe, $skills);
-                throw new BMUnimplementedDieException("Wildcard skill not implemented");
-            } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
-                // Integers are normal dice
-                $die = BMDie::create((int)$recipe, $skills);
+                throw new BMExceptionUnimplementedDie('Wildcard skill not implemented');
+            } elseif (is_numeric($recipe)) {
+                // Deal with dice with numeric values, which will mostly be integers
+                $die = BMDie::create($recipe, $skills);
             } elseif (strlen($recipe) == 1) {
                 // Single character that's not a number is a swing die
                 $die = BMDieSwing::create($recipe, $skills);
             } else {
                 // oops
-                throw new UnexpectedValueException("Invalid recipe: $recipe");
+                throw new InvalidArgumentException("Invalid die type: $recipe");
             }
-        } catch (UnexpectedValueException $e) {
-            error_log(
-                "Caught exception in BMDie::create_from_string_components: " .
-                $e->getMessage()
-            );
-            return NULL;
+        } catch (Exception $e) {
+            if ($doPropagateErrors) {
+                throw new BMExceptionDieRecipe('Die recipe exception thrown', 0, $e);
+            } elseif (is_a($e, 'BMExceptionUnimplementedDie')) {
+                throw $e;
+            } elseif (is_a($e, 'BMExceptionUnimplementedSkill')) {
+                throw $e;
+            } else {
+                error_log(
+                    "Caught exception in BMDie::create_from_string_components: " .
+                    $e->getMessage()
+                );
+                return NULL;
+            }
         }
 
         return $die;
     }
 
     /**
+     * Validate option die recipe
+     *
+     * @param string $recipe
+     * @return bool
+     */
+    protected static function is_valid_option_die($recipe) {
+        // Option dice divide on a forward slash
+        $optionArray = explode('/', $recipe);
+
+        // not an option die
+        if (count($optionArray) <= 1) {
+            return FALSE;
+        }
+
+        // more than two options
+        if (count($optionArray) > 2) {
+            throw new BMExceptionUnimplementedDie('Option dice may only have two options');
+        }
+
+        return TRUE;
+    }
+
+    /**
+     * Validate twin die recipe
+     *
+     * @param string $recipe
+     * @return bool
+     */
+    protected static function is_valid_twin_die($recipe) {
+        // Twin dice divide on a comma
+        $twinArray = explode(',', $recipe);
+
+        // not a twin die
+        if (count($twinArray) <= 1) {
+            return FALSE;
+        }
+
+        // more than two components
+        if (count($twinArray) > 2) {
+            throw new BMExceptionUnimplementedDie('Twin dice may only have two component dice');
+        }
+
+        return TRUE;
+    }
+
+    /**
      * Create an appropriate type of BMDie from a full die recipe
      *
      * @param string $recipe
+     * @param bool $doPropagateErrors
      * @return BMDie
      */
-    public static function create_from_recipe($recipe) {
+    public static function create_from_recipe($recipe, $doPropagateErrors = FALSE) {
         $sides = BMDie::parse_recipe_for_sides($recipe);
         $skills = BMDie::parse_recipe_for_skills($recipe);
-        return BMDie::create_from_string_components($sides, $skills);
+        return BMDie::create_from_string_components($sides, $skills, $doPropagateErrors);
     }
 
     /**
@@ -247,16 +306,49 @@ class BMDie extends BMCanHaveSkill {
      * @return BMDie
      */
     public static function create($size, array $skills = NULL) {
-        if (!is_numeric($size) || ($size != (int)$size) ||
-            $size < 0 || $size > 99) {
-            throw new UnexpectedValueException("Illegal die size: $size");
-        }
+        self::validate_die_size($size);
 
         $die = new BMDie;
 
         $die->init($size, $skills);
 
         return $die;
+    }
+
+    protected static function validate_die_size($size, $isOptionSubDie = FALSE) {
+        if (!is_numeric($size)) {
+            if ($isOptionSubDie) {
+                throw new InvalidArgumentException(
+                    'Only numeric sizes are allowed in option dice, not ' . $size . '.'
+                );
+            } else {
+                throw new InvalidArgumentException(
+                    'Die size is normally expected to be numeric, ' .
+                    'but you chose a size of ' . $size . '.'
+                );
+            }
+        }
+
+        if ($size != (int)$size) {
+            throw new InvalidArgumentException(
+                'Die size is normally expected to be an integer, ' .
+                'but you chose a size of ' . $size . '.'
+            );
+        }
+
+        if ((string)$size !== (string)intval($size)) {
+            throw new InvalidArgumentException(
+                'Integer die sizes must be specified without a decimal point. ' .
+                'You entered a size of ' . $size . '.'
+            );
+        }
+
+        if ($size < 0 || $size > 99) {
+            throw new InvalidArgumentException(
+                'Die size should be between 0 and 99, ' .
+                'but you chose a size of ' . $size . '.'
+            );
+        }
     }
 
 

@@ -154,7 +154,7 @@ class ApiSpec {
                     'elem_type' => array('arg_type' => 'array',
                                          'has_keys' => TRUE,
                                          'minlength' => 0,
-                                         'maxlength' => 2,
+                                         'maxlength' => 3,
                                          'key_type' => 'number',
                                          'elem_type' => 'string'),
                 ),
@@ -166,6 +166,14 @@ class ApiSpec {
                     'maxlength' => self::GAME_DESCRIPTION_MAX_LENGTH,
                 ),
                 'previousGameId' => 'number',
+                'customRecipeArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'minlength' => 0,
+                    'maxlength' => 2,
+                    'key_type' => 'number',
+                    'elem_type' => 'string',
+                ),
             ),
         ),
         'reactToNewGame' => array(

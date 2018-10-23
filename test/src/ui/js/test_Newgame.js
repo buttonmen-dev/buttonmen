@@ -640,7 +640,8 @@ test("test_Newgame.getSelectTd", function(assert) {
     'test_select',
     { 'a': 'First Value', 'b': 'Second Value', },
     { 'b': true, },
-    'a');
+    'a',
+    null);
   assert.equal(item[0].tagName, "TD", "Return value is of type td");
 });
 
@@ -652,6 +653,10 @@ test("test_Newgame.getSelectOptionList", function(assert) {
     'a');
   assert.equal(optionlist[0].html(), "First Value",
         "Element in option list has expected value");
+});
+
+test("test_Newgame.getCustomRecipeTd", function(assert) {
+  // currently empty
 });
 
 test("test_Newgame.getButtonSelectTd", function(assert) {
@@ -859,6 +864,10 @@ test("test_Newgame.getButtonLimitTd_prevvals", function(assert) {
   });
   assert.deepEqual(foundLabels, { 'ANY': 1, 'A': 1, 'B C': 1, },
     "Expected set of option labels was found");
+});
+
+test("test_Newgame.reactToButtonChange", function(assert) {
+  // currently empty
 });
 
 test("test_Newgame.getButtonLimitRow", function(assert) {

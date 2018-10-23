@@ -42,7 +42,7 @@ class BMDieTwin extends BMDie {
 
         foreach ($sidesArray as $dieIdx => $sides) {
             $this->dice[$dieIdx] =
-                BMDie::create_from_string_components($sides, $skills);
+                BMDie::create_from_string_components($sides, $skills, TRUE);
         }
 
         $this->add_multiple_skills($skills);

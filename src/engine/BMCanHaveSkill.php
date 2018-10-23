@@ -108,6 +108,20 @@ class BMCanHaveSkill {
      */
     protected function add_multiple_skills($skills) {
         if ($skills) {
+            if (in_array('Maximum', $skills) && in_array('Turbo', $skills)) {
+                // see Issue #2625
+                throw new BMExceptionDieRecipe(
+                    'The combination of maximum and turbo is currently not supported on the same die.'
+                );
+            }
+
+            if (in_array('Doppelganger', $skills) && in_array('Morphing', $skills)) {
+                // see Issue #2637
+                throw new BMExceptionDieRecipe(
+                    'The combination of morphing and doppelganger is currently not supported on the same die.'
+                );
+            }
+
             foreach ($skills as $skillClass => $skill) {
                 if (is_string($skillClass)) {
                     $this->add_skill($skill, $skillClass);

@@ -156,6 +156,12 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
+        if (isset($args['customRecipeArray'])) {
+            $customRecipeArray = $args['customRecipeArray'];
+        } else {
+            $customRecipeArray = array();
+        }
+
         $retval = $interface->game()->create_game(
             $playerIdArray,
             $buttonNameArray,
@@ -163,7 +169,8 @@ class ApiResponder {
             $description,
             $previousGameId,
             $this->session_user_id(),
-            FALSE
+            FALSE,
+            $customRecipeArray
         );
 
         if (isset($retval)) {

@@ -309,6 +309,9 @@ class BMAttackSkill extends BMAttack {
             $this->validationMessage = 'Attacking die values do not sum up to target die value.';
             return FALSE;
         }
+
+        $attackersStripped = $attackers;
+        self::strip_excess_plain_zeros($attackersStripped);
         for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
             // james: This logic assumes that firing effectively reduces the defence value.
             //        This assumption fails in the case that part of the skill sum comes
@@ -316,8 +319,8 @@ class BMAttackSkill extends BMAttack {
             $combos = $this->hitTable->find_hit($dval - $i);
             if ($combos) {
                 foreach ($combos as $c) {
-                    if (count($c) == count($attackers) &&
-                        count(array_uintersect($c, $attackers, 'BMAttackSkill::cmp')) ==
+                    if (count($c) == count($attackersStripped) &&
+                        count(array_uintersect($c, $attackersStripped, 'BMAttackSkill::cmp')) ==
                         count($c)) {
                         return TRUE;
                     }
