@@ -7,6 +7,7 @@ set -x
 PHANTOMJS_VERSION_NAME="phantomjs-1.9.7-linux-x86_64"
 
 cd /tmp
-wget https://bitbucket.org/ariya/phantomjs/downloads/${PHANTOMJS_VERSION_NAME}.tar.bz2 -O /tmp/${PHANTOMJS_VERSION_NAME}.tar.bz2
-tar xjf ${PHANTOMJS_VERSION_NAME}.tar.bz2
+/usr/bin/wget https://bitbucket.org/ariya/phantomjs/downloads/${PHANTOMJS_VERSION_NAME}.tar.bz2 -O /tmp/${PHANTOMJS_VERSION_NAME}.tar.bz2
+pwd
+/bin/tar xjf ${PHANTOMJS_VERSION_NAME}.tar.bz2
 cp ${PHANTOMJS_VERSION_NAME}/bin/phantomjs /usr/local/bin/phantomjs
