@@ -42,6 +42,10 @@ jobs:
           name: Verify dummy API files were fully installed
           command: bash ./deploy/circleci/verify_dummy_responder_files.sh src/api/dummy_data/ /var/www/api/dummy_data/
       - run:
+          name: unpack phantomjs
+          command: /bin/tar xjf /usr/local/src/phantomjs-1.9.7-linux-x86_64.tar.bz2 --strip-components=1
+          working_directory: /usr/local
+      - run:
           name: Run QUnit tests
           command: /usr/local/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
       - run:
