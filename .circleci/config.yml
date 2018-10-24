@@ -63,9 +63,6 @@ jobs:
           name: Generate phploc.csv
           command: php /etc/php/7.0/deploy-includes/phploc.phar --log-csv ./build/logs/phploc.csv ./src
       - run:
-          name: Generate API documentation using PHPDocumentor
-          command: phpdoc -d ./src -i 'api/DummyApiResponder.php' -t ./build/api
-      - run:
           name: Aggregate tool output with PHP_CodeBrowser
           command: php /etc/php/7.0/deploy-includes/phpcb.phar --log ./build/logs --source ./src --output ./build/code-browser
       - store_artifacts:
@@ -74,3 +71,4 @@ jobs:
 # TODO:
 # * get phpcpd working again
 # * get javascript code coverage testing working again using jscover or equivalent
+# * get phpdoc working again
