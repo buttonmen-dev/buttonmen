@@ -43,7 +43,7 @@ jobs:
           command: bash ./deploy/circleci/verify_dummy_responder_files.sh src/api/dummy_data/ /var/www/api/dummy_data/
       - run:
           name: Run QUnit tests
-          command: /usr/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
+          command: /usr/local/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
       - run:
           name: Run python client unit tests
           command: /usr/bin/python ./test/tools/api-client/python/lib/test_bmapi.py
