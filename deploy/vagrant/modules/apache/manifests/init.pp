@@ -38,15 +38,8 @@ class apache::server::vagrant {
 }
 
 class apache::server::circleci {
-  # include the base class
-  include "apache::server"
-
-  # Disable the default site, so the buttonmen site will load
-  file {
-    "/etc/apache2/sites-enabled/000-default.conf":
-      ensure => absent,
-      notify => Service["apache2"];
-  }
+  # same configuration as vagrant
+  include "apache::server::vagrant"
 }
 
 class apache::server::feature::monitor-logs {
