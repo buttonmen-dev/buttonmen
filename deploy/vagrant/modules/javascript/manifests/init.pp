@@ -9,7 +9,7 @@ class javascript::type::circleci {
       ensure => file,
       content => template("javascript/run-jscover-qunit.js.erb");
 
-    "/usr/local/bin/install_phantomjs"
+    "/usr/local/bin/install_phantomjs":
       ensure => file,
       mode => 544,
       content => template("javascript/install_phantomjs.erb");
