@@ -8,17 +8,17 @@ class javascript::type::circleci {
     "/usr/local/etc/run-jscover-qunit.js":
       ensure => file,
       content => template("javascript/run-jscover-qunit.js.erb");
-
-    "/usr/local/bin/install_phantomjs":
-      ensure => file,
-      mode => 544,
-      content => template("javascript/install_phantomjs.erb");
   }
 
   exec {
+    "javascript_wget_phantomjs":
+      command => "/usr/bin/wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2 -O /usr/local/src/phantomjs-1.9.7-linux-x86_64.tar.bz2",
+      creates => "/usr/local/src/phantomjs-1.9.7-linux-x86_64.tar.bz2";
+
     "javascript_install_phantomjs":
-      command => "/usr/local/bin/install_phantomjs",
+      command => "/bin/tar xjf /usr/local/src/phantomjs-1.9.7-linux-x86_64.tar.bz2 --strip-components=1",
+      cwd => "/usr/local",
       creates => "/usr/local/bin/phantomjs",
-      require => File["/usr/local/bin/install_phantomjs"];
+      require => Exec["javascript_wget_phantomjs"];
   }
 }
