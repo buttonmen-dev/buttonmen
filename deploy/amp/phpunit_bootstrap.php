@@ -40,11 +40,6 @@ function bm_skill_rand($min = FALSE, $max = FALSE) {
     return mt_rand();
 }
 
-function empty_value($val) {
-    $tempval = $val;
-    return empty($tempval);
-}
-
 
 // Now include the bootstrap file from the code itself
 // NetBeans will find it in this relative path

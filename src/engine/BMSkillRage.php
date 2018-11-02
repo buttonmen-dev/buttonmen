@@ -132,7 +132,7 @@ class BMSkillRage extends BMSkill {
         $newDie->playerIdx = $def->playerIdx;
         $newDie->originalPlayerIdx = $def->originalPlayerIdx;
 
-        if (!empty_value($def->flagList)) {
+        if (!empty($def->flagList)) {
             foreach ($def->flagList as $flagType => $flag) {
                 $newDie->add_flag($flagType, $flag->value());
             }

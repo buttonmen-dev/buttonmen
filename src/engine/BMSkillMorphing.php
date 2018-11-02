@@ -99,7 +99,7 @@ class BMSkillMorphing extends BMSkill {
         $newDie->originalPlayerIdx = $att->originalPlayerIdx;
         $newDie->add_flag('IsAttacker');
 
-        if (!empty_value($att->flagList)) {
+        if (!empty($att->flagList)) {
             foreach ($att->flagList as $flagType => $flag) {
                 $newDie->add_flag($flagType, $flag->value());
             }

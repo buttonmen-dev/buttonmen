@@ -64,7 +64,7 @@ class BMSkillMood extends BMSkill {
 
         $die = $args['die'];
 
-        if (empty_value($die->value) && !$die->has_flag('HasJustSplit')) {
+        if (empty($die->value) && !$die->has_flag('HasJustSplit')) {
             return FALSE;
         }
 
