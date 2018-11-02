@@ -30,7 +30,7 @@ class BMSkillMaximum extends BMSkill {
 
         $die = $args['die'];
 
-        if (!$die->doesReroll && isset($die->value)) {
+        if (!$die->doesReroll && !is_null($die->value)) {
             return FALSE;
         }
 

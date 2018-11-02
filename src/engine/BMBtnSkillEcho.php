@@ -43,12 +43,12 @@ class BMBtnSkillEcho extends BMBtnSkill {
             throw new LogicException('specify_recipes requires two BMButton input arguments');
         }
 
-        if (empty($button->name)) {
+        if (empty_value($button->name)) {
             throw new LogicException('Button name may not be empty.');
         }
 
         // only copy recipe if the opponent button exists
-        if (empty($oppbutton->name)) {
+        if (empty_value($oppbutton->name)) {
             return;
         }
 

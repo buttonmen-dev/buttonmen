@@ -39,7 +39,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
 
         $button = $args['button'];
 
-        if (!empty($button->recipe)) {
+        if (!empty_value($button->recipe)) {
             return FALSE;
         }
 

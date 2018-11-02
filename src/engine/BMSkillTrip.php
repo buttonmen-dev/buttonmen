@@ -71,7 +71,7 @@ class BMSkillTrip extends BMSkill {
         $attacker->add_flag('IsAboutToPerformTripAttack');
         $attacker->roll(TRUE);
         $attackerValue = '';
-        if (isset($attacker->value)) {
+        if (!is_null($attacker->value)) {
             $attackerValue = $attacker->value;
         }
 
@@ -85,7 +85,7 @@ class BMSkillTrip extends BMSkill {
             foreach ($attacker->dice as $subdie) {
                 $subdieValue = '';
 
-                if (isset($subdie->value)) {
+                if (!is_null($subdie->value)) {
                     $subdieValue = $subdie->value;
                 }
 

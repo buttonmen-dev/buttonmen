@@ -917,7 +917,7 @@ class BMInterface {
         $nButtons = 0;
 
         foreach ($game->playerArray as $player) {
-            if (!empty($player->button)) {
+            if (!empty_value($player->button)) {
                 continue;
             }
 
@@ -961,7 +961,7 @@ class BMInterface {
         $hasUnresolvedNames = FALSE;
         foreach ($game->playerArray as $player) {
             // do not resolve random button names unless all players have joined the game
-            if (empty($player->playerId)) {
+            if (empty_value($player->playerId)) {
                 return FALSE;
             }
 
@@ -981,7 +981,7 @@ class BMInterface {
 
         // do not resolve random names unless all buttons have been chosen
         foreach ($game->playerArray as $player) {
-            if (empty($player->button) && !$player->isButtonChoiceRandom) {
+            if (empty_value($player->button) && !$player->isButtonChoiceRandom) {
                 return FALSE;
             }
         }
@@ -1186,7 +1186,7 @@ class BMInterface {
      */
     protected function save_swing_values_from_last_round($game) {
         foreach ($game->playerArray as $player) {
-            if (empty($player->prevSwingValueArray)) {
+            if (empty_value($player->prevSwingValueArray)) {
                 continue;
             }
 
@@ -1212,7 +1212,7 @@ class BMInterface {
      */
     protected function save_swing_values_from_this_round($game) {
         foreach ($game->playerArray as $player) {
-            if (empty($player->swingValueArray)) {
+            if (empty_value($player->swingValueArray)) {
                 continue;
             }
 
@@ -1238,7 +1238,7 @@ class BMInterface {
      */
     protected function save_option_values_from_last_round($game) {
         foreach ($game->playerArray as $player) {
-            if (empty($player->prevOptValueArray)) {
+            if (empty_value($player->prevOptValueArray)) {
                 continue;
             }
 
@@ -1264,7 +1264,7 @@ class BMInterface {
      */
     protected function save_option_values_from_this_round($game) {
         foreach ($game->playerArray as $player) {
-            if (empty($player->optValueArray)) {
+            if (empty_value($player->optValueArray)) {
                 continue;
             }
 
@@ -1312,7 +1312,7 @@ class BMInterface {
      * @param BMGame $game
      */
     protected function save_player_with_initiative($game) {
-        if (isset($game->playerWithInitiativeIdx)) {
+        if (!is_null($game->playerWithInitiativeIdx)) {
             // set all players to not having initiative
             $query = 'UPDATE game_player_map '.
                      'SET did_win_initiative = 0 '.
@@ -1363,7 +1363,7 @@ class BMInterface {
      */
     protected function regenerate_essential_die_flags($game) {
         foreach ($game->playerArray as $player) {
-            if (!empty($player->activeDieArray)) {
+            if (!empty_value($player->activeDieArray)) {
                 foreach ($player->activeDieArray as $activeDie) {
                     if ($activeDie instanceof BMDieTwin) {
                         // force regeneration of max, min, and BMFlagTwin
@@ -1372,7 +1372,7 @@ class BMInterface {
                 }
             }
 
-            if (!empty($player->capturedDieArray)) {
+            if (!empty_value($player->capturedDieArray)) {
                 foreach ($player->capturedDieArray as $capturedDie) {
                     if ($capturedDie instanceof BMDieTwin) {
                         // force regeneration of max, min, and BMFlagTwin
@@ -1448,7 +1448,7 @@ class BMInterface {
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':game_id' => $game->gameId));
 
-        if (empty($game->turboCache)) {
+        if (empty_value($game->turboCache)) {
             return;
         }
 

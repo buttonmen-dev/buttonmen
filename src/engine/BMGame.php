@@ -441,7 +441,7 @@ class BMGame {
      */
     protected function update_game_state_specify_recipes() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->button->recipe)) {
+            if (empty_value($player->button->recipe)) {
                 return;
             }
         }
@@ -467,13 +467,13 @@ class BMGame {
      */
     protected function update_game_state_load_dice_into_buttons() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->button)) {
+            if (empty_value($player->button)) {
                 throw new LogicException(
                     'Buttons must be set before loading dice into buttons.'
                 );
             }
 
-            if (empty($player->button->dieArray)) {
+            if (empty_value($player->button->dieArray)) {
                 return;
             }
         }
@@ -528,7 +528,7 @@ class BMGame {
         $hasDiceWithSkill = array_fill(0, $this->nPlayers, FALSE);
 
         foreach ($this->playerArray as $playerIdx => $player) {
-            if (!empty($player->activeDieArray)) {
+            if (!empty_value($player->activeDieArray)) {
                 foreach ($player->activeDieArray as $die) {
                     if ($die->has_skill($skill)) {
                         $hasDiceWithSkill[$playerIdx] = TRUE;
@@ -566,7 +566,7 @@ class BMGame {
      */
     protected function load_swing_values_from_previous_round() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->swingValueArray)) {
+            if (empty_value($player->swingValueArray)) {
                 continue;
             }
 
@@ -590,7 +590,7 @@ class BMGame {
      */
     protected function load_option_values_from_previous_round() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->optValueArray)) {
+            if (empty_value($player->optValueArray)) {
                 continue;
             }
 
@@ -757,7 +757,7 @@ class BMGame {
      */
     protected function update_prevOptValueArray() {
         foreach ($this->playerArray as $player) {
-            if (!empty($player->prevOptValueArray)) {
+            if (!empty_value($player->prevOptValueArray)) {
                 foreach (array_reverse(array_keys($player->activeDieArray)) as $dieIdx) {
                     if ($player->activeDieArray[$dieIdx]->has_flag('AddReserve')) {
                         // count how many dice don't have reserve on the left of the added die
@@ -818,7 +818,7 @@ class BMGame {
      */
     protected function update_opt_requests_to_ignore_reserve_dice() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->optRequestArray)) {
+            if (empty_value($player->optRequestArray)) {
                 continue;
             }
 
@@ -853,7 +853,7 @@ class BMGame {
      */
     protected function initialise_swing_value_array_array() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->swingRequestArray)) {
+            if (empty_value($player->swingRequestArray)) {
                 continue;
             }
 
@@ -881,12 +881,12 @@ class BMGame {
      */
     protected function set_option_values() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->optRequestArray)) {
+            if (empty_value($player->optRequestArray)) {
                 continue;
             }
 
             foreach (array_keys($player->optRequestArray) as $dieIdx) {
-                if (!empty($player->optValueArray)) {
+                if (!empty_value($player->optValueArray)) {
                     $optValue = $player->optValueArray[$dieIdx];
                     if (isset($optValue)) {
                         $player->activeDieArray[$dieIdx]
@@ -894,7 +894,7 @@ class BMGame {
                     }
                 }
 
-                if (!isset($player->activeDieArray[$dieIdx]->max)) {
+                if (is_null($player->activeDieArray[$dieIdx]->max)) {
                     $player->waitingOnAction = TRUE;
                     continue 2;
                 }
@@ -985,7 +985,7 @@ class BMGame {
                     }
                 }
 
-                if (!isset($die->value)) {
+                if (is_null($die->value)) {
                     $player->activeDieArray[$dieIdx] = $die->make_play_die(FALSE);
                 }
             }
@@ -1133,7 +1133,7 @@ class BMGame {
         if (!$this->isWaitingOnAnyAction()) {
             $this->gameState = BMGameState::START_ROUND;
             foreach ($this->playerArray as $player) {
-                if (!empty($player->activeDieArray)) {
+                if (!empty_value($player->activeDieArray)) {
                     foreach ($player->activeDieArray as &$activeDie) {
                         if ($activeDie->has_skill('Chance')) {
                             $activeDie->remove_flag('Disabled');
@@ -1377,7 +1377,7 @@ class BMGame {
      * Add the IsAttacker flag to all attacking dice
      */
     protected function add_flag_to_attackers() {
-        if (empty($this->attack['attackerAttackDieIdxArray'])) {
+        if (empty_value($this->attack['attackerAttackDieIdxArray'])) {
             return;
         }
 
@@ -1392,7 +1392,7 @@ class BMGame {
      * Add the IsAttackTarget flag to all dice being targeted in the attack
      */
     protected function add_flag_to_attack_targets() {
-        if (empty($this->attack['defenderAttackDieIdxArray'])) {
+        if (empty_value($this->attack['defenderAttackDieIdxArray'])) {
             return;
         }
 
@@ -1782,7 +1782,7 @@ class BMGame {
         $this->playerArray[$this->activePlayerIdx]->waitingOnAction = TRUE;
 
         foreach ($this->playerArray as $player) {
-            if (empty($player->activeDieArray)) {
+            if (empty_value($player->activeDieArray)) {
                 continue;
             }
 
@@ -1849,7 +1849,7 @@ class BMGame {
      */
     protected function remove_all_flags() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->activeDieArray)) {
+            if (empty_value($player->activeDieArray)) {
                 continue;
             }
 
@@ -1859,7 +1859,7 @@ class BMGame {
         }
 
         foreach ($this->playerArray as $player) {
-            if (empty($player->capturedDieArray)) {
+            if (empty_value($player->capturedDieArray)) {
                 continue;
             }
 
@@ -1885,7 +1885,7 @@ class BMGame {
             }
         }
 
-        unset($this->fireCache);
+        $this->fireCache = NULL;
         $this->gameState = BMGameState::CHOOSE_TURBO_SWING;
     }
 
@@ -1938,10 +1938,10 @@ class BMGame {
 
             $preTurboDice[] = $die->get_action_log_data();
             $oldRecipe = $die->get_recipe(TRUE);
-            unset($die->value);
+            $die->value = NULL;
             if (isset($die->dice)) {
                 foreach ($die->dice as $subdie) {
-                    unset($subdie->value);
+                    $subdie->value = NULL;
                 }
             }
 
@@ -2017,7 +2017,7 @@ class BMGame {
      */
     protected function update_game_state_choose_turbo_swing() {
         if (!$this->isWaitingOnAnyAction()) {
-            unset($this->turboCache);
+            $this->turboCache = NULL;
             $this->gameState = BMGameState::END_TURN;
         }
 
@@ -2652,7 +2652,7 @@ class BMGame {
     public function capture_die($die, $newOwnerIdx = NULL) {
         $dieIdx = FALSE;
         foreach ($this->playerArray as $player) {
-            if (empty($player->activeDieArray)) {
+            if (empty_value($player->activeDieArray)) {
                 break;
             }
             $dieIdx = array_search($die, $player->activeDieArray, TRUE);
@@ -2842,7 +2842,7 @@ class BMGame {
         // If plasma, then it is unspecified if the skills are unclear.
         // james: not written yet
 
-        return (isset($die->max));
+        return (!is_null($die->max));
     }
 
     /**
@@ -2959,7 +2959,7 @@ class BMGame {
         $this->nRecentPasses = 0;
         $this->turnNumberInRound = 0;
         $this->setAllToNotWaiting();
-        unset($this->forceRoundResult);
+        $this->forceRoundResult = NULL;
     }
 
     /**
@@ -3613,7 +3613,7 @@ class BMGame {
      */
     public function __unset($property) {
         if (isset($this->$property)) {
-            unset($this->$property);
+            $this->$property = NULL;
             return TRUE;
         } else {
             return FALSE;
@@ -3803,7 +3803,7 @@ class BMGame {
         // doesn't matter; use $playerIdx as default.
         $subdieArrayArray = $this->get_subdieArrayArray($playerIdx, 'captured');
 
-        if (!empty($this->playerArray[$playerIdx]->capturedDieArray)) {
+        if (!empty_value($this->playerArray[$playerIdx]->capturedDieArray)) {
             foreach ($this->playerArray[$playerIdx]->capturedDieArray as $dieIdx => $die) {
                 $capturedDieArray[$dieIdx] = array(
                     'value' => $die->value,
@@ -3835,7 +3835,7 @@ class BMGame {
         // doesn't matter; use $playerIdx as default.
         $subdieArrayArray = $this->get_subdieArrayArray($playerIdx, 'outofplay');
 
-        if (!empty($this->playerArray[$playerIdx]->outOfPlayDieArray)) {
+        if (!empty_value($this->playerArray[$playerIdx]->outOfPlayDieArray)) {
             foreach ($this->playerArray[$playerIdx]->outOfPlayDieArray as $die) {
                 $outOfPlayDieArray[] = array(
                     'value' => $die->value,
@@ -3944,7 +3944,7 @@ class BMGame {
 
         foreach ($dieArrayArray as $playerIdx => $dieArray) {
             foreach ($dieArray as $dieIdx => $die) {
-                if (isset($die->dice) && is_array($die->dice)) {
+                if (!is_null($die->dice) && is_array($die->dice)) {
                     foreach ($die->dice as $subdieIdx => $subdie) {
                         if (($subdie instanceof BMDieSwing) &&
                             $this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
@@ -4013,12 +4013,12 @@ class BMGame {
     ) {
         $areAllPropertiesNull = TRUE;
 
-        if (isset($subdie->max)) {
+        if (!is_null($subdie->max)) {
             $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['sides'] = $subdie->max;
             $areAllPropertiesNull = FALSE;
         }
 
-        if (isset($subdie->value) &&
+        if (!is_null($subdie->value) &&
             !$this->isGameStateBeforeSpecifyingDice()) {
             $subdieArrayArray[$playerIdx][$dieIdx][$subdieIdx]['value'] = $subdie->value;
             $areAllPropertiesNull = FALSE;
@@ -4069,7 +4069,7 @@ class BMGame {
             }
 
             foreach ($player->activeDieArray as $dieIdx => $die) {
-                if (!empty($die->flagList)) {
+                if (!empty_value($die->flagList)) {
                     foreach (array_keys($die->flagList) as $flag) {
                         // actively lie about auxiliary choices to avoid leaking info
                         if (('AddAuxiliary' == $flag) &&
@@ -4094,7 +4094,7 @@ class BMGame {
         $dieRecipeArrayArray = array_fill(0, $this->nPlayers, array());
 
         foreach ($this->playerArray as $playerIdx => $player) {
-            if (!empty($player->activeDieArray)) {
+            if (!empty_value($player->activeDieArray)) {
                 foreach ($player->activeDieArray as $dieIdx => $die) {
                     $dieRecipeArrayArray[$playerIdx][$dieIdx] = $die->recipe;
                 }
@@ -4154,7 +4154,7 @@ class BMGame {
      */
     protected function get_dieProps($die) {
         $dieProps = array();
-        if (!empty($die->flagList)) {
+        if (!empty_value($die->flagList)) {
             foreach (array_keys($die->flagList) as $flag) {
                 $dieProps[] = $flag;
             }
@@ -4218,7 +4218,7 @@ class BMGame {
         $courtesySwingArray = array();
 
         foreach ($this->playerArray as $playerIdx => $player) {
-            if (isset($player->button->dieArray)) {
+            if (!is_null($player->button->dieArray)) {
                 foreach ($player->button->dieArray as $die) {
                     if (isset($die->swingType)) {
                         $swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
@@ -4279,7 +4279,7 @@ class BMGame {
      */
     protected function are_buttons_specified() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->button)) {
+            if (empty_value($player->button)) {
                 return FALSE;
             }
         }
@@ -4373,7 +4373,7 @@ class BMGame {
             if (!is_null($player->button)) {
                 $gameBtnSkillsWithKeysList += $player->button->skillList;
 
-                if (!empty($player->button->dieArray)) {
+                if (!empty_value($player->button->dieArray)) {
                     foreach ($player->button->dieArray as $buttonDie) {
                         if (count($buttonDie->skillList) > 0) {
                             $gameSkillsWithKeysList += $buttonDie->skillList;
@@ -4473,12 +4473,12 @@ class BMGame {
      */
     protected function has_skill_that_prevents_win_determination() {
         foreach ($this->playerArray as $player) {
-            if (empty($player->activeDieArray)) {
+            if (empty_value($player->activeDieArray)) {
                 continue;
             }
 
             foreach ($player->activeDieArray as $activeDie) {
-                if (empty($activeDie->skillList)) {
+                if (empty_value($activeDie->skillList)) {
                     continue;
                 }
 

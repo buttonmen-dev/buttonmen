@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Bootstrap for phpunit under CircleCI
  */
 
@@ -38,6 +38,12 @@ function bm_skill_rand($min = FALSE, $max = FALSE) {
         return mt_rand($min, $max);
     }
     return mt_rand();
+}
+
+// Add a workaround for empty() not acting on the value of inaccessible properties.
+// This workaround works because function calls pass by value by default.
+function empty_value($val) {
+    return empty($val);
 }
 
 // Now include the bootstrap file from the code itself

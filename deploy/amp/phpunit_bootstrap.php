@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Bootstrap for phpunit under AMP/NetBeans
  */
 
@@ -38,6 +38,11 @@ function bm_skill_rand($min = FALSE, $max = FALSE) {
         return mt_rand($min, $max);
     }
     return mt_rand();
+}
+
+function empty_value($val) {
+    $tempval = $val;
+    return empty($tempval);
 }
 
 

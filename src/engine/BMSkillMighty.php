@@ -32,7 +32,7 @@ class BMSkillMighty extends BMSkill {
         }
 
         // don't trigger skill when rolling the die into the beginning of the round
-        if (!isset($die->value) &&
+        if (is_null($die->value) &&
             ($die->ownerObject->turnNumberInRound <= 1)) {
             return;
         }
