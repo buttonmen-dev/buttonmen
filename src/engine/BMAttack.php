@@ -371,7 +371,7 @@ abstract class BMAttack {
      */
     protected function ensure_defenders_have_value(array $defenders) {
         foreach ($defenders as &$def) {
-            if (empty($def->value)) {
+            if (is_null($def->value)) {
                 $def->roll(FALSE);
             }
         }

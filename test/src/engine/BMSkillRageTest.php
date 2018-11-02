@@ -132,7 +132,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         // rage replacement die
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertFalse($game->activeDieArrayArray[1][2]->captured);
-        $this->assertFalse(isset($game->activeDieArrayArray[1][2]->value));
+        $this->assertTrue(is_null($game->activeDieArrayArray[1][2]->value));
         $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($game->activeDieArrayArray[1][2]->has_flag('WasJustCaptured'));
 
@@ -228,7 +228,7 @@ class BMSkillRageTest extends PHPUnit_Framework_TestCase {
         // rage replacement die
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertFalse($game->activeDieArrayArray[1][2]->captured);
-        $this->assertFalse(isset($game->activeDieArrayArray[1][2]->value));
+        $this->assertTrue(is_null($game->activeDieArrayArray[1][2]->value));
         $this->assertFalse($game->activeDieArrayArray[1][2]->has_skill('Rage'));
         $this->assertTrue($game->activeDieArrayArray[1][2]->has_flag('IsRageTargetReplacement'));
         $this->assertFalse($game->activeDieArrayArray[1][2]->has_flag('WasJustCaptured'));

@@ -373,7 +373,7 @@ class BMButton extends BMCanHaveSkill {
      */
     public function __unset($property) {
         if (isset($this->$property)) {
-            unset($this->$property);
+            $this->$property = NULL;
             return TRUE;
         } else {
             return FALSE;
