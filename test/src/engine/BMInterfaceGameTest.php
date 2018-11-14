@@ -434,9 +434,11 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
         $gameId = $retval['gameId'];
 
         $game = self::load_game($gameId);
-        $this->assertFalse(empty($game->buttonArray[0]->name));
+        $this->assertNotNull($game->buttonArray[0]->name);
+        $this->assertTrue(is_string($game->buttonArray[0]->name));
         $this->assertNotEquals('__random', $game->buttonArray[0]->name);
-        $this->assertFalse(empty($game->buttonArray[1]->name));
+        $this->assertNotNull($game->buttonArray[1]->name);
+        $this->assertTrue(is_string($game->buttonArray[1]->name));
         $this->assertNotEquals('__random', $game->buttonArray[1]->name);
         $this->assertGreaterThan(BMGameState::START_GAME, $game->gameState);
     }

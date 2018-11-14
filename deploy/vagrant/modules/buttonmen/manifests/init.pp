@@ -55,7 +55,7 @@ class buttonmen::server {
   exec {
     "buttonmen_src_rsync":
       command => "/usr/bin/rsync -a --delete /buttonmen/src/ /var/www/",
-      require => Package["apache2"];
+      require => [ Package["rsync"], Package["apache2"] ];
 
     "buttonmen_uitest_rsync":
       command => "/usr/bin/rsync -a --delete /buttonmen/test/src/ui/ /var/www/test-ui/",
@@ -63,7 +63,7 @@ class buttonmen::server {
 
     "buttonmen_create_databases":
       command => "/usr/local/bin/create_buttonmen_databases",
-      require => [ Package["mysql-server"],
+      require => [ Service["mysql"],
                    Exec["buttonmen_src_rsync"] ];
 
 

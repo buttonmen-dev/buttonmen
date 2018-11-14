@@ -1035,6 +1035,10 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             $game = $this->load_game($gameId);
+            if (!$game) {
+                $this->set_message('Invalid game');
+                return FALSE;
+            }
             if (!$this->is_action_current(
                 $game,
                 BMGameState::CHOOSE_AUXILIARY_DICE,
