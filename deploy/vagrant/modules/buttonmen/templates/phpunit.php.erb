@@ -6,7 +6,7 @@
 
 // Include /etc/php5/deploy-includes for phpunit itself.
 // Include /buttonmen/src for now, so the individual unit tests can find the base classes
-set_include_path( "/etc/php5/deploy-includes:/buttonmen/src:" . ini_get( "include_path" ) );
+set_include_path( "/etc/php/7.0/deploy-includes:/buttonmen/src:" . ini_get( "include_path" ) );
 
 $BM_RAND_VALS = array();
 $BM_SKILL_RAND_VALS = array();

@@ -73,7 +73,7 @@ def test_game(filename, gamenum):
   os.chdir(SRCDIR)
 
   # actually run the test (with output to stdout/stderr)
-  cmdargs = 'sudo -u %s sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1"' % (USERNAME)
+  cmdargs = 'sudo -u %s sh -c "phpunit --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1"' % (USERNAME)
   print "About to execute: %s" % cmdargs
   os.system(cmdargs)
   return

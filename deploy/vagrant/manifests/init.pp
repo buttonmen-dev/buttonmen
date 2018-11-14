@@ -30,7 +30,7 @@ node default {
   $puppet_timestamp = generate('/bin/date', '+%s')
 
   case "$operatingsystemrelease" {
-    "14.04": {
+    "14.04", "16.04": {
       $puppet_apache_sitesdir = "sites-enabled"
     }
     default: {
@@ -46,7 +46,7 @@ node default {
   include "sudo::buttonmen-devs"
 
   # Node configuration needed for the buttonmen server
-  include "apache::server"  
+  include "apache::server::vagrant"
   include "php::base"
   include "mysql::server"  
   include "buttonmen::server"

@@ -1,22 +1,22 @@
 version: 2
 jobs:
   build:
-    machine:
-      image: circleci/classic:latest
+    docker:
+      - image: ubuntu:16.04
     steps:
       - checkout
       - run:
           name: Symlink /buttonmen
-          command: sudo ln -s /home/circleci/project /buttonmen
+          command: ln -s /root/project /buttonmen
       - run:
           name: Make sure log dir exists
           command: mkdir -p build/logs
       - run:
           name: Bootstrap puppet
-          command: sudo bash deploy/vagrant/bootstrap.sh
+          command: bash deploy/vagrant/bootstrap.sh
       - run:
           name: Run puppet
-          command: sudo puppet apply --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/circleci/manifests/init.pp
+          command: puppet apply --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/circleci/manifests/init.pp
       - run:
           name: Audit line termination of all files in the tree to match Button Men standard
           command: python deploy/circleci/audit_newlines.py
@@ -34,16 +34,20 @@ jobs:
           command: phpcs --report=checkstyle --report-file=./build/logs/checkstyle.xml --standard=./deploy/circleci/checkstyle/buttonmen.xml ./src/api ./src/engine
       - run:
           name: Run unit tests using PHPUnit and generates junit.xml and clover.xml
-          command: php /etc/php5/deploy-includes/phpunit.phar --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit build/logs/junit.xml --coverage-clover build/logs/clover.xml --debug test/
+          command: phpunit --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit build/logs/junit.xml --coverage-clover build/logs/clover.xml --debug test/
       - run:
           name: Install dummy API files created by PHPUnit into test webserver
-          command: sudo rsync -av src/api/dummy_data/ /var/www/api/dummy_data/
+          command: rsync -av src/api/dummy_data/ /var/www/api/dummy_data/
       - run:
           name: Verify dummy API files were fully installed
           command: bash ./deploy/circleci/verify_dummy_responder_files.sh src/api/dummy_data/ /var/www/api/dummy_data/
       - run:
+          name: unpack phantomjs
+          command: /bin/tar xjf /usr/local/src/phantomjs-1.9.7-linux-x86_64.tar.bz2 --strip-components=1
+          working_directory: /usr/local
+      - run:
           name: Run QUnit tests
-          command: /usr/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
+          command: /usr/local/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
       - run:
           name: Run python client unit tests
           command: /usr/bin/python ./test/tools/api-client/python/lib/test_bmapi.py
@@ -54,19 +58,17 @@ jobs:
           command: pdepend --jdepend-xml=./build/logs/jdepend.xml --jdepend-chart=./build/pdepend/dependencies.svg --overview-pyramid=build/pdepend/overview-pyramid.svg ./src
       - run:
           name: Generate pmd.xml using PHPMD
-          command: php /etc/php5/deploy-includes/phpmd.phar ./src xml ./deploy/circleci/pmd/buttonmen.xml --reportfile ./build/logs/pmd.xml
+          command: php /etc/php/7.0/deploy-includes/phpmd.phar ./src xml ./deploy/circleci/pmd/buttonmen.xml --reportfile ./build/logs/pmd.xml
       - run:
           name: Generate phploc.csv
-          command: php /etc/php5/deploy-includes/phploc.phar --log-csv ./build/logs/phploc.csv ./src
-      - run:
-          name: Generate API documentation using PHPDocumentor
-          command: phpdoc -d ./src -i 'api/DummyApiResponder.php' -t ./build/api
+          command: php /etc/php/7.0/deploy-includes/phploc.phar --log-csv ./build/logs/phploc.csv ./src
       - run:
           name: Aggregate tool output with PHP_CodeBrowser
-          command: php /etc/php5/deploy-includes/phpcb.phar --log ./build/logs --source ./src --output ./build/code-browser
+          command: php /etc/php/7.0/deploy-includes/phpcb.phar --log ./build/logs --source ./src --output ./build/code-browser
       - store_artifacts:
           path: build
 
 # TODO:
 # * get phpcpd working again
 # * get javascript code coverage testing working again using jscover or equivalent
+# * get phpdoc working again

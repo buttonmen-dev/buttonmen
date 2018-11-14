@@ -122,7 +122,7 @@ def test_file(filename):
 
   # actually run the test, capturing output
   logfile = '%s/%s.output' % (STATEDIR, filename)
-  cmdargs = 'sudo -u %s sh -c "php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1" | tee %s' % (USERNAME, logfile)
+  cmdargs = 'sudo -u %s sh -c "phpunit --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1" | tee %s' % (USERNAME, logfile)
   print "About to execute: %s" % cmdargs
   os.system(cmdargs)
   return
@@ -136,9 +136,9 @@ def test_new_games():
   # received.
 
   # Reset primary and test databases
-  os.system('echo "drop database buttonmen" | mysql -u root')
-  os.system('/usr/local/bin/create_buttonmen_databases')
-  os.system('cat ~/example_players.sql | mysql -u root')
+  os.system('echo "drop database buttonmen" | sudo mysql')
+  os.system('sudo /usr/local/bin/create_buttonmen_databases')
+  os.system('cat ~/example_players.sql | sudo mysql')
 
   os.chdir(HOMEBMDIR)
   retval = os.system('./test_log_games 100')
