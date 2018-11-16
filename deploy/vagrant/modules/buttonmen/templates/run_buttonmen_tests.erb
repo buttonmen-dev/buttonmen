@@ -30,7 +30,7 @@ echo "------------------------------------------------------------------------"
 # Run PHP unit tests
 echo "Running PHP unit tests"
 cd /buttonmen/src
-php /etc/php5/deploy-includes/phpunit.phar --bootstrap /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
+phpunit --bootstrap /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
 if [ "$?" = "0" ]; then
   echo "Passed"
 else
