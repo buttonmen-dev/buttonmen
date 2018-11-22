@@ -181,7 +181,7 @@ class BMInterfacePlayer extends BMInterface {
         if (version_compare(phpversion(), "5.5.0", "<")) {
             return crypt($password);
         } else {
-            return password_hashed($password);
+            return password_hash($password, PASSWORD_DEFAULT);
         }
     }
 
