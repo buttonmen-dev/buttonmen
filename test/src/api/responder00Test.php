@@ -158,6 +158,8 @@ class responder00Test extends responderTestFramework {
         $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('savePlayerInfo');
 
+        // If current_password == new_password, the test executes the password change code,
+        // database state from a previous test run can't cause the test to fail
         $args = array(
             'type' => 'savePlayerInfo',
             'name_irl' => 'Test User',
@@ -180,6 +182,8 @@ class responder00Test extends responderTestFramework {
             'monitor_redirects_to_game' => 'false',
             'monitor_redirects_to_forum' => 'false',
             'automatically_monitor' => 'false',
+            'current_password' => 't',
+            'new_password' => 't',
         );
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
