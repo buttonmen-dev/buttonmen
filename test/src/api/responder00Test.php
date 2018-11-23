@@ -180,6 +180,8 @@ class responder00Test extends responderTestFramework {
             'monitor_redirects_to_game' => 'false',
             'monitor_redirects_to_forum' => 'false',
             'automatically_monitor' => 'false',
+            'current_password' => 't',
+            'new_password' => 'f',
         );
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
