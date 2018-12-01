@@ -40,7 +40,7 @@ class BMBtnSkillRandomBMMonoskillTest extends PHPUnit_Framework_TestCase {
             3, 3, 2     // skill position  4th and 3rd die
         );
         $BM_SKILL_RAND_VALS = array(
-            7,          // skill type      H
+            8,          // skill type      H
         );
 
         $retval = BMBtnSkillRandomBMMonoskill::specify_recipes($args);

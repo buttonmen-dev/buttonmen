@@ -24,6 +24,7 @@ $RANDOMBM_SKILL_ARRAY = array(
   'c', // Chance
   'f', // Focus
   'I', // Insult
+  'J', // Jolt
   'k', // Konstant
   'M', // Maximum
   'H', // Mighty
@@ -204,6 +205,13 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'code' => 'I',
                 'description' => 'Cannot be attacked by skill attacks.',
                 'interacts' => array(),
+            ),
+            'Jolt' => array(
+                'code' => 'J',
+                'description' => 'If a Jolt Die participates in an attack, then the player will take another turn and the Jolt die loses the Jolt skill. If a Jolt die is captured, then the player who captured it takes another turn.',
+                'interacts' => array(
+                    'TimeAndSpace' => 'If a die with both the Jolt and TimeAndSpace skills rerolls to an odd number, it still only gives one extra turn.',
+                ),
             ),
             'Konstant' => array(
                 'code' => 'k',
@@ -422,6 +430,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'code' => '^',
                 'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
+                    'Jolt' => 'If a die with both the Jolt and TimeAndSpace skills rerolls to an odd number, it still only gives one extra turn.',
                     'Radioactive' => 'Dice with the TimeAndSpace skill lose TimeAndSpace when they decay due to Radioactive',
                     'Konstant' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                 ),

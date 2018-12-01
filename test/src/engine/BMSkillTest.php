@@ -244,6 +244,32 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_capture_order() {
+        // Jolt occurs first, since it needs to cause the attacker to lose Jolt
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillBerserk'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillDoppelganger'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillMorphing'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillNull'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillRadioactive'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillRage'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillValue'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillJolt',
+                                            'BMSkillWarrior'));
+
         // boom occurs before all other conflicting skills
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillBoom',
