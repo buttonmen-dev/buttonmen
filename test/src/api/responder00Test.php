@@ -255,7 +255,7 @@ class responder00Test extends responderTestFramework {
         $this->assertTrue(is_numeric($retval['data']['gameId']));
         $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
 
-        $this->cache_json_api_output('createGame', 'Avis_None', $retval);
+        $this->cache_json_api_output('createGame', 'Avis_', $retval);
 
 
         // Check that the first player in a game can be different from the current logged in player

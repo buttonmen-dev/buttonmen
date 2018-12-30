@@ -73,7 +73,7 @@ var Api = (function () {
     args.automatedApiCall = my.automatedApiCall;
     $.post(
       Env.api_location,
-      args,
+      JSON.stringify(args),
       function(rs) {
         if (typeof rs === 'string') {
           Env.message = {
@@ -130,7 +130,7 @@ var Api = (function () {
     my.disableSubmitButton(submitButton);
     $.post(
       Env.api_location,
-      args,
+      JSON.stringify(args),
       function(rs) {
         if (typeof rs === 'string') {
           Env.message = {

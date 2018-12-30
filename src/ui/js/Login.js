@@ -81,7 +81,7 @@ Login.getLoginHeader = function() {
   }
   $.post(
     Env.api_location,
-    { type: 'loadPlayerName' },
+    JSON.stringify({ 'type': 'loadPlayerName' }),
     function(rs) {
       var player_name = null;
       if (rs.status == 'ok') {
@@ -382,7 +382,7 @@ Login.addNewPostLink = function() {
 Login.postToResponder = function(responder_args) {
   $.post(
     Env.api_location,
-    responder_args,
+    JSON.stringify(responder_args),
     function(rs) {
       if (rs.status == 'ok') {
         Login.status_type = Login.STATUS_ACTION_SUCCEEDED;

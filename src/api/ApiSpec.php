@@ -63,7 +63,7 @@ class ApiSpec {
                 'dieValueArray' => array(
                     'arg_type' => 'array',
                     'has_keys' => FALSE,
-                    'elem_type' => 'alnum',
+                    'elem_type' => 'number',
                 ),
             ),
         ),
@@ -595,14 +595,14 @@ class ApiSpec {
                 'optionValueArray' => array(
                     'arg_type' => 'array',
                     'has_keys' => TRUE,
-                    'minlength' => 1,
+                    'minlength' => 0,
                     'key_type' => 'number',
                     'elem_type' => 'number',
                 ),
                 'swingValueArray' => array(
                     'arg_type' => 'array',
                     'has_keys' => TRUE,
-                    'minlength' => 1,
+                    'minlength' => 0,
                     'key_type' => 'alnum',
                     'elem_type' => 'number',
                 ),
@@ -841,6 +841,9 @@ class ApiSpec {
             preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
             return TRUE;
         }
+        if (is_int($arg) && $arg >= 0) {
+            return TRUE;
+        }
         return FALSE;
     }
 
@@ -851,6 +854,9 @@ class ApiSpec {
      * @return boolean
      */
     protected function verify_argument_of_type_boolean($arg) {
+        if (is_bool($arg)) {
+            return TRUE;
+        }
         if (is_string($arg) &&
             in_array(strtolower($arg), array("true", "false"))) {
             return TRUE;
