@@ -17,7 +17,6 @@ class BMSkillWarrior extends BMSkill {
      */
     public static $hooked_methods = array('initiative_value',
                                           'attack_list',
-                                          'attack_values',
                                           'capture',
                                           'post_roll',
                                           'score_value',
@@ -57,21 +56,6 @@ class BMSkillWarrior extends BMSkill {
                 unset($attackTypeArray[$attackType]);
             }
         }
-    }
-
-    /**
-     * Hooked method applied when determining possible attack values
-     *
-     * @param array $args
-     */
-    public static function attack_values($args) {
-        if (!is_array($args) ||
-            !array_key_exists('attackValues', $args) ||
-            !array_key_exists('value', $args)) {
-            return;
-        }
-
-        $args['attackValues'] = array($args['value']);
     }
 
     /**

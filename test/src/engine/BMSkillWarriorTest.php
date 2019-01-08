@@ -77,21 +77,6 @@ class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillWarrior::attack_values
-     */
-    public function testAttack_values() {
-        $attackValues = array(-3, -2, -1, 1, 2, 3);
-
-        $args = array('attackType' => 'Skill',
-                      'attackValues' => &$attackValues,
-                      'minValue' => 1,
-                      'value' => 6);
-
-        $this->object->attack_values($args);
-        $this->assertEquals(array(6), $args['attackValues']);
-    }
-
-    /**
      * @covers BMSkillWarrior::capture
      */
     public function testCapture_invalid_args() {
