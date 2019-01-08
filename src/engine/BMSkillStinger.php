@@ -79,6 +79,9 @@ class BMSkillStinger extends BMSkill {
                         'the max of the die (making a shadow attack against a die whose value is greater than or ' .
                         'equal to their own, or a skill attack against a die whose value is lower than or equal to ' .
                         'their own)',
+            'Warrior' => 'A Warrior can\'t use the Stinger skill to add ' .
+                         'less than the full value of the die, because ' .
+                         'the die isn\'t in play yet',
         );
     }
 }
