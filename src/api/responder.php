@@ -18,5 +18,7 @@ require_once 'ApiSpec.php';
 if ($_POST) {
     $spec = new ApiSpec();
     $responder = new ApiResponder($spec, FALSE);
-    $responder->process_request($_POST);
+    $json_params = file_get_contents("php://input");
+    $args = json_decode($json_params, TRUE);
+    $responder->process_request($args);
 }
