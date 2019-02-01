@@ -74,7 +74,7 @@ class php::type::circleci {
       unless => "/usr/bin/pear list-channels | /bin/grep pear.phpdoc.org";
 
     "php_pear_install_phpcs":
-      command => "/usr/bin/pear install pear.php.net/PHP_CodeSniffer",
+      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpcs.phar https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar",
       require => Exec["php_pear_set_auto_discover"],
       creates => "/usr/bin/phpcs";
 
