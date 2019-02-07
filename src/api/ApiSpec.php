@@ -715,6 +715,42 @@ class ApiSpec {
     }
 
     /**
+     * This function sanitizes the provided arguments into a
+     * standard format for internal use.  It is run after
+     * verify_function_args() has already passed on these arguments,
+     * so it assumes the args are sane.
+     *
+     * @param array $args
+     * @return array
+     */
+    public function sanitize_function_args($args) {
+        $sanitizedArgs = array();
+        $argsExpected = $this->functionArgs[$args['type']];
+        foreach ($args as $argname => $argvalue) {
+            if (($argname == 'type') || ($argname == 'automatedApiCall')) {
+                $sanitizedArgs[$argname] = $argvalue;
+                continue;
+            }
+
+            $expectedType = $this->determineExpectedType($argname, $argsExpected);
+            if (is_array($expectedType)) {
+                $realArgtype = $expectedType['arg_type'];
+            } else {
+                $realArgtype = $expectedType;
+            }
+
+            // Use a sanitization function if one exists, or just return the initial arg
+            $sanitizeFunc = 'sanitize_argument_of_type_' . $realArgtype;
+            if (method_exists($this, $sanitizeFunc)) {
+                $sanitizedArgs[$argname] = $this->$sanitizeFunc($argvalue);
+            } else {
+                $sanitizedArgs[$argname] = $argvalue;
+            }
+        }
+        return $sanitizedArgs;
+    }
+
+    /**
      * Determine expected type of an argument
      *
      * @param string $argName
@@ -776,6 +812,17 @@ class ApiSpec {
             }
             return FALSE;
         }
+    }
+
+    /**
+     * sanitize an array argument by sorting it by key
+     *
+     * @param array $arg
+     * @return array
+     */
+    protected function sanitize_argument_of_type_array($arg) {
+        ksort($arg);
+        return $arg;
     }
 
     /**

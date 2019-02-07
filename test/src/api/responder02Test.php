@@ -1627,7 +1627,7 @@ class responder02Test extends responderTestFramework {
      *
      * This game reproduces a bug in which time and space is not triggered on a twin die
      * 0. Start a game with responder003 playing LadyJ and responder004 playing Giant
-     * 1. responder003 set swing values: W=4, X=4, T=3
+     * 1. responder003 set swing values: T=3, W=4, X=4
      *    responder003 won initiative for round 1. Initial die values: responder003 rolled [d(17):2, Ho(W=4)?:2, q(X=4):3, ^B(T=3,T=3):4, (5):5], responder004 rolled [(20):4, (20):1, (20):15, (20):14, (20):19, (20):11]. responder004's button has the "slow" button special, and cannot win initiative normally.
      * 2. responder003 performed Power attack using [^B(T=3,T=3):4] against [(20):4]; Defender (20) was captured; Attacker ^B(T=3,T=3) rerolled 4 => 3
      *    responder003's idle ornery dice rerolled at end of turn: Ho(W=4)? changed size from 4 to 12 sides, recipe changed from Ho(W=4)? to Ho(W=12)?, rerolled 2 => 8
@@ -1674,7 +1674,7 @@ class responder02Test extends responderTestFramework {
 
 
         ////////////////////
-        // Move 01 - responder003 set swing values: W=4, X=4, T=3
+        // Move 01 - responder003 set swing values: T=3, W=4, X=4
         // responder003 won initiative for round 1. Initial die values: responder003 rolled [d(17):2, Ho(W=4)?:2, q(X=4):3, ^B(T=3,T=3):4, (5):5], responder004 rolled [(20):4, (20):1, (20):15, (20):14, (20):19, (20):11]. responder004's button has the "slow" button special, and cannot win initiative normally.
 
         // this should cause four die rolls (for 3 dice)
@@ -1710,7 +1710,7 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 11;
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: W=4, X=4, T=3'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: T=3, W=4, X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [dG(17):2, Ho(W=4)?:2, q(X=4):3, ^B(T=3,T=3):4, (5):5], responder004 rolled [(20):4, (20):1, (20):15, (20):14, (20):19, (20):11]. responder004\'s button has the "slow" button special, and cannot win initiative normally.'));
         $expData['gameActionLogCount'] += 2;
 

@@ -165,6 +165,7 @@ def test_new_games():
 def log(message):
   LOGF.write('%s: %s\n' % (
     datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message))
+  LOGF.flush()
 
 ########################################################################
 setup()
