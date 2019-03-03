@@ -3549,7 +3549,7 @@ class responder01Test extends responderTestFramework {
      * 14. responder003 performed Power attack using [(X=20):7] against [q(T=2):2]; Defender q(T=2) was captured; Attacker (X=20) rerolled 7 => 20
      * 15. End of round: responder003 won round 2 (80 vs. 18)
      * 16. responder004 added a reserve die: rz(S)
-     * 17. responder004 set swing values: T=2, W=4, X=4, Z=4, S=20
+     * 17. responder004 set swing values: S=20, T=2, W=4, X=4, Z=4
      *     responder004 won initiative for round 3. Initial die values: responder003 rolled [(4):2, (6):5, (12):1, (X=20):12, (20):8], responder004 rolled [q(T=2):2, q(W=4):4, q(X=4):1, q(Z=4):1, z(S=20):4].
      * 18. responder004 performed Skill attack using [q(T=2):2,q(W=4):4,q(X=4):1,q(Z=4):1,z(S=20):4] against [(X=20):12]; Defender (X=20) was captured; Attacker q(T=2) rerolled 2 => 1; Attacker q(W=4) rerolled 4 => 4; Attacker q(X=4) rerolled 1 => 3; Attacker q(Z=4) rerolled 1 => 1; Attacker z(S=20) rerolled 4 => 10
      * 19. responder003 performed Power attack using [(12):1] against [q(Z=4):1]; Defender q(Z=4) was captured; Attacker (12) rerolled 1 => 12
@@ -4170,7 +4170,7 @@ class responder01Test extends responderTestFramework {
 
 
         ////////////////////
-        // Move 16 - responder004 set swing values: T=2, W=4, X=4, Z=4, S=20
+        // Move 16 - responder004 set swing values: S=20, T=2, W=4, X=4, Z=4
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitDieValues(
             array(2, 4, 1, 1, 4),
@@ -4211,7 +4211,7 @@ class responder01Test extends responderTestFramework {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 20 sides)';
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: T=2, W=4, X=4, Z=4, S=20'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: S=20, T=2, W=4, X=4, Z=4'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 3. Initial die values: responder003 rolled [(4):2, (6):5, (12):1, (X=20):12, (20):8], responder004 rolled [q(T=2):2, q(W=4):4, q(X=4):1, q(Z=4):1, z(S=20):4].'));
         $cachedActionLog[] = array_pop($expData['gameActionLog']);
