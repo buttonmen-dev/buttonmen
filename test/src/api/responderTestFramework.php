@@ -416,6 +416,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'description' => 'When a Stinger Die participates in a Skill Attack, it can be used as any number between its minimum possible value and the value it currently shows. Thus, a normal die showing 4 and a Stinger Die showing 6 can make a Skill Attack on any die showing 5 through 10. Two Stinger Dice showing 10 can Skill Attack any die between 2 and 20. IMPORTANT: Stinger Dice do not count for determining who goes first.',
                 'interacts' => array(
                     'Shadow' => 'Dice with both Shadow and Stinger skills can singly attack with any value from the min to the max of the die (making a shadow attack against a die whose value is greater than or equal to their own, or a skill attack against a die whose value is lower than or equal to their own)',
+                    'Warrior' => 'A Warrior can\'t use the Stinger skill to add less than the full value of the die, because the die isn\'t in play yet',
                 ),
             ),
             'TimeAndSpace' => array(
@@ -455,7 +456,9 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             'Warrior' => array(
                 'code' => '`',
                 'description' => 'These are extra dice which may be brought into play during a round, by using one of them in a multi-die Skill Attack. Once a Warrior die is brought into play, it loses the Warrior skill for the rest of the round. After the round, the die regains the Warrior skill to start the next round. Dice with the Warrior skill are completely out of play: They aren\'t part of your starting dice, they don\'t count for initiative, they can\'t be attacked, none of their other skills can be used, they don\'t count for scoring purposes, etc. At the start of the round, each Warrior die shows its maximum value; when it\'s brought into play, it\'s rolled as usual. Only one Warrior Die may be used in any given Skill Attack. Adding a Warrior die to a Skill Attack is always optional; even if you have no other legal attack, you can choose to pass rather than using a Warrior die.',
-                'interacts' => array(),
+                'interacts' => array(
+                    'Stinger' => 'A Warrior can\'t use the Stinger skill to add less than the full value of the die, because the die isn\'t in play yet',
+                ),
             ),
             'Weak' => array(
                 'code' => 'h',

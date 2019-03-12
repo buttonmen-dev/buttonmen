@@ -81,7 +81,7 @@ Login.getLoginHeader = function() {
   }
   $.post(
     Env.api_location,
-    { type: 'loadPlayerName' },
+    JSON.stringify({ 'type': 'loadPlayerName' }),
     function(rs) {
       var player_name = null;
       if (rs.status == 'ok') {
@@ -118,7 +118,7 @@ Login.getFooter = function() {
   var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
-    'Button Men is copyright 1999, 2018 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2019 James Ernest and Cheapass Games: ');
   copyright.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',
@@ -382,7 +382,7 @@ Login.addNewPostLink = function() {
 Login.postToResponder = function(responder_args) {
   $.post(
     Env.api_location,
-    responder_args,
+    JSON.stringify(responder_args),
     function(rs) {
       if (rs.status == 'ok') {
         Login.status_type = Login.STATUS_ACTION_SUCCEEDED;

@@ -944,10 +944,12 @@ class ApiResponder {
             if ($argcheck['ok']) {
                 // As far as we can easily tell, it's safe to call
                 // the function.  Go ahead and create an interface
-                // object, invoke the function, and return the result
-                $interface = $this->create_interface($args, $check);
-                apache_note('BMAPIMethod', $args['type']);
-                $data = $this->{$check['funcname']}($interface, $args);
+                // object, invoke the function on sanitized args,
+                // and return the result
+                $sanitizedArgs = $this->spec->sanitize_function_args($args);
+                $interface = $this->create_interface($sanitizedArgs, $check);
+                apache_note('BMAPIMethod', $sanitizedArgs['type']);
+                $data = $this->{$check['funcname']}($interface, $sanitizedArgs);
 
                 $output = array(
                     'data' => $data,

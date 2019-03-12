@@ -181,7 +181,11 @@ class BMSkillWarrior extends BMSkill {
      * @return array
      */
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Stinger' => 'A Warrior can\'t use the Stinger skill to add ' .
+                         'less than the full value of the die, because ' .
+                         'the die isn\'t in play yet',
+        );
     }
 
     /**

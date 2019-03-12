@@ -98,14 +98,11 @@ class BMClient():
     self._setup_cookies()
 
   def _make_request(self, args):
-    tuples = []
-    for [key, value] in sorted(args.items()):
-      tuples.append((key, value))
-    data = urlencode(tuples, True)
+    data = json.dumps(args)
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
-    req = Request(self.url, data.encode('ascii'), headers)
+    req = Request(self.url, data, headers)
     response = urlopen(req)
     jsonval = response.read()
     try:
@@ -188,12 +185,15 @@ class BMClient():
   def create_game(self, pbutton, obutton='', player='', opponent='', description='', max_wins=3, use_prev_game=False):
     if player == None or player == '':
       player = self.username
-    player_info = [player, pbutton, ]
-    opponent_info = [opponent, obutton, ]
+    if not obutton:
+      obutton = ''
+    player_info_array = [
+      [ player, pbutton, ],
+      [ opponent, obutton, ],
+    ]
     args = {
       'type': 'createGame',
-      'playerInfoArray[0][]': player_info,
-      'playerInfoArray[1][]': opponent_info,
+      'playerInfoArray': player_info_array,
       'maxWins': max_wins,
     }
     if use_prev_game:
@@ -212,11 +212,10 @@ class BMClient():
       'roundNumber': roundNumber,
       'timestamp': timestamp,
       'chat': chat,
+      'dieSelectStatus': dieSelectStatus,
     }
-    for statkey in sorted(dieSelectStatus.keys()):
-      args['dieSelectStatus[%s]' % statkey] = dieSelectStatus[statkey]
-    for sizekey in sorted(turboVals.keys()):
-      args['turboVals[%s]' % sizekey] = turboVals[sizekey]
+    if turboVals:
+      args['turboVals'] = turboVals
     return self._make_request(args)
 
   def submit_die_values(self, gameId, swingArray, optionArray, roundNumber, timestamp):
@@ -228,10 +227,10 @@ class BMClient():
     }
     if swingArray:
       for [key, value] in sorted(swingArray.items()):
-        args['swingValueArray[%s]' % key] = value
+        args['swingValueArray'] = swingArray
     if optionArray:
       for [key, value] in sorted(optionArray.items()):
-        args['optionValueArray[%s]' % key] = value
+        args['optionValueArray'] = optionArray
     return self._make_request(args)
 
   def react_to_initiative(self, gameId, action, idxArray, valueArray, roundNumber, timestamp):
@@ -241,11 +240,9 @@ class BMClient():
       'roundNumber': roundNumber,
       'timestamp': timestamp,
       'action': action,
+      'dieIdxArray': idxArray,
+      'dieValueArray': valueArray,
     }
-    for i in range(len(idxArray)):
-      args['dieIdxArray[%d]' % i] = idxArray[i]
-    for i in range(len(valueArray)):
-      args['dieValueArray[%d]' % i] = valueArray[i]
     return self._make_request(args)
 
   def adjust_fire_dice(self, gameId, action, idxArray, valueArray, roundNumber, timestamp):
@@ -255,11 +252,9 @@ class BMClient():
       'roundNumber': roundNumber,
       'timestamp': timestamp,
       'action': action,
+      'dieIdxArray': idxArray,
+      'dieValueArray': valueArray,
     }
-    for i in range(len(idxArray)):
-      args['dieIdxArray[%d]' % i] = idxArray[i]
-    for i in range(len(valueArray)):
-      args['dieValueArray[%d]' % i] = valueArray[i]
     return self._make_request(args)
 
   def choose_reserve_dice(self, gameId, action, dieIdx):
