@@ -24,6 +24,7 @@ import datetime
 
 HOSTNAME = subprocess.check_output(['hostname', ]).strip()
 COMMITID = None
+LOGF = None
 
 USERNAME = 'ubuntu'
 
@@ -31,6 +32,7 @@ PARENTDIR = '/srv/bmgames/chaos-test'
 GAMESDIR = '%s/archive' % (PARENTDIR)
 STATEDIR = '%s/replay_state/%s' % (PARENTDIR, HOSTNAME)
 STATEFILE = '%s/filesread' % (STATEDIR)
+LOGFILE = '%s/replay_loop.log' % (STATEDIR)
 SRCDIR = '/buttonmen/src'
 TESTDIR = '/buttonmen/test'
 TESTFILE = '%s/src/api/responder99Test.php' % TESTDIR
@@ -48,6 +50,7 @@ SKIP_INIT_NEW_GAMES = len(sys.argv) > 1 and sys.argv[1] in [ '-s', '--skip-init'
 
 def setup():
   global COMMITID
+  global LOGF
   if not os.path.isdir(STATEDIR):
     os.mkdir(STATEDIR)
   os.chdir(SRCDIR)
@@ -55,6 +58,7 @@ def setup():
     f = open('/buttonmen/.git/FETCH_HEAD')
     COMMITID = f.readline().split()[0]
     f.close()
+  LOGF = open(LOGFILE, 'a')
 
 def load_state():
   if os.path.isfile(STATEFILE):
@@ -158,8 +162,14 @@ def test_new_games():
   os.system('rm ./output/*')
   os.chdir(SRCDIR)
 
+def log(message):
+  LOGF.write('%s: %s\n' % (
+    datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), message))
+  LOGF.flush()
+
 ########################################################################
 setup()
+log("Starting replay_loop")
 state = load_state()
 skip_init_new_games = SKIP_INIT_NEW_GAMES
 while True:
@@ -167,13 +177,16 @@ while True:
     print "Skipping new games the first time"
     skip_init_new_games = False
   else:
+    log("Testing new games")
     test_new_games()
   nextfile = find_next_file(state)
   if nextfile:
     print "Testing %s..." % nextfile
+    log("Testing replay of %s" % nextfile)
     test_file(nextfile)
     state.append(nextfile)
     save_state(state)
   else:
     print "No new files; sleeping..."
+    log("No files to replay; sleeping...")
     time.sleep(SLEEPSECS)

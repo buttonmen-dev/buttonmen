@@ -63,7 +63,7 @@ class ApiSpec {
                 'dieValueArray' => array(
                     'arg_type' => 'array',
                     'has_keys' => FALSE,
-                    'elem_type' => 'alnum',
+                    'elem_type' => 'number',
                 ),
             ),
         ),
@@ -595,14 +595,14 @@ class ApiSpec {
                 'optionValueArray' => array(
                     'arg_type' => 'array',
                     'has_keys' => TRUE,
-                    'minlength' => 1,
+                    'minlength' => 0,
                     'key_type' => 'number',
                     'elem_type' => 'number',
                 ),
                 'swingValueArray' => array(
                     'arg_type' => 'array',
                     'has_keys' => TRUE,
-                    'minlength' => 1,
+                    'minlength' => 0,
                     'key_type' => 'alnum',
                     'elem_type' => 'number',
                 ),
@@ -715,6 +715,42 @@ class ApiSpec {
     }
 
     /**
+     * This function sanitizes the provided arguments into a
+     * standard format for internal use.  It is run after
+     * verify_function_args() has already passed on these arguments,
+     * so it assumes the args are sane.
+     *
+     * @param array $args
+     * @return array
+     */
+    public function sanitize_function_args($args) {
+        $sanitizedArgs = array();
+        $argsExpected = $this->functionArgs[$args['type']];
+        foreach ($args as $argname => $argvalue) {
+            if (($argname == 'type') || ($argname == 'automatedApiCall')) {
+                $sanitizedArgs[$argname] = $argvalue;
+                continue;
+            }
+
+            $expectedType = $this->determineExpectedType($argname, $argsExpected);
+            if (is_array($expectedType)) {
+                $realArgtype = $expectedType['arg_type'];
+            } else {
+                $realArgtype = $expectedType;
+            }
+
+            // Use a sanitization function if one exists, or just return the initial arg
+            $sanitizeFunc = 'sanitize_argument_of_type_' . $realArgtype;
+            if (method_exists($this, $sanitizeFunc)) {
+                $sanitizedArgs[$argname] = $this->$sanitizeFunc($argvalue);
+            } else {
+                $sanitizedArgs[$argname] = $argvalue;
+            }
+        }
+        return $sanitizedArgs;
+    }
+
+    /**
      * Determine expected type of an argument
      *
      * @param string $argName
@@ -776,6 +812,17 @@ class ApiSpec {
             }
             return FALSE;
         }
+    }
+
+    /**
+     * sanitize an array argument by sorting it by key
+     *
+     * @param array $arg
+     * @return array
+     */
+    protected function sanitize_argument_of_type_array($arg) {
+        ksort($arg);
+        return $arg;
     }
 
     /**
@@ -841,6 +888,9 @@ class ApiSpec {
             preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
             return TRUE;
         }
+        if (is_int($arg) && $arg >= 0) {
+            return TRUE;
+        }
         return FALSE;
     }
 
@@ -851,6 +901,9 @@ class ApiSpec {
      * @return boolean
      */
     protected function verify_argument_of_type_boolean($arg) {
+        if (is_bool($arg)) {
+            return TRUE;
+        }
         if (is_string($arg) &&
             in_array(strtolower($arg), array("true", "false"))) {
             return TRUE;
