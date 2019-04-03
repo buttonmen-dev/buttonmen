@@ -680,7 +680,7 @@ class LoggingBMClient():
       'mandatory': [ 'Berserk', ],
       'ok': [
 	'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus', 'Insult',
-	'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
+	'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
 	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Rush',
 	'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Turbo', 'Trip',
 	'Value', 'Weak',
@@ -690,7 +690,7 @@ class LoggingBMClient():
     defend_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
@@ -712,7 +712,7 @@ class LoggingBMClient():
       'mandatory': [ 'Boom', ],
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Warrior', 'Weak',
@@ -722,7 +722,7 @@ class LoggingBMClient():
     defend_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
@@ -740,7 +740,7 @@ class LoggingBMClient():
     attack_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Focus',
-	'Insult', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
+	'Insult', 'Jolt', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
 	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Rush',
 	'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Turbo', 'Trip', 'Value',
 	'Weak',
@@ -750,7 +750,7 @@ class LoggingBMClient():
     defend_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Weak',
@@ -777,7 +777,7 @@ class LoggingBMClient():
       'mandatory': [ 'Queer', 'Shadow', ],
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace', 'Trip',
 	'Turbo', 'Value', 'Weak',
@@ -787,7 +787,7 @@ class LoggingBMClient():
     defend_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Weak',
@@ -814,7 +814,7 @@ class LoggingBMClient():
       'mandatory': [ 'Trip', ],
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Value', 'Weak',
@@ -824,7 +824,7 @@ class LoggingBMClient():
     defend_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
@@ -914,7 +914,7 @@ class LoggingBMClient():
     self.debug_skill_tries.append("ATT=%s, DEF=%s" % (attackers, defenders))
     attack_skills = {
       'ok': [
-	'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus', 'Insult',
+	'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus', 'Insult', 'Jolt',
 	'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing',
 	'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage',
 	'Rush', 'Shadow', 'Slow', 'Speed', 'Stealth', 'Stinger', 'TimeAndSpace',
@@ -924,7 +924,7 @@ class LoggingBMClient():
     }
     defend_skills = {
       'ok': [
-	'Boom', 'Berserk', 'Chance', 'Doppelganger', 'Fire', 'Focus',
+	'Boom', 'Berserk', 'Chance', 'Doppelganger', 'Fire', 'Focus', 'Jolt',
 	'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood', 'Morphing', 'Null',
 	'Ornery', 'Poison', 'Queer', 'Radioactive', 'Rage', 'Rush', 'Shadow',
 	'Slow', 'Speed', 'Stealth', 'TimeAndSpace', 'Stinger',
@@ -984,7 +984,7 @@ class LoggingBMClient():
     attack_ok_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
 	'TimeAndSpace', 'Trip', 'Turbo', 'Value', 'Weak',
@@ -994,7 +994,7 @@ class LoggingBMClient():
     defend_ok_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger',
 	'TimeAndSpace', 'Turbo', 'Trip', 'Value', 'Weak',
@@ -1014,7 +1014,7 @@ class LoggingBMClient():
       'mandatory': [ 'Speed', ],
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Stinger', 'TimeAndSpace', 'Trip',
 	'Turbo', 'Value', 'Weak',
@@ -1024,7 +1024,7 @@ class LoggingBMClient():
     defend_skills = {
       'ok': [
 	'Berserk', 'Boom', 'Chance', 'Doppelganger', 'Fire', 'Focus',
-	'Insult', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
+	'Insult', 'Jolt', 'Konstant', 'Mad', 'Maximum', 'Mighty', 'Mood',
 	'Morphing', 'Null', 'Ornery', 'Poison', 'Queer', 'Radioactive',
 	'Rage', 'Rush', 'Shadow', 'Slow', 'Speed', 'Stinger', 'TimeAndSpace',
 	'Turbo', 'Trip', 'Value', 'Weak',
