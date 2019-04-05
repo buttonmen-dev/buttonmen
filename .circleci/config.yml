@@ -61,7 +61,7 @@ jobs:
           command: php /etc/php/7.0/deploy-includes/phpmd.phar ./src xml ./deploy/circleci/pmd/buttonmen.xml --reportfile ./build/logs/pmd.xml
       - run:
           name: Generate phploc.csv
-          command: php /etc/php/7.0/deploy-includes/phploc.phar --log-csv ./build/logs/phploc.csv ./src
+          command: /usr/bin/phploc --log-csv ./build/logs/phploc.csv ./src
       - run:
           name: Aggregate tool output with PHP_CodeBrowser
           command: php /etc/php/7.0/deploy-includes/phpcb.phar --log ./build/logs --source ./src --output ./build/code-browser
