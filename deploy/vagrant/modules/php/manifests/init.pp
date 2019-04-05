@@ -36,6 +36,7 @@ class php::type::circleci {
     "php-pear": ensure => installed;
     "php-xdebug": ensure => installed;
     "php-xsl": ensure => installed;
+    "phploc": ensure => installed;
   }
 
   exec {
@@ -56,11 +57,6 @@ class php::type::circleci {
     "php_wget_install_phpcpd":
       command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpcpd.phar https://phar.phpunit.de/phpcpd.phar",
       creates => "/etc/php/7.0/deploy-includes/phpcpd.phar",
-      require => File["/etc/php/7.0/deploy-includes"];
-
-    "php_wget_install_phploc":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phploc.phar https://phar.phpunit.de/phploc.phar",
-      creates => "/etc/php/7.0/deploy-includes/phploc.phar",
       require => File["/etc/php/7.0/deploy-includes"];
 
     "php_wget_install_phpcb":
