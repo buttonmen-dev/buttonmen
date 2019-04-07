@@ -140,7 +140,7 @@ class BMSkillJolt extends BMSkill {
     protected static function get_interaction_descriptions() {
         return array(
             'TimeAndSpace' => 'If a die with both the Jolt and TimeAndSpace skills rerolls to an odd number, ' .
-                              'it still only gives one extra turn.',
+                              'it still only gives one extra turn',
         );
     }
 }
