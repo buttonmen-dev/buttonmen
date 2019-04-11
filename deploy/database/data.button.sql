@@ -1518,6 +1518,11 @@ UPDATE button SET flavor_text="Amelia Farnese: Amelia Farnese can listen to ever
 UPDATE button SET flavor_text="Bobby McGinn: \"Texas\" Bobby McGinn knows every hoodlum on the streets of Leriston, Providence, and Shepherd City. He likes carnauba wax, a strong handshake, and watching things burn, and he likes to beat people up. " WHERE name="Bobby";
 UPDATE button SET flavor_text="Tasha Rudenko: Natasha Rudenko is a wicked sorceress sent from another world to bark strange commands and to withhold delicious treats. She likes it when no one gets bitten, and she likes to beat people up." WHERE name="Tasha";
 UPDATE button SET flavor_text="Johnny Stubbs: When Johnny Stubbs mentions \"the cigar trick,\" you should change the subject quickly but carefully. He likes gritty tales of wrongdoing, birdsong at first light, and beating people up." WHERE name="Stubbs";
+UPDATE button SET flavor_text="Caine struggles with a soul that is salved by darkness but addicted to the heat of the limelight. He composes poetry in engrish and delights in the ironic cruelty of beating people up." WHERE name="Caine";
+UPDATE button SET flavor_text="Xylene is colorless and sweet-smelling. When subjected to fanboys, she will exercise her right to beat people up." WHERE name="Xylene";
+UPDATE button SET flavor_text="Cammy Neko is a cosplayer who likes gashapon, nuigurumi, yaoi, and many other Japanese words. She often cosplays with friends as fighting game characters, who are always looking to beat people up." WHERE name="Cammy Neko";
+UPDATE button SET flavor_text="Sailor Man likes eating, shopping, and playing video games. He also likes crossplaying while beating people up." WHERE name="Sailor Man";
+UPDATE button SET flavor_text="Perpetually winking, this druid-monk-ranger reads, solves puzzles, plays video games, and consumes massive amounts of popular culture yet considerately makes time to beat people up." WHERE name="Vysion";
 
 INSERT INTO tag (name) VALUES ('exclude_from_random');
 
