@@ -82,6 +82,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (69, '50 States',                     6700),
 (78, 'Steven Universe',               7600),
 (77, 'Zodiac',                        7500),
+(84, 'Peloton',                       8400),
 
 # Unofficial Sets - fan and vanity sets
 (70, 'Japanese Beetle (unofficial)',  6800),
@@ -927,6 +928,16 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (634, 'Wisconsin',       'co(W) co(W) cow(S) cow(S) cow(S)',               0, 0, (SELECT id FROM buttonset WHERE name="50 States")),
 (635, 'Wyoming',         '(4) z(12) kp(20) n(20) (S)',                     0, 0, (SELECT id FROM buttonset WHERE name="50 States"));
 
+# Peloton (AnnoDomini)
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(779, 'Antonio',         'c(4) d(8) %(10) h(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(780, 'Doyle',           'c(4) M(8) ^(10) k(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(781, 'Floriano',        'n(4) f(8) s(10) z(20) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(782, 'Julia',           'H(4) %(8) f(10) d(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(783, 'Mariusz',         'f(4) k(8) H(10) G(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(784, 'Orlando',         'k(4) s(8) g(10) M(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(785, 'Roger',           'g(4) G(8) c(10) H(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
+(786, 'Timea',           'd(4) s(8) z(10) h(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton"));
 
 ###############################################
 ##### UNOFFICIAL SETS - FAN AND VANITY SETS
@@ -1528,6 +1539,14 @@ UPDATE button SET flavor_text="Xylene is colorless and sweet-smelling. When subj
 UPDATE button SET flavor_text="Cammy Neko is a cosplayer who likes gashapon, nuigurumi, yaoi, and many other Japanese words. She often cosplays with friends as fighting game characters, who are always looking to beat people up." WHERE name="Cammy Neko";
 UPDATE button SET flavor_text="Sailor Man likes eating, shopping, and playing video games. He also likes crossplaying while beating people up." WHERE name="Sailor Man";
 UPDATE button SET flavor_text="Perpetually winking, this druid-monk-ranger reads, solves puzzles, plays video games, and consumes massive amounts of popular culture yet considerately makes time to beat people up." WHERE name="Vysion";
+UPDATE button SET flavor_text="Antonio is a breakaway specialist. He always looks ahead and leaves the beaten up behind." WHERE name="Antonio";
+UPDATE button SET flavor_text="Doyle is a time trial specialist. He likes to ride alone and does not need anybody's help to beat people up." WHERE name="Doyle";
+UPDATE button SET flavor_text="Floriano is a sprinter. He likes fast pace, fast cars and beating people up. Fast." WHERE name="Floriano";
+UPDATE button SET flavor_text="Julia is a hiller. She likes to go up and down, up and down, and beat people up and down, up and down …" WHERE name="Julia";
+UPDATE button SET flavor_text="Mariusz is a domestique rider. He helps his captain to save energy and beats people up for him." WHERE name="Mariusz";
+UPDATE button SET flavor_text="Orlando is an allrounder. He feels strong in any terrain and is always ready to beat people up." WHERE name="Orlando";
+UPDATE button SET flavor_text="Roger is a climber. He likes high mountains and needs little oxygen to beat people up." WHERE name="Roger";
+UPDATE button SET flavor_text="Timea is the lead-out rider. She sets the scene for her captain before the final beating up takes place." WHERE name="Timea";
 
 INSERT INTO tag (name) VALUES ('exclude_from_random');
 
