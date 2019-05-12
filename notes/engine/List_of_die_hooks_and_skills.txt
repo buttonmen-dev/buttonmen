@@ -50,6 +50,7 @@ pre_be_captured
 capture
   Berserk
   Doppelganger
+  Jolt
   Morphing
   Null
   Radioactive
@@ -57,6 +58,7 @@ capture
   Value
   Warrior
 be_captured
+  Jolt
   Radioactive
 split
   Berserk

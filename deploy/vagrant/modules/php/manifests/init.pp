@@ -36,17 +36,14 @@ class php::type::circleci {
     "php-pear": ensure => installed;
     "php-xdebug": ensure => installed;
     "php-xsl": ensure => installed;
+    "phploc": ensure => installed;
+    "pdepend": ensure => installed;
   }
 
   exec {
     "php_pear_set_auto_discover":
       command => "/usr/bin/pear config-set auto_discover 1",
       unless => "/usr/bin/pear config-get auto_discover | /bin/grep -q 1";
-
-    "php_pear_install_pdepend":
-      command => "/usr/bin/pear install pear.pdepend.org/PHP_Depend",
-      require => Exec["php_pear_set_auto_discover"],
-      creates => "/usr/bin/pdepend";
 
     "php_wget_install_phpmd":
       command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpmd.phar http://static.phpmd.org/php/latest/phpmd.phar",
@@ -56,11 +53,6 @@ class php::type::circleci {
     "php_wget_install_phpcpd":
       command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpcpd.phar https://phar.phpunit.de/phpcpd.phar",
       creates => "/etc/php/7.0/deploy-includes/phpcpd.phar",
-      require => File["/etc/php/7.0/deploy-includes"];
-
-    "php_wget_install_phploc":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phploc.phar https://phar.phpunit.de/phploc.phar",
-      creates => "/etc/php/7.0/deploy-includes/phploc.phar",
       require => File["/etc/php/7.0/deploy-includes"];
 
     "php_wget_install_phpcb":

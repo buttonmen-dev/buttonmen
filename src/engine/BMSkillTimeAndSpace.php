@@ -53,6 +53,7 @@ class BMSkillTimeAndSpace extends BMSkill {
 
         if ($die->value & 1) {
             $game->nextPlayerIdx = $die->playerIdx;
+            $game->nextPlayerCause = 'TimeAndSpace';
         }
     }
 
@@ -78,6 +79,8 @@ class BMSkillTimeAndSpace extends BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array(
+            'Jolt' => 'If a die with both the Jolt and TimeAndSpace skills rerolls to an odd number, ' .
+                      'it still only gives one extra turn',
             'Radioactive' => 'Dice with the TimeAndSpace skill lose TimeAndSpace ' .
                              'when they decay due to Radioactive',
             'Konstant' => 'Attacking Konstant TimeAndSpace dice do not ' .

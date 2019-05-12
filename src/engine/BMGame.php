@@ -16,12 +16,13 @@
  * @property      int   $turnNumberInRound;      Current turn number in current round
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
  * @property      int   $nextPlayerIdx           Index of the next player to take a turn in playerIdxArray
+ * @property      string $nextPlayerCause        Reason that the next player is different to default
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
  * @property      array $attack                  array('attackerPlayerIdx',<br>
-                                                       'defenderPlayerIdx',<br>
-                                                       'attackerAttackDieIdxArray',<br>
-                                                       'defenderAttackDieIdxArray',<br>
-                                                       'attackType')
+ *                                                     'defenderPlayerIdx',<br>
+ *                                                     'attackerAttackDieIdxArray',<br>
+ *                                                     'defenderAttackDieIdxArray',<br>
+ *                                                     'attackType')
  * @property-read int   $attackerPlayerIdx       Index in playerIdxArray of the attacker
  * @property-read int   $defenderPlayerIdx       Index in playerIdxArray of the defender
  * @property-read array $attackerAllDieArray     Array of all attacker's dice
@@ -122,6 +123,13 @@ class BMGame {
      * @var int
      */
     protected $nextPlayerIdx;
+
+    /**
+     * Reason that the next player is different to default
+     *
+     * @var string
+     */
+    protected $nextPlayerCause;
 
     /**
      * Index of the player who won initiative
@@ -2975,12 +2983,10 @@ class BMGame {
         // move to the next player
         if (isset($this->nextPlayerIdx)) {
             if ($this->nextPlayerIdx === $this->activePlayerIdx) {
-                // james: currently, the only reason that this would be true is TimeAndSpace,
-                //        so hard code it for the moment
                 $this->log_action(
                     'play_another_turn',
                     $this->playerArray[$this->activePlayerIdx]->playerId,
-                    array('cause' => 'TimeAndSpace')
+                    array('cause' => $this->nextPlayerCause)
                 );
             }
 

@@ -24,6 +24,7 @@ $RANDOMBM_SKILL_ARRAY = array(
   'c', // Chance
   'f', // Focus
   'I', // Insult
+  'J', // Jolt
   'k', // Konstant
   'M', // Maximum
   'H', // Mighty
@@ -205,6 +206,13 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'description' => 'Cannot be attacked by skill attacks.',
                 'interacts' => array(),
             ),
+            'Jolt' => array(
+                'code' => 'J',
+                'description' => 'If a Jolt Die participates in an attack, then the player will take another turn and the Jolt die loses the Jolt skill. If a Jolt die is captured, then the player who captured it takes another turn.',
+                'interacts' => array(
+                    'TimeAndSpace' => 'If a die with both the Jolt and TimeAndSpace skills rerolls to an odd number, it still only gives one extra turn',
+                ),
+            ),
             'Konstant' => array(
                 'code' => 'k',
                 'description' => 'These dice do not reroll after an attack; they keep their current value. Konstant dice can not Power Attack, and cannot perform a Skill Attack by themselves, but they can add OR subtract their value in a multi-dice Skill Attack. If another skill causes a Konstant die to reroll (e.g., Chance, Trip, Ornery), it continues to show the same value. If another skill causes the die to change its value without rerolling (e.g., Focus, Fire), the die\'s value does change and then continues to show that new value.',
@@ -296,7 +304,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             ),
             'Radioactive' => array(
                 'code' => '%',
-                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. All dice that decay lose the following skills: Radioactive (%), Turbo (!), Mad Swing (&), Mood Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
+                'description' => 'If a radioactive die is either the attacking die or the target die in an attack with a single attacking die and a single target die, the attacking die splits, or "decays", into two as-close-to-equal-sized-as-possible dice that add up to its original size. If any die decays during an attack, all dice involved in the attack that remain in play lose Radioactive (%). All dice that decay lose the following skills: Turbo (!), Mad Swing (&), Mood Swing (?), Time and Space (^), and Jolt (J). For example, a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack targeting a SINGLE die are first replaced with non-berserk dice with half their previous number of sides, rounding up, and then decay',
                     'Doppelganger' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
@@ -423,6 +431,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'code' => '^',
                 'description' => 'If a Time and Space Die participates in an attack and rerolls an odd number, then the player will take another turn. If multiple Time and Space dice are rerolled and show odd, only one extra turn is given per reroll.',
                 'interacts' => array(
+                    'Jolt' => 'If a die with both the Jolt and TimeAndSpace skills rerolls to an odd number, it still only gives one extra turn',
                     'Radioactive' => 'Dice with the TimeAndSpace skill lose TimeAndSpace when they decay due to Radioactive',
                     'Konstant' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                 ),

@@ -47,7 +47,7 @@ class BMBtnSkillRandomBMMixedTest extends PHPUnit_Framework_TestCase {
                               4, 4, 3,            // die indices for skill type 2, including repeat
                               1, 3);              // die indices for skill type 3
         $BM_SKILL_RAND_VALS = array(
-                              5, 2, 15,           // skill types
+                              6, 2, 16,           // skill types
         );
 
         $retval = BMBtnSkillRandomBMMixed::specify_recipes($args);

@@ -50,7 +50,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (40, '2002 Anime Expo',               4300),
 (41, '2002 Origins',                  4400),
 (42, 'Bar Mitzvah',                   4500),
-(45, '2003 Rare-Promos',              4600),
+(45, '2003 Rare / Promo',             4600),
 (43, 'Button Brains',                 4700),
 (61, 'Fightball',                     4800),
 (62, 'Nodwick',                       4900),
@@ -59,7 +59,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (66, 'Kubla Con',                     5200),
 (48, 'Space Girlz',                   5300),
 (49, 'Bridge and Tunnel',             5400),
-(50, '2005 Rare Promo',               5500),
+(50, '2005 Rare / Promo',             5500),
 (76, 'Big Top',                       5550),
 (63, 'High School Drama!',            5600),
 (64, 'Unexploded Cow',                5700),
@@ -68,6 +68,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (80, 'West Side',                       51),
 (81, 'The Delta',                       52),
 (82, 'Uptown',                          53),
+(83, '2017 Rare / Promo',               54),
 
 # Button Men Online sets - virtual fan and vanity sets
 (52, 'Iron Chef',                     5900),
@@ -147,9 +148,9 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (10, 'Apples',       '(8) (8) (2/12) (8/16) (20/24)',       0, 0, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave")),
 (11, 'Green Apple',  '(8) (10) (1/8) (6/12) (12/20)',       0, 0, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave"));
 
-# 2003 Rare-Promos (lacking information about this set except for one button, Apples and Green Apples were once here)
+# 2003 Rare / Promo (lacking information about this set except for one button, Apples and Green Apples were once here)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(12, 'Abe Caine',    'p(4,4) p(8,8) (10) ps(24) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="2003 Rare-Promos"));
+(12, 'Abe Caine',    'p(4,4) p(8,8) (10) ps(24) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="2003 Rare / Promo"));
 
 # 2004 ORIGINS (Flying Buffalo)
 #    INTRODUCES Sleep(Z) dice AND Game(#) dice; Fire(F); Poison(p); Shadow(s); Slow(w); Speed(z); Value(v); Option
@@ -176,11 +177,15 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (28, 'Igor (promo)',            '(8) (8) z(12) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 (29, 'Mike Young',              '(X) (X) (Y) (Y)',                                0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins"));
 
-# ('2005 Rare Promo')                         NO SPECIAL SKILLS
+# 2005 Rare / Promo                         NO SPECIAL SKILLS
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(30, 'Kitty Cat Seven',               '(4) (6) (8) (10) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo")),
-(31, 'Sylvia Branham',                '(6) (6) (6) (X) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo")),
-(680, 'Magical Witch Critical Miss',  '(6) (10) (10) (20) (X)?',    0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare Promo"));
+(30, 'Kitty Cat Seven',               '(4) (6) (8) (10) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare / Promo")),
+(31, 'Sylvia Branham',                '(6) (6) (6) (X) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare / Promo")),
+(680, 'Magical Witch Critical Miss',  '(6) (10) (10) (20) (X)?',    0, 0, (SELECT id FROM buttonset WHERE name="2005 Rare / Promo"));
+
+# 2017 Rare / Promo
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(778, 'Mutton Ben', 'p(8) #(12) s(20) (X) (X)', 0, 0, (SELECT id FROM buttonset WHERE name="2017 Rare / Promo"));
 
 # BALTICON 34 (Balticon)                             INTRODUCES Option(/)       (2000 Rare / Promo on old site)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -1518,6 +1523,11 @@ UPDATE button SET flavor_text="Amelia Farnese: Amelia Farnese can listen to ever
 UPDATE button SET flavor_text="Bobby McGinn: \"Texas\" Bobby McGinn knows every hoodlum on the streets of Leriston, Providence, and Shepherd City. He likes carnauba wax, a strong handshake, and watching things burn, and he likes to beat people up. " WHERE name="Bobby";
 UPDATE button SET flavor_text="Tasha Rudenko: Natasha Rudenko is a wicked sorceress sent from another world to bark strange commands and to withhold delicious treats. She likes it when no one gets bitten, and she likes to beat people up." WHERE name="Tasha";
 UPDATE button SET flavor_text="Johnny Stubbs: When Johnny Stubbs mentions \"the cigar trick,\" you should change the subject quickly but carefully. He likes gritty tales of wrongdoing, birdsong at first light, and beating people up." WHERE name="Stubbs";
+UPDATE button SET flavor_text="Caine struggles with a soul that is salved by darkness but addicted to the heat of the limelight. He composes poetry in engrish and delights in the ironic cruelty of beating people up." WHERE name="Caine";
+UPDATE button SET flavor_text="Xylene is colorless and sweet-smelling. When subjected to fanboys, she will exercise her right to beat people up." WHERE name="Xylene";
+UPDATE button SET flavor_text="Cammy Neko is a cosplayer who likes gashapon, nuigurumi, yaoi, and many other Japanese words. She often cosplays with friends as fighting game characters, who are always looking to beat people up." WHERE name="Cammy Neko";
+UPDATE button SET flavor_text="Sailor Man likes eating, shopping, and playing video games. He also likes crossplaying while beating people up." WHERE name="Sailor Man";
+UPDATE button SET flavor_text="Perpetually winking, this druid-monk-ranger reads, solves puzzles, plays video games, and consumes massive amounts of popular culture yet considerately makes time to beat people up." WHERE name="Vysion";
 
 INSERT INTO tag (name) VALUES ('exclude_from_random');
 
