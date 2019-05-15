@@ -569,12 +569,12 @@ class responder03Test extends responderTestFramework {
 
         $this->verify_api_submitTurn(
             array(1, 1, 2, 2, 1),
-            'responder003 performed Trip attack using [t(4):1] against [%Ho(1,2):3]; Attacker t(4) rerolled 1 => 1; Defender %Ho(1,2) recipe changed to %Ho(2,4), rerolled 3 => 3, was not captured; Attacker t(4) showing 1 split into: t(2) showing 2, and t(2) showing 1. ',
+            'responder003 performed Trip attack using [t(4):1] against [%Ho(1,2):3]; Attacker t(4) rerolled 1 => 1; Defender %Ho(1,2) recipe changed to Ho(2,4), rerolled 3 => 3, was not captured; Attacker t(4) showing 1 split into: t(2) showing 2, and t(2) showing 1. ',
             $retval, array(array(0, 1), array(1, 0)),
             $gameId, 1, 'Trip', 0, 1, '');
 
         $expData['activePlayerIdx'] = 1;
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [t(4):1] against [%Ho(1,2):3]; Attacker t(4) rerolled 1 => 1; Defender %Ho(1,2) recipe changed to %Ho(2,4), rerolled 3 => 3, was not captured; Attacker t(4) showing 1 split into: t(2) showing 2, and t(2) showing 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [t(4):1] against [%Ho(1,2):3]; Attacker t(4) rerolled 1 => 1; Defender %Ho(1,2) recipe changed to Ho(2,4), rerolled 3 => 3, was not captured; Attacker t(4) showing 1 split into: t(2) showing 2, and t(2) showing 1'));
         $expData['gameActionLogCount'] = 4;
         $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("JustPerformedTripAttack", "JustPerformedUnsuccessfulAttack", "HasJustSplit");
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
@@ -585,10 +585,11 @@ class responder03Test extends responderTestFramework {
             array('value' => 1, 'sides' => 2, 'recipe' => 't(2)', 'skills' => array('Trip'), 'properties' => array("JustPerformedTripAttack", "JustPerformedUnsuccessfulAttack", "HasJustSplit"), 'description' => 'Trip 2-sided die')));
         $expData['playerDataArray'][0]['sideScore'] = 0.7;
         $expData['playerDataArray'][0]['waitingOnAction'] = false;
-        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "Radioactive Mighty Ornery Twin Die (with 2 and 4 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "Mighty Ornery Twin Die (with 2 and 4 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array("HasJustGrown", "Twin");
-        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "%Ho(2,4)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "Ho(2,4)";
         $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['skills'] = array('Mighty', 'Ornery');
         $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'] = array(array("sides" => "2", "value" => "1"), array("sides" => "4", "value" => "2"));
         $expData['playerDataArray'][1]['roundScore'] = 13.5;
         $expData['playerDataArray'][1]['sideScore'] = -0.7;
@@ -600,14 +601,14 @@ class responder03Test extends responderTestFramework {
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(1, 4, 1, 2, 2, 1, 1, 7, 2, 2),
-            'responder004 performed Skill attack using [%Ho(1,4):4] against [(X=6):4]; Defender (X=6) was captured; Attacker %Ho(1,4) showing 4 changed to Ho(1,4), which then split into: Ho(1,2) which grew into Ho(2,4) showing 5, and Ho(0,2) which grew into Ho(1,4) showing 3. responder004\'s idle ornery dice rerolled at end of turn: %Ho(2,4) changed size from 6 to 10 sides, recipe changed from %Ho(2,4) to %Ho(4,6), rerolled 3 => 3; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 5 => 8; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 8 => 4. ',
+            'responder004 performed Skill attack using [%Ho(1,4):4] against [(X=6):4]; Defender (X=6) was captured; Attacker %Ho(1,4) showing 4 changed to Ho(1,4), which then split into: Ho(1,2) which grew into Ho(2,4) showing 5, and Ho(0,2) which grew into Ho(1,4) showing 3. responder004\'s idle ornery dice rerolled at end of turn: Ho(2,4) changed size from 6 to 10 sides, recipe changed from Ho(2,4) to Ho(4,6), rerolled 3 => 3; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 5 => 8; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 8 => 4. ',
             $retval, array(array(1, 1), array(0, 5)),
             $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['activePlayerIdx'] = 0;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Skill attack using [%Ho(1,4):4] against [(X=6):4]; Defender (X=6) was captured; Attacker %Ho(1,4) showing 4 changed to Ho(1,4), which then split into: Ho(1,2) which grew into Ho(2,4) showing 5, and Ho(0,2) which grew into Ho(1,4) showing 3'));
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: %Ho(2,4) changed size from 6 to 10 sides, recipe changed from %Ho(2,4) to %Ho(4,6), rerolled 3 => 3; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 5 => 8; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 8 => 4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004\'s idle ornery dice rerolled at end of turn: Ho(2,4) changed size from 6 to 10 sides, recipe changed from Ho(2,4) to Ho(4,6), rerolled 3 => 3; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 5 => 8; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 8 => 4'));
         $expData['gameActionLogCount'] = 6;
         $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
@@ -615,9 +616,9 @@ class responder03Test extends responderTestFramework {
         $expData['playerDataArray'][0]['roundScore'] = 11.5;
         $expData['playerDataArray'][0]['sideScore'] = -10.7;
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
-        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "Radioactive Mighty Ornery Twin Die (with 4 and 6 sides)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = "Mighty Ornery Twin Die (with 4 and 6 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array("HasJustGrown", "HasJustRerolledOrnery", "Twin");
-        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "%Ho(4,6)";
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = "Ho(4,6)";
         $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 10;
         $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'] = array(array("sides" => "4", "value" => "2"), array("sides" => "6", "value" => "1"));
         $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = "Mighty Ornery Twin Die (with 2 and 4 sides)";

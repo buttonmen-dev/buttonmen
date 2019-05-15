@@ -62,6 +62,7 @@ class BMSkillRadioactive extends BMSkill {
         }
 
         $attacker = &$args['attackers'][0];
+        $defender = &$args['defenders'][0];
 
         if ($attacker->outOfPlay) {
             return;
@@ -76,6 +77,10 @@ class BMSkillRadioactive extends BMSkill {
         $attacker->remove_skill('Mad');
         $attacker->remove_skill('Jolt');
         $attacker->remove_skill('TimeAndSpace');
+
+        if (!$defender->has_flag('WasJustCaptured')) {
+            $defender->remove_skill('Radioactive');
+        }
 
         $newAttackerDieArray = $attacker->split();
 
@@ -104,10 +109,11 @@ class BMSkillRadioactive extends BMSkill {
     protected static function get_description() {
         return 'If a radioactive die is either the attacking die or the target die in an attack with a ' .
                'single attacking die and a single target die, the attacking die splits, or "decays", ' .
-               'into two as-close-to-equal-sized-as-possible dice that add up to its original size. All ' .
-               'dice that decay lose the following skills: Radioactive (%), Turbo (!), ' .
-               'Mad Swing (&), Mood ' .
-               'Swing (?), Time and Space (^), [and, not yet implemented: Jolt (J)]. For example, ' .
+               'into two as-close-to-equal-sized-as-possible dice that add up to its original size. ' .
+               'If any die decays during an attack, all dice involved in the attack that remain ' .
+               'in play lose Radioactive (%). ' .
+               'All dice that decay lose the following skills: Turbo (!), ' .
+               'Mad Swing (&), Mood Swing (?), Time and Space (^), and Jolt (J). For example, ' .
                'a s(X=15)! (Shadow Turbo X Swing with 15 sides) that shadow attacked a radioactive die ' .
                'would decay into a s(X=7) die and a s(X=8) die, losing the turbo skill. A %p(7,13) on a ' .
                'power attack would decay into a p(3,7) and a p(4,6), losing the radioactive skill.';

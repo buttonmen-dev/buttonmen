@@ -41,7 +41,7 @@ class BMBtnSkillRandomBMDuoskillTest extends PHPUnit_Framework_TestCase {
             1, 4               // skill positions -- second skill twice
         );
         $BM_SKILL_RAND_VALS = array(
-            7, 2,              // skill type      H, c
+            8, 2,              // skill type      H, c
         );
 
         $retval = BMBtnSkillRandomBMDuoskill::specify_recipes($args);

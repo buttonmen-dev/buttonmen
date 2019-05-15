@@ -1033,6 +1033,10 @@ class BMGameAction {
 
         if ('TimeAndSpace' == $this->params['cause']) {
             $message .= ' because a Time and Space die rolled odd';
+        } elseif ('JoltAttacker' == $this->params['cause']) {
+            $message .= ' because a Jolt die was part of the attack';
+        } elseif ('JoltCaptured' == $this->params['cause']) {
+            $message .= ' because a Jolt die was captured';
         }
 
         return $message;

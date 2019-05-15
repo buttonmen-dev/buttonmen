@@ -44,7 +44,7 @@ class BMBtnSkillRandomBMPentaskillTest extends PHPUnit_Framework_TestCase {
             4, 1               // skill positions -- fifth skill twice
         );
         $BM_SKILL_RAND_VALS = array(
-            7, 2, 5, 2, 0, 1,  // skill type      H, c, k, ignored, B, b
+            8, 2, 6, 2, 0, 1,  // skill type      H, c, k, ignored, B, b
         );
 
         $retval = BMBtnSkillRandomBMPentaskill::specify_recipes($args);
