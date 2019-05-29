@@ -6,7 +6,7 @@
  * This file contains numbered game playback tests 41-60.
  */
 
-require_once 'responderTestFramework.php';
+require_once __DIR__.'/responderTestFramework.php';
 
 class responder03Test extends responderTestFramework {
 

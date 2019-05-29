@@ -33,7 +33,7 @@ function buttonweavers_autoload($name) {
     // requires PHP >= 5.3.2
     $path_found = stream_resolve_include_path($classpath);
     if ($path_found) {
-        require_once($path_found);
+        require_once $path_found;
         return true;
     }
 }

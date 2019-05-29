@@ -64,23 +64,9 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
     protected function setUp() {
 
         // setup the test interface
-        //
-        // The multiple paths are to deal with the many diverse testing
-        // environments that we have, and their different assumptions about
-        // which directory is the unit test run directory.
-        if (file_exists('../test/src/database/mysql.test.inc.php')) {
-            require_once '../test/src/database/mysql.test.inc.php';
-        } else {
-            require_once 'test/src/database/mysql.test.inc.php';
-        }
-
-        if (file_exists('../src/api/ApiResponder.php')) {
-            require_once '../src/api/ApiResponder.php';
-            require_once '../src/api/ApiSpec.php';
-        } else {
-            require_once 'src/api/ApiResponder.php';
-            require_once 'src/api/ApiSpec.php';
-        }
+        require_once __DIR__.'/../database/mysql.test.inc.php';
+        require_once __DIR__.'/../../../src/api/ApiResponder.php';
+        require_once __DIR__.'/../../../src/api/ApiSpec.php';
         $this->spec = new ApiSpec();
 
         // Cache user IDs parsed from the DB for use within a test

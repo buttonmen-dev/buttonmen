@@ -8,7 +8,7 @@
  * tests, that is, all API tests except numbered game playback tests.
  */
 
-require_once 'responderTestFramework.php';
+require_once __DIR__.'/responderTestFramework.php';
 
 class responder00Test extends responderTestFramework {
 
