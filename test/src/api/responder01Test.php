@@ -8,7 +8,7 @@
  * tests which take advantage of the data from the first numbered games.
  */
 
-require_once 'responderTestFramework.php';
+require_once __DIR__.'/responderTestFramework.php';
 
 class responder01Test extends responderTestFramework {
 

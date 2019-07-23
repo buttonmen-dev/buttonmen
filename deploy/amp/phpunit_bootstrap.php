@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Bootstrap for phpunit under AMP/NetBeans
  */
 
@@ -40,7 +40,5 @@ function bm_skill_rand($min = FALSE, $max = FALSE) {
     return mt_rand();
 }
 
-
 // Now include the bootstrap file from the code itself
-// NetBeans will find it in this relative path
-require_once( "../src/lib/bootstrap.php" );
+require_once __DIR__.'/../../src/lib/bootstrap.php';

@@ -52,8 +52,8 @@ class ApiResponder {
 
         if (!($this->isTest)) {
             session_start();
-            require_once 'api_core.php';
-            require_once('../lib/bootstrap.php');
+            require_once __DIR__.'/api_core.php';
+            require_once __DIR__.'/../lib/bootstrap.php';
         }
     }
 

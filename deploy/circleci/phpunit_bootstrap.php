@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Bootstrap for phpunit under CircleCI
  */
 
@@ -41,4 +41,4 @@ function bm_skill_rand($min = FALSE, $max = FALSE) {
 }
 
 // Now include the bootstrap file from the code itself
-require_once( "./src/lib/bootstrap.php" );
+require_once __DIR__.'/../../src/lib/bootstrap.php';

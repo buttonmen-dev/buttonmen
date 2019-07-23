@@ -1,6 +1,6 @@
 <?php
 
-require_once 'BMInterfaceTestAbstract.php';
+require_once __DIR__.'/BMInterfaceTestAbstract.php';
 
 class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
 

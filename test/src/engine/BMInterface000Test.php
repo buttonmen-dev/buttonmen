@@ -1,6 +1,6 @@
 <?php
 
-require_once 'BMInterfaceTestAbstract.php';
+require_once __DIR__.'/BMInterfaceTestAbstract.php';
 
 /**
  * This test class is designed to be the first BMInterface test class to be run
