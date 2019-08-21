@@ -8,7 +8,7 @@
  * tests, that is, all API tests except numbered game playback tests.
  */
 
-require_once 'responderTestFramework.php';
+require_once __DIR__.'/responderTestFramework.php';
 
 class responder00Test extends responderTestFramework {
 
@@ -472,7 +472,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 784);
+        $this->assertEquals(count($retval['data']), 792);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -528,7 +528,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 83);
+        $this->assertEquals(count($retval['data']), 84);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }

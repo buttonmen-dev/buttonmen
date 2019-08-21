@@ -72,13 +72,9 @@ class BMInterface {
         $this->isTest = $isTest;
 
         if ($isTest) {
-            if (file_exists('../test/src/database/mysql.test.inc.php')) {
-                require_once '../test/src/database/mysql.test.inc.php';
-            } else {
-                require_once 'test/src/database/mysql.test.inc.php';
-            }
+            require_once __DIR__.'/../../test/src/database/mysql.test.inc.php';
         } else {
-            require_once '../database/mysql.inc.php';
+            require_once __DIR__.'/../database/mysql.inc.php';
         }
         self::$conn = conn();
     }

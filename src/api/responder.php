@@ -8,8 +8,8 @@
 /**
  * Requires both the actual spec and the responder feeding the real data
  */
-require_once 'ApiResponder.php';
-require_once 'ApiSpec.php';
+require_once __DIR__.'/ApiResponder.php';
+require_once __DIR__.'/ApiSpec.php';
 
 /**
  * If responder was called via a POST request (rather than by

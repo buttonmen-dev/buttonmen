@@ -14,7 +14,7 @@
  * @return bool
  */
 function login($username, $password, $doStayLoggedIn) {
-    require_once '../database/mysql.inc.php';
+    require_once __DIR__.'/../database/mysql.inc.php';
     $conn = conn();
 
     $sql = 'SELECT id, name_ingame, password_hashed, status FROM player_view
@@ -88,7 +88,7 @@ function is_hash_correct($password, $password_hashed, $username) {
 
         if ($isHashCorrect && (strlen($password_hashed) < 60)) {
             // force short hash to be updated to a new longer hash
-            require_once '../database/mysql.inc.php';
+            require_once __DIR__.'/../database/mysql.inc.php';
             $conn = conn();
 
             $sql = 'UPDATE player SET password_hashed = :hash
@@ -121,7 +121,7 @@ function auth_session_exists() {
     // cookie, so see if it matches the database.
     // If it does, create a new session
     if (array_key_exists('auth_userid', $_COOKIE) && array_key_exists('auth_key', $_COOKIE)) {
-        require_once '../database/mysql.inc.php';
+        require_once __DIR__.'/../database/mysql.inc.php';
         $conn = conn();
 
         $auth_userid = $_COOKIE['auth_userid'];
@@ -193,7 +193,7 @@ function logout() {
         array_key_exists('auth_key', $_COOKIE) &&
         array_key_exists('user_id', $_SESSION) &&
         $_SESSION['user_id'] == $_COOKIE['auth_userid']) {
-        require_once '../database/mysql.inc.php';
+        require_once __DIR__.'/../database/mysql.inc.php';
         $conn = conn();
 
         $sql = 'DELETE FROM player_auth

@@ -10,8 +10,8 @@
 /**
  * Requires both the actual spec and the dummy responder feeding the mock data
  */
-require_once 'DummyApiResponder.php';
-require_once 'ApiSpec.php';
+require_once __DIR__.'/DummyApiResponder.php';
+require_once __DIR__.'/ApiSpec.php';
 
 /**
  * If dummy_responder was called via a POST request (rather than
