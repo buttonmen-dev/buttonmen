@@ -115,6 +115,8 @@ Login.getLoginHeader = function() {
 Login.getFooter = function() {
   Login.footer = $('<div>');
 
+  Login.footer.append(Login.footerNavBar());
+
   var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
@@ -129,16 +131,6 @@ Login.getFooter = function() {
     'text': 'www.beatpeopleup.com',
   }));
   copyright.append(', and is used with permission.');
-
-  var contact = $('<div>');
-  Login.footer.append(contact);
-  contact.append(
-    'If you have any trouble with this website, you can open a ticket at ');
-  contact.append($('<a>', {
-    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
-    'text': 'the buttonweavers issue tracker',
-  }));
-  contact.append(' or e-mail us at help@buttonweavers.com.');
 
   Login.getBody();
 };
@@ -349,6 +341,23 @@ Login.addMainNavbar = function() {
   Login.message.append(navtable);
 
   Login.addNewPostLink();
+};
+
+Login.footerNavBar = function() {
+  var navtable = $('<table>');
+  var navrow = $('<tr>', { 'class': 'footerNav' });
+  var links = {
+    'Help': 'help.html',
+  };
+  $.each(links, function(text, url) {
+    var navtd = $('<td>');
+    navtd.append($('<a>', { 'href': url, 'text': text }));
+    navrow.append(navtd);
+  });
+  navtable.append(navrow);
+  navtable.append($('<br>'));
+
+  return navtable;
 };
 
 Login.addNewPostLink = function() {

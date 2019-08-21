@@ -69,21 +69,26 @@ test("test_Login.getFooter", function(assert) {
   var cached_function = Login.getBody;
   Login.getBody = function() {
     assert.ok(true, "Login.getBody is called");
-  }
+  };
   Login.getFooter();
   var footerProps = BMTestUtils.DOMNodePropArray(Login.footer[0]);
   var expectedProps = [ "DIV", {}, [
+    [ "TABLE", {}, [
+        [ "TBODY", {}, [
+          [ "TR", { "class": "footerNav" }, [
+            [ "TD", {}, [
+              [ "A", { "href": "help.html" }, [ "Help" ] ]
+            ] ]
+          ] ]
+        ] ],
+        [ "BR" ]
+    ] ],
     [ "DIV", {}, [
       "Button Men is copyright 1999, 2019 James Ernest and Cheapass Games: ",
       [ "A", { "href": "http://www.cheapass.com" }, [ "www.cheapass.com" ] ],
       " and ",
       [ "A", { "href": "http://www.beatpeopleup.com" }, [ "www.beatpeopleup.com" ] ],
       ", and is used with permission." ]
-    ],
-    [ "DIV", {}, [
-      "If you have any trouble with this website, you can open a ticket at ",
-      [ "A", { "href": "https://github.com/buttonmen-dev/buttonmen/issues/new" }, [ "the buttonweavers issue tracker" ] ],
-      " or e-mail us at help@buttonweavers.com." ]
     ] ]
   ];
   assert.deepEqual(footerProps, expectedProps, "Footer contents are expected");
@@ -102,7 +107,7 @@ test("test_Login.showLoginHeader", function(assert) {
   var cached_function = Login.getLoginHeader;
   Login.getLoginHeader = function() {
     assert.ok(true, "Login.getLoginHeader is called");
-  }
+  };
 
   // Empty the page container to test the contents the code will add
   $('#container').remove();
@@ -336,7 +341,7 @@ test("test_Login.addMainNavbar", function(assert) {
   var cached_function = Login.addNewPostLink;
   Login.addNewPostLink = function(callback) {
     assert.ok(true, "Login.addNewPostLink is called");
-  }
+  };
 
   Login.addMainNavbar();
   var msgProps = BMTestUtils.DOMNodePropArray(Login.message[0]);
@@ -362,6 +367,19 @@ test("test_Login.addMainNavbar", function(assert) {
   assert.deepEqual(msgProps, expectedMessage, "Login.message has expected contents");
 
   Login.addNewPostLink = cached_function;
+});
+
+test("test_Login.footerNavBar", function(assert) {
+  var navbar = Login.footerNavBar();
+  var expectedNavbar = [ "TABLE", {}, [
+    [ "TBODY", {}, [
+      [ "TR", { "class": "footerNav" }, [
+        [ "TD", {}, [ [ "A", { "href": "help.html" }, [ "Help" ] ] ] ]
+      ] ]
+    ] ],
+    [ "BR" ]
+  ] ];
+  assert.deepEqual(BMTestUtils.DOMNodePropArray(navbar[0]), expectedNavbar, "footerNavbar has expected contents");
 });
 
 test("test_Login.addNewPostLink", function(assert) {
