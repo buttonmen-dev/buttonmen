@@ -1542,7 +1542,7 @@ UPDATE button SET flavor_text="Perpetually winking, this druid-monk-ranger reads
 UPDATE button SET flavor_text="Antonio is a breakaway specialist. He always looks ahead and leaves the beaten up behind." WHERE name="Antonio";
 UPDATE button SET flavor_text="Doyle is a time trial specialist. He likes to ride alone and does not need anybody's help to beat people up." WHERE name="Doyle";
 UPDATE button SET flavor_text="Floriano is a sprinter. He likes fast pace, fast cars and beating people up. Fast." WHERE name="Floriano";
-UPDATE button SET flavor_text="Julia is a hiller. She likes to go up and down, up and down, and beat people up and down, up and down …" WHERE name="Julia";
+UPDATE button SET flavor_text="Julia is a hiller. She likes to go up and down, up and down, and beat people up and down, up and down ..." WHERE name="Julia";
 UPDATE button SET flavor_text="Mariusz is a domestique rider. He helps his captain to save energy and beats people up for him." WHERE name="Mariusz";
 UPDATE button SET flavor_text="Orlando is an allrounder. He feels strong in any terrain and is always ready to beat people up." WHERE name="Orlando";
 UPDATE button SET flavor_text="Roger is a climber. He likes high mountains and needs little oxygen to beat people up." WHERE name="Roger";
