@@ -60,6 +60,19 @@ div.chosen-results {
     text-align: left;
 }
 
+div.help_column {
+    border-left: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    display: inline-block;
+    padding-left: 30px;
+    padding-right: 30px;
+    max-width: 640px;
+}
+
+div.help_column p {
+    text-align: left;
+}
+
 h2.monitorMessage {
     color: #800000;
     margin-bottom: 0;
