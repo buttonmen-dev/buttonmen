@@ -273,6 +273,11 @@ Login.stateLoggedOut = function(welcomeText) {
     'href': 'create_user.html',
     'text': 'Create an account',
   }));
+  Login.message.append(' ');
+  Login.message.append($('<a>', {
+    'href': 'forgot_password.html',
+    'text': '(Forgot password?)',
+  }));
 
   Login.formElements = $('<div>', {
     'class': 'login',

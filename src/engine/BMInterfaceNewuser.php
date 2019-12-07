@@ -236,6 +236,139 @@ class BMInterfaceNewuser {
     }
 
     /**
+     * Reset a user's password after checking the reset verification key sent by email
+     *
+     * @param int $playerId
+     * @param string $playerKey
+     * @param string $password
+     * @return bool
+     */
+    public function reset_password($playerId, $playerKey, $password) {
+        try {
+            // Check for a user with this id
+            $query = 'SELECT name_ingame, status FROM player_view WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+            $fetchResult = $statement->fetchAll();
+
+            // Make sure that user ID exists and is active
+            if (count($fetchResult) != 1) {
+                $this->message = 'Could not lookup user ID ' . $playerId;
+                return NULL;
+            }
+            $username = $fetchResult[0]['name_ingame'];
+            $status = $fetchResult[0]['status'];
+            if ($status != 'ACTIVE') {
+                $this->message = 'User with ID ' . $playerId . ' is not an active player';
+                return NULL;
+            }
+
+            // Find the reset verification key for the specified user ID
+            $query = 'SELECT verification_key FROM player_reset_verification WHERE player_id = :player_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $playerId));
+            $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) != 1) {
+                $this->message = 'Could not find reset verification key for user ID ' . $playerId;
+                return NULL;
+            }
+            $databaseKey = $fetchResult[0]['verification_key'];
+
+            // Now check that the provided key matches the one in the database
+            if ($playerKey != $databaseKey) {
+                $this->message = 'Wrong reset verification key!  Make sure you pasted the URL from the e-mail exactly.';
+                return NULL;
+            }
+
+            // Everything checked out okay.  Update the password
+            // create user
+            $query =
+                'UPDATE player ' .
+                'SET password_hashed = :password ' .
+                'WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+
+            // support versions of PHP older than 5.5.0
+            if (version_compare(phpversion(), "5.5.0", "<")) {
+                $passwordHash = crypt($password);
+            } else {
+                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            $statement->execute(array(':id' => $playerId,
+                                      ':password' => $passwordHash));
+
+            $this->message = 'Your password has been reset.  Login and beat people up!';
+            $result = TRUE;
+            return $result;
+        } catch (Exception $e) {
+            $errorData = $statement->errorInfo();
+            $this->message = 'Password reset failed: ' . $errorData[2];
+            return NULL;
+        }
+    }
+
+
+    /**
+     * Request password reset
+     *
+     * @param string $username
+     * @return NULL|array
+     */
+    public function forgot_password($username) {
+        try {
+            if (strlen($username) > BMInterfaceNewuser::USERNAME_MAX_LENGTH) {
+                $this->message = 'Usernames cannot be longer than 25 characters';
+                return NULL;
+            }
+
+            // if this is a remote connection, check whether this
+            // IP already has numerous player_verification entries
+            if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
+                $query = 'SELECT player_id FROM player_reset_verification WHERE ipaddr = :ipaddr';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':ipaddr' => $_SERVER['REMOTE_ADDR']));
+                $fetchResult = $statement->fetchAll();
+                if (count($fetchResult) >= 5) {
+                    $this->message = 'Too many password reset requests from IP ' . $_SERVER['REMOTE_ADDR'];
+                    return NULL;
+                }
+            }
+
+            // check to see whether this username already exists
+            $query = 'SELECT id, email FROM player WHERE name_ingame = :username';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':username' => $username));
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $this->message = $username . ' does not exist on this site.';
+                return NULL;
+            }
+
+            // fetch information about user to send reset e-mail
+            $playerId = $fetchResult[0]['id'];
+            $playerEmail = $fetchResult[0]['email'];
+            $result = array('userName' => $username);
+
+            // now generate a reset verification code and e-mail it to the user
+            $this->send_email_reset_verification($playerId, $username, $playerEmail);
+            $this->message = 'A reset verification code has been e-mailed to the e-mail on ' .
+                             'file for player ' . $username . '.  ' .
+                             'Follow the link in that message to enter a new password and ' .
+                             'resume beating people up! ' .
+                             '(Note: If you don\'t see the email shortly, be sure to check ' .
+                             'your spam folder.)';
+
+            return $result;
+        } catch (Exception $e) {
+            $this->message = 'Forgotten password request failed: ' . $e->getMessage();
+            return NULL;
+        }
+    }
+
+
+    /**
      * Create and send email allowing new users to login for the first time
      *
      * @param int $playerId
@@ -266,6 +399,41 @@ class BMInterfaceNewuser {
         // send the e-mail message
         $email = new BMEmail($playerEmail, $this->isTest);
         $email->send_verification_link($playerId, $username, $playerKey);
+    }
+
+
+    /**
+     * Create and send email allowing users to reset their passwords
+     *
+     * @param int $playerId
+     * @param string $username
+     * @param string $playerEmail
+     */
+    public function send_email_reset_verification($playerId, $username, $playerEmail) {
+
+        // a given player should only have one reset verification code at a time,
+        // so delete any old ones
+        $query = 'DELETE FROM player_reset_verification WHERE player_id = :playerId';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':playerId' => $playerId));
+
+        // generate a new verification code and insert it into the table
+        $playerKey = md5(bm_rand());
+        if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $ipaddr = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $ipaddr = NULL;
+        }
+        $query = 'INSERT INTO player_reset_verification (player_id, verification_key, ipaddr)
+                  VALUES (:player_id, :player_key, :ipaddr)';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $playerId,
+                                  ':player_key' => $playerKey,
+                                  ':ipaddr' => $ipaddr));
+
+        // send the e-mail message
+        $email = new BMEmail($playerEmail, $this->isTest);
+        $email->send_reset_verification_link($playerId, $username, $playerKey);
     }
 
     /**

@@ -210,6 +210,12 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'forgotPassword' => array(
+            'mandatory' => array(
+                'username' => 'alnum',
+            ),
+            'permitted' => array(),
+        ),
         'joinOpenGame' => array(
             'mandatory' => array(
                 'gameId' => 'number',
@@ -530,6 +536,14 @@ class ApiSpec {
             'permitted' => array(
                 'dieIdx' => 'number',
             ),
+        ),
+        'resetPassword' => array(
+            'mandatory' => array(
+                'playerId' => 'number',
+                'playerKey' => 'alnum',
+                'password' => 'string',
+            ),
+            'permitted' => array(),
         ),
         'savePlayerInfo' => array(
             'mandatory' => array(
