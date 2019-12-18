@@ -72,6 +72,23 @@ class BMEmail {
     }
 
     /**
+     * Send an e-mail reset verification link to a player
+     *
+     * @param int $playerId
+     * @param string $username
+     * @param string $playerKey
+     */
+    public function send_reset_verification_link($playerId, $username, $playerKey) {
+        $this->subject = 'Password reset link for Button Men';
+        $this->bodypars[] = 'Hi, ' . $username . '!';
+        $this->bodypars[] = 'Someone requested a password reset for your account.';
+        $this->bodypars[] = 'If it was you, browse to this reset link and enter a new password:';
+        $this->bodypars[] = $this->encoded_reset_verification_link($playerId, $playerKey);
+        $this->bodypars[] = 'If you did not request a password reset, please ignore this e-mail.';
+        $this->send_message();
+    }
+
+    /**
      * This function actually sends the message, and should only be called from within this class
      */
     protected function send_message() {
@@ -100,6 +117,20 @@ class BMEmail {
      */
     protected function encoded_verification_link($playerId, $playerKey) {
         $link = $this->get_server_url_prefix() . 'ui/verify.html?' .
+                'id=' . urlencode($playerId) . '&' .
+                'key=' . urlencode($playerKey);
+        return $link;
+    }
+
+    /**
+     * URL to be used to verify player on password reset request
+     *
+     * @param int $playerId
+     * @param string $playerKey
+     * @return string
+     */
+    protected function encoded_reset_verification_link($playerId, $playerKey) {
+        $link = $this->get_server_url_prefix() . 'ui/verify_reset.html?' .
                 'id=' . urlencode($playerId) . '&' .
                 'key=' . urlencode($playerKey);
         return $link;

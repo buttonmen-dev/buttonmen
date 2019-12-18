@@ -279,7 +279,9 @@ test("test_Login.stateLoggedOut", function(assert) {
   var expectedMessage = [ "P", {}, [
       "example welcome text: ",
       "You are not logged in. ",
-      [ "A", { "href": "create_user.html" }, [ "Create an account" ] ]
+      [ "A", { "href": "create_user.html" }, [ "Create an account" ] ],
+      " ",
+      [ "A", { "href": "forgot_password.html" }, [ "(Forgot password?)" ] ]
     ]
   ];
 
