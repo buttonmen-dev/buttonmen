@@ -112,6 +112,17 @@ class responder00Test extends responderTestFramework {
                 $this->assertEquals($verify_retval['data'], TRUE);
                 $fakePlayerId = 1;
                 $this->cache_json_api_output('resetPassword', $fakePlayerId, $verify_retval);
+
+                // Now run a resetPassword test using the same verification key,
+                // and ensure that it fails this time because the key has already been used.
+                $verify_retval = $responder->process_request(
+                    array('type' => 'resetPassword',
+                          'playerId' => $real_new['data']['playerId'],
+                          'playerKey' => md5($this->get_fake_verification_randval($username)),
+                          'password' => 'foobar',
+                    ));
+                $this->assertEquals($verify_retval['status'], 'failed');
+                $this->assertEquals($verify_retval['message'], 'Could not find reset verification key for user ID ' . $real_new['data']['playerId']);
             }
             $trynum += 1;
         }

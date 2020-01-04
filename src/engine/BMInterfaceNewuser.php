@@ -282,7 +282,6 @@ class BMInterfaceNewuser {
             }
 
             // Everything checked out okay.  Update the password
-            // create user
             $query =
                 'UPDATE player ' .
                 'SET password_hashed = :password ' .
@@ -298,6 +297,13 @@ class BMInterfaceNewuser {
 
             $statement->execute(array(':id' => $playerId,
                                       ':password' => $passwordHash));
+
+            // Now delete the verification key so it can't be reused
+            $query =
+                'DELETE FROM player_reset_verification ' .
+                'WHERE player_id = :player_id ';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $playerId));
 
             $this->message = 'Your password has been reset.  Login and beat people up!';
             $result = TRUE;
