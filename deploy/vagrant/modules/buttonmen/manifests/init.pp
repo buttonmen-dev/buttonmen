@@ -22,10 +22,20 @@ class buttonmen::server {
       content => template("buttonmen/create_databases.erb"),
       mode => 0555;
 
+    "/usr/local/bin/create_rds_database":
+      ensure => file,
+      content => template("buttonmen/create_rds_database.erb"),
+      mode => 0555;
+
     "/usr/local/bin/backup_buttonmen_database":
       ensure => file,
       content => template("buttonmen/backup_database.erb"),
       mode => 0555;
+
+    "/usr/local/bin/mysql_root_cli":
+      ensure => file,
+      content => template("buttonmen/mysql_root_cli.erb"),
+      mode => 0544;
 
     "/usr/local/bin/run_buttonmen_tests":
       ensure => file,
@@ -61,16 +71,24 @@ class buttonmen::server {
       command => "/usr/bin/rsync -a --delete /buttonmen/test/src/ui/ /var/www/test-ui/",
       require => Exec["buttonmen_src_rsync"];
 
-    "buttonmen_create_databases":
-      command => "/usr/local/bin/create_buttonmen_databases",
-      require => [ Service["mysql"],
-                   Exec["buttonmen_src_rsync"] ];
-
 
     # After updating source code, setup datestamped links to bust caches
     "buttonmen_setup_ui_cache_links":
       command => "/usr/local/bin/setup_buttonmen_ui_cache_links ${puppet_timestamp}",
       require => Exec["buttonmen_src_rsync"];
+  }
+
+  # Create databases only if we're using local database (i.e. for dev/test sites)
+  # (See deploy/database/README.RDS_MIGRATION for how to bootstrap a remote database)
+  case "$database_fqdn" {
+    "127.0.0.1": {
+      exec {
+        "buttonmen_create_databases":
+          command => "/usr/local/bin/create_buttonmen_databases",
+          require => [ Service["mysql"],
+                       Exec["buttonmen_src_rsync"] ];
+      }
+    }
   }
 
   # After updating source code, override the Config.js site type

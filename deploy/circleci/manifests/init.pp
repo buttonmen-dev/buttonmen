@@ -5,6 +5,7 @@ node default {
   # Don't need apt-get update on circleci because it was run by the bootstrap
 
   $puppet_hostname = "sandbox.buttonweavers.com"
+  $database_fqdn = "127.0.0.1"
   $puppet_timestamp = generate('/bin/date', '+%s')
 
   $puppet_apache_sitesdir = "sites-enabled"
