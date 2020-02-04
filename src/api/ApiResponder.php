@@ -34,6 +34,8 @@ class ApiResponder {
         'verifyUser',
         'loadPlayerName',
         'login',
+        'forgotPassword',
+        'resetPassword',
     );
 
     /**
@@ -77,6 +79,28 @@ class ApiResponder {
      */
     protected function get_interface_response_verifyUser($interface, $args) {
         return $interface->verify_user($args['playerId'], $args['playerKey']);
+    }
+
+    /**
+     * Interface redirect for resetPassword
+     *
+     * @param BMInterface $interface
+     * @param array $args
+     * @return NULL|TRUE
+     */
+    protected function get_interface_response_resetPassword($interface, $args) {
+        return $interface->reset_password($args['playerId'], $args['playerKey'], $args['password']);
+    }
+
+    /**
+     * Interface redirect for forgotPassword
+     *
+     * @param BMInterface $interface
+     * @param array $args
+     * @return NULL|TRUE
+     */
+    protected function get_interface_response_forgotPassword($interface, $args) {
+        return $interface->forgot_password($args['username']);
     }
 
     /**

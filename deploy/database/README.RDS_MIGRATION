@@ -1,0 +1,60 @@
+Steps for migrating from a MySQL database running on localhost, to
+an RDS database
+
+Before downtime:
+1. Create and configure the database host
+2. Put the database host location into the codebase
+3. Install a creds file on the site instance
+
+During downtime:
+4. Take down the site and backup the local database
+5. Run vagrant
+6. Create and populate the remote database
+
+After downtime:
+7. Test backups
+
+------------------------------------------------------------------------
+Details of each step
+
+1. Create and configure the database host
+* Create an RDS database with engine type MySQL
+* Use the most recent version 5.7.x
+* Put the instance in the same subnet as the relevant site
+* Make the DB publically available (because site instances aren't in VPC)
+* Create a new security group which allows port 3306 only from the
+  relevant site's IP
+
+2. Put the database host location into the codebase
+* Edit deploy/vagrant/manifests/init.pp 
+* Add the new FQDN as $database_fqdn for the appropriate site IP
+* Get the code approved and pushed and released to the right branch
+
+3. Install a creds file on the site instance
+sudo touch /usr/local/etc/buttonmen_db_creds
+sudo chmod 600 /usr/local/etc/buttonmen_db_creds
+sudo vi /usr/local/etc/buttonmen_db_creds
+* Set variables BM_DB_ADMIN_USER and BM_DB_ADMIN_PW
+
+During downtime:
+4. Take down the site and backup the local database
+sudo service apache2 stop
+sudo /usr/local/bin/backup_buttonmen_database
+5. Run vagrant
+* use the normal process to get updated code in a working dir
+vagrant provision
+6. Create and populate the remote database
+sudo /usr/local/bin/create_rds_database
+cd /srv/backup
+DATABASE_FQDN=<as appropriate>
+LATEST_DB=$(ls buttonmen.*.sql.bz2 | tail -1)
+bzcat ${LATEST_DB} | grep -v "SQL SECURITY DEFINER" | mysql -u admin -p -h ${DATABASE_FQDN} buttonmen
+* Now the site should be back up
+
+After downtime:
+7. Test backups
+cd /srv/backup
+LATEST_DB=$(ls buttonmen.*.sql.bz2 | tail -1)
+sudo mv ${LATEST_DB} ${LATEST_DB}.localdb
+sudo /usr/local/bin/backup_buttonmen_database
+* This should work, and the two databases should be similar in size

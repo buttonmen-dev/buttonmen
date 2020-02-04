@@ -84,7 +84,7 @@ test("test_Login.getFooter", function(assert) {
         [ "BR" ]
     ] ],
     [ "DIV", {}, [
-      "Button Men is copyright 1999, 2019 James Ernest and Cheapass Games: ",
+      "Button Men is copyright 1999, 2020 James Ernest and Cheapass Games: ",
       [ "A", { "href": "http://www.cheapass.com" }, [ "www.cheapass.com" ] ],
       " and ",
       [ "A", { "href": "http://www.beatpeopleup.com" }, [ "www.beatpeopleup.com" ] ],
@@ -279,7 +279,9 @@ test("test_Login.stateLoggedOut", function(assert) {
   var expectedMessage = [ "P", {}, [
       "example welcome text: ",
       "You are not logged in. ",
-      [ "A", { "href": "create_user.html" }, [ "Create an account" ] ]
+      [ "A", { "href": "create_user.html" }, [ "Create an account" ] ],
+      " ",
+      [ "A", { "href": "forgot_password.html" }, [ "(Forgot password?)" ] ]
     ]
   ];
 

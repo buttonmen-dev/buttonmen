@@ -82,6 +82,47 @@ class responder00Test extends responderTestFramework {
                 // Use a fake playerId as the key for verification
                 $fakePlayerId = 1;
                 $this->cache_json_api_output('verifyUser', $fakePlayerId, $verify_retval);
+
+
+                // Now run a forgotPassword test on the newly-created user
+                // Cache the result as tester5, the username frontend tests use
+                $BM_RAND_VALS = array($this->get_fake_verification_randval($username));
+                $verify_retval = $responder->process_request(
+                    array('type' => 'forgotPassword',
+                          'username' => $username,
+                    ));
+                $this->assertEquals($verify_retval['status'], 'ok');
+                $this->assertEquals($verify_retval['message'], "A reset verification code has been e-mailed to the e-mail on file for player " . $username . ".  Follow the link in that message to enter a new password and resume beating people up! (Note: If you don't see the email shortly, be sure to check your spam folder.)");
+                $this->assertEquals($verify_retval['data'], array('userName' => $username));
+                $verify_retval['message'] = str_replace($username, 'tester5', $verify_retval['message']);
+                $verify_retval['data']['userName'] = 'tester5';
+                $this->cache_json_api_output('forgotPassword', 'tester5', $verify_retval);
+
+
+                // Now run a resetPassword test on the newly-created user
+                // Cache the result using 1, the playerId frontend tests use
+                $verify_retval = $responder->process_request(
+                    array('type' => 'resetPassword',
+                          'playerId' => $real_new['data']['playerId'],
+                          'playerKey' => md5($this->get_fake_verification_randval($username)),
+                          'password' => 'foobar',
+                    ));
+                $this->assertEquals($verify_retval['status'], 'ok');
+                $this->assertEquals($verify_retval['message'], 'Your password has been reset.  Login and beat people up!');
+                $this->assertEquals($verify_retval['data'], TRUE);
+                $fakePlayerId = 1;
+                $this->cache_json_api_output('resetPassword', $fakePlayerId, $verify_retval);
+
+                // Now run a resetPassword test using the same verification key,
+                // and ensure that it fails this time because the key has already been used.
+                $verify_retval = $responder->process_request(
+                    array('type' => 'resetPassword',
+                          'playerId' => $real_new['data']['playerId'],
+                          'playerKey' => md5($this->get_fake_verification_randval($username)),
+                          'password' => 'foobar',
+                    ));
+                $this->assertEquals($verify_retval['status'], 'failed');
+                $this->assertEquals($verify_retval['message'], 'Could not find reset verification key for user ID ' . $real_new['data']['playerId']);
             }
             $trynum += 1;
         }
@@ -104,6 +145,22 @@ class responder00Test extends responderTestFramework {
         $this->verify_mandatory_args_required(
             'verifyUser',
             array('playerId' => '4', 'playerKey' => 'beadedfacade')
+        );
+    }
+
+    public function test_request_resetPassword() {
+        $this->verify_invalid_arg_rejected('resetPassword');
+        $this->verify_mandatory_args_required(
+            'resetPassword',
+            array('playerId' => '4', 'playerKey' => 'beadedfacade', 'password' => 'foobar')
+        );
+    }
+
+    public function test_request_forgotPassword() {
+        $this->verify_invalid_arg_rejected('forgotPassword');
+        $this->verify_mandatory_args_required(
+            'forgotPassword',
+            array('username' => 'responder001')
         );
     }
 
@@ -472,7 +529,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 792);
+        $this->assertEquals(count($retval['data']), 793);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }

@@ -120,7 +120,7 @@ Login.getFooter = function() {
   var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
-    'Button Men is copyright 1999, 2019 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2020 James Ernest and Cheapass Games: ');
   copyright.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',
@@ -272,6 +272,11 @@ Login.stateLoggedOut = function(welcomeText) {
   Login.message.append($('<a>', {
     'href': 'create_user.html',
     'text': 'Create an account',
+  }));
+  Login.message.append(' ');
+  Login.message.append($('<a>', {
+    'href': 'forgot_password.html',
+    'text': '(Forgot password?)',
   }));
 
   Login.formElements = $('<div>', {

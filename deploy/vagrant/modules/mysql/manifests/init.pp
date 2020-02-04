@@ -10,12 +10,24 @@ class mysql::server {
     "python-mysqldb": ensure => installed;
   }
 
-  # Run mysqld
-  service {
-    "mysql":
-      ensure => running,
-      enable => true,
-      require => Package["mysql-server"];
+  # Run mysqld if we're using a local database; otherwise stop it
+  case "$database_fqdn" {
+    "127.0.0.1": {
+      service {
+        "mysql":
+          ensure => running,
+          enable => true,
+          require => Package["mysql-server"];
+      }
+    }
+    default: {
+      service {
+        "mysql":
+          ensure => stopped,
+          enable => false,
+          require => Package["mysql-server"];
+      }
+    }
   }
 
   # Customize mysqld for buttonmen use
