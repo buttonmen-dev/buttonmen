@@ -79,7 +79,7 @@ Buttons.showButton = function() {
   buttonDetailsArea.append(secondBox);
   secondBox.append($('<p>', {
     'class': 'flavorText',
-    'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
+    'html': (button.flavorText ? button.flavorText : 'No flavor text.'),
   }));
 
   if (button.tags.length > 0) {
