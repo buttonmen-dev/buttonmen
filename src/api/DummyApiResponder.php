@@ -75,9 +75,23 @@ class DummyApiResponder {
         );
     }
 
+    protected function get_interface_response_forgotPassword($args) {
+        return $this->load_json_data_from_file(
+            'forgotPassword',
+            $args['username'] . '.json'
+        );
+    }
+
     protected function get_interface_response_verifyUser($args) {
         return $this->load_json_data_from_file(
             'verifyUser',
+            $args['playerId'] . '.json'
+        );
+    }
+
+    protected function get_interface_response_resetPassword($args) {
+        return $this->load_json_data_from_file(
+            'resetPassword',
             $args['playerId'] . '.json'
         );
     }

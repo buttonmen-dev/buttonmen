@@ -93,8 +93,14 @@ Help.generalInfo = function() {
 
   text.append(
     $('<p>').html(
-      'If you need a password reset or you\'re still stuck, contact us ' +
-      'directly at help@buttonweavers.com.'
+      'If you\'ve forgotten your password and need to reset it, use the ' +
+      '"Forgot password?" link at the top of the page.'
+    )
+  );
+
+  text.append(
+    $('<p>').html(
+      'If you\'re still stuck, contact us directly at help@buttonweavers.com.'
     )
   );
 

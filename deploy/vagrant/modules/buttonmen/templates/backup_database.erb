@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BACKUPDIR=/srv/backup
+CREDS_FILE=/usr/local/etc/buttonmen_db_creds
 DBNAME=buttonmen
 TODAY=`date +"%Y%m%d"`
 
@@ -12,7 +13,17 @@ if [ ! -d "$BACKUPDIR" ]; then
   exit 1
 fi
 
-mysqldump -u root $DBNAME > $BACKUPFILE
+# Look for a creds file indicating that this BM server has a remote
+# database, and in particular an admin password
+if [ -f "${CREDS_FILE}" ]; then
+  . ${CREDS_FILE}
+  # Need to disable GTID restores to backup/restore a remote RDS MySQL DB with default args
+  MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= database_fqdn %> --set-gtid-purged=OFF"
+else
+  MYSQL_ARGS="-u root"
+fi
+
+mysqldump ${MYSQL_ARGS} $DBNAME > $BACKUPFILE
 if [ ! -s "$BACKUPFILE" ]; then
   echo "after backup, backup file is missing or zero size"
   exit 1
