@@ -1030,3 +1030,8 @@ div.forum div.splitRight span.postTag {
 #zoom {
   background-color: green;
 }
+
+/* HELP PAGES */
+.help {
+  text-align: left;
+}
