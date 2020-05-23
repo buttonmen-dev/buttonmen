@@ -78,6 +78,9 @@ test("test_Login.getFooter", function(assert) {
           [ "TR", { "class": "footerNav" }, [
             [ "TD", {}, [
               [ "A", { "href": "help.html" }, [ "Help" ] ]
+            ] ],
+            [ "TD", {}, [
+              [ "A", { "href": "privacy.html" }, [ "Privacy" ] ]
             ] ]
           ] ]
         ] ],
@@ -376,7 +379,8 @@ test("test_Login.footerNavBar", function(assert) {
   var expectedNavbar = [ "TABLE", {}, [
     [ "TBODY", {}, [
       [ "TR", { "class": "footerNav" }, [
-        [ "TD", {}, [ [ "A", { "href": "help.html" }, [ "Help" ] ] ] ]
+        [ "TD", {}, [ [ "A", { "href": "help.html" }, [ "Help" ] ] ] ],
+        [ "TD", {}, [ [ "A", { "href": "privacy.html" }, [ "Privacy" ] ] ] ]
       ] ]
     ] ],
     [ "BR" ]
