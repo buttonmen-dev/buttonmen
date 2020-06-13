@@ -82,6 +82,11 @@ Buttons.showButton = function() {
     'html': (button.flavorText ? button.flavorText : 'No flavor text.'),
   }));
 
+  secondBox.append($('<p>', {
+    'class': 'tournamentLegal',
+    'html': (button.isTournamentLegal ? '' : 'Not ') + 'Tournament Legal'
+  }));
+
   if (button.tags.length > 0) {
     var tags = 'Tags: ';
     $.each(button.tags, function(index, tag) {

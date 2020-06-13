@@ -999,6 +999,10 @@ div.forum div.splitRight span.postTag {
     margin-top: 40px;
 }
 
+#buttons_page p.tournamentLegal {
+    font-weight: bold;
+}
+
 #buttons_page div.singleButton div.buttonName {
     font-weight: bold;
     font-size: 2em;
