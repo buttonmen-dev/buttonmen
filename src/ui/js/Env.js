@@ -587,8 +587,11 @@ Env.buildButtonSetLink = function(buttonSetName, textOnly) {
 };
 
 // Reveal (or un-reveal) the contents of spoiler tags
-Env.toggleSpoiler = function() {
-  $(this).toggleClass('chatExposedSpoiler');
+Env.toggleSpoiler = function(event) {
+  // don't toggle spoiler for anchors in a visible spoiler
+  if (event.target.tagName.toLowerCase() !== 'a') {
+    $(this).toggleClass('chatExposedSpoiler');
+  }
 };
 
 // Calls several asynchronous methods in parallel, calling the final callback
