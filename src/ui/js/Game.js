@@ -618,7 +618,7 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
 
   // nothing to do on button click
-  Game.form = null,
+  Game.form = null;
 
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -806,7 +806,7 @@ Game.actionReactToInitiativeActive = function() {
 Game.actionReactToInitiativeInactive = function() {
 
   // nothing to do on button click
-  Game.form = null,
+  Game.form = null;
 
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -821,7 +821,7 @@ Game.actionReactToInitiativeInactive = function() {
 Game.actionReactToInitiativeNonplayer = function() {
 
   // nothing to do on button click
-  Game.form = null,
+  Game.form = null;
 
   Game.page = $('<div>');
   Game.pageAddGameHeader(
