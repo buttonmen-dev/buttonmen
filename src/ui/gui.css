@@ -359,6 +359,15 @@ select.center {
     top: 13.5px;
 }
 
+.clickable_warrior {
+    background-image: url('images/die/shield.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 30px 35px;
+    height: 100%;
+    width: 100%;
+}
+
 .die_number_player {
     color: black;
 }

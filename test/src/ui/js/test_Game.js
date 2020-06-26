@@ -2136,9 +2136,11 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
           [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d6active.png)" }, [
-            [ "SPAN", { "class": "die_overlay die_number_player" }, [ "6" ] ] ]
+            [ "DIV", { "class": "clickable_warrior" }, [
+              [ "SPAN", { "class": "die_overlay die_number_player" }, [ "6" ] ]
+            ] ]
           ] ]
-        ]
+        ] ]
       ]
     ];
     assert.deepEqual(diceProps[2][3], expectedDieProps, "Player's warrior `(6) should have correct properties");
