@@ -3058,7 +3058,7 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
   if ((player == 'player') &&
       isClickable &&
       die.skills.indexOf('Warrior') >= 0) {
-    divOpts.class += ' clickable_warrior'
+    divOpts.class += ' clickable_warrior';
   }
 
   var dieDiv = $('<div>', divOpts);
