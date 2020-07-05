@@ -2135,10 +2135,9 @@ test("test_Game.gamePlayerDice_warrior", function(assert) {
           [ "SPAN", { "class": "die_recipe_player" }, [ "`(6)" ] ] ]
         ],
         [ "DIV", { "class": "die_border", "style": "border: 2px solid #dd99dd" }, [
-          [ "DIV", { "class": "die_img", "style": "background-image: url(images/die/realistic/d6active.png)" }, [
-            [ "DIV", { "class": "clickable_warrior" }, [
-              [ "SPAN", { "class": "die_overlay die_number_player" }, [ "6" ] ]
-            ] ]
+          [ "DIV", { "class": "die_img clickable_warrior",
+                     "style": "background-image: url(images/die/realistic/d6active.png)" }, [
+            [ "SPAN", { "class": "die_overlay die_number_player" }, [ "6" ] ]
           ] ]
         ] ]
       ]

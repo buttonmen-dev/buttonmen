@@ -3055,18 +3055,16 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
     isClickable
   );
 
-  var dieDiv = $('<div>', divOpts);
-  var dieNumberSpan = $('<span>', dieNumberSpanOpts);
-
   if ((player == 'player') &&
       isClickable &&
       die.skills.indexOf('Warrior') >= 0) {
-    var warriorDiv = $('<div>', {'class': 'clickable_warrior'});
-    warriorDiv.append(dieNumberSpan);
-    dieDiv.append(warriorDiv);
-  } else {
-    dieDiv.append(dieNumberSpan);
+    divOpts.class += ' clickable_warrior'
   }
+
+  var dieDiv = $('<div>', divOpts);
+  var dieNumberSpan = $('<span>', dieNumberSpanOpts);
+
+  dieDiv.append(dieNumberSpan);
 
   return dieDiv;
 };

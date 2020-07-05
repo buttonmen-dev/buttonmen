@@ -330,6 +330,25 @@ select.center {
     margin: auto;
 }
 
+.die_img.clickable_warrior {
+  -webkit-mask-image: linear-gradient(
+    -45deg,
+    black,
+    black 39%,
+    rgba(0, 0, 0, 0.5) 39%,
+    rgba(0, 0, 0, 0.5) 61%,
+    black 61%
+  );
+  mask-image: linear-gradient(
+    -45deg,
+    black,
+    black 39%,
+    rgba(0, 0, 0, 0.5) 39%,
+    rgba(0, 0, 0, 0.5) 61%,
+    black 61%
+  );
+}
+
 .die_container_dead .die_overlay {
     color: white;
 }
@@ -357,15 +376,6 @@ select.center {
     font-size: 21px;
     line-height: 25px;
     top: 13.5px;
-}
-
-.clickable_warrior {
-    background-image: url('images/die/shield.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 30px 35px;
-    height: 100%;
-    width: 100%;
 }
 
 .die_number_player {
