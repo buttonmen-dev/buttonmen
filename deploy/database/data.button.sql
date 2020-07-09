@@ -948,7 +948,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (636, 'Arashi',    '(4) (6) I(10) f(12) (20)',            0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (637, 'Michie',    '(4) (8) (12) z(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(638, 'Johnny',    '(6) t(6) I(8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(638, 'Johnny',    't(6) (6) I(8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (639, 'Renee',     '(2) (2) (6) I(10) (X)',               0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (640, 'Danny',     '(6) t(8) t(8) (20) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (641, 'Danielle',  '(6) (12) I(12) (20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
