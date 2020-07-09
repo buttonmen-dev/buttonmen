@@ -71,17 +71,17 @@ OpenGames.showPage = function() {
 
     OpenGames.page.append($('<h2>', {'text': 'Open Games', }));
 
-    var joinableGames = OpenGames.buildGameTable('joinable', buttons);
-    if (joinableGames) {
-      OpenGames.page.append($('<h3>', {'text': 'Games you can join', }));
-      OpenGames.page.append(joinableGames);
-    }
-
     var yourGames = OpenGames.buildGameTable('yours', buttons);
     if (yourGames) {
       OpenGames.page.append($('<h3>',
         {'text': 'Your open games (waiting for other players to join)', }));
       OpenGames.page.append(yourGames);
+    }
+
+    var joinableGames = OpenGames.buildGameTable('joinable', buttons);
+    if (joinableGames) {
+      OpenGames.page.append($('<h3>', {'text': 'Games you can join', }));
+      OpenGames.page.append(joinableGames);
     }
 
     if (anyUnimplementedButtons) {
