@@ -71,7 +71,7 @@ class BMDieSwing extends BMDie {
      *
      * @var array
      */
-    private static $swingRanges = array(
+    public static $swingRanges = array(
         "R" => array(2, 16),
         "S" => array(6, 20),
         "T" => array(2, 12),
@@ -301,8 +301,18 @@ class BMDieSwing extends BMDie {
             'code' => $this->swingType,
             'swingMin' => $this->swingMin,
             'swingMax' => $this->swingMax,
-            'description' =>
-                $this->swingType . ' Swing Dice can be any die between ' .
+            'description' => $this->getDescription(),
+        );
+        return $typesList;
+    }
+
+    /**
+     * Get description of this type of swing die
+     *
+     * @return string
+     */
+    public function getDescription() {
+        return  $this->swingType . ' Swing Dice can be any die between ' .
                 $this->swingMin . ' and ' . $this->swingMax . '. Swing Dice ' .
                 'are allowed to be any integral size between their upper and ' .
                 'lower limit, including both ends, and including nonstandard ' .
@@ -310,8 +320,6 @@ class BMDieSwing extends BMDie {
                 'Swing Die in secret at the beginning of the match, and ' .
                 'thereafter the loser of each round may change their Swing ' .
                 'Die between rounds. If a character has any two Swing Dice ' .
-                'of the same letter, they must always be the same size.',
-        );
-        return $typesList;
+                'of the same letter, they must always be the same size.';
     }
 }

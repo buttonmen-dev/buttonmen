@@ -22,10 +22,16 @@ class ApiResponder {
     protected $isTest;
 
     /**
-     * functions which allow access by unauthenticated users
-     * For now, all game functionality should require login: only
-     * add things to this list if they are necessary for user
-     * creation and/or login.
+     * Functions which allow access by unauthenticated users.
+     *
+     * All game functionality should require login.
+     *
+     * Only add things to this list if they are necessary for user
+     * creation and/or login, or for any content not requiring
+     * login, like help.
+     *
+     * Help functionality should be designed to make NO database
+     * calls because it is accessible without login.
      *
      * @var array
      */
@@ -36,6 +42,8 @@ class ApiResponder {
         'login',
         'forgotPassword',
         'resetPassword',
+        'loadDieSkillsData',
+        'loadDieTypesData',
     );
 
     /**
@@ -918,6 +926,26 @@ class ApiResponder {
     ////////////////////////////////////////////////////////////
 
     /**
+     * Interface redirect for loadDieSkillsData
+     *
+     * @param BMInterface $interface
+     * @return NULL|array
+     */
+    protected function get_interface_response_loadDieSkillsData($interface) {
+        return $interface->help()->load_die_skills_data();
+    }
+
+    /**
+     * Interface redirect for loadDieTypesData
+     *
+     * @param BMInterface $interface
+     * @return NULL|array
+     */
+    protected function get_interface_response_loadDieTypesData($interface) {
+        return $interface->help()->load_die_types_data();
+    }
+
+    /**
      * Interface redirect for response_logic
      *
      * @param BMInterface $interface
@@ -1095,4 +1123,5 @@ if (!function_exists('apache_note')) {
         }
         return $note_value;
     }
+
 }

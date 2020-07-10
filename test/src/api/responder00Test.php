@@ -1265,6 +1265,41 @@ class responder00Test extends responderTestFramework {
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 
+    public function test_skills_data() {
+        $args = array('type' => 'loadDieSkillsData');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals('', $retval['message']);
+
+        $allSkillInfo = $this->get_skill_info('all_skills');
+        $expSkillArray = array();
+        foreach ($allSkillInfo as $skillName => $skillInfo) {
+            if ('' === $skillInfo['code']) {
+                continue;
+            }
+            $expSkillArray[$skillInfo['code']] = array(
+                'name' => $skillName,
+                'description' => $skillInfo['description'],
+                'interacts' => $skillInfo['interacts']
+            );
+        }
+
+        $this->assertEquals($expSkillArray, $retval['data']);
+
+        $this->cache_json_api_output('loadDieSkillsData', 'noargs', $retval);
+    }
+
+    public function test_types_data() {
+        $args = array('type' => 'loadDieTypesData');
+        $retval = $this->verify_api_success($args);
+        $this->assertEquals('', $retval['message']);
+
+        $expTypeArray = $this->get_type_info();
+
+        $this->assertEquals($expTypeArray, $retval['data']);
+
+        $this->cache_json_api_output('loadDieTypesData', 'noargs', $retval);
+    }
+
     public function test_request_login() {
         $this->verify_invalid_arg_rejected('login');
         $this->markTestIncomplete("No test for login responder yet");

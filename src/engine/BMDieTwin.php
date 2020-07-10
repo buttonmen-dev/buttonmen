@@ -406,18 +406,26 @@ class BMDieTwin extends BMDie {
         $typesList = array();
         $typesList['Twin'] = array(
             'code' => ',',
-            'description' =>
-                'Twin Dice appear as two numbers with a comma between them ' .
-                'and are played as two dice that add together. For example, ' .
-                'a twin 8 is represented as (8,8) and treated as a single ' .
-                'die. The two 8\'s are rolled as one, captured as one, and ' .
-                'scored as one die worth 16 points. Twin Dice may contain ' .
-                'either standard dice or Swing Dice.',
+            'description' => self::getDescription(),
         );
         foreach ($this->dice as $subDie) {
             $typesList += $subDie->getDieTypes();
         }
         return $typesList;
+    }
+
+    /**
+     * Get description of twin dice
+     *
+     * @return string
+     */
+    public static function getDescription() {
+        return  'Twin Dice appear as two numbers with a comma between them ' .
+                'and are played as two dice that add together. For example, ' .
+                'a twin 8 is represented as (8,8) and treated as a single ' .
+                'die. The two 8\'s are rolled as one, captured as one, and ' .
+                'scored as one die worth 16 points. Twin Dice may contain ' .
+                'either standard dice or Swing Dice.';
     }
 
     /**
