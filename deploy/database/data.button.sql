@@ -87,7 +87,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 # Unofficial Sets - fan and vanity sets
 (70, 'Japanese Beetle (unofficial)',  6800),
 (71, 'Blademasters',                  6900),
-(72, 'Order of the Dolls',            7000),
+(72, 'Order of Dolls',                7000),
 (73, 'Blademasters: The Second Shot', 7100),
 (74, 'Blademasters: Third Attack',    7200),
 (60, 'Gaming Guardians',              7300),
@@ -1019,12 +1019,12 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (671, 'Dom',              '(10) (10) P(20) P(20) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (672, 'Erika',            'z(10) z(12) z(12) z(4/20)!',      0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo"));
 
-# ORDER OF THE DOLLS              INTRODUCES Assassin(a); Twin
+# ORDER OF DOLLS              INTRODUCES Assassin(a); Twin
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(673, 'Chaka',     'a(4) (8) (8) (12) a(30)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
-(674, 'Strotzie',  '(4) (6) a(10) (12) a(X)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
-(675, 'Fuma',      'a(8) (16) (20) (V) (Z)',              0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
-(676, 'Vox',       '(6) a(6) (12) (12) a(V,V)',           0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls"));
+(673, 'Chaka',     'a(4) (8) (8) (12) a(30)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls")),
+(674, 'Strotzie',  '(4) (6) a(10) (12) a(X)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls")),
+(675, 'Fuma',      'a(8) (16) (20) (V) (Z)',              0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls")),
+(676, 'Vox',       '(6) a(6) (12) (12) a(V,V)',           0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls"));
 
 # STEVEN UNIVERSE (Jota)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, flavor_text) VALUES
