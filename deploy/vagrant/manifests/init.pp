@@ -59,4 +59,11 @@ node default {
   include "php::base"
   include "mysql::server"  
   include "buttonmen::server"
+
+  # location-specific configuration
+  case "${ec2_services_partition}" {
+    "aws": {
+      include "cloudwatch::buttonmen-site"
+    }
+  }
 }

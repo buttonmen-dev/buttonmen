@@ -1,0 +1,46 @@
+#!/usr/bin/python
+##### Script to record cloudwatch metrics for buttonmen site
+
+import subprocess
+import sys
+
+INSTANCE_ID = sys.argv[1]
+REGION = sys.argv[2]
+
+ACCESS_LOG = '/var/log/apache2/access.log'
+LOGTAIL_LOG = '/var/spool/logtail/apache2_access_cloudwatch.log'
+
+def parse_line_as_responder_post(line):
+  if not 'POST /api/responder ' in line:
+    return None, None
+  words = line.split()
+  assert words[-2].startswith('BMAPI=')
+  bmapi = words[-2].split('=')[1]
+  assert words[-1].startswith('BMStatus=')
+  bmsuccess = words[-1].split('=')[1] == 'ok'
+  return bmapi, bmsuccess
+
+def emit_cloudwatch_metric(bmapi, bmsuccess):
+  cmdargs = [
+    '/usr/bin/aws', 'cloudwatch', 'put-metric-data',
+    '--metric-name', 'bmapi_success',
+    '--dimensions', 'Instance=%s,BMAPI=%s' % (INSTANCE_ID, bmapi),
+    '--namespace', '"Custom"',
+    '--value', "1" if bmsuccess else "0",
+    '--region', REGION,
+  ]
+  print cmdargs
+  subprocess.check_call(cmdargs)
+
+def get_recent_access_log_entries():
+  output = subprocess.check_output([
+    '/usr/sbin/logtail',
+    '-o', LOGTAIL_LOG,
+    ACCESS_LOG,
+  ])
+  for line in output.split('\n'):
+    bmapi, bmsuccess = parse_line_as_responder_post(line)
+    if bmapi is None: continue
+    emit_cloudwatch_metric(bmapi, bmsuccess)
+
+get_recent_access_log_entries()
