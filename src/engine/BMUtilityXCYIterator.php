@@ -98,7 +98,7 @@ class BMUtilityXCYIterator implements Iterator {
         $this->tail = NULL;
 
         $this->head = array_pop($this->list);
-        if (count($this->list > 0) && $this->depth > 1) {
+        if ((count($this->list) > 0) && ($this->depth > 1)) {
             $this->tail = new BMUtilityXCYIterator($this->list, $this->depth - 1);
         }
         if ($this->tail) {
