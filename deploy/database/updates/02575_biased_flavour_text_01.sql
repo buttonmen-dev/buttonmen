@@ -1,0 +1,3 @@
+UPDATE button SET flavor_text="Theano wrote about mathematics, physics, medicine, and child psychology. She's best known for her work on the \"Golden Mean\" and the \"Golden Rectangle.\"" WHERE name="Theano";
+UPDATE button SET flavor_text="Before becoming the Akamai Professor of Internet Mathematics at UC San Diego, Dr. Fan Chung Graham directed math research labs at Bellcore. She developed semi-random routing theories that keep the Internet running." WHERE name="Fan Chung Graham";
+UPDATE button SET flavor_text="Known informally as \"The Mathemagician,\" Dr. Ron Graham was Chief Scientist at AT&T Labs. He was treasurer of the National Academy of Sciences, and also the president of the International Jugglers Association." WHERE name="Ron Graham";

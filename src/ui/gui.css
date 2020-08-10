@@ -930,11 +930,19 @@ div.forum div.splitRight span.postTag {
 }
 
 .chatSpoiler:not(.chatExposedSpoiler),
-.chatSpoiler:not(.chatExposedSpoiler) a,
 .chatSpoiler:not(.chatExposedSpoiler) .chatQuoteBody {
     color: black;
     background-color: black;
     cursor: default;
+    pointer-events: auto;
+}
+
+/* make spoiler links not clickable until they are exposed */
+.chatSpoiler:not(.chatExposedSpoiler) a {
+    color: black;
+    background-color: black;
+    cursor: default;
+    pointer-events: none;
 }
 
 .chatExposedSpoiler,
@@ -943,6 +951,7 @@ div.forum div.splitRight span.postTag {
     color: black;
     background-color: #eeeeee;
     cursor: default;
+    pointer-events: auto;
 }
 
 /* END: BB Code */
@@ -997,6 +1006,10 @@ div.forum div.splitRight span.postTag {
 
 #buttons_page p.tags {
     margin-top: 40px;
+}
+
+#buttons_page p.tournamentLegal {
+    font-weight: bold;
 }
 
 #buttons_page div.singleButton div.buttonName {

@@ -226,7 +226,7 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   dev.off()
 }
 
-calcButtonMatchupWinStats <- function(data.df, button.names.df) {
+calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALSE) {
   # Create matchup matrix with win/loss info
   game.winner.df <- data.frame(
     winner_button_id = data.df$alt_button_id[data.df$did_win],
@@ -249,7 +249,7 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df) {
   n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] <- n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] / 2
 
   # Calculate the win percentage for each matchup
-  win.percentage.matrix <- 100 * freq.matrix / n.games.matrix
+  win.percentage.matrix <- round(100 * freq.matrix / n.games.matrix, 2)
   win.percentage.matrix[row(win.percentage.matrix) == col(win.percentage.matrix)] <- NA
 
   # Flatten the matrix out into a data frame with one matchup per row
@@ -269,24 +269,40 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df) {
 
   # Remove empty rows
   win.percentage.df <- win.percentage.df[!is.na(win.percentage.df$win.percentage),]
+  names(win.percentage.df) <- c('Button Name', 'Opponent Button Name', 'Win %', '# games played')
 
   # Create HTML table of button matchup stats
-  library(xtable)
-  stats.table <- xtable(
-    win.percentage.df,
-    display = c('s', 's', 's', 'f', 'd'),
-    caption = paste0(
-      'Button stats generated on ',
-      as.character(as.Date(max(data.df$last_action_time))),
-      ', only contains matchups that have been played'
+  if (is.colour) {
+    output.colour <- pmin(4, floor(win.percentage.df$'Win %'/20))
+    # use a special colour for fewer than 5 matchups
+    output.colour[win.percentage.df$'# games played' < 5] <- 5
+    
+    out.table <- condformat(win.percentage.df) %>% 
+      rule_fill_discrete(contains('Win %'), 
+                         expression = output.colour, 
+                         colours = c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc', '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')) %>%
+      theme_caption(paste0('Button stats generated on ',
+                           as.character(as.Date(max(data.df$last_action_time))),
+                           ', only contains played matchups'))
+    out.html <- condformat2html(out.table)
+    return(out.html)
+  } else {
+    library(xtable)
+    stats.table <- xtable(
+      win.percentage.df,
+      display = c('s', 's', 's', 'f', 'd'),
+      caption = paste0(
+        'Button stats generated on ',
+        as.character(as.Date(max(data.df$last_action_time))),
+        ', only contains played matchups'
+      )
     )
-  )
-  names(stats.table) <- c('Button Name', 'Opponent Button Name', 'Win %', '# games played')
+  }
 
   return(stats.table)
 }
 
-calcPlayerMatchupWinStats <- function(data.df, player.names.df) {
+calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALSE) {
   # Create matchup matrix with win/loss info
   game.winner.df <- data.frame(
     winner_player_id = data.df$player_id[data.df$did_win],
@@ -333,21 +349,38 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df) {
   win.percentage.sorted.df <- win.percentage.df[order(win.percentage.df$player.name,
                                                       -win.percentage.df$n.games,
                                                       win.percentage.df$opponent.name),]
-
+  win.percentage.sorted.df$win.percentage <- round(win.percentage.sorted.df$win.percentage, 2)
+  names(win.percentage.sorted.df) <- c('Player Name', 'Opponent Name', 'Win %', '# games played')
+  
   # Create HTML table of button matchup stats
-  library(xtable)
-  stats.table <- xtable(
-    win.percentage.sorted.df,
-    display = c('s', 's', 's', 'f', 'd'),
-    caption = paste0(
-      'Player stats generated on ',
-      as.character(as.Date(max(data.df$last_action_time))),
-      ', only contains matchups that have been played'
+  if (is.colour) {
+    output.colour <- pmin(4, floor(win.percentage.sorted.df$'Win %'/20))
+    # use a special colour for fewer than 5 matchups
+    output.colour[win.percentage.sorted.df$'# games played' < 5] <- 5
+    
+    out.table <- condformat(win.percentage.sorted.df) %>% 
+      rule_fill_discrete(contains('Win %'), 
+                         expression = output.colour, 
+                         colours = c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc', '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')) %>%
+      theme_caption(paste0('Player stats generated on ',
+                           as.character(as.Date(max(data.df$last_action_time))),
+                           ', only contains played matchups'))
+    out.html <- condformat2html(out.table)
+    return(out.html)
+  } else {
+    library(xtable)
+    stats.table <- xtable(
+      win.percentage.sorted.df,
+      display = c('s', 's', 's', 'f', 'd'),
+      caption = paste0(
+        'Player stats generated on ',
+        as.character(as.Date(max(data.df$last_action_time))),
+        ', only contains played matchups'
+      )
     )
-  )
-  names(stats.table) <- c('Player Name', 'Opponent Name', 'Win %', '# games played')
 
-  return(stats.table)
+    return(stats.table)
+  }
 }
 
 generateHtmlFile <- function(html.table, fname) {
@@ -371,8 +404,8 @@ runAll <- function() {
 
   generateHtmlFile(calcSingleButtonStats(data.df), 'button_stats.html')
   calcButtonMatchupsPlayed(data.df, button.names.df)
-  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df), 'button_matchup_stats.html')
-  generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df), 'player_matchup_stats.html')
+  generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, FALSE), 'player_matchup_stats.html')
+  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, FALSE), 'button_matchup_stats.html')
 }
 
 # runAll()
