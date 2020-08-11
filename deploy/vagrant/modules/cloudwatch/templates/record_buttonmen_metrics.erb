@@ -4,8 +4,14 @@
 import subprocess
 import sys
 
+def parse_arg_as_region(regionish):
+  # Argument may be an availability zone
+  if regionish[-1].isalpha():
+    return regionish[:-1]
+  return regionish
+
 INSTANCE_ID = sys.argv[1]
-REGION = sys.argv[2]
+REGION = parse_arg_as_region(sys.argv[2])
 
 ACCESS_LOG = '/var/log/apache2/access.log'
 LOGTAIL_LOG = '/var/spool/logtail/apache2_access_cloudwatch.log'
