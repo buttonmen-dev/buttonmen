@@ -295,7 +295,7 @@ test("test_Env.buildProfileLink", function(assert) {
 
 test("test_Env.buildVacationImage", function(assert) {
   var vacationImage = Env.buildVacationImage();
-  assert.equal(vacationImage.attr('src'), 
+  assert.equal(vacationImage.attr('src'),
      Env.ui_root + 'images/vacation16.png',
      'Vacation image should point to correct image.');
   assert.equal(vacationImage.attr('class'), 'playerFlag',
@@ -304,7 +304,7 @@ test("test_Env.buildVacationImage", function(assert) {
      'Vacation image should have a title of On Vacation.');
 
   vacationImage = Env.buildVacationImage('large');
-  assert.equal(vacationImage.attr('src'), 
+  assert.equal(vacationImage.attr('src'),
      Env.ui_root + 'images/vacation22.png',
      'Vacation image should point to correct image.');
 });
@@ -337,11 +337,18 @@ test("test_Env.buildButtonSetLink", function(assert) {
 
 test("test_Env.toggleSpoiler", function(assert) {
   var spoiler = $('<span>', { 'class': 'chatSpoiler' });
+  var eventTriggerSpan = {'target': {'tagName': 'span'}};
+  var eventTriggerAnchor = {'target': {'tagName': 'a'}};
+  
+  Env.toggleSpoiler.call(spoiler, eventTriggerSpan);
+  assert.ok(spoiler.hasClass('chatExposedSpoiler'),
+    'Spoiler should be styled as revealed');
 
-  Env.toggleSpoiler.call(spoiler);
-  assert.ok(spoiler.hasClass('chatExposedSpoiler'), 'Spoiler should be styled as revealed');
+  Env.toggleSpoiler.call(spoiler, eventTriggerAnchor);
+  assert.ok(spoiler.hasClass('chatExposedSpoiler'),
+    'Spoiler toggle should not change');
 
-  Env.toggleSpoiler.call(spoiler);
+  Env.toggleSpoiler.call(spoiler, eventTriggerSpan);
   assert.ok(!spoiler.hasClass('chatExposedSpoiler'),
     'Spoiler should not be styled as revealed');
 });

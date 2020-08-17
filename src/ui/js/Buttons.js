@@ -79,7 +79,12 @@ Buttons.showButton = function() {
   buttonDetailsArea.append(secondBox);
   secondBox.append($('<p>', {
     'class': 'flavorText',
-    'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
+    'html': (button.flavorText ? button.flavorText : 'No flavor text.'),
+  }));
+
+  secondBox.append($('<p>', {
+    'class': 'tournamentLegal',
+    'html': (button.isTournamentLegal ? '' : 'Not ') + 'Tournament Legal'
   }));
 
   if (button.tags.length > 0) {

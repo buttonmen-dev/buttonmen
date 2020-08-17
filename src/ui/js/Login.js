@@ -353,6 +353,7 @@ Login.footerNavBar = function() {
   var navrow = $('<tr>', { 'class': 'footerNav' });
   var links = {
     'Help': 'help.html',
+    'Privacy': 'privacy.html',
   };
   $.each(links, function(text, url) {
     var navtd = $('<td>');
