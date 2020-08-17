@@ -35,7 +35,6 @@ def emit_cloudwatch_metric(bmapi, bmsuccess):
     '--value', "1" if bmsuccess else "0",
     '--region', REGION,
   ]
-  print cmdargs
   subprocess.check_call(cmdargs)
 
 def get_recent_access_log_entries():
