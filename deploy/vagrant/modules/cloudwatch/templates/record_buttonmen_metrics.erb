@@ -1,20 +1,16 @@
 #!/usr/bin/python
 ##### Script to record cloudwatch metrics for buttonmen site
 
+import boto
 import subprocess
 import sys
 
-def parse_arg_as_region(regionish):
-  # Argument may be an availability zone
-  if regionish[-1].isalpha():
-    return regionish[:-1]
-  return regionish
-
 INSTANCE_ID = sys.argv[1]
-REGION = parse_arg_as_region(sys.argv[2])
 
 ACCESS_LOG = '/var/log/apache2/access.log'
 LOGTAIL_LOG = '/var/spool/logtail/apache2_access_cloudwatch.log'
+
+NAMESPACE = 'BMSite'
 
 def parse_line_as_responder_post(line):
   if not 'POST /api/responder ' in line:
@@ -26,18 +22,22 @@ def parse_line_as_responder_post(line):
   bmsuccess = words[-1].split('=')[1] == 'ok'
   return bmapi, bmsuccess
 
-def emit_cloudwatch_metric(bmapi, bmsuccess):
-  cmdargs = [
-    '/usr/bin/aws', 'cloudwatch', 'put-metric-data',
-    '--metric-name', 'bmapi_success',
-    '--dimensions', 'Instance=%s,BMAPI=%s' % (INSTANCE_ID, bmapi),
-    '--namespace', '"Custom"',
-    '--value', "1" if bmsuccess else "0",
-    '--region', REGION,
-  ]
-  subprocess.check_call(cmdargs)
+def emit_cloudwatch_metrics(conn, name, api_counts):
+  for api, count in sorted(api_counts.items()):
+    conn.put_metric_data(
+      NAMESPACE, name,
+      value=count,
+      dimensions={'Instance': INSTANCE_ID, 'BMAPI': api})
+  # Emit a non-dimensional metric for the sum, with a different
+  # name to avoid double-counting
+  conn.put_metric_data(
+    NAMESPACE, 'total_' + name,
+    value=sum(api_counts.values()),
+    dimensions={'Instance': INSTANCE_ID})
 
 def get_recent_access_log_entries():
+  api_calls = {}
+  api_failures = {}
   output = subprocess.check_output([
     '/usr/sbin/logtail',
     '-o', LOGTAIL_LOG,
@@ -46,6 +46,14 @@ def get_recent_access_log_entries():
   for line in output.split('\n'):
     bmapi, bmsuccess = parse_line_as_responder_post(line)
     if bmapi is None: continue
-    emit_cloudwatch_metric(bmapi, bmsuccess)
+    api_calls.setdefault(bmapi, 0)
+    api_calls[bmapi] += 1
+    if not bmsuccess:
+      api_failures.setdefault(bmapi, 0)
+      api_failures[bmapi] += 1
+  return api_calls, api_failures
 
-get_recent_access_log_entries()
+conn = boto.connect_cloudwatch()
+api_calls, api_failures = get_recent_access_log_entries()
+emit_cloudwatch_metrics(conn, 'api_calls', api_calls)
+emit_cloudwatch_metrics(conn, 'api_failures', api_failures)
