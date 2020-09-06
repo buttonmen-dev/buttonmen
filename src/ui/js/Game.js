@@ -2918,6 +2918,13 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     }
   }
 
+  // Button name div for compact mode only
+  var buttonNameDiv;
+  if (Env.getCookieCompactMode()) {
+    buttonNameDiv = $('<div>', { 'text': 'Button: ' });
+    buttonNameDiv.append(Env.buildButtonLink(Api.game[player].button.name));
+  }
+
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
@@ -2928,7 +2935,13 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     }
     statusDiv.append(gameScoreDiv);
 
+    if (Env.getCookieCompactMode()) {
+      statusDiv.append(buttonNameDiv);
+    }
   } else {
+    if (Env.getCookieCompactMode()) {
+      statusDiv.append(buttonNameDiv);
+    }
     statusDiv.append(gameScoreDiv);
     if (game_active) {
       statusDiv.append(capturedDiceDiv);
