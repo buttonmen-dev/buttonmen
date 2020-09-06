@@ -1012,7 +1012,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # MEGATOKYO (Dreamshade - MegaTokyo forums)  INTRODUCES Full Auto Dice(P); Turbo, Speed, Mood Swing, Poison, Shadow, Option
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Largo cannot use skill attacks.
-(667, 'Largo',            '(12) (20) (20) (X)',              1, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
+(667, 'Largo',            '(12) (20) (20) (X) (X)',          1, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (668, 'Ping',             '(4) (8) (X)! (X)!',               0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (669, 'Piro',             '(4) (8) (8) z(X)? z(X)?',         0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (670, 'Darkly Cute',      '(4) p(8) s(10) p(12) s(X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
