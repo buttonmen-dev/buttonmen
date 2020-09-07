@@ -2961,7 +2961,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
  *
  * @param   {object}  die            The die to be displayed
  * @param   {string}  player         Whose is the die? ('player' or 'opponent')
- * @param   {boolean} die_status     Status of the die ('active' or 'captured')
+ * @param   {string}  die_status     Status of the die ('active' or 'captured')
  * @param   {boolean} player_active  Is the player displaying the die active?
  * @returns {object}
  */
@@ -3068,8 +3068,16 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
     isClickable
   );
 
+  if ((player == 'player') &&
+      isClickable &&
+      die.skills.indexOf('Warrior') >= 0) {
+    divOpts.class += ' clickable_warrior';
+  }
+
   var dieDiv = $('<div>', divOpts);
-  dieDiv.append($('<span>', dieNumberSpanOpts));
+  var dieNumberSpan = $('<span>', dieNumberSpanOpts);
+
+  dieDiv.append(dieNumberSpan);
 
   return dieDiv;
 };

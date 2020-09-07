@@ -330,6 +330,21 @@ select.center {
     margin: auto;
 }
 
+.die_img.clickable_warrior {
+  -webkit-mask-image: linear-gradient(
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.5) 25%,
+    black 75%,
+    black 100%
+  );
+  mask-image: linear-gradient(
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.5) 25%,
+    black 75%,
+    black 100%
+  );
+}
+
 .die_container_dead .die_overlay {
     color: white;
 }
