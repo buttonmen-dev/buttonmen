@@ -480,7 +480,7 @@ class responder03Test extends responderTestFramework {
         $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 20;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 15;
         $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array('Shadow', 'Trip', 'Mood');
-        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('JustPerformedTripAttack');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody', 'JustPerformedTripAttack');
         $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = 'st(S)?';
         $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Shadow Trip S Mood Swing Die (with 20 sides)';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [Gst(S=6)?:1] against [(20):20]; Attacker Gst(S=6)? remained the same size, recipe changed from Gst(S=6)? to Gst(S=20)?, rerolled 1 => 15; Defender (20) rerolled 20 => 4, was captured'));

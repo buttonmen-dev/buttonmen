@@ -36,8 +36,10 @@ class BMSkillMood extends BMSkill {
         $newSwingValue = $validSwingValueArray[$randIdx];
 
         if ($die instanceof BMDieSwing) {
+            $die->add_flag('HasJustBeenMoody', $die->get_recipe(TRUE));
             $die->max = $newSwingValue;
         } elseif ($die instanceof BMDieTwin) {
+            $die->add_flag('HasJustBeenMoody', $die->get_recipe(TRUE));
             foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
                     $subdie->max = $newSwingValue;

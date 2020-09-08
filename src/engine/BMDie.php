@@ -839,6 +839,11 @@ class BMDie extends BMCanHaveSkill {
             $actionLogInfo['hasJustTurboed'] = $this->flagList['HasJustTurboed']->value();
         }
 
+        if ($this->has_flag('HasJustBeenMoody')) {
+            $actionLogInfo['hasJustBeenMoody'] =
+                $this->flagList['HasJustBeenMoody']->value();
+        }
+
         if ($this->has_flag('HasJustRerolledOrnery')) {
             $actionLogInfo['hasJustRerolledOrnery'] = TRUE;
         }
