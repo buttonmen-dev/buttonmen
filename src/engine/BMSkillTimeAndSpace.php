@@ -47,7 +47,7 @@ class BMSkillTimeAndSpace extends BMSkill {
             return;
         }
 
-        if (!isset($die->value)) {
+        if (is_null($die->value)) {
             return;
         }
 
