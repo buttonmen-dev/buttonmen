@@ -10738,4 +10738,87 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->playerArray[0]->activeDieArray);
         $this->assertCount(4, $game->playerArray[1]->activeDieArray);
     }
+
+    /**
+     * @coversNothing
+     */
+    public function test__boom_twin() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('b(1,1) (1) (1) (1)', 'Test1');
+        $this->assertEquals('b(1,1) (1) (1) (1)', $button1->recipe);
+        // check dice in $button1->dieArray are correct
+        $this->assertCount(4, $button1->dieArray);
+        $this->assertEquals(2, $button1->dieArray[0]->max);
+        $this->assertEquals(1, $button1->dieArray[1]->max);
+        $this->assertEquals(1, $button1->dieArray[2]->max);
+        $this->assertEquals(1, $button1->dieArray[3]->max);
+
+        $button2 = new BMButton;
+        $button2->load('(10) (10)', 'Test2');
+        $this->assertEquals('(10) (10)', $button2->recipe);
+        // check dice in $button2->dieArray are correct
+        $this->assertCount(2, $button2->dieArray);
+        $this->assertEquals(10, $button2->dieArray[0]->max);
+        $this->assertEquals(10, $button2->dieArray[1]->max);
+
+        // load game
+        $game = $this->object;
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+
+        $game->buttonArray = array($button1, $button2);
+        $this->assertEquals($game, $game->buttonArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[2]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[3]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[1]->ownerObject);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Boom');  // attackType
+
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertCount(1, $game->outOfPlayDieArrayArray[0]);
+        $this->assertCount(0, $game->outOfPlayDieArrayArray[1]);
+
+        // first player has id 234
+        $jsonData = $game->getJsonData(234);
+        $playerDataArray = $jsonData['playerDataArray'][0];
+        $outOfPlayDieArray = $playerDataArray['outOfPlayDieArray'];
+        $this->assertCount(1, $outOfPlayDieArray);
+
+        $outOfPlayDieArrayExp = array(
+            array(
+                'value' => 2,
+                'sides' => 2,
+                'recipe' => 'b(1,1)',
+                'properties' => array('IsAttacker', 'Twin'),
+                'subdieArray' => array(
+                    array('sides' => 1, 'value' => 1),
+                    array('sides' => 1, 'value' => 1)
+                )
+            )
+        );
+
+        $this->assertEquals($outOfPlayDieArrayExp, $outOfPlayDieArray);
+    }
 }

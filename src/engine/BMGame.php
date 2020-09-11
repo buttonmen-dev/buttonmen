@@ -3842,7 +3842,7 @@ class BMGame {
         $subdieArrayArray = $this->get_subdieArrayArray($playerIdx, 'outofplay');
 
         if (!empty($this->playerArray[$playerIdx]->outOfPlayDieArray)) {
-            foreach ($this->playerArray[$playerIdx]->outOfPlayDieArray as $die) {
+            foreach ($this->playerArray[$playerIdx]->outOfPlayDieArray as $dieIdx => $die) {
                 $outOfPlayDieArray[] = array(
                     'value' => $die->value,
                     'sides' => $die->max,
