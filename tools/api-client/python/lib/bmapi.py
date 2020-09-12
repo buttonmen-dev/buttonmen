@@ -243,22 +243,22 @@ class BMClient():
     }
     return self._make_request(args)
 
-  def choose_reserve_dice(self, gameId, action, dieIdx):
+  def choose_reserve_dice(self, gameId, action, dieIdx=None):
     args = {
       'type': 'reactToReserve',
       'game': gameId,
       'action': action,
     }
-    if dieIdx:
+    if dieIdx is not None:
       args['dieIdx'] = dieIdx
     return self._make_request(args)
 
-  def choose_auxiliary_dice(self, gameId, action, dieIdx):
+  def choose_auxiliary_dice(self, gameId, action, dieIdx=None):
     args = {
       'type': 'reactToAuxiliary',
       'game': gameId,
       'action': action,
     }
-    if dieIdx:
+    if dieIdx is not None:
       args['dieIdx'] = dieIdx
     return self._make_request(args)
