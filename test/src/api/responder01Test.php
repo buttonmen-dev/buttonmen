@@ -1805,8 +1805,11 @@ class responder01Test extends responderTestFramework {
         $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 10;
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 3;
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 10;
-        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustRerolledOrnery');
-        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('HasJustBeenMoody');
         $expData['playerDataArray'][0]['capturedDieArray'][] =
             array('value' => 9, 'sides' => '10', 'recipe' => 'o(X)?', 'properties' => array('WasJustCaptured'));
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
@@ -1855,8 +1858,15 @@ class responder01Test extends responderTestFramework {
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 18;
-        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
-        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('HasJustBeenMoody', 'HasJustRerolledOrnery');
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('HasJustBeenMoody');
         array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 1);
         $expData['playerDataArray'][1]['capturedDieArray'][] =
             array('value' => 10, 'sides' => '20', 'recipe' => 'o(X)?', 'properties' => array('WasJustCaptured'));
@@ -1889,8 +1899,14 @@ class responder01Test extends responderTestFramework {
         $expData['playerDataArray'][1]['roundScore'] = 35;
         $expData['playerDataArray'][0]['sideScore'] = 16.7;
         $expData['playerDataArray'][1]['sideScore'] = -16.7;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][0]['activeDieArray'][3]['properties'] = array('HasJustBeenMoody');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
         $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 10;
         $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 12;
