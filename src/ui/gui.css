@@ -110,23 +110,23 @@ div.battle_mat_opponent_overlay {
 
 .compactMode td.button_opponent,
 .compactMode td.button_player {
-  display: none;
+    display: none;
 }
 
 .compactMode div.battle_mat_player,
 .compactMode div.battle_mat_player_overlay {
-  border-radius: 30px 30px 0px 0px;
+    border-radius: 30px 30px 0px 0px;
 }
 
 .compactMode div.battle_mat_opponent,
 .compactMode div.battle_mat_opponent_overlay {
-  border-radius: 0px 0px 30px 30px;
+    border-radius: 0px 0px 30px 30px;
 }
 
 div.cantWin {
-  color: red;
-  font-weight: bold;
-  margin-bottom: 10px;
+    color: red;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 table {
@@ -540,9 +540,9 @@ table.activePlayerList th.idleness {
 }
 
 .playerFlag {
-   cursor: default;
-   vertical-align: middle;
-   margin: 0px 3px;
+    cursor: default;
+    vertical-align: middle;
+    margin: 0px 3px;
 }
 
 #newgame_create_table th,
@@ -891,8 +891,8 @@ div.forum div.splitRight {
 }
 
 div.forum div.splitRight span.postTag {
-  color: #e0e0e0;
-  margin-right: 2em;
+    color: #e0e0e0;
+    margin-right: 2em;
 }
 
 /* END: Forum*/
@@ -1056,10 +1056,70 @@ div.forum div.splitRight span.postTag {
 }
 
 #zoom {
-  background-color: green;
+    background-color: green;
 }
 
 /* HELP PAGES */
 .help {
-  text-align: left;
+    text-align: left;
+}
+
+#skills_page .directory {
+    margin-bottom: 30px;
+}
+
+#skills_page .directory div.item {
+    display: inline-block;
+    width: 120px;
+    margin: 10px;
+    padding: 10px;
+    vertical-align: top;
+}
+
+#skills_page .directory .item .symbol {
+    font-size: 3em;
+    font-weight: bold;
+}
+
+#skills_page .directory .item .symbol a {
+    color: black;
+    text-decoration: none;
+}
+
+#skills_page .directory .item a.link {
+    font-size: 1.2em;
+}
+
+#skills_page hr {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+#skills_page .descriptions {
+    width: 800px;
+    margin: auto;
+}
+
+#skills_page table.skills th {
+    white-space: nowrap;
+    text-align: right;
+}
+
+#skills_page table.skills td {
+    text-align: left;
+}
+
+#skills_page table.skills th, #skills_page table.skills td {
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: top;
+}
+
+#skills_page table.skills p {
+    margin-top: 0;
+    margin-bottom: 1em;
+}
+
+#skills_page table.skills p.interaction {
+    font-style: italic;
 }

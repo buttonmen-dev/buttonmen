@@ -15,7 +15,15 @@ Skills.bodyDivId = 'skills_page';
 ////////////////////////////////////////////////////////////////////////
 
 Skills.showLoggedInPage = function() {
-  Skills.showPage();
+  // Get all needed information, then display Skills page
+  Skills.getInfo(Skills.showPage);
+};
+
+Skills.getInfo = function(callback) {
+  Env.callAsyncInParallel([
+    Api.getDieSkillsData,
+    Api.getDieTypesData,
+  ], callback);
 };
 
 // Skills basically behaves roughly the same way regardless of whether or not
@@ -27,7 +35,22 @@ Skills.showLoggedOutPage = function() {
 Skills.showPage = function() {
   Skills.page = $('<div>');
 
-  Skills.page.append(Skills.bodyText());
+  if (Api.dieSkills.load_status != 'ok' || Api.dieTypes.load_status != 'ok') {
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'An internal error occurred while loading the ' +
+                'list of skills and die types.',
+      };
+    }
+
+    Login.arrangePage(Skills.page);
+    return;
+  }
+
+  Skills.page.append(Skills.directoryDiv());
+  Skills.page.append(Skills.skillDescriptionsDiv());
+  Skills.page.append(Skills.dieTypeDescriptionsDiv());
 
   // Actually lay out the page
   Login.arrangePage(Skills.page);
@@ -36,34 +59,113 @@ Skills.showPage = function() {
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
 
-Skills.bodyText = function() {
-  var bodyText = $('<div>').addClass('help_column');
-  bodyText.append(Skills.generalInfo());
-  return bodyText;
+Skills.directoryDiv = function() {
+  var directoryDiv = $('<div>', { 'class': 'directory' });
+  directoryDiv.append($('<h2>', { 'text': 'Die Skills and Types' }));
+
+  var displayList = Api.dieSkills.list;
+  var dieTypesList = Api.dieTypes.list;
+  for (var dieTypeKey in dieTypesList) {
+    displayList[dieTypeKey] = dieTypesList[dieTypeKey];
+  }
+  var displayCodes = Object.keys(displayList);
+  displayCodes.sort(Skills.orderAlphabeticallyByCode);
+
+  $.each(displayCodes, function(idx, code) {
+    var info = displayList[code];
+    var directoryItemDiv = $('<div>', { 'class': 'item' });
+    var symbolDiv =  $('<div>', { 'class': 'symbol' });
+    var symbolLink =
+      $('<a>', {
+        'href': '#' + info.name.replace(/\s+/g, ''),
+        'text': code
+      });
+    symbolDiv.append(symbolLink);
+
+    var nameLink =
+      $('<a>', {
+        'class': 'link',
+        'href': '#' + info.name.replace(/\s+/g, ''),
+        'text': info.name
+      });
+
+    directoryItemDiv.append(symbolDiv);
+    directoryItemDiv.append(nameLink);
+
+    directoryDiv.append(directoryItemDiv);
+  });
+  return directoryDiv;
 };
 
-Skills.generalInfo = function() {
-  var text = $('<div>');
+Skills.orderAlphabeticallyByCode = function(a, b) {
+  var comparison = a.length - b.length;
 
-  text.append(
-    $('<h1>').text('Die and button skills')
-  );
+  if (!comparison) {
+    comparison = a.toLowerCase().charCodeAt(0) - b.toLowerCase().charCodeAt(0);
+  }
 
-  text.append(
-    $('<p>').html(
-      'Content coming soon!'
-    )
-  );
+  if (!comparison) {
+    comparison = a.charCodeAt(0) - b.charCodeAt(0);
+  }
 
-  text.append(
-    $('<p>').html(
-      'To encourage us to work on this page or to contribute yourself, ' +
-      'see the ' +
-      '<a href="https://github.com/buttonmen-dev/buttonmen/issues/1925">' +
-      'relevant issue</a> ' +
-      'in our Github issue tracker.'
-    )
-  );
+  return comparison;
+};
 
-  return text;
+Skills.skillDescriptionsDiv = function() {
+  var skillDescriptionsDiv = $('<div>', { 'class': 'skillDescriptions' });
+  skillDescriptionsDiv.append($('<h2>', { 'text': 'Skill Descriptions' }));
+
+  var skillsTable = $('<table>', { 'class': 'skills' });
+  $.each(Api.dieSkills.list, function(code, info) {
+    var skillRow = $('<tr>');
+    skillsTable.append(skillRow);
+
+    var skillHeader = $('<th>');
+    skillHeader.append($('<a>', {
+      'id': info.name.replace(/\s+/g, ''),
+      'text': info.name + ': ' + code
+    }));
+    skillRow.append(skillHeader);
+
+    var skillDescriptionCell = $('<td>');
+    skillRow.append(skillDescriptionCell);
+    skillDescriptionCell.append($('<p>', { 'text': info.description }));
+
+    if (info.interacts) {
+      $.each(info.interacts, function(otherSkill, interaction) {
+        skillDescriptionCell.append($('<p>', {
+          'class': 'interaction',
+          'text': 'Interaction with ' + otherSkill + ': ' + interaction
+        }));
+      });
+    }
+  });
+
+  skillDescriptionsDiv.append(skillsTable);
+  return skillDescriptionsDiv;
+};
+
+Skills.dieTypeDescriptionsDiv = function() {
+  var dieTypeDescriptionsDiv = $('<div>', { 'class': 'dieTypeDescriptions' });
+  dieTypeDescriptionsDiv.append($('<h2>', { 'text': 'Die Type Descriptions' }));
+
+  var skillsTable = $('<table>', { 'class': 'skills' });
+
+  $.each(Api.dieTypes.list, function(code, info) {
+    var skillRow = $('<tr>');
+    skillsTable.append(skillRow);
+
+    var skillHeader = $('<th>');
+    skillHeader.append($('<a>', {
+      'id': info.name.replace(/\s+/g, ''),
+      'text': info.name + ': ' + code
+    }));
+    skillRow.append(skillHeader);
+
+    var skillDescriptionCell = $('<td>');
+    skillRow.append(skillDescriptionCell);
+    skillDescriptionCell.append($('<p>', { 'text': info.description }));
+  });
+  dieTypeDescriptionsDiv.append(skillsTable);
+  return dieTypeDescriptionsDiv;
 };

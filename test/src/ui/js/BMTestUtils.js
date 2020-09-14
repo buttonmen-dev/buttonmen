@@ -58,14 +58,14 @@ BMTestUtils.getAllElements = function() {
     'DOM': elementInfo,
     'JS': jsInfo
   };
-}
+};
 
 // Other modules may set Env.message, so have a central test utility
 // to clean it up
 BMTestUtils.deleteEnvMessage = function() {
   delete Env.message;
   $('#env_message').remove();
-}
+};
 
 // Fake player login information for other functions to use
 BMTestUtils.setupFakeLogin = function() {
@@ -73,12 +73,12 @@ BMTestUtils.setupFakeLogin = function() {
   BMTestUtils.OverviewOldLoginLoggedin = Login.logged_in;
   Login.player = 'tester1';
   Login.logged_in = true;
-}
+};
 
 BMTestUtils.cleanupFakeLogin = function() {
   Login.player = BMTestUtils.OverviewOldLoginPlayer;
   Login.logged_in = BMTestUtils.OverviewOldLoginLoggedin;
-}
+};
 
 // For each game/move reported by responderTest which we use in UI
 // tests, set a friendly name for tracking purposes.  These values
@@ -130,7 +130,7 @@ BMTestUtils.testGameId = function(gameDesc) {
 
   // this game number needs to not correspond to any game in the database
   if (gameDesc == 'NOGAME') { return '10000000'; }
-}
+};
 
 // We don't currently usually test reading the URL bar contents, because
 // that's hard to do within QUnit, but rather override those contents
@@ -152,8 +152,8 @@ BMTestUtils.overrideGetParameterByName = function() {
     if (name == 'key') {
       return 'facadefacadefacadefacadefacade12';
     }
-  }
-}
+  };
+};
 
 // We also need to restore the original version after testing, for the
 // benefit of any tests that expect non-dummy data.
@@ -162,7 +162,7 @@ BMTestUtils.restoreGetParameterByName = function() {
     Env.getParameterByName = BMTestUtils.realGetParameterByName;
     delete BMTestUtils.realGetParameterByName;
   }
-}
+};
 
 // Copies all top-level function-type properties from one object to another,
 // so that you can (e.g.) back up an object, replace some of its functions
@@ -194,7 +194,7 @@ BMTestUtils.DOMNodePropArray = function(node) {
       for (i = 0; i < node.childNodes.length; i++) {
         children.push(BMTestUtils.DOMNodePropArray(node.childNodes[i]));
       }
-      return [ node.nodeName, attrs, children, ]
+      return [ node.nodeName, attrs, children, ];
     }
     return [ node.nodeName, ];
   }

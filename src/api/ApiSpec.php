@@ -311,6 +311,14 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadDieSkillsData' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        'loadDieTypesData' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         // loadForumBoard returns:
         //   boardId: int,
         //   boardName: string,

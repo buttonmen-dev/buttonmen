@@ -149,6 +149,17 @@ class BMInterface {
     }
 
     /**
+     * Cast BMInterface to BMInterfaceHelp
+     *
+     * @return BMInterfaceHelp
+     */
+    public function help() {
+        $interface = $this->cast('BMInterfaceHelp');
+        $interface->parent = $this;
+        return $interface;
+    }
+
+    /**
      * Cast BMInterface to BMInterfaceHistory
      *
      * @return BMInterfaceHistory

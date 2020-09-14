@@ -105,7 +105,7 @@ class BMSkill {
      *
      * @return array
      */
-    protected static function skill_name_abbreviation_mapping() {
+    public static function skill_name_abbreviation_mapping() {
         return array('Auxiliary'    => '+',
                      'Berserk'      => 'B',
                      'Boom'         => 'b',

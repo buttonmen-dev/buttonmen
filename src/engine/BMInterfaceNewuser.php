@@ -64,6 +64,38 @@ class BMInterfaceNewuser {
         self::$conn = conn();
     }
 
+    /**
+     * Cast BMInterfaceNewUser to BMInterfaceHelp
+     *
+     * This is explicitly allowed because BMInterfaceHelp doesn't allow calls to the database
+     *
+     * @return BMInterfaceHelp
+     */
+    public function help() {
+        $interface = $this->cast('BMInterfaceHelp');
+        $interface->parent = $this;
+        return $interface;
+    }
+
+    /**
+     * Casts a BMInterface* object to another BMInterface* object
+     *
+     * @param string $className
+     */
+    public function cast($className) {
+        // only allow cast to another BMInterface class
+        if ('BMInterface' != substr($className, 0, 11)) {
+            throw new InvalidArgumentException('BMInterface classes can only be cast to another BMInterface class');
+        }
+
+        if (!class_exists($className)) {
+            throw new InvalidArgumentException('Non-existent class');
+        }
+
+        $result = new $className($this->isTest);
+        return $result;
+    }
+
     // methods
 
     /**

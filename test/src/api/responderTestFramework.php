@@ -475,6 +475,11 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'interacts' => array(),
             ),
         );
+
+        if ($skillNames === 'all_skills') {
+            return $skillInfo;
+        }
+
         $retval = array();
         foreach ($skillNames as $skillName) {
             $retval[$skillName] = $skillInfo[$skillName];
@@ -486,6 +491,60 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             }
         }
         return $retval;
+    }
+
+    /**
+     * Utility function to get die type information for the help page
+     */
+    protected function get_type_info() {
+        $typeInfo = array(
+            '(R)' => array(
+                'name' => 'R Swing',
+                'description' => 'R Swing Dice can be any die between 2 and 16. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(S)' => array(
+                'name' => 'S Swing',
+                'description' => 'S Swing Dice can be any die between 6 and 20. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(T)' => array(
+                'name' => 'T Swing',
+                'description' => 'T Swing Dice can be any die between 2 and 12. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(U)' => array(
+                'name' => 'U Swing',
+                'description' => 'U Swing Dice can be any die between 8 and 30. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(V)' => array(
+                'name' => 'V Swing',
+                'description' => 'V Swing Dice can be any die between 6 and 12. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(W)' => array(
+                'name' => 'W Swing',
+                'description' => 'W Swing Dice can be any die between 4 and 12. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(X)' => array(
+                'name' => 'X Swing',
+                'description' => 'X Swing Dice can be any die between 4 and 20. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(Y)' => array(
+                'name' => 'Y Swing',
+                'description' => 'Y Swing Dice can be any die between 1 and 20. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '(Z)' => array(
+                'name' => 'Z Swing',
+                'description' => 'Z Swing Dice can be any die between 4 and 30. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
+            '( , )' => array(
+                'name' => 'Twin',
+                'description' => 'Twin Dice appear as two numbers with a comma between them and are played as two dice that add together. For example, a twin 8 is represented as (8,8) and treated as a single die. The two 8\'s are rolled as one, captured as one, and scored as one die worth 16 points. Twin Dice may contain either standard dice or Swing Dice.',
+            ),
+            '( / )' => array(
+                'name' => 'Option',
+                'description' => 'Option Dice are represented as two numbers with a slash between them, resembling a fraction. They function like Swing Dice and can be changed at any time a Swing Die could be changed. However, Option Dice are restricted to only two values. For example, a 4/10 Option Die can be only a 4 or a 10.',
+            ),
+        );
+
+        return $typeInfo;
     }
 
     /**
