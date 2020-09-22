@@ -848,6 +848,19 @@ class ApiSpec {
     }
 
     /**
+     * sanitize an number argument by casting it to an int
+     *
+     * @param array $arg
+     * @return array
+     */
+    protected function sanitize_argument_of_type_number($arg) {
+        if (is_string($arg)) {
+            return (int)$arg;
+        }
+        return $arg;
+    }
+
+    /**
      * verify that the argument is an array, and verify the types
      * of each of its elements
      *
