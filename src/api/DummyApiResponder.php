@@ -413,6 +413,19 @@ class DummyApiResponder {
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 
+    protected function get_interface_response_loadDieSkillsData() {
+        return $this->load_json_data_from_file(
+            'loadDieSkillsData',
+            'noargs.json'
+        );
+    }
+
+    protected function get_interface_response_loadDieTypesData() {
+        return $this->load_json_data_from_file(
+            'loadDieTypesData',
+            'noargs.json'
+        );
+    }
 
     // Ask get_interface_response() for the dummy response to the
     // request, then construct a response.  Match the logic in

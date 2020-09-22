@@ -30,7 +30,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $this->object->min);
         $this->assertEquals(array(4,6), $this->object->optionValueArray);
-        $this->assertFalse(isset($this->object->max));
+        $this->assertTrue(is_null($this->object->max));
 
         $this->assertFalse($this->object->has_skill('Testing'));
         $this->assertFalse($this->object->has_skill('Testing2'));
@@ -40,7 +40,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $this->object->min);
         $this->assertEquals(array(5,8), $this->object->optionValueArray);
-        $this->assertFalse(isset($this->object->max));
+        $this->assertTrue(is_null($this->object->max));
 
         $this->assertTrue($this->object->has_skill('Testing2'));
         $this->assertFalse($this->object->has_skill('Testing'));
@@ -86,7 +86,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $die->min);
         $this->assertEquals(array(4,6), $die->optionValueArray);
-        $this->assertFalse(isset($die->max));
+        $this->assertTrue(is_null($die->max));
 
         $this->assertFalse($die->has_skill('Testing'));
         $this->assertFalse($die->has_skill('Testing2'));
@@ -96,7 +96,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $die->min);
         $this->assertEquals(array(5,8), $die->optionValueArray);
-        $this->assertFalse(isset($die->max));
+        $this->assertTrue(is_null($die->max));
 
         $this->assertTrue($die->has_skill('Testing2'));
         $this->assertFalse($die->has_skill('Testing'));

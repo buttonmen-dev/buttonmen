@@ -1,6 +1,7 @@
 class cloudwatch::buttonmen-site {
   package {
     "awscli": ensure => installed;
+    "python-boto": ensure => installed;
   }
 
   file {
@@ -14,7 +15,7 @@ class cloudwatch::buttonmen-site {
   # Record cloudwatch metrics from apache logs every five minutes
   cron {
     "record_buttonmen_cloudwatch_metrics":
-      command => "/usr/local/bin/record_buttonmen_cloudwatch_metrics ${ec2_instance_id} ${ec2_placement_availability_zone}",
+      command => "/usr/bin/timeout 15s /usr/local/bin/record_buttonmen_cloudwatch_metrics ${ec2_instance_id} ${ec2_placement_availability_zone}",
       minute => '*/5';
   }
 }

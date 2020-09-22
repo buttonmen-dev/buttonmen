@@ -91,7 +91,7 @@ var Api = (function () {
               'type': 'error',
               'text':
                 'Internal error: Could not parse ' + apikey +
-                'data from server',
+                ' data from server',
             };
             return failcallback();
           }
@@ -789,6 +789,51 @@ var Api = (function () {
       callbackfunc,
       callbackfunc
     );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse die skills and die types
+
+  my.getDieSkillsData = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadDieSkillsData', },
+      'dieSkills',
+      my.parseDieSkillsData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseDieSkillsData = function(data) {
+    if (!('dieSkills' in my)) {
+      my.dieSkills = {};
+    }
+    my.dieSkills.list = {};
+    $.each(data, function(skillName, info) {
+      my.dieSkills.list[skillName] = info;
+    });
+    return true;
+  };
+
+  my.getDieTypesData = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadDieTypesData', },
+      'dieTypes',
+      my.parseDieTypesData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseDieTypesData = function(data) {
+    if (!('dieTypes' in my)) {
+      my.dieTypes = {};
+    }
+    my.dieTypes.list = {};
+    $.each(data, function(dieTypeName, info) {
+      my.dieTypes.list[dieTypeName] = info;
+    });
+    return true;
   };
 
   return my;

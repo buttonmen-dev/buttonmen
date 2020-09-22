@@ -149,6 +149,17 @@ class BMInterface {
     }
 
     /**
+     * Cast BMInterface to BMInterfaceHelp
+     *
+     * @return BMInterfaceHelp
+     */
+    public function help() {
+        $interface = $this->cast('BMInterfaceHelp');
+        $interface->parent = $this;
+        return $interface;
+    }
+
+    /**
      * Cast BMInterface to BMInterfaceHistory
      *
      * @return BMInterfaceHistory
@@ -1308,7 +1319,7 @@ class BMInterface {
      * @param BMGame $game
      */
     protected function save_player_with_initiative($game) {
-        if (isset($game->playerWithInitiativeIdx)) {
+        if (!is_null($game->playerWithInitiativeIdx)) {
             // set all players to not having initiative
             $query = 'UPDATE game_player_map '.
                      'SET did_win_initiative = 0 '.
@@ -2662,5 +2673,15 @@ class BMInterface {
             default:
                 $this->$property = $value;
         }
+    }
+
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return bool
+     */
+    public function __isset($property) {
+        return isset($this->$property);
     }
 }

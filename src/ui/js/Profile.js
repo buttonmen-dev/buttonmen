@@ -189,7 +189,9 @@ Profile.buildProfileTable = function() {
     'looking out for #1?'
   ];
   var solipsindex = Math.floor(Math.random() * solipsismAlternatives.length);
-  var solipsismNotification = solipsismAlternatives[solipsindex];
+  var solipsismNotification = solipsismAlternatives[solipsindex] +
+                              '<br>(view someone else\'s profile to ' +
+                              'challenge them to a game)';
 
   tbody.append(Profile.buildProfileTableRow('Real name',
     Api.profile_info.name_irl, 'unknown', true));
@@ -274,7 +276,7 @@ Profile.buildProfileTableRow = function(
     }
   } else {
     tr.append($('<td>', {
-      'text': missingValue,
+      'html': missingValue,
       'class': 'missingValue ' + valueClass,
       'colspan': (shrinkable ? '1': '2'),
     }));

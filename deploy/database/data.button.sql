@@ -87,7 +87,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 # Unofficial Sets - fan and vanity sets
 (70, 'Japanese Beetle (unofficial)',  6800),
 (71, 'Blademasters',                  6900),
-(72, 'Order of the Dolls',            7000),
+(72, 'Order of Dolls',                7000),
 (73, 'Blademasters: The Second Shot', 7100),
 (74, 'Blademasters: Third Attack',    7200),
 (60, 'Gaming Guardians',              7300),
@@ -948,7 +948,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (636, 'Arashi',    '(4) (6) I(10) f(12) (20)',            0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (637, 'Michie',    '(4) (8) (12) z(12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
-(638, 'Johnny',    '(6) t(6) I(8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
+(638, 'Johnny',    't(6) (6) I(8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (639, 'Renee',     '(2) (2) (6) I(10) (X)',               0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (640, 'Danny',     '(6) t(8) t(8) (20) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
 (641, 'Danielle',  '(6) (12) I(12) (20) (X)',             0, 0, (SELECT id FROM buttonset WHERE name="Blademasters")),
@@ -1012,19 +1012,19 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # MEGATOKYO (Dreamshade - MegaTokyo forums)  INTRODUCES Full Auto Dice(P); Turbo, Speed, Mood Swing, Poison, Shadow, Option
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Largo cannot use skill attacks.
-(667, 'Largo',            '(12) (20) (20) (X)',              1, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
+(667, 'Largo',            '(12) (20) (20) (X) (X)',          1, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (668, 'Ping',             '(4) (8) (X)! (X)!',               0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (669, 'Piro',             '(4) (8) (8) z(X)? z(X)?',         0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (670, 'Darkly Cute',      '(4) p(8) s(10) p(12) s(X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (671, 'Dom',              '(10) (10) P(20) P(20) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo")),
 (672, 'Erika',            'z(10) z(12) z(12) z(4/20)!',      0, 0, (SELECT id FROM buttonset WHERE name="MegaTokyo"));
 
-# ORDER OF THE DOLLS              INTRODUCES Assassin(a); Twin
+# ORDER OF DOLLS              INTRODUCES Assassin(a); Twin
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(673, 'Chaka',     'a(4) (8) (8) (12) a(30)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
-(674, 'Strotzie',  '(4) (6) a(10) (12) a(X)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
-(675, 'Fuma',      'a(8) (16) (20) (V) (Z)',              0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls")),
-(676, 'Vox',       '(6) a(6) (12) (12) a(V,V)',           0, 0, (SELECT id FROM buttonset WHERE name="Order of the Dolls"));
+(673, 'Chaka',     'a(4) (8) (8) (12) a(30)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls")),
+(674, 'Strotzie',  '(4) (6) a(10) (12) a(X)',             0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls")),
+(675, 'Fuma',      'a(8) (16) (20) (V) (Z)',              0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls")),
+(676, 'Vox',       '(6) a(6) (12) (12) a(V,V)',           0, 0, (SELECT id FROM buttonset WHERE name="Order of Dolls"));
 
 # STEVEN UNIVERSE (Jota)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, flavor_text) VALUES
