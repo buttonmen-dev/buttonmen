@@ -311,6 +311,14 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadDieSkillsData' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        'loadDieTypesData' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         // loadForumBoard returns:
         //   boardId: int,
         //   boardName: string,
@@ -836,6 +844,19 @@ class ApiSpec {
      */
     protected function sanitize_argument_of_type_array($arg) {
         ksort($arg);
+        return $arg;
+    }
+
+    /**
+     * sanitize an number argument by casting it to an int
+     *
+     * @param array $arg
+     * @return array
+     */
+    protected function sanitize_argument_of_type_number($arg) {
+        if (is_string($arg)) {
+            return (int)$arg;
+        }
         return $arg;
     }
 

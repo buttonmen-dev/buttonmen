@@ -31,7 +31,7 @@ class BMSkillTurbo extends BMSkill {
 
         $die = $args['die'];
 
-        if (isset($die->value)) {
+        if (!is_null($die->value)) {
             if ($die->has_flag('JustPerformedTripAttack')) {
                 return TRUE;
             }

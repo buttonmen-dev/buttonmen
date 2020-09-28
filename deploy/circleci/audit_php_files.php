@@ -28,6 +28,18 @@
 
   // Any other directories shouldn't contain PHP files
 
+  // In these directories, we limit the use of explicit (int) casts
+  $php_limit_int_cast_dirs = array(
+    "src/api",
+  );
+  $php_limit_int_cast_exceptions = array(
+    // exceptions for $_SESSION variables
+    "src/api/ApiResponder.php" => 2,
+    "src/api/api_core.php" => 1,
+    // exception for the API-spec-level validate and cast of all numeric args to int
+    "src/api/ApiSpec.php" => 2,
+  );
+
   function find_all_dirs(&$dirs, $startdir) {
     $php_skip_subdirs = array( '.', '..', '.git' );
     $dirs[] = $startdir;
@@ -77,6 +89,22 @@
     }
   }
 
+  function verify_limited_int_casts(&$problems, $subdir, $exceptions) {
+    foreach (glob("$subdir/*.php") as $phpfile) {
+      unset($cast_count_output);
+      exec('grep "(int)" ' . $phpfile, $cast_count_output);
+      $num_casts = count($cast_count_output);
+      if (array_key_exists($phpfile, $exceptions)) {
+        $allowed_casts = $exceptions[$phpfile];
+      } else {
+        $allowed_casts = 0;
+      }
+      if ($num_casts > $allowed_casts) {
+        $problems[] = "PHP file contains more than expected " . $allowed_casts . " explicit (int) casts: $phpfile";
+      }
+    }
+  }
+
   function verify_no_php_files(&$problems, $subdir) {
     foreach (glob("$subdir/*.php") as $phpfile) {
       $problems[] = "PHP file in unexpected directory: $phpfile";
@@ -112,6 +140,9 @@
       verify_php_file_classes($problems, $subdir);
     } else {
       verify_no_php_files($problems, $subdir);
+    }
+    if (in_array($subdir, $php_limit_int_cast_dirs)) {
+      verify_limited_int_casts($problems, $subdir, $php_limit_int_cast_exceptions);
     }
   }
 

@@ -140,4 +140,14 @@ class BMUtilityHitTable {
             "BMUtilityHitTable->$property cannot be set (attempting to set value $value)."
         );
     }
+
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return bool
+     */
+    public function __isset($property) {
+        return isset($this->$property);
+    }
 }

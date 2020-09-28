@@ -38,16 +38,16 @@ class BMSkillTimeAndSpaceTest extends PHPUnit_Framework_TestCase {
         $args = array('die' => $die);
         $this->object->post_roll($args);
 
-        $this->assertFalse(isset($game->nextPlayerIdx));
+        $this->assertTrue(is_null($game->nextPlayerIdx));
 
         $die->value = 2;
         $die->add_flag('IsAttacker');
-        $this->assertFalse(isset($game->nextPlayerIdx));
+        $this->assertTrue(is_null($game->nextPlayerIdx));
 
         $die->value = 3;
         $this->object->post_roll($args);
 
-        $this->assertTrue(isset($game->nextPlayerIdx));
+        $this->assertFalse(is_null($game->nextPlayerIdx));
         $this->assertEquals(1, $game->nextPlayerIdx);
     }
 }

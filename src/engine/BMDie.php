@@ -317,7 +317,7 @@ class BMDie extends BMCanHaveSkill {
              $doHooksAllowReroll);
 
         if ($turboDieIsAboutToBeReplaced) {
-            unset($this->value);
+            $this->value = NULL;
         } elseif ($needsToReroll) {
             $this->set__value(bm_rand($this->min, $this->max));
         }
@@ -604,7 +604,7 @@ class BMDie extends BMCanHaveSkill {
      */
     public function split() {
         $oldRecipe = $this->get_recipe(TRUE);
-        unset($this->value);
+        $this->value = NULL;
         $newdie = clone $this;
 
         $remainder = $newdie->max % 2;
@@ -641,7 +641,7 @@ class BMDie extends BMCanHaveSkill {
             if ($size < $this->max) {
                 $this->add_flag('HasJustShrunk', $this->get_recipe());
                 $this->max = $size;
-                unset($this->value);
+                $this->value = NULL;
                 return;
             }
         }
@@ -659,7 +659,7 @@ class BMDie extends BMCanHaveSkill {
                 $this->add_flag('HasJustGrown', $this->get_recipe());
                 $this->max = $size;
                 $this->min = 1;  // deal explicitly with the possibility of 0-siders
-                unset($this->value);
+                $this->value = NULL;
                 return;
             }
         }
@@ -837,6 +837,11 @@ class BMDie extends BMCanHaveSkill {
 
         if ($this->has_flag('HasJustTurboed')) {
             $actionLogInfo['hasJustTurboed'] = $this->flagList['HasJustTurboed']->value();
+        }
+
+        if ($this->has_flag('HasJustBeenMoody')) {
+            $actionLogInfo['hasJustBeenMoody'] =
+                $this->flagList['HasJustBeenMoody']->value();
         }
 
         if ($this->has_flag('HasJustRerolledOrnery')) {
@@ -1297,7 +1302,7 @@ class BMDie extends BMCanHaveSkill {
      */
     public function __unset($property) {
         if (isset($this->$property)) {
-            unset($this->$property);
+            $this->$property = NULL;
             return TRUE;
         } else {
             return FALSE;

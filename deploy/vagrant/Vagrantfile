@@ -63,6 +63,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # firewall settings
     aws.security_groups = ["buttonmen-dev"]
+    aws.iam_instance_profile_name = "ec2_instance_perms"
 
     aws.instance_type = "t1.micro"
     aws.ami = "ami-0735ea082a1534cac"
