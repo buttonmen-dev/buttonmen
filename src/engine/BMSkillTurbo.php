@@ -36,9 +36,12 @@ class BMSkillTurbo extends BMSkill {
                 return TRUE;
             }
 
-            if ($die->has_flag('IsAttacker')) {
-                // don't roll Turbo dice that have just attacked, because
-                // they must be replaced with a new Turbo die before being rolled
+            if ($die->has_flag('IsAttacker') && !$die->has_flag('HasJustMorphed')) {
+                // Don't roll Turbo dice that have just attacked, because
+                // they must be replaced with a new Turbo die before being rolled.
+                //
+                // The exception is dice that have just morphed or doppelgangered,
+                // since these will always need to reroll
                 return TRUE;
             }
         }

@@ -23,7 +23,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::__construct()
+     * @covers BMGameAction::__construct
      */
     public function test_construct() {
         $attackStr = "performed Power attack using [(X):1] against [(4):1]; Defender (4) was captured; Attacker (X) rerolled 1 => 2";
@@ -42,7 +42,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message()
+     * @covers BMGameAction::friendly_message
      */
     public function test_friendly_message() {
         $attackStr = "performed Power attack using [(X):1] against [(4):1]; Defender (4) was captured; Attacker (X) rerolled 1 => 2";
@@ -54,7 +54,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_create_game()
+     * @covers BMGameAction::friendly_message_create_game
      */
     public function test_friendly_message_create_game() {
         $this->object = new BMGameAction(BMGameState::START_GAME, 'create_game', 0, array('creatorId' => 2));
@@ -65,7 +65,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_end_draw()
+     * @covers BMGameAction::friendly_message_end_draw
      */
     public function test_friendly_message_end_draw() {
         $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_draw', 0, array('roundNumber' => 2, 'roundScore' => 23));
@@ -76,7 +76,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_end_winner()
+     * @covers BMGameAction::friendly_message_end_winner
      */
     public function test_friendly_message_end_winner() {
         $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 1, 'winningRoundScore' => 43, 'losingRoundScore' => 24, 'surrendered' => FALSE));
@@ -93,7 +93,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_needs_firing()
+     * @covers BMGameAction::friendly_message_needs_firing
      */
     public function test_friendly_message_needs_firing() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'needs_firing', 1, array(
@@ -114,7 +114,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_fire_cancel()
+     * @covers BMGameAction::friendly_message_fire_cancel
      */
     public function test_friendly_message_fire_cancel() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'fire_cancel', 1, array());
@@ -125,7 +125,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_power() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -154,7 +154,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_skill() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -187,7 +187,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_speed() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -220,7 +220,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_power_after_fire_turndown() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -256,7 +256,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_power_mood_swing() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -285,7 +285,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_surrender() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 2, array(
@@ -329,7 +329,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      *
      * This test case covers older "attack" type action log entries
      * which may lack information which is later added, to make
@@ -362,7 +362,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_morphing() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -391,7 +391,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_trip_morph() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -420,7 +420,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_unsuccessful_trip_with_mood_target() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -449,7 +449,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_trip_morph_no_change_in_size() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -479,7 +479,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_radioactive_split() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -510,7 +510,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_radioactive_split_grow() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -541,7 +541,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_radioactive_split_shrink() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -572,7 +572,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_berserk_shrink_split() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -603,7 +603,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_attack()
+     * @covers BMGameAction::friendly_message_attack
      */
     public function test_friendly_message_attack_doppelganger_change_split() {
         $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
@@ -634,7 +634,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_choose_die_values()
+     * @covers BMGameAction::friendly_message_choose_die_values
      */
     public function test_friendly_message_choose_die_values() {
         $this->object = new BMGameAction(
@@ -661,7 +661,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_choose_swing()
+     * @covers BMGameAction::friendly_message_choose_swing
      */
     public function test_friendly_message_choose_swing() {
         $this->object = new BMGameAction(BMGameState::SPECIFY_DICE, 'choose_swing', 1, array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13)));
@@ -676,7 +676,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_reroll_chance()
+     * @covers BMGameAction::friendly_message_reroll_chance
      */
     public function test_friendly_message_reroll_chance() {
         $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'reroll_chance', 2, array(
@@ -689,7 +689,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_turndown_focus()
+     * @covers BMGameAction::friendly_message_turndown_focus
      */
     public function test_friendly_message_turndown_focus() {
         $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'turndown_focus', 1, array(
@@ -702,7 +702,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_init_decline()
+     * @covers BMGameAction::friendly_message_init_decline
      */
     public function test_friendly_message_init_decline() {
         $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'init_decline', 2, array());
@@ -713,7 +713,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_add_reserve()
+     * @covers BMGameAction::friendly_message_add_reserve
      */
     public function test_friendly_message_add_reserve() {
         $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'add_reserve', 2, array('dieRecipe' => 'r(6)'));
@@ -724,7 +724,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_decline_reserve()
+     * @covers BMGameAction::friendly_message_decline_reserve
      */
     public function test_friendly_message_decline_reserve() {
         $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'decline_reserve', 2, array());
@@ -735,7 +735,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_add_auxiliary()
+     * @covers BMGameAction::friendly_message_add_auxiliary
      */
     public function test_friendly_message_add_auxiliary() {
         $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'add_auxiliary', 2, array('roundNumber' => 1, 'dieRecipe' => '+(6)'));
@@ -750,7 +750,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_decline_auxiliary()
+     * @covers BMGameAction::friendly_message_decline_auxiliary
      */
     public function test_friendly_message_decline_auxiliary() {
         $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'decline_auxiliary', 2, array());
@@ -761,7 +761,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_determine_initiative()
+     * @covers BMGameAction::friendly_message_determine_initiative
      */
     public function test_friendly_message_determine_initiative() {
         $testParams = array(
@@ -805,7 +805,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_ornery_reroll()
+     * @covers BMGameAction::friendly_message_ornery_reroll
      */
     public function test_friendly_message_ornery_reroll() {
         $this->object = new BMGameAction(BMGameState::END_TURN, 'ornery_reroll', 1, array(
@@ -827,7 +827,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_play_another_turn()
+     * @covers BMGameAction::friendly_message_play_another_turn
      */
     public function test_friendly_message_play_another_turn() {
         $this->object = new BMGameAction(BMGameState::END_TURN, 'play_another_turn', 1, array('cause' => 'TimeAndSpace'));
@@ -838,7 +838,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_ornery_reroll()
+     * @covers BMGameAction::friendly_message_ornery_reroll
      */
     public function test_friendly_message_ornery_no_reroll() {
         $this->object = new BMGameAction(BMGameState::END_TURN, 'ornery_reroll', 1, array(
@@ -860,7 +860,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::max_from_recipe()
+     * @covers BMGameAction::max_from_recipe
      */
     public function test_max_from_recipe() {
         $method = new ReflectionMethod('BMGameAction', 'max_from_recipe');
@@ -876,6 +876,147 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $method->invoke(NULL, '(4/16)'));
         $this->assertEquals(16, $method->invoke(NULL, '(4/16=16)'));
         $this->assertEquals(4, $method->invoke(NULL, 'sz`(4/16=4)'));
+    }
+
+    /**
+     * @covers BMGameAction::message_recipe_change
+     */
+    public function test_mood_recipe_tripped_no_change() {
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
+            'attackType' => 'Trip',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array(
+                        'recipe' => 't(1)',
+                        'min' => 1,
+                        'max' => 1,
+                        'value' => 1,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => 't(1):1'
+                    )
+                ),
+                'defender' => array(
+                    array(
+                        'recipe' => '(X=8)?',
+                        'min' => 1,
+                        'max' => 8,
+                        'value' => 8,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => '(X=8)?:8'
+                    )
+                )
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array(
+                        'recipe' => 't(1)',
+                        'min' => 1,
+                        'max' => 1,
+                        'value' => 1,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => 't(1):1',
+                        'recipeAfterTripAttack' => 't(1)',
+                        'valueAfterTripAttack' => '1'
+                    )
+                ),
+                'defender' => array(
+                    array(
+                        'recipe' => '(X=8)?',
+                        'min' => 1,
+                        'max' => 8,
+                        'value' => 5,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => '(X=8)?:5',
+                        'forceReportDieSize' => TRUE,
+                        'hasJustBeenMoody' => '(X=8)?'
+                    )
+                )
+            ),
+            'fireCache' => null
+        ));
+
+        $this->assertEquals(
+            'gameaction01 performed Trip attack using [t(1):1] against [(X=8)?:8]; Attacker t(1) rerolled 1 => 1; Defender (X=8)? recipe remained (X=8)?, rerolled 8 => 5, was not captured',
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
+     * @covers BMGameAction::message_recipe_change
+     */
+    public function test_doppelganger_capture_mood() {
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array(
+                        'recipe' => 'D(X=6)',
+                        'min' => 1,
+                        'max' => 6,
+                        'value' => 5,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => 'D(X=6):5'
+                    )
+                ),
+                'defender' => array(
+                    array(
+                        'recipe' => '(X=4)?',
+                        'min' => 1,
+                        'max' => 4,
+                        'value' => 2,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => '(X=4)?:2'
+                    )
+                )
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array(
+                        'recipe' => '(X=12)?',
+                        'min' => 1,
+                        'max' => 12,
+                        'value' => 9,
+                        'doesReroll' => TRUE,
+                        'captured' => FALSE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => '(X=12)?:9',
+                        'forceReportDieSize' => TRUE,
+                        'hasJustMorphed' => TRUE,
+                        'hasJustBeenMoody' => '(X=4)?'
+                    )
+                ),
+                'defender' => array(
+                    array(
+                        'recipe' => '(X=4)?',
+                        'min' => 1,
+                        'max' => 4,
+                        'value' => 2,
+                        'doesReroll' => TRUE,
+                        'captured' => TRUE,
+                        'outOfPlay' => FALSE,
+                        'recipeStatus' => '(X=4)?:2'
+                    )
+                )
+            ),
+            'fireCache' => null
+        ));
+
+        $this->assertEquals(
+            'gameaction01 performed Power attack using [D(X=6):5] against [(X=4)?:2]; Defender (X=4)? was captured; Attacker D(X=6) changed size from 6 to 12 sides, recipe changed from D(X=6) to (X=4)? and then to (X=12)?, rerolled 5 => 9',
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
     }
 }
 
