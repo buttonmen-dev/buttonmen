@@ -90,6 +90,10 @@ class BMCanHaveSkill {
 
             foreach ($skillClass::$hooked_methods as $func) {
                 $this->hookList[$func][] = $skillClass;
+                if (is_a($this, 'BMDieTwin')) {
+                    $this->dice[0]->hookList[$func][] = $skillClass;
+                    $this->dice[1]->hookList[$func][] = $skillClass;
+                }
             }
         }
 
@@ -135,6 +139,11 @@ class BMCanHaveSkill {
                 // should never happen, and we should error hard if it does
             }
             unset($this->hookList[$func][$key]);
+
+            if ($this instanceof BMDieTwin) {
+                unset($this->dice[0]->hookList[$func][$key]);
+                unset($this->dice[1]->hookList[$func][$key]);
+            }
         }
 
         $this->run_hooks(__FUNCTION__, array('die' => &$this));
