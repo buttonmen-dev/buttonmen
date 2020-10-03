@@ -46,6 +46,13 @@ class BMInterface {
     protected static $conn = NULL;
 
     /**
+     * Modelled connection to database
+     *
+     * @var BMDB
+     */
+    protected static $db = NULL;
+
+    /**
      * Owning BMInterface, allows back navigation
      *
      * @var BMInterface
@@ -77,6 +84,7 @@ class BMInterface {
             require_once __DIR__.'/../database/mysql.inc.php';
         }
         self::$conn = conn();
+        self::$db = new BMDB(self::$conn);
     }
 
     /**
@@ -309,19 +317,18 @@ class BMInterface {
                    'AND g.status_id IN '.
                        '(SELECT id FROM game_status WHERE name IN (\'NEW\', \'ACTIVE\'))';
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute($parameters);
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->set_message('Pending game count failed.');
-                error_log('Pending game count failed for player ' . $playerId);
-                return NULL;
-            } else {
-                $data = array();
-                $data['count'] = (int)$result[0];
-                $this->set_message('Pending game count succeeded.');
-                return $data;
-            }
+            $data = array(
+                'count' => self::$db->select_single_value($query, $parameters, 'int'),
+            );
+            $this->set_message('Pending game count succeeded.');
+            return $data;
+        } catch (BMDatabaseException $e) {
+            $this->set_message('Pending game count failed.');
+            error_log(
+                'Pending game count failed for player ' . $playerId . ' with database error: ' .
+                $e->getMessage()
+            );
+            return NULL;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::count_pending_games: ' .
@@ -402,10 +409,42 @@ class BMInterface {
                  'ON g.id = v.game_id '.
                  'WHERE g.id = :game_id '.
                  'ORDER BY g.id;';
-        $statement1 = self::$conn->prepare($query);
-        $statement1->execute(array(':game_id' => $gameId));
+        $parameters = array(':game_id' => $gameId);
+        $columnReturnTypes = array(
+            // g.* columns from game table
+            'game_state' => 'int',
+            'turn_number_in_round' => 'int',
+            'n_target_wins' => 'int',
+            'n_recent_passes' => 'int',
+            'creator_id' => 'int',
+            'current_player_id' => 'int_or_null',
+            'description' => 'str',
+            'previous_game_id' => 'int_or_null',
+            // explicitly-selected columns
+            'last_action_timestamp' => 'int',
+            'status_name' => 'str',
+            'player_id' => 'int_or_null',
+            'position' => 'int_or_null',
+            'autopass' => 'bool',
+            'fire_overshooting' => 'bool',
+            'button_name' => 'str_or_null',
+            'original_recipe' => 'str_or_null',
+            'alt_recipe' => 'str_or_null',
+            'n_rounds_won' => 'int',
+            'n_rounds_lost' => 'int',
+            'n_rounds_drawn' => 'int',
+            'did_win_initiative' => 'bool',
+            'is_awaiting_action' => 'bool',
+            'is_button_random' => 'bool',
+            'player_last_action_timestamp' => 'int_or_null',
+            'was_game_dismissed' => 'bool',
+            'has_player_accepted' => 'bool',
+            'is_on_vacation' => 'bool',
+            'is_chat_private' => 'bool',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-        while ($row = $statement1->fetch()) {
+        foreach ($rows as $row) {
             // load game attributes
             if (!isset($game)) {
                 $game = new BMGame;
@@ -416,32 +455,26 @@ class BMInterface {
             $pos = $row['position'];
             if (isset($pos)) {
                 $player = $game->playerArray[$pos];
-                if (isset($row['player_id'])) {
-                    $player->playerId = (int)$row['player_id'];
-                } else {
-                    $player->playerId = NULL;
-                }
-                $player->autopass = (bool)$row['autopass'];
-                $player->fireOvershooting = (bool)$row['fire_overshooting'];
-                $player->hasPlayerAcceptedGame = (bool)$row['has_player_accepted'];
+                $player->playerId = $row['player_id'];
+                $player->autopass = $row['autopass'];
+                $player->fireOvershooting = $row['fire_overshooting'];
+                $player->hasPlayerAcceptedGame = $row['has_player_accepted'];
             }
 
-            if (1 == $row['did_win_initiative']) {
+            if ($row['did_win_initiative']) {
                 $game->playerWithInitiativeIdx = $pos;
             }
 
             $game->playerArray[$pos]->set_gameScoreArray(
                 array(
-                    'W' => (int)$row['n_rounds_won'],
-                    'L' => (int)$row['n_rounds_lost'],
-                    'D' => (int)$row['n_rounds_drawn']
+                    'W' => $row['n_rounds_won'],
+                    'L' => $row['n_rounds_lost'],
+                    'D' => $row['n_rounds_drawn']
                 )
             );
 
             $this->load_button($game, $pos, $row);
             $this->load_player_attributes($game, $pos, $row);
-            $this->load_lastActionTime($game, $pos, $row);
-            $this->load_hasPlayerDismissedGame($game, $pos, $row);
         }
 
         if (!isset($game)) {
@@ -517,17 +550,13 @@ class BMInterface {
      */
     protected function load_player_attributes($game, $pos, $row) {
         $player = $game->playerArray[$pos];
-        switch ($row['is_awaiting_action']) {
-            case 1:
-                $player->waitingOnAction = TRUE;
-                break;
-            case 0:
-                $player->waitingOnAction = FALSE;
-                break;
-        }
+        $player->waitingOnAction = $row['is_awaiting_action'];
 
-        $player->isOnVacation = (bool) $row['is_on_vacation'];
-        $player->isChatPrivate = (bool) $row['is_chat_private'];
+        $player->lastActionTime = $row['player_last_action_timestamp'];
+        $player->hasPlayerDismissedGame = $row['was_game_dismissed'];
+
+        $player->isOnVacation = $row['is_on_vacation'];
+        $player->isChatPrivate = $row['is_chat_private'];
 
         if (isset($row['current_player_id']) &&
             isset($row['player_id']) &&
@@ -537,34 +566,6 @@ class BMInterface {
 
         if ($row['did_win_initiative']) {
             $game->playerWithInitiativeIdx = $pos;
-        }
-    }
-
-    /**
-     * Load last action time
-     *
-     * @param BMGame $game
-     * @param int $pos
-     * @param array $row
-     */
-    protected function load_lastActionTime($game, $pos, $row) {
-        if (isset($row['player_last_action_timestamp'])) {
-            $player = $game->playerArray[$pos];
-            $player->lastActionTime = (int)$row['player_last_action_timestamp'];
-        }
-    }
-
-    /**
-     * Load whether a player has dismissed a certain game
-     *
-     * @param BMGame $game
-     * @param int $pos
-     * @param array $row
-     */
-    protected function load_hasPlayerDismissedGame($game, $pos, $row) {
-        if (isset($row['was_game_dismissed'])) {
-            $player = $game->playerArray[$pos];
-            $player->hasPlayerDismissedGame = ((int)$row['was_game_dismissed'] == 1);
         }
     }
 
