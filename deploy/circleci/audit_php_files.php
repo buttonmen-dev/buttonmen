@@ -40,6 +40,23 @@
     "src/api/ApiSpec.php" => 2,
   );
 
+  // In these directories, we limit explicit references to $_SESSION variables
+  $php_limit_sessionvar_dirs = array(
+    "src/api",
+    "src/database",
+    "src/engine",
+    "src/lib",
+  );
+  // Files in the above dirs which are allowed to contain $_SESSION variables at all
+  $php_limit_sessionvar_exceptions = array(
+    "src/api/api_core.php",
+    "src/api/ApiResponder.php",
+  );
+  // Limit direct access to $_SESSION['user_id'] so we can control its type
+  $php_limit_session_user_id_files = array(
+    "src/api/ApiResponder.php" => 2,
+  );
+
   function find_all_dirs(&$dirs, $startdir) {
     $php_skip_subdirs = array( '.', '..', '.git' );
     $dirs[] = $startdir;
@@ -105,6 +122,29 @@
     }
   }
 
+  function verify_limited_sessionvars(&$problems, $subdir, $exceptions, $userid_limits) {
+    foreach (glob("$subdir/*.php") as $phpfile) {
+      if (in_array($phpfile, $exceptions)) {
+        if (array_key_exists($phpfile, $userid_limits)) {
+          // This file can contain $_SESSION variables at all, but $_SESSION['user_id'] is limited
+          $allowed_userid = $userid_limits[$phpfile];
+          unset($grep_output);
+          exec('grep "\$_SESSION\[\'user_id\'\]" ' . $phpfile, $grep_output);
+          if (count($grep_output) > $allowed_userid) {
+            $problems[] = "PHP file contains more than expected " . $allowed_userid . " explicit references to SESSION user_id: $phpfile";
+          }
+        }
+      } else {
+        // Files without exceptions aren't allowed to contain any $_SESSION variables
+        unset($grep_output);
+        exec('grep "\$_SESSION" ' . $phpfile, $grep_output);
+        if (count($grep_output) > 0) {
+          $problems[] = "PHP file contains explicit references to SESSION variables: $phpfile";
+        }
+      }
+    }
+  }
+
   function verify_no_php_files(&$problems, $subdir) {
     foreach (glob("$subdir/*.php") as $phpfile) {
       $problems[] = "PHP file in unexpected directory: $phpfile";
@@ -143,6 +183,9 @@
     }
     if (in_array($subdir, $php_limit_int_cast_dirs)) {
       verify_limited_int_casts($problems, $subdir, $php_limit_int_cast_exceptions);
+    }
+    if (in_array($subdir, $php_limit_sessionvar_dirs)) {
+      verify_limited_sessionvars($problems, $subdir, $php_limit_sessionvar_exceptions, $php_limit_session_user_id_files);
     }
   }
 
