@@ -162,7 +162,7 @@ class ApiResponder {
             $maxWins,
             $description,
             $previousGameId,
-            (int)$_SESSION['user_id'],
+            $this->session_user_id(),
             FALSE
         );
 
@@ -185,7 +185,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_searchGameHistory($interface, $args) {
-        return $interface->history()->search_game_history($_SESSION['user_id'], $args);
+        return $interface->history()->search_game_history($this->session_user_id(), $args);
     }
 
     /**
@@ -197,12 +197,12 @@ class ApiResponder {
      */
     protected function get_interface_response_joinOpenGame($interface, $args) {
         $success = $interface->game()->join_open_game(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['gameId']
         );
         if ($success && isset($args['buttonName'])) {
             $success = $interface->game()->select_button(
-                $_SESSION['user_id'],
+                $this->session_user_id(),
                 $args['gameId'],
                 $args['buttonName']
             );
@@ -219,7 +219,7 @@ class ApiResponder {
      */
     protected function get_interface_response_cancelOpenGame($interface, $args) {
         $success = $interface->game()->cancel_open_game(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['gameId']
         );
 
@@ -235,7 +235,7 @@ class ApiResponder {
      */
     protected function get_interface_response_selectButton($interface, $args) {
         return $interface->game()->select_button(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['gameId'],
             $args['buttonName']
         );
@@ -249,7 +249,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadOpenGames($interface) {
-        return $interface->get_all_open_games($_SESSION['user_id']);
+        return $interface->get_all_open_games($this->session_user_id());
     }
 
     /**
@@ -260,7 +260,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadNewGames($interface) {
-        return $interface->get_all_new_games($_SESSION['user_id']);
+        return $interface->get_all_new_games($this->session_user_id());
     }
 
     /**
@@ -275,7 +275,7 @@ class ApiResponder {
         // which ones we were skipping.
         unset($_SESSION['skipped_games']);
 
-        return $interface->get_all_active_games($_SESSION['user_id']);
+        return $interface->get_all_active_games($this->session_user_id());
     }
 
     /**
@@ -286,7 +286,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadCompletedGames($interface) {
-        return $interface->get_all_completed_games($_SESSION['user_id']);
+        return $interface->get_all_completed_games($this->session_user_id());
     }
 
     /**
@@ -297,7 +297,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadCancelledGames($interface) {
-        return $interface->get_all_cancelled_games($_SESSION['user_id']);
+        return $interface->get_all_cancelled_games($this->session_user_id());
     }
 
     /**
@@ -324,7 +324,7 @@ class ApiResponder {
             }
         }
 
-        return $interface->get_next_pending_game($_SESSION['user_id'], $skippedGames);
+        return $interface->get_next_pending_game($this->session_user_id(), $skippedGames);
     }
 
     /**
@@ -391,7 +391,7 @@ class ApiResponder {
         } else {
             $logEntryLimit = NULL;
         }
-        return $interface->load_api_game_data($_SESSION['user_id'], $args['game'], $logEntryLimit);
+        return $interface->load_api_game_data($this->session_user_id(), $args['game'], $logEntryLimit);
     }
 
     /**
@@ -402,7 +402,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_countPendingGames($interface) {
-        return $interface->count_pending_games($_SESSION['user_id']);
+        return $interface->count_pending_games($this->session_user_id());
     }
 
     /**
@@ -428,7 +428,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadPlayerInfo($interface) {
-        $result = $interface->player()->get_player_info($_SESSION['user_id']);
+        $result = $interface->player()->get_player_info($this->session_user_id());
         return $result;
     }
 
@@ -488,13 +488,13 @@ class ApiResponder {
         }
 
         $retval = $interface->player()->set_player_info(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $infoArray,
             $addlInfo
         );
 
         if (isset($retval)) {
-            $interface->player()->update_last_action_time($_SESSION['user_id']);
+            $interface->player()->update_last_action_time($this->session_user_id());
         }
 
         return $retval;
@@ -532,7 +532,7 @@ class ApiResponder {
      */
     protected function get_interface_response_setChatVisibility($interface, $args) {
         return $interface->game_chat()->set_chat_visibility(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             'true' == $args['private']
         );
@@ -557,7 +557,7 @@ class ApiResponder {
             $optionValueArray = array();
         }
         $retval = $interface->game()->submit_die_values(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             $args['roundNumber'],
             $swingValueArray,
@@ -565,7 +565,7 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -584,14 +584,14 @@ class ApiResponder {
         }
 
         $retval = $interface->game()->react_to_auxiliary(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             $args['action'],
             $args['dieIdx']
         );
 
         if ($retval) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -610,14 +610,14 @@ class ApiResponder {
         }
 
         $retval = $interface->game()->react_to_reserve(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             $args['action'],
             $args['dieIdx']
         );
 
         if ($retval) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -638,7 +638,7 @@ class ApiResponder {
             $args['dieValueArray'] = NULL;
         }
         $retval = $interface->game()->react_to_initiative(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             $args['roundNumber'],
             $args['timestamp'],
@@ -648,7 +648,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -669,7 +669,7 @@ class ApiResponder {
             $args['dieValueArray'] = NULL;
         }
         $retval = $interface->game()->adjust_fire(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             $args['roundNumber'],
             $args['timestamp'],
@@ -679,7 +679,7 @@ class ApiResponder {
         );
 
         if ($retval) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -697,14 +697,14 @@ class ApiResponder {
             $args['edit'] = FALSE;
         }
         $retval = $interface->game_chat()->submit_chat(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['game'],
             $args['edit'],
             $args['chat']
         );
 
         if ($retval) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -725,14 +725,14 @@ class ApiResponder {
             $args['turboVals'] = array();
         }
 
-        $args['playerId'] = $_SESSION['user_id'];
+        $args['playerId'] = $this->session_user_id();
         $args['attackerIdx'] = $args['attackerIdx'];
         $args['defenderIdx'] = $args['defenderIdx'];
 
         $retval = $interface->game()->submit_turn($args);
 
         if (isset($retval)) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['game']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['game']);
         }
 
         return $retval;
@@ -747,13 +747,13 @@ class ApiResponder {
      */
     protected function get_interface_response_reactToNewGame($interface, $args) {
         $retval = $interface->game()->save_join_game_decision(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['gameId'],
             $args['action']
         );
 
         if (isset($retval)) {
-            $interface->player()->update_last_action_time($_SESSION['user_id'], $args['gameId']);
+            $interface->player()->update_last_action_time($this->session_user_id(), $args['gameId']);
         }
 
         return $retval;
@@ -767,11 +767,11 @@ class ApiResponder {
      * @return NULL|bool
      */
     protected function get_interface_response_dismissGame($interface, $args) {
-        $retval = $interface->game()->dismiss_game($_SESSION['user_id'], $args['gameId']);
+        $retval = $interface->game()->dismiss_game($this->session_user_id(), $args['gameId']);
         if (isset($retval)) {
             // Just update the player's last action time. Don't update the
             // game's, since the game is already over.
-            $interface->player()->update_last_action_time($_SESSION['user_id']);
+            $interface->player()->update_last_action_time($this->session_user_id());
         }
         return $retval;
     }
@@ -786,7 +786,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadForumOverview($interface) {
-        return $interface->forum()->load_forum_overview($_SESSION['user_id']);
+        return $interface->forum()->load_forum_overview($this->session_user_id());
     }
 
     /**
@@ -797,7 +797,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadForumBoard($interface, $args) {
-        return $interface->forum()->load_forum_board($_SESSION['user_id'], $args['boardId']);
+        return $interface->forum()->load_forum_board($this->session_user_id(), $args['boardId']);
     }
 
     /**
@@ -814,7 +814,7 @@ class ApiResponder {
             $currentPostId = NULL;
         }
         return $interface->forum()->load_forum_thread(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['threadId'],
             $currentPostId
         );
@@ -828,7 +828,7 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_loadNextNewPost($interface) {
-        return $interface->forum()->get_next_new_post($_SESSION['user_id']);
+        return $interface->forum()->get_next_new_post($this->session_user_id());
     }
 
     /**
@@ -840,7 +840,7 @@ class ApiResponder {
      */
     protected function get_interface_response_markForumRead($interface, $args) {
         return $interface->forum()->mark_forum_read(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['timestamp']
         );
     }
@@ -854,7 +854,7 @@ class ApiResponder {
      */
     protected function get_interface_response_markForumBoardRead($interface, $args) {
         return $interface->forum()->mark_forum_board_read(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['boardId'],
             $args['timestamp']
         );
@@ -869,7 +869,7 @@ class ApiResponder {
      */
     protected function get_interface_response_markForumThreadRead($interface, $args) {
         return $interface->forum()->mark_forum_thread_read(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['threadId'],
             $args['boardId'],
             $args['timestamp']
@@ -885,7 +885,7 @@ class ApiResponder {
      */
     protected function get_interface_response_createForumThread($interface, $args) {
         return $interface->forum()->create_forum_thread(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['boardId'],
             $args['title'],
             $args['body']
@@ -901,7 +901,7 @@ class ApiResponder {
      */
     protected function get_interface_response_createForumPost($interface, $args) {
         return $interface->forum()->create_forum_post(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['threadId'],
             $args['body']
         );
@@ -916,7 +916,7 @@ class ApiResponder {
      */
     protected function get_interface_response_editForumPost($interface, $args) {
         return $interface->forum()->edit_forum_post(
-            $_SESSION['user_id'],
+            $this->session_user_id(),
             $args['postId'],
             $args['body']
         );
@@ -1095,15 +1095,27 @@ class ApiResponder {
             return new BMInterfaceNewuser($this->isTest);
         }
 
-        apache_note('BMUserID', $_SESSION['user_id']);
+        apache_note('BMUserID', $this->session_user_id());
 
         $interface = new BMInterface($this->isTest);
 
         if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
-            $interface->player()->update_last_access_time($_SESSION['user_id']);
+            $interface->player()->update_last_access_time($this->session_user_id());
         }
 
         return $interface;
+    }
+
+    /**
+     * Read the user_id from the session
+     *
+     * @return mixed
+     */
+    protected function session_user_id() {
+        if (isset($_SESSION['user_id'])) {
+            return (int)$_SESSION['user_id'];
+        }
+        return NULL;
     }
 }
 
