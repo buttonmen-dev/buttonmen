@@ -1874,12 +1874,12 @@ Game.pageAddGameHeader = function(action_desc) {
     Game.page.append($('<br>'));
   }
 
-  if (Api.game.isParticipant &&
+  if ((Api.game.isParticipant || Api.game.isCreator) &&
       Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
     var acceptRejectDiv = $('<div>');
     Game.page.append(acceptRejectDiv);
 
-    if (Api.game.player.waitingOnAction) {
+    if (Api.game.isParticipant && Api.game.player.waitingOnAction) {
       var acceptLink = $('<a>', {
         'text': '[Accept Game]',
         'href': '#',
@@ -1897,7 +1897,7 @@ Game.pageAddGameHeader = function(action_desc) {
       });
       rejectLink.click(Game.formRejectGame);
       acceptRejectDiv.append(rejectLink);
-    } else {
+    } else if (Api.game.isCreator) {
       var cancelLink = $('<a>', {
         'text': '[Withdraw Game]',
         'href': '#',

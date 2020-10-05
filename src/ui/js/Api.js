@@ -493,6 +493,8 @@ var Api = (function () {
       return false;
     }
 
+    my.game.isCreator = (data.creatorDataArray.creatorName === Login.player);
+
     if ($.isNumeric(data.currentPlayerIdx)) {
       my.game.isParticipant = true;
     } else {
