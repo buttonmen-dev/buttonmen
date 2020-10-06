@@ -63,7 +63,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (76, 'Big Top',                       5550),
 (63, 'High School Drama!',            5600),
 (64, 'Unexploded Cow',                5700),
-(67, 'ZOECon',                        5800),
+(67, 'ZOECon (JourneyQuest)',         5800),
 (79, 'The Core',                        50),
 (80, 'West Side',                       51),
 (81, 'The Delta',                       52),
@@ -772,12 +772,12 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # ZOECon (ZOECon.net)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(574, 'Carrow',          's(4) s(8) s(12) s(20) s(X)',        0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
-(575, 'Nara',            '(6) (8) (12) (20) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
-(576, 'Perf',            '(6) (6) (10) (X) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
-(577, 'Glorion',         '(10) (12) (16) (20) (X)',           0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
-(578, 'The Assassin',    '(6) (10) p(10) (12) s(X)',          0, 1, (SELECT id FROM buttonset WHERE name="ZOECon")),
-(579, 'Wren',            '(4) (8) (12) (12) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="ZOECon"));
+(574, 'Carrow',          's(4) s(8) s(12) s(20) s(X)',        0, 1, (SELECT id FROM buttonset WHERE name="ZOECon (JourneyQuest)")),
+(575, 'Nara',            '(6) (8) (12) (20) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="ZOECon (JourneyQuest)")),
+(576, 'Perf',            '(6) (6) (10) (X) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="ZOECon (JourneyQuest)")),
+(577, 'Glorion',         '(10) (12) (16) (20) (X)',           0, 1, (SELECT id FROM buttonset WHERE name="ZOECon (JourneyQuest)")),
+(578, 'The Assassin',    '(6) (10) p(10) (12) s(X)',          0, 1, (SELECT id FROM buttonset WHERE name="ZOECon (JourneyQuest)")),
+(579, 'Wren',            '(4) (8) (12) (12) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="ZOECon (JourneyQuest)"));
 
 ###############################################
 ##### SETS MADE FOR BUTTONMEN ONLINE OR DESIGNED BY ITS PLAYERS
@@ -1497,6 +1497,12 @@ UPDATE button SET flavor_text="The Queen of Hearts is a megalomaniac who enjoys 
 UPDATE button SET flavor_text="(The Jabberwock has no flavor text. The Jabberwock needs no flavor text. You don't taste The Jabberwock, The Jabberwock tastes you.)" WHERE name="The Jabberwock";
 UPDATE button SET flavor_text="Tweedledum takes out his jealousy over his brother's way with the ladies by picking fights over the little things. He enjoys listening to poetry and, of course, beating people up. Tweedledee takes out his jealousy over his brother's superior intellect by breaking Tweedledum's toys. He enjoys reciting poetry and, of course, beating people up." WHERE name="Tweedledum+dee";
 UPDATE button SET flavor_text="The White Rabbit dresses like a dandy and harbors a thinly-veiled animosity towards the opposite sex. He likes cucumbers, kid gloves, and beating people up." WHERE name="White Rabbit";
+UPDATE button SET flavor_text="Carrow may be a corporeal revenant, but is also a surprisingly deep thinker, who most happily assists the party in beating people up." WHERE name="Carrow";
+UPDATE button SET flavor_text="Nara is an elven archer with a lunar birthmark on her right cheek. She refuses to talk about the left cheek. She aims high but shoots true to beat people up." WHERE name="Nara";
+UPDATE button SET flavor_text="Perf is a low-ranking wizard who can mend your drawers, conjure milk from thin air, and vaguely do... something else. Yet even these spells are enough to beat people up." WHERE name="Perf";
+UPDATE button SET flavor_text="Glorion believes killing orcs equals honor, and looks for them in every tavern he visits. He lives to beat people up." WHERE name="Glorion";
+UPDATE button SET flavor_text="The Assassin is a hired killer for the Wicked Kings. She enjoys darts, kicking people in the face, and beating people up." WHERE name="The Assassin";
+UPDATE button SET flavor_text="Wren is a collegiate bard who resorts to stalking adventurers. On weekends, she writes term papers and sings about beating people up." WHERE name="Wren";
 UPDATE button SET flavor_text="\"Thick\" Tony DeLuca: Thick Tony prowls the moonlit streets of Fight City with a chip on his shoulder and an impossibly tiny pork pie on his head. He likes dinner theater, black coffee, stakeouts, and beating people up." WHERE name="Tony (The Core)";
 UPDATE button SET flavor_text="Captain Stephen Send: \"Three-Fingered Steve\" actually has six fingers and two thumbs. He likes explosives, sharks, exploding sharks, and sharks that explode. And he likes to beat people up." WHERE name="Steve (The Core)";
 UPDATE button SET flavor_text="David Ferrer: David \"Honey\" Ferrer is a cruel man with a stick and a gun. He enjoys the solace of a quiet evening with Schubert and Armagnac, the calming hum of a thousand bees, and beating people up." WHERE name="Ferrer";
