@@ -271,8 +271,11 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
   win.percentage.df <- win.percentage.df[!is.na(win.percentage.df$win.percentage),]
   names(win.percentage.df) <- c('Button Name', 'Opponent Button Name', 'Win %', '# games played')
 
+  library(dplyr)
+  
   # Create HTML table of button matchup stats
   if (is.colour) {
+    library(condformat)
     output.colour <- pmin(4, floor(win.percentage.df$'Win %'/20))
     # use a special colour for fewer than 5 matchups
     output.colour[win.percentage.df$'# games played' < 5] <- 5
@@ -352,8 +355,11 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALS
   win.percentage.sorted.df$win.percentage <- round(win.percentage.sorted.df$win.percentage, 2)
   names(win.percentage.sorted.df) <- c('Player Name', 'Opponent Name', 'Win %', '# games played')
   
+  library(dplyr)
+  
   # Create HTML table of button matchup stats
   if (is.colour) {
+    library(condformat)
     output.colour <- pmin(4, floor(win.percentage.sorted.df$'Win %'/20))
     # use a special colour for fewer than 5 matchups
     output.colour[win.percentage.sorted.df$'# games played' < 5] <- 5
@@ -404,8 +410,8 @@ runAll <- function() {
 
   generateHtmlFile(calcSingleButtonStats(data.df), 'button_stats.html')
   calcButtonMatchupsPlayed(data.df, button.names.df)
-  generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, FALSE), 'player_matchup_stats.html')
-  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, FALSE), 'button_matchup_stats.html')
+  generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, TRUE), 'player_matchup_stats.html')
+  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, TRUE), 'button_matchup_stats.html')
 }
 
 # runAll()
