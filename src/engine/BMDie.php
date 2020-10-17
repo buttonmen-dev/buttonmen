@@ -906,6 +906,7 @@ class BMDie extends BMCanHaveSkill {
      */
     public function forceHideDieReroll() {
         return ($this->has_skill('Turbo') &&
+                !$this->has_flag('HasJustMorphed') &&
                 ($this->has_flag('IsAttacker') ||
                  $this->has_flag('JustPerformedTripAttack')));
     }
