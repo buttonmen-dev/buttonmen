@@ -223,6 +223,25 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
+     * @covers BMDieOption::set_optionValue
+     */
+    public function testSet_optionValue_including_zero() {
+        $this->object->init(array(0,7));
+
+        $this->assertFalse($this->object->set_optionValue(5), 'Invalid option value set should fail.');
+
+        $this->assertTrue($this->object->set_optionValue(7), 'Valid nonzero option value set should pass.');
+        $this->assertEquals(7, $this->object->max);
+        $this->assertEquals(1, $this->object->min);
+
+        $this->assertTrue($this->object->set_optionValue(0), 'Valid zero option value set should pass.');
+
+        $this->assertEquals(0, $this->object->max);
+        $this->assertEquals(0, $this->object->min);
+    }
+
+    /**
+     * @depends testInit
      * @depends testActivate
      * @depends testSet_optionValue
      * @covers BMDieOption::roll
