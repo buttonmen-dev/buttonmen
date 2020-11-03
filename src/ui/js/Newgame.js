@@ -208,6 +208,13 @@ Newgame.createPlayer1Toggle = function() {
   });
 
   player1Toggle.click(function() {
+    if (!Newgame.activity.opponentName) {
+      var oppName = $('#opponent_name_chosen > a > span').text();
+      if (oppName != 'Anybody') {
+        Newgame.activity.opponentName = oppName;
+      }
+    }
+
     $('#player1_row').remove();
     $('#player2_row').remove();
 
