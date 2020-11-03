@@ -3196,7 +3196,9 @@ class responder03Test extends responderTestFramework {
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 3;
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('IrrelevantForInitiative');
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('IrrelevantForInitiative');
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = "Z Swing Die (with 27 sides)";
         $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 27;
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 24;
@@ -3220,6 +3222,8 @@ class responder03Test extends responderTestFramework {
         $expData['gameState'] = "START_TURN";
         $expData['playerDataArray'][0]['waitingOnAction'] = true;
         $expData['playerDataArray'][1]['waitingOnAction'] = false;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
         $expData['validAttackTypeArray'] = array("Power", "Skill");
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
