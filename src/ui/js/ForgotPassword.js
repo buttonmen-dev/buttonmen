@@ -58,9 +58,12 @@ ForgotPassword.actionRequestReset = function() {
     'text': 'Request password reset',
   }));
   requestdiv.append($('<p>', {
-    'text': 'If you have forgotten your Button Men password, you can reset ' +
-            'it.  Enter your username, and we will send a password reset ' +
-            'link to the e-mail address we have on file for your account.'
+    'text': 'If your email address has been verified and you have forgotten ' +
+            'your Button Men password, you can reset it.'
+  }));
+  requestdiv.append($('<p>', {
+    'text': 'Enter your username, and we will send a password reset link to ' +
+            'the e-mail address we have on file for your account.'
   }));
   var requestform = $('<form>', {
     'id': 'forgot_password_action_form',
@@ -102,6 +105,12 @@ ForgotPassword.actionRequestReset = function() {
     'text': 'Request password reset link',
   }));
   requestdiv.append(requestform);
+
+  requestdiv.append($('<p>', {
+    'text': 'If your email address was never successfully verified, ' +
+            'your password cannot be reset automatically. Let us know ' +
+            'at help@buttonweavers.com, and we\'ll sort this out for you.'
+  }));
 
   ForgotPassword.page.append(requestdiv);
 

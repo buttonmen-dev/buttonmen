@@ -1131,3 +1131,7 @@ div.forum div.splitRight span.postTag {
 #skills_page table.skills p.interaction {
     font-style: italic;
 }
+
+#forgot_password_action_form {
+    padding-bottom: 3em;
+}
