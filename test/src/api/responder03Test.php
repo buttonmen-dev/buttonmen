@@ -2891,7 +2891,7 @@ class responder03Test extends responderTestFramework {
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Maximum', 'RandomBMMixed', 'Trip', 'Weak'));
         $expData['playerDataArray'][0]['button'] = array('name' => 'RandomBMMixed', 'recipe' => 'ht(4) Mt(6) M(10) h(10) (20)', 'originalRecipe' => 'ht(4) Mt(6) M(10) h(10) (20)', 'artFilename' => 'BMdefaultRound.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Craps', 'recipe' => '(6,6) (6,6) (6,6) (6,6) (6,6)', 'originalRecipe' => '(6,6) (6,6) (6,6) (6,6) (6,6)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Craps', 'recipe' => '(6,6) (6,6) (6,6) (6,6) (6,6)', 'originalRecipe' => '(6,6) (6,6) (6,6) (6,6) (6,6)', 'artFilename' => 'craps.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => 1, 'sides' => 4, 'skills' => array('Weak', 'Trip'), 'properties' => array(), 'recipe' => 'ht(4)', 'description' => 'Weak Trip 4-sided die'),
             array('value' => 6, 'sides' => 6, 'skills' => array('Maximum', 'Trip'), 'properties' => array(), 'recipe' => 'Mt(6)', 'description' => 'Maximum Trip 6-sided die'),
