@@ -357,11 +357,9 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'isAtomic': false,
       'isLink': true,
       'openingHtml':
-        '<a class="chatForumLink" href="forum.html#!threadId=###">' +
-        'Forum thread: ',
+        '<a class="chatForumLink" href="forum.html#!threadId=###">',
       'alternateOpeningHtml':
-        '<a class="chatForumLink" href="forum.html#!threadId=###&postId=$$$">' +
-        'Forum thread: ',
+        '<a class="chatForumLink" href="forum.html#!threadId=###&postId=$$$">',
       'closingHtml': '</a>',
       'escapeParameter': true,
       'multipleParameters': true,
