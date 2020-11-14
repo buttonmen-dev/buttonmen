@@ -397,13 +397,21 @@ class BMInterfaceGame extends BMInterface {
             if ('__random' == $buttonName) {
                 $buttonIdArray[] = NULL;
             } elseif (!empty($buttonName)) {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
-                    $this->set_message('Game create failed because a button name was not valid.');
+                try {
+                    $query = 'SELECT id FROM button '.
+                             'WHERE name = :button_name';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':button_name' => $buttonName));
+                    $fetchData = $statement->fetch();
+                    if (FALSE === $fetchData) {
+                        $this->set_message('Game create failed because a button name was not valid.');
+                        return NULL;
+                    }
+                } catch (Exception $e) {
+                    error_log(
+                        'Caught exception in BMInterface::retrieve_button_ids: ' .
+                        $e->getMessage()
+                    );
                     return NULL;
                 }
                 $buttonIdArray[] = $fetchData[0];
