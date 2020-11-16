@@ -222,13 +222,21 @@ class BMInterfacePlayer extends BMInterface {
         }
 
         if (isset($addlInfo['current_password'])) {
-            $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
-            $passwordQuery = self::$conn->prepare($passwordQuery);
-            $passwordQuery->execute(array(':playerId' => $playerId));
+            try {
+                $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
+                $passwordQuery = self::$conn->prepare($passwordQuery);
+                $passwordQuery->execute(array(':playerId' => $playerId));
 
-            $passwordResults = $passwordQuery->fetchAll();
+                $passwordResults = $passwordQuery->fetchAll();
+            } catch (Exception $e) {
+                error_log(
+                    'Caught exception in BMInterface::validate_player_password_and_email: ' .
+                    $e->getMessage()
+                );
+                return NULL;
+            }
             if (count($passwordResults) != 1) {
-                $this->set_message('An error occurred in BMInterface::set_player_info().');
+                $this->set_message('An error occurred in BMInterface::validate_player_password_and_email().');
                 return FALSE;
             }
             $password_hashed = $passwordResults[0]['password_hashed'];
@@ -265,19 +273,27 @@ class BMInterfacePlayer extends BMInterface {
         $playerInfoResults = $this->get_player_info($profilePlayerId);
         $playerInfo = $playerInfoResults['user_prefs'];
 
-        $query =
-            'SELECT ' .
-                'COUNT(*) AS number_of_games, ' .
-                'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
-            'FROM game AS g ' .
-                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
-                'INNER JOIN game_player_view AS v ' .
-                    'ON v.game_id = g.id AND v.player_id = :player_id ' .
-            'WHERE s.name = "COMPLETE" ' .
-            'GROUP BY v.n_rounds_won >= g.n_target_wins;';
+        try {
+            $query =
+                'SELECT ' .
+                    'COUNT(*) AS number_of_games, ' .
+                    'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
+                'FROM game AS g ' .
+                    'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                    'INNER JOIN game_player_view AS v ' .
+                        'ON v.game_id = g.id AND v.player_id = :player_id ' .
+                'WHERE s.name = "COMPLETE" ' .
+                'GROUP BY v.n_rounds_won >= g.n_target_wins;';
 
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':player_id' => $profilePlayerId));
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $profilePlayerId));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_profile_info: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
 
         $nWins = 0;
         $nLosses = 0;
