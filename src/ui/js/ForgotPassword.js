@@ -117,7 +117,7 @@ ForgotPassword.actionRequestReset = function() {
 // These functions define form submissions, one per action type
 
 ForgotPassword.formRequestReset = function() {
-  var username = $('#forgot_password_username').val();
+  var username = $('#forgot_password_username').val().trim();
 
   if (username.length === 0) {
     Env.message = {
