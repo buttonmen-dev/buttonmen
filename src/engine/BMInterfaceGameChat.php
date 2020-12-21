@@ -83,8 +83,8 @@ class BMInterfaceGameChat extends BMInterface {
                         $this->set_message('Added game message');
                         return TRUE;
                     } else {
-                        $this->set_message('No game message specified');
-                        return FALSE;
+                        $this->set_message('No game message added');
+                        return TRUE;
                     }
                 } else {
                     $this->set_message('You can\'t add a new chat message now');
