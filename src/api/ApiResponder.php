@@ -1047,7 +1047,12 @@ class ApiResponder {
      * @return string
      */
     protected function verify_function_access($args) {
-        if (array_key_exists('type', $args)) {
+        if (!is_array($args)) {
+            $result = array(
+                'ok' => FALSE,
+                'message' => 'Arguments to BM API functions must be arrays',
+            );
+        } elseif (array_key_exists('type', $args)) {
             $funcname = 'get_interface_response_' . $args['type'];
             if (method_exists($this, $funcname)) {
                 if (in_array($args['type'], $this->unauthFunctions)) {
