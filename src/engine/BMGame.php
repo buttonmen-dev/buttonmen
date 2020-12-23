@@ -4075,6 +4075,10 @@ class BMGame {
             }
 
             foreach ($player->activeDieArray as $dieIdx => $die) {
+                if (BMGameState::REACT_TO_INITIATIVE == $this->gameState) {
+                    $die->add_initiative_flag();
+                }
+
                 if (!empty($die->flagList)) {
                     foreach (array_keys($die->flagList) as $flag) {
                         // actively lie about auxiliary choices to avoid leaking info

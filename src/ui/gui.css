@@ -375,6 +375,10 @@ select.center {
     background-color: #ffa500;
 }
 
+.recipe_irrelevant_for_initiative {
+    color: #cccccc;
+}
+
 .die_overlay {
     position:relative;
     font-size: 21px;

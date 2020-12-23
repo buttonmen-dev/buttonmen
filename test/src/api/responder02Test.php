@@ -363,8 +363,10 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('IrrelevantForInitiative');
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 8;
         $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('IrrelevantForInitiative');
         $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 1;
         $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 3;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 2;
@@ -395,6 +397,8 @@ class responder02Test extends responderTestFramework {
         $expData['activePlayerIdx'] = 1;
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array();
         $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 chose not to try to gain initiative using chance or focus dice'));
         $expData['gameActionLogCount'] += 1;
@@ -1847,6 +1851,7 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'][0]['value'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][0]['subdieArray'][1]['value'] = 2;
         $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('IrrelevantForInitiative');
         $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 4;
         $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 5;
         $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Null Y Swing Die (with 5 sides)';
@@ -1854,7 +1859,9 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 20;
         $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'Focus Option Die (with 20 sides)';
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 6;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['properties'][] = 'IrrelevantForInitiative';
         $expData['playerDataArray'][1]['activeDieArray'][5]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][5]['properties'] = array('IrrelevantForInitiative');
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
         $expData['playerDataArray'][1]['swingRequestArray'] = array();
 

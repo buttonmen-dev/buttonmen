@@ -353,7 +353,6 @@ class BMDie extends BMCanHaveSkill {
         return $val;
     }
 
-//
     /**
      * Returns ten times the "real" scoring value
      *
@@ -391,8 +390,6 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
-    //
-
     /**
      * Return die's initiative value.
      * Negative means it doesn't count for initiative.
@@ -405,6 +402,17 @@ class BMDie extends BMCanHaveSkill {
         $this->run_hooks(__FUNCTION__, array('initiativeValue' => &$val));
 
         return $val;
+    }
+
+    /**
+     * Add flag to signal whether the die is considered by initiative
+     */
+    public function add_initiative_flag() {
+        $initiativeValue = $this->initiative_value();
+
+        if ($initiativeValue && ($initiativeValue < 0)) {
+            $this->add_flag('IrrelevantForInitiative');
+        }
     }
 
     /**
