@@ -46,6 +46,13 @@ class BMInterface {
     protected static $conn = NULL;
 
     /**
+     * Communication to notification service
+     *
+     * @var SnsClient
+     */
+    protected static $snsClient = NULL;
+
+    /**
      * Owning BMInterface, allows back navigation
      *
      * @var BMInterface
@@ -73,10 +80,13 @@ class BMInterface {
 
         if ($isTest) {
             require_once __DIR__.'/../../test/src/database/mysql.test.inc.php';
+            require_once __DIR__.'/../../test/src/notify/sns.test.php';
         } else {
             require_once __DIR__.'/../database/mysql.inc.php';
+            require_once __DIR__.'/../notify/sns.php';
         }
         self::$conn = conn();
+        self::$snsClient = snsClient();
     }
 
     /**
@@ -98,6 +108,7 @@ class BMInterface {
         $result->message = $this->message;
         $result->timestamp = $this->timestamp;
         $result::$conn = self::$conn;
+        $result::$snsClient = self::$snsClient;
         return $result;
     }
 

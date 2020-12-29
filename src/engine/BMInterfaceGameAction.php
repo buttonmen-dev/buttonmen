@@ -80,10 +80,11 @@ class BMInterfaceGameAction extends BMInterface {
     }
 
     /**
-     * Save action log entries generated during the action in progress
+     * Save and publish action log entries generated during the action in progress
      *
-     * Any game action entries which were generated should both be loaded into
-     * the message so the calling player can see them, and saved into the database
+     * Any game action entries which were generated should be loaded into
+     * the message so the calling player can see them, saved into the database,
+     * and published to notification service
      *
      * @param BMGame $game
      * @return void
@@ -92,6 +93,8 @@ class BMInterfaceGameAction extends BMInterface {
         if (count($game->actionLog) > 0) {
             $this->load_message_from_game_actions($game);
             $this->log_game_actions($game);
+            $this->notify_game_actions($game);
+            $game->empty_action_log();
         }
     }
 
@@ -924,7 +927,6 @@ class BMInterfaceGameAction extends BMInterface {
                 $this->$typefunc($log_id, $gameAction->params);
             }
         }
-        $game->empty_action_log();
     }
 
     /**
@@ -954,6 +956,44 @@ class BMInterfaceGameAction extends BMInterface {
 
         if (!empty($message)) {
             $this->set_message($message);
+        }
+    }
+
+    /**
+     * Publish new game action entries to notification service (SNS)
+     *
+     * @param BMGame $game
+     * @return void
+     */
+    protected function notify_game_actions(BMGame $game) {
+
+        // function load_message_from_game_actions() already prepared a friendly message
+        // TODO: consider if constructing a more programmatic (json) message would be appropriate
+
+        $message = $this->message;
+
+        // TODO consider best way to get topic. possibly in sns.php
+        // maybe creating own wrapper object to wrap up SnSClient & topicArn
+        $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
+
+        try {
+            $result = self::$snsClient->publish([
+                'Message' => $message,
+                'TopicArn' => $topic,
+                'MessageAttributes' => [
+                    'gameId' => [
+                        'DataType' => 'String',
+                        'StringValue' => $game->gameId
+                    ]
+                ]
+            ]);
+            // TODO: analyze result
+        } catch (AwsException $e) {
+            // output error message if fails
+            // TODO: what is the buttonweavers approach to error logging?
+            // TODO: consider swallowing all errors an treating notifications as optional
+            // notifications should probably not impede any other functionality
+            error_log($e->getMessage());
         }
     }
 }
