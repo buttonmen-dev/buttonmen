@@ -46,6 +46,13 @@ class BMInterface {
     protected static $conn = NULL;
 
     /**
+     * Modelled connection to database
+     *
+     * @var BMDB
+     */
+    protected static $db = NULL;
+
+    /**
      * Owning BMInterface, allows back navigation
      *
      * @var BMInterface
@@ -77,6 +84,7 @@ class BMInterface {
             require_once __DIR__.'/../database/mysql.inc.php';
         }
         self::$conn = conn();
+        self::$db = new BMDB(self::$conn);
     }
 
     /**

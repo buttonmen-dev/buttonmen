@@ -23,7 +23,7 @@ class BMInterfaceHistory extends BMInterface {
             $searchFilters = array();
 
             if (isset($searchParameters['gameId'])) {
-                $searchFilters['gameId'] = (int)$searchParameters['gameId'];
+                $searchFilters['gameId'] = $searchParameters['gameId'];
             }
 
             $arePlayerNamesValid = $this->set_playerNames($searchFilters, $searchParameters);
@@ -128,10 +128,10 @@ class BMInterfaceHistory extends BMInterface {
      */
     protected function set_gameStart_limits(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['gameStartMin'])) {
-            $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
+            $searchFilters['gameStartMin'] = $searchParameters['gameStartMin'];
         }
         if (isset($searchParameters['gameStartMax'])) {
-            $searchFilters['gameStartMax'] = (int)$searchParameters['gameStartMax'];
+            $searchFilters['gameStartMax'] = $searchParameters['gameStartMax'];
         }
     }
 
@@ -143,10 +143,10 @@ class BMInterfaceHistory extends BMInterface {
      */
     protected function set_lastMove_limits(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['lastMoveMin'])) {
-            $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
+            $searchFilters['lastMoveMin'] = $searchParameters['lastMoveMin'];
         }
         if (isset($searchParameters['lastMoveMax'])) {
-            $searchFilters['lastMoveMax'] = (int)$searchParameters['lastMoveMax'];
+            $searchFilters['lastMoveMax'] = $searchParameters['lastMoveMax'];
         }
     }
 
@@ -168,7 +168,7 @@ class BMInterfaceHistory extends BMInterface {
                 $searchOptions['sortDirection'] = $searchParameters['sortDirection'];
             }
             if (isset($searchParameters['numberOfResults'])) {
-                $numberOfResults = (int)$searchParameters['numberOfResults'];
+                $numberOfResults = $searchParameters['numberOfResults'];
                 if ($numberOfResults <= 1000) {
                     $searchOptions['numberOfResults'] = $numberOfResults;
                 } else {
@@ -177,7 +177,7 @@ class BMInterfaceHistory extends BMInterface {
                 }
             }
             if (isset($searchParameters['page'])) {
-                $searchOptions['page'] = (int)$searchParameters['page'];
+                $searchOptions['page'] = $searchParameters['page'];
             }
 
             return $searchOptions;
@@ -514,37 +514,55 @@ class BMInterfaceHistory extends BMInterface {
         $limitParameters,
         &$games
     ) {
-        $statement = self::$conn->prepare($combinedGameQuery);
-        $statement->execute(array_merge($whereParameters_0, $whereParameters_1, $limitParameters));
+        $parameters = array_merge($whereParameters_0, $whereParameters_1, $limitParameters);
+        $columnReturnTypes = array(
+            'game_id' => 'int',
+            'player_id_A' => 'int_or_null',
+            'player_id_B' => 'int_or_null',
+            'player_name_A' => 'str_or_null',
+            'player_name_B' => 'str_or_null',
+            'button_name_A' => 'str_or_null',
+            'button_name_B' => 'str_or_null',
+            'waiting_on_A' => 'bool',
+            'waiting_on_B' => 'bool',
+            'game_start' => 'int',
+            'last_move' => 'int',
+            'rounds_won_A' => 'int',
+            'rounds_won_B' => 'int',
+            'rounds_drawn' => 'int',
+            'target_wins' => 'int',
+            'status' => 'str',
+        );
+        $rows = self::$db->select_rows($combinedGameQuery, $parameters, $columnReturnTypes);
 
         $playerColors = $this->load_player_colors($currentPlayerId);
 
-        while ($row = $statement->fetch()) {
+        foreach ($rows as $row) {
             $gameColors = $this->determine_game_colors(
                 $currentPlayerId,
                 $playerColors,
-                (int)$row['player_id_A'],
-                (int)$row['player_id_B']
+                $row['player_id_A'],
+                $row['player_id_B']
             );
 
             $games[] = array(
-                'gameId' => (int)$row['game_id'],
-                'playerIdA' => (int)$row['player_id_A'],
+                'gameId' => $row['game_id'],
+                'playerIdA' => $row['player_id_A'],
                 'playerNameA' => $row['player_name_A'],
                 'buttonNameA' => $row['button_name_A'],
-                'waitingOnA' => ($row['waiting_on_A'] == 1),
+                'waitingOnA' => $row['waiting_on_A'],
                 'colorA' => $gameColors['playerA'],
-                'playerIdB' => (int)$row['player_id_B'],
+                'playerIdB' => $row['player_id_B'],
                 'playerNameB' => $row['player_name_B'],
                 'buttonNameB' => $row['button_name_B'],
-                'waitingOnB' => ($row['waiting_on_B'] == 1),
+                'waitingOnB' => $row['waiting_on_B'],
                 'colorB' => $gameColors['playerB'],
-                'gameStart' => (int)$row['game_start'],
-                'lastMove' => (int)$row['last_move'],
-                'roundsWonA' => (int)$row['rounds_won_A'],
-                'roundsWonB' => (int)$row['rounds_won_B'],
-                'roundsDrawn' => (int)$row['rounds_drawn'],
-                'targetWins' => (int)$row['target_wins'],
+                'gameStart' => $row['game_start'],
+                'lastMove' => $row['last_move'],
+                'roundsWonA' => $row['rounds_won_A'],
+                'roundsWonB' => $row['rounds_won_B'],
+                'roundsDrawn' => $row['rounds_drawn'],
+                'targetWins' => $row['target_wins'],
                 'status' => $row['status'],
             );
         }
@@ -589,28 +607,27 @@ class BMInterfaceHistory extends BMInterface {
         $whereParameters_1,
         &$summary
     ) {
-        $statement = self::$conn->prepare($combinedQuery);
-        $statement->execute(array_merge($whereParameters_0, $whereParameters_1));
+        $parameters = array_merge($whereParameters_0, $whereParameters_1);
+        $columnReturnTypes = array(
+            'matches_found' => 'int',
+            'earliest_start' => 'int_or_null',
+            'latest_move' => 'int_or_null',
+            'games_won_A' => 'int_null_becomes_zero',
+            'games_won_B' => 'int_null_becomes_zero',
+            'games_completed' => 'int_or_null',
+        );
+        $summaryRows = self::$db->select_rows($combinedQuery, $parameters, $columnReturnTypes);
 
-        $summaryRows = $statement->fetchAll();
         // If it fails mysteriously, it's probably better to ignore that
         // and still return the games list than to error out and return
         // nothing
         if (count($summaryRows) == 1) {
-            $summary['matchesFound'] = (int)$summaryRows[0]['matches_found'];
-            if ($summaryRows[0]['earliest_start'] == NULL) {
-                $summary['earliestStart'] = NULL;
-            } else {
-                $summary['earliestStart'] = (int)$summaryRows[0]['earliest_start'];
-            }
-            if ($summaryRows[0]['latest_move'] == NULL) {
-                $summary['latestMove'] = NULL;
-            } else {
-                $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
-            }
-            $summary['gamesWonA'] = (int)$summaryRows[0]['games_won_A'];
-            $summary['gamesWonB'] = (int)$summaryRows[0]['games_won_B'];
-            $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
+            $summary['matchesFound'] = $summaryRows[0]['matches_found'];
+            $summary['earliestStart'] = $summaryRows[0]['earliest_start'];
+            $summary['latestMove'] = $summaryRows[0]['latest_move'];
+            $summary['gamesWonA'] = $summaryRows[0]['games_won_A'];
+            $summary['gamesWonB'] = $summaryRows[0]['games_won_B'];
+            $summary['gamesCompleted'] = $summaryRows[0]['games_completed'];
         } else {
             $this->set_message('Retrieving summary data for history search failed');
             error_log(
