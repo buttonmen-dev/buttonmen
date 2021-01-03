@@ -452,7 +452,8 @@ class BMInterfaceGame extends BMInterface {
      */
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (('accept' != $decision) && ('reject' != $decision)) {
-            throw new InvalidArgumentException('decision must be either accept or reject');
+            $this->set_message('decision must be either accept or reject');
+            return;
         }
 
         $game = $this->load_game($gameId);
