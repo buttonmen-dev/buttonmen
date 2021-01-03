@@ -93,10 +93,16 @@ test("test_Faq.gameplayLinks", function(assert) {
   assert.equal(node[0].childNodes[1].nodeName, "UL", "links contain a UL");
 });
 
-
 test("test_Faq.userprefsLinks", function(assert) {
   var node = Faq.userprefsLinks();
   assert.equal(node[0].nodeName, "LI", "userprefsLinks returns a LI");
+  assert.equal(node[0].childNodes[0].nodeName, "A", "links start with an A");
+  assert.equal(node[0].childNodes[1].nodeName, "UL", "links contain a UL");
+});
+
+test("test_Faq.forumLinks", function(assert) {
+  var node = Faq.forumLinks();
+  assert.equal(node[0].nodeName, "LI", "forumLinks returns a LI");
   assert.equal(node[0].childNodes[0].nodeName, "A", "links start with an A");
   assert.equal(node[0].childNodes[1].nodeName, "UL", "links contain a UL");
 });
@@ -170,6 +176,22 @@ test("test_Faq.monitorContent", function(assert) {
 
 test("test_Faq.fireOvershootingContent", function(assert) {
   var node = Faq.fireOvershootingContent();
+  assert.equal(node[0].nodeName, "#document-fragment",
+    "content contains a document fragment");
+  assert.equal(node[0].childNodes[0].nodeName, "A", "content starts with an A");
+  assert.equal(node[0].childNodes[1].nodeName, "H3", "content contains a H3");
+});
+
+test("test_Faq.forumContent", function(assert) {
+  var node = Faq.forumContent();
+  assert.equal(node[0].nodeName, "#document-fragment",
+    "content contains a document fragment");
+  assert.equal(node[0].childNodes[0].nodeName, "A", "content starts with an A");
+  assert.equal(node[0].childNodes[1].nodeName, "H2", "content contains a H2");
+});
+
+test("test_Faq.forumLinkContent", function(assert) {
+  var node = Faq.forumLinkContent();
   assert.equal(node[0].nodeName, "#document-fragment",
     "content contains a document fragment");
   assert.equal(node[0].childNodes[0].nodeName, "A", "content starts with an A");

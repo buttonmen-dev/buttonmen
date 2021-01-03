@@ -61,6 +61,7 @@ Faq.tableOfContents = function() {
 
   toc.append(Faq.gameplayLinks());
   toc.append(Faq.userprefsLinks());
+  toc.append(Faq.forumLinks());
   toc.append(Faq.unansweredLink());
 
   return toc;
@@ -124,6 +125,26 @@ Faq.userprefsLinks = function() {
   return links;
 };
 
+Faq.forumLinks = function() {
+  var links = $('<li>').append(
+    $('<a>').attr('href', '#Forum').text(
+      'Forum'
+    )
+  );
+
+  var sublinks = $('<ul>');
+
+  sublinks.append($('<li>').append(
+    $('<a>').attr('href', '#ForumLink').text(
+      'How do I link to another forum post?'
+    )
+  ));
+
+  links.append(sublinks);
+
+  return links;
+};
+
 Faq.unansweredLink = function() {
   var link = $('<li>').append(
     $('<a>').attr('href', '#Unanswered').text(
@@ -139,6 +160,7 @@ Faq.content = function() {
 
   content.append(Faq.gameplayContent());
   content.append(Faq.userprefsContent());
+  content.append(Faq.forumContent());
   content.append(Faq.unansweredContent());
 
   return content;
@@ -457,6 +479,52 @@ Faq.fireOvershootingContent = function() {
     'you with that choice any time you wish to perform a perfectly ' +
     'reasonable Power attack with a (20):19 against a (4):1 just because ' +
     'you happen to also have a Fire die.'
+  ));
+
+  return content;
+};
+
+Faq.forumContent = function() {
+  var content = $(document.createDocumentFragment());
+
+  content.append($('<a>').attr('name', 'Forum'));
+  content.append($('<h2>').text('Forum'));
+
+  content.append(Faq.forumLinkContent());
+
+  return content;
+};
+
+Faq.forumLinkContent = function() {
+  var content = $(document.createDocumentFragment());
+
+  content.append($('<a>').attr('name', 'ForumLink'));
+  content.append(
+    $('<h3>').text(
+      'How do I link to another forum post?'
+    )
+  );
+
+  content.append($('<p>').text(
+    'When you are posting in a forum, use the [forum] element to link to ' +
+    'another forum post. The syntax is [forum=t,p]text[/forum], where text ' +
+    'is the text that appears as the link. The number t is the thread id, ' +
+    'and the number p is the post id. The numbers appear at the bottom of ' +
+    'the post that you want to link to, in the footer of the post in a ' +
+    'very light color, to the left of the Quote button. '
+  ));
+
+  content.append($('<p>').html(
+    'For example, use the syntax [forum=93,1301]Learn about adopting a ' +
+    'button[/forum] to generate a link that looks like ' +
+    '<a href="forum.html#!threadid=93&postid=1301">Learn about adopting a ' +
+    'button</a>.'
+  ));
+
+  content.append($('<p>').text(
+    'If you want to refer to another post in the same thread, you can ' +
+    'either use the [forum] element or simply use the Quote ' +
+    'button instead.'
   ));
 
   return content;
