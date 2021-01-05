@@ -56,8 +56,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $this->assertTrue(is_bool($resultArray['monitor_redirects_to_forum']));
         $this->assertTrue(is_bool($resultArray['automatically_monitor']));
 
-        $this->assertTrue(is_int($resultArray['fanatic_button_id']));
-        $this->assertEquals(0, $resultArray['fanatic_button_id']);
+        $this->assertEquals(NULL, $resultArray['fanatic_button_id']);
         $this->assertTrue(is_int($resultArray['n_games_won']));
         $this->assertTrue(is_int($resultArray['n_games_lost']));
     }

@@ -534,7 +534,7 @@ class ApiResponder {
         return $interface->game_chat()->set_chat_visibility(
             $this->session_user_id(),
             $args['game'],
-            'true' == $args['private']
+            $args['private']
         );
     }
 

@@ -77,6 +77,19 @@ class BMDB {
     }
 
     /**
+     * Execute a query which performs a database update
+     *
+     * @param $conn
+     * @param string $query
+     * @param array $parameters
+     * @return void
+     */
+    public function update($query, $parameters) {
+        $statement = self::$conn->prepare($query);
+        $statement->execute($parameters);
+    }
+
+    /**
      * Cast a value fetched from a DB to the specified return type
      *
      * @param $conn

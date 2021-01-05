@@ -31,6 +31,7 @@
   // In these directories, we limit the use of explicit (int) casts
   $php_limit_int_cast_dirs = array(
     "src/api",
+    "src/engine",
   );
   $php_limit_int_cast_exceptions = array(
     // exceptions for $_SESSION variables
@@ -38,6 +39,19 @@
     "src/api/api_core.php" => 1,
     // exception for the API-spec-level validate and cast of all numeric args to int
     "src/api/ApiSpec.php" => 2,
+    // exceptions for the three int types BMDB supports on select
+    "src/engine/BMDB.php" => 3,
+
+    // arbitrarily high exceptions because we are not yet limiting casts in these files (#712)
+    "src/engine/BMAttack.php" => 1000,
+    "src/engine/BMDie.php" => 1000,
+    "src/engine/BMDieSwing.php" => 1000,
+    "src/engine/BMGame.php" => 1000,
+    "src/engine/BMInterface.php" => 1000,
+    "src/engine/BMInterfaceForum.php" => 1000,
+    "src/engine/BMInterfaceGame.php" => 1000,
+    "src/engine/BMInterfaceGameAction.php" => 1000,
+    "src/engine/BMPlayer.php" => 1000,
   );
 
   // In these directories, we limit explicit references to $_SESSION variables

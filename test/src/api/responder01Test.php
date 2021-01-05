@@ -1275,7 +1275,7 @@ class responder01Test extends responderTestFramework {
         // now can't see current game chat either
         $this->verify_api_setChatVisibility(
             'Set game chat to private',
-            $gameId, 'true');
+            $gameId, TRUE);
         $expData['playerDataArray'][0]['isChatPrivate'] = TRUE;
         $expData['gameChatLogCount'] = 2;
         array_splice($expData['gameChatLog'], 0, 1);
