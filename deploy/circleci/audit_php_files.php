@@ -48,7 +48,6 @@
     "src/engine/BMDieSwing.php" => 1000,
     "src/engine/BMGame.php" => 1000,
     "src/engine/BMInterface.php" => 1000,
-    "src/engine/BMInterfaceForum.php" => 1000,
     "src/engine/BMInterfaceGame.php" => 1000,
     "src/engine/BMInterfaceGameAction.php" => 1000,
     "src/engine/BMPlayer.php" => 1000,
