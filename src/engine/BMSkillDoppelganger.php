@@ -39,6 +39,8 @@ class BMSkillDoppelganger extends BMSkillMorphing {
         $activeDieArrayArray = $game->activeDieArrayArray;
 
         $newAttackDie = self::create_morphing_clone_target($args['caller'], $defender);
+        // give the copy that mood/mad trigger afterwards
+        $newAttackDie->value = $defender->value;
 
         $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
@@ -77,6 +79,8 @@ class BMSkillDoppelganger extends BMSkillMorphing {
                              'die they captured',
             'Rage' => 'A Doppelganger die that captures a Rage die with a Power attack will ' .
                       'retain Rage after it transforms',
+            'Turbo' => 'A Doppelganger die that captures a Turbo die currently does not get ' .
+                       'the chance to perform an immediate turbo resize',
         );
     }
 

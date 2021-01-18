@@ -149,6 +149,8 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'interacts' => array(
                     'Radioactive' => 'Dice with both Radioactive and Doppelganger first decay, then each of the "decay products" are replaced by exact copies of the die they captured',
                     'Rage' => 'A Doppelganger die that captures a Rage die with a Power attack will retain Rage after it transforms',
+                    'Turbo' => 'A Doppelganger die that captures a Turbo die currently does not get ' .
+                               'the chance to perform an immediate turbo resize',
                 ),
             ),
             'Echo' => array(
@@ -442,6 +444,8 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'description' => 'After your starting roll, you may change the size of your own Turbo Swing or Option die every time you roll it as part of your attack. Decide on a size first that is valid for the Swing or Option type, then roll the new die as usual.',
                 'interacts' => array(
                     'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size and then change to the size specified by the Turbo skill',
+                    'Doppelganger' => 'A Doppelganger die that captures a Turbo die currently does not get ' .
+                                      'the chance to perform an immediate turbo resize',
                     'Radioactive' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
                 ),
             ),

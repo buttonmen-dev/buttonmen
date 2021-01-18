@@ -31,6 +31,7 @@
   // In these directories, we limit the use of explicit (int) casts
   $php_limit_int_cast_dirs = array(
     "src/api",
+    "src/engine",
   );
   $php_limit_int_cast_exceptions = array(
     // exceptions for $_SESSION variables
@@ -38,6 +39,35 @@
     "src/api/api_core.php" => 1,
     // exception for the API-spec-level validate and cast of all numeric args to int
     "src/api/ApiSpec.php" => 2,
+    // exceptions for the three int types BMDB supports on select
+    "src/engine/BMDB.php" => 3,
+
+    // arbitrarily high exceptions because we are not yet limiting casts in these files (#712)
+    "src/engine/BMAttack.php" => 1000,
+    "src/engine/BMDie.php" => 1000,
+    "src/engine/BMDieSwing.php" => 1000,
+    "src/engine/BMGame.php" => 1000,
+    "src/engine/BMInterface.php" => 1000,
+    "src/engine/BMInterfaceGame.php" => 1000,
+    "src/engine/BMInterfaceGameAction.php" => 1000,
+    "src/engine/BMPlayer.php" => 1000,
+  );
+
+  // In these directories, we limit explicit references to $_SESSION variables
+  $php_limit_sessionvar_dirs = array(
+    "src/api",
+    "src/database",
+    "src/engine",
+    "src/lib",
+  );
+  // Files in the above dirs which are allowed to contain $_SESSION variables at all
+  $php_limit_sessionvar_exceptions = array(
+    "src/api/api_core.php",
+    "src/api/ApiResponder.php",
+  );
+  // Limit direct access to $_SESSION['user_id'] so we can control its type
+  $php_limit_session_user_id_files = array(
+    "src/api/ApiResponder.php" => 2,
   );
 
   function find_all_dirs(&$dirs, $startdir) {
@@ -105,6 +135,29 @@
     }
   }
 
+  function verify_limited_sessionvars(&$problems, $subdir, $exceptions, $userid_limits) {
+    foreach (glob("$subdir/*.php") as $phpfile) {
+      if (in_array($phpfile, $exceptions)) {
+        if (array_key_exists($phpfile, $userid_limits)) {
+          // This file can contain $_SESSION variables at all, but $_SESSION['user_id'] is limited
+          $allowed_userid = $userid_limits[$phpfile];
+          unset($grep_output);
+          exec('grep "\$_SESSION\[\'user_id\'\]" ' . $phpfile, $grep_output);
+          if (count($grep_output) > $allowed_userid) {
+            $problems[] = "PHP file contains more than expected " . $allowed_userid . " explicit references to SESSION user_id: $phpfile";
+          }
+        }
+      } else {
+        // Files without exceptions aren't allowed to contain any $_SESSION variables
+        unset($grep_output);
+        exec('grep "\$_SESSION" ' . $phpfile, $grep_output);
+        if (count($grep_output) > 0) {
+          $problems[] = "PHP file contains explicit references to SESSION variables: $phpfile";
+        }
+      }
+    }
+  }
+
   function verify_no_php_files(&$problems, $subdir) {
     foreach (glob("$subdir/*.php") as $phpfile) {
       $problems[] = "PHP file in unexpected directory: $phpfile";
@@ -143,6 +196,9 @@
     }
     if (in_array($subdir, $php_limit_int_cast_dirs)) {
       verify_limited_int_casts($problems, $subdir, $php_limit_int_cast_exceptions);
+    }
+    if (in_array($subdir, $php_limit_sessionvar_dirs)) {
+      verify_limited_sessionvars($problems, $subdir, $php_limit_sessionvar_exceptions, $php_limit_session_user_id_files);
     }
   }
 

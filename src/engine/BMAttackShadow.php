@@ -22,9 +22,10 @@ class BMAttackShadow extends BMAttackPower {
      * @param BMGame $game
      * @param array $attackers
      * @param array $defenders
+     * @param array $args --- UNUSED, but necessary to be compatible with the BMAttackPower declaration
      * @return bool
      */
-    public function validate_attack($game, array $attackers, array $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders, array $args = array()) {
         $this->validationMessage = '';
 
         if (1 != count($attackers)) {

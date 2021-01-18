@@ -36,9 +36,12 @@ class BMSkillTurbo extends BMSkill {
                 return TRUE;
             }
 
-            if ($die->has_flag('IsAttacker')) {
-                // don't roll Turbo dice that have just attacked, because
-                // they must be replaced with a new Turbo die before being rolled
+            if ($die->has_flag('IsAttacker') && !$die->has_flag('HasJustMorphed')) {
+                // Don't roll Turbo dice that have just attacked, because
+                // they must be replaced with a new Turbo die before being rolled.
+                //
+                // The exception is dice that have just morphed or doppelgangered,
+                // since these will always need to reroll
                 return TRUE;
             }
         }
@@ -79,6 +82,8 @@ class BMSkillTurbo extends BMSkill {
         return array(
             'Berserk' => 'Dice with both Berserk and Turbo making a berserk attack will first halve in size ' .
                          'and then change to the size specified by the Turbo skill',
+            'Doppelganger' => 'A Doppelganger die that captures a Turbo die currently does not get ' .
+                              'the chance to perform an immediate turbo resize',
             'Radioactive' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
         );
     }

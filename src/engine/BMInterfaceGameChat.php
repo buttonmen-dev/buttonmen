@@ -83,8 +83,8 @@ class BMInterfaceGameChat extends BMInterface {
                         $this->set_message('Added game message');
                         return TRUE;
                     } else {
-                        $this->set_message('No game message specified');
-                        return FALSE;
+                        $this->set_message('No game message added');
+                        return TRUE;
                     }
                 } else {
                     $this->set_message('You can\'t add a new chat message now');
@@ -176,9 +176,13 @@ class BMInterfaceGameChat extends BMInterface {
                 'FROM game_chat_log ';
 
             $query .= $this->build_game_log_query_restrictions($game, $doQueryPreviousGame, FALSE, $sqlParameters);
+            $columnReturnTypes = array(
+              'chat_timestamp' => 'int',
+              'chatting_player' => 'int',
+              'message' => 'str',
+            );
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute($sqlParameters);
+            $rows = self::$db->select_rows($query, $sqlParameters, $columnReturnTypes);
 
             $chatEntries = array();
 
@@ -192,12 +196,12 @@ class BMInterfaceGameChat extends BMInterface {
                 );
             }
 
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 // Even a player who can't view chat messages should be able to see non-chat entries
                 // like continuation messages which are stored in the chat stream
                 if ($canViewChat || $row['chatting_player'] == 0) {
                     $chatEntries[] = array(
-                        'timestamp' => (int)$row['chat_timestamp'],
+                        'timestamp' => $row['chat_timestamp'],
                         'player' => $this->get_player_name_from_id($row['chatting_player']),
                         'message' => $row['message'],
                     );
@@ -381,12 +385,10 @@ class BMInterfaceGameChat extends BMInterface {
                  '(game_id, chatting_player, message) ' .
                  'VALUES ' .
                  '(:game_id, :chatting_player, :message)';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(
-            array(':game_id'         => $gameId,
-                  ':chatting_player' => $playerId,
-                  ':message'         => $chat)
-        );
+        $parameters = array(':game_id'         => $gameId,
+                            ':chatting_player' => $playerId,
+                            ':message'         => $chat);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -406,11 +408,11 @@ class BMInterfaceGameChat extends BMInterface {
                  'AND UNIX_TIMESTAMP(chat_time) = :timestamp ' .
                  'ORDER BY id DESC ' .
                  'LIMIT 1';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':message' => $chat,
-                                  ':game_id' => $gameId,
-                                  ':player_id' => $playerId,
-                                  ':timestamp' => $editTimestamp));
+        $parameters = array(':message' => $chat,
+                            ':game_id' => $gameId,
+                            ':player_id' => $playerId,
+                            ':timestamp' => $editTimestamp);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -428,10 +430,10 @@ class BMInterfaceGameChat extends BMInterface {
                  'AND UNIX_TIMESTAMP(chat_time) = :timestamp ' .
                  'ORDER BY id DESC ' .
                  'LIMIT 1';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $gameId,
-                                  ':player_id' => $playerId,
-                                  ':timestamp' => $editTimestamp));
+        $parameters = array(':game_id' => $gameId,
+                            ':player_id' => $playerId,
+                            ':timestamp' => $editTimestamp);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -446,9 +448,9 @@ class BMInterfaceGameChat extends BMInterface {
                  'SET is_chat_private = :is_chat_private ' .
                  'WHERE game_id = :game_id ' .
                  'AND player_id = :player_id ';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $gameId,
-                                  ':player_id' => $playerId,
-                                  ':is_chat_private' => (int)$private));
+        $parameters = array(':game_id' => $gameId,
+                            ':player_id' => $playerId,
+                            ':is_chat_private' => $private);
+        self::$db->update($query, $parameters);
     }
 }
