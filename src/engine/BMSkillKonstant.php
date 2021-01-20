@@ -154,6 +154,7 @@ class BMSkillKonstant extends BMSkill {
             'TimeAndSpace' => 'Attacking Konstant TimeAndSpace dice do not ' .
                               'trigger the TimeAndSpace skill because they do not reroll',
             'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
+            'Warrior' => 'A Konstant Warrior die can only add a positive value to a skill attack'
         );
     }
 }
