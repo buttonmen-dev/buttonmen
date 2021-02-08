@@ -233,6 +233,14 @@ class BMClient():
         args['optionValueArray'] = optionArray
     return self._make_request(args)
 
+  def react_to_new_game(self, gameId, action):
+    args = {
+      'type': 'reactToNewGame',
+      'gameId': gameId,
+      'action': action,
+    }
+    return self._make_request(args)
+
   def react_to_initiative(self, gameId, action, idxArray, valueArray, roundNumber, timestamp):
     args = {
       'type': 'reactToInitiative',

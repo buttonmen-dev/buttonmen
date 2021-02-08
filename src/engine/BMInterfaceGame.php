@@ -397,13 +397,21 @@ class BMInterfaceGame extends BMInterface {
             if ('__random' == $buttonName) {
                 $buttonIdArray[] = NULL;
             } elseif (!empty($buttonName)) {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
-                    $this->set_message('Game create failed because a button name was not valid.');
+                try {
+                    $query = 'SELECT id FROM button '.
+                             'WHERE name = :button_name';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':button_name' => $buttonName));
+                    $fetchData = $statement->fetch();
+                    if (FALSE === $fetchData) {
+                        $this->set_message('Game create failed because a button name was not valid.');
+                        return NULL;
+                    }
+                } catch (Exception $e) {
+                    error_log(
+                        'Caught exception in BMInterface::retrieve_button_ids: ' .
+                        $e->getMessage()
+                    );
                     return NULL;
                 }
                 $buttonIdArray[] = $fetchData[0];
@@ -444,7 +452,8 @@ class BMInterfaceGame extends BMInterface {
      */
     public function save_join_game_decision($playerId, $gameId, $decision) {
         if (('accept' != $decision) && ('reject' != $decision)) {
-            throw new InvalidArgumentException('decision must be either accept or reject');
+            $this->set_message('decision must be either accept or reject');
+            return;
         }
 
         $game = $this->load_game($gameId);
@@ -465,14 +474,20 @@ class BMInterfaceGame extends BMInterface {
 
         $playerIdx = array_search($playerId, $game->playerIdArray);
 
-        if (FALSE === $playerIdx) {
+        if ($playerIdx !== FALSE) {
+            $player = $game->playerArray[$playerIdx];
+            $player->waitingOnAction = FALSE;
+            $decisionFlag = ('accept' == $decision);
+            $player->hasPlayerAcceptedGame = $decisionFlag;
+        } elseif (($playerId === $game->creatorId) &&
+                  ('reject' === $decision)) {
+            foreach ($game->playerArray as $player) {
+                $player->waitingOnAction = FALSE;
+                $decisionFlag = FALSE;
+            }
+        } else {
             return;
         }
-
-        $player = $game->playerArray[$playerIdx];
-        $player->waitingOnAction = FALSE;
-        $decisionFlag = ('accept' == $decision);
-        $player->hasPlayerAcceptedGame = $decisionFlag;
 
         if (!$decisionFlag) {
             $game->gameState = BMGameState::CANCELLED;
@@ -482,8 +497,10 @@ class BMInterfaceGame extends BMInterface {
 
         if ($decisionFlag) {
             $this->set_message("Joined game $gameId");
-        } else {
+        } elseif ($playerIdx !== FALSE) {
             $this->set_message("Rejected game $gameId");
+        } else {
+            $this->set_message("Cancelled game $gameId");
         }
 
         return TRUE;
@@ -1539,25 +1556,23 @@ class BMInterfaceGame extends BMInterface {
                 $this->set_message("Game $gameId isn't complete");
                 return NULL;
             }
-            if ($fetchResult[0]['was_game_dismissed'] === NULL) {
-                $this->set_message("You aren't a player of game $gameId");
-                return NULL;
-            }
             if ((int)$fetchResult[0]['was_game_dismissed'] == 1) {
                 $this->set_message("You have already dismissed game $gameId");
                 return NULL;
             }
 
-            $query =
-                'UPDATE game_player_map ' .
-                'SET was_game_dismissed = 1 ' .
-                'WHERE player_id = :player_id AND game_id = :game_id';
+            if ($fetchResult[0]['was_game_dismissed'] !== NULL) {
+                $query =
+                    'UPDATE game_player_map ' .
+                    'SET was_game_dismissed = 1 ' .
+                    'WHERE player_id = :player_id AND game_id = :game_id';
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
-                ':player_id' => $playerId,
-                ':game_id' => $gameId,
-            ));
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(
+                    ':player_id' => $playerId,
+                    ':game_id' => $gameId,
+                ));
+            }
 
             $this->set_message('Dismissing game succeeded');
             return TRUE;

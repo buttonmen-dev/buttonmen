@@ -41,21 +41,30 @@ class BMInterfaceForum extends BMInterface {
                         'ON first_new_post.id = b_plus.first_new_post_id ' .
                 'GROUP BY b_plus.id ' .
                 'ORDER BY b_plus.sort_order ASC;';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':current_player_id' => $currentPlayerId));
+            $parameters = array(':current_player_id' => $currentPlayerId);
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'name' => 'str',
+                'board_color' => 'str',
+                'thread_color' => 'str',
+                'description' => 'str',
+                'number_of_threads' => 'int',
+                'first_new_post_id' => 'int_or_null',
+                'first_new_post_thread_id' => 'int_or_null',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $boards = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $boards[] = array(
-                    'boardId' => (int)$row['id'],
+                    'boardId' => $row['id'],
                     'boardName' => $row['name'],
                     'boardColor' => $row['board_color'],
                     'threadColor' => $row['thread_color'],
                     'description' => $row['description'],
-                    'numberOfThreads' => (int)$row['number_of_threads'],
-                    'firstNewPostId' => (int)$row['first_new_post_id'],
-                    'firstNewPostThreadId' => (int)$row['first_new_post_thread_id'],
+                    'numberOfThreads' => $row['number_of_threads'],
+                    'firstNewPostId' => $row['first_new_post_id'],
+                    'firstNewPostThreadId' => $row['first_new_post_thread_id'],
                 );
             }
 
@@ -93,21 +102,26 @@ class BMInterfaceForum extends BMInterface {
                 'SELECT b.* ' .
                 'FROM forum_board AS b ' .
                 'WHERE b.id = :board_id';
+            $parameters = array(':board_id' => $boardId);
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'name' => 'str',
+                'board_color' => 'str',
+                'thread_color' => 'str',
+                'description' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':board_id' => $boardId));
-
-            $fetchResult = $statement->fetchAll();
-            if (count($fetchResult) != 1) {
+            if (count($rows) != 1) {
                 $this->set_message('Forum board loading failed');
                 error_log('Wrong number of records returned for forum_board.id = ' . $boardId);
                 return NULL;
             }
-            $results['boardId'] = (int)$fetchResult[0]['id'];
-            $results['boardName'] = $fetchResult[0]['name'];
-            $results['boardColor'] = $fetchResult[0]['board_color'];
-            $results['threadColor'] = $fetchResult[0]['thread_color'];
-            $results['description'] = $fetchResult[0]['description'];
+            $results['boardId'] = $rows[0]['id'];
+            $results['boardName'] = $rows[0]['name'];
+            $results['boardColor'] = $rows[0]['board_color'];
+            $results['threadColor'] = $rows[0]['thread_color'];
+            $results['description'] = $rows[0]['description'];
 
             // Get a list of threads on this board, with info on their old and new posts
             $query =
@@ -116,8 +130,8 @@ class BMInterfaceForum extends BMInterface {
                     'COUNT(all_posts.id) AS number_of_posts, ' .
                     'first_post_poster.name_ingame AS original_poster_name, ' .
                     'UNIX_TIMESTAMP(first_post.creation_time) AS original_creation_timestamp, ' .
-                    'lastest_post_poster.name_ingame AS latest_poster_name, ' .
-                    'UNIX_TIMESTAMP(lastest_post.last_update_time) AS latest_update_timestamp, ' .
+                    'latest_post_poster.name_ingame AS latest_poster_name, ' .
+                    'UNIX_TIMESTAMP(latest_post.last_update_time) AS latest_update_timestamp, ' .
                     't_plus.first_new_post_id ' .
                 'FROM ' .
                     '(SELECT ' .
@@ -127,7 +141,7 @@ class BMInterfaceForum extends BMInterface {
                         'ORDER BY post.creation_time ASC LIMIT 1) AS first_post_id, ' .
                         '(SELECT post.id FROM forum_post AS post ' .
                         'WHERE post.thread_id = t.id ' .
-                        'ORDER BY post.last_update_time DESC LIMIT 1) AS lastest_post_id, ' .
+                        'ORDER BY post.last_update_time DESC LIMIT 1) AS latest_post_id, ' .
                         '(SELECT v.id FROM forum_player_post_view AS v ' .
                         'WHERE v.thread_id = t.id AND v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
                         'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id ' .
@@ -139,30 +153,40 @@ class BMInterfaceForum extends BMInterface {
                         'ON first_post.id = t_plus.first_post_id ' .
                     'LEFT JOIN player AS first_post_poster ' .
                         'ON first_post_poster.id = first_post.poster_player_id ' .
-                    'LEFT JOIN forum_post AS lastest_post ' .
-                        'ON lastest_post.id = t_plus.lastest_post_id ' .
-                    'LEFT JOIN player AS lastest_post_poster ' .
-                        'ON lastest_post_poster.id = lastest_post.poster_player_id ' .
+                    'LEFT JOIN forum_post AS latest_post ' .
+                        'ON latest_post.id = t_plus.latest_post_id ' .
+                    'LEFT JOIN player AS latest_post_poster ' .
+                        'ON latest_post_poster.id = latest_post.poster_player_id ' .
                 'GROUP BY t_plus.id ' .
-                'ORDER BY lastest_post.last_update_time DESC';
+                'ORDER BY latest_post.last_update_time DESC';
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':current_player_id' => $currentPlayerId,
                 ':board_id' => $boardId,
-            ));
+            );
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'title' => 'str',
+                'number_of_posts' => 'int',
+                'original_poster_name' => 'str',
+                'original_creation_timestamp' => 'int',
+                'latest_poster_name' => 'str',
+                'latest_update_timestamp' => 'int',
+                'first_new_post_id' => 'int_or_null',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $threads = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $threads[] = array(
                     'threadId' => $row['id'],
                     'threadTitle' => $row['title'],
-                    'numberOfPosts' => (int)$row['number_of_posts'],
+                    'numberOfPosts' => $row['number_of_posts'],
                     'originalPosterName' => $row['original_poster_name'],
-                    'originalCreationTime' => (int)$row['original_creation_timestamp'],
+                    'originalCreationTime' => $row['original_creation_timestamp'],
                     'latestPosterName' => $row['latest_poster_name'],
-                    'latestLastUpdateTime' => (int)$row['latest_update_timestamp'],
-                    'firstNewPostId' => (int)$row['first_new_post_id'],
+                    'latestLastUpdateTime' => $row['latest_update_timestamp'],
+                    'firstNewPostId' => $row['first_new_post_id'],
                 );
             }
 
@@ -203,22 +227,28 @@ class BMInterfaceForum extends BMInterface {
                 'FROM forum_thread AS t ' .
                     'INNER JOIN forum_board AS b ON b.id = t.board_id ' .
                 'WHERE t.id = :thread_id AND t.deleted = 0;';
+            $parameters = array(':thread_id' => $threadId);
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'title' => 'str',
+                'board_id' => 'int',
+                'board_name' => 'str',
+                'board_color' => 'str',
+                'board_thread_color' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':thread_id' => $threadId));
-
-            $fetchResult = $statement->fetchAll();
-            if (count($fetchResult) != 1) {
+            if (count($rows) != 1) {
                 $this->set_message('Forum thread loading failed');
                 error_log('Wrong number of records returned for forum_thread.id = ' . $threadId);
                 return NULL;
             }
-            $results['threadId'] = (int)$fetchResult[0]['id'];
-            $results['threadTitle'] = $fetchResult[0]['title'];
-            $results['boardId'] = (int)$fetchResult[0]['board_id'];
-            $results['boardName'] = $fetchResult[0]['board_name'];
-            $results['boardColor'] = $fetchResult[0]['board_color'];
-            $results['boardThreadColor'] = $fetchResult[0]['board_thread_color'];
+            $results['threadId'] = $rows[0]['id'];
+            $results['threadTitle'] = $rows[0]['title'];
+            $results['boardId'] = $rows[0]['board_id'];
+            $results['boardName'] = $rows[0]['board_name'];
+            $results['boardColor'] = $rows[0]['board_color'];
+            $results['boardThreadColor'] = $rows[0]['board_thread_color'];
             $results['currentPostId'] = $currentPostId;
 
             // Get a list of posts in this thread
@@ -230,31 +260,40 @@ class BMInterfaceForum extends BMInterface {
                 'FROM forum_player_post_view v ' .
                 'WHERE v.thread_id = :thread_id AND v.reader_player_id = :current_player_id ' .
                 'ORDER BY v.creation_time ASC;';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':current_player_id' => $currentPlayerId,
                 ':thread_id' => $threadId,
-            ));
+            );
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'poster_player_id' => 'int',
+                'poster_name' => 'str',
+                'creation_timestamp' => 'int',
+                'last_update_timestamp' => 'int',
+                'is_new' => 'bool',
+                'deleted' => 'bool',
+                'body' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $posts = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $posterColor =
                     $this->determine_game_colors(
                         $currentPlayerId,
                         $playerColors,
-                        (int)$row['poster_player_id'],
+                        $row['poster_player_id'],
                         NULL
                     );
                 $posts[] = array(
-                    'postId' => (int)$row['id'],
+                    'postId' => $row['id'],
                     'posterName' => $row['poster_name'],
                     'posterColor' => $posterColor['playerA'],
-                    'creationTime' => (int)$row['creation_timestamp'],
-                    'lastUpdateTime' => (int)$row['last_update_timestamp'],
-                    'isNew' => ($row['is_new'] == 1),
-                    'body' => (($row['deleted'] == 1) ? '[DELETED POST]' : $row['body']),
-                    'deleted' => ($row['deleted'] == 1),
+                    'creationTime' => $row['creation_timestamp'],
+                    'lastUpdateTime' => $row['last_update_timestamp'],
+                    'isNew' => $row['is_new'],
+                    'body' => (($row['deleted']) ? '[DELETED POST]' : $row['body']),
+                    'deleted' => $row['deleted'],
                 );
             }
 
@@ -291,20 +330,22 @@ class BMInterfaceForum extends BMInterface {
                 'WHERE v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
                 'ORDER BY v.creation_time ASC ' .
                 'LIMIT 1;';
+            $parameters = array(':current_player_id' => $currentPlayerId);
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'thread_id' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':current_player_id' => $currentPlayerId));
-
-            $fetchResult = $statement->fetchAll();
-            if (count($fetchResult) != 1) {
+            if (count($rows) != 1) {
                 $results['nextNewPostId'] = NULL;
                 $results['nextNewPostThreadId'] = NULL;
                 $this->set_message('No new forum posts');
                 return $results;
             }
 
-            $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
-            $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
+            $results['nextNewPostId'] = $rows[0]['id'];
+            $results['nextNewPostThreadId'] = $rows[0]['thread_id'];
 
             if ($results) {
                 $this->set_message('Checked new forum posts successfully');
@@ -331,12 +372,13 @@ class BMInterfaceForum extends BMInterface {
     public function mark_forum_read($currentPlayerId, $timestamp) {
         try {
             $query = 'SELECT b.id FROM forum_board AS b;';
+            $columnReturnTypes = array(
+                'id' => 'int',
+            );
+            $rows = self::$db->select_rows($query, array(), $columnReturnTypes);
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute();
-
-            while ($row = $statement->fetch()) {
-                $boardId = (int)$row['id'];
+            foreach ($rows as $row) {
+                $boardId = $row['id'];
                 $results = $this->mark_forum_board_read($currentPlayerId, $boardId, $timestamp, TRUE);
                 if (!$results || !$results['success']) {
                     $this->set_message('Marking board ' . $boardId . ' read failed: ' . $this->message);
@@ -373,14 +415,13 @@ class BMInterfaceForum extends BMInterface {
                 'VALUES ' .
                     '(:board_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
                 'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':board_id' => $boardId,
                 ':current_player_id' => $currentPlayerId,
                 ':timestamp_insert' => $timestamp,
                 ':timestamp_update' => $timestamp,
-            ));
+            );
+            self::$db->update($query, $parameters);
 
             $this->set_message('Forum board marked read successfully');
             if ($suppressResults) {
@@ -414,14 +455,13 @@ class BMInterfaceForum extends BMInterface {
                     '(thread_id, player_id, read_time) ' .
                 'VALUES (:thread_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
                 'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':thread_id' => $threadId,
                 ':current_player_id' => $currentPlayerId,
                 ':timestamp_insert' => $timestamp,
                 ':timestamp_update' => $timestamp,
-            ));
+            );
+            self::$db->update($query, $parameters);
 
             $this->set_message('Forum thread marked read successfully');
             return $this->load_forum_board($currentPlayerId, $boardId);
@@ -448,30 +488,25 @@ class BMInterfaceForum extends BMInterface {
             $query =
                 'INSERT INTO forum_thread (board_id, title, deleted) ' .
                 'VALUES (:board_id, :title, 0);';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':board_id' => $boardId,
                 ':title' => $title,
-            ));
+            );
+            self::$db->update($query, $parameters);
 
-            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
-            $statement->execute();
-            $fetchData = $statement->fetch();
-            $threadId = (int)$fetchData[0];
+            $threadId = self::$db->select_single_value('SELECT LAST_INSERT_ID()', array(), 'int');
 
             $query =
                 'INSERT INTO forum_post ' .
                     '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
                 'VALUES ' .
                     '(:thread_id, :current_player_id, NOW(), NOW(), :body, 0);';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':thread_id' => $threadId,
                 ':current_player_id' => $currentPlayerId,
                 ':body' => $body,
-            ));
+            );
+            self::$db->update($query, $parameters);
 
             $this->set_message('Forum thread created successfully');
             return $this->load_forum_thread($currentPlayerId, $threadId, NULL);
@@ -499,18 +534,14 @@ class BMInterfaceForum extends BMInterface {
                     '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
                 'VALUES ' .
                     '(:thread_id, :current_player_id, NOW(), NOW(), :body, 0);';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':thread_id' => $threadId,
                 ':current_player_id' => $currentPlayerId,
                 ':body' => $body,
-            ));
+            );
+            self::$db->update($query, $parameters);
 
-            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
-            $statement->execute();
-            $fetchData = $statement->fetch();
-            $postId = (int)$fetchData[0];
+            $postId = self::$db->select_single_value('SELECT LAST_INSERT_ID()', array(), 'int');
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
 
@@ -541,35 +572,37 @@ class BMInterfaceForum extends BMInterface {
                 'SELECT p.poster_player_id, p.deleted, p.thread_id ' .
                 'FROM forum_post p ' .
                 'WHERE p.id = :post_id;';
+            $parameters = array(':post_id' => $postId);
+            $columnReturnTypes = array(
+                'poster_player_id' => 'int',
+                'deleted' => 'bool',
+                'thread_id' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':post_id' => $postId));
-
-            $fetchResult = $statement->fetchAll();
-            if (count($fetchResult) != 1) {
+            if (count($rows) != 1) {
                 $this->set_message('Post not found');
                 return NULL;
             }
-            if ((int)$fetchResult[0]['poster_player_id'] != $currentPlayerId) {
+            if ($rows[0]['poster_player_id'] != $currentPlayerId) {
                 $this->set_message('Post does not belong to you');
                 return NULL;
             }
-            if ((int)$fetchResult[0]['deleted'] == 1) {
+            if ($rows[0]['deleted']) {
                 $this->set_message('Post was already deleted');
                 return NULL;
             }
-            $threadId = (int)$fetchResult[0]['thread_id'];
+            $threadId = $rows[0]['thread_id'];
 
             $query =
                 'UPDATE forum_post ' .
                 'SET body = :body, last_update_time = NOW() ' .
                 'WHERE id = :post_id;';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':post_id' => $postId,
                 ':body' => $body,
-            ));
+            );
+            self::$db->update($query, $parameters);
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
 

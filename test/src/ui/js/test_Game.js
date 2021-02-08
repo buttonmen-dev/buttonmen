@@ -1304,6 +1304,50 @@ test("test_Game.dieRecipeTable", function(assert) {
   });
 });
 
+test("test_Game.valueCell", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'blackomega_thefool_reacttoinitiative';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    var table = $('<table>');
+    var tr = $('<tr>');
+    var valueCell1 = Game.valueCell(0, true);
+    valueCell1.attr('id', 'cell1');
+    var valueCell2 = Game.valueCell(3, true);
+    valueCell2.attr('id', 'cell2');
+
+    tr.append(valueCell1);
+    tr.append(valueCell2);
+    table.append(tr);
+    Game.page.append(table);
+    Login.arrangePage(Game.page, null, null);
+
+    var retrievedCell1 = document.getElementById('cell1');
+    assert.ok(retrievedCell1, "Document should contain cell 1");
+    assert.equal(retrievedCell1.nodeName, "TD",
+      "Cell should be the correct type");
+    assert.ok(retrievedCell1.innerHTML.match('3'),
+      "Cell should contain correct value");
+    assert.ok(
+      retrievedCell1.classList.contains('recipe_irrelevant_for_initiative'),
+      "Cell should indicate that it is irrelevant for initiative"
+    );
+
+    var retrievedCell2 = document.getElementById('cell2');
+    assert.ok(retrievedCell2, "Document should contain cell 2");
+    assert.equal(retrievedCell2.nodeName, "TD",
+      "Cell should be the correct type");
+    assert.ok(retrievedCell2.innerHTML.match('1'),
+      "Cell should contain correct value");
+    assert.ok(
+      !retrievedCell2.classList.contains('recipe_irrelevant_for_initiative'),
+      "Cell should not indicate that it is irrelevant for initiative"
+    );
+
+    start();
+  });
+});
+
 test("test_Game.playerWLTText", function(assert) {
   stop();
   var gameId = BMTestUtils.testGameId('washu_hooloovoo_game_over');

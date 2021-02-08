@@ -208,6 +208,13 @@ Newgame.createPlayer1Toggle = function() {
   });
 
   player1Toggle.click(function() {
+    if (!Newgame.activity.opponentName) {
+      var oppName = $('#opponent_name_chosen > a > span').text();
+      if (oppName != 'Anybody') {
+        Newgame.activity.opponentName = oppName;
+      }
+    }
+
     $('#player1_row').remove();
     $('#player2_row').remove();
 
@@ -601,8 +608,9 @@ Newgame.getSelectOptionList = function(
       'text': blankOption,
     }));
   } else {
-    // If there's no default, put an invalid default value first
-    if (selectedval === null) {
+    // If there's no default or the selected value doesn't exist
+    // in the dropdown, put an invalid default value first
+    if ((selectedval === null) || !(selectedval in valuedict)) {
       optionlist.push($('<option>', {
         'value': '',
         'class': 'yellowed',
@@ -703,6 +711,12 @@ Newgame.updateButtonSelectTd = function(player) {
 
 Newgame.updateButtonList = function(player, limitid) {
   if (limitid) {
+    var buttonText = $('#' + player + '_button_chosen > a > span').text();
+    var delimiterIdx = buttonText.indexOf(':');
+    if (delimiterIdx >= 0) {
+      Newgame.activity[player + 'Button'] = buttonText.substr(0, delimiterIdx);
+    }
+
     var optsTag = '#' + Newgame.getLimitSelectid(player, limitid) + ' option';
     $.each($(optsTag), function() {
       Newgame.activity.buttonLimits[player][limitid][$(this).val()] = false;

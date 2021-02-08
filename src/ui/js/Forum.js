@@ -919,8 +919,7 @@ Forum.buildHelp = function() {
   helpDiv.append($('<div>', {
     'class': 'help',
     'html': '[forum=1,6]text[/forum]: ' +
-            '<a href="forum.html#!threadId=1&postId=6">' +
-            'Forum thread: text</a>',
+            '<a href="forum.html#!threadId=1&postId=6">text</a>',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',

@@ -1874,12 +1874,12 @@ Game.pageAddGameHeader = function(action_desc) {
     Game.page.append($('<br>'));
   }
 
-  if (Api.game.isParticipant &&
+  if ((Api.game.isParticipant || Api.game.isCreator) &&
       Api.game.gameState == Game.GAME_STATE_CHOOSE_JOIN_GAME) {
     var acceptRejectDiv = $('<div>');
     Game.page.append(acceptRejectDiv);
 
-    if (Api.game.player.waitingOnAction) {
+    if (Api.game.isParticipant && Api.game.player.waitingOnAction) {
       var acceptLink = $('<a>', {
         'text': '[Accept Game]',
         'href': '#',
@@ -1897,7 +1897,7 @@ Game.pageAddGameHeader = function(action_desc) {
       });
       rejectLink.click(Game.formRejectGame);
       acceptRejectDiv.append(rejectLink);
-    } else {
+    } else if (Api.game.isCreator) {
       var cancelLink = $('<a>', {
         'text': '[Withdraw Game]',
         'href': '#',
@@ -2432,16 +2432,10 @@ Game.dieRecipeTable = function(table_action, active) {
             Game.dieValueSelectTd('init_react_' + i, initopts,
               Api.game.player.activeDieArray[i].value, defaultval));
         } else {
-          dieLRow.append($('<td>', {
-            'text': Game.activeDieFieldString(
-              i, 'value', Api.game.player.activeDieArray),
-          }));
+          dieLRow.append(Game.valueCell(i, true));
         }
         dieRRow.append(opponentEnt);
-        dieRRow.append($('<td>', {
-          'text': Game.activeDieFieldString(
-            i, 'value', Api.game.opponent.activeDieArray),
-        }));
+        dieRRow.append(Game.valueCell(i, false));
       } else if (table_action == 'adjust_fire_dice') {
         dieLRow.append(playerEnt);
         var fireopts = [];
@@ -2520,6 +2514,30 @@ Game.dieRecipeTable = function(table_action, active) {
   }
 
   return dietable;
+};
+
+Game.valueCell = function(dieIdx, isPlayer) {
+  var activeDieArray;
+  if (isPlayer) {
+    activeDieArray = Api.game.player.activeDieArray;
+  } else {
+    activeDieArray = Api.game.opponent.activeDieArray;
+  }
+
+  var cellText = Game.activeDieFieldString(dieIdx, 'value', activeDieArray);
+  var valueCell = $('<td>', {
+    'text': cellText,
+  });
+
+  if ('' !== cellText) {
+    var die = activeDieArray[dieIdx];
+    if (('properties' in die) &&
+        (die.properties.indexOf('IrrelevantForInitiative') >= 0)) {
+      valueCell.addClass('recipe_irrelevant_for_initiative');
+    }
+  }
+
+  return valueCell;
 };
 
 Game.playerWLTText = function(player) {
@@ -2616,6 +2634,16 @@ Game.dieTableEntry = function(i, activeDieArray) {
       dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is a target of the attack which ' +
         'is currently in progress.)';
+    }
+
+    if (die.properties.indexOf('IrrelevantForInitiative') >= 0) {
+      if (typeof dieopts['class'] == 'undefined') {
+        dieopts['class'] = '';
+      } else {
+        dieopts['class'] += ' ';
+      }
+
+      dieopts['class'] += 'recipe_irrelevant_for_initiative';
     }
     return $('<td>', dieopts);
   }

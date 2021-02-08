@@ -73,6 +73,14 @@ div.help_column p {
     text-align: left;
 }
 
+div.help_column ul {
+    text-align: left;
+}
+
+div.help_column li {
+    padding-bottom: 0.3em;
+}
+
 h2.monitorMessage {
     color: #800000;
     margin-bottom: 0;
@@ -365,6 +373,10 @@ select.center {
 
 .recipe_inuse {
     background-color: #ffa500;
+}
+
+.recipe_irrelevant_for_initiative {
+    color: #cccccc;
 }
 
 .die_overlay {

@@ -764,7 +764,7 @@ class ApiSpec {
             // Use a sanitization function if one exists, or just return the initial arg
             $sanitizeFunc = 'sanitize_argument_of_type_' . $realArgtype;
             if (method_exists($this, $sanitizeFunc)) {
-                $sanitizedArgs[$argname] = $this->$sanitizeFunc($argvalue);
+                $sanitizedArgs[$argname] = $this->$sanitizeFunc($argvalue, $expectedType);
             } else {
                 $sanitizedArgs[$argname] = $argvalue;
             }
@@ -840,10 +840,19 @@ class ApiSpec {
      * sanitize an array argument by sorting it by key
      *
      * @param array $arg
+     * @param array|string $argtype
      * @return array
      */
-    protected function sanitize_argument_of_type_array($arg) {
+    protected function sanitize_argument_of_type_array($arg, $argtype) {
         ksort($arg);
+        if (!(is_array($argtype['elem_type']))) {
+            $sanitizeFunc = 'sanitize_argument_of_type_' . $argtype['elem_type'];
+            if (method_exists($this, $sanitizeFunc)) {
+                foreach ($arg as $eltkey => $eltvalue) {
+                    $arg[$eltkey] = $this->$sanitizeFunc($eltvalue, $argtype);
+                }
+            }
+        }
         return $arg;
     }
 
@@ -851,9 +860,10 @@ class ApiSpec {
      * sanitize an number argument by casting it to an int
      *
      * @param array $arg
+     * @param array|string $argtype
      * @return array
      */
-    protected function sanitize_argument_of_type_number($arg) {
+    protected function sanitize_argument_of_type_number($arg, $argtype) {
         if (is_string($arg)) {
             return (int)$arg;
         }
