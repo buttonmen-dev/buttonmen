@@ -212,6 +212,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'Ornery' => 'Dice with both Konstant and Ornery skills retain their current value when rerolled',
                     'TimeAndSpace' => 'Attacking Konstant TimeAndSpace dice do not trigger the TimeAndSpace skill because they do not reroll',
                     'Trip' => 'Dice with both Konstant and Trip skills retain their current value when rerolled',
+                    'Warrior' => 'A Konstant Warrior die can only add a positive value to a skill attack',
                 ),
             ),
             'Largo' => array(
@@ -447,6 +448,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'Doppelganger' => 'A Doppelganger die that captures a Turbo die currently does not get ' .
                                       'the chance to perform an immediate turbo resize',
                     'Radioactive' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
+                    'Warrior' => 'A Warrior Turbo die can change size via Turbo after coming into play',
                 ),
             ),
             'Value' => array(
@@ -461,7 +463,9 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                 'code' => '`',
                 'description' => 'These are extra dice which may be brought into play during a round, by using one of them in a multi-die Skill Attack. Once a Warrior die is brought into play, it loses the Warrior skill for the rest of the round. After the round, the die regains the Warrior skill to start the next round. Dice with the Warrior skill are completely out of play: They aren\'t part of your starting dice, they don\'t count for initiative, they can\'t be attacked, none of their other skills can be used, they don\'t count for scoring purposes, etc. At the start of the round, each Warrior die shows its maximum value; when it\'s brought into play, it\'s rolled as usual. Only one Warrior Die may be used in any given Skill Attack. Adding a Warrior die to a Skill Attack is always optional; even if you have no other legal attack, you can choose to pass rather than using a Warrior die.',
                 'interacts' => array(
+                    'Konstant' => 'A Konstant Warrior die can only add a positive value to a skill attack',
                     'Stinger' => 'A Warrior can\'t use the Stinger skill to add less than the full value of the die, because the die isn\'t in play yet',
+                    'Turbo' => 'A Warrior Turbo die can change size via Turbo after coming into play',
                 ),
             ),
             'Weak' => array(
