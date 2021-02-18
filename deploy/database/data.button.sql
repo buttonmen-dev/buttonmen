@@ -96,6 +96,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 # Fanatics
 (65, 'Classic Fanatics', 100000),
 (85, '2020 Fanatics',    100100),
+(87, '2021 Fanatics',    100200),
 
 # Special
 (10000, 'RandomBM', 200000),
@@ -1250,6 +1251,12 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (795, 'Nonce Equitaur',   '(S) (3)q (U)It (U) (R)!',                       0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
 (796, 'tavella',          '(5)t^ (23)v# (19)I (6)I^ (7)!',                 0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics"));
 
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(805, 'Bosco312',         'z^(20) z^(10) d(1) d(1)',                       0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(806, 'Cycozar',          '(T) (4)g (Y) o(U)rIt! ^%(3) c(Y) coz(4)r #(1)', 0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(807, 'GamerXYZ',         'Ho(4) dk(6) sz(X) qt(Y) `M(Z)',                 0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(808, 'irilyth',          'Gg(8) Gg(16) Gg(32) `sptH(1) `sptH(2) `sptH(3) `sptH(5) `sptH(8) spohr(4,9) spohr(9,16) spohr(16,25)', 1, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(809, 'Scipio',           'bt(1) s(8) (3/19)! (5/23)! #(X)',               0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics"));
 
 #############################################
 #####   S P E C I A L   B U T T O N S   #####
@@ -1592,6 +1599,11 @@ UPDATE button SET flavor_text="jl8e is an itinerant baker, coder, and game desig
 UPDATE button SET flavor_text="""nobody ever laughs at my puns. i guess because it's not a great button. a little past half way home got caught in the rising dawn after long and fruitless debates. they handed over a tightly wrapped scroll, bowed and left again, without saying a word. funny that he now did. maybe his partner asked him to stand up to scrutiny. you are better than one chance in 256 of that happening are only 1/40. i thought about going smaller with my y swing, but i think you're doing quite well for you anyway"" -Nala" WHERE name="Nala";
 UPDATE button SET flavor_text="Nonce Equitaur enjoys non sequiturs, puns, probability theory, symmetry groups, breaking into geodesic homes, and beating people up." WHERE name="Nonce Equitaur";
 UPDATE button SET flavor_text="Tavella enjoys cooking, reading, and of course ... beating people up." WHERE name="tavella";
+UPDATE button SET flavor_text="Bosco312, a master of time and space, an evil prince, and a part time theatrical critic, needs to be stealthy in order to beat people up without coming apart at high speed." WHERE name="Bosco312";
+UPDATE button SET flavor_text="Cycozar's 3 rules to live by:<br>1. Fun first - winning is a bonus.<br>2. When life gives you obstacles, run them over like a speed bump - thump thump.<br>3. Love & hate are both contagious - choose your disease." WHERE name="Cycozar";
+UPDATE button SET flavor_text="GamerXYZ likes graham crackers, electric blankets, and beating people up in games." WHERE name="GamerXYZ";
+UPDATE button SET flavor_text="irilyth likes pretty dice with swirly colors, and especially likes using them to beat people up." WHERE name="irilyth";
+UPDATE button SET flavor_text="Scipio is a broadly interested heretic from a mysterious country. He likes cheese, chocolate, watches, and the rule of three. Also beating people up." WHERE name="Scipio";
 UPDATE button SET flavor_text="Gluttony enjoys eating, eating and the Fat Albert Cartoon. When not eating, or thinking about eating, he spends his time beating people up with his Double-Drumstick Fu." WHERE name="Gluttony";
 UPDATE button SET flavor_text="Pride is a diva of the nose harmonica. When not appearing on Live TV news casts, she enjoys flinging cats, radish carvings and beating people up." WHERE name="Pride";
 UPDATE button SET flavor_text="Lust is an out-of-work actress who is rather top-heavy. While not trying to get bit parts on VIP, Baywatch or any USA shows, she enjoys humming and the color red. She also beats people up." WHERE name="Lust";
