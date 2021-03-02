@@ -999,18 +999,26 @@ class ApiResponder {
                 // object, invoke the function on sanitized args,
                 // and return the result
                 $sanitizedArgs = $this->spec->sanitize_function_args($args);
-                $interface = $this->create_interface($sanitizedArgs, $check);
-                apache_note('BMAPIMethod', $sanitizedArgs['type']);
-                $data = $this->{$check['funcname']}($interface, $sanitizedArgs);
-
-                $output = array(
-                    'data' => $data,
-                    'message' => $interface->message,
-                );
-                if ($data) {
-                    $output['status'] = 'ok';
-                } else {
-                    $output['status'] = 'failed';
+                try {
+                    $interface = $this->create_interface($sanitizedArgs, $check);
+                    apache_note('BMAPIMethod', $sanitizedArgs['type']);
+                    $data = $this->{$check['funcname']}($interface, $sanitizedArgs);
+                    $output = array(
+                        'data' => $data,
+                        'message' => $interface->message,
+                    );
+                    if ($data) {
+                        $output['status'] = 'ok';
+                    } else {
+                        $output['status'] = 'failed';
+                    }
+                } catch (Exception $e) {
+                    error_log('Caught unexpected exception in ApiResponder: ' . $e->getMessage());
+                    $output = array(
+                        'data' => NULL,
+                        'status' => 'failed',
+                        'message' => 'Internal error',
+                    );
                 }
             } else {
                 // found a problem with the args, report that
