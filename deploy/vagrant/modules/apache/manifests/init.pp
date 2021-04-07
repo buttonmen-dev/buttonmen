@@ -16,6 +16,13 @@ class apache::server {
 
   # Monitor the error log
   include "apache::server::feature::monitor-logs"
+
+  # Install and configure letsencrypt (SSL/certbot) for AWS instances 
+  case "${ec2_services_partition}" {
+    "aws": {
+      include "apache::server::feature::letsencrypt"
+    }
+  }
 }
 
 class apache::server::vagrant {
@@ -68,5 +75,23 @@ class apache::server::feature::monitor-logs {
       command => "/usr/local/sbin/monitor_apache_logs",
       hour => 0,
       minute => 5;
+  }
+}
+
+class apache::server::feature::letsencrypt {
+
+  # Install the certbot package
+  package {
+    "python-certbot-apache": ensure => installed;
+  }
+
+  exec {
+    # Run certbot to configure LetsEncrypt
+    # If the site has the special FQDN indicating it's a non-networked sandbox, don't run certbot
+    "apache_certbot_setup":
+      command => "/usr/bin/certbot --apache -d $(/bin/cat /usr/local/etc/bmsite_fqdn) -n --email help@buttonweavers.com --agree-tos",
+      require => [ Exec["fqdn_populate_etc_file"], Package["python-certbot-apache"] ],
+      creates => "/etc/letsencrypt/live",
+      unless => "/bin/grep -q sandbox.buttonweavers.com /usr/local/etc/bmsite_fqdn";
   }
 }
