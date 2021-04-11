@@ -34,7 +34,7 @@ class BMSkillMaximum extends BMSkill {
             return FALSE;
         }
 
-        $die->value = $die->max;
+        $die->set_value($die->max);
         return TRUE;
     }
 

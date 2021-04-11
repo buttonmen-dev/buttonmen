@@ -987,6 +987,7 @@ Game.actionAdjustFireDiceActive = function() {
   Game.pageAddGameHeader(
     'Your turn to complete an attack by adjusting fire dice');
 
+  var attackType = Api.game.validAttackTypeArray[0];
   var attackerSum = 0;
   var attackerDiffFromMax = 0;
   var stingerMax = 0;
@@ -994,8 +995,8 @@ Game.actionAdjustFireDiceActive = function() {
   var hasStingerDice = false;
   $.each(Api.game.player.activeDieArray, function(i, die) {
     if (die.properties.indexOf('IsAttacker') >= 0) {
-      attackerDiffFromMax += die.sides - die.value;
-      attackerSum += die.value;
+      attackerDiffFromMax += die.sides - Game.numericValue(die, attackType);
+      attackerSum += Game.numericValue(die, attackType);
 
       if (die.skills.indexOf('Stinger') >= 0) {
         hasStingerDice = true;
@@ -1018,7 +1019,6 @@ Game.actionAdjustFireDiceActive = function() {
   });
 
   var fireMessage = '';
-  var attackType = Api.game.validAttackTypeArray[0];
   var exactFiringAmount = defenderSum - attackerSum;
 
   fireMessage += 'Turn down Fire dice by a total of ';
@@ -1341,7 +1341,8 @@ Game.formReactToInitiativeActive = function() {
     if ('chance' in Api.game.player.initiativeActions) {
       $.each(Api.game.player.initiativeActions.chance, function(i) {
         var value = $('#init_react_' + i).val();
-        if (value != Api.game.player.activeDieArray[i].value) {
+        if (value !=
+            Api.game.player.activeDieArray[i].value) {
           if (value == 'reroll') {
             Game.activity.initiativeDieIdxArray.push(i);
             Game.activity.initiativeDieValueArray.push(value);
@@ -2402,6 +2403,7 @@ Game.dieRecipeTable = function(table_action, active) {
   for (var i = 0; i < maxDice; i++) {
     var playerEnt = Game.dieTableEntry(i, Api.game.player.activeDieArray);
     var opponentEnt = Game.dieTableEntry(i, Api.game.opponent.activeDieArray);
+    var currentval;
     var defaultval;
     if (table_action) {
       var dieLRow = $('<tr>');
@@ -2420,7 +2422,8 @@ Game.dieRecipeTable = function(table_action, active) {
           }
         }
         if ((active) && (initopts.length > 0)) {
-          defaultval = Api.game.player.activeDieArray[i].value;
+          currentval = Api.game.player.activeDieArray[i].value;
+          defaultval = currentval;
           if ('initiativeDieIdxArray' in Game.activity) {
             $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
               if (val == i) {
@@ -2429,8 +2432,10 @@ Game.dieRecipeTable = function(table_action, active) {
             });
           }
           dieLRow.append(
-            Game.dieValueSelectTd('init_react_' + i, initopts,
-              Api.game.player.activeDieArray[i].value, defaultval));
+            Game.dieValueSelectTd(
+              'init_react_' + i, initopts, currentval, defaultval
+            )
+          );
         } else {
           dieLRow.append(Game.valueCell(i, true));
         }
@@ -2445,7 +2450,8 @@ Game.dieRecipeTable = function(table_action, active) {
           }
         }
         if ((active) && (fireopts.length > 0)) {
-          defaultval = Api.game.player.activeDieArray[i].value;
+          currentval = Api.game.player.activeDieArray[i].value;
+          defaultval = currentval;
           if ('fireDieIdxArray' in Game.activity) {
             $.each(Game.activity.fireDieIdxArray, function(idx, val) {
               if (val == i) {
@@ -2454,11 +2460,13 @@ Game.dieRecipeTable = function(table_action, active) {
             });
           }
           dieLRow.append(
-            Game.dieValueSelectTd('fire_adjust_' + i, fireopts,
-              Api.game.player.activeDieArray[i].value, defaultval));
+            Game.dieValueSelectTd(
+              'fire_adjust_' + i, fireopts, currentval, defaultval
+            )
+          );
         } else {
           dieLRow.append($('<td>', {
-            'text': Game.activeDieFieldString(
+            'html': Game.activeDieFieldString(
                       i,
                       'value',
                       Api.game.player.activeDieArray
@@ -2467,7 +2475,7 @@ Game.dieRecipeTable = function(table_action, active) {
         }
         dieRRow.append(opponentEnt);
         dieRRow.append($('<td>', {
-          'text': Game.activeDieFieldString(
+          'html': Game.activeDieFieldString(
                     i,
                     'value',
                     Api.game.opponent.activeDieArray
@@ -2516,6 +2524,24 @@ Game.dieRecipeTable = function(table_action, active) {
   return dietable;
 };
 
+Game.displayedValue = function(die) {
+  if ('wildcardPropsArray' in die) {
+    return die.wildcardPropsArray.displayedValue;
+  } else {
+    return die.value;
+  }
+};
+
+Game.numericValue = function(die, attackType) {
+  if (('wildcardPropsArray' in die) &&
+      (1 == die.value) &&
+      ('Power' == attackType)) {
+    return 14;
+  } else {
+    return die.value;
+  }
+};
+
 Game.valueCell = function(dieIdx, isPlayer) {
   var activeDieArray;
   if (isPlayer) {
@@ -2526,7 +2552,7 @@ Game.valueCell = function(dieIdx, isPlayer) {
 
   var cellText = Game.activeDieFieldString(dieIdx, 'value', activeDieArray);
   var valueCell = $('<td>', {
-    'text': cellText,
+    'html': cellText,
   });
 
   if ('' !== cellText) {
@@ -2926,7 +2952,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     }
     capturedDiceDiv = $('<div>');
     capturedDiceDiv.append($('<span>', {
-      'text': 'Dice captured: ' + capturedDieText,
+      'html': 'Dice captured: ' + capturedDieText,
     }));
 
     // Dice that are out of play, only applicable in active games
@@ -3081,19 +3107,25 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
     divOpts['class'] += ' die_dead';
   }
 
+  if ((die.recipe.indexOf('C') !== -1) &&
+      (Api.game.dieBackgroundType != 'circle')) {
+    divOpts['class'] += ' card';
+  }
+
   var dieNumberSpanOpts = {
     'class': 'die_overlay die_number_' + player,
   };
   if (dieStatus == 'active') {
-    dieNumberSpanOpts.text = die.value;
+    dieNumberSpanOpts.html = Game.displayedValue(die);
   } else {
-    dieNumberSpanOpts.html = '&nbsp;' + die.value + '&nbsp;';
+    dieNumberSpanOpts.html = '&nbsp;' + Game.displayedValue(die) + '&nbsp;';
   }
 
   divOpts.style = 'background-image: ' + Game.backgroundImagePath(
     die.sides,
     dieStatus,
-    isClickable
+    isClickable,
+    die.recipe
   );
 
   if ((player == 'player') &&
@@ -3116,10 +3148,29 @@ Game.createGameMatDieDiv = function(die, player, dieStatus, isClickable) {
  * @param  int     sides          Number of sides of the die
  * @param  string  dieStatus      Status of the die ('active' or 'captured')
  * @param  boolean isClickable    Is the die clickable?
+ * @param  string  dieRecipe      Recipe of the die
  * @return string
  */
-Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
+Game.backgroundImagePath = function(sides, dieStatus, isClickable, dieRecipe) {
   var imageType;
+
+  if ((dieStatus == 'active') && !(isClickable)) {
+    imageType = 'inactive';
+  } else if (dieStatus == 'captured') {
+    imageType = 'taken';
+  } else {
+    imageType = 'active';
+  }
+
+  var dieType = dieRecipe.split(/[()]/)[1];
+
+  if (dieType.indexOf('C') !== -1) {
+    return 'url(images/die/' +
+           Api.game.dieBackgroundType +
+           '/card' +
+           imageType +
+           '.png)';
+  }
 
   // the logic below requires sidesRoundedArray to be sorted in ascending order
   var sidesRoundedArray = [2, 4, 6, 8, 10, 12, 20, 30];
@@ -3130,14 +3181,6 @@ Game.backgroundImagePath = function(sides, dieStatus, isClickable) {
       sidesRoundedUp = sidesRoundedArray[sidesIdx];
       break;
     }
-  }
-
-  if ((dieStatus == 'active') && !(isClickable)) {
-    imageType = 'inactive';
-  } else if (dieStatus == 'captured') {
-    imageType = 'taken';
-  } else {
-    imageType = 'active';
   }
 
   return 'url(images/die/' +
@@ -3453,7 +3496,10 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // number of sides
 Game.dieRecipeText = function(die, allowShowValues) {
   var dieRecipeText = die.recipe;
-  if (die.sides !== undefined && die.sides !== null) {
+  if ((die.sides !== undefined) &&
+      (die.sides !== null) &&
+      (die.recipe !== undefined) &&
+      (die.recipe.indexOf('(C)') == -1)) {
     var lparen = die.recipe.indexOf('(');
     var rparen = die.recipe.indexOf(')');
     var recipeSideString = die.recipe.substring(lparen + 1, rparen);
@@ -3514,7 +3560,7 @@ Game.dieRecipeText = function(die, allowShowValues) {
       ('properties' in die) &&
       ('indexOf' in die.properties) &&
       (die.properties.indexOf('ValueRelevantToScore') >= 0)) {
-    dieRecipeText += ':' + die.value;
+    dieRecipeText += ':' + Game.displayedValue(die);
   }
 
   return dieRecipeText;
@@ -3532,9 +3578,16 @@ Game.dieValidTurndownValues = function(die, gameState) {
     if (die.recipe.match(',')) {
       minval = 2;
     }
-    for (var i = die.value - 1; i >= minval; i--) {
+
+    var startval = die.value - 1;
+    if (('wildcardPropsArray' in die) && (20 == die.value)) {
+      startval = 13;
+    }
+
+    for (var i = startval; i >= minval; i--) {
       turndown.push(i);
     }
+
     return turndown;
   }
   return [];

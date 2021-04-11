@@ -21,6 +21,7 @@ AS SELECT
     m.is_button_random,
     m.has_player_accepted,
     m.is_chat_private,
+    m.cards_drawn,
     p.name_ingame AS player_name,
     p.autopass,
     p.fire_overshooting,

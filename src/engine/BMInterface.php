@@ -363,6 +363,7 @@ class BMInterface {
             $this->load_option_values_from_this_round($game);
             $this->load_die_attributes($game);
             $this->load_turbo_cache($game);
+            $this->load_drawn_cards($game);
 
             $this->recreate_optRequestArrayArray($game);
 
@@ -728,6 +729,7 @@ class BMInterface {
             'recipe' => 'str',
             'status' => 'str',
             'value' => 'int_or_null',
+            'internal_value' => 'int_or_null',
         );
         $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
@@ -757,6 +759,11 @@ class BMInterface {
             $this->set_option_max($die, $row);
 
             $die->value = $row['value'];
+
+            if ($die instanceof BMDieWildcard) {
+                $die->currentCardId = $row['internal_value'];
+                $die->set_value_from_id();
+            }
 
             switch ($row['status']) {
                 case 'NORMAL':
@@ -817,6 +824,57 @@ class BMInterface {
         }
 
         $game->turboCache = $turboCache;
+    }
+
+    /**
+     * Load cards that have been already drawn for Wildcard
+     *
+     * @param BMGame $game
+     */
+    protected function load_drawn_cards($game) {
+        try {
+            $playerArray = $game->playerArray;
+            foreach ($playerArray as $playerIdx => $player) {
+                if (is_null($player->playerId)) {
+                    continue;
+                }
+
+                $parameters = array(':game_id' => $game->gameId,
+                                    ':player_id' => $player->playerId);
+
+                $query =
+                    'SELECT cards_drawn '.
+                    'FROM game_player_map AS gpm '.
+                    'WHERE gpm.game_id = :game_id ' .
+                      'AND gpm.player_id = :player_id;';
+
+                $statement = self::$conn->prepare($query);
+                $statement->execute($parameters);
+                $result = $statement->fetch();
+                if (!$result) {
+                    $this->set_message('Loading drawn cards failed.');
+                    error_log('Loading drawn cards failed for player ' . $player->playerId);
+                    return NULL;
+                } else {
+                    $cardsDrawn = array();
+                    if (NULL !== $result[0]) {
+                        $array_keys = json_decode($result[0]);
+                        foreach ($array_keys as $key) {
+                            $cardsDrawn[$key] = TRUE;
+                        }
+                        $playerArray[$playerIdx]->cardsDrawn = $cardsDrawn;
+                    }
+                }
+            }
+            $game->playerArray = $playerArray;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_drawn_cards: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Loading drawn cards failed.');
+            return NULL;
+        }
     }
 
     /**
@@ -953,6 +1011,7 @@ class BMInterface {
             $this->save_captured_dice($game);
             $this->save_turbo_cache($game);
             $this->save_out_of_play_dice($game);
+            $this->save_drawn_cards($game);
             $this->delete_dice_marked_as_deleted($game);
             $this->game_action()->save_action_log($game);
             $this->game_chat()->save_chat_log($game);
@@ -1527,6 +1586,32 @@ class BMInterface {
     }
 
     /**
+     * Save cards that have already been drawn for Wildcard
+     *
+     * @param BMGame $game
+     */
+    protected function save_drawn_cards($game) {
+        foreach ($game->playerArray as $player) {
+            $query = 'UPDATE game_player_map '.
+                     'SET cards_drawn = :cards_drawn '.
+                     'WHERE '.
+                     'game_id = :game_id AND '.
+                     'position = :position';
+            $statement = self::$conn->prepare($query);
+
+            if (empty($player->cardsDrawn)) {
+                $cardsDrawn = NULL;
+            } else {
+                $cardsDrawn = json_encode(array_keys($player->cardsDrawn));
+            }
+
+            $statement->execute(array(':game_id'   => $game->gameId,
+                                      ':position'  => $player->position,
+                                      ':cards_drawn' => $cardsDrawn));
+        }
+    }
+
+    /**
      * Delete dice marked as deleted
      *
      * @param BMGame $game
@@ -1560,7 +1645,8 @@ class BMInterface {
                  '     actual_max, '.
                  '     position, '.
                  '     value, '.
-                 '     flags)'.
+                 '     flags, '.
+                 '     internal_value)'.
                  'VALUES '.
                  '    (:owner_id, '.
                  '     :original_owner_id, '.
@@ -1570,7 +1656,8 @@ class BMInterface {
                  '     :actual_max, '.
                  '     :position, '.
                  '     :value, '.
-                 '     :flags);';
+                 '     :flags,'.
+                 '     :internal_value);';
 
         $flags = $activeDie->flags_as_string();
         if (empty($flags)) {
@@ -1586,6 +1673,11 @@ class BMInterface {
             $actualMax = $activeDie->max;
         }
 
+        $internal_value = NULL;
+        if ($activeDie instanceof BMDieWildcard) {
+            $internal_value = $activeDie->currentCardId;
+        }
+
         $parameters = array(':owner_id' => $game->playerArray[$playerIdx]->playerId,
                             ':original_owner_id' => $game->playerArray[$activeDie->originalPlayerIdx]->playerId,
                             ':game_id' => $game->gameId,
@@ -1594,7 +1686,8 @@ class BMInterface {
                             ':actual_max' => $actualMax,
                             ':position' => $dieIdx,
                             ':value' => $activeDie->value,
-                            ':flags' => $flags);
+                            ':flags' => $flags,
+                            ':internal_value' => $internal_value);
         self::$db->update($query, $parameters);
     }
 
@@ -2253,7 +2346,7 @@ class BMInterface {
             $sets = array();
             foreach ($rows as $row) {
                 $buttons = $this->get_button_data(NULL, $row['name']);
-                
+
                 if (!isset($buttons) || count($buttons) == 0) {
                     continue;
                 }

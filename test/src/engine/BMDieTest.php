@@ -171,7 +171,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         }
 
         try {
-            $die = BMDie::create_from_recipe('(9.0)', TRUE);
+            $die = BMDie::create_from_recipe('(9.5)', TRUE);
             $this->fail('Creating decimal die did not throw an exception.');
         } catch (BMExceptionDieRecipe $e) {
 
@@ -847,6 +847,32 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     public function testLoad_flags_from_string() {
         $this->object->load_flags_from_string('WasJustCaptured');
         $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::displayed_value
+     */
+    public function testDisplayed_value() {
+        $this->object->init(6);
+        $this->object->value = 4;
+        $this->assertEquals(4, $this->object->displayed_value());
+
+        $this->object->init(0);
+        $this->object->value = 0;
+        $this->assertEquals(0, $this->object->displayed_value());
+    }
+
+    /*
+     * @covers BMDie::numeric_value
+     */
+    public function testNumeric_value() {
+        $this->object->init(6);
+        $this->object->value = 4;
+        $this->assertEquals(4, $this->object->numeric_value());
+
+        $this->object->init(0);
+        $this->object->value = 0;
+        $this->assertEquals(0, $this->object->numeric_value());
     }
 
     public function test__get() {

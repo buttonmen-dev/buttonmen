@@ -78,7 +78,7 @@ class BMSkillMorphing extends BMSkill {
     }
 
     /**
-     * Create a die clone due to morphing or doppelganger
+     * Create a die clone due to morphing
      *
      * @param BMDie $att
      * @param BMDie $def

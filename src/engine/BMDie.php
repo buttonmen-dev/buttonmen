@@ -207,10 +207,9 @@ class BMDie extends BMCanHaveSkill {
                 $twinArray = explode(',', $recipe);
                 $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
-//                $die = BMDieWildcard::create($recipe, $skills);
-                throw new BMExceptionUnimplementedDie('Wildcard skill not implemented');
+                $die = BMDieWildcard::create(NULL, $skills);
             } elseif (is_numeric($recipe)) {
-                // Deal with dice with numeric values, which will mostly be integers
+                // Integers are normal dice
                 $die = BMDie::create($recipe, $skills);
             } elseif (strlen($recipe) == 1) {
                 // Single character that's not a number is a swing die
@@ -423,11 +422,28 @@ class BMDie extends BMCanHaveSkill {
         if ($turboDieIsAboutToBeReplaced) {
             $this->value = NULL;
         } elseif ($needsToReroll) {
-            $this->set__value(bm_rand($this->min, $this->max));
+            $this->select_new_value();
         }
 
         $this->run_hooks('post_roll', array('die' => $this,
                                             'isTriggeredByAttack' => $isTriggeredByAttack));
+    }
+
+    /**
+     * Select a new value
+     */
+    protected function select_new_value() {
+        $this->set__value(bm_rand($this->min, $this->max));
+    }
+
+    /**
+     * This function lets us specify the value that we want to end up with after rerolling,
+     * even when we're doing odd things like drawing cards for Wildcard.
+     *
+     * @param int $value
+     */
+    public function set_value($value) {
+        $this->value = $value;
     }
 
     /**
@@ -469,7 +485,7 @@ class BMDie extends BMCanHaveSkill {
      * @return int
      */
     public function get_scoreValueTimesTen() {
-        $scoreValue = $this->max;
+        $scoreValue = $this->get_raw_score_value();
 
         $mult = 1;
         if ($this->captured) {
@@ -492,6 +508,15 @@ class BMDie extends BMCanHaveSkill {
         } else {
             return (10 * $scoreValue * $mult) / $div;
         }
+    }
+
+    /**
+     * Get the base score value of the die before applying any adjustments
+     *
+     * @return int
+     */
+    protected function get_raw_score_value() {
+        return $this->max;
     }
 
     /**
@@ -699,9 +724,18 @@ class BMDie extends BMCanHaveSkill {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}{$this->max}-sided die{$valueStr}";
+        $result = "{$skillStr}{$this->die_size_string()}{$valueStr}";
 
         return $result;
+    }
+
+    /**
+     * Description of die size
+     *
+     * @return string
+     */
+    protected function die_size_string() {
+        return "{$this->max}-sided die";
     }
 
     /**
@@ -909,7 +943,7 @@ class BMDie extends BMCanHaveSkill {
             $value = NULL;
             $recipeStatus = $recipe;
         } else {
-            $value = $this->value;
+            $value = $this->displayed_value(FALSE);
             $recipeStatus = $recipe . ':' . $value;
         }
 
@@ -1008,6 +1042,7 @@ class BMDie extends BMCanHaveSkill {
     public function forceReportDieSize() {
         return $this->has_flag('HasJustBeenMoody') ||
                $this->has_flag('HasJustMorphed') ||
+               $this->has_flag('HasJustDoppelgangered') ||
                $this->has_flag('HasJustTurboed');
     }
 
@@ -1019,6 +1054,7 @@ class BMDie extends BMCanHaveSkill {
     public function forceHideDieReroll() {
         return ($this->has_skill('Turbo') &&
                 !$this->has_flag('HasJustMorphed') &&
+                !$this->has_flag('HasJustDoppelgangered') &&
                 ($this->has_flag('IsAttacker') ||
                  $this->has_flag('JustPerformedTripAttack')));
     }
@@ -1125,6 +1161,24 @@ class BMDie extends BMCanHaveSkill {
     public function getDieTypes() {
         $typesList = array();
         return $typesList;
+    }
+
+    /**
+     * This is what should be displayed on the UI
+     *
+     * @return mixed
+     */
+    public function displayed_value() {
+        return $this->value;
+    }
+
+    /**
+     * This is the numeric value corresponding to the actual value
+     *
+     * @return int|float|NULL
+     */
+    public function numeric_value() {
+        return $this->value;
     }
 
     /**

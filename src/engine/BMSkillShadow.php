@@ -59,9 +59,9 @@ class BMSkillShadow extends BMSkill {
                'Attack, use one of your Shadow Dice to capture one of your ' .
                'opponent\'s dice. The number showing on the die you capture ' .
                'must be greater than or equal to the number showing on your ' .
-               'die, but within its range. For example, a shadow 10-sided ' .
-               'die showing a 2 can capture a die showing any number from ' .
-               '2 to 10.';
+               'die, but no more than its maximum value. For example, a ' .
+               'shadow 10-sided die showing a 2 can capture a die showing ' .
+               'any number from 2 to 10.';
     }
 
     /**

@@ -111,4 +111,40 @@ class BMSkillFireTest extends PHPUnit_Framework_TestCase {
         BMSkillFire::assist_values($par);
         $this->assertEquals(array(1, 2), $par['possibleAssistValues']);
     }
+
+    /**
+     * @covers BMSkillFire::assist_values
+     */
+    public function testAssist_values_Wildcard() {
+        // we need a whole BMGame because the information about the deck
+        // is held at the BMPlayer level
+        $game = new BMGame;
+        $die = BMDie::create_from_recipe('F(C)');
+        $die->playerIdx = 1;
+        $die->ownerObject = $game;
+
+        $die->set_value(1);
+        $helpVals = array();
+        $par = array('attackType'           => 'Power',
+                     'assistingDie'         => $die,
+                     'possibleAssistValues' => $helpVals);
+        BMSkillFire::assist_values($par);
+        $this->assertEquals(array(), $par['possibleAssistValues']);
+
+        $die->set_value(13);
+        $helpVals = array();
+        $par = array('attackType'           => 'Power',
+                     'assistingDie'         => $die,
+                     'possibleAssistValues' => $helpVals);
+        BMSkillFire::assist_values($par);
+        $this->assertEquals(range(1, 12), $par['possibleAssistValues']);
+
+        $die->set_value(20);
+        $helpVals = array();
+        $par = array('attackType'           => 'Power',
+                     'assistingDie'         => $die,
+                     'possibleAssistValues' => $helpVals);
+        BMSkillFire::assist_values($par);
+        $this->assertEquals(array(7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19), $par['possibleAssistValues']);
+    }
 }

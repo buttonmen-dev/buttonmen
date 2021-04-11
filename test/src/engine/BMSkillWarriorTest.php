@@ -173,6 +173,21 @@ class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMSkillWarrior::post_roll
+     */
+    public function testPost_roll_Wildcard() {
+        // we need a whole BMGame because the information about the deck
+        // is held at the BMPlayer level
+        $game = new BMGame;
+        $die = BMDie::create_from_recipe('`(C)');
+        $die->playerIdx = 1;
+        $die->ownerObject = $game;
+        $args = array('die' => $die);
+        $this->assertTrue(BMSkillWarrior::post_roll($args));
+        $this->assertEquals(20, $die->value);
+    }
+
+    /**
      * @covers BMSkillWarrior::score_value
      */
     public function testScore_value() {

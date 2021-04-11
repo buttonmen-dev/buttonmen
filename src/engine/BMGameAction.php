@@ -672,8 +672,32 @@ class BMGameAction {
     protected function message_size_change(array $preInfo, array $postInfo) {
         $message = '';
 
-        if ($preInfo['max'] != $postInfo['max']) {
-            $message = 'changed size from ' . $preInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+        $preIsWildcard = FALSE;
+        $postIsWildcard = FALSE;
+        $preMax = $preInfo['max'];
+        $postMax = $postInfo['max'];
+        $preSuffix = '';
+        $postSuffix = ' sides';
+
+        if (strpos($preInfo['recipe'], 'C')) {
+            $preMax = 'Wildcard';
+            $preIsWildcard = TRUE;
+        }
+
+        if (strpos($postInfo['recipe'], 'C')) {
+            $postMax = 'Wildcard';
+            $postIsWildcard = TRUE;
+        }
+
+        if ($postIsWildcard) {
+            $postSuffix = '';
+            if (!$preIsWildcard) {
+                $preSuffix = ' sides';
+            }
+        }
+
+        if ($preMax != $postMax) {
+            $message = 'changed size from ' . $preMax . $preSuffix . ' to ' . $postMax . $postSuffix;
         } elseif ((array_key_exists('forceReportDieSize', $preInfo) &&
                    $preInfo['forceReportDieSize']) ||
                   (array_key_exists('forceReportDieSize', $postInfo) &&

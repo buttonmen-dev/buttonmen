@@ -54,6 +54,11 @@ class BMInterfaceHelp extends BMInterface {
         try {
             $results = array();
 
+            $results['(C)'] = array(
+                'name' => 'Wildcard',
+                'description' => BMDieWildcard::getDescription()
+            );
+
             $swingInfo = BMDieSwing::$swingRanges;
             foreach (array_keys($swingInfo) as $swingLetter) {
                 $recipe = '(' . $swingLetter . ')';

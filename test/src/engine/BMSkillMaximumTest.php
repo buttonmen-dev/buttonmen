@@ -60,4 +60,27 @@ class BMSkillMaximumTest extends PHPUnit_Framework_TestCase {
         $die->roll(TRUE);
         $this->assertEquals(3, $die->value);
     }
+
+    /**
+     * @covers BMSkillMaximum::roll
+     */
+    public function testRoll_with_Wildcard() {
+        // we need a whole BMGame because the information about the deck
+        // is held at the BMPlayer level
+        $game = new BMGame;
+        $die = BMDie::create_from_recipe('M(C)');
+        $die->playerIdx = 1;
+        $die->ownerObject = $game;
+
+        // check that the initial roll occurs correctly
+        $die->roll(FALSE);
+        $this->assertEquals(20, $die->value);
+
+        $die->value = 3;
+        $die->roll(FALSE);
+        $this->assertEquals(20, $die->value);
+
+        $die->roll(TRUE);
+        $this->assertEquals(20, $die->value);
+    }
 }
