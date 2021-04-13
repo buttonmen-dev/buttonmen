@@ -25,23 +25,40 @@ function conn() {
         $pass = 'bmuserpass';
     }
 
-    try {
-        $conn = new PDO("mysql:host=$host;port=$port;dbname=$name", $user, $pass);
+    // Make a reasonable number of attempts to establish a DB connection
+    for ($attempt = 1; $attempt <= 5; $attempt++) {
+        try {
+            $conn = new PDO("mysql:host=$host;port=$port;dbname=$name", $user, $pass);
+            if (is_null($conn)) {
+                throw new PDOException("Database connection failed after set");
+            }
 
-    // don't use PDO emulation for prepare statements, have
-    // MySQL prepare statements natively
-        $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+            // don't use PDO emulation for prepare statements, have
+            // MySQL prepare statements natively
+            $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+            if (is_null($conn)) {
+                throw new PDOException("Database connection failed after setAttribute(ATTR_EMULATE_PREPARES)");
+            }
 
-        // SQL errors should throw catchable exceptions
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // SQL errors should throw catchable exceptions
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            if (is_null($conn)) {
+                throw new PDOException("Database connection failed after setAttribute(ATTR_ERRMODE)");
+            }
 
-        // Make sure auto_increment_increment is 1
-        $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
-        $statement->execute();
-    } catch(PDOException $e) {
-        error_log('Caught exception in mysql.inc.php: ' . $e->getMessage());
-        echo 'ERROR: ' . $e->getMessage();
+            // Make sure auto_increment_increment is 1
+            $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
+            $statement->execute();
+            if (is_null($conn)) {
+                throw new PDOException("Database connection failed after SET AUTO_INCREMENT_INCREMENT");
+            }
+
+            return $conn;
+        } catch(PDOException $e) {
+            error_log("Caught exception in mysql.inc.php (attempt $attempt/5): " . $e->getMessage());
+        }
     }
 
-    return $conn;
+    // Failed to establish a connection
+    throw new PDOException("Database connection failed");
 }

@@ -12,7 +12,11 @@ type npm
 
 echo "Using npm to install needed grunt libraries"
 
-for module in grunt-cli grunt grunt-contrib-jshint grunt-contrib-concat \
+# hardcode an older version of grunt-cli to work around micromatch
+# version incompatibility found in #2713
+npm install grunt-cli@1.4.1
+
+for module in grunt grunt-contrib-jshint grunt-contrib-concat \
               grunt-contrib-uglify grunt-lint-inline; do
   if [ -f node_modules/${module}/package.json ]; then
     echo "${module} already installed"

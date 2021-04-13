@@ -53,6 +53,7 @@ node default {
   include "postfix::base"
   include "user::buttonmen-devs"
   include "sudo::buttonmen-devs"
+  include "fqdn::base"
 
   # Node configuration needed for the buttonmen server
   include "apache::server::vagrant"

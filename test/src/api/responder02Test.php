@@ -1395,7 +1395,7 @@ class responder02Test extends responderTestFramework {
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Y' => array(1, 20));
         $expData['playerDataArray'][1]['optRequestArray'] = array(1 => array(1, 15), 2 => array(5, 10));
         $expData['playerDataArray'][0]['button'] = array('name' => 'dexx', 'recipe' => 'k(7) p?(X) o!(Z) G(3,17) t(5) g`(2)', 'originalRecipe' => 'k(7) p?(X) o!(Z) G(3,17) t(5) g`(2)', 'artFilename' => 'dexx.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'GorgorBey', 'recipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'originalRecipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'GorgorBey', 'recipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'originalRecipe' => 'ft(5) ds(1/15) `G(5/10) !p(Y) wHz(12)', 'artFilename' => 'gorgorbey.png');
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 7, 'skills' => array('Konstant'), 'properties' => array(), 'recipe' => 'k(7)', 'description' => 'Konstant 7-sided die'),
             array('value' => NULL, 'sides' => NULL, 'skills' => array('Poison', 'Mood'), 'properties' => array(), 'recipe' => 'p(X)?', 'description' => 'Poison X Mood Swing Die'),
@@ -2004,7 +2004,7 @@ class responder02Test extends responderTestFramework {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Poison', 'Reserve', 'Shadow', 'Speed', 'TimeAndSpace', 'Trip', 'Turbo'));
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'bobby5150.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'] = array(
@@ -3409,7 +3409,7 @@ class responder02Test extends responderTestFramework {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'CHOOSE_AUXILIARY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Auxiliary', 'Berserk', 'Ornery', 'Morphing', 'Radioactive', 'Rage', 'Reserve', 'Shadow', 'Slow', 'Stinger', 'Poison', 'Turbo'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'originalRecipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'originalRecipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'artFilename' => 'wtrollkin.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'originalRecipe' => 'g(4) m(8) o(10) (W) (X) +@(8)', 'artFilename' => 'maryland.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('S' => array(6, 20), 'Y' => array(1, 20));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('W' => array(4, 12), 'X' => array(4, 20));
@@ -3445,7 +3445,7 @@ class responder02Test extends responderTestFramework {
         $expData['gameState'] = "SPECIFY_DICE";
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array('artFilename' => 'BMdefaultRound.png', 'name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'originalRecipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)');
+        $expData['playerDataArray'][0]['button'] = array('artFilename' => 'wtrollkin.png', 'name' => 'wtrollkin', 'recipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)', 'originalRecipe' => 'p(4) pG%(7) s(15) sB(S) s%(S)! worm(Y)');
         array_pop($expData['playerDataArray'][1]['activeDieArray']);
         $expData['playerDataArray'][1]['button'] = array('artFilename' => 'maryland.png', 'name' => 'Maryland', 'recipe' => 'g(4) m(8) o(10) (W) (X)', 'originalRecipe' => 'g(4) m(8) o(10) (W) (X) +@(8)');
 
