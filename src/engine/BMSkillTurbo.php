@@ -85,6 +85,7 @@ class BMSkillTurbo extends BMSkill {
             'Doppelganger' => 'A Doppelganger die that captures a Turbo die currently does not get ' .
                               'the chance to perform an immediate turbo resize',
             'Radioactive' => 'Dice with the Turbo skill lose Turbo when they decay due to Radioactive',
+            'Warrior' => 'A Warrior Turbo die can change size via Turbo after coming into play',
         );
     }
 

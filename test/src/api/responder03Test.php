@@ -687,7 +687,7 @@ class responder03Test extends responderTestFramework {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Poison', 'Reserve', 'Shadow', 'Speed', 'TimeAndSpace', 'Trip', 'Turbo'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'bobby 5150', 'recipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'originalRecipe' => '^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)', 'artFilename' => 'bobby5150.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Uncle Scratchy', 'recipe' => '(2) (4) (6) (10) (X)', 'originalRecipe' => '(2) (4) (6) (10) (X)', 'artFilename' => 'unclescratchy.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('R' => array(2, 16));
         $expData['playerDataArray'][0]['optRequestArray'] = array(3 => array(1, 30));
@@ -1039,7 +1039,7 @@ class responder03Test extends responderTestFramework {
         $expData['playerDataArray'][0]['activeDieArray'][4]['skills'] = array("Turbo");
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30)! r^(4) rz(12) (1/30)!", "originalRecipe" => "^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)");
+        $expData['playerDataArray'][0]['button'] = array("artFilename" => "bobby5150.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30)! r^(4) rz(12) (1/30)!", "originalRecipe" => "^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)");
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "4" => array(1, 30));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
@@ -1456,7 +1456,7 @@ class responder03Test extends responderTestFramework {
         $expData['playerDataArray'][0]['activeDieArray'][5]['sides'] = null;
         $expData['playerDataArray'][0]['activeDieArray'][5]['skills'] = array("Turbo");
         array_pop($expData['playerDataArray'][0]['activeDieArray']);
-        $expData['playerDataArray'][0]['button'] = array("artFilename" => "BMdefaultRound.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30)! r^(4) z(12) (1/30)!", "originalRecipe" => "^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)");
+        $expData['playerDataArray'][0]['button'] = array("artFilename" => "bobby5150.png", "name" => "bobby 5150", "recipe" => "^(3) fsp(R) ftz(14) tz(1/30)! r^(4) z(12) (1/30)!", "originalRecipe" => "^(3) fsp(R) ftz(14) tz!(1/30) r^(4) rz(12) r!(1/30)");
         $expData['playerDataArray'][0]['optRequestArray'] = array("3" => array(1, 30), "5" => array(1, 30));
         $expData['playerDataArray'][0]['prevOptValueArray'] = array("3" => 1, "5" => 1);
 
@@ -3157,7 +3157,7 @@ class responder03Test extends responderTestFramework {
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Focus', 'Mighty', 'Morphing', 'Poison', 'Rage', 'Speed', 'Stealth', 'TimeAndSpace'));
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][0]['button'] = array('name' => 'Sabathia', 'recipe' => 'f(4) ^(5) H(6) m(7) z(22)', 'originalRecipe' => 'f(4) ^(5) H(6) m(7) z(22)', 'artFilename' => 'sabathia.png');
-        $expData['playerDataArray'][1]['button'] = array('name' => 'Discordia', 'recipe' => 'df(12) df(12) Gp(16) Gp(16) (Z)', 'originalRecipe' => 'df(12) df(12) Gp(16) Gp(16) (Z)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Discordia', 'recipe' => 'df(12) df(12) Gp(16) Gp(16) (Z)', 'originalRecipe' => 'df(12) df(12) Gp(16) Gp(16) (Z)', 'artFilename' => 'discordia.png');
         $expData['playerDataArray'][1]['swingRequestArray'] = array('Z' => array(4, 30));
         $expData['playerDataArray'][0]['activeDieArray'] = array(
             array('value' => NULL, 'sides' => 4, 'skills' => array('Focus'), 'properties' => array(), 'recipe' => 'f(4)', 'description' => 'Focus 4-sided die'),
@@ -3406,7 +3406,7 @@ class responder03Test extends responderTestFramework {
 
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Giant', 'Poison', 'Shadow', 'Stinger', 'TimeAndSpace', 'Trip', 'Turbo'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'SailorMur', 'recipe' => 'g(10) sp(12) t(4) (10/20) ^(X)!', 'originalRecipe' => 'g(10) sp(12) t(4) (10/20) ^(X)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'SailorMur', 'recipe' => 'g(10) sp(12) t(4) (10/20) ^(X)!', 'originalRecipe' => 'g(10) sp(12) t(4) (10/20) ^(X)!', 'artFilename' => 'sailormur.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'Giant', 'recipe' => '(20) (20) (20) (20) (20) (20)', 'originalRecipe' => '(20) (20) (20) (20) (20) (20)', 'artFilename' => 'giant.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
         $expData['playerDataArray'][0]['optRequestArray'] = array('3' => array(10, 20));
@@ -3679,7 +3679,7 @@ class responder03Test extends responderTestFramework {
         );
         $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
         $expData['gameSkillsInfo'] = $this->get_skill_info(array('Chance', 'Doppelganger', 'Insult', 'Jolt', 'Konstant', 'Maximum', 'Morphing', 'Null', 'Ornery', 'Radioactive', 'Shadow', 'Speed', 'Stinger', 'Trip', 'Turbo'));
-        $expData['playerDataArray'][0]['button'] = array('name' => 'NoopMan', 'recipe' => '%t(1,3) D(4) ns(20) z(X) c(Z)!', 'originalRecipe' => '%t(1,3) D(4) ns(20) z(X) c(Z)!', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'NoopMan', 'recipe' => '%t(1,3) D(4) ns(20) z(X) c(Z)!', 'originalRecipe' => '%t(1,3) D(4) ns(20) z(X) c(Z)!', 'artFilename' => 'noopman.png');
         $expData['playerDataArray'][1]['button'] = array('name' => 'jimmosk', 'recipe' => '(4) %(8) g(12) JIMmo(S) k(2)', 'originalRecipe' => '(4) %(8) g(12) JIMmo(S) k(2)', 'artFilename' => 'jimmosk.png');
         $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'Z' => array(4, 30));
         $expData['playerDataArray'][1]['swingRequestArray'] = array('S' => array(6, 20));
@@ -3808,7 +3808,7 @@ class responder03Test extends responderTestFramework {
        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Doppelganger', 'Mighty', 'Morphing', 'Queer', 'Rage', 'Reserve', 'Stinger', 'Turbo', 'Weak'));
        $expData['playerDataArray'][0]['button'] = array('name' => 'Lust', 'recipe' => '(6) (6) m(12) D(20) q(X)', 'originalRecipe' => '(6) (6) m(12) D(20) q(X)', 'artFilename' => 'lust.png');
-       $expData['playerDataArray'][1]['button'] = array('name' => 'Notorious', 'recipe' => 'G(2/12)! g(4/16)! G(8/20)! g(10/24)! rH(7) rH(11) rh(13) rh(17)', 'originalRecipe' => 'G(2/12)! g(4/16)! G(8/20)! g(10/24)! rH(7) rH(11) rh(13) rh(17)', 'artFilename' => 'BMdefaultRound.png');
+       $expData['playerDataArray'][1]['button'] = array('name' => 'Notorious', 'recipe' => 'G(2/12)! g(4/16)! G(8/20)! g(10/24)! rH(7) rH(11) rh(13) rh(17)', 'originalRecipe' => 'G(2/12)! g(4/16)! G(8/20)! g(10/24)! rH(7) rH(11) rh(13) rh(17)', 'artFilename' => 'notorious.png');
        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
        $expData['playerDataArray'][1]['optRequestArray'] = array('0' => array(2, 12), '1' => array(4, 16), '2' => array(8, 20), '3' => array(10, 24));
        $expData['playerDataArray'][0]['activeDieArray'] = array(
