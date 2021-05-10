@@ -26,7 +26,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
         $this->assertArrayHasKey('is_email_public', $resultArray);
         $this->assertArrayHasKey('dob_month', $resultArray);
         $this->assertArrayHasKey('dob_day', $resultArray);
-        $this->assertArrayHasKey('gender', $resultArray);
+        $this->assertArrayHasKey('pronouns', $resultArray);
         $this->assertArrayHasKey('image_size', $resultArray);
         $this->assertArrayHasKey('image_size', $resultArray);
         $this->assertArrayHasKey('uses_gravatar', $resultArray);
@@ -73,7 +73,7 @@ class BMInterfacePlayerTest extends BMInterfaceTestAbstract {
             'is_email_public' => FALSE,
             'dob_month' => 0,
             'dob_day' => 0,
-            'gender' => '',
+            'pronouns' => '',
             'comment' => '',
             'vacation_message' => '',
             'autopass' => 1,
