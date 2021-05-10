@@ -228,7 +228,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # TESS: from Origins 2000 / Club Foglio;   INTRODUCES Null(n) Dice
 (48, 'Tess',        'n(4) (8) (12) n(20) (X)',             0, 1, (SELECT id FROM buttonset WHERE name="BRAWL"));
 
-# BRIDGE AND TUNNEL (Bridge and Tunnel Software)  INTRODUCES Reboud(=) dice (not implemented); poison(p); shadow(s); option
+# BRIDGE AND TUNNEL (Bridge and Tunnel Software)  INTRODUCES Rebound(=) dice (not implemented); poison(p); shadow(s); option
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (63,  'Agent Orange',     '(6) p(6) =(10) (4/12) (4/20)',        0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
 (64,  'Huitzilopochtli',  '(6) (8) =(10) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
@@ -238,7 +238,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (68,  'Uncle Scratchy',   '(2) (4) (6) (10) (X)',                0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
 (681, 'Phantom Zero',     'g(8) s(10) (12) (2/12) (X)',          0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
 (682, 'Pinball Wizard',   '=(6) =(6) (20) (20)',                 0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
-(683, 'The Gratch',       'z(4) =(20) (V) (V) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
+(683, 'The Grotch',       'z(4) =(20) (V) (V) (V)',              0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
 (684, 'Steve',            '=(4) =(4) =(8) =(20) =(X)',           0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
 (685, 'The Fog',          's(4) s(4) (30) (30)',                 0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel")),
 (686, 'G',                'g(6) =(6) z(8) (16) (10/20)',         0, 0, (SELECT id FROM buttonset WHERE name="Bridge and Tunnel"));
