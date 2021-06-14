@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "devDependencies": {
     "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.4.3",
+    "grunt-contrib-jshint": "~1.0.0",
     "grunt-contrib-nodeunit": "~0.1.2",
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-concat": "~0.3.0",
-    "jshint": "~1.1.0",
-    "grunt-lint-inline": "~0.1.1"
+    "jshint": "~2.13.0",
+    "grunt-lint-inline": "~1.0.0"
   }
 }
