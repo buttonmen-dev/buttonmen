@@ -122,6 +122,8 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'text',
       'value': Api.user_prefs.pronouns,
       'length': UserPrefs.PRONOUNS_MAX_LENGTH,
+      'help': 'What pronouns should other players use when referring to ' +
+              'you?\nExamples: "she/her", "he/him", "they/them"',
     },
     'uses_gravatar': {
       'text': 'Use gravatar for profile image',
@@ -517,10 +519,26 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
     if (labelText) {
       labelText += ':';
     }
-    entryRow.append($('<td>', {
-      'text': labelText,
-      'class': 'label label_' + entryInfo.type,
-    }));
+    var labelEntry;
+    if (entryInfo.help) {
+      labelEntry = $('<td>', {
+        'class': 'label label_' + entryInfo.type,
+      }).append($('<span>', {
+        'text': labelText,
+        'title': entryInfo.help,
+        'class': 'prefs_desc',
+      })).append($('<span>', {
+        'text': 'i',
+        'title': entryInfo.help,
+        'class': 'info_icon',
+      }));
+    } else {
+      labelEntry = $('<td>', {
+        'text': labelText,
+        'class': 'label label_' + entryInfo.type,
+      });
+    }
+    entryRow.append(labelEntry);
     var entryInput = $('<td>', { 'class': 'value', });
     switch(entryInfo.type) {
     case 'display':
