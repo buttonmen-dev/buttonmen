@@ -181,7 +181,7 @@ class responder00Test extends responderTestFramework {
             'is_email_public' => 'False',
             'dob_month' => '2',
             'dob_day' => '29',
-            'gender' => '',
+            'pronouns' => '',
             'comment' => '',
             'vacation_message' => '',
             'homepage' => '',
@@ -223,7 +223,7 @@ class responder00Test extends responderTestFramework {
             'is_email_public' => 'False',
             'dob_month' => '2',
             'dob_day' => '29',
-            'gender' => '',
+            'pronouns' => '',
             'comment' => '',
             'vacation_message' => '',
             'homepage' => '',
@@ -681,7 +681,7 @@ class responder00Test extends responderTestFramework {
 
         $akeys = array_keys($retval['data']['user_prefs']);
         sort($akeys);
-        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'die_background', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'die_background', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'pronouns', 'status', 'uses_gravatar', 'vacation_message'));
         $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
         $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
@@ -711,7 +711,7 @@ class responder00Test extends responderTestFramework {
 
         $akeys = array_keys($retval['data']['profile_info']);
         sort($akeys);
-        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'gender', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'uses_gravatar','vacation_message'));
+        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'pronouns', 'uses_gravatar','vacation_message'));
         $this->assertEquals($retval['data']['profile_info']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['profile_info']['email'], NULL);
         $this->assertEquals($retval['data']['profile_info']['dob_day'], '29');

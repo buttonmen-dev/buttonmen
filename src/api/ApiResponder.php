@@ -447,7 +447,7 @@ class ApiResponder {
         $infoArray['dob_day'] = $args['dob_day'];
         $infoArray['comment'] = $args['comment'];
         $infoArray['vacation_message'] = $args['vacation_message'];
-        $infoArray['gender'] = $args['gender'];
+        $infoArray['pronouns'] = $args['pronouns'];
         $infoArray['autoaccept'] = ('true' == $args['autoaccept']);
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['fire_overshooting'] = ('true' == $args['fire_overshooting']);
