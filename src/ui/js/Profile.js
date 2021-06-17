@@ -198,9 +198,9 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Record', record, 'none', true));
   tbody.append(Profile.buildProfileTableRow('Birthday', birthday, 'unknown',
     true));
-  if (Api.profile_info.gender) {
-    tbody.append(Profile.buildProfileTableRow('Gender',
-      Api.profile_info.gender, 'irrelevant', true));
+  if (Api.profile_info.pronouns) {
+    tbody.append(Profile.buildProfileTableRow('Pronouns',
+      Api.profile_info.pronouns, 'irrelevant', true));
   }
   tbody.append(Profile.buildProfileTableRow('Email address',
     Api.profile_info.email, 'private', true));

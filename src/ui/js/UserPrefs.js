@@ -7,7 +7,7 @@ UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.MIN_IMAGE_SIZE = 80;
 UserPrefs.MAX_IMAGE_SIZE = 200;
-UserPrefs.GENDER_MAX_LENGTH = 100;
+UserPrefs.PRONOUNS_MAX_LENGTH = 100;
 UserPrefs.HOMEPAGE_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 UserPrefs.VACATION_MAX_LENGTH = 255;
@@ -17,7 +17,6 @@ UserPrefs.DEFAULT_COLORS = {
   'neutral_color_a': '#cccccc',
   'neutral_color_b': '#dddddd',
 };
-UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -91,16 +90,6 @@ UserPrefs.actionSetPrefs = function() {
     'action': 'javascript:void(0);'
   });
 
-  // We can't use a variable as a key when we're defining an object like this,
-  // so we need to do that entry separately.
-  var genderDefaults = {
-    '': '',
-    'Male': 'Male',
-    'Female': 'Female',
-  };
-  genderDefaults[UserPrefs.ALTERNATE_GENDER_OPTION] =
-    UserPrefs.ALTERNATE_GENDER_OPTION;
-
   var dieBackgroundDefaults = {
     'circle': 'circle',
     'symmetric': 'symmetric',
@@ -128,17 +117,13 @@ UserPrefs.actionSetPrefs = function() {
         'day': Api.user_prefs.dob_day,
       },
     },
-    'gender_select': {
-      'text': 'Gender',
-      'type': 'select',
-      'value': Api.user_prefs.gender,
-      'source': genderDefaults,
-    },
-    'gender_text': {
-      'text': 'Feel free to elaborate',
+    'pronouns': {
+      'text': 'Pronouns',
       'type': 'text',
-      'value': Api.user_prefs.gender,
-      'length': UserPrefs.GENDER_MAX_LENGTH,
+      'value': Api.user_prefs.pronouns,
+      'length': UserPrefs.PRONOUNS_MAX_LENGTH,
+      'help': 'What pronouns should other players use when referring to ' +
+              'you?\nExamples: "she/her", "he/him", "they/them"',
     },
     'uses_gravatar': {
       'text': 'Use gravatar for profile image',
@@ -322,27 +307,7 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
     accountBlurb, accountSettings);
 
-  // Gender and gravatar inputs are dynamic
-  var genderText = prefsTable.find('#userprefs_gender_text');
-  var genderSelect = prefsTable.find('#userprefs_gender_select');
-  if (Api.user_prefs.gender === '' || Api.user_prefs.gender == 'Male' ||
-      Api.user_prefs.gender == 'Female') {
-    genderText.closest('tr').hide();
-    genderText.val('');
-  } else if (Api.user_prefs.gender == UserPrefs.ALTERNATE_GENDER_OPTION) {
-    genderText.val('');
-  } else {
-    genderSelect.val(UserPrefs.ALTERNATE_GENDER_OPTION);
-  }
-  genderSelect.change(function() {
-    if (genderSelect.val() == UserPrefs.ALTERNATE_GENDER_OPTION) {
-      genderText.closest('tr').show();
-    } else {
-      genderText.closest('tr').hide();
-      genderText.val('');
-    }
-  });
-
+  // Gravatar inputs are dynamic
   var gravatarCheck = prefsTable.find('#userprefs_uses_gravatar');
   var imageSizeText = prefsTable.find('#userprefs_image_size');
   if (!Api.user_prefs.uses_gravatar) {
@@ -354,7 +319,7 @@ UserPrefs.actionSetPrefs = function() {
       imageSizeText.closest('tr').show();
     } else {
       imageSizeText.closest('tr').hide();
-      genderText.val('');
+      imageSizeText.val('');
     }
   });
 
@@ -385,10 +350,7 @@ UserPrefs.formSetPrefs = function() {
   var is_email_public = $('#userprefs_is_email_public').prop('checked');
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
-  var gender = $('#userprefs_gender_text').val();
-  if (!gender) {
-    gender = $('#userprefs_gender_select').val();
-  }
+  var pronouns = $('#userprefs_pronouns').val();
   var uses_gravatar = $('#userprefs_uses_gravatar').prop('checked');
   var favorite_button = $('#userprefs_favorite_button').val();
   var favorite_buttonset = $('#userprefs_favorite_buttonset').val();
@@ -497,7 +459,7 @@ UserPrefs.formSetPrefs = function() {
       'is_email_public': is_email_public,
       'dob_month': dob_month,
       'dob_day': dob_day,
-      'gender': gender,
+      'pronouns': pronouns,
       'favorite_button': favorite_button,
       'favorite_buttonset': favorite_buttonset,
       'image_size': image_size,
@@ -557,10 +519,26 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
     if (labelText) {
       labelText += ':';
     }
-    entryRow.append($('<td>', {
-      'text': labelText,
-      'class': 'label label_' + entryInfo.type,
-    }));
+    var labelEntry;
+    if (entryInfo.help) {
+      labelEntry = $('<td>', {
+        'class': 'label label_' + entryInfo.type,
+      }).append($('<span>', {
+        'text': labelText,
+        'title': entryInfo.help,
+        'class': 'prefs_desc',
+      })).append($('<span>', {
+        'text': 'i',
+        'title': entryInfo.help,
+        'class': 'info_icon',
+      }));
+    } else {
+      labelEntry = $('<td>', {
+        'text': labelText,
+        'class': 'label label_' + entryInfo.type,
+      });
+    }
+    entryRow.append(labelEntry);
     var entryInput = $('<td>', { 'class': 'value', });
     switch(entryInfo.type) {
     case 'display':
