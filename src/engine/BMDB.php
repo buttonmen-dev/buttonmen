@@ -111,6 +111,12 @@ class BMDB {
         if ($returnType == 'bool') {
             return (bool)$column;
         }
+        if ($returnType == 'float') {
+            if (!isset($column)) {
+                throw new BMExceptionDatabase("Found non-set value in DB when expecting float");
+            }
+            return (float)$column;
+        }
         if ($returnType == 'str') {
             if (!isset($column)) {
                 throw new BMExceptionDatabase("Found non-set value in DB when expecting string");
