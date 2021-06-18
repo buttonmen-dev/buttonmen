@@ -48,9 +48,23 @@ class BMDieOption extends BMDie {
      * @param array $skills
      */
     public function init($optionArray, array $skills = NULL) {
-        if (!is_array($optionArray) ||
-            2 != count($optionArray)) {
-            throw new InvalidArgumentException('optionArray must be an array with at exactly two elements.');
+        if (!is_array($optionArray)) {
+            throw new InvalidArgumentException('optionArray must be an array.');
+        }
+
+        if (2 != count($optionArray)) {
+            throw new InvalidArgumentException('optionArray must have exactly two elements.');
+        }
+
+        foreach ($optionArray as $option) {
+            if ($option === '0') {
+                // see Issue #2614
+                throw new BMExceptionUnimplementedDie(
+                    'Option die size of 0 is currently not supported.'
+                );
+            }
+
+            self::validate_die_size($option, TRUE);
         }
 
         $this->min = 1;

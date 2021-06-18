@@ -30,10 +30,26 @@ class BMSkill {
         }
 
         $skillLetterArray = str_split($skillString);
+
+        if (in_array('{', $skillLetterArray) || in_array('}', $skillLetterArray)) {
+            throw new BMExceptionUnimplementedSkill(
+                'Plasma skill not implemented'
+            );
+        }
+
         $skillArray = array();
 
         foreach ($skillLetterArray as $skillLetter) {
-            $skillArray[] = BMSkill::expand_skill_letter($skillLetter);
+            $skill = BMSkill::expand_skill_letter($skillLetter);
+
+            if (('' != $skill) && in_array($skill, $skillArray)) {
+                throw new BMExceptionDieRecipe(
+                    'Skills cannot be present multiple times in a die recipe. ' .
+                    'You repeated the letter ' . $skillLetter . '.'
+                );
+            }
+
+            $skillArray[] = $skill;
         }
 
         return $skillArray;

@@ -35,6 +35,9 @@ class BMUtilityHitTable {
      * So, if 4 can be made with A and B or C and D,
      * $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
      *
+     * To save on memory when there are many dice present, the hit table is
+     * restricted to only include target values up to $maxHitValue.
+     *
      * @var array
      */
     private $hits = array();
@@ -44,7 +47,7 @@ class BMUtilityHitTable {
      *
      * @param array $dice
      */
-    public function __construct($dice) {
+    public function __construct($dice, $maxHitValue = PHP_INT_MAX) {
         // For building hash keys, every die needs a unique
         // identifier, no matter how many there are, but if there are
         // more than 36 dice, something is very, very wrong.
@@ -69,6 +72,9 @@ class BMUtilityHitTable {
                         // process the dice in order
                         $newkey = $key.$die_id;
                         $newtarget = $target + $val;
+                        if ($newtarget > $maxHitValue) {
+                            continue;
+                        }
                         if (array_key_exists($newtarget, $this->hits)) {
                             // If the same die combo makes a number
                             // two ways, we just overwrite the old
@@ -83,6 +89,9 @@ class BMUtilityHitTable {
 
             // Add the unique values the die may provide
             foreach ($die->attack_values("Skill") as $val) {
+                if ($val > $maxHitValue) {
+                    continue;
+                }
                 if (array_key_exists($val, $this->hits)) {
                     $this->hits[$val][$die_id] = array($die);
                 } else {

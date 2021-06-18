@@ -158,6 +158,14 @@ Newgame.actionCreateGame = function() {
     $('#player1_toggle').click();
   }
 
+  // Make custom button fields visible if a custom button has been selected
+  if ('CustomBM' == Newgame.activity.playerButton) {
+    $('#player_custom_recipe').parent().children().show();
+  }
+  if ('CustomBM' == Newgame.activity.opponentButton) {
+    $('#opponent_custom_recipe').parent().children().show();
+  }
+
   // activate all Chosen comboboxes
   $('.chosen-select').chosen({ search_contains: true });
 };
@@ -397,6 +405,12 @@ Newgame.createButtonOptionsTable = function() {
   selectRow.append(Newgame.getButtonSelectTd('opponent', true));
   buttonOptionsTable.append(selectRow);
 
+  // custom button recipe row
+  var customRow = $('<tr>');
+  customRow.append(Newgame.getCustomRecipeTd('player'));
+  customRow.append(Newgame.getCustomRecipeTd('opponent'));
+  buttonOptionsTable.append(customRow);
+
   return buttonOptionsTable;
 };
 
@@ -415,7 +429,9 @@ Newgame.formCreateGame = function() {
 
   Newgame.activity.opponentName = $('#opponent_name').val();
   Newgame.activity.playerButton = $('#player_button').val();
+  Newgame.activity.playerCustomRecipe = $('#player_custom_recipe').val();
   Newgame.activity.opponentButton = $('#opponent_button').val();
+  Newgame.activity.opponentCustomRecipe = $('#opponent_custom_recipe').val();
   Newgame.activity.nRounds = $('#n_rounds').val();
   Newgame.activity.description = $('#description').val();
 
@@ -431,6 +447,13 @@ Newgame.formCreateGame = function() {
     } else {
       errorMessage = 'Please select a button for yourself.';
     }
+  } else if (Newgame.activity.playerButton == 'CustomBM' &&
+    !Newgame.activity.playerCustomRecipe) {
+    if ($('#player_name').length) {
+      errorMessage = 'Please enter a custom recipe for player 1';
+    } else {
+      errorMessage = 'Please enter a custom recipe for yourself.';
+    }
   } else if (Newgame.activity.opponentName &&
     !(Newgame.activity.opponentName in Api.player.list)) {
     errorMessage =
@@ -440,6 +463,11 @@ Newgame.formCreateGame = function() {
     !Newgame.activity.opponentButton) {
     errorMessage =
       'Please select a button for ' + Newgame.activity.opponentName;
+  } else if (Newgame.activity.opponentName &&
+    Newgame.activity.opponentButton == 'CustomBM' &&
+    !Newgame.activity.opponentCustomRecipe) {
+    errorMessage =
+      'Please enter a custom recipe for ' + Newgame.activity.opponentName;
   }
 
   if (errorMessage.length) {
@@ -454,10 +482,12 @@ Newgame.formCreateGame = function() {
     playerInfoArray[0] = [
       Newgame.activity.playerName,
       Newgame.activity.playerButton,
+      Newgame.activity.playerCustomRecipe,
     ];
     playerInfoArray[1] = [
       Newgame.activity.opponentName,
       Newgame.activity.opponentButton,
+      Newgame.activity.opponentCustomRecipe,
     ];
 
     var args =
@@ -470,6 +500,21 @@ Newgame.formCreateGame = function() {
     if (Newgame.activity.previousGameId) {
       args.previousGameId = Newgame.activity.previousGameId;
     }
+
+    var customRecipeArray = [];
+
+    if (Newgame.activity.playerCustomRecipe ||
+        Newgame.activity.opponentCustomRecipe) {
+      customRecipeArray = ['', ''];
+    }
+    if (Newgame.activity.playerCustomRecipe) {
+      customRecipeArray[0] = Newgame.activity.playerCustomRecipe;
+    }
+    if (Newgame.activity.opponentCustomRecipe) {
+      customRecipeArray[1] = Newgame.activity.opponentCustomRecipe;
+    }
+
+    args.customRecipeArray = customRecipeArray;
 
     // N.B. Newgame.activity is always retained between loads: on
     // failure so the player can correct selections, on success in
@@ -566,17 +611,19 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
 
   var selectTd = Newgame.getSelectTd(rowname, selectname, valuedict,
                                      greydict, selectedval, isComboBox,
-                                     blankOption);
+                                     null, blankOption);
 
   selectRow.append(selectTd);
   return selectRow;
 };
 
 Newgame.getSelectTd = function(nametext, selectname, valuedict,
-                               greydict, selectedval, isComboBox, blankOption) {
+                               greydict, selectedval, isComboBox,
+                               onChangeEvent, blankOption) {
   var select = $('<select>', {
     'id': selectname,
     'name': selectname,
+    'onchange': onChangeEvent,
   });
 
   if (isComboBox) {
@@ -636,6 +683,31 @@ Newgame.getSelectOptionList = function(
   return optionlist;
 };
 
+Newgame.getCustomRecipeTd = function(player) {
+  var inputFieldName = player + '_custom_recipe';
+  var currentValue =
+    (player == 'player' ?
+    Newgame.activity.playerCustomRecipe :
+    Newgame.activity.opponentCustomRecipe);
+
+  var customRecipeInput = $('<input>', {
+    'id': inputFieldName,
+    'name': inputFieldName,
+    'type': 'text',
+    'val': currentValue,
+    'style': 'display: none;',
+  });
+
+  var customRecipeTd = $('<td>');
+  customRecipeTd.append($('<span>', {
+    'text': 'Custom Recipe: ',
+    'style': 'display: none;',
+  }));
+  customRecipeTd.append(customRecipeInput);
+
+  return customRecipeTd;
+};
+
 Newgame.getButtonSelectTd = function(player, isComboBox) {
   if (player == 'player') {
     return Newgame.getSelectTd(
@@ -644,7 +716,8 @@ Newgame.getButtonSelectTd = function(player, isComboBox) {
       Newgame.activity.buttonList.player,
       Newgame.activity.buttonGreyed,
       Newgame.activity.playerButton,
-      isComboBox);
+      isComboBox,
+      'Newgame.reactToButtonChange("' + player + '", $(this).val())');
   } else if (Newgame.activity.buttonLimits.opponent.button_sets.ANY &&
       Newgame.activity.buttonLimits.opponent.tourn_legal.ANY &&
       Newgame.activity.buttonLimits.opponent.die_skills.ANY) {
@@ -655,6 +728,7 @@ Newgame.getButtonSelectTd = function(player, isComboBox) {
       Newgame.activity.buttonGreyed,
       Newgame.activity.opponentButton,
       isComboBox,
+     'Newgame.reactToButtonChange("' + player + '", $(this).val())',
      'Any button');
   } else {
     return Newgame.getSelectTd(
@@ -729,8 +803,22 @@ Newgame.updateButtonList = function(player, limitid) {
   if (Newgame.activity.buttonLimits[player].button_sets.ANY &&
       Newgame.activity.buttonLimits[player].tourn_legal.ANY &&
       Newgame.activity.buttonLimits[player].die_skills.ANY) {
+    if (Config.siteType == 'development') {
+      Newgame.activity.buttonList[player] = {
+        '__random': 'Random button',
+        'CustomBM': 'Custom recipe',
+      };
+    } else {
+      Newgame.activity.buttonList[player] = {
+        '__random': 'Random button',
+      };
+    }
+  } else if ((Config.siteType == 'development') &&
+             Newgame.activity.buttonLimits[player].button_sets[
+               'limit_' + player + '_button_sets_custombm'
+             ]) {
     Newgame.activity.buttonList[player] = {
-      '__random': 'Random button',
+      'CustomBM': 'Custom recipe',
     };
   } else {
     Newgame.activity.buttonList[player] = {};
@@ -779,6 +867,11 @@ Newgame.updateButtonList = function(player, limitid) {
       }
     }
 
+    // remove CustomBM explicitly, since this is handled specially
+    if ('CustomBM' == button) {
+      return true;
+    }
+
     Newgame.activity.buttonList[player][button] =
       Newgame.activity.buttonRecipe[button];
   });
@@ -786,6 +879,17 @@ Newgame.updateButtonList = function(player, limitid) {
   // if we're updating an existing button select dropdown, change it now
   if (limitid) {
     Newgame.updateButtonSelectTd(player);
+  }
+};
+
+Newgame.reactToButtonChange = function(player, button) {
+  var customRecipeControls =
+    $('#' + player + '_custom_recipe').parent().children();
+
+  if (button == 'CustomBM') {
+    customRecipeControls.show();
+  } else {
+    customRecipeControls.hide();
   }
 };
 

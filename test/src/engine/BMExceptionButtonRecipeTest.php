@@ -1,6 +1,6 @@
 <?php
 
-class BMUnimplementedDieExceptionTest extends PHPUnit_Framework_TestCase  {
+class BMExceptionButtonRecipeTest extends PHPUnit_Framework_TestCase  {
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -18,13 +18,13 @@ class BMUnimplementedDieExceptionTest extends PHPUnit_Framework_TestCase  {
     }
 
     /**
-     * @covers BMUnimplementedDieException
+     * @covers BMExceptionButtonRecipe
      */
-    public function testBMUnimplementedDieException()
+    public function testBMExceptionButtonRecipe()
     {
         try {
-            throw new BMUnimplementedDieException("Wildcard skill not implemented");
-        } catch (BMUnimplementedDieException $e) {
+            throw new BMExceptionButtonRecipe('Button recipe exception thrown');
+        } catch (BMExceptionButtonRecipe $e) {
             $this->assertTrue(TRUE);
         } catch (Exception $e) {
             $this->assertTrue(FALSE);

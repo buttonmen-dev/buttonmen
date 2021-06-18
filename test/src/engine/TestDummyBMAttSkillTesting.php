@@ -7,6 +7,7 @@ class TestDummyBMAttSkillTesting extends BMAttackSkill {
     }
 
     public function make_hit_table() {
+        self::strip_excess_plain_zeros($this->validDice);
         $this->hitTable = new BMUtilityHitTable($this->validDice);
     }
 }

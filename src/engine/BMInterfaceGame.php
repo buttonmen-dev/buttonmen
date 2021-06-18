@@ -21,6 +21,7 @@ class BMInterfaceGame extends BMInterface {
      * @param int|NULL $previousGameId
      * @param int|NULL $currentPlayerId
      * @param bool $autoAccept
+     * @param array $customRecipeArray
      * @return array|NULL
      */
     public function create_game(
@@ -30,13 +31,16 @@ class BMInterfaceGame extends BMInterface {
         $description = '',
         $previousGameId = NULL,
         $currentPlayerId = NULL,
-        $autoAccept = TRUE
+        $autoAccept = TRUE,
+        array $customRecipeArray = array()
     ) {
         $isValidInfo =
             $this->validate_game_info(
                 $playerIdArray,
                 $maxWins,
-                $previousGameId
+                $previousGameId,
+                $buttonNameArray,
+                $customRecipeArray
             );
         if (!$isValidInfo) {
             return NULL;
@@ -44,12 +48,6 @@ class BMInterfaceGame extends BMInterface {
 
         $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
         if (is_null($buttonIdArray)) {
-            return NULL;
-        }
-
-        // check that the first button has been specified
-        if (empty($buttonNameArray[0])) {
-            $this->set_message("The first button needs to be set.");
             return NULL;
         }
 
@@ -83,8 +81,12 @@ class BMInterfaceGame extends BMInterface {
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
 
+            if (!$this->set_custom_recipes($gameId, $buttonNameArray, $customRecipeArray)) {
+                return NULL;
+            }
+
             // update game state to latest possible
-            $game = $this->load_game($gameId);
+            $game = $this->load_game($gameId, NULL, TRUE);
             if (!($game instanceof BMGame)) {
                 throw new UnexpectedValueException(
                     "Could not load newly-created game $gameId"
@@ -229,6 +231,107 @@ class BMInterfaceGame extends BMInterface {
     }
 
     /**
+     * Set custom recipes
+     *
+     * @param int $gameId
+     * @param array $buttonNameArray
+     * @param array $customRecipeArray
+     */
+    protected function set_custom_recipes(
+        $gameId,
+        array $buttonNameArray,
+        array $customRecipeArray
+    ) {
+        if (!in_array('CustomBM', $buttonNameArray)) {
+            return TRUE;
+        }
+
+        if ($this->get_config('site_type') != 'development') {
+            $this->set_message('Custom recipes can only be used on development sites.');
+            return FALSE;
+        }
+
+        if (empty($customRecipeArray)) {
+            return FALSE;
+        }
+
+        // james: the custom recipe has theoretically already been checked for validity
+        // in create_game()->validate_game_info(), but we include it here again in case
+        // we call set_custom_recipes() from somewhere else
+        if (!$this->are_custom_recipes_valid($buttonNameArray, $customRecipeArray)) {
+            return FALSE;
+        }
+
+        foreach ($buttonNameArray as $position => $buttonName) {
+            if ('CustomBM' == $buttonName) {
+                $query = 'UPDATE game_player_map '.
+                         'SET alt_recipe = :custom_recipe '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':custom_recipe' => trim($customRecipeArray[$position]),
+                                          ':game_id' => $gameId,
+                                          ':position' => $position));
+            }
+        }
+
+        return TRUE;
+    }
+
+    protected function are_custom_recipes_valid(
+        array $buttonNameArray,
+        array $customRecipeArray
+    ) {
+        foreach ($buttonNameArray as $position => $buttonName) {
+            if ('CustomBM' == $buttonName) {
+                if (empty($customRecipeArray)) {
+                    $this->set_message('customRecipeArray must be supplied');
+                    return FALSE;
+                }
+
+                $customRecipe = trim($customRecipeArray[$position]);
+                if (empty($customRecipe)) {
+                    $this->set_message('Custom recipe cannot be empty.');
+                    return FALSE;
+                }
+                $tempButton = new BMButton;
+                try {
+                    $tempButton->load($customRecipe, 'CustomBM', TRUE, TRUE, TRUE);
+                } catch (BMExceptionDieRecipe $e) {
+                    $eInner = $e;
+                    while ($eInner->getPrevious()) {
+                        $eInner = $eInner->getPrevious();
+                    }
+                    $this->set_message($eInner->getMessage());
+                    return FALSE;
+                } catch (BMExceptionButtonRecipe $e) {
+                    $eInner = $e;
+                    while ($eInner->getPrevious()) {
+                        $eInner = $eInner->getPrevious();
+                    }
+                    $this->set_message($eInner->getMessage());
+                    return FALSE;
+                } catch (InvalidArgumentException $e) {
+                    $this->set_message('Custom recipe ' . $customRecipe .
+                                       ' is invalid.');
+                    return FALSE;
+                } catch (Exception $e) {
+                    return FALSE;
+                }
+
+                if ($tempButton->hasUnimplementedSkill) {
+                    $this->set_message('Custom recipe ' . $customRecipe .
+                                       ' is not allowed to contain unimplemented skills.');
+                    return FALSE;
+                }
+            }
+        }
+
+        return TRUE;
+    }
+
+    /**
      * Validate game parameters for a new game
      *
      * @param array $playerIdArray
@@ -239,7 +342,9 @@ class BMInterfaceGame extends BMInterface {
     protected function validate_game_info(
         array $playerIdArray,
         $maxWins,
-        $previousGameId
+        $previousGameId,
+        array $buttonNameArray,
+        array $customRecipeArray
     ) {
         if (!$this->validate_player_id_array($playerIdArray)) {
             return FALSE;
@@ -261,6 +366,16 @@ class BMInterfaceGame extends BMInterface {
         $arePreviousPlayersValid =
             $this->validate_previous_game_players($previousGameId, $playerIdArray);
         if (!$arePreviousPlayersValid) {
+            return FALSE;
+        }
+
+        // check that the first button has been specified
+        if (empty($buttonNameArray[0])) {
+            $this->set_message("The first button needs to be set.");
+            return FALSE;
+        }
+
+        if (!$this->are_custom_recipes_valid($buttonNameArray, $customRecipeArray)) {
             return FALSE;
         }
 
@@ -1614,7 +1729,7 @@ class BMInterfaceGame extends BMInterface {
         if (FALSE === $game->playerArray[$currentPlayerIdx]->waitingOnAction) {
             $this->set_message('You are not the active player');
             return FALSE;
-        };
+        }
 
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||

@@ -98,7 +98,8 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (85, '2020 Fanatics',    100100),
 
 # Special
-(10000, 'RandomBM', 200000);
+(10000, 'RandomBM', 200000),
+(20000, 'CustomBM', 20);
 
 
 DELETE FROM button;
@@ -1263,7 +1264,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_ord
 (10007, 'RandomBMTriskill',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 70),
 (10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 80),
 (10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90),
-(10010, 'RandomBMSoldiers',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 100);
+(10010, 'RandomBMSoldiers',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 100),
+(11000, 'CustomBM',           '', 0, 0, (SELECT id FROM buttonset WHERE name="CustomBM"), 0);
 
 
 
@@ -1271,6 +1273,11 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_ord
 #####################################################
 #####   B U T T O N   D E S C R I P T I O N S   #####
 #####################################################
+
+UPDATE button
+SET flavor_text='This button has a custom recipe'
+WHERE name='CustomBM';
+
 UPDATE button
 SET flavor_text='This button gets a different random recipe in each game, with a vanilla random formula'
 WHERE name='RandomBMVanilla';

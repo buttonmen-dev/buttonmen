@@ -345,11 +345,12 @@ class BMInterface {
      *
      * @param int $gameId
      * @param int $logEntryLimit
+     * @param bool $forceValidateRecipes
      * @return bool
      */
-    protected function load_game($gameId, $logEntryLimit = NULL) {
+    protected function load_game($gameId, $logEntryLimit = NULL, $forceValidateRecipes = FALSE) {
         try {
-            $game = $this->load_game_parameters($gameId);
+            $game = $this->load_game_parameters($gameId, $forceValidateRecipes);
 
             // check whether the game exists
             if (!isset($game)) {
@@ -385,9 +386,10 @@ class BMInterface {
      * Load all game parameters from database
      *
      * @param int $gameId
+     * @param bool $forceValidateRecipes
      * @return BMGame
      */
-    protected function load_game_parameters($gameId) {
+    protected function load_game_parameters($gameId, $forceValidateRecipes) {
         // check that the gameId exists
         $query = 'SELECT g.*,'.
                  'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
@@ -446,7 +448,7 @@ class BMInterface {
                 )
             );
 
-            $this->load_button($game, $pos, $row);
+            $this->load_button($game, $pos, $row, $forceValidateRecipes);
             $this->load_player_attributes($game, $pos, $row);
             $this->load_lastActionTime($game, $pos, $row);
             $this->load_hasPlayerDismissedGame($game, $pos, $row);
@@ -486,8 +488,9 @@ class BMInterface {
      * @param BMGame $game
      * @param int $pos
      * @param array $row
+     * @param bool $forceValidateRecipes
      */
-    protected function load_button($game, $pos, $row) {
+    protected function load_button($game, $pos, $row, $forceValidateRecipes) {
         if (isset($row['button_name'])) {
             if (isset($row['alt_recipe'])) {
                 $recipe = $row['alt_recipe'];
@@ -496,7 +499,7 @@ class BMInterface {
             }
             if (isset($recipe)) {
                 $button = new BMButton;
-                $button->load($recipe, $row['button_name']);
+                $button->load($recipe, $row['button_name'], FALSE, FALSE, $forceValidateRecipes);
                 if (isset($row['alt_recipe'])) {
                     $button->hasAlteredRecipe = TRUE;
                 }

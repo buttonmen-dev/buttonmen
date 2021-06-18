@@ -264,7 +264,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
         $button1 = new BMButton;
         $button2 = new BMButton;
-        $recipe1 = '(4) (8) +(6) (12) +(30)';
+        $recipe1 = '(4) (8) (6) (12) +(30)';
         $recipe2 = '(6) (12) (20) (20)';
         $button1->load($recipe1);
         $button2->load($recipe2);
@@ -281,15 +281,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         foreach ($button2->dieArray as $die) {
             $dieArray2[] = clone $die;
         }
-        $firstAuxDie = clone $button1->dieArray[2];
-        $firstAuxDie->playerIdx = 1;
-        $firstAuxDie->originalPlayerIdx = 1;
-        $dieArray2[] = $firstAuxDie;
 
-        $secondAuxDie = clone $button1->dieArray[4];
-        $secondAuxDie->playerIdx = 1;
-        $secondAuxDie->originalPlayerIdx = 1;
-        $dieArray2[] = $secondAuxDie;
+        $auxDie = clone $button1->dieArray[4];
+        $auxDie->playerIdx = 1;
+        $auxDie->originalPlayerIdx = 1;
+        $dieArray2[] = $auxDie;
 
         $this->assertEquals(array($dieArray1, $dieArray2),
                             $this->object->activeDieArrayArray);
@@ -306,7 +302,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
         $button1 = new BMButton;
         $button2 = new BMButton;
-        $recipe1 = '(4) (8) +(6) (12) +(30)';
+        $recipe1 = '(4) (8) +(6) (12) (30)';
         $recipe2 = '(6) +(12) (20) (20)';
         $button1->load($recipe1);
         $button2->load($recipe2);
@@ -382,7 +378,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button1 = new BMButton;
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) +(30)';
-        $recipe2 = '+(6) (12) (20) (20)';
+        $recipe2 = '(12) +(6) (20) (20)';
         $button1->load($recipe1);
         $button2->load($recipe2);
         $this->object->buttonArray = array($button1, $button2);
@@ -391,8 +387,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                         BMDie::create(8),
                         BMDie::create(12),
                         BMDie::create_from_recipe('+(30)')),
-                  array(BMDie::create_from_recipe('+(6)'),
-                        BMDie::create(12),
+                  array(BMDie::create(12),
+                        BMDie::create_from_recipe('+(6)'),
                         BMDie::create(20),
                         BMDie::create(20)));
         $this->object->update_game_state();
@@ -509,15 +505,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button1->load('(4) (8)');
 
         $button2 = new BMButton;
-        $button2->load('+(10) (20)');
+        $button2->load('(10) +(20)');
 
         $this->object->buttonArray = array($button1, $button2);
 
         $die1 = BMDie::create_from_recipe('(4)');
         $die2 = BMDie::create_from_recipe('(8)');
 
-        $die3 = BMDie::create_from_recipe('+(10)');
-        $die4 = BMDie::create_from_recipe('(20)');
+        $die3 = BMDie::create_from_recipe('(10)');
+        $die4 = BMDie::create_from_recipe('+(20)');
 
         $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
         $this->object->waitingOnActionArray = array(FALSE, FALSE);
@@ -527,11 +523,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $this->object->gameState);
         $this->assertCount(2, $this->object->activeDieArrayArray[0]);
         $this->assertCount(1, $this->object->activeDieArrayArray[1]);
-        $this->assertEquals($die4, $this->object->activeDieArrayArray[1][0]);
+        $this->assertEquals($die3, $this->object->activeDieArrayArray[1][0]);
         $this->assertFalse($this->object->buttonArray[0]->hasAlteredRecipe);
         $this->assertTrue($this->object->buttonArray[1]->hasAlteredRecipe);
         $this->assertEquals('(4) (8)', $this->object->buttonArray[0]->recipe);
-        $this->assertEquals('(20)', $this->object->buttonArray[1]->recipe);
+        $this->assertEquals('(10)', $this->object->buttonArray[1]->recipe);
     }
 
     /*

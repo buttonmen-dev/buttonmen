@@ -287,6 +287,15 @@ class responder00Test extends responderTestFramework {
         );
         $this->verify_api_failure($args, 'Game create failed because a button name was not valid.');
 
+        // Make sure CustomBM fails if no recipe is provided
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'CustomBM')),
+            'maxWins' => '3',
+        );
+        $this->verify_api_failure($args, 'customRecipeArray must be supplied');
+
         // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
@@ -529,7 +538,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 802);
+        $this->assertEquals(count($retval['data']), 803);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -585,7 +594,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 85);
+        $this->assertEquals(count($retval['data']), 86);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
