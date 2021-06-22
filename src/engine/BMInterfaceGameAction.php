@@ -170,7 +170,7 @@ class BMInterfaceGameAction extends BMInterface {
                 'round_number' => 'int',
                 'round_score' => 'float',
             );
-            $rows = self::$db->select_rows($query, $sqlParameters, $columnReturnTypes);
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
             $row = $rows[0];
             return array(
                 'roundNumber' => $row['round_number'],
