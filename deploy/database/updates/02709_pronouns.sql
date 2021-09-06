@@ -1,3 +1,5 @@
+ALTER TABLE player ADD COLUMN pronouns VARCHAR(100) DEFAULT '' NOT NULL AFTER gender;
+
 # Views for player-related tables
 
 DROP VIEW IF EXISTS player_view;

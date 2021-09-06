@@ -321,11 +321,13 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         }));
 
         $.each(buttons, function(buttonName, buttonInfo) {
-          buttonSelect.append($('<option>', {
-            'text': buttonInfo.recipe,
-            'value': buttonName,
-            'class': (buttonInfo.greyed ? 'greyed' : ''),
-          }));
+          if (buttonName != 'CustomBM') {
+            buttonSelect.append($('<option>', {
+              'text': buttonInfo.recipe,
+              'value': buttonName,
+              'class': (buttonInfo.greyed ? 'greyed' : ''),
+            }));
+          }
         });
       } else {
         gameRow.append($('<td>', { 'class': 'victimButton' }).append(

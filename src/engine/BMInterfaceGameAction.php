@@ -27,12 +27,19 @@ class BMInterfaceGameAction extends BMInterface {
                      'game_state,action_type,acting_player,message ' .
                      'FROM game_action_log ';
             $query .= $this->build_game_log_query_restrictions($game, FALSE, FALSE, $sqlParameters);
+            $columnReturnTypes = array(
+                'id' => 'int',
+                'action_timestamp' => 'int',
+                'game_state' => 'int',
+                'action_type' => 'str',
+                'acting_player' => 'int',
+                'message' => 'str_or_null',
+            );
+            $rows = self::$db->select_rows($query, $sqlParameters, $columnReturnTypes);
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute($sqlParameters);
             $logEntries = array();
             $playerIdNames = $this->get_player_name_mapping($game);
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $typefunc = 'load_params_from_type_log_' . $row['action_type'];
                 if (method_exists($this, $typefunc)) {
                     $params = $this->$typefunc($row['id']);
@@ -54,7 +61,7 @@ class BMInterfaceGameAction extends BMInterface {
                 $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
                 if ($message) {
                     $logEntries[] = array(
-                        'timestamp' => (int)$row['action_timestamp'],
+                        'timestamp' => $row['action_timestamp'],
                         'player' => $this->get_player_name_from_id($gameAction->actingPlayerId),
                         'message' => $message,
                     );
@@ -105,11 +112,10 @@ class BMInterfaceGameAction extends BMInterface {
         try {
             $query = 'SELECT creator_id FROM game_action_log_type_create_game ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $creatorId = self::$db->select_single_value($query, $parameters, 'int');
             return array(
-                'creatorId' => (int)$row['creator_id'],
+                'creatorId' => $creatorId,
             );
         } catch (Exception $e) {
             error_log(
@@ -134,10 +140,11 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, creator_id) ' .
                      'VALUES ' .
                      '(:action_log_id, :creator_id)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
-                ':creator_id' => $params['creatorId']));
+                ':creator_id' => $params['creatorId'],
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_create_game: ' .
@@ -158,12 +165,16 @@ class BMInterfaceGameAction extends BMInterface {
         try {
             $query = 'SELECT round_number,round_score FROM game_action_log_type_end_draw ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'round_number' => 'int',
+                'round_score' => 'float',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            $row = $rows[0];
             return array(
-                'roundNumber' => (int)$row['round_number'],
-                'roundScore' => (float)$row['round_score'],
+                'roundNumber' => $row['round_number'],
+                'roundScore' => $row['round_score'],
             );
         } catch (Exception $e) {
             error_log(
@@ -188,11 +199,12 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, round_number, round_score) ' .
                      'VALUES ' .
                      '(:action_log_id, :round_number, :round_score)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
                 ':round_number' => $params['roundNumber'],
-                ':round_score' => $params['roundScore']));
+                ':round_score' => $params['roundScore'],
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_end_draw: ' .
@@ -214,14 +226,20 @@ class BMInterfaceGameAction extends BMInterface {
             $query = 'SELECT round_number,winning_round_score,losing_round_score,surrendered ' .
                      'FROM game_action_log_type_end_winner ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'round_number' => 'int',
+                'winning_round_score' => 'float',
+                'losing_round_score' => 'float',
+                'surrendered' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            $row = $rows[0];
             return array(
-                'roundNumber' => (int)$row['round_number'],
-                'winningRoundScore' => (float)$row['winning_round_score'],
-                'losingRoundScore' => (float)$row['losing_round_score'],
-                'surrendered' => (bool)$row['surrendered'],
+                'roundNumber' => $row['round_number'],
+                'winningRoundScore' => $row['winning_round_score'],
+                'losingRoundScore' => $row['losing_round_score'],
+                'surrendered' => $row['surrendered'],
             );
         } catch (Exception $e) {
             error_log(
@@ -246,13 +264,14 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, round_number, winning_round_score, losing_round_score, surrendered) ' .
                      'VALUES ' .
                      '(:action_log_id, :round_number, :winning_round_score, :losing_round_score, :surrendered)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
                 ':round_number' => $params['roundNumber'],
                 ':winning_round_score' => $params['winningRoundScore'],
                 ':losing_round_score' => $params['losingRoundScore'],
-                ':surrendered' => $params['surrendered']));
+                ':surrendered' => $params['surrendered'],
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_end_winner: ' .
@@ -273,12 +292,16 @@ class BMInterfaceGameAction extends BMInterface {
         try {
             $query = 'SELECT round_number,die_recipe FROM game_action_log_type_add_auxiliary ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'round_number' => 'int',
+                'die_recipe' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            $row = $rows[0];
             return array(
-                'roundNumber' => (int)$row['round_number'],
-                'dieRecipe' => (string)$row['die_recipe'],
+                'roundNumber' => $row['round_number'],
+                'dieRecipe' => $row['die_recipe'],
             );
         } catch (Exception $e) {
             error_log(
@@ -303,11 +326,12 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, round_number, die_recipe) ' .
                      'VALUES ' .
                      '(:action_log_id, :round_number, :die_recipe)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
                 ':round_number' => $params['roundNumber'],
-                ':die_recipe' => $params['dieRecipe']));
+                ':die_recipe' => $params['dieRecipe'],
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_add_auxiliary: ' .
@@ -349,14 +373,19 @@ class BMInterfaceGameAction extends BMInterface {
             // turndown_focus has one set of secondary parameters for each die which was turned down
             $query = 'SELECT recipe,orig_value,turndown_value FROM game_action_log_type_turndown_focus_die ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'recipe' => 'str',
+                'orig_value' => 'int',
+                'turndown_value' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
             $turndownDice = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $turndownDice[] = array(
-                    'recipe'        => (string)$row['recipe'],
-                    'origValue'     => (int)$row['orig_value'],
-                    'turndownValue' => (int)$row['turndown_value'],
+                    'recipe'        => $row['recipe'],
+                    'origValue'     => $row['orig_value'],
+                    'turndownValue' => $row['turndown_value'],
                 );
             }
             return array(
@@ -387,12 +416,13 @@ class BMInterfaceGameAction extends BMInterface {
                      'VALUES ' .
                      '(:action_log_id, :recipe, :orig_value, :turndown_value)';
             foreach ($params['turndownDice'] as $die) {
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(
+                $parameters = array(
                     ':action_log_id'  => $action_log_id,
                     ':recipe'         => $die['recipe'],
                     ':orig_value'     => $die['origValue'],
-                    ':turndown_value' => $die['turndownValue']));
+                    ':turndown_value' => $die['turndownValue'],
+                );
+                self::$db->update($query, $parameters);
             }
         } catch (Exception $e) {
             error_log(
@@ -415,15 +445,22 @@ class BMInterfaceGameAction extends BMInterface {
             $query = 'SELECT orig_recipe,orig_value,reroll_recipe,reroll_value,gained_initiative ' .
                      'FROM game_action_log_type_reroll_chance ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'orig_recipe' => 'str',
+                'orig_value' => 'int',
+                'reroll_recipe' => 'str',
+                'reroll_value' => 'int',
+                'gained_initiative' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            $row = $rows[0];
             return array(
-                'origRecipe' => (string)$row['orig_recipe'],
-                'origValue' => (int)$row['orig_value'],
-                'rerollRecipe' => (string)$row['reroll_recipe'],
-                'rerollValue' => (int)$row['reroll_value'],
-                'gainedInitiative' => (bool)$row['gained_initiative'],
+                'origRecipe' => $row['orig_recipe'],
+                'origValue' => $row['orig_value'],
+                'rerollRecipe' => $row['reroll_recipe'],
+                'rerollValue' => $row['reroll_value'],
+                'gainedInitiative' => $row['gained_initiative'],
             );
         } catch (Exception $e) {
             error_log(
@@ -448,15 +485,15 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, orig_recipe, orig_value, reroll_recipe, reroll_value, gained_initiative) ' .
                      'VALUES ' .
                      '(:action_log_id, :orig_recipe, :orig_value, :reroll_recipe, :reroll_value, :gained_initiative)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
                 ':orig_recipe' => $params['origRecipe'],
                 ':orig_value' => $params['origValue'],
                 ':reroll_recipe' => $params['rerollRecipe'],
                 ':reroll_value' => $params['rerollValue'],
                 ':gained_initiative' => $params['gainedInitiative'],
-            ));
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_reroll_chance: ' .
@@ -517,11 +554,10 @@ class BMInterfaceGameAction extends BMInterface {
         try {
             $query = 'SELECT die_recipe FROM game_action_log_type_add_reserve ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $dieRecipe = self::$db->select_single_value($query, $parameters, 'str');
             return array(
-                'dieRecipe' => (string)$row['die_recipe'],
+                'dieRecipe' => $dieRecipe,
             );
         } catch (Exception $e) {
             error_log(
@@ -546,10 +582,11 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, die_recipe) ' .
                      'VALUES ' .
                      '(:action_log_id, :die_recipe)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
-                ':die_recipe' => $params['dieRecipe']));
+                ':die_recipe' => $params['dieRecipe'],
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_add_reserve: ' .
@@ -570,11 +607,10 @@ class BMInterfaceGameAction extends BMInterface {
         try {
             $query = 'SELECT cause FROM game_action_log_type_play_another_turn ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $cause = self::$db->select_single_value($query, $parameters, 'str');
             return array(
-                'cause' => (string)$row['cause'],
+                'cause' => $cause,
             );
         } catch (Exception $e) {
             error_log(
@@ -599,10 +635,11 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, cause) ' .
                      'VALUES ' .
                      '(:action_log_id, :cause)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
-                ':cause' => $params['cause']));
+                ':cause' => $params['cause'],
+            );
+            self::$db->update($query, $parameters);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_params_to_type_log_play_another_turn: ' .
@@ -651,21 +688,23 @@ class BMInterfaceGameAction extends BMInterface {
             // load the base params
             $query = 'SELECT round_number FROM game_action_log_type_choose_die_values ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
-            $roundNumber = (int)$row['round_number'];
+            $parameters = array(':action_log_id' => $action_log_id);
+            $roundNumber = self::$db->select_single_value($query, $parameters, 'int');
 
             // load swing die settings
             $swingValues = array();
             $query = 'SELECT swing_type,swing_value FROM game_action_log_type_choose_die_values_swing ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            while ($row = $statement->fetch()) {
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'swing_type' => 'str',
+                'swing_value' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            foreach ($rows as $row) {
                 $swingValues[] = array(
-                    'swingType'  => (string)$row['swing_type'],
-                    'swingValue' => (int)$row['swing_value'],
+                    'swingType'  => $row['swing_type'],
+                    'swingValue' => $row['swing_value'],
                 );
             }
 
@@ -673,15 +712,18 @@ class BMInterfaceGameAction extends BMInterface {
             $optionValues = array();
             $query = 'SELECT recipe,option_value FROM game_action_log_type_choose_die_values_option ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            while ($row = $statement->fetch()) {
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'recipe' => 'str',
+                'option_value' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            foreach ($rows as $row) {
                 $optionValues[] = array(
-                    'recipe'      => (string)$row['recipe'],
-                    'optionValue' => (int)$row['option_value'],
+                    'recipe'      => $row['recipe'],
+                    'optionValue' => $row['option_value'],
                 );
             }
-
 
             return array(
                 'roundNumber'  => $roundNumber,
@@ -712,10 +754,11 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, round_number) ' .
                      'VALUES ' .
                      '(:action_log_id, :round_number)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
-                ':round_number'  => $params['roundNumber']));
+                ':round_number'  => $params['roundNumber'],
+            );
+            self::$db->update($query, $parameters);
 
             // choose_die_values has one set of secondary parameters for each swing type which was set
             $query = 'INSERT INTO game_action_log_type_choose_die_values_swing ' .
@@ -723,11 +766,12 @@ class BMInterfaceGameAction extends BMInterface {
                      'VALUES ' .
                      '(:action_log_id, :swing_type, :swing_value)';
             foreach ($params['swingValues'] as $swing) {
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(
+                $parameters = array(
                     ':action_log_id'  => $action_log_id,
                     ':swing_type'     => $swing['swingType'],
-                    ':swing_value'    => $swing['swingValue']));
+                    ':swing_value'    => $swing['swingValue'],
+                );
+                self::$db->update($query, $parameters);
             }
 
             // choose_die_values has one set of secondary parameters for each option die which was set
@@ -736,11 +780,12 @@ class BMInterfaceGameAction extends BMInterface {
                      'VALUES ' .
                      '(:action_log_id, :recipe, :option_value)';
             foreach ($params['optionValues'] as $option) {
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(
+                $parameters = array(
                     ':action_log_id'  => $action_log_id,
                     ':recipe'         => $option['recipe'],
-                    ':option_value'   => $option['optionValue']));
+                    ':option_value'   => $option['optionValue'],
+                );
+                self::$db->update($query, $parameters);
             }
         } catch (Exception $e) {
             error_log(
@@ -768,21 +813,29 @@ class BMInterfaceGameAction extends BMInterface {
             // load the base params
             $query = 'SELECT winner_id,round_number,is_tie FROM game_action_log_type_determine_initiative ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            $row = $statement->fetch();
-            $initiativeWinnerId = (int)$row['winner_id'];
-            $roundNumber = (int)$row['round_number'];
-            $isInitiativeTie = (bool)$row['is_tie'];
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'winner_id' => 'int',
+                'round_number' => 'int',
+                'is_tie' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            $row = $rows[0];
+            $initiativeWinnerId = $row['winner_id'];
+            $roundNumber = $row['round_number'];
+            $isInitiativeTie = $row['is_tie'];
 
             // load relevant player data
             $slowButtonPlayers = array();
             $query = 'SELECT player_id FROM game_action_log_type_determine_initiative_slow_button ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            while ($row = $statement->fetch()) {
-                $slowButtonPlayers[] = (int)$row['player_id'];
+            $columnReturnTypes = array(
+                'player_id' => 'int',
+            );
+            $parameters = array(':action_log_id' => $action_log_id);
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            foreach ($rows as $row) {
+                $slowButtonPlayers[] = $row['player_id'];
             }
 
             // load relevant die data
@@ -790,16 +843,22 @@ class BMInterfaceGameAction extends BMInterface {
             $query = 'SELECT player_id,recipe_status,recipe,included ' .
                      'FROM game_action_log_type_determine_initiative_die ' .
                      'WHERE action_log_id=:action_log_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':action_log_id' => $action_log_id));
-            while ($row = $statement->fetch()) {
-                if (!(array_key_exists((int)$row['player_id'], $initiativeDice))) {
-                    $initiativeDice[(int)$row['player_id']] = array();
+            $parameters = array(':action_log_id' => $action_log_id);
+            $columnReturnTypes = array(
+                'player_id' => 'int',
+                'recipe_status' => 'str',
+                'recipe' => 'str',
+                'included' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+            foreach ($rows as $row) {
+                if (!(array_key_exists($row['player_id'], $initiativeDice))) {
+                    $initiativeDice[$row['player_id']] = array();
                 }
-                $initiativeDice[(int)$row['player_id']][] = array(
-                    'recipeStatus' => (string)$row['recipe_status'],
-                    'recipe'       => (string)$row['recipe'],
-                    'included'     => (bool)$row['included'],
+                $initiativeDice[$row['player_id']][] = array(
+                    'recipeStatus' => $row['recipe_status'],
+                    'recipe'       => $row['recipe'],
+                    'included'     => $row['included'],
                 );
             }
 
@@ -834,12 +893,13 @@ class BMInterfaceGameAction extends BMInterface {
                      '(action_log_id, winner_id, round_number, is_tie) ' .
                      'VALUES ' .
                      '(:action_log_id, :winner_id, :round_number, :is_tie)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':action_log_id' => $action_log_id,
                 ':winner_id'    => $params['initiativeWinnerId'],
                 ':round_number' => $params['roundNumber'],
-                ':is_tie'       => $params['isInitiativeTie']));
+                ':is_tie'       => $params['isInitiativeTie'],
+            );
+            self::$db->update($query, $parameters);
 
             // determine_initiative has one set of secondary parameters for slow buttons
             $query = 'INSERT INTO game_action_log_type_determine_initiative_slow_button ' .
@@ -847,10 +907,11 @@ class BMInterfaceGameAction extends BMInterface {
                      'VALUES ' .
                      '(:action_log_id, :player_id)';
             foreach ($params['slowButtonPlayers'] as $player_id) {
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(
+                $parameters = array(
                     ':action_log_id'  => $action_log_id,
-                    ':player_id'      => $player_id));
+                    ':player_id'      => $player_id,
+                );
+                self::$db->update($query, $parameters);
             }
 
             // determine_initiative has one set of secondary parameters for each die present at the time
@@ -860,13 +921,14 @@ class BMInterfaceGameAction extends BMInterface {
                      '(:action_log_id, :player_id, :recipe_status, :recipe, :included)';
             foreach ($params['initiativeDice'] as $playerId => $playerDice) {
                 foreach ($playerDice as $playerDie) {
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(
+                    $parameters = array(
                         ':action_log_id'  => $action_log_id,
                         ':player_id'      => $playerId,
                         ':recipe_status'  => $playerDie['recipeStatus'],
                         ':recipe'         => $playerDie['recipe'],
-                        ':included'       => $playerDie['included']));
+                        ':included'       => $playerDie['included'],
+                    );
+                    self::$db->update($query, $parameters);
                 }
             }
         } catch (Exception $e) {
@@ -885,10 +947,7 @@ class BMInterfaceGameAction extends BMInterface {
      * @return int
      */
     protected function last_insert_id() {
-        $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
-        $statement->execute();
-        $fetchData = $statement->fetch();
-        return (int)$fetchData[0];
+        return self::$db->select_single_value('SELECT LAST_INSERT_ID()', array(), 'int');
     }
 
     /**
@@ -916,8 +975,7 @@ class BMInterfaceGameAction extends BMInterface {
             } else {
                 $actionArgs[':message'] = json_encode($gameAction->params);
             }
-            $statement = self::$conn->prepare($query);
-            $statement->execute($actionArgs);
+            self::$db->update($query, $actionArgs);
 
             if ($useActionTypeFunc) {
                 $log_id = $this->last_insert_id();

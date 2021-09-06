@@ -76,7 +76,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         try {
             $die = BMDie::create(-15, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
 
@@ -86,7 +86,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         try {
             $die = BMDie::create(1023, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
 
@@ -98,7 +98,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         try {
             $die = BMDie::create(100, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
 
@@ -106,28 +106,28 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         try {
             $die = BMDie::create("thing", array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
 
         try {
             $die = BMDie::create("4score", array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
 
         try {
             $die = BMDie::create(2.718, array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
 
         try {
             $die = BMDie::create("thing8", array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
+        } catch (InvalidArgumentException $e) {
 
         }
     }
@@ -141,6 +141,111 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($die->has_skill('Poison'));
         $this->assertTrue($die->has_skill('Shadow'));
         $this->assertEquals(6, $die->max);
+
+        try {
+            $die = BMDie::create_from_recipe('pp(5)', TRUE);
+            $this->fail('Creating die with doubled skills did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('{p,s}(4)', TRUE);
+            $this->fail('Creating die with plasma skill did not throw an exception.');
+        } catch (BMExceptionUnimplementedSkill $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(2000)', TRUE);
+            $this->fail('Creating exceedingly large die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(-1)', TRUE);
+            $this->fail('Creating negative valued die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(9.0)', TRUE);
+            $this->fail('Creating decimal die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(9.1)', TRUE);
+            $this->fail('Creating non-integer die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(X,Y)', TRUE);
+            $this->fail('Creating non-identical twin swing die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(p6)', TRUE);
+            $this->fail('Creating invalid die type did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(6/Z)', TRUE);
+            $this->fail('Creating option swing die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(6/10000)', TRUE);
+            $this->fail('Creating overly large option die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(6,/8)', TRUE);
+            $this->fail('Creating option die with invalid syntax did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(6/8,2/8)', TRUE);
+            $this->fail('Creating twin option die did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(100,100)', TRUE);
+            $this->fail('Creating exceedingly large twin dice did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(Z,p6)', TRUE);
+            $this->fail('Creating twin dice with invalid components did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
+
+        try {
+            $die = BMDie::create_from_recipe('(Y,Y,Y)', TRUE);
+            $this->fail('Creating twin dice with three components did not throw an exception.');
+        } catch (BMExceptionDieRecipe $e) {
+
+        }
     }
 
     /*

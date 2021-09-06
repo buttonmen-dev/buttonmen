@@ -203,17 +203,238 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         // valid button recipe
         $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
 
+        // invalid button recipe that is too long
+        try {
+            $method->invoke(new BMButton,
+                '(1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) ' .
+                '(1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) ' .
+                '(1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) ' .
+                '(1) (1) (1)');
+            $this->fail('Creating exceedingly long recipe did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $e) {
+
+        }
+
+        // invalid button recipe with multiple auxiliary dice
+        try {
+            $method->invoke(new BMButton, '(6) +(4) +(2)');
+            $this->fail('Creating multiple auxiliary dice did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        // invalid button recipe with an auxiliary die that is not at the end
+        try {
+            $method->invoke(new BMButton, '(6) +(4) (2)');
+            $this->fail(
+                'Creating a recipe with an auxiliary die that is not at the end did not ' +
+                'cause an exception.'
+            );
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        // invalid button recipe that has too many dice
+        try {
+            $method->invoke(new BMButton,
+                '(1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1)'
+            );
+            $this->fail('Creating a recipe with too many dice did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $e) {
+
+        }
+
+        // invalid button recipe with only an auxiliary die
+        try {
+            $method->invoke(new BMButton, '+(4)');
+            $this->fail(
+                'Creating a recipe that only has one aux die did not cause an exception.'
+            );
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
         // invalid button recipe with no die sides for one die
         try {
             $method->invoke(new BMButton, 'p(4) s(10) ps (8)');
-            $this->fail('The number of sides must be specified for each die.');
-        }
-        catch (InvalidArgumentException $expected) {
+            $this->fail('A recipe with no sides specified did not cause an exception');
+        } catch (BMExceptionButtonRecipe $expected) {
+
         }
 
-        // twin dice, option dice
+        // invalid recipes with turbo
+        try {
+            $method->invoke(new BMButton, '(4) m(X)! (12)');
+            $this->fail('A morphing turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
 
-        // swing dice
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) m(6)! (12)');
+            $this->fail('A static morphing turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) m(6,6)! (12)');
+            $this->fail('A static morphing twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) D(X)! (12)');
+            $this->fail('A doppelganger turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) D(6)! (12)');
+            $this->fail('A static doppelganger turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) D(6,6)! (12)');
+            $this->fail('A static doppelganger twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (X)!? (12)');
+            $this->fail('A moody turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (6)!? (12)');
+            $this->fail('A static moody turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (6,6)!? (12)');
+            $this->fail('A static moody twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (X)!& (12)');
+            $this->fail('A mad turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (6)!& (12)');
+            $this->fail('A static mad turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (6,6)!& (12)');
+            $this->fail('A static mad twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) k(X)! (12)');
+            $this->fail('A konstant turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) k(6)! (12)');
+            $this->fail('A static konstant turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) k(6,6)! (12)');
+            $this->fail('A static konstant twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        $method->invoke(new BMButton, '(4) H(X)! (12)');
+
+        try {
+            $method->invoke(new BMButton, '(4) H(6)! (12)');
+            $this->fail('A static mighty turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) H(6,6)! (12)');
+            $this->fail('A static mighty twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        $method->invoke(new BMButton, '(4) h(X)! (12)');
+
+        try {
+            $method->invoke(new BMButton, '(4) h(6)! (12)');
+            $this->fail('A static weak turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) h(6,6)! (12)');
+            $this->fail('A static weak twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        $method->invoke(new BMButton, '(4) B(X)! (12)');
+
+        try {
+            $method->invoke(new BMButton, '(4) B(6)! (12)');
+            $this->fail('A static berserk turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) B(6,6)! (12)');
+            $this->fail('A static berserk twin turbo die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) f(4,0) (12)');
+            $this->fail(
+                'A focus twin die with a zero subdie did not cause an exception.'
+            );
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) f(0,4) (12)');
+            $this->fail(
+                'A focus twin die with a zero subdie did not cause an exception.'
+            );
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        $method->invoke(new BMButton, '(4) f(10,20) (12)');
     }
 
     /**

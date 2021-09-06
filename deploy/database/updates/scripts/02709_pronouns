@@ -1,0 +1,93 @@
+#!/usr/bin/python
+#####
+# Utility to populate pronouns for existing players
+
+import MySQLdb
+import sys
+
+def get_dhs_button_id(button_name):
+  select_sql = 'SELECT dhs_button_id from dhs_button WHERE dhs_button_name="%s"' % button_name
+  result = crs.execute(select_sql)
+  if result != 1:
+    raise ValueError, "Expected to find one button with name %s, found: %s" % (button_name, result)
+  row = crs.fetchone()
+  return row[0]
+
+def get_or_create_dhs_player_id(player):
+  select_sql = 'SELECT dhs_player_id from dhs_player WHERE dhs_player_name="%s"' % player
+  result = crs.execute(select_sql)
+  if result > 1:
+    raise ValueError, "Expected to find at most one player with name %s, found: %s" % (player, result)
+  if result == 1:
+    row = crs.fetchone()
+    return row[0]
+  bw_select_sql = 'SELECT id from player WHERE name_ingame="%s"' % player
+  result = crs.execute(bw_select_sql)
+  if result > 1:
+    raise ValueError, "Expected to find at most one buttonweavers player with name %s, found: %s" % (player, result)
+  if result == 1:
+    row = crs.fetchone()
+    bw_id = row[0]
+  else:
+    bw_id = 0
+  insert_sql = 'INSERT INTO dhs_player ' + \
+    '(dhs_player_name, bw_player_id) VALUES ' + \
+    '("%s", %s)' % (player, bw_id)
+  result = crs.execute(insert_sql)
+  if not result == 1:
+    raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+  return get_or_create_dhs_player_id(player)
+
+def insert_button_vs_button_stats(crs, stat_data):
+  for row in stat_data['button_vs_button']:
+    [button_a, button_b, games_button_a_won, games_button_b_won, date_compiled] = row
+    button_id_a = get_dhs_button_id(button_a)
+    button_id_b = get_dhs_button_id(button_b)
+    datestr_compiled = datetime.datetime.fromtimestamp(date_compiled).strftime("%Y-%m-%d %H:%M:%S")
+    insert_sql = 'INSERT INTO dhs_site_button_vs_button_stats ' + \
+      '(dhs_button_id_a, dhs_button_id_b, games_button_a_won, games_button_b_won, date_compiled) VALUES ' + \
+      '(%s, %s, %s, %s, "%s")' % (button_id_a, button_id_b, games_button_a_won, games_button_b_won, datestr_compiled)
+    result = crs.execute(insert_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+def insert_button_player_stats(crs, stat_data):
+  for row in stat_data['button_player']:
+    [button, player, games_won_using, games_lost_using, games_won_against, games_lost_against, date_compiled] = row
+    button_id = get_dhs_button_id(button)
+    player_id = get_or_create_dhs_player_id(player)
+    datestr_compiled = datetime.datetime.fromtimestamp(date_compiled).strftime("%Y-%m-%d %H:%M:%S")
+    insert_sql = 'INSERT INTO dhs_site_button_player_stats ' + \
+      '(dhs_button_id, dhs_player_id, games_won_using, games_lost_using, games_won_against, games_lost_against, date_compiled) VALUES ' + \
+      '(%s, %s, %s, %s, %s, %s, "%s")' % (button_id, player_id, games_won_using, games_lost_using, games_won_against, games_lost_against, datestr_compiled)
+    result = crs.execute(insert_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, insert_sql)
+
+def guess_pronouns(gender):
+  if gender == 'Female': return 'she/her'
+  if gender == 'Male': return 'he/him'
+  if 'they/them' in gender: return 'they/them'
+  return None
+
+def populate_pronouns(crs):
+  select_sql = 'SELECT id,gender,pronouns from player'
+  result = crs.execute(select_sql)
+  for player_id, gender, selected_pronouns in crs.fetchall():
+    assert not selected_pronouns, "This script should only be run on a database where pronouns have not yet been set for players"
+    pronouns = guess_pronouns(gender)
+    if not pronouns:
+      if gender:
+        print "No pronouns to guess for gender field='%s' (player id %s)" % (gender, player_id)
+      continue
+    update_sql = 'UPDATE player SET pronouns="%s" WHERE id=%s' % (pronouns, player_id)
+    result = crs.execute(update_sql)
+    if not result == 1:
+      raise ValueError, "Got unexpected return %s from %s" % (result, update_sql)
+
+conn = MySQLdb.connect(user='root', db='buttonmen')
+crs = conn.cursor()
+
+populate_pronouns(crs)
+
+conn.commit()
