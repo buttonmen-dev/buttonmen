@@ -451,12 +451,19 @@ span.skill_desc {
     cursor: default;
 }
 
+span.prefs_desc {
+    border-bottom: 1px dotted #000000;
+    text-decoration: none;
+    cursor: default;
+}
+
 span.info_icon {
     color: white;
     background: #000080;
     border-radius: 50%;
     padding: 1px;
     vertical-align: super;
+    text-align: center;
     font-size: 0.6em;
     display: inline-block;
     width: 1em;

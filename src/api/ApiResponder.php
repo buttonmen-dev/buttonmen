@@ -156,6 +156,12 @@ class ApiResponder {
             $previousGameId = NULL;
         }
 
+        if (isset($args['customRecipeArray'])) {
+            $customRecipeArray = $args['customRecipeArray'];
+        } else {
+            $customRecipeArray = array();
+        }
+
         $retval = $interface->game()->create_game(
             $playerIdArray,
             $buttonNameArray,
@@ -163,7 +169,8 @@ class ApiResponder {
             $description,
             $previousGameId,
             $this->session_user_id(),
-            FALSE
+            FALSE,
+            $customRecipeArray
         );
 
         if (isset($retval)) {
@@ -447,7 +454,7 @@ class ApiResponder {
         $infoArray['dob_day'] = $args['dob_day'];
         $infoArray['comment'] = $args['comment'];
         $infoArray['vacation_message'] = $args['vacation_message'];
-        $infoArray['gender'] = $args['gender'];
+        $infoArray['pronouns'] = $args['pronouns'];
         $infoArray['autoaccept'] = ('true' == $args['autoaccept']);
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['fire_overshooting'] = ('true' == $args['fire_overshooting']);

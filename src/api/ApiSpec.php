@@ -15,7 +15,7 @@ class ApiSpec {
     const GAME_CHAT_MAX_LENGTH = 2000;
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
-    const GENDER_MAX_LENGTH = 100;
+    const PRONOUNS_MAX_LENGTH = 100;
     const DIE_BACKGROUND_MAX_LENGTH = 10;
     const VACATION_MESSAGE_MAX_LENGTH = 255;
     const GAME_DESCRIPTION_MAX_LENGTH = 255;
@@ -154,7 +154,7 @@ class ApiSpec {
                     'elem_type' => array('arg_type' => 'array',
                                          'has_keys' => TRUE,
                                          'minlength' => 0,
-                                         'maxlength' => 2,
+                                         'maxlength' => 3,
                                          'key_type' => 'number',
                                          'elem_type' => 'string'),
                 ),
@@ -166,6 +166,14 @@ class ApiSpec {
                     'maxlength' => self::GAME_DESCRIPTION_MAX_LENGTH,
                 ),
                 'previousGameId' => 'number',
+                'customRecipeArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'minlength' => 0,
+                    'maxlength' => 2,
+                    'key_type' => 'number',
+                    'elem_type' => 'string',
+                ),
             ),
         ),
         'reactToNewGame' => array(
@@ -559,9 +567,9 @@ class ApiSpec {
                 'is_email_public' => 'boolean',
                 'dob_month' => 'number',
                 'dob_day' => 'number',
-                'gender' => array(
+                'pronouns' => array(
                     'arg_type' => 'string',
-                    'maxlength' => self::GENDER_MAX_LENGTH,
+                    'maxlength' => self::PRONOUNS_MAX_LENGTH,
                 ),
                 'comment' => 'string',
                 'homepage' => array(

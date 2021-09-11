@@ -994,7 +994,8 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
      * standard assertions about its return value
      */
     protected function verify_api_createGame(
-        $bmRandValArray, $player1, $player2, $button1, $button2, $maxWins, $description='', $prevGame=NULL, $returnType='gameId'
+        $bmRandValArray, $player1, $player2, $button1, $button2, $maxWins, $description='',
+        $prevGame=NULL, $returnType='gameId', $customRecipeArray=NULL
     ) {
         global $BM_RAND_VALS, $BM_SKILL_RAND_VALS;
         // Allow the caller to provide either a flat array of just miscellaneous random values,
@@ -1014,6 +1015,9 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         );
         if ($prevGame) {
             $args['previousGameId'] = $prevGame;
+        }
+        if ($customRecipeArray) {
+            $args['customRecipeArray'] = $customRecipeArray;
         }
         $retval = $this->verify_api_success($args);
         $gameId = $retval['data']['gameId'];

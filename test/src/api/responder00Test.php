@@ -181,7 +181,7 @@ class responder00Test extends responderTestFramework {
             'is_email_public' => 'False',
             'dob_month' => '2',
             'dob_day' => '29',
-            'gender' => '',
+            'pronouns' => '',
             'comment' => '',
             'vacation_message' => '',
             'homepage' => '',
@@ -223,7 +223,7 @@ class responder00Test extends responderTestFramework {
             'is_email_public' => 'False',
             'dob_month' => '2',
             'dob_day' => '29',
-            'gender' => '',
+            'pronouns' => '',
             'comment' => '',
             'vacation_message' => '',
             'homepage' => '',
@@ -286,6 +286,15 @@ class responder00Test extends responderTestFramework {
             'maxWins' => '3',
         );
         $this->verify_api_failure($args, 'Game create failed because a button name was not valid.');
+
+        // Make sure CustomBM fails if no recipe is provided
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'CustomBM')),
+            'maxWins' => '3',
+        );
+        $this->verify_api_failure($args, 'customRecipeArray must be supplied');
 
         // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
@@ -529,7 +538,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 802);
+        $this->assertEquals(count($retval['data']), 803);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -585,7 +594,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 85);
+        $this->assertEquals(count($retval['data']), 86);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
@@ -681,7 +690,7 @@ class responder00Test extends responderTestFramework {
 
         $akeys = array_keys($retval['data']['user_prefs']);
         sort($akeys);
-        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'die_background', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'gender', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'status', 'uses_gravatar', 'vacation_message'));
+        $this->assertEquals($akeys, array('autoaccept', 'automatically_monitor', 'autopass', 'comment', 'creation_time', 'die_background', 'dob_day', 'dob_month', 'email', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'fire_overshooting', 'homepage', 'id', 'image_size', 'is_email_public', 'last_access_time', 'last_action_time', 'monitor_redirects_to_forum', 'monitor_redirects_to_game', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'neutral_color_a', 'neutral_color_b', 'opponent_color', 'player_color', 'pronouns', 'status', 'uses_gravatar', 'vacation_message'));
         $this->assertEquals($retval['data']['user_prefs']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['user_prefs']['autoaccept'], TRUE);
         $this->assertEquals($retval['data']['user_prefs']['neutral_color_a'], '#cccccc');
@@ -711,7 +720,7 @@ class responder00Test extends responderTestFramework {
 
         $akeys = array_keys($retval['data']['profile_info']);
         sort($akeys);
-        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'gender', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'uses_gravatar','vacation_message'));
+        $this->assertEquals($akeys, array('comment', 'creation_time', 'dob_day', 'dob_month', 'email', 'email_hash', 'fanatic_button_id', 'favorite_button', 'favorite_buttonset', 'homepage', 'id', 'image_size', 'last_access_time', 'n_games_lost', 'n_games_won', 'name_ingame', 'name_irl', 'pronouns', 'uses_gravatar','vacation_message'));
         $this->assertEquals($retval['data']['profile_info']['name_ingame'], 'responder003');
         $this->assertEquals($retval['data']['profile_info']['email'], NULL);
         $this->assertEquals($retval['data']['profile_info']['dob_day'], '29');

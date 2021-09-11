@@ -182,7 +182,7 @@ class BMClient():
     }
     return self._make_request(args)
 
-  def create_game(self, pbutton, obutton='', player='', opponent='', description='', max_wins=3, use_prev_game=False):
+  def create_game(self, pbutton, obutton='', player='', opponent='', description='', max_wins=3, use_prev_game=False, custom_recipe_array=None):
     if player == None or player == '':
       player = self.username
     if not obutton:
@@ -200,6 +200,8 @@ class BMClient():
       args['previousGameId'] = use_prev_game
     if description:
       args['description'] = description
+    if custom_recipe_array:
+      args['customRecipeArray'] = custom_recipe_array
     return self._make_request(args)
 
   def submit_turn(self, gameId, attackerIdx, defenderIdx, dieSelectStatus, attackType, roundNumber, timestamp, turboVals, chat=''):

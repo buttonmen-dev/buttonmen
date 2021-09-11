@@ -1,6 +1,7 @@
 // namespace for this "module"
-if (!(Env)) {
-  var Env = {};
+var Env;
+if (!Env) {
+  Env = {};
 }
 
 // Keycodes for use when handling keyboard events

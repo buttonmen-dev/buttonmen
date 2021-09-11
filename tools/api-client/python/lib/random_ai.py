@@ -5,6 +5,114 @@ import random
 import time
 import os
 import sys
+import string
+
+#####
+# CustomBM testing
+#
+# The code in this section generates valid-ish random recipes for CustomBM.
+# * RandomAI doesn't know in advance whether the server will accept a given recipe.
+# * If the game is rejected, it should be rejected with a clean error message.
+# * If the game is accepted, it should play through without internal
+#   errors or stalls like any other game.
+
+VALID_SKILLS = '!#%&+?^`BbcDdFfGgHhIJkMmnopqrstvwz'
+VALID_ISH_SKILLS = string.punctuation + string.ascii_letters
+
+VALID_SHORT_SIDES_LIST = range(0, 20) + [30, 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+VALID_SIDES_LIST = range(0, 100) + ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+VALID_ISH_SIDES_LIST = range(-3, 102) + [x for x in string.ascii_uppercase]
+
+def get_fuzzy_skills():
+  if random.random() < 0.9:
+    skill_list = [x for x in VALID_SKILLS]
+  else:
+    skill_list = [x for x in VALID_ISH_SKILLS]
+  random.shuffle(skill_list)
+  skills_to_use = []
+  while random.random() < 0.5:
+    skills_to_use.append(skill_list.pop())
+    if random.random() < 0.01:
+      skills_to_use.append(skills_to_use[-1])
+  random.shuffle(skills_to_use)
+  return "".join(skills_to_use)
+
+def get_side_max(die_sides):
+  SWING_MAX = {
+    'R': 16, 'S': 16, 'T': 12,
+    'U': 30, 'V': 12, 'W': 12,
+    'X': 20, 'Y': 20, 'Z': 30,
+  }
+  if die_sides in SWING_MAX: return SWING_MAX[die_sides]
+  if isinstance(die_sides, int): return die_sides
+  if die_sides in string.ascii_uppercase: return 0
+  assert isinstance(die_sides, int), "Expected %s to be an int" % die_sides
+
+def get_fuzzy_sides():
+  side_max = 0
+  valid_ish = []
+  if random.random() < 0.7:
+    for x in VALID_SHORT_SIDES_LIST: valid_ish.append(x)
+  elif random.random() < 0.7:
+    for x in VALID_SIDES_LIST: valid_ish.append(x)
+  else:
+    for x in VALID_ISH_SIDES_LIST: valid_ish.append(x)
+  random.shuffle(valid_ish)
+  sides = str(valid_ish[0])
+  side_max += get_side_max(valid_ish[0])
+  if random.random() < 0.01:
+    sides += '.1'
+  if random.random() < 0.1:
+    new_sides, new_side_max = get_fuzzy_sides()
+    sides += ',' + new_sides
+    side_max += new_side_max
+  elif random.random() < 0.1:
+    new_sides, new_side_max = get_fuzzy_sides()
+    sides += '/' + new_sides
+    side_max = max(side_max, new_side_max)
+  return sides, side_max
+
+def get_fuzzy_suffixes():
+  valid_ish = [ '!', '&', '?']
+  random.shuffle(valid_ish)
+  suffixes_to_use = []
+  while random.random() < 0.2 and len(suffixes_to_use) > 0:
+    suffixes_to_use.append(valid_ish.pop())
+    if random.random() < 0.01:
+      suffixes_to_use.append(suffixes_to_use[-1])
+  random.shuffle(suffixes_to_use)
+  return "".join(suffixes_to_use)
+
+def get_fuzzy_die():
+  sides, side_max = get_fuzzy_sides()
+  return ("%s(%s)%s" % (get_fuzzy_skills(), sides, get_fuzzy_suffixes()), side_max)
+
+# Custom recipes known to trigger bugs not yet addressed by codebase under test
+def recipe_contains_unfixed_bug(dice):
+  return False
+
+def get_fuzzy_recipe():
+  while True:
+    dice = []
+    side_max = 0
+    while not dice or random.random() < 0.75:
+      die, die_side_max = get_fuzzy_die()
+      dice.append(die)
+      side_max += die_side_max
+    if dice and random.random() < 0.5:
+      possible_repeats = [
+        150 / len(" ".join(dice)),
+        11 / len(dice),
+        200 / (side_max if side_max > 0 else 1),
+      ]
+      num_repeats = min(possible_repeats)
+      if num_repeats > 0:
+        dice *= num_repeats
+    if recipe_contains_unfixed_bug(dice): continue
+    recipe = " ".join(dice)
+    return recipe
+
+#####
 
 NUMERIC_KEYS = [
   'activePlayerIdx',
@@ -54,6 +162,7 @@ UNUSED_DURING_AUTOPLAY_KEYS = [
 # TODO: we shouldn't need to hardcode this, there should always be
 # another source of the information - place a TODO anywhere we use this
 SWING_RANGES = {
+  'R': (2, 16),
   'S': (6, 20),
   'T': (2, 12),
   'U': (8, 30),
@@ -76,6 +185,13 @@ def random_array_element(array, return_index=False):
     return index
   else:
     return array[index]
+
+def min_die_value(die):
+  if 'Twin' in die['properties']:
+    return sum([
+      0 if s['sides'] is 0 else 1 \
+      for s in die['subdieArray']])
+  return 0 if die['sides'] is 0 else 1
 
 class PHPBMClientOutputWriter():
   """
@@ -370,16 +486,29 @@ class PHPBMClientOutputWriter():
         suffix, ', '.join(['"%s"' % arrayelt for arrayelt in newval])))
 
   def _write_php_diff_subdie_array(self, suffix, newval, oldval):
+    # example list element: [{u'sides': 17, u'value': 14}, {u'sides': 12, u'value': 9}]
+    # example dict element: {u'1': {u'sides': 12}}
     if newval != oldval:
-      newvals = []
-      for arrayelt in newval:
-        eltvals = []
-        if arrayelt:
-          for [key, value] in arrayelt.items():
-            eltvals.append('"%s" => "%s"' % (key, value))
-        newvals.append("array(%s)" % ", ".join(eltvals))
-      self.f.write("        $expData%s = array(%s);\n" % (
-        suffix, ', '.join(newvals)))
+      if isinstance(newval, list):
+        newvals = []
+        for arrayelt in newval:
+          eltvals = []
+          if arrayelt:
+            for [key, value] in arrayelt.items():
+              eltvals.append('"%s" => "%s"' % (key, value))
+          newvals.append("array(%s)" % ", ".join(eltvals))
+        self.f.write("        $expData%s = array(%s);\n" % (
+          suffix, ', '.join(newvals)))
+      elif isinstance(newval, dict):
+        newvals = {}
+        for nk, arrayelt in sorted(newval.items()):
+          eltvals = []
+          if arrayelt:
+            for [key, value] in arrayelt.items():
+              eltvals.append('"%s" => "%s"' % (key, value))
+          newvals[nk] = "array(%s)" % ", ".join(eltvals)
+        self.f.write("        $expData%s = array(%s);\n" % (
+          suffix, ', '.join("%s => %s" % (k, v) for k, v in sorted(newvals.items()))))
 
   def _write_php_diff_flat_dict_key(self, suffix, newval, oldval, quotevals=False):
     if newval != oldval:
@@ -563,6 +692,10 @@ class LoggingBMClient():
     self.state = {
       'opponent_aux_chosen': False,
     }
+    # Any state that's needed so we can tailor future random decisions based on past ones
+    self.decision_state = {
+      'cancelled_fire_attacks': 0,
+    }
     self.log = []
 
   def reset_internal_state(self):
@@ -629,9 +762,13 @@ class LoggingBMClient():
         else:                             return 1
     if len(player_vals) > 0: return 0
     if len(opponent_vals) > 0: return 1
-    # This is what _can_gain_initiative_using_focus_dice() needs in case of ties
-    # Revisit for use by other consumers
-    return 0
+    # 20201226: My previous comment here said:
+    #   "This is what _can_gain_initiative_using_focus_dice() needs in case of ties"
+    # As far as i can tell, that's not true --- as far as i can tell, the player needs
+    # to gain initiative unambiguously with focus dice; the engine won't let you turn
+    # down your dice and flip a coin.  So i think this has to return opponent_idx
+    # in case of a tie, and therefore i'm changing this return from 0 to 1
+    return 1
 
   def _can_gain_initiative_using_focus_dice(self, player_dice, opponent_dice):
     skip_initiative_skills = [ 'Rage', 'Slow', 'Stinger', 'Trip', 'Warrior', ]
@@ -644,8 +781,7 @@ class LoggingBMClient():
           skip_die = True
       if skip_die: continue
       if 'Focus' in die['skills']:
-        if ',' in die['recipe']: player_initiative_values.append(2)
-        else:                    player_initiative_values.append(1)
+        player_initiative_values.append(min_die_value(die))
       else:
         player_initiative_values.append(die['value'])
     for die in opponent_dice:
@@ -764,7 +900,7 @@ class LoggingBMClient():
     available_fire = 0
     for non_attacker in non_attackers:
       if 'Fire' in non_attacker['skills']:
-        available_fire += (non_attacker['value'] - 1)
+        available_fire += (non_attacker['value'] - min_die_value(non_attacker))
     attacker = attackers[0]
     defender = defenders[0]
     if 'Queer' in attacker_okay_skills and attacker['value'] % 2 == 1: return False
@@ -852,15 +988,14 @@ class LoggingBMClient():
     # just hack in the max possible value
     if 'Turbo' in die['skills']:
       # TODO: don't hardcode ranges, parse turboVals
-      if '/' in die['recipe']:
-        post_trip_sides = int(die['recipe'].split('/')[1].split(')')[0])
+      sides_part = die['recipe'].split('(')[1].split(')')[0]
+      if '/' in sides_part:
+        post_trip_sides = max([int(x) for x in sides_part.split('/')])
       else:
-        swing_size = die['recipe'].split(',')[1].split(')')[0]
-        if not swing_size in SWING_RANGES:
-          raise ValueError("Could not figure out turbo trip die: %s" % die)
-        post_trip_sides = SWING_RANGES[swing_size][-1]
-        if ',' in die['recipe']:
-          post_trip_sides *= 2
+        post_trip_sides = sum([
+          SWING_RANGES[s][-1] if s in SWING_RANGES else int(s) \
+          for s in sides_part.split(',')
+        ])
     return post_trip_sides
 
   def _min_trip_value(self, die):
@@ -871,9 +1006,7 @@ class LoggingBMClient():
     if 'Weak' in die['skills']:
       post_trip_sides = self._next_weak_value(post_trip_sides)
     if 'Maximum' in die['skills']: return post_trip_sides
-    if ',' in die['recipe']:
-      return 2
-    return 1
+    return min_die_value(die)
 
   def _next_mighty_value(self, sides):
     sizes = [1, 2, 4, 6, 8, 10, 12, 16, 20, 30]
@@ -886,6 +1019,12 @@ class LoggingBMClient():
     return [x for x in sizes if sides > x][-1]
 
   def _generate_turbo_val_arrays(self, part_attackers, attack_type):
+    # The turbo contract is if an attacking die appears in the
+    # turboSizeArray provided in the game data, the player both can
+    # and must select a turbo size for that die, and the set of
+    # valid choices is exactly what appeared in turboSizeArray.
+    #
+    # If we need more logic than that to make things work, it's a site bug
     turbovals = {}
     attackerData = self.loaded_data['playerDataArray'][self.attacker]
 
@@ -948,19 +1087,17 @@ class LoggingBMClient():
     contributions = []
     for non_attacker in non_attackers:
       if 'Fire' in non_attacker['skills']:
-        # non-participating fire dice can contribute 0 to value - 1 (or value - 2 for a twin fire die)
-        if ',' in non_attacker['recipe']: range_max = non_attacker['value'] - 1
-        else:                             range_max = non_attacker['value']
-        contributions.append(range(0, range_max))
+        # non-participating fire dice can contribute from 0 to that die's min
+        range_max = non_attacker['value'] - self._die_fire_min(non_attacker)
+        contributions.append(range(0, range_max + 1))
     attacker_max_sides = 0
     for attacker in attackers:
       attacker_max_sides += int(attacker['sides'])
       die_contributions = [ attacker['value'], ]
-      if 'Konstant' in attacker['skills']:
+      if 'Konstant' in attacker['skills'] and not 'Warrior' in attacker['skills']:
         die_contributions.append(-1 * attacker['value'])
       if 'Stinger' in attacker['skills'] and not 'Warrior' in attacker['skills']:
-        if ',' in attacker['recipe']: range_min = 2
-        else:                         range_min = 1
+        range_min = min_die_value(attacker)
         die_contributions.extend(range(range_min, attacker['value'] + 1))
         if 'Konstant' in attacker['skills']:
           die_contributions.extend(range(-1 * attacker['value'] + 1, -1 * range_min + 1))
@@ -1190,6 +1327,8 @@ class LoggingBMClient():
     if action == 'add':
       die_idx = self._random_array_element(reserve_choices)
       choice.append(die_idx)
+    # BUG: this shouldn't be necessary
+    if die_idx == 0: die_idx = "0"
     b.login()
     retval = b.choose_reserve_dice(self.game_id, action, die_idx)
     if not (retval and retval.status == 'ok'):
@@ -1206,8 +1345,16 @@ class LoggingBMClient():
     self.record_load_game_data()
 
   def _die_fire_min(self, die):
-    if ',' in die['recipe']: return 2
-    return 1
+    return min_die_value(die)
+
+  # Don't cancel fire attacks 50% of the time forever
+  #
+  # It makes games time out and potentially masks bugs.
+  # Instead make it less likely that cancelling will be an option,
+  # the more attacks we have cancelled during this game
+  def _should_allow_fire_cancellation(self):
+    if self.decision_state['cancelled_fire_attacks'] == 0: return True
+    return random.random() < (float(1) / (self.decision_state['cancelled_fire_attacks']))
 
   def _game_action_adjust_fire_dice_player(self, b, playerData, opponentData):
     is_power_turndown = 'Power' in self.loaded_data['validAttackTypeArray']
@@ -1230,14 +1377,17 @@ class LoggingBMClient():
     for die in opponentData['activeDieArray']:
       if 'IsAttackTarget' in die['properties']:
         defender_sum += die['value']
-    choices = [ 'cancel', ]
+    choices = []
+    if self._should_allow_fire_cancellation():
+      choices.append('cancel')
     if len(turndown_choices) > 0: choices.append('turndown')
     if is_power_turndown and attacker_sum >= defender_sum: choices.append('no_turndown')
     choice = self._random_array_element(choices)
     idx_array = []
     value_array = []
-    if choice in [ 'cancel', 'no_turndown', ]:
-      pass
+    if choice == 'cancel':
+      self.decision_state['cancelled_fire_attacks'] += 1
+    if choice == 'no_turndown': pass
     if choice == 'turndown':
       if is_power_turndown:
         min_needed = max(1, defender_sum - attacker_sum)
@@ -1307,7 +1457,7 @@ class LoggingBMClient():
     if choice == 'focus':
       for die_idx in focus_choices:
         idx_array.append(die_idx)
-        value_array.append('1')  # FIXME: won't work for focus twin
+        value_array.append(min_die_value(playerData['activeDieArray'][die_idx]))
     b.login()
     retval = b.react_to_initiative(
       self.game_id, choice, idx_array, value_array,
@@ -1524,23 +1674,42 @@ class LoggingBMClient():
 
   def record_create_game(self, button1, button2, max_wins=3, use_prev_game=False):
     self.player_client.login()
-    retval = self.player_client.create_game(button1, obutton=button2, opponent=self.opponent_client.username, max_wins=max_wins, use_prev_game=use_prev_game)
-    if not (retval and retval.status == 'ok'):
-      self.bug("create_game(%s, %s, %d) unexpectedly failed: %s" % (
-        button1, button2, max_wins,
+    if 'CustomBM' in [button1, button2]:
+      custom1 = get_fuzzy_recipe() if button1 == 'CustomBM' else None
+      custom2 = get_fuzzy_recipe() if button2 == 'CustomBM' else None
+      custom_recipe_array = [ custom1, custom2, ]
+    else:
+      custom_recipe_array = []
+    retval = self.player_client.create_game(button1, obutton=button2, opponent=self.opponent_client.username, max_wins=max_wins, use_prev_game=use_prev_game, custom_recipe_array=custom_recipe_array)
+    if not retval:
+      self.bug("create_game(%s, %s, %d, custom_recipe_array=%s) unexpectedly failed: %s" % (
+        button1, button2, max_wins, custom_recipe_array,
         retval and retval.message or "NULL"))
-
-    self.game_id = retval.data['gameId']
-    self.log.append({
-      'type': 'createGame',
-      'retval': retval,
-      'player1': self.player_client.username,
-      'player2': self.opponent_client.username,
-      'button1': button1,
-      'button2': button2,
-      'max_wins': max_wins,
-    })
-    self.record_load_game_data()
+    if not retval.status == 'ok':
+      self.log.append({
+        'type': 'createGame',
+        'retval': retval,
+        'player1': self.player_client.username,
+        'player2': self.opponent_client.username,
+        'button1': button1,
+        'button2': button2,
+        'max_wins': max_wins,
+        'custom_recipe_array': custom_recipe_array,
+      })
+      self.game_id = None
+    else:
+      self.game_id = retval.data['gameId']
+      self.log.append({
+        'type': 'createGame',
+        'retval': retval,
+        'player1': self.player_client.username,
+        'player2': self.opponent_client.username,
+        'button1': button1,
+        'button2': button2,
+        'max_wins': max_wins,
+        'custom_recipe_array': custom_recipe_array,
+      })
+      self.record_load_game_data()
     return self.game_id
 
   def reject_created_game(self):
@@ -1604,7 +1773,7 @@ class LoggingBMClient():
     self.reset_internal_state()
     self.start_game_log(n)
     self.record_create_game(button1, button2, use_prev_game=use_prev_game)
-    if not self.reject_created_game():
+    if self.game_id and not self.reject_created_game():
       self.next_game_action()
     self.finish_game_log()
     return self.game_id
