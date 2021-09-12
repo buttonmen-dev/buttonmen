@@ -263,15 +263,41 @@ class PHPBMClientOutputWriter():
     # Random skills may be selected during game creation, so use a dict-style randstr
     # that allows for skill-selection random values
     randstr = self._php_dict_style_rand_str(entry['retval'])
-    self.f.write("""
-        $gameId = $this->verify_api_createGame(
-            %s,
-            '%s', '%s', '%s', '%s', %d
-        );
+    php_custom_recipe_array = []
+    for idx in range(len(entry['custom_recipe_array'])):
+      custom_recipe = entry['custom_recipe_array'][idx]
+      if not custom_recipe: continue
+      php_custom_recipe_array.append("%s => '%s'" % (idx, custom_recipe))
+    php_custom_recipe_str = 'array(%s)' % ', '.join(php_custom_recipe_array)
+    button1_str = entry['button1'].replace("'", "\\'")
+    button2_str = entry['button2'].replace("'", "\\'")
+    if entry['retval'].status == 'ok':
+      self.f.write("""
+          $gameId = $this->verify_api_createGame(
+              %s,
+              '%s', '%s', '%s', '%s', %d,
+              '', NULL, 'gameId', %s
+          );
 """ % (
-      randstr, entry['player1'], entry['player2'],
-      entry['button1'].replace("'", "\\'"), entry['button2'].replace("'", "\\'"),
-      entry['max_wins']))
+        randstr, entry['player1'], entry['player2'],
+        button1_str, button2_str,
+        entry['max_wins'], php_custom_recipe_str))
+    else:
+      self.f.write("""
+        // Expect game creation to fail
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('%s', '%s'),
+                                       array('%s', '%s')),
+            'maxWins' => '%s',
+            'customRecipeArray' => %s,
+        );
+        $this->verify_api_failure($args, '%s');
+""" % (
+        entry['player1'], button1_str,
+        entry['player2'], button2_str,
+        entry['max_wins'], php_custom_recipe_str,
+        entry['retval'].message))
 
   def _write_entry_type_reactToAuxiliary(self, entry):
     randstr = self._php_rand_str(entry['retval'])
@@ -1675,8 +1701,8 @@ class LoggingBMClient():
   def record_create_game(self, button1, button2, max_wins=3, use_prev_game=False):
     self.player_client.login()
     if 'CustomBM' in [button1, button2]:
-      custom1 = get_fuzzy_recipe() if button1 == 'CustomBM' else None
-      custom2 = get_fuzzy_recipe() if button2 == 'CustomBM' else None
+      custom1 = get_fuzzy_recipe() if button1 == 'CustomBM' else ''
+      custom2 = get_fuzzy_recipe() if button2 == 'CustomBM' else ''
       custom_recipe_array = [ custom1, custom2, ]
     else:
       custom_recipe_array = []
