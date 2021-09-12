@@ -278,13 +278,13 @@ class BMInterfaceGame extends BMInterface {
         array $buttonNameArray,
         array $customRecipeArray
     ) {
-        if ($this->get_config('site_type') != 'development') {
-            $this->set_message('Custom recipes can only be used on development sites.');
-            return FALSE;
-        }
-
         foreach ($buttonNameArray as $position => $buttonName) {
             if ('CustomBM' == $buttonName) {
+                if ($this->get_config('site_type') != 'development') {
+                    $this->set_message('Custom recipes can only be used on development sites.');
+                    return FALSE;
+                }
+                
                 if (empty($customRecipeArray)) {
                     $this->set_message('customRecipeArray must be supplied');
                     return FALSE;
