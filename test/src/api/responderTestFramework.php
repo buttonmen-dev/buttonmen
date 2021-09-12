@@ -556,6 +556,24 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Utility function to update config.site_type in the test database
+     *
+     * Our goal is to test the behavior of a production type site as often as possible.
+     * Only fall back to behaving like a non-production site when there's a specific
+     * reason the test can't run on production (e.g. test uses an unimplemented button).
+     */
+    protected function update_config_site_type($site_type) {
+        // N.B. it's generally undesirable to invoke database operations directly in responderTest.
+        // Do NOT take this functionality as precedent that this is a good way to run tests, and
+        // specifically NEVER modify database state in the middle of a responder test
+        $conn = conn();
+        $query = 'UPDATE config SET conf_value = :site_type WHERE conf_key = "site_type"';
+        $parameters = array(':site_type' => $site_type);
+        $statement = $conn->prepare($query);
+        $statement->execute($parameters);
+    }
+
+    /**
      * Utility function to suppress non-zero timestamps in a game data option.
      * This function shouldn't do any assertions itself; that's the caller's job.
      */
