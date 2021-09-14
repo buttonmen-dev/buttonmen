@@ -83,7 +83,11 @@ class BMInterface {
         } else {
             require_once __DIR__.'/../database/mysql.inc.php';
         }
-        self::$conn = conn();
+
+        if (!isset(self::$conn)) {
+            self::$conn = conn();
+        }
+
         self::$db = new BMDB(self::$conn);
     }
 
@@ -888,6 +892,9 @@ class BMInterface {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
 
+        // start transaction
+        self::$conn->beginTransaction();
+
         try {
             $this->resolve_random_button_selection($game);
             $this->save_basic_game_parameters($game);
@@ -912,12 +919,15 @@ class BMInterface {
             $this->delete_dice_marked_as_deleted($game);
             $this->game_action()->save_action_log($game);
             $this->game_chat()->save_chat_log($game);
+
+            self::$conn->commit();
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_game: ' .
                 $e->getMessage()
             );
             $this->set_message("Game save failed: $e");
+            self::$conn->rollBack();
         }
     }
 
