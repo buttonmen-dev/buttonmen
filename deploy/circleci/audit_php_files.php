@@ -47,9 +47,12 @@
     "src/engine/BMDie.php" => 1000,
     "src/engine/BMDieSwing.php" => 1000,
     "src/engine/BMGame.php" => 1000,
-    "src/engine/BMInterface.php" => 1000,
     "src/engine/BMInterfaceGame.php" => 1000,
     "src/engine/BMPlayer.php" => 1000,
+    // This file is converted to BMDB, but we haven't yet done the exercise of ensuring that
+    // subdie values reconstructed from flags are always ints.
+    // Leave those casts in place until we do
+    "src/engine/BMInterface.php" => 2,
   );
 
   // In these directories, we limit explicit references to $_SESSION variables
