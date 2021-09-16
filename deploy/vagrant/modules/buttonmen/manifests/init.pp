@@ -32,6 +32,11 @@ class buttonmen::server {
       content => template("buttonmen/backup_database.erb"),
       mode => 0555;
 
+    "/usr/local/bin/test_buttonmen_config":
+      ensure => file,
+      content => template("buttonmen/test_config.erb"),
+      mode => 0555;
+
     "/usr/local/bin/mysql_root_cli":
       ensure => file,
       content => template("buttonmen/mysql_root_cli.erb"),
@@ -116,6 +121,11 @@ class buttonmen::server {
     "buttonmen_backup_database":
       command => "/usr/local/bin/backup_buttonmen_database",
       minute => "1",
+      hour => "0";
+
+    "buttonmen_test_config":
+      command => "/usr/local/bin/test_buttonmen_config",
+      minute => "5",
       hour => "0";
   }
 }
