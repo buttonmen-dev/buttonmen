@@ -2553,17 +2553,17 @@ class BMInterface {
             return $this->count_noun($seconds, 'second');
         }
 
-        $minutes = intdiv($seconds / 60);
+        $minutes = intdiv($seconds, 60);
         if ($minutes < 60) {
             return $this->count_noun($minutes, 'minute');
         }
 
-        $hours = intdiv($minutes / 60);
+        $hours = intdiv($minutes, 60);
         if ($hours < 24) {
             return $this->count_noun($hours, 'hour');
         }
 
-        $days = intdiv($hours / 24);
+        $days = intdiv($hours, 24);
         return $this->count_noun($days, 'day');
     }
 

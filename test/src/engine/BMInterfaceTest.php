@@ -2082,4 +2082,24 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
     }
 
+    /*
+     * @covers BMInterface::get_friendly_time_span
+     */
+    public function test_get_friendly_time_span() {
+        $get_friendly_time_span = self::getMethod('get_friendly_time_span');
+        $this->assertEquals("32 seconds",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878332, 1632878300)));
+        $this->assertEquals("32 seconds",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878300, 1632878332)));
+        $this->assertEquals("1 minute",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878300, 1632878400)));
+        $this->assertEquals("8 minutes",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878300, 1632878800)));
+        $this->assertEquals("2 hours",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878300, 1632888800)));
+        $this->assertEquals("11 days",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878300, 1633888800)));
+        $this->assertEquals("1169 days",
+            $get_friendly_time_span->invokeArgs($this->object, array(1632878300, 1733888800)));
+    }
 }
