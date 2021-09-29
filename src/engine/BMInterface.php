@@ -965,6 +965,7 @@ class BMInterface {
             );
             $this->set_message("Game save failed: $e");
             self::$conn->rollBack();
+            throw new BMExceptionDatabase("Game save failed");
         }
     }
 
