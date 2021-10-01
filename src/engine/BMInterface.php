@@ -247,10 +247,10 @@ class BMInterface {
                 $playerName = $this->get_player_name_from_id($gamePlayer->playerId);
                 $playerNameArray[] = $playerName;
                 $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
-                $isOnVacation = (bool) $game->playerArray[$gamePlayerIdx]->isOnVacation;
+                $isOnVacation = $game->playerArray[$gamePlayerIdx]->isOnVacation;
                 $data['playerDataArray'][$gamePlayerIdx]['isOnVacation'] = $isOnVacation;
 
-                $isChatPrivate = (bool) $game->playerArray[$gamePlayerIdx]->isChatPrivate;
+                $isChatPrivate = $game->playerArray[$gamePlayerIdx]->isChatPrivate;
                 $data['playerDataArray'][$gamePlayerIdx]['isChatPrivate'] = $isChatPrivate;
             }
 
@@ -867,11 +867,11 @@ class BMInterface {
                 $subdiePropertyArray = $die->flagList['Twin']->value();
                 $max = $subdiePropertyArray['sides'][$subdieIdx];
                 if (isset($max)) {
-                    $subdie->max = (int)$max;
+                    $subdie->max = $max;
                 }
                 $value = $subdiePropertyArray['values'][$subdieIdx];
                 if (isset($value)) {
-                    $subdie->value = (int)$value;
+                    $subdie->value = $value;
                 }
             } else {
                 // continue to handle the old case where there was no BMFlagTwin information

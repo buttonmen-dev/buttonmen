@@ -399,13 +399,13 @@ class BMPlayer {
         if (array_key_exists('W', $value) &&
             array_key_exists('L', $value) &&
             array_key_exists('D', $value)) {
-            $this->gameScoreArray = array('W' => (int)$value['W'],
-                                          'L' => (int)$value['L'],
-                                          'D' => (int)$value['D']);
+            $this->gameScoreArray = array('W' => $value['W'],
+                                          'L' => $value['L'],
+                                          'D' => $value['D']);
         } else {
-            $this->gameScoreArray = array('W' => (int)$value[0],
-                                          'L' => (int)$value[1],
-                                          'D' => (int)$value[2]);
+            $this->gameScoreArray = array('W' => $value[0],
+                                          'L' => $value[1],
+                                          'D' => $value[2]);
         }
     }
 

@@ -1089,7 +1089,7 @@ class responder00Test extends responderTestFramework {
 
         $args = array(
             'type' => 'editForumPost',
-            'postId' => (int)$thread['data']['posts'][0]['postId'],
+            'postId' => $thread['data']['posts'][0]['postId'],
             'body' => 'Cat!',
         );
         $retval = $this->verify_api_success($args);

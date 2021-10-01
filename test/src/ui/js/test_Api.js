@@ -461,7 +461,7 @@ test("test_Api.parseGamePlayerData", function(assert) {
               "array of captured dice should be parsed");
     assert.deepEqual(
       Api.game.player.optRequestArray[4],
-      ['2', '20'],
+      [2, 20],
       "option request array should contain entry for (2/20)");
     delete Game.game;
     start();
@@ -474,7 +474,7 @@ test("test_Api.parseGamePlayerData_option", function(assert) {
   Api.getGameData(gameId, 10, function() {
     assert.deepEqual(Api.game.player.swingRequestArray, {});
     assert.deepEqual(Api.game.player.optRequestArray, {
-      4: ["2", "20"],
+      4: [2, 20],
     });
     start();
   });

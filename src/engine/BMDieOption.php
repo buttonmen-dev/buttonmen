@@ -56,6 +56,7 @@ class BMDieOption extends BMDie {
             throw new InvalidArgumentException('optionArray must have exactly two elements.');
         }
 
+        $int_optionArray = array();
         foreach ($optionArray as $option) {
             if ($option === '0') {
                 // see Issue #2614
@@ -64,7 +65,7 @@ class BMDieOption extends BMDie {
                 );
             }
 
-            self::validate_die_size($option, TRUE);
+            $int_optionArray[] = self::validate_die_size($option, TRUE);
         }
 
         $this->min = 1;
@@ -72,7 +73,7 @@ class BMDieOption extends BMDie {
         $this->divisor = 1;
         $this->remainder = 0;
 
-        $this->optionValueArray = $optionArray;
+        $this->optionValueArray = $int_optionArray;
         $this->needsOptionValue = TRUE;
         $this->valueRequested = FALSE;
 

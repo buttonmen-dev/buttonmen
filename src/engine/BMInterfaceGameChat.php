@@ -126,7 +126,7 @@ class BMInterfaceGameChat extends BMInterface {
             $this->db_set_chat_visibility($playerId, $gameId, $private);
 
             // Now return a message based on the new and opponent states
-            $opponentIsChatPrivate = (bool) $game->playerArray[1 - $currentPlayerIdx]->isChatPrivate;
+            $opponentIsChatPrivate = $game->playerArray[1 - $currentPlayerIdx]->isChatPrivate;
             if ($private) {
                 $this->set_message("Set game chat to private");
                 return TRUE;
