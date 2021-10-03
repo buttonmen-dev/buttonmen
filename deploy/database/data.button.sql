@@ -1254,7 +1254,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (788, 'AnnoDomini',       '(W) (4) (R) s(4) (W)',                          0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(789, 'blackshadowshade', 'mkht(T)! Bt(T)& `fg(4) bHt^(0/10) F%(1,10) rbHt^(0/10) rnDt^(1,8)', 1, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
+(789, 'blackshadowshade', 'mkht(T)! Bt(T)& `fg(4) bHt^(0/10) F%(1,10) rbHt^(0/10) rnDt^(1,8)', 0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
 (790, 'Blargh',           'Hop(4) hop(10) Mh(8) Mf(8) MF(13)',             0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
 (791, 'devious',          'dv(S) (16) (16) pqr(S,S) Jm`(0) Jm`(0) Jm`(0)', 0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
 (792, 'jimmosk',          '(4) %(8) g(12) JIMmo(S) k(2)',                  0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
