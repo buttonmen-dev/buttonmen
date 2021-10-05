@@ -1834,7 +1834,7 @@ class BMInterface {
                     'INNER JOIN game_player_view AS v_victim ' .
                         'ON v_victim.game_id = g.id AND v_victim.player_id IS NULL ' .
                 'WHERE s.name = "OPEN"' .
-                'ORDER BY g.id ASC;';
+                'ORDER BY g.id DESC;';
             $parameters = array();
             $columnReturnTypes = array(
                 'challenger_button' => 'str_or_null',
