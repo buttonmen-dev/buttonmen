@@ -64,7 +64,7 @@ class BMAttackSkill extends BMAttack {
      *
      * @param bool $includeOptional
      */
-    protected function generate_hit_table($includeOptional = TRUE) {
+    protected function generate_hit_table($includeOptional = TRUE, $hitVals = NULL) {
         if ($includeOptional) {
             $validDice = $this->validDice;
         } else {
@@ -80,7 +80,7 @@ class BMAttackSkill extends BMAttack {
 
         self::strip_excess_plain_zeros($validDice);
 
-        $this->hitTable = new BMUtilityHitTable($validDice);
+        $this->hitTable = new BMUtilityHitTable($validDice, $hitVals=$hitVals);
     }
 
     /**
@@ -124,7 +124,12 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
-        $this->generate_hit_table($includeOptional);
+        $dvals = array();
+        foreach ($targets as $t) {
+            $dvals[] = $t->defense_value($this->type);
+        }
+
+        $this->generate_hit_table($includeOptional, $hitVals=$dvals);
         $hits = $this->hitTable->list_hits();
 
         foreach ($targets as $t) {
@@ -225,7 +230,7 @@ class BMAttackSkill extends BMAttack {
         $dval = $defenders[0]->defense_value($this->type);
 
         if (!($this->hitTable instanceof BMUtilityHitTable)) {
-            $this->generate_hit_table();
+            $this->generate_hit_table($hitVals = array($dval));
         }
 
         if ($this->is_direct_attack_valid($attackers, $dval)) {
