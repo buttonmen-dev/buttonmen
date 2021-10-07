@@ -138,10 +138,16 @@ class BMUtilityHitTable {
             return;
         }
 
+        // The logic up to this point collected both direct and indirect die contributions,
+        // for the purpose of finding exactly those combinations which could under some circumstances
+        // hit a target of interest.  However, we want to install into the hit table the
+        // target sum from the direct contributions only, because that's what find_attack() will expect
         $newcombo = array();
         $newkeyParts = array();
+        $directTarget = 0;
         for ($i = 0; $i < count($prefixDieHits); $i++) {
             if ($prefixDieHits[$i][1]) {
+                $directTarget += $prefixDieHits[$i][0];
                 $newcombo[] = $this->dice[$i];
                 $newkeyParts[] = $this->die_ids[$i];
             }
@@ -153,10 +159,10 @@ class BMUtilityHitTable {
 
         // Actually add the combo to the hit table, either as a new key or a new combo for an existing one
         $newkey = implode(".", $newkeyParts);
-        if (array_key_exists($target, $this->hits)) {
-            $this->hits[$target][$newkey] = $newcombo;
+        if (array_key_exists($directTarget, $this->hits)) {
+            $this->hits[$directTarget][$newkey] = $newcombo;
         } else {
-            $this->hits[$target] = array($newkey => $newcombo);
+            $this->hits[$directTarget] = array($newkey => $newcombo);
         }
     }
 

@@ -142,8 +142,8 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($sk->validate_attack($game, array($die1), $def));
 
         // test case where the amount of help is explicitly specified
-//        $this->assertFalse($sk->validate_attack($game, array($die1), $def, array('helpValue' => 3)));
-//        $this->assertTrue($sk->validate_attack($game, array($die1), $def, array('helpValue' => 1)));
+        $this->assertFalse($sk->validate_attack($game, array($die1), $def, array('helpValue' => 3)));
+        $this->assertTrue($sk->validate_attack($game, array($die1), $def, array('helpValue' => 1)));
 
         $target->value = 2;
         $this->assertTrue($sk->validate_attack($game, array($die1), $def));
