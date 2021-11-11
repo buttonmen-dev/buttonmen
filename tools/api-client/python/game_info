@@ -1,29 +1,30 @@
-#!/usr/bin/python
-##### game_info
+#!/usr/bin/env python
+# GAME_INFO
 # Example script which prints player and opponent information about
 # an existing game
 
+import argparse
 import sys
-sys.path.append('lib')
 
-import bmutils
-import optparse
-import time
+from lib import bmutils
+
 
 # implicitly parses sys.argv
 def parse_args():
-  parser = optparse.OptionParser()
-  parser.add_option(
+  parser = argparse.ArgumentParser()
+  parser.add_argument(
     "-c", "--config",
     help="config file containing site parameters",
     type=str, default=".bmrc"
   )
-  parser.add_option(
+  parser.add_argument(
     "-s", "--site",
     help="buttonmen site to access",
     type=str, default="www"
   )
+  parser.add_argument("gameid")
   return parser.parse_args()
+
 
 def print_table(tabledata):
   colmax = []
@@ -38,20 +39,21 @@ def print_table(tabledata):
     rowstr.strip()
     print(rowstr)
 
+
 ########################################################################
-[opts, args] = parse_args()
-b = bmutils.BMClientParser(opts.config, opts.site)
+args = parse_args()
+b = bmutils.BMClientParser(args.config, args.site)
 if not b.verify_login():
   print("Could not login")
   sys.exit(1)
 
-gamedata = b.wrap_load_game_data(args[0])
+gamedata = b.wrap_load_game_data(args.gameid)
 tabledata = []
-for player in [ 'player', 'opponent', ]:
+for player in ['player', 'opponent']:
   tabledata.append(
-    [ gamedata[player]['playerName'] + ':',
-      gamedata[player]['button']['name'] + ':',
-      gamedata[player]['button']['recipe'],
-    ]
+    [gamedata[player]['playerName'] + ':',
+     gamedata[player]['button']['name'] + ':',
+     gamedata[player]['button']['recipe'],
+     ]
   )
 print_table(tabledata)

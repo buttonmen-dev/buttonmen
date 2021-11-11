@@ -1,60 +1,33 @@
-##### bmapi.py
+# BMAPI
 # This library strictly implements the Button Men API in python.
 # The BMClient class provides one function for each API method,
 # which is called with the arguments to be passed to that method,
 # and returns the JSON response to the method invocation.
 
-### Imports
+# IMPORTS
 
 # Import stuff from the future.
+from __future__ import absolute_import, division, print_function, \
+  unicode_literals
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# Import regular stuff.
-
+import configparser
 import json
 import os
+from http.cookiejar import LWPCookieJar
 
-# Import Python version specific stuff.
+import requests
 
-try:
-  import configparser
-except ImportError:
-  import ConfigParser as configparser
 
-try:
-  from http.cookiejar import LWPCookieJar
-except ImportError:
-  from cookielib import LWPCookieJar
+# CLASSES
 
-try:
-  from urllib.parse import urlparse
-except ImportError:
-  from urlparse import urlparse
-
-try:
-  from urllib.parse import urlencode
-except ImportError:
-  from urllib import urlencode
-
-try:
-  from urllib.error import HTTPError
-except ImportError:
-  from urllib2 import HTTPError
-
-try:
-  from urllib.request import urlopen, Request, HTTPCookieProcessor, build_opener, install_opener
-except ImportError:
-  from urllib2 import urlopen, Request, HTTPCookieProcessor, build_opener, install_opener
-
-### Classes
-
-class BMAPIResponse():
+class BMAPIResponse:
   def __init__(self, response_dict):
     for mandatory_arg in ['data', 'message', 'status']:
-      if not mandatory_arg in response_dict:
-        raise(ValueError, "Malformed API response is missing key '%s': %s" % (
-          mandatory_arg, response_dict))
+      if mandatory_arg not in response_dict:
+        raise (
+          ValueError,
+          "Malformed API response is missing key '%s': %s" % (
+            mandatory_arg, response_dict))
     self.data = response_dict['data']
     self.message = response_dict['message']
     self.status = response_dict['status']
@@ -67,7 +40,8 @@ class BMAPIResponse():
     if 'BM_SKILL_RAND_VALS_ROLLED' in response_dict:
       self.skill_rand_vals = response_dict['BM_SKILL_RAND_VALS_ROLLED']
 
-class BMClient():
+
+class BMClient:
   def _read_rcfile(self, rcfile, site):
     config = configparser.ConfigParser()
     config.read(rcfile)
@@ -77,7 +51,7 @@ class BMClient():
     self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
     try:
       self.cachedir = os.path.expanduser(config.get(site, "cachedir"))
-    except (configparser.NoOptionError):
+    except configparser.NoOptionError:
       pass
 
   def _setup_cookies(self):
@@ -85,9 +59,8 @@ class BMClient():
     self.cookiejar = LWPCookieJar(self.cookiefile)
     if os.path.isfile(self.cookiefile):
       self.cookiejar.load(ignore_discard=True)
-    self.cookieprocessor = HTTPCookieProcessor(self.cookiejar)
-    self.opener = build_opener(self.cookieprocessor)
-    install_opener(self.opener)
+    self.session = requests.session()
+    self.session.cookies = self.cookiejar
 
   def __init__(self, rcfile, site):
     self.username = None
@@ -98,18 +71,17 @@ class BMClient():
     self._setup_cookies()
 
   def _make_request(self, args):
-    data = json.dumps(args)
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
-    req = Request(self.url, data, headers)
-    response = urlopen(req)
-    jsonval = response.read()
+    response = self.session.post(url=self.url, data=json.dumps(args),
+                             headers=headers,)
+
     try:
-      retval = json.loads(jsonval.decode('ascii'))
+      retval = response.json()
       return BMAPIResponse(retval)
-    except (Exception) as e:
-      print("could not parse return: " + jsonval)
+    except ValueError as e:
+      print("could not parse return: " + response.text)
       return False
 
   def login(self):

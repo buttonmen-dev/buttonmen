@@ -1,61 +1,50 @@
 #!/usr/bin/env python
 
-##### game-data
+# GAME-DATA
 #
 # Print out data about a game.
 
-### Imports
+# IMPORTS
 
-# Import regular stuff.
 
-import ConfigParser
 import argparse
+import configparser
 import json
 import os
 import sys
 
-# Import yaml if we can, and set a variable to track whether we did or not.
+import yaml
 
-try:
-  import yaml
-  yaml_available = True
-except ImportError:
-  yaml_available = False
+from lib import bmutils
 
-# Import Button Men utilities.
 
-sys.path.append('lib')
-import bmutils
-
-### Classes
+# CLASSES
 
 # A class to not use anchors and aliases when dumping YAML.
 
-if yaml_available:
-  class noalias_dumper(yaml.SafeDumper):
-    def ignore_aliases(self, _data):
-      return True
+class noalias_dumper(yaml.SafeDumper):
+  def ignore_aliases(self, _data):
+    return True
 
-### Functions
 
-## parse_arguments
+# FUNCTIONS
+
+# PARSE ARGUMENTS
 
 def parse_arguments():
-
   parser = argparse.ArgumentParser(description="Print out data about a game.")
 
   parser.add_argument('gamenumber', help="game number")
 
-  if yaml_available:
-    parser.add_argument('--format',
-                        choices = ['json', 'yaml'], default = 'yaml',
-                        help = "output data format (default: yaml)")
+  parser.add_argument('--format',
+                      choices=['json', 'yaml'], default='yaml',
+                      help="output data format (default: yaml)")
 
   # Add general optional arguments.
 
   parser.add_argument('--site',
-                      default = 'www',
-                      help = "site to check ('www' by default)")
+                      default='www',
+                      help="site to check ('www' by default)")
 
   parser.add_argument('--config', '-c',
                       default='~/.bmrc',
@@ -65,7 +54,8 @@ def parse_arguments():
 
   return parser.parse_args()
 
-### Main body
+
+# MAIN BODY
 
 args = parse_arguments()
 
@@ -73,13 +63,14 @@ args = parse_arguments()
 
 try:
   bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
-except ConfigParser.NoSectionError as e:
-  print "ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site)
-  print "(Exception: {0}: {1})".format(e.__module__, e.message)
+except configparser.NoSectionError as e:
+  print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config,
+                                                                 args.site))
+  print("(Exception: {0}: {1})".format(e.__module__, e.message))
   sys.exit(1)
 
 if not bmconn.verify_login():
-  print "ERROR: Could not log in to {0}".format(args.site)
+  print("ERROR: Could not log in to {0}".format(args.site))
   sys.exit(1)
 
 # Fetch the game data.
@@ -88,7 +79,7 @@ game = bmconn.wrap_load_game_data(args.gamenumber)
 
 # Print the game data.
 
-if not yaml_available or args.format == 'json':
+if args.format == 'json':
   print(json.dumps(game, indent=1, sort_keys=True))
-else:
+elif args.format == 'yaml':
   print(yaml.dump(game, Dumper=noalias_dumper))

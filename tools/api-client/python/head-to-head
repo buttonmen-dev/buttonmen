@@ -1,76 +1,70 @@
 #!/usr/bin/env python
 
-##### head-to-head.py
+# HEAD-TO-HEAD
 #
 # Show head-to-head records between a protagonist (a button or a player)
 # and one or more opponents.
 
-### Imports
+# IMPORTS
 
 # Import stuff from the future.
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-# Import regular stuff.
+from __future__ import absolute_import, division, print_function, \
+  unicode_literals
 
 import argparse
+import configparser
 import os
 import sys
 
-# Import Python version specific stuff.
+from lib import bmutils
 
-try:
-  import configparser
-except ImportError:
-  import ConfigParser as configparser
 
-# Import Button Men utilities.
+# FUNCTIONS
 
-sys.path.append('lib')
-import bmutils
-
-### Functions
-
-## parse_arguments
+# PARSE ARGUMENTS
 
 def parse_arguments():
-
   # Set up the main parser and subparser.
 
-  parser = argparse.ArgumentParser(description="Show head-to-head records between a protagonist (a button or a player) and one or more opponents.")
+  parser = argparse.ArgumentParser(
+    description="Show head-to-head records between a protagonist (a button or a player) and one or more opponents.")
 
-  subparsers = parser.add_subparsers(dest='type', title="Type of thing to compare",
+  subparsers = parser.add_subparsers(dest='type',
+                                     title="Type of thing to compare",
                                      help="more help: head-to-head <subcommand> --help")
 
   # Set up the button subparser.
 
-  parser_button = subparsers.add_parser('button', help="show head-to-head records between buttons")
+  parser_button = subparsers.add_parser('button',
+                                        help="show head-to-head records between buttons")
 
   parser_button.add_argument('protag', help="protagonist button")
 
   parser_button.add_argument('opponent',
-                             nargs = '+',
-                             help = "opponent buttons")
+                             nargs='+',
+                             help="opponent buttons")
 
   # Set up the player subparser.
 
-  parser_player = subparsers.add_parser('player', help="show head-to-head records between players")
+  parser_player = subparsers.add_parser('player',
+                                        help="show head-to-head records between players")
 
   parser_player.add_argument('protag', help="protagonist player")
 
   parser_player.add_argument('opponent',
-                             nargs = '+',
-                             help = "opponent players")
+                             nargs='+',
+                             help="opponent players")
 
   # Add general optional arguments.
 
   parser.add_argument('--n-way',
                       action='store_true',
-                      help = "compare opponents to each other as well")
+                      help="compare opponents to each other as well")
 
   parser.add_argument('--site',
-                      default = 'www',
-                      help = "site to check ('www' by default)")
+                      default='www',
+                      help="site to check ('www' by default)")
 
   parser.add_argument('--config', '-c',
                       default='~/.bmrc',
@@ -79,28 +73,29 @@ def parse_arguments():
   # Return the parser.
 
   return parser.parse_args()
-          
-## print_record
+
+
+# PRINT_RECORD
 #
 # Print the record between two things.
 
-def print_record(bmconn, type, thing1, thing2):
-
-  apicmd = { 'type': 'searchGameHistory',
-             'sortColumn': 'lastMove',
-             'sortDirection': 'DESC',
-             'numberOfResults': 20,
-             'page': 1,
-             type + 'NameA': thing1,
-             type + 'NameB': thing2,
-             'status': 'COMPLETE' }
+def print_record(bmconn, kind, thing1, thing2):
+  apicmd = {'type': 'searchGameHistory',
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': 20,
+            'page': 1,
+            kind + 'NameA': thing1,
+            kind + 'NameB': thing2,
+            'status': 'COMPLETE'}
 
   result = bmconn._make_request(apicmd)
 
   # If we don't get an ok result, print some helpful info, and give up.
 
   if result.status != 'ok':
-    print("WARNING: Couldn't get data about {0} vs {1}".format(thing1,thing2))
+    print("WARNING: Couldn't get data about {0} vs {1}".format(thing1,
+                                                               thing2))
     print("Result status: {0}".format(result.status))
     print("Result message: {0}\n".format(result.message))
     return
@@ -117,9 +112,12 @@ def print_record(bmconn, type, thing1, thing2):
   except ZeroDivisionError:
     winpct = 0
 
-  print("{0} vs {1}: {2} - {3} ({4:.2f}%)".format(thing1, thing2, wins, losses, winpct))
+  print(
+    "{0} vs {1}: {2} - {3} ({4:.2f}%)".format(thing1, thing2, wins, losses,
+                                              winpct))
 
-### Main body
+
+# MAIN BODY
 
 args = parse_arguments()
 
@@ -128,7 +126,8 @@ args = parse_arguments()
 try:
   bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
 except configparser.NoSectionError as e:
-  print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site))
+  print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config,
+                                                                 args.site))
   print("(Exception: {0}: {1})".format(e.__module__, e.message))
   sys.exit(1)
 

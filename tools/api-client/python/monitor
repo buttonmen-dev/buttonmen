@@ -1,39 +1,36 @@
-#!/usr/bin/python
-##### monitor
+#!/usr/bin/env python
+# MONITOR
 # Example script which provides "monitor" functionality, polling
 # periodically for games which are waiting for you to act
 
-# Use raw_input for input if it exists (Python 2.x compatibility)
 
-try:
-  input = raw_input
-except NameError:
-  pass
-
+import argparse
 import sys
-sys.path.append('lib')
-
-import bmutils
-import optparse
 import time
+from builtins import input
+
+from lib import bmutils
+
 
 # implicitly parses sys.argv
 def parse_args():
-  parser = optparse.OptionParser()
-  parser.add_option(
+  parser = argparse.ArgumentParser()
+  parser.add_argument(
     "-c", "--config",
     help="config file containing site parameters",
     type=str, default=".bmrc"
   )
-  parser.add_option(
+  parser.add_argument(
     "-s", "--site",
     help="buttonmen site to access",
     type=str, default="www"
   )
   return parser.parse_args()
 
-[opts, args] = parse_args()
-b = bmutils.BMClientParser(opts.config, opts.site)
+
+args = parse_args()
+
+b = bmutils.BMClientParser(args.config, args.site)
 if not b.verify_login():
   print("Could not login")
   sys.exit(1)
