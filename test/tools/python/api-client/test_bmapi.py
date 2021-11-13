@@ -4,7 +4,7 @@ import os
 import sys
 
 mydir = os.path.dirname(os.path.realpath(sys.argv[0]))
-tooldir = mydir + '/../../../../../tools/api-client/python/lib/'
+tooldir = mydir + '/../../../../tools/python/api_client/'
 sys.path.append(tooldir)
 import bmapi
 

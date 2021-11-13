@@ -49,8 +49,13 @@ jobs:
           name: Run QUnit tests
           command: /usr/local/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
       - run:
-          name: Run python client unit tests
-          command: /usr/bin/python ./test/tools/api-client/python/lib/test_bmapi.py
+          name: Run python 2 client unit tests
+          command: /usr/bin/python ./test/tools/python/api-client/test_bmapi.py
+          environment:
+            BMAPI_TEST_TYPE: circleci
+      - run:
+          name: Run python 3 client unit tests
+          command: /usr/bin/python3 ./test/tools/python/api-client/test_bmapi.py
           environment:
             BMAPI_TEST_TYPE: circleci
       - run:
