@@ -1,14 +1,14 @@
 #!/usr/bin/python
 ##### test_log_games
 
-import os
 import sys
-sys.path.append('lib')
+sys.path.append('..')
 
+import os
 CONFIGPATH = "%s/share/buttonmen/.bmrc" % os.getenv('HOME')
 
-import bmapi
-import random_ai
+from api_client import bmapi
+from random_ai import random_ai
 import time
 
 ########################################################################

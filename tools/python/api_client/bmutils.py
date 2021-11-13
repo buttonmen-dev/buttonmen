@@ -107,7 +107,7 @@ class BMClientParser(bmapi.BMClient):
   def wrap_react_to_new_game(self, game, accept):
     retval = self.react_to_new_game(game, 'accept' if accept else 'reject')
     if not retval.status == 'ok':
-      raise ValueError, "Failed to call reactToNewGame, got: " + retval.message
+      raise ValueError("Failed to call reactToNewGame, got: " + retval.message)
     return retval.data
 
   def wrap_load_completed_games(self):

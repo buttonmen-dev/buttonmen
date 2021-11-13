@@ -1,6 +1,4 @@
-# Python scripts for buttonmen
-
-## Replay scripts
+# Replay scripts for buttonmen
 
 Several of the scripts in this directory are designed for use in replay testing of new code. Here's
 a quick overview:

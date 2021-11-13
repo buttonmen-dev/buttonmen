@@ -1,0 +1,5 @@
+# TODO determine where these requirements should be for optimal usability
+future
+requests
+configparser
+PyYAML

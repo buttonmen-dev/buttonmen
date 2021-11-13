@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 GAME-CREATE
 Create a game between two named players playing two named buttons.
@@ -14,9 +14,8 @@ import argparse
 import configparser
 import os
 import sys
-
-from lib import bmutils
-
+sys.path.append("..")
+from api_client import bmutils
 
 # FUNCTIONS
 

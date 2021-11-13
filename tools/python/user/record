@@ -16,9 +16,8 @@ import argparse
 import configparser
 import os
 import sys
-
-from lib import bmutils
-
+sys.path.append("..")
+from api_client import bmutils
 
 # Import Button Men utilities.
 

@@ -7,6 +7,7 @@ import os
 import sys
 import string
 
+
 #####
 # CustomBM testing
 #
@@ -1720,7 +1721,7 @@ class LoggingBMClient():
       custom_recipe_array = [ custom1, custom2, ]
     else:
       custom_recipe_array = []
-    retval = self.player_client.create_game(button1, obutton=button2, opponent=self.opponent_client.username, max_wins=max_wins, use_prev_game=use_prev_game, custom_recipe_array=custom_recipe_array)
+    retval = tools.python.user.create_game(button1, obutton=button2, opponent=self.opponent_client.username, max_wins=max_wins, use_prev_game=use_prev_game, custom_recipe_array=custom_recipe_array)
     if not retval:
       self.bug("create_game(%s, %s, %d, custom_recipe_array=%s) unexpectedly gave invalid response: %s" % (
         button1, button2, max_wins, custom_recipe_array,

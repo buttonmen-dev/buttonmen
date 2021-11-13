@@ -1,4 +1,0 @@
-Modules which implement the client side of the Button Men API, for
-use in scripts to get information from the API, or engines for bot
-players (please clearly identify all bots so players can tell whether
-they are playing against bots or humans).

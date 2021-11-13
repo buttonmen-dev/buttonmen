@@ -11,8 +11,9 @@ site = "www"
 
 import json
 import os
-
-from lib import bmutils
+import sys
+sys.path.append("..")
+from api_client import bmutils
 
 bmconnection = bmutils.BMClientParser(os.path.expanduser(bmrc), site)
 if not bmconnection.verify_login():

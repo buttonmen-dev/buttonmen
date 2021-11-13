@@ -9,9 +9,9 @@
 # be made in random_ai.py.
 
 import sys
-sys.path.append('lib')
+sys.path.append('..')
 
-import random_ai
+from random_ai import random_ai
 
 ########################################################################
 # Custom classes

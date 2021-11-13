@@ -9,6 +9,9 @@
 # Import stuff from the future.
 from __future__ import absolute_import, division, print_function, \
   unicode_literals
+from future import standard_library
+standard_library.install_aliases()
+
 
 import configparser
 import json
@@ -155,7 +158,7 @@ class BMClient:
     return self._make_request(args)
 
   def create_game(self, pbutton, obutton='', player='', opponent='', description='', max_wins=3, use_prev_game=False, custom_recipe_array=None):
-    if player == None or player == '':
+    if player is None or player == '':
       player = self.username
     if not obutton:
       obutton = ''

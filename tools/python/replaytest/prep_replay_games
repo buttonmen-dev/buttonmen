@@ -2,9 +2,9 @@
 ##### prep_replay_games
 
 import sys
-sys.path.append('lib')
+sys.path.append("..")
 
-import random_ai
+from random_ai import random_ai
 
 ########################################################################
 # Initial setup
