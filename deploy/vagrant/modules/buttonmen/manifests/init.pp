@@ -118,3 +118,24 @@ class buttonmen::server {
       hour => "0";
   }
 }
+
+class buttonmen::clienttestsetup {
+
+  package {
+    "python-pip": ensure => installed;
+    "python3-pip": ensure => installed,
+      require  => Exec['apt-get update'],;
+  }
+
+  exec {
+    "pip_requirements_install":
+      command     => "/usr/bin/pip install -r /buttonmen/tools/python/api_client/requirements.txt",
+      refreshonly => true,
+      require => [Package["python-pip"]];
+
+    "pip3_requirements_install":
+      command     => "/usr/bin/pip3 install -r /buttonmen/tools/python/api_client/requirements.txt",
+      refreshonly => true,
+      require => [Package["python-pip3"]];
+  }
+}

@@ -18,7 +18,8 @@ node default {
   # Node configuration needed for the circleci buttonmen server
   include "apache::server::circleci"
   include "php::type::circleci"
-  include "mysql::server"  
+  include "mysql::server"
+  include "buttonmen::clienttestsetup"
   include "buttonmen::server"
   include "javascript::type::circleci"
 }
