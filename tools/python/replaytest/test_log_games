@@ -32,11 +32,11 @@ nextarg += 1
 b1 = bmapi.BMClient(CONFIGPATH, 'localr3')
 b2 = bmapi.BMClient(CONFIGPATH, 'localr4')
 if not b1.login():
-  print "Could not login as responder003"
+  print("Could not login as responder003")
   sys.exit(1)
 
 if not b2.login():
-  print "Could not login as responder004"
+  print("Could not login as responder004")
   sys.exit(1)
 
 b1_criteria = {}
@@ -64,7 +64,7 @@ firstgame = True
 for i in range(1, N_GAMES + 1):
   if not firstgame:
     time.sleep(1)
-  print "Starting game %d" % i
+  print("Starting game %d" % i)
   c = LoggingBMClient(b1, b2)
   button1 = buttons.select_button(b1_criteria)
   button2 = buttons.select_button(b2_criteria)

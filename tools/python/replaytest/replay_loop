@@ -100,10 +100,10 @@ def test_file(filename):
     retval = os.system(tar_command)
     if retval == 0:
       break
-    print "tar failed - retrying: %s" % tar_command
+    print("tar failed - retrying: %s" % tar_command)
     time.sleep(SLEEPSECS)
   else:
-    print "tar failed too many times - giving up"
+    print("tar failed too many times - giving up")
     sys.exit(1)
   commands = [
     'sudo -u %s touch %s' % (USERNAME, TESTFILE),
@@ -120,14 +120,14 @@ def test_file(filename):
   for command in commands:
     retval = os.system(command)
     if retval != 0:
-      print "command failed: %s" % command
+      print("command failed: %s" % command)
       sys.exit(1)
   os.chdir(SRCDIR)
 
   # actually run the test, capturing output
   logfile = '%s/%s.output' % (STATEDIR, filename)
   cmdargs = 'sudo -u %s sh -c "phpunit --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1" | tee %s' % (USERNAME, logfile)
-  print "About to execute: %s" % cmdargs
+  print("About to execute: %s" % cmdargs)
   os.system(cmdargs)
   return
 
@@ -174,19 +174,19 @@ state = load_state()
 skip_init_new_games = SKIP_INIT_NEW_GAMES
 while True:
   if skip_init_new_games:
-    print "Skipping new games the first time"
+    print("Skipping new games the first time")
     skip_init_new_games = False
   else:
     log("Testing new games")
     test_new_games()
   nextfile = find_next_file(state)
   if nextfile:
-    print "Testing %s..." % nextfile
+    print("Testing %s..." % nextfile)
     log("Testing replay of %s" % nextfile)
     test_file(nextfile)
     state.append(nextfile)
     save_state(state)
   else:
-    print "No new files; sleeping..."
+    print("No new files; sleeping...")
     log("No files to replay; sleeping...")
     time.sleep(SLEEPSECS)
