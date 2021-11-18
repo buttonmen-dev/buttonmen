@@ -14,6 +14,7 @@ TEST_URLS = {
 }
 TEST_TYPE = None
 
+
 # Alternate BMClient which overrides rcfile processing and cookie/login
 # use, in order to work correctly for the dummy responder case
 class BMDummyClient(bmapi.BMClient):
@@ -28,6 +29,9 @@ class TestBMClient(unittest.TestCase):
   def setUp(self):
     responder_url = TEST_URLS[TEST_TYPE]
     self.obj = BMDummyClient(responder_url)
+
+  def tearDown(self):
+    self.obj.session.close()
 
   def test_init(self):
     self.assertTrue(self.obj, "Initialized BMDummyClient object")
@@ -152,6 +156,7 @@ class TestBMClient(unittest.TestCase):
     ]
     player_data = r.data['playerDataArray'][0]
     self.assertEqual(sorted(player_data.keys()), player_data_keys)
+
 
 if __name__ == '__main__':
   if (not os.getenv('BMAPI_TEST_TYPE') or
