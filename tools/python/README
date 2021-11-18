@@ -6,6 +6,7 @@ Modules which implement the client side of the Button Men API, for use in script
 a bot example (please clearly identify all bots so players can tell whether they are playing against bots or humans).
 
 ## replaytest/
+currently requires Python 2 compat
 
 ## user/
 scripts that use the api-client. users can leverage these for their own purposes or as examples to crate their own
