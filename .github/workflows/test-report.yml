@@ -1,0 +1,29 @@
+# this workflow does not technically seem to be running at the moment
+# the idea is that if your project accepts PRs from other peoples forks
+# and you want their PR from their fork to run your GH Actions
+# there can be some permissions issues around publishing test results onto the GHAction run
+# and if you have the report publishing in a seperate workflow some of that is mitigated
+# FOR more info see:
+# https://github.com/marketplace/actions/publish-unit-test-results#support-fork-repositories-and-dependabot-branches
+# https://github.com/marketplace/actions/test-reporter#recommended-setup-for-public-repositories
+
+name: Test Report
+on:
+  workflow_run:
+    workflows: ['Button Men CI']                     
+    types:
+      - completed
+jobs:
+  test-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: build_files             
+                           
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        with:
+          artifact: build_files   
+          path: './logs/*.xml'

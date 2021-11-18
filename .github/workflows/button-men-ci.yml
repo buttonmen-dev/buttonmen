@@ -1,0 +1,93 @@
+name: Button Men CI
+on: [push]
+jobs:
+  Button-Men-tests:
+    runs-on: ubuntu-latest
+    container: ubuntu:16.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Symlink /buttonmen
+        run: ln -s $(pwd) /buttonmen
+
+      - name: Make sure log dir exists
+        run: mkdir -p ./build/logs
+
+      - name: Bootstrap puppet
+        run: bash ./deploy/vagrant/bootstrap.sh
+
+        # TODO: if GHActions are adopted then rework the `circleci` references into `ghactions`
+
+      - name: Run puppet
+        run: puppet apply --modulepath=./deploy/vagrant/modules ./deploy/circleci/manifests/init.pp
+      
+      - name: Audit line termination of all files in the tree to match Button Men standard
+        run: python ./deploy/circleci/audit_newlines.py
+      
+      - name: Audit layout of .php files in the tree to match Button Men standard
+        run: php ./deploy/circleci/audit_php_files.php .
+      
+      - name: Audit test coverage of .js files in the tree to match Button Men standard
+        run: python ./deploy/circleci/audit_js_unit_test_coverage.py
+      
+      - name: Run grunt JS lint tests
+        run: sh ./util/grunt/circleci-grunt.sh
+      
+      - name: Generate checkstyle.xml using PHP_CodeSniffer
+        run: php /etc/php/7.0/deploy-includes/phpcs.phar --report=checkstyle --report-file=./build/logs/checkstyle.xml --standard=./deploy/circleci/checkstyle/buttonmen.xml ./src/api ./src/engine
+      
+      - name: Run unit tests using PHPUnit and generates junit.xml and clover.xml
+        run: phpunit --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit ./build/logs/junit.xml --coverage-clover ./build/logs/clover.xml --debug ./test/
+      
+      - name: Install dummy API files created by PHPUnit into test webserver
+        run: rsync -av ./src/api/dummy_data/ /var/www/api/dummy_data/
+      
+      - name: Verify dummy API files were fully installed
+        run: bash ./deploy/circleci/verify_dummy_responder_files.sh ./src/api/dummy_data/ /var/www/api/dummy_data/
+
+      - name: unpack phantomjs
+        run: tar xjf /usr/local/src/phantomjs-1.9.7-linux-x86_64.tar.bz2 --strip-components=1
+        working-directory: /usr/local
+      
+      - name: Run QUnit tests
+        run: /usr/local/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
+      
+      - name: Run python client unit tests
+        run: python ./test/tools/api-client/python/lib/test_bmapi.py
+        env:
+          BMAPI_TEST_TYPE: circleci
+      
+      - name: Generate jdepend.xml and software metrics charts using PHP_Depend
+        run: pdepend --jdepend-xml=./build/logs/jdepend.xml --jdepend-chart=./build/pdepend/dependencies.svg --overview-pyramid=build/pdepend/overview-pyramid.svg ./src
+      
+      - name: Generate pmd.xml using PHPMD
+        run: php /etc/php/7.0/deploy-includes/phpmd.phar ./src xml ./deploy/circleci/pmd/buttonmen.xml --reportfile ./build/logs/pmd.xml
+      
+      - name: Generate phploc.csv
+        run: phploc --log-csv ./build/logs/phploc.csv ./src
+      
+      - name: Aggregate tool output with PHP_CodeBrowser
+        run: php /etc/php/7.0/deploy-includes/phpcb.phar --log ./build/logs --source ./src --output ./build/code-browser
+      
+      - uses: actions/upload-artifact@v2 
+        if: success() || failure()        
+        with:
+          name: build_files
+          path: ./build/*
+
+      # see notes at top of test-report.yml
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: success() || failure()
+        with:
+          files: ./build/**/*.xml
+
+      # another test publisher i was playing with
+      # - name: DORNY LOCAL WORKFLOW
+      #   uses: dorny/test-reporter@v1
+      #   if: success() || failure()
+      #   with:
+      #     # artifact: build_files 
+      #     name: Some Tests               
+      #     path: './build/logs/*.xml'                 
+      #     reporter: jest-junit
