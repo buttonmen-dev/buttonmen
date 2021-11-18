@@ -58,12 +58,12 @@ class BMClient:
       pass
 
   def _setup_cookies(self):
-    # all requests should use the same cookie jar
-    self.cookiejar = LWPCookieJar(self.cookiefile)
-    if os.path.isfile(self.cookiefile):
-      self.cookiejar.load(ignore_discard=True)
     self.session = requests.session()
-    self.session.cookies = self.cookiejar
+    # all requests should use the same cookie jar
+    if self.cookiefile is not None and os.path.isfile(self.cookiefile):
+      self.cookiejar = LWPCookieJar(self.cookiefile)
+      self.cookiejar.load(ignore_discard=True)
+      self.session.cookies = self.cookiejar
 
   def __init__(self, rcfile, site):
     self.username = None

@@ -123,18 +123,23 @@ class buttonmen::clienttestsetup {
 
   package {
     "python": ensure => installed;
-    "python-pip": ensure => installed;
     "python3": ensure => installed;
-    "python3-pip": ensure => installed;
   }
 
   exec {
+
+    "pip_install":
+      command     => "/usr/bin/wget -qO - https://bootstrap.pypa.io/pip/2.7/get-pip.py | /usr/bin/python",
+      require => [Package["wget"], Package["python"]];
+    "pip3_install":
+      command     => "/usr/bin/wget -qO - https://bootstrap.pypa.io/pip/3.5/get-pip.py | /usr/bin/python3",
+      require => [Package["wget"], Package["python"]];
+
     "pip_requirements_install":
       command     => "/usr/bin/python -m pip install -r /buttonmen/tools/python/api_client/requirements.txt",
-      require => [Package["python-pip"]];
-
+      require => [Exec["pip_install"]];
     "pip3_requirements_install":
       command     => "/usr/bin/python3 -m pip install -r /buttonmen/tools/python/api_client/requirements.txt",
-      require => [Package["python3-pip"]];
+      require => [Exec["pip3_install"]];
   }
 }

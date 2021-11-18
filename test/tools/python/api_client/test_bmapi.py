@@ -22,6 +22,7 @@ class BMDummyClient(bmapi.BMClient):
     self.username = 'tester1'
     self.password = None
     self.cookiefile = None
+    self._setup_cookies()
 
 class TestBMClient(unittest.TestCase):
   def setUp(self):
@@ -155,8 +156,8 @@ class TestBMClient(unittest.TestCase):
 if __name__ == '__main__':
   if (not os.getenv('BMAPI_TEST_TYPE') or
       os.getenv('BMAPI_TEST_TYPE') not in TEST_URLS):
-    raise ValueError, \
+    raise ValueError(
       "Set BMAPI_TEST_TYPE environment variable.  Valid choices: %s" % (
-      (" ".join(sorted(TEST_URLS.keys()))))
+        (" ".join(sorted(TEST_URLS.keys())))))
   TEST_TYPE = os.getenv('BMAPI_TEST_TYPE')
   unittest.main()
