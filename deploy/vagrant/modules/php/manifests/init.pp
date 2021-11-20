@@ -46,7 +46,7 @@ class php::type::circleci {
       unless => "/usr/bin/pear config-get auto_discover | /bin/grep -q 1";
 
     "php_wget_install_phpmd":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.4/deploy-includes/phpmd.phar http://static.phpmd.org/php/latest/phpmd.phar",
+      command => "/usr/bin/wget --no-verbose -O /etc/php/7.4/deploy-includes/phpmd.phar https://phpmd.org/static/latest/phpmd.phar",
       creates => "/etc/php/7.4/deploy-includes/phpmd.phar",
       require => File["/etc/php/7.4/deploy-includes"];
 
