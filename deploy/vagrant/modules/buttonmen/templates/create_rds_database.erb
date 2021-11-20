@@ -7,17 +7,17 @@ if [ ! -f ${CREDS_FILE} ]; then
 fi
 . ${CREDS_FILE}
 
-MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= database_fqdn %>" 
+MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= @database_fqdn %>"
 
-mysqlshow ${MYSQL_ARGS} <%= buttonmen_db1_name %> | grep -q "^Database: buttonmen"
+mysqlshow ${MYSQL_ARGS} <%= @buttonmen_db1_name %> | grep -q "^Database: buttonmen"
 if [ "$?" = "0" ]; then
-  echo "<%= buttonmen_db1_name %> already exists"
+  echo "<%= @buttonmen_db1_name %> already exists"
 else 
-  echo "Creating <%= buttonmen_db1_name %>"
-  echo "CREATE DATABASE <%= buttonmen_db1_name %>" | mysql ${MYSQL_ARGS}
-  echo "GRANT ALL ON <%= buttonmen_db1_name %>.* TO <%= buttonmen_db1_user %>@'<%= @puppet_hostname %>' IDENTIFIED BY '<%= buttonmen_db1_pass %>'" | mysql ${MYSQL_ARGS}
+  echo "Creating <%= @buttonmen_db1_name %>"
+  echo "CREATE DATABASE <%= @buttonmen_db1_name %>" | mysql ${MYSQL_ARGS}
+  echo "GRANT ALL ON <%= @buttonmen_db1_name %>.* TO <%= @buttonmen_db1_user %>@'<%= @puppet_hostname %>' IDENTIFIED BY '<%= @buttonmen_db1_pass %>'" | mysql ${MYSQL_ARGS}
 
-  echo "Populating <%= buttonmen_db1_name %>"
+  echo "Populating <%= @buttonmen_db1_name %>"
   cd /buttonmen/deploy/database
-  mysql ${MYSQL_ARGS} <%= buttonmen_db1_name %> < initialize_all.sql
+  mysql ${MYSQL_ARGS} <%= @buttonmen_db1_name %> < initialize_all.sql
 fi
