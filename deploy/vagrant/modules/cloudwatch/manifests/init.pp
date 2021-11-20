@@ -9,7 +9,7 @@ class cloudwatch::buttonmen-site {
     "/usr/local/bin/record_buttonmen_cloudwatch_metrics":
       ensure => file,
       content => template("cloudwatch/record_buttonmen_metrics.erb"),
-      mode => 0555;
+      mode => "0555";
   }
 
   # Record cloudwatch metrics from apache logs every five minutes

@@ -20,42 +20,42 @@ class buttonmen::server {
     "/usr/local/bin/create_buttonmen_databases":
       ensure => file,
       content => template("buttonmen/create_databases.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/create_rds_database":
       ensure => file,
       content => template("buttonmen/create_rds_database.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/backup_buttonmen_database":
       ensure => file,
       content => template("buttonmen/backup_database.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/test_buttonmen_config":
       ensure => file,
       content => template("buttonmen/test_config.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/mysql_root_cli":
       ensure => file,
       content => template("buttonmen/mysql_root_cli.erb"),
-      mode => 0544;
+      mode => "0544";
 
     "/usr/local/bin/run_buttonmen_tests":
       ensure => file,
       content => template("buttonmen/run_buttonmen_tests.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/setup_buttonmen_ui_cache_links":
       ensure => file,
       content => template("buttonmen/setup_ui_cache_links.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/audit_js_unit_test_coverage":
       ensure => file,
       content => template("buttonmen/audit_js_unit_test_coverage.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/etc/buttonmen_phpunit.php":
       ensure => file,
@@ -64,7 +64,7 @@ class buttonmen::server {
     "/srv/backup":
       ensure => directory,
       group => "adm",
-      mode => 0750;
+      mode => "0750";
   }
 
   exec {
