@@ -88,9 +88,9 @@ test("test_Login.getFooter", function(assert) {
     ] ],
     [ "DIV", {}, [
       "Button Men is copyright 1999, 2021 James Ernest and Cheapass Games: ",
-      [ "A", { "href": "http://www.cheapass.com" }, [ "www.cheapass.com" ] ],
+      [ "A", { "href": "https://cheapass.com" }, [ "www.cheapass.com" ] ],
       " and ",
-      [ "A", { "href": "http://www.beatpeopleup.com" }, [ "www.beatpeopleup.com" ] ],
+      [ "A", { "href": "https://beatpeopleup.cheapass.com" }, [ "www.beatpeopleup.com" ] ],
       ", and is used with permission." ]
     ] ]
   ];
