@@ -15,7 +15,7 @@ if [ "$?" = "0" ]; then
 else 
   echo "Creating <%= buttonmen_db1_name %>"
   echo "CREATE DATABASE <%= buttonmen_db1_name %>" | mysql ${MYSQL_ARGS}
-  echo "GRANT ALL ON <%= buttonmen_db1_name %>.* TO <%= buttonmen_db1_user %>@'<%= puppet_hostname %>' IDENTIFIED BY '<%= buttonmen_db1_pass %>'" | mysql ${MYSQL_ARGS}
+  echo "GRANT ALL ON <%= buttonmen_db1_name %>.* TO <%= buttonmen_db1_user %>@'<%= @puppet_hostname %>' IDENTIFIED BY '<%= buttonmen_db1_pass %>'" | mysql ${MYSQL_ARGS}
 
   echo "Populating <%= buttonmen_db1_name %>"
   cd /buttonmen/deploy/database
