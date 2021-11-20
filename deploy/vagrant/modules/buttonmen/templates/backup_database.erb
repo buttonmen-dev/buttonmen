@@ -18,7 +18,7 @@ fi
 if [ -f "${CREDS_FILE}" ]; then
   . ${CREDS_FILE}
   # Need to disable GTID restores to backup/restore a remote RDS MySQL DB with default args
-  MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= database_fqdn %> --set-gtid-purged=OFF"
+  MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= @database_fqdn %> --set-gtid-purged=OFF"
 else
   MYSQL_ARGS="-u root"
 fi

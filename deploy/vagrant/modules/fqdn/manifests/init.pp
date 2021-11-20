@@ -11,7 +11,7 @@ class fqdn::base {
     "/usr/local/bin/fqdn_from_ec2_tags":
       ensure => file,
       content => template("fqdn/from_ec2_tags.erb"),
-      mode => 555;
+      mode => "0555";
   }
 
   # Use fqdn_from_ec2_tags to populate or update a site file

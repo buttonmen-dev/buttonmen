@@ -10,11 +10,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "ubuntu/xenial32"
+  config.vm.box = "ubuntu/focal64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  #config.vm.box_url = "http://files.vagrantup.com/xenial32.box"
+  #config.vm.box_url = "http://files.vagrantup.com/focal64.box"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -65,8 +65,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     aws.security_groups = ["buttonmen-dev"]
     aws.iam_instance_profile_name = "ec2_instance_perms"
 
-    aws.instance_type = "t1.micro"
-    aws.ami = "ami-0735ea082a1534cac"
+    aws.instance_type = "t2.micro"
+    aws.ami = "ami-022d4249382309a48"
 
     override.ssh.username = "ubuntu"
     override.ssh.private_key_path = "BUTTONMEN_SSH_PRIVATE_KEY_PATH"

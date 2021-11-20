@@ -4,6 +4,8 @@
 # Exit if anything goes wrong
 set -e
 
+export DEBIAN_FRONTEND=noninteractive
+
 # Make sure puppet is installed
 if which puppet > /dev/null ; then
   echo "Puppet is already installed"
