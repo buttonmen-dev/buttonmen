@@ -15,7 +15,7 @@ class apache::server {
   }
 
   # Monitor the error log
-  include "apache::server::feature::monitor-logs"
+  include "apache::server::feature::monitorlogs"
 
   # Install and configure letsencrypt (SSL/certbot) for AWS instances 
   case "${ec2_services_partition}" {
@@ -49,7 +49,7 @@ class apache::server::circleci {
   include "apache::server::vagrant"
 }
 
-class apache::server::feature::monitor-logs {
+class apache::server::feature::monitorlogs {
 
   # Install the logtail package
   package {

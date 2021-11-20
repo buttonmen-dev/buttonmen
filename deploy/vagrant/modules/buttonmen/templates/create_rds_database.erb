@@ -7,7 +7,7 @@ if [ ! -f ${CREDS_FILE} ]; then
 fi
 . ${CREDS_FILE}
 
-MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= database_fqdn %>" 
+MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= @database_fqdn %>"
 
 mysqlshow ${MYSQL_ARGS} <%= buttonmen_db1_name %> | grep -q "^Database: buttonmen"
 if [ "$?" = "0" ]; then
