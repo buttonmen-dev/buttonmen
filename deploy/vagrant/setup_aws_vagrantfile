@@ -38,6 +38,8 @@ sed -i.orig \
     -e "s,BUTTONMEN_SSH_KEYPAIR_NAME,$BUTTONMEN_SSH_KEYPAIR_NAME," \
     -e "s,BUTTONMEN_SSH_PRIVATE_KEY_PATH,$BUTTONMEN_SSH_PRIVATE_KEY_PATH," \
     -e "/:forwarded_port/s/^/#/" \
+    -e "/^  config.vm.synced_folder.*/a\ 
+  config.vm.allowed_synced_folder_types = [:rsync]" \
     $VAGRANTFILE
 if [ "$?" != "0" ]; then
   echo "sed failed - debug what went wrong"
