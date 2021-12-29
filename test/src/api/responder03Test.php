@@ -4487,6 +4487,9 @@ class responder03Test extends responderTestFramework {
      * having the CustomBM player perform at least one game action.
      */
     public function test_interface_game_060() {
+        // This test uses CustomBM, which can't be used on a production site
+        $this->update_config_site_type('development');
+
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
@@ -4553,5 +4556,7 @@ class responder03Test extends responderTestFramework {
         $expData['validAttackTypeArray'] = array("Power", "Skill");
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        $this->update_config_site_type('production');
     }
 }

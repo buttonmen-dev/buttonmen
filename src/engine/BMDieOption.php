@@ -197,6 +197,11 @@ class BMDieOption extends BMDie {
         $this->needsOptionValue = FALSE;
         $this->valueRequested = FALSE;
         $this->max = $optionValue;
+        if (0 === $optionValue) {
+            $this->min = 0;
+        } else {
+            $this->min = 1;
+        }
         $this->scoreValue = $optionValue;
 
         return TRUE;
