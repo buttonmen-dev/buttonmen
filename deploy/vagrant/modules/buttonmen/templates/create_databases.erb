@@ -1,26 +1,26 @@
 #!/bin/sh
 
-mysqlshow -u root <%= buttonmen_db1_name %> | grep -q "^Database: buttonmen"
+mysqlshow -u root <%= @buttonmen_db1_name %> | grep -q "^Database: buttonmen"
 if [ "$?" = "0" ]; then
-  echo "<%= buttonmen_db1_name %> already exists"
+  echo "<%= @buttonmen_db1_name %> already exists"
 else 
-  echo "Creating <%= buttonmen_db1_name %>"
-  echo "CREATE DATABASE <%= buttonmen_db1_name %>" | mysql -u root
-  echo "GRANT ALL ON <%= buttonmen_db1_name %>.* TO <%= buttonmen_db1_user %>@localhost IDENTIFIED BY '<%= buttonmen_db1_pass %>'" | mysql -u root
+  echo "Creating <%= @buttonmen_db1_name %>"
+  echo "CREATE DATABASE <%= @buttonmen_db1_name %>" | mysql -u root
+  echo "GRANT ALL ON <%= @buttonmen_db1_name %>.* TO <%= @buttonmen_db1_user %>@localhost IDENTIFIED BY '<%= @buttonmen_db1_pass %>'" | mysql -u root
 
-  echo "Populating <%= buttonmen_db1_name %>"
+  echo "Populating <%= @buttonmen_db1_name %>"
   cd /buttonmen/deploy/database
-  mysql -u root <%= buttonmen_db1_name %> < initialize_all.sql
+  mysql -u root <%= @buttonmen_db1_name %> < initialize_all.sql
 fi
 
-mysqlshow -u root <%= buttonmen_db2_name %> | grep -q "^Database: buttonmen_test"
+mysqlshow -u root <%= @buttonmen_db2_name %> | grep -q "^Database: buttonmen_test"
 if [ "$?" = "0" ]; then
-  echo "<%= buttonmen_db2_name %> already exists - recreating it"
+  echo "<%= @buttonmen_db2_name %> already exists - recreating it"
   echo "DROP DATABASE buttonmen_test" | mysql -u root
 fi
-echo "Creating <%= buttonmen_db2_name %>"
-echo "CREATE DATABASE <%= buttonmen_db2_name %>" | mysql -u root
-echo "GRANT ALL ON <%= buttonmen_db2_name %>.* TO <%= buttonmen_db2_user %>@localhost IDENTIFIED BY '<%= buttonmen_db2_pass %>'" | mysql -u root
-echo "Populating <%= buttonmen_db2_name %>"
+echo "Creating <%= @buttonmen_db2_name %>"
+echo "CREATE DATABASE <%= @buttonmen_db2_name %>" | mysql -u root
+echo "GRANT ALL ON <%= @buttonmen_db2_name %>.* TO <%= @buttonmen_db2_user %>@localhost IDENTIFIED BY '<%= @buttonmen_db2_pass %>'" | mysql -u root
+echo "Populating <%= @buttonmen_db2_name %>"
 cd /buttonmen/deploy/database
-mysql -u <%= buttonmen_db2_user%> -p<%= buttonmen_db2_pass %> <%= buttonmen_db2_name %> < initialize_all.sql
+mysql -u <%= @buttonmen_db2_user%> -p<%= @buttonmen_db2_pass %> <%= @buttonmen_db2_name %> < initialize_all.sql
