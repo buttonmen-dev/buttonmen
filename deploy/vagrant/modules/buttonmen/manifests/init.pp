@@ -47,11 +47,6 @@ class buttonmen::server {
       content => template("buttonmen/run_buttonmen_tests.erb"),
       mode => 0555;
 
-    "/usr/local/bin/setup_buttonmen_ui_cache_links":
-      ensure => file,
-      content => template("buttonmen/setup_ui_cache_links.erb"),
-      mode => 0555;
-
     "/usr/local/bin/audit_js_unit_test_coverage":
       ensure => file,
       content => template("buttonmen/audit_js_unit_test_coverage.erb"),
@@ -74,12 +69,6 @@ class buttonmen::server {
 
     "buttonmen_uitest_rsync":
       command => "/usr/bin/rsync -a --delete /buttonmen/test/src/ui/ /var/www/test-ui/",
-      require => Exec["buttonmen_src_rsync"];
-
-
-    # After updating source code, setup datestamped links to bust caches
-    "buttonmen_setup_ui_cache_links":
-      command => "/usr/local/bin/setup_buttonmen_ui_cache_links ${puppet_timestamp}",
       require => Exec["buttonmen_src_rsync"];
   }
 
