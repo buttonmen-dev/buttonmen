@@ -1,9 +1,21 @@
 # Configuration for a buttonmen mysql server
 class mysql::server {
 
+  # Install mysql-server only if this site doesn't use RDS
+  case "$database_fqdn" {
+    "127.0.0.1": {
+      package {
+        "mysql-server": ensure => installed;
+      }
+    }
+    default: {
+      package {
+        "mysql-server": ensure => absent;
+      }
+    }
+  }
   package {
-    # Install mysql-server and php5-mysql packages
-    "mysql-server": ensure => installed;
+    # Install php5-mysql package
     "php-mysql": ensure => installed;
 
     # Install python-mysqldb for use by helper scripts
