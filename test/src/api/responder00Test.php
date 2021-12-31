@@ -12,6 +12,10 @@ require_once __DIR__.'/responderTestFramework.php';
 
 class responder00Test extends responderTestFramework {
 
+    public function test_init_database_defaults() {
+        $this->update_config_site_type('production');
+    }
+
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
         $retval = $this->verify_api_failure($args, 'Specified API function does not exist');
@@ -287,15 +291,6 @@ class responder00Test extends responderTestFramework {
         );
         $this->verify_api_failure($args, 'Game create failed because a button name was not valid.');
 
-        // Make sure CustomBM fails if no recipe is provided
-        $args = array(
-            'type' => 'createGame',
-            'playerInfoArray' => array(array('responder003', 'Avis'),
-                                       array('responder004', 'CustomBM')),
-            'maxWins' => '3',
-        );
-        $this->verify_api_failure($args, 'customRecipeArray must be supplied');
-
         // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
             array(1, 1, 1, 1, 2, 2, 2, 2),
@@ -334,6 +329,33 @@ class responder00Test extends responderTestFramework {
         $this->assertEquals(array('gameId'), array_keys($retval['data']));
         $this->assertTrue(is_numeric($retval['data']['gameId']));
         $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     */
+    public function test_request_createGame_customBM() {
+        $_SESSION = $this->mock_test_user_login();
+
+        // CustomBM should fail on production
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'CustomBM')),
+            'maxWins' => '3',
+        );
+        $this->verify_api_failure($args, 'Custom recipes can only be used on development sites.');
+
+        // On development, CustomBM should fail if no recipe array is supplied
+        $this->update_config_site_type('development');
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'CustomBM')),
+            'maxWins' => '3',
+        );
+        $this->verify_api_failure($args, 'customRecipeArray must be supplied');
+        $this->update_config_site_type('production');
     }
 
     public function test_request_joinOpenGame() {
@@ -538,7 +560,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 803);
+        $this->assertEquals(count($retval['data']), 686);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -594,7 +616,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 86);
+        $this->assertEquals(count($retval['data']), 79);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }

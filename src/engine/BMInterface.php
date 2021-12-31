@@ -83,7 +83,11 @@ class BMInterface {
         } else {
             require_once __DIR__.'/../database/mysql.inc.php';
         }
-        self::$conn = conn();
+
+        if (!isset(self::$conn)) {
+            self::$conn = conn();
+        }
+
         self::$db = new BMDB(self::$conn);
     }
 
@@ -306,8 +310,6 @@ class BMInterface {
      */
     public function count_pending_games($playerId) {
         try {
-            $parameters = array(':player_id' => $playerId);
-
             $query =
                 'SELECT COUNT(*) '.
                 'FROM game_player_map AS gpm '.
@@ -316,20 +318,15 @@ class BMInterface {
                    'AND gpm.is_awaiting_action = 1 '.
                    'AND g.status_id IN '.
                        '(SELECT id FROM game_status WHERE name IN (\'NEW\', \'ACTIVE\'))';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute($parameters);
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->set_message('Pending game count failed.');
-                error_log('Pending game count failed for player ' . $playerId);
-                return NULL;
-            } else {
-                $data = array();
-                $data['count'] = (int)$result[0];
-                $this->set_message('Pending game count succeeded.');
-                return $data;
-            }
+            $parameters = array(':player_id' => $playerId);
+            $data = array();
+            $data['count'] = self::$db->select_single_value($query, $parameters, 'int');
+            $this->set_message('Pending game count succeeded.');
+            return $data;
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Pending game count failed.');
+            error_log('Pending game count failed for player ' . $playerId);
+            return NULL;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::count_pending_games: ' .
@@ -412,10 +409,40 @@ class BMInterface {
                  'ON g.id = v.game_id '.
                  'WHERE g.id = :game_id '.
                  'ORDER BY g.id;';
-        $statement1 = self::$conn->prepare($query);
-        $statement1->execute(array(':game_id' => $gameId));
+        $parameters = array(':game_id' => $gameId);
+        $columnReturnTypes = array(
+            'alt_recipe' => 'str_or_null',
+            'autopass' => 'bool',
+            'button_name' => 'str_or_null',
+            'creator_id' => 'int',
+            'current_player_id' => 'int_or_null',
+            'description' => 'str',
+            'did_win_initiative' => 'bool',
+            'fire_overshooting' => 'bool',
+            'game_state' => 'int',
+            'has_player_accepted' => 'bool',
+            'id' => 'int',
+            'is_awaiting_action' => 'bool',
+            'is_button_random' => 'bool',
+            'is_chat_private' => 'bool',
+            'is_on_vacation' => 'bool',
+            'last_action_timestamp' => 'int_or_null',
+            'n_recent_passes' => 'int',
+            'n_rounds_won' => 'int',
+            'n_rounds_lost' => 'int',
+            'n_rounds_drawn' => 'int',
+            'n_target_wins' => 'int',
+            'original_recipe' => 'str_or_null',
+            'player_id' => 'int_or_null',
+            'player_last_action_timestamp' => 'int_or_null',
+            'position' => 'int_or_null',
+            'previous_game_id' => 'int_or_null',
+            'turn_number_in_round' => 'int',
+            'was_game_dismissed' => 'bool',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-        while ($row = $statement1->fetch()) {
+        foreach ($rows as $row) {
             // load game attributes
             if (!isset($game)) {
                 $game = new BMGame;
@@ -426,25 +453,21 @@ class BMInterface {
             $pos = $row['position'];
             if (isset($pos)) {
                 $player = $game->playerArray[$pos];
-                if (isset($row['player_id'])) {
-                    $player->playerId = (int)$row['player_id'];
-                } else {
-                    $player->playerId = NULL;
-                }
-                $player->autopass = (bool)$row['autopass'];
-                $player->fireOvershooting = (bool)$row['fire_overshooting'];
-                $player->hasPlayerAcceptedGame = (bool)$row['has_player_accepted'];
+                $player->playerId = $row['player_id'];
+                $player->autopass = $row['autopass'];
+                $player->fireOvershooting = $row['fire_overshooting'];
+                $player->hasPlayerAcceptedGame = $row['has_player_accepted'];
             }
 
-            if (1 == $row['did_win_initiative']) {
+            if ($row['did_win_initiative']) {
                 $game->playerWithInitiativeIdx = $pos;
             }
 
             $game->playerArray[$pos]->set_gameScoreArray(
                 array(
-                    'W' => (int)$row['n_rounds_won'],
-                    'L' => (int)$row['n_rounds_lost'],
-                    'D' => (int)$row['n_rounds_drawn']
+                    'W' => $row['n_rounds_won'],
+                    'L' => $row['n_rounds_lost'],
+                    'D' => $row['n_rounds_drawn']
                 )
             );
 
@@ -474,12 +497,8 @@ class BMInterface {
         $game->turnNumberInRound = $row['turn_number_in_round'];
         $game->nRecentPasses = $row['n_recent_passes'];
         $game->description = $row['description'];
-        if ($row['previous_game_id'] == NULL) {
-            $game->previousGameId = NULL;
-        } else {
-            $game->previousGameId = (int)$row['previous_game_id'];
-        }
-        $this->timestamp = (int)$row['last_action_timestamp'];
+        $game->previousGameId = $row['previous_game_id'];
+        $this->timestamp = $row['last_action_timestamp'];
     }
 
     /**
@@ -528,17 +547,9 @@ class BMInterface {
      */
     protected function load_player_attributes($game, $pos, $row) {
         $player = $game->playerArray[$pos];
-        switch ($row['is_awaiting_action']) {
-            case 1:
-                $player->waitingOnAction = TRUE;
-                break;
-            case 0:
-                $player->waitingOnAction = FALSE;
-                break;
-        }
-
-        $player->isOnVacation = (bool) $row['is_on_vacation'];
-        $player->isChatPrivate = (bool) $row['is_chat_private'];
+        $player->waitingOnAction = $row['is_awaiting_action'];
+        $player->isOnVacation = $row['is_on_vacation'];
+        $player->isChatPrivate = $row['is_chat_private'];
 
         if (isset($row['current_player_id']) &&
             isset($row['player_id']) &&
@@ -561,7 +572,7 @@ class BMInterface {
     protected function load_lastActionTime($game, $pos, $row) {
         if (isset($row['player_last_action_timestamp'])) {
             $player = $game->playerArray[$pos];
-            $player->lastActionTime = (int)$row['player_last_action_timestamp'];
+            $player->lastActionTime = $row['player_last_action_timestamp'];
         }
     }
 
@@ -575,7 +586,7 @@ class BMInterface {
     protected function load_hasPlayerDismissedGame($game, $pos, $row) {
         if (isset($row['was_game_dismissed'])) {
             $player = $game->playerArray[$pos];
-            $player->hasPlayerDismissedGame = ((int)$row['was_game_dismissed'] == 1);
+            $player->hasPlayerDismissedGame = $row['was_game_dismissed'];
         }
     }
 
@@ -603,10 +614,15 @@ class BMInterface {
                  'FROM game_swing_map '.
                  'WHERE game_id = :game_id '.
                  'AND is_expired = :is_expired';
-        $statement2 = self::$conn->prepare($query);
-        $statement2->execute(array(':game_id' => $game->gameId,
-                                   ':is_expired' => 1));
-        while ($row = $statement2->fetch()) {
+        $parameters = array(':game_id' => $game->gameId,
+                            ':is_expired' => 1);
+        $columnReturnTypes = array(
+            'player_id' => 'int',
+            'swing_type' => 'str',
+            'swing_value' => 'int',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        foreach ($rows as $row) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
             $player = $game->playerArray[$playerIdx];
             $player->prevSwingValueArray[$row['swing_type']] = $row['swing_value'];
@@ -623,10 +639,15 @@ class BMInterface {
                  'FROM game_swing_map '.
                  'WHERE game_id = :game_id '.
                  'AND is_expired = :is_expired';
-        $statement2 = self::$conn->prepare($query);
-        $statement2->execute(array(':game_id' => $game->gameId,
-                                   ':is_expired' => 0));
-        while ($row = $statement2->fetch()) {
+        $parameters = array(':game_id' => $game->gameId,
+                            ':is_expired' => 0);
+        $columnReturnTypes = array(
+            'player_id' => 'int',
+            'swing_type' => 'str',
+            'swing_value' => 'int_or_null',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        foreach ($rows as $row) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
             $player = $game->playerArray[$playerIdx];
             $player->swingValueArray[$row['swing_type']] = $row['swing_value'];
@@ -643,10 +664,15 @@ class BMInterface {
                  'FROM game_option_map '.
                  'WHERE game_id = :game_id '.
                  'AND is_expired = :is_expired';
-        $statement2 = self::$conn->prepare($query);
-        $statement2->execute(array(':game_id' => $game->gameId,
-                                   ':is_expired' => 1));
-        while ($row = $statement2->fetch()) {
+        $parameters = array(':game_id' => $game->gameId,
+                            ':is_expired' => 1);
+        $columnReturnTypes = array(
+            'player_id' => 'int',
+            'die_idx' => 'int',
+            'option_value' => 'int',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        foreach ($rows as $row) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
             $player = $game->playerArray[$playerIdx];
             $player->prevOptValueArray[$row['die_idx']] = $row['option_value'];
@@ -663,10 +689,15 @@ class BMInterface {
                  'FROM game_option_map '.
                  'WHERE game_id = :game_id '.
                  'AND is_expired = :is_expired';
-        $statement2 = self::$conn->prepare($query);
-        $statement2->execute(array(':game_id' => $game->gameId,
-                                   ':is_expired' => 0));
-        while ($row = $statement2->fetch()) {
+        $parameters = array(':game_id' => $game->gameId,
+                            ':is_expired' => 0);
+        $columnReturnTypes = array(
+            'player_id' => 'int',
+            'die_idx' => 'int',
+            'option_value' => 'int_or_null',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        foreach ($rows as $row) {
             $playerIdx = array_search($row['player_id'], $game->playerIdArray);
             $player = $game->playerArray[$playerIdx];
             $player->optValueArray[$row['die_idx']] = $row['option_value'];
@@ -687,15 +718,24 @@ class BMInterface {
                  'ON d.status_id = s.id '.
                  'WHERE game_id = :game_id '.
                  'ORDER BY id;';
-
-        $statement3 = self::$conn->prepare($query);
-        $statement3->execute(array(':game_id' => $game->gameId));
+        $parameters = array(':game_id' => $game->gameId);
+        $columnReturnTypes = array(
+            'actual_max' => 'int_or_null',
+            'flags' => 'str_or_null',
+            'original_owner_id' => 'int',
+            'owner_id' => 'int',
+            'position' => 'int',
+            'recipe' => 'str',
+            'status' => 'str',
+            'value' => 'int_or_null',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
         $activeDieArrayArray = array_fill(0, $game->nPlayers, array());
         $captDieArrayArray = array_fill(0, $game->nPlayers, array());
         $outOfPlayDieArrayArray = array_fill(0, $game->nPlayers, array());
 
-        while ($row = $statement3->fetch()) {
+        foreach ($rows as $row) {
             $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
 
             $die = BMDie::create_from_recipe($row['recipe']);
@@ -716,9 +756,7 @@ class BMInterface {
             $this->set_twin_max($die, $originalPlayerIdx, $game, $row);
             $this->set_option_max($die, $row);
 
-            if (isset($row['value'])) {
-                $die->value = (int)$row['value'];
-            }
+            $die->value = $row['value'];
 
             switch ($row['status']) {
                 case 'NORMAL':
@@ -768,9 +806,13 @@ class BMInterface {
         $query = 'SELECT * '.
                  'FROM game_turbo_cache '.
                  'WHERE game_id = :game_id';
-        $statement2 = self::$conn->prepare($query);
-        $statement2->execute(array(':game_id' => $game->gameId));
-        while ($row = $statement2->fetch()) {
+        $parameters = array(':game_id' => $game->gameId);
+        $columnReturnTypes = array(
+            'die_idx' => 'int',
+            'turbo_size' => 'int',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        foreach ($rows as $row) {
             $turboCache[$row['die_idx']] = $row['turbo_size'];
         }
 
@@ -789,9 +831,8 @@ class BMInterface {
         if (isset($die->swingType) && !$die instanceof BMDieTwin) {
             $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
             $die->set_swingValue($game->playerArray[$originalPlayerIdx]->swingValueArray);
-
             if (isset($row['actual_max'])) {
-                $die->max = (int)$row['actual_max'];
+                $die->max = $row['actual_max'];
             }
         }
     }
@@ -835,7 +876,7 @@ class BMInterface {
             } else {
                 // continue to handle the old case where there was no BMFlagTwin information
                 if (isset($row['actual_max'])) {
-                    $subdie->max = (int)($row['actual_max']/2);
+                    $subdie->max = $row['actual_max'] / 2;
                 }
             }
         }
@@ -852,7 +893,7 @@ class BMInterface {
     protected function set_option_max($die, $row) {
         if ($die instanceof BMDieOption) {
             if (isset($row['actual_max'])) {
-                $die->max = (int)$row['actual_max'];
+                $die->max = $row['actual_max'];
                 $die->needsOptionValue = FALSE;
             } else {
                 $die->needsOptionValue = TRUE;
@@ -888,6 +929,9 @@ class BMInterface {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
 
+        // start transaction
+        self::$conn->beginTransaction();
+
         try {
             $this->resolve_random_button_selection($game);
             $this->save_basic_game_parameters($game);
@@ -912,12 +956,16 @@ class BMInterface {
             $this->delete_dice_marked_as_deleted($game);
             $this->game_action()->save_action_log($game);
             $this->game_chat()->save_chat_log($game);
+
+            self::$conn->commit();
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_game: ' .
                 $e->getMessage()
             );
             $this->set_message("Game save failed: $e");
+            self::$conn->rollBack();
+            throw new BMExceptionDatabase("Game save failed");
         }
     }
 
@@ -1022,11 +1070,10 @@ class BMInterface {
                  'WHERE '.
                  'game_id = :game_id AND '.
                  'position = :position';
-        $statement = self::$conn->prepare($query);
-
-        $statement->execute(array(':game_id'   => $game->gameId,
-                                  ':button_id' => $buttonId,
-                                  ':position'  => $player->position));
+        $parameters = array(':game_id'   => $game->gameId,
+                            ':button_id' => $buttonId,
+                            ':position'  => $player->position);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1050,14 +1097,14 @@ class BMInterface {
         //:description
         //:chat
                  'WHERE id = :game_id;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':status' => $this->get_game_status($game),
-                                  ':game_state' => $game->gameState,
-                                  ':round_number' => $game->roundNumber,
-                                  ':turn_number_in_round' => $game->turnNumberInRound,
-                                  ':n_recent_passes' => $game->nRecentPasses,
-                                  ':current_player_id' => $this->get_currentPlayerId($game),
-                                  ':game_id' => $game->gameId));
+        $parameters = array(':status' => $this->get_game_status($game),
+                            ':game_state' => $game->gameState,
+                            ':round_number' => $game->roundNumber,
+                            ':turn_number_in_round' => $game->turnNumberInRound,
+                            ':n_recent_passes' => $game->nRecentPasses,
+                            ':current_player_id' => $this->get_currentPlayerId($game),
+                            ':game_id' => $game->gameId);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1122,8 +1169,7 @@ class BMInterface {
                 $query .= 'WHERE game_id = :game_id '.
                           'AND player_id = :player_id;';
 
-                $statement = self::$conn->prepare($query);
-                $statement->execute($boundParameters);
+                self::$db->update($query, $boundParameters);
             }
         }
     }
@@ -1144,9 +1190,9 @@ class BMInterface {
                          'SET is_button_random = 1 '.
                          'WHERE game_id = :game_id '.
                          'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id' => $game->gameId,
-                                          ':position' => $position));
+                $parameters = array(':game_id' => $game->gameId,
+                                    ':position' => $position);
+                self::$db->update($query, $parameters);
             }
         }
     }
@@ -1164,12 +1210,12 @@ class BMInterface {
                      '    n_rounds_drawn = :n_rounds_drawn '.
                      'WHERE game_id = :game_id '.
                      'AND player_id = :player_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':n_rounds_won' => $player->gameScoreArray['W'],
-                                      ':n_rounds_lost' => $player->gameScoreArray['L'],
-                                      ':n_rounds_drawn' => $player->gameScoreArray['D'],
-                                      ':game_id' => $game->gameId,
-                                      ':player_id' => $player->playerId));
+            $parameters = array(':n_rounds_won' => $player->gameScoreArray['W'],
+                                ':n_rounds_lost' => $player->gameScoreArray['L'],
+                                ':n_rounds_drawn' => $player->gameScoreArray['D'],
+                                ':game_id' => $game->gameId,
+                                ':player_id' => $player->playerId);
+            self::$db->update($query, $parameters);
         }
     }
 
@@ -1181,8 +1227,8 @@ class BMInterface {
     protected function clear_swing_values_from_database($game) {
         $query = 'DELETE FROM game_swing_map '.
                  'WHERE game_id = :game_id;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $game->gameId));
+        $parameters = array(':game_id' => $game->gameId);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1193,8 +1239,8 @@ class BMInterface {
     protected function clear_option_values_from_database($game) {
         $query = 'DELETE FROM game_option_map '.
                  'WHERE game_id = :game_id;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $game->gameId));
+        $parameters = array(':game_id' => $game->gameId);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1213,12 +1259,12 @@ class BMInterface {
                          '(game_id, player_id, swing_type, swing_value, is_expired) '.
                          'VALUES '.
                          '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id'     => $game->gameId,
-                                          ':player_id'   => $player->playerId,
-                                          ':swing_type'  => $swingType,
-                                          ':swing_value' => $swingValue,
-                                          ':is_expired'  => TRUE));
+                $parameters = array(':game_id'     => $game->gameId,
+                                    ':player_id'   => $player->playerId,
+                                    ':swing_type'  => $swingType,
+                                    ':swing_value' => $swingValue,
+                                    ':is_expired'  => TRUE);
+                self::$db->update($query, $parameters);
             }
         }
     }
@@ -1239,12 +1285,12 @@ class BMInterface {
                          '(game_id, player_id, swing_type, swing_value, is_expired) '.
                          'VALUES '.
                          '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id'     => $game->gameId,
-                                          ':player_id'   => $player->playerId,
-                                          ':swing_type'  => $swingType,
-                                          ':swing_value' => $swingValue,
-                                          ':is_expired'  => FALSE));
+                $parameters = array(':game_id'     => $game->gameId,
+                                    ':player_id'   => $player->playerId,
+                                    ':swing_type'  => $swingType,
+                                    ':swing_value' => $swingValue,
+                                    ':is_expired'  => FALSE);
+                self::$db->update($query, $parameters);
             }
         }
     }
@@ -1265,12 +1311,12 @@ class BMInterface {
                          '(game_id, player_id, die_idx, option_value, is_expired) '.
                          'VALUES '.
                          '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id'   => $game->gameId,
-                                          ':player_id' => $player->playerId,
-                                          ':die_idx'   => $dieIdx,
-                                          ':option_value' => $optionValue,
-                                          ':is_expired' => TRUE));
+                $parameters = array(':game_id'   => $game->gameId,
+                                    ':player_id' => $player->playerId,
+                                    ':die_idx'   => $dieIdx,
+                                    ':option_value' => $optionValue,
+                                    ':is_expired' => TRUE);
+                self::$db->update($query, $parameters);
             }
         }
     }
@@ -1291,12 +1337,12 @@ class BMInterface {
                          '(game_id, player_id, die_idx, option_value, is_expired) '.
                          'VALUES '.
                          '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id'   => $game->gameId,
-                                          ':player_id' => $player->playerId,
-                                          ':die_idx'   => $dieIdx,
-                                          ':option_value' => $optionValue,
-                                          ':is_expired' => FALSE));
+                $parameters = array(':game_id'   => $game->gameId,
+                                    ':player_id' => $player->playerId,
+                                    ':die_idx'   => $dieIdx,
+                                    ':option_value' => $optionValue,
+                                    ':is_expired' => FALSE);
+                self::$db->update($query, $parameters);
             }
         }
     }
@@ -1312,15 +1358,10 @@ class BMInterface {
                      'SET has_player_accepted = :has_player_accepted '.
                      'WHERE game_id = :game_id '.
                      'AND position = :position;';
-            $statement = self::$conn->prepare($query);
-            if ($player->hasPlayerAcceptedGame) {
-                $hasPlayerAccepted = 1;
-            } else {
-                $hasPlayerAccepted = 0;
-            }
-            $statement->execute(array(':has_player_accepted' => $hasPlayerAccepted,
-                                      ':game_id' => $game->gameId,
-                                      ':position' => $player->position));
+            $parameters = array(':has_player_accepted' => $player->hasPlayerAcceptedGame,
+                                ':game_id' => $game->gameId,
+                                ':position' => $player->position);
+            self::$db->update($query, $parameters);
         }
     }
 
@@ -1335,19 +1376,17 @@ class BMInterface {
             $query = 'UPDATE game_player_map '.
                      'SET did_win_initiative = 0 '.
                      'WHERE game_id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
+            $parameters = array(':game_id' => $game->gameId);
+            self::$db->update($query, $parameters);
 
             // set player that won initiative
             $query = 'UPDATE game_player_map '.
                      'SET did_win_initiative = 1 '.
                      'WHERE game_id = :game_id '.
                      'AND player_id = :player_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(
-                array(':game_id' => $game->gameId,
-                      ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]->playerId)
-            );
+            $parameters = array(':game_id' => $game->gameId,
+                                ':player_id' => $game->playerArray[$game->playerWithInitiativeIdx]->playerId);
+            self::$db->update($query, $parameters);
         }
     }
 
@@ -1362,15 +1401,10 @@ class BMInterface {
                      'SET is_awaiting_action = :is_awaiting_action '.
                      'WHERE game_id = :game_id '.
                      'AND position = :position;';
-            $statement = self::$conn->prepare($query);
-            if ($player->waitingOnAction) {
-                $is_awaiting_action = 1;
-            } else {
-                $is_awaiting_action = 0;
-            }
-            $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
-                                      ':game_id' => $game->gameId,
-                                      ':position' => $player->position));
+            $parameters = array(':is_awaiting_action' => $player->waitingOnAction,
+                                ':game_id' => $game->gameId,
+                                ':position' => $player->position);
+            self::$db->update($query, $parameters);
         }
     }
 
@@ -1415,8 +1449,8 @@ class BMInterface {
                  'SET status_id = '.
                  '    (SELECT id FROM die_status WHERE name = "DELETED") '.
                  'WHERE game_id = :game_id;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $game->gameId));
+        $parameters = array(':game_id' => $game->gameId);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1463,8 +1497,8 @@ class BMInterface {
         // delete previously saved turbo cache
         $query = 'DELETE FROM game_turbo_cache '.
                  'WHERE game_id = :game_id;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $game->gameId));
+        $parameters = array(':game_id' => $game->gameId);
+        self::$db->update($query, $parameters);
 
         if (empty($game->turboCache)) {
             return;
@@ -1476,10 +1510,10 @@ class BMInterface {
                      '    (game_id, die_idx, turbo_size) '.
                      'VALUES '.
                      '    (:game_id, :die_idx, :turbo_size);';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId,
-                                      ':die_idx' => $dieIdx,
-                                      ':turbo_size' => $turboSize));
+            $parameters = array(':game_id' => $game->gameId,
+                                ':die_idx' => $dieIdx,
+                                ':turbo_size' => $turboSize);
+            self::$db->update($query, $parameters);
         }
     }
 
@@ -1503,8 +1537,8 @@ class BMInterface {
                  'WHERE status_id = '.
                  '    (SELECT id FROM die_status WHERE name = "DELETED") '.
                  'AND game_id = :game_id;';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':game_id' => $game->gameId));
+        $parameters = array(':game_id' => $game->gameId);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1537,7 +1571,6 @@ class BMInterface {
                  '     :position, '.
                  '     :value, '.
                  '     :flags);';
-        $statement = self::$conn->prepare($query);
 
         $flags = $activeDie->flags_as_string();
         if (empty($flags)) {
@@ -1553,16 +1586,16 @@ class BMInterface {
             $actualMax = $activeDie->max;
         }
 
-        $statement->execute(array(':owner_id' => $game->playerArray[$playerIdx]->playerId,
-                                  ':original_owner_id' => $game->playerArray[$activeDie->originalPlayerIdx]
-                                                               ->playerId,
-                                  ':game_id' => $game->gameId,
-                                  ':status' => $status,
-                                  ':recipe' => $activeDie->recipe,
-                                  ':actual_max' => $actualMax,
-                                  ':position' => $dieIdx,
-                                  ':value' => $activeDie->value,
-                                  ':flags' => $flags));
+        $parameters = array(':owner_id' => $game->playerArray[$playerIdx]->playerId,
+                            ':original_owner_id' => $game->playerArray[$activeDie->originalPlayerIdx]->playerId,
+                            ':game_id' => $game->gameId,
+                            ':status' => $status,
+                            ':recipe' => $activeDie->recipe,
+                            ':actual_max' => $actualMax,
+                            ':position' => $dieIdx,
+                            ':value' => $activeDie->value,
+                            ':flags' => $flags);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -1611,10 +1644,27 @@ class BMInterface {
                 $query .= 'AND s.name = "CANCELLED" AND v2.was_game_dismissed = 0 ';
             }
             $query .= 'ORDER BY g.last_action_time ASC;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId));
+            $parameters = array(':player_id' => $playerId);
+            $columnReturnTypes = array(
+                'description' => 'str',
+                'game_id' => 'int',
+                'game_state' => 'int',
+                'is_awaiting_action' => 'int',
+                'last_action_timestamp' => 'int',
+                'my_button_name' => 'str',
+                'n_draws' => 'int',
+                'n_losses' => 'int',
+                'n_target_wins' => 'int',
+                'n_wins' => 'int',
+                'opponent_button_name' => 'str',
+                'opponent_id' => 'int',
+                'opponent_name' => 'str',
+                'opponent_on_vacation' => 'bool',
+                'status' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            return self::read_game_list_from_db_results($playerId, $statement);
+            return self::read_game_list_from_db_results($playerId, $rows);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_all_games: ' .
@@ -1629,10 +1679,10 @@ class BMInterface {
      * Read game list from DB results
      *
      * @param int $playerId
-     * @param PDOStatement $statement
+     * @param array $rows
      * @return array
      */
-    protected function read_game_list_from_db_results($playerId, $statement) {
+    protected function read_game_list_from_db_results($playerId, $rows) {
         // Initialize the arrays
         $gameIdArray = array();
         $gameDescriptionArray = array();
@@ -1661,31 +1711,31 @@ class BMInterface {
         // preferences
         $playerColors = $this->load_player_colors($playerId);
 
-        while ($row = $statement->fetch()) {
+        foreach ($rows as $row) {
             $gameColors = $this->determine_game_colors(
                 $playerId,
                 $playerColors,
                 $playerId,
-                (int)$row['opponent_id']
+                $row['opponent_id']
             );
 
-            $gameIdArray[]        = (int)$row['game_id'];
+            $gameIdArray[]        = $row['game_id'];
             $gameDescriptionArray[] = $row['description'];
-            $opponentIdArray[]    = (int)$row['opponent_id'];
+            $opponentIdArray[]    = $row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
-            $isOpponentOnVacationArray[]  = (bool) $row['opponent_on_vacation'];
+            $isOpponentOnVacationArray[]  = $row['opponent_on_vacation'];
             $myButtonNameArray[]  = $row['my_button_name'];
             $oppButtonNameArray[] = $row['opponent_button_name'];
-            $nWinsArray[]         = (int)$row['n_wins'];
-            $nDrawsArray[]        = (int)$row['n_draws'];
-            $nLossesArray[]       = (int)$row['n_losses'];
-            $nTargetWinsArray[]   = (int)$row['n_target_wins'];
-            $isToActArray[]       = (int)$row['is_awaiting_action'];
+            $nWinsArray[]         = $row['n_wins'];
+            $nDrawsArray[]        = $row['n_draws'];
+            $nLossesArray[]       = $row['n_losses'];
+            $nTargetWinsArray[]   = $row['n_target_wins'];
+            $isToActArray[]       = $row['is_awaiting_action'];
             $gameStateArray[]     = BMGameState::as_string($row['game_state']);
             $statusArray[]        = $row['status'];
             $inactivityArray[]    =
-                $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
-            $inactivityRawArray[] = (int)$now - $row['last_action_timestamp'];
+                $this->get_friendly_time_span($row['last_action_timestamp'], $now);
+            $inactivityRawArray[] = $now - $row['last_action_timestamp'];
             $playerColorArray[]   = $gameColors['playerA'];
             $opponentColorArray[] = $gameColors['playerB'];
         }
@@ -1785,40 +1835,51 @@ class BMInterface {
                         'ON v_victim.game_id = g.id AND v_victim.player_id IS NULL ' .
                 'WHERE s.name = "OPEN"' .
                 'ORDER BY g.id ASC;';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute();
+            $parameters = array();
+            $columnReturnTypes = array(
+                'challenger_button' => 'str_or_null',
+                'challenger_id' => 'int',
+                'challenger_random' => 'bool',
+                'challenger_name' => 'str',
+                'description' => 'str',
+                'game_id' => 'int',
+                'is_challenger_on_vacation' => 'bool',
+                'target_wins' => 'int',
+                'victim_button' => 'str_or_null',
+                'victim_random' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $games = array();
 
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $gameColors = $this->determine_game_colors(
                     $currentPlayerId,
                     $playerColors,
                     -1, // There is no other player yet
-                    (int)$row['challenger_id']
+                    $row['challenger_id']
                 );
 
-                if ((int)$row['challenger_random'] == 1) {
+                if ($row['challenger_random'] == 1) {
                     $challengerButton = '__random';
                 } else {
                     $challengerButton = $row['challenger_button'];
                 }
-                if ((int)$row['victim_random'] == 1) {
+                if ($row['victim_random'] == 1) {
                     $victimButton = '__random';
                 } else {
                     $victimButton = $row['victim_button'];
                 }
 
                 $games[] = array(
-                    'gameId' => (int)$row['game_id'],
-                    'challengerId' => (int)$row['challenger_id'],
+                    'gameId' => $row['game_id'],
+                    'challengerId' => $row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
-                    'isChallengerOnVacation' => (bool)$row['is_challenger_on_vacation'],
+                    'isChallengerOnVacation' => $row['is_challenger_on_vacation'],
                     'challengerButton' => $challengerButton,
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $victimButton,
-                    'targetWins' => (int)$row['target_wins'],
+                    'targetWins' => $row['target_wins'],
                     'description' => $row['description'],
                 );
             }
@@ -1862,16 +1923,13 @@ class BMInterface {
                      'ORDER BY g.last_action_time ASC '.
                      'LIMIT 1';
 
-            $statement = self::$conn->prepare($query);
-            $statement->execute($parameters);
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->set_message('Player has no pending games.');
-                return array('gameId' => NULL);
-            } else {
-                $gameId = ((int)$result[0]);
+            try {
+                $gameId = self::$db->select_single_value($query, $parameters, 'int');
                 $this->set_message('Next game ID retrieved successfully.');
                 return array('gameId' => $gameId);
+            } catch (BMExceptionDatabase $e) {
+                $this->set_message('Player has no pending games.');
+                return array('gameId' => NULL);
             }
         } catch (Exception $e) {
             error_log(
@@ -1899,17 +1957,21 @@ class BMInterface {
                 'WHERE UNIX_TIMESTAMP(last_access_time) > 0 ' .
                 'ORDER BY last_access_time DESC ' .
                 'LIMIT :number_of_players;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':number_of_players' => $numberOfPlayers));
+            $parameters = array(':number_of_players' => $numberOfPlayers);
+            $columnReturnTypes = array(
+                'name_ingame' => 'str',
+                'last_access_timestamp' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $now = strtotime('now');
 
             $players = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $players[] = array(
                     'playerName' => $row['name_ingame'],
                     'idleness' =>
-                        $this->get_friendly_time_span((int)$row['last_access_timestamp'], $now),
+                        $this->get_friendly_time_span($row['last_access_timestamp'], $now),
                 );
             }
             $this->set_message('Active players retrieved successfully.');
@@ -1956,10 +2018,10 @@ class BMInterface {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
             $single_button = ($buttonName !== NULL);
-            $statement = $this->execute_button_data_query($buttonName, $setName, $tagArray);
+            $rows = $this->execute_button_data_query($buttonName, $setName, $tagArray);
 
             $buttons = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $currentButton = $this->assemble_button_data(
                     $row,
                     $site_type,
@@ -1994,7 +2056,7 @@ class BMInterface {
      * @param string $buttonName
      * @param string $setName
      * @param array $tagArray
-     * @return PDOStatement
+     * @return array
      */
     protected function execute_button_data_query($buttonName, $setName, $tagArray) {
         $parameters = array();
@@ -2036,9 +2098,16 @@ class BMInterface {
         $query .=
             'ORDER BY s.sort_order ASC, b.sort_order ASC, b.name ASC;';
 
-        $statement = self::$conn->prepare($query);
-        $statement->execute($parameters);
-        return $statement;
+        $columnReturnTypes = array(
+            'btn_special' => 'bool',
+            'flavor_text' => 'str_or_null',
+            'id' => 'int',
+            'name' => 'str',
+            'recipe' => 'str',
+            'set_name' => 'str',
+            'tourn_legal' => 'bool',
+        );
+        return self::$db->select_rows($query, $parameters, $columnReturnTypes);
     }
 
     /**
@@ -2071,7 +2140,7 @@ class BMInterface {
         }
 
         $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
-        if (((int)$row['btn_special'] == 1) &&
+        if ($row['btn_special'] &&
             !class_exists('BMBtnSkill' . $standardName)) {
             $button->hasUnimplementedSkill = TRUE;
         }
@@ -2087,14 +2156,14 @@ class BMInterface {
         }
 
         $currentButton = array(
-            'buttonId' => (int)$row['id'],
+            'buttonId' => $row['id'],
             'buttonName' => $row['name'],
             'recipe' => $row['recipe'],
             'hasUnimplementedSkill' => $hasUnimplementedSkill,
             'buttonSet' => $row['set_name'],
             'dieTypes' => $dieTypes,
             'dieSkills' => $dieSkills,
-            'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
+            'isTournamentLegal' => $row['tourn_legal'],
             'artFilename' => $button->artFilename,
             'tags' => $this->get_button_tags($row['name']),
         );
@@ -2105,7 +2174,7 @@ class BMInterface {
         if ($single_button) {
             $currentButton['flavorText'] = $row['flavor_text'];
             $buttonSkillClass = 'BMBtnSkill' . $standardName;
-            if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
+            if ($row['btn_special'] && class_exists($buttonSkillClass)) {
                 $currentButton['specialText'] = $buttonSkillClass::get_description();
             } else {
                 $currentButton['specialText'] = NULL;
@@ -2131,11 +2200,13 @@ class BMInterface {
                     'INNER JOIN tag t ON t.id = btm.tag_id ' .
                 'WHERE b.name = :button_name ' .
                 'ORDER BY t.name ASC;';
-            $statement = self::$conn->prepare($query);
             $parameters = array(':button_name' => $buttonName);
-            $statement->execute($parameters);
+            $columnReturnTypes = array(
+                'name' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $tags[] = $row['name'];
             }
         } catch (Exception $e) {
@@ -2174,11 +2245,13 @@ class BMInterface {
             }
             $query .=
                 'ORDER BY bs.name ASC;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute($parameters);
+            $columnReturnTypes = array(
+                'name' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $sets = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $buttons = $this->get_button_data(NULL, $row['name']);
                 if (count($buttons) == 0) {
                     continue;
@@ -2242,11 +2315,9 @@ class BMInterface {
         try {
             $query = 'SELECT recipe FROM button_view '.
                      'WHERE name = :name';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':name' => $name));
-
-            $row = $statement->fetch();
-            return($row['recipe']);
+            $parameters = array(':name' => $name);
+            $recipe = self::$db->select_single_value($query, $parameters, 'str');
+            return($recipe);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_button_recipe_from_name: '
@@ -2267,12 +2338,16 @@ class BMInterface {
             $query = 'SELECT name_ingame, status FROM player_view '.
                      'WHERE name_ingame LIKE :input '.
                      'ORDER BY name_ingame';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':input' => $input.'%'));
+            $parameters = array(':input' => $input.'%');
+            $columnReturnTypes = array(
+                'name_ingame' => 'str',
+                'status' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $nameArray = array();
             $statusArray = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 $nameArray[] = $row['name_ingame'];
                 $statusArray[] = $row['status'];
             }
@@ -2298,16 +2373,13 @@ class BMInterface {
         try {
             $query = 'SELECT id FROM player '.
                      'WHERE name_ingame = :input';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':input' => $name));
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->set_message('Player name does not exist.');
-                return('');
-            } else {
-                $this->set_message('Player ID retrieved successfully.');
-                return((int)$result[0]);
-            }
+            $parameters = array(':input' => $name);
+            $playerId = self::$db->select_single_value($query, $parameters, 'int');
+            $this->set_message('Player ID retrieved successfully.');
+            return($playerId);
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Player name does not exist.');
+            return('');
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_player_id_from_name: ' .
@@ -2331,14 +2403,10 @@ class BMInterface {
 
             $query = 'SELECT name_ingame FROM player '.
                      'WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-            $result = $statement->fetch();
-            if (!$result) {
-                return('');
-            } else {
-                return($result[0]);
-            }
+            $parameters = array(':id' => $playerId);
+            return self::$db->select_single_value($query, $parameters, 'str');
+        } catch (BMExceptionDatabase $e) {
+            return('');
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_player_name_from_id: ' .
@@ -2377,16 +2445,13 @@ class BMInterface {
         try {
             $query = 'SELECT id FROM button '.
                      'WHERE name = :input';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':input' => $name));
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->set_message('Button name does not exist.');
-                return('');
-            } else {
-                $this->set_message('Button ID retrieved successfully.');
-                return((int)$result[0]);
-            }
+            $parameters = array(':input' => $name);
+            $buttonId = self::$db->select_single_value($query, $parameters, 'int');
+            $this->set_message('Button ID retrieved successfully.');
+            return $buttonId;
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Button name does not exist.');
+            return('');
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_button_id_from_name: " .
@@ -2406,15 +2471,11 @@ class BMInterface {
         try {
             $query = 'SELECT id FROM buttonset '.
                      'WHERE name = :input';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':input' => $name));
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->set_message('Buttonset name does not exist.');
-                return('');
-            } else {
-                return((int)$result[0]);
-            }
+            $parameters = array(':input' => $name);
+            return self::$db->select_single_value($query, $parameters, 'int');
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Buttonset name does not exist.');
+            return('');
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_buttonset_id_from_name: " .
@@ -2461,15 +2522,11 @@ class BMInterface {
     protected function get_config($conf_key) {
         try {
             $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':conf_key' => $conf_key));
-            $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) != 1) {
-                error_log('Wrong number of config values with key ' . $conf_key);
-                return NULL;
-            }
-            return $fetchResult[0]['conf_value'];
+            $parameters = array(':conf_key' => $conf_key);
+            return self::$db->select_single_value($query, $parameters, 'str');
+        } catch (BMExceptionDatabase $e) {
+            error_log('Wrong number of config values with key ' . $conf_key);
+            return NULL;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_config: ' .
@@ -2488,7 +2545,7 @@ class BMInterface {
      * @return string
      */
     protected function get_friendly_time_span($firstTime, $secondTime) {
-        $seconds = (int)($secondTime - $firstTime);
+        $seconds = $secondTime - $firstTime;
         if ($seconds < 0) {
             $seconds *= -1;
         }
@@ -2497,17 +2554,17 @@ class BMInterface {
             return $this->count_noun($seconds, 'second');
         }
 
-        $minutes = (int)($seconds / 60);
+        $minutes = intdiv($seconds, 60);
         if ($minutes < 60) {
             return $this->count_noun($minutes, 'minute');
         }
 
-        $hours = (int)($minutes / 60);
+        $hours = intdiv($minutes, 60);
         if ($hours < 24) {
             return $this->count_noun($hours, 'hour');
         }
 
-        $days = (int)($hours / 24);
+        $days = intdiv($hours, 24);
         return $this->count_noun($days, 'day');
     }
 

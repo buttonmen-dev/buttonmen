@@ -154,29 +154,20 @@ class BMInterfaceGame extends BMInterface {
                      '     FROM_UNIXTIME(:start_time), '.
                      '     :description, '.
                      '     :previous_game_id)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':status'        => 'OPEN',
-                                      ':n_players'     => count($playerIdArray),
-                                      ':n_target_wins' => $maxWins,
-                                      ':n_recent_passes' => 0,
-                                      ':creator_id'    => $creatorId,
-                                      ':start_time' => time(),
-                                      ':description' => $description,
-                                      ':previous_game_id' => $previousGameId));
+            $parameters = array(':status'        => 'OPEN',
+                                ':n_players'     => count($playerIdArray),
+                                ':n_target_wins' => $maxWins,
+                                ':n_recent_passes' => 0,
+                                ':creator_id'    => $creatorId,
+                                ':start_time' => time(),
+                                ':description' => $description,
+                                ':previous_game_id' => $previousGameId);
+            self::$db->update($query, $parameters);
 
-            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
-            $statement->execute();
-            $fetchData = $statement->fetch();
-            $gameId = (int)$fetchData[0];
+            $gameId = self::$db->select_single_value('SELECT LAST_INSERT_ID()', array(), 'int');
             return $gameId;
         } catch (Exception $e) {
-            // Failure might occur on DB insert or afterward
-            $errorData = $statement->errorInfo();
-            if ($errorData[2]) {
-                $this->set_message('Game create failed: ' . $errorData[2]);
-            } else {
-                $this->set_message('Game create failed: ' . $e->getMessage());
-            }
+            $this->set_message('Game create failed: ' . $e->getMessage());
             error_log(
                 'Caught exception in BMInterface::insert_new_game: ' .
                 $e->getMessage()
@@ -200,13 +191,12 @@ class BMInterfaceGame extends BMInterface {
                  '(game_id, player_id, button_id, position, has_player_accepted) '.
                  'VALUES '.
                  '(:game_id, :player_id, :button_id, :position, :has_player_accepted)';
-        $statement = self::$conn->prepare($query);
-
-        $statement->execute(array(':game_id'   => $gameId,
-                                  ':player_id' => $playerId,
-                                  ':button_id' => $buttonId,
-                                  ':position'  => $position,
-                                  ':has_player_accepted' => (int)$hasAccepted));
+        $parameters = array(':game_id'   => $gameId,
+                           ':player_id' => $playerId,
+                           ':button_id' => $buttonId,
+                           ':position'  => $position,
+                           ':has_player_accepted' => $hasAccepted);
+        self::$db->update($query, $parameters);
     }
 
     /**
@@ -222,10 +212,9 @@ class BMInterfaceGame extends BMInterface {
                          'SET is_button_random = 1 '.
                          'WHERE game_id = :game_id '.
                          'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-
-                $statement->execute(array(':game_id'   => $gameId,
-                                          ':position'  => $position));
+                $parameters = array(':game_id'   => $gameId,
+                                    ':position'  => $position);
+                self::$db->update($query, $parameters);
             }
         }
     }
@@ -263,11 +252,10 @@ class BMInterfaceGame extends BMInterface {
                          'SET alt_recipe = :custom_recipe '.
                          'WHERE game_id = :game_id '.
                          'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-
-                $statement->execute(array(':custom_recipe' => trim($customRecipeArray[$position]),
-                                          ':game_id' => $gameId,
-                                          ':position' => $position));
+                $parameters = array(':custom_recipe' => trim($customRecipeArray[$position]),
+                                    ':game_id' => $gameId,
+                                    ':position' => $position);
+                self::$db->update($query, $parameters);
             }
         }
 
@@ -446,11 +434,15 @@ class BMInterfaceGame extends BMInterface {
                     'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
                     'INNER JOIN game_status s ON s.id = g.status_id ' .
                 'WHERE g.id = :previous_game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':previous_game_id' => $previousGameId));
+            $parameters = array(':previous_game_id' => $previousGameId);
+            $columnReturnTypes = array(
+                'player_id' => 'int',
+                'status' => 'str',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             $previousPlayerIds = array();
-            while ($row = $statement->fetch()) {
+            foreach ($rows as $row) {
                 if (($row['status'] != 'COMPLETE') &&
                     ($row['status'] != 'CANCELLED')) {
                     $this->set_message(
@@ -458,7 +450,7 @@ class BMInterfaceGame extends BMInterface {
                     );
                     return FALSE;
                 }
-                $previousPlayerIds[] = (int)$row['player_id'];
+                $previousPlayerIds[] = $row['player_id'];
             }
 
             if (count($previousPlayerIds) == 0) {
@@ -515,13 +507,11 @@ class BMInterfaceGame extends BMInterface {
                 try {
                     $query = 'SELECT id FROM button '.
                              'WHERE name = :button_name';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':button_name' => $buttonName));
-                    $fetchData = $statement->fetch();
-                    if (FALSE === $fetchData) {
-                        $this->set_message('Game create failed because a button name was not valid.');
-                        return NULL;
-                    }
+                    $parameters = array(':button_name' => $buttonName);
+                    $buttonIdArray[] = self::$db->select_single_value($query, $parameters, 'int');
+                } catch (BMExceptionDatabase $e) {
+                    $this->set_message('Game create failed because a button name was not valid.');
+                    return NULL;
                 } catch (Exception $e) {
                     error_log(
                         'Caught exception in BMInterface::retrieve_button_ids: ' .
@@ -529,7 +519,6 @@ class BMInterfaceGame extends BMInterface {
                     );
                     return NULL;
                 }
-                $buttonIdArray[] = $fetchData[0];
             } else {
                 $buttonIdArray[] = NULL;
             }
@@ -545,16 +534,15 @@ class BMInterfaceGame extends BMInterface {
      * @return bool
      */
     protected function retrieve_player_autoaccept($playerId) {
-        $query = 'SELECT autoaccept FROM player '.
-                 'WHERE id = :player_id';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':player_id' => $playerId));
-        $fetchData = $statement->fetch();
-        if (FALSE === $fetchData) {
+        try {
+            $query = 'SELECT autoaccept FROM player '.
+                     'WHERE id = :player_id';
+            $parameters = array(':player_id' => $playerId);
+            return self::$db->select_single_value($query, $parameters, 'bool');
+        } catch (BMExceptionDatabase $e) {
             $this->set_message('Game create failed because a player id was not valid.');
             return NULL;
         }
-        return (bool)$fetchData[0];
     }
 
     /**
@@ -659,18 +647,16 @@ class BMInterfaceGame extends BMInterface {
             $query = 'UPDATE game_player_map SET player_id = :player_id '.
                      'WHERE game_id = :game_id '.
                      'AND position = :position';
-            $statement = self::$conn->prepare($query);
-
-            $statement->execute(array(':game_id'   => $gameId,
-                                      ':player_id' => $currentPlayerId,
-                                      ':position'  => $emptyPlayerIdx));
+            $parameters = array(':game_id'   => $gameId,
+                                ':player_id' => $currentPlayerId,
+                                ':position'  => $emptyPlayerIdx);
+            self::$db->update($query, $parameters);
 
             $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
                      'WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-
-            $statement->execute(array(':start_time' => time(),
-                                      ':id'         => $gameId));
+            $parameters = array(':start_time' => time(),
+                                ':id'         => $gameId);
+            self::$db->update($query, $parameters);
 
             $game = $this->load_game($gameId);
             $player = $game->playerArray[$emptyPlayerIdx];
@@ -769,40 +755,34 @@ class BMInterfaceGame extends BMInterface {
                 $query = 'UPDATE game_player_map SET is_button_random = 1 '.
                          'WHERE game_id = :game_id '.
                          'AND player_id = :player_id';
-
-                $statement = self::$conn->prepare($query);
-
-                $statement->execute(array(':game_id'   => $gameId,
-                                          ':player_id' => $playerId));
+                $parameters = array(':game_id'   => $gameId,
+                                    ':player_id' => $playerId);
+                self::$db->update($query, $parameters);
             } else {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
+                try {
+                    $query = 'SELECT id FROM button '.
+                             'WHERE name = :button_name';
+                    $parameters = array(':button_name' => $buttonName);
+                    $buttonId = self::$db->select_single_value($query, $parameters, 'int');
+                } catch (BMExceptionDatabase $e) {
                     $this->set_message('Button select failed because button name was not valid.');
                     return FALSE;
                 }
-                $buttonId = $fetchData[0];
 
                 $query = 'UPDATE game_player_map SET button_id = :button_id '.
                          'WHERE game_id = :game_id '.
                          'AND player_id = :player_id';
-
-                $statement = self::$conn->prepare($query);
-
-                $statement->execute(array(':game_id'   => $gameId,
-                                          ':player_id' => $playerId,
-                                          ':button_id' => $buttonId));
+                $parameters = array(':game_id'   => $gameId,
+                                    ':player_id' => $playerId,
+                                    ':button_id' => $buttonId);
+                self::$db->update($query, $parameters);
             }
 
             $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
                      'WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-
-            $statement->execute(array(':start_time' => time(),
-                                      ':id'         => $gameId));
+            $parameters = array(':start_time' => time(),
+                                ':id'         => $gameId);
+            self::$db->update($query, $parameters);
 
             $game = $this->load_game($gameId);
             $this->save_game($game);
@@ -1409,7 +1389,7 @@ class BMInterfaceGame extends BMInterface {
                         $this->set_message('Only one chance die can be rerolled');
                         return FALSE;
                     }
-                    $argArray['rerolledDieIdx'] = (int)$dieIdxArray[0];
+                    $argArray['rerolledDieIdx'] = $dieIdxArray[0];
                     break;
                 case 'focus':
                     if (count($dieIdxArray) != count($dieValueArray)) {
@@ -1654,39 +1634,40 @@ class BMInterfaceGame extends BMInterface {
                     'LEFT JOIN game_player_map AS m ' .
                     'ON m.game_id = g.id AND m.player_id = :player_id ' .
                 'WHERE g.id = :game_id';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(
+            $parameters = array(
                 ':player_id' => $playerId,
                 ':game_id' => $gameId,
-            ));
-            $fetchResult = $statement->fetchAll();
+            );
+            $columnReturnTypes = array(
+                 'status' => 'str',
+                 'was_game_dismissed' => 'int',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            if (count($fetchResult) == 0) {
+            if (count($rows) == 0) {
                 $this->set_message("Game $gameId does not exist");
                 return NULL;
             }
-            if (($fetchResult[0]['status'] != 'COMPLETE') &&
-                ($fetchResult[0]['status'] != 'CANCELLED')) {
+            if (($rows[0]['status'] != 'COMPLETE') &&
+                ($rows[0]['status'] != 'CANCELLED')) {
                 $this->set_message("Game $gameId isn't complete");
                 return NULL;
             }
-            if ((int)$fetchResult[0]['was_game_dismissed'] == 1) {
+            if ($rows[0]['was_game_dismissed'] == 1) {
                 $this->set_message("You have already dismissed game $gameId");
                 return NULL;
             }
 
-            if ($fetchResult[0]['was_game_dismissed'] !== NULL) {
+            if ($rows[0]['was_game_dismissed'] !== NULL) {
                 $query =
                     'UPDATE game_player_map ' .
                     'SET was_game_dismissed = 1 ' .
                     'WHERE player_id = :player_id AND game_id = :game_id';
-
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(
+                $parameters = array(
                     ':player_id' => $playerId,
                     ':game_id' => $gameId,
-                ));
+                );
+                self::$db->update($query, $parameters);
             }
 
             $this->set_message('Dismissing game succeeded');

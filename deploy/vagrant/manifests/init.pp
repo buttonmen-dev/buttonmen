@@ -11,8 +11,8 @@ node default {
   # wrong for EC2, and don't bother to lookup IPs in DNS because
   # we have very few hosts.  Just hardcode the list of roles.
   case "$ec2_public_ipv4" {
-    "54.163.4.93": {
-      $puppet_hostname = "ec2-54-163-4-93.compute-1.amazonaws.com"
+    "54.147.204.115": {
+      $puppet_hostname = "ec2-54-147-204-115.compute-1.amazonaws.com"
       $database_fqdn = "buttonmen-cgolubi1-2523-rds.cyk4kpmwmefe.us-east-1.rds.amazonaws.com"
     }
     "174.129.14.204": {
