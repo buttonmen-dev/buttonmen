@@ -924,8 +924,9 @@ class BMInterface {
      * Save game to database
      *
      * @param BMGame $game
+     * @param int $expectedPrevState
      */
-    protected function save_game(BMGame $game) {
+    protected function save_game(BMGame $game, int $expectedPrevState) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
 
@@ -933,6 +934,8 @@ class BMInterface {
         self::$conn->beginTransaction();
 
         try {
+            $prevGame = $this->load_game_parameters($game->gameId, FALSE);
+            assert($prevGame->gameState == $expectedPrevState, "DB game state changed between load and save");
             $this->resolve_random_button_selection($game);
             $this->save_basic_game_parameters($game);
             $this->save_button_recipes($game);
