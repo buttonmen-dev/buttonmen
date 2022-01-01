@@ -14,6 +14,9 @@ class apache::server {
       require => Package["apache2"];
   }
 
+  # Use mod_pagespeed to handle caching/refreshing of pages
+  include "apache::server::feature::mod-pagespeed"
+
   # Monitor the error log
   include "apache::server::feature::monitor-logs"
 
@@ -75,6 +78,28 @@ class apache::server::feature::monitor-logs {
       command => "/usr/local/sbin/monitor_apache_logs",
       hour => 0,
       minute => 5;
+  }
+}
+
+class apache::server::feature::mod-pagespeed {
+  exec {
+    "apache_mod_pagespeed_pkg_download":
+      command => "/usr/bin/wget --no-verbose -O /usr/local/src/mod-pagespeed-stable_current.deb https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_${architecture}.deb",
+      creates => "/usr/local/src/mod-pagespeed-stable_current.deb";
+
+    "apache_mod_pagespeed_pkg_install":
+      command => "/usr/bin/dpkg -i /usr/local/src/mod-pagespeed-stable_current.deb",
+      require => [ Exec["apache_mod_pagespeed_pkg_download"], Package["apache2"] ],
+      unless => "/usr/bin/dpkg -l mod-pagespeed-stable",
+      notify => File["/etc/apache2/mods-available/pagespeed.conf"];
+  }
+
+  file {
+    "/etc/apache2/mods-available/pagespeed.conf":
+      ensure => file,
+      content => template("apache/mod_pagespeed.conf.erb"),
+      mode => 0444,
+      notify => Service["apache2"];
   }
 }
 
