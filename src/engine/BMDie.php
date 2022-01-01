@@ -138,7 +138,7 @@ class BMDie extends BMCanHaveSkill {
             $this->max = 0;
         } else {
             $this->min = 1;
-            $this->max = (int)$sides;
+            $this->max = $sides;
         }
 
         $this->add_multiple_skills($skills);
@@ -301,20 +301,30 @@ class BMDie extends BMCanHaveSkill {
      * Create an appropriate BMDie with a specified number of sides, then
      * add skills to the die.
      *
-     * @param int $size
+     * @param string|int $size
      * @param array $skills
      * @return BMDie
      */
     public static function create($size, array $skills = NULL) {
-        self::validate_die_size($size);
+        $int_size = self::validate_die_size($size);
 
         $die = new BMDie;
 
-        $die->init($size, $skills);
+        $die->init($int_size, $skills);
 
         return $die;
     }
 
+    /**
+     * Validate and sanitize a die size parsed from a string recipe.
+     *
+     * If the size is valid, return it as an integer, so that all subsequent
+     * code can assume it is an integer.
+     * If the size is not valid, throw InvalidArgumentException.
+     *
+     * @param string|int $size
+     * @return int
+     */
     protected static function validate_die_size($size, $isOptionSubDie = FALSE) {
         if (!is_numeric($size)) {
             if ($isOptionSubDie) {
@@ -349,6 +359,8 @@ class BMDie extends BMCanHaveSkill {
                 'but you chose a size of ' . $size . '.'
             );
         }
+
+        return (int)$size;
     }
 
 
@@ -1132,7 +1144,7 @@ class BMDie extends BMCanHaveSkill {
                 throw new LogicException('Invalid option value for turbo die');
             }
         } else {
-            if ((int)$size !== $this->max) {
+            if ($size !== $this->max) {
                 throw new LogicException('Cannot change die size for a non-swing, non-option turbo die');
             }
         }
