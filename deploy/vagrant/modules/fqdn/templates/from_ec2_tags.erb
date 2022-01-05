@@ -7,8 +7,8 @@ OUTPUT_FILE=$1
 
 FQDN=""
 <% if @ec2_services_partition == "aws" -%>
-REGION=$(echo <%= ec2_placement_availability_zone %> | sed -e 's/[a-z]$//')
-FQDN=$(aws ec2 describe-tags --region ${REGION} --filters "Name=resource-id,Values=<%= ec2_instance_id %>" "Name=key,Values=fqdn" | grep Value | awk -F\" '{print $4}')
+REGION=$(echo <%= @ec2_placement_availability_zone %> | sed -e 's/[a-z]$//')
+FQDN=$(aws ec2 describe-tags --region ${REGION} --filters "Name=resource-id,Values=<%= @ec2_instance_id %>" "Name=key,Values=fqdn" | grep Value | awk -F\" '{print $4}')
 <% end -%>
 
 # Use a static fake site name for both non-AWS instances and instances that failed the above check

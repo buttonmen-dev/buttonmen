@@ -560,7 +560,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 686);
+        $this->assertEquals(count($retval['data']), 698);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -616,7 +616,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 79);
+        $this->assertEquals(count($retval['data']), 81);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
@@ -1089,7 +1089,7 @@ class responder00Test extends responderTestFramework {
 
         $args = array(
             'type' => 'editForumPost',
-            'postId' => (int)$thread['data']['posts'][0]['postId'],
+            'postId' => $thread['data']['posts'][0]['postId'],
             'body' => 'Cat!',
         );
         $retval = $this->verify_api_success($args);

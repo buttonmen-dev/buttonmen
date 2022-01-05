@@ -7,7 +7,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Button Men Online</title>
-  <link rel="stylesheet" href="gui.VERSION_COOKIE.css" />
+  <link rel="stylesheet" href="gui.css" />
   <link id="favicon" rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
   <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"/>
@@ -23,18 +23,17 @@
   <script>
     $(document).ready(function() {
       $.ajax({
-        url: 'js/Loader.VERSION_COOKIE.js',
+        url: 'js/Loader.js',
         dataType: 'script',
         cache: true,
         success: function() {
           Loader.loadScripts([
             'js/extern/jquery-ui.min.js',
-            'js/VerifyReset.VERSION_COOKIE.js'
+            'js/VerifyReset.js'
           ],
           function() {
             Login.showLoginHeader(VerifyReset);
-          },
-          'VERSION_COOKIE');
+          });
         }
       });
     });

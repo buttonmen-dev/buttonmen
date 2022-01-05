@@ -86,8 +86,8 @@ abstract class BMAttack {
             $attacker->run_hooks(
                 'attack_list',
                 array('attackTypeArray' => &$attackTypeArray,
-                      'value' => (int)$attacker->value,
-                      'nAttDice' => (int)count($attackers))
+                      'value' => $attacker->value,
+                      'nAttDice' => count($attackers))
             );
 
             foreach ($attackTypeArray as $attackType) {

@@ -3,16 +3,16 @@
   ## Set environment variables for buttonmen database access
 
   # Database 1 (primary)
-  SetEnv DB1_HOST <%= database_fqdn %>
+  SetEnv DB1_HOST <%= @database_fqdn %>
   SetEnv DB1_PORT 3306
-  SetEnv DB1_NAME <%= buttonmen_db1_name %>
-  SetEnv DB1_USER <%= buttonmen_db1_user %>
-  SetEnv DB1_PASS <%= buttonmen_db1_pass %>
+  SetEnv DB1_NAME <%= @buttonmen_db1_name %>
+  SetEnv DB1_USER <%= @buttonmen_db1_user %>
+  SetEnv DB1_PASS <%= @buttonmen_db1_pass %>
   
   # Database 2 (test)
   SetEnv DB2_HOST 127.0.0.1
   SetEnv DB2_PORT 3306
-  SetEnv DB2_NAME <%= buttonmen_db2_name %>
-  SetEnv DB2_USER <%= buttonmen_db2_user %>
-  SetEnv DB2_PASS <%= buttonmen_db2_pass %>
+  SetEnv DB2_NAME <%= @buttonmen_db2_name %>
+  SetEnv DB2_USER <%= @buttonmen_db2_user %>
+  SetEnv DB2_PASS <%= @buttonmen_db2_pass %>
 </Directory>

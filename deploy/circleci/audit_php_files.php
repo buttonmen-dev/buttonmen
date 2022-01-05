@@ -41,17 +41,8 @@
     "src/api/ApiSpec.php" => 2,
     // exceptions for the three int types BMDB supports on select
     "src/engine/BMDB.php" => 3,
-
-    // arbitrarily high exceptions because we are not yet limiting casts in these files (#712)
-    "src/engine/BMAttack.php" => 1000,
-    "src/engine/BMDie.php" => 1000,
-    "src/engine/BMDieSwing.php" => 1000,
-    "src/engine/BMGame.php" => 1000,
-    "src/engine/BMPlayer.php" => 1000,
-    // This file is converted to BMDB, but we haven't yet done the exercise of ensuring that
-    // subdie values reconstructed from flags are always ints.
-    // Leave those casts in place until we do
-    "src/engine/BMInterface.php" => 2,
+    // exceptions for validate_die_size(), which parses string die recipe into int sides
+    "src/engine/BMDie.php" => 2,
   );
 
   // In these directories, we limit explicit references to $_SESSION variables

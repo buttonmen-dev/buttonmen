@@ -83,6 +83,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 (78, 'Steven Universe',               7600),
 (77, 'Zodiac',                        7500),
 (84, 'Peloton',                       8400),
+(86, 'CyberSuit Corp',                8600),
 
 # Unofficial Sets - fan and vanity sets
 (70, 'Japanese Beetle (unofficial)',  6800),
@@ -96,6 +97,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 # Fanatics
 (65, 'Classic Fanatics', 100000),
 (85, '2020 Fanatics',    100100),
+(87, '2021 Fanatics',    100200),
 
 # Special
 (10000, 'RandomBM', 200000),
@@ -942,6 +944,17 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (785, 'Roger',           'g(4) G(8) c(10) H(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton")),
 (786, 'Timea',           'd(4) s(8) z(10) h(10) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Peloton"));
 
+# Cybersuit Corp (AnnoDomini)
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(797, 'Andrew',          'ks(6) fI(8) (12) (12) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(798, 'Chad',            '(4) ks(4) It(12) (20) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(799, 'Fiona',           'st(4) fM(8) (12) (12) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(800, 'Gavin',           'fM(6) Is(8) (12) (20) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(801, 'Isabel',          '(6) It(8) fs(10) (12) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(802, 'Monique',         '(8) kI(8) fs(12) (12) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(803, 'Nadia',           'fI(6) st(10) (10) (12) (V)',                     0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp")),
+(804, 'Sachin',          '(6) kt(6) Is(10) (20) (V)',                      0, 0, (SELECT id FROM buttonset WHERE name="CyberSuit Corp"));
+
 ###############################################
 ##### UNOFFICIAL SETS - FAN AND VANITY SETS
 
@@ -1250,6 +1263,12 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (795, 'Nonce Equitaur',   '(S) (3)q (U)It (U) (R)!',                       0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
 (796, 'tavella',          '(5)t^ (23)v# (19)I (6)I^ (7)!',                 0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics"));
 
+INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
+(805, 'Bosco312',         'z^(20) z^(10) d(1) d(1)',                       0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(806, 'Cycozar',          '(T) (4)g (Y) o(U)rIt! ^%(3) c(Y) coz(4)r #(1)', 0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(807, 'GamerXYZ',         'Ho(4) dk(6) sz(X) qt(Y) `M(Z)',                 0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(808, 'irilyth',          'Gg(8) Gg(16) Gg(32) `sptH(1) `sptH(2) `sptH(3) `sptH(5) `sptH(8) spohr(4,9) spohr(9,16) spohr(16,25)', 1, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
+(809, 'Scipio',           'bt(1) s(8) (3/19)! (5/23)! #(X)',               0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics"));
 
 #############################################
 #####   S P E C I A L   B U T T O N S   #####
@@ -1592,6 +1611,11 @@ UPDATE button SET flavor_text="jl8e is an itinerant baker, coder, and game desig
 UPDATE button SET flavor_text="""nobody ever laughs at my puns. i guess because it's not a great button. a little past half way home got caught in the rising dawn after long and fruitless debates. they handed over a tightly wrapped scroll, bowed and left again, without saying a word. funny that he now did. maybe his partner asked him to stand up to scrutiny. you are better than one chance in 256 of that happening are only 1/40. i thought about going smaller with my y swing, but i think you're doing quite well for you anyway"" -Nala" WHERE name="Nala";
 UPDATE button SET flavor_text="Nonce Equitaur enjoys non sequiturs, puns, probability theory, symmetry groups, breaking into geodesic homes, and beating people up." WHERE name="Nonce Equitaur";
 UPDATE button SET flavor_text="Tavella enjoys cooking, reading, and of course ... beating people up." WHERE name="tavella";
+UPDATE button SET flavor_text="Bosco312, a master of time and space, an evil prince, and a part time theatrical critic, needs to be stealthy in order to beat people up without coming apart at high speed." WHERE name="Bosco312";
+UPDATE button SET flavor_text="Cycozar's 3 rules to live by:<br>1. Fun first - winning is a bonus.<br>2. When life gives you obstacles, run them over like a speed bump - thump thump.<br>3. Love & hate are both contagious - choose your disease." WHERE name="Cycozar";
+UPDATE button SET flavor_text="GamerXYZ likes graham crackers, electric blankets, and beating people up in games." WHERE name="GamerXYZ";
+UPDATE button SET flavor_text="irilyth likes pretty dice with swirly colors, and especially likes using them to beat people up." WHERE name="irilyth";
+UPDATE button SET flavor_text="Scipio is a broadly interested heretic from a mysterious country. He likes cheese, chocolate, watches, and the rule of three. Also beating people up." WHERE name="Scipio";
 UPDATE button SET flavor_text="Gluttony enjoys eating, eating and the Fat Albert Cartoon. When not eating, or thinking about eating, he spends his time beating people up with his Double-Drumstick Fu." WHERE name="Gluttony";
 UPDATE button SET flavor_text="Pride is a diva of the nose harmonica. When not appearing on Live TV news casts, she enjoys flinging cats, radish carvings and beating people up." WHERE name="Pride";
 UPDATE button SET flavor_text="Lust is an out-of-work actress who is rather top-heavy. While not trying to get bit parts on VIP, Baywatch or any USA shows, she enjoys humming and the color red. She also beats people up." WHERE name="Lust";
@@ -1644,6 +1668,14 @@ UPDATE button SET flavor_text="Santiago is a college student who enjoys In Nomin
 UPDATE button SET flavor_text="A six-celled metazoan, he hates being called a cnidarian. He likes collecting bottle caps, raising bonsai Chia Pets, and taking long swims in the moonlight. Oh yeah, he also likes to beat people up." WHERE name="myxozoa";
 UPDATE button SET flavor_text="Kestrel likes to watch old movies, whine about lost relationships, contemplate absurdity, and, in his spare time, beat people up." WHERE name="kestrel";
 UPDATE button SET flavor_text="I'm an anti superhero with the power to talk before I think. I hurl my magic dashboard at my enemies or strangle them with my steel mouse cord. I enjoy Beating People Up!" WHERE name="NoopMan";
+UPDATE button SET flavor_text="Gavin is a project manager. He believes nine women can deliver a baby in one month. He enjoys safaris, weddings, and beating people up." WHERE name="Gavin";
+UPDATE button SET flavor_text="Andrew is an intern. He says an internship is a great way to learn how people at companies pretend to work. He likes skating, playing guitar, and beating people up." WHERE name="Andrew";
+UPDATE button SET flavor_text="Chad is an IT specialist. He knows there are 10 types of people: those who understand binary code and those who don't. He likes to eat with sticks, swim in the ocean, and beat people up." WHERE name="Chad";
+UPDATE button SET flavor_text="Isabel works in the HR department. Her job is to find employees in their mid 20s with 15 years of experience. She likes cold soda, cats, and beating people up." WHERE name="Isabel";
+UPDATE button SET flavor_text="Monique works in the accounting department. She gets excited about weekends because she can wear casual clothes to work. She likes big numbers with a lot of commas and beating people up." WHERE name="Monique";
+UPDATE button SET flavor_text="Sachin is a business analyst. He solves problems based on unreliable data provided by people with questionable knowledge. He likes eggs, keeping things in perfect order, and beating people up." WHERE name="Sachin";
+UPDATE button SET flavor_text="Fiona is the CEO of the company. She is also a mom, so nothing scares her. She likes cabbage flavor, bathtubs, and beating people up." WHERE name="Fiona";
+UPDATE button SET flavor_text="Nadia is a secretary. Everyone apart from the CEO knows it is actually she who runs the place. She likes Spring, baking her own bread, and beating people up." WHERE name="Nadia";
 #UPDATE button SET flavor_text="Vanilla is simple, yet complex." WHERE name="Vanilla";
 #UPDATE button SET flavor_text="One mean mother (shut your mouth!) I was only talking about Chocolate Chip! (we can dig it!)" WHERE name="Chocolate Chip";
 #UPDATE button SET flavor_text="The meanest Ice Cream of the bunch. Avoid it like the green plague!" WHERE name="Mint Chip";
