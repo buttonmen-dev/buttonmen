@@ -1041,7 +1041,7 @@ class LoggingBMClient():
 
   def _next_weak_value(self, sides):
     sizes = [1, 2, 4, 6, 8, 10, 12, 16, 20, 30]
-    if sides <= sizes[0]: return sizes[0]  # or should this return sides?
+    if sides <= sizes[0]: return sides
     return [x for x in sizes if sides > x][-1]
 
   def _generate_turbo_val_arrays(self, part_attackers, attack_type):
