@@ -3,13 +3,5 @@
 
 /usr/sbin/logtail2 -o /var/spool/logtail/apache2_error.log \
   /var/log/apache2/error.log \
-  | grep -v "Caught exception in BMDie::create_from_string_components: Illegal die size: C" \
-  | grep -v "Caught exception in BMDie::create_from_string_components: Invalid recipe: &" \
-  | grep -v "Caught exception in BMDie::create_from_string_components: Invalid recipe: ," \
-  | grep -v "File does not exist: " \
-  | grep -v " not found or unable to stat" \
-  | grep -v " Graceful restart requested, doing restart" \
-  | grep -v " resuming normal operations" \
-  | grep -v "client denied by server configuration: " \
-  | grep -v "AH00094: Command line: '/usr/sbin/apache2'" \
-  | grep -v "client sent HTTP/1.1 request without hostname"
+  | grep '\[:error\]' \
+  | grep -v " not found or unable to stat"

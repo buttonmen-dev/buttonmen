@@ -3342,7 +3342,7 @@ class BMGame {
                 'Invalid game ID.'
             );
         }
-        $this->gameId = (int)$value;
+        $this->gameId = $value;
     }
 
     /**
@@ -3387,7 +3387,7 @@ class BMGame {
                 'Invalid player index.'
             );
         }
-        $this->activePlayerIdx = (int)$value;
+        $this->activePlayerIdx = $value;
     }
 
     /**
@@ -3409,7 +3409,7 @@ class BMGame {
                 'Invalid player index.'
             );
         }
-        $this->playerWithInitiativeIdx = (int)$value;
+        $this->playerWithInitiativeIdx = $value;
     }
 
     /**
@@ -3555,7 +3555,7 @@ class BMGame {
                 'maxWins must be a positive integer.'
             );
         }
-        $this->maxWins = (int)$value;
+        $this->maxWins = $value;
     }
 
     /**
@@ -3565,7 +3565,7 @@ class BMGame {
      */
     protected function set__gameState($value) {
         BMGameState::validate_game_state($value);
-        $this->gameState = (int)$value;
+        $this->gameState = $value;
     }
 
     /**

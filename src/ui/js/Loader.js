@@ -7,8 +7,7 @@ Loader.defaultScripts = [
   'js/extern/moment.js',
 ];
 
-// These BM modules are loaded by every page, and we autoversion them
-// to avoid caching problems after deployments
+// These BM modules are loaded by every page
 Loader.defaultBMModules = [
   'Api',
   'Config',
@@ -16,7 +15,7 @@ Loader.defaultBMModules = [
   'Login',
 ];
 
-Loader.loadScripts = function(scripts, callback, version) {
+Loader.loadScripts = function(scripts, callback) {
   // The function to be called when all the scripts have been loaded.
   Loader.callback = callback;
 
@@ -26,12 +25,7 @@ Loader.loadScripts = function(scripts, callback, version) {
     Loader.loadStatus[script] = false;
   });
   $.each(Loader.defaultBMModules, function(index, module) {
-    var script;
-    if (version) {
-      script = 'js/' + module + '.' + version + '.js';
-    } else {
-      script = 'js/' + module + '.js';
-    }
+    var script = 'js/' + module + '.js';
     Loader.loadStatus[script] = false;
   });
   $.each(scripts, function(index, script) {
