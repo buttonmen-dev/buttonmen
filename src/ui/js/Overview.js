@@ -572,7 +572,7 @@ Overview.pageAddIntroText = function() {
     infopar.append(
       'This is the alpha version of the Buttonweavers implementation of ');
     infopar.append($('<a>', {
-      'href': 'http://www.cheapass.com/node/39',
+      'href': 'https://cheapass.com/free-games/button-men/',
       'text': 'Button Men',
     }));
     infopar.append('.');
