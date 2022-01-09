@@ -16,7 +16,7 @@ standard_library.install_aliases()
 import configparser
 import json
 import os
-from http.cookiejar import LWPCookieJar
+from http.cookiejar import CookieJar, LWPCookieJar
 
 import requests
 
@@ -51,19 +51,30 @@ class BMClient:
     self.url = config.get(site, "url")
     self.username = config.get(site, "username")
     self.password = config.get(site, "password")
-    self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
+    try:
+      self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
+    except configparser.NoOptionError:
+      self.cookiefile = None
     try:
       self.cachedir = os.path.expanduser(config.get(site, "cachedir"))
     except configparser.NoOptionError:
       pass
 
   def _setup_cookies(self):
-    # ref session so requests can share seesion config like a shared cookiejar
+    # ref session so requests can share session config like a shared cookiejar
     self.session = requests.session()
-    self.cookiejar = LWPCookieJar(self.cookiefile)
-    if os.path.isfile(self.cookiefile):
-      self.cookiejar.load(ignore_discard=True)
-      self.session.cookies = self.cookiejar
+    if self.cookiefile is not None:
+      print('file cookies')
+      self.cookiejar = LWPCookieJar(self.cookiefile)
+      if os.path.isfile(self.cookiefile):
+        print('cookie cache')
+        # load up existing cachefile
+        self.cookiejar.load(ignore_discard=True)
+    else:
+      print('in mem cookies')
+      # use in-memory cookie jar if needed
+      self.cookiejar = CookieJar()
+    self.session.cookies = self.cookiejar
 
   def __init__(self, rcfile, site):
     self.username = None
@@ -95,7 +106,8 @@ class BMClient:
     }
     retval = self._make_request(args)
     if retval.status == 'ok':
-      self.cookiejar.save(ignore_discard=True)
+      if isinstance(self.cookiejar, LWPCookieJar):
+        self.cookiejar.save(ignore_discard=True)
       return True
     return False
 
