@@ -1708,7 +1708,8 @@ class LoggingBMClient():
     self.log.append({
       'type': 'finish',
     })
-    f = open('output/game%s.pck' % self.int_id, 'w')
+    # TODO have output directory configured from caller
+    f = open('../output/game%s.pck' % self.int_id, 'w')
     pickle.dump(self.log, f)
     f.close()
 
