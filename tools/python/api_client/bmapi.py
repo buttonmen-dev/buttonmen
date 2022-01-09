@@ -58,10 +58,10 @@ class BMClient:
       pass
 
   def _setup_cookies(self):
+    # ref session so requests can share seesion config like a shared cookiejar
     self.session = requests.session()
-    # all requests should use the same cookie jar
-    if self.cookiefile is not None and os.path.isfile(self.cookiefile):
-      self.cookiejar = LWPCookieJar(self.cookiefile)
+    self.cookiejar = LWPCookieJar(self.cookiefile)
+    if os.path.isfile(self.cookiefile):
       self.cookiejar.load(ignore_discard=True)
       self.session.cookies = self.cookiejar
 
