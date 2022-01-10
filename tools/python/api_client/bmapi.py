@@ -64,15 +64,12 @@ class BMClient:
     # ref session so requests can share session config like a shared cookiejar
     self.session = requests.session()
     if self.cookiefile is not None:
-      print('file cookies')
       self.cookiejar = LWPCookieJar(self.cookiefile)
       if os.path.isfile(self.cookiefile):
-        print('cookie cache')
-        # load up existing cachefile
+        # load existing cookies from file
         self.cookiejar.load(ignore_discard=True)
     else:
-      print('in mem cookies')
-      # use in-memory cookie jar if needed
+      # use in-memory cookie jar
       self.cookiejar = CookieJar()
     self.session.cookies = self.cookiejar
 
