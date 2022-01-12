@@ -1284,7 +1284,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id, sort_ord
 (10008, 'RandomBMTetraskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 80),
 (10009, 'RandomBMPentaskill', '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 90),
 (10010, 'RandomBMSoldiers',   '', 1, 0, (SELECT id FROM buttonset WHERE name="RandomBM"), 100),
-(11000, 'CustomBM',           '', 0, 0, (SELECT id FROM buttonset WHERE name="CustomBM"), 0);
+(11000, 'CustomBM',           '', 1, 0, (SELECT id FROM buttonset WHERE name="CustomBM"), 0);
 
 
 
