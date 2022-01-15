@@ -1674,6 +1674,19 @@ class LoggingBMClient():
         self.loaded_data['playerDataArray'][0])
     self.bug("Game found waiting on neither player during START_TURN")
 
+  def _create_game_failure_is_okay(self, button1, button2, custom_recipe_array, retval):
+    # We only ever expect game creation failures with CustomBM
+    if not 'CustomBM' in [button1, button2]: return False
+
+    # retval should always be well-formed
+    if not retval or not hasattr(retval, 'status') or not hasattr(retval, 'message'): return False
+
+    # the message should never say anything about an internal error
+    if 'internal error' in retval.message.lower(): return False
+
+    # Otherwise assume failure is okay, for now
+    return True
+
   def bug(self, message):
     self.log.append({
       'type': 'bug',
@@ -1708,10 +1721,14 @@ class LoggingBMClient():
       custom_recipe_array = []
     retval = self.player_client.create_game(button1, obutton=button2, opponent=self.opponent_client.username, max_wins=max_wins, use_prev_game=use_prev_game, custom_recipe_array=custom_recipe_array)
     if not retval:
-      self.bug("create_game(%s, %s, %d, custom_recipe_array=%s) unexpectedly failed: %s" % (
+      self.bug("create_game(%s, %s, %d, custom_recipe_array=%s) unexpectedly gave invalid response: %s" % (
         button1, button2, max_wins, custom_recipe_array,
         retval and retval.message or "NULL"))
     if not retval.status == 'ok':
+      if not self._create_game_failure_is_okay(button1, button2, custom_recipe_array, retval):
+        self.bug("create_game(%s, %s, %d, custom_recipe_array=%s) unexpectedly failed: %s" % (
+          button1, button2, max_wins, custom_recipe_array,
+          retval and retval.message or "NULL"))
       self.log.append({
         'type': 'createGame',
         'retval': retval,
