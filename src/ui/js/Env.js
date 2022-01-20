@@ -340,7 +340,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'isLink': true,
       'openingHtml':
           '<a class="chatWikiLink" ' +
-          'href="http://buttonweavers.wikia.com/wiki/###">Wiki: ',
+          'href="https://buttonweavers.fandom.com/wiki/###">Wiki: ',
       'closingHtml': '</a>',
       'escapeParameter': true,
     },
