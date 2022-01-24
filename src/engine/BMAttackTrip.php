@@ -206,7 +206,7 @@ class BMAttackTrip extends BMAttack {
             $attMaxVal = self::post_trip_roll_max($att);
         }
 
-        $defMaxVal = self::post_trip_roll_max($def);
+        $defMaxVal = self::post_trip_roll_max($def, TRUE);
 
         if (is_null($attMaxVal) || is_null($defMaxVal)) {
             return FALSE;
@@ -224,9 +224,10 @@ class BMAttackTrip extends BMAttack {
      * Calculates the die max after rolling a die because of a trip attack
      *
      * @param BMDie $die
+     * @param bool $minimumSides
      * @return int
      */
-    public static function post_trip_roll_max($die) {
+    public static function post_trip_roll_max($die, $minimumSides = FALSE) {
         $clone = clone $die;
         $postRollMax = $clone->max;
 
@@ -242,11 +243,19 @@ class BMAttackTrip extends BMAttack {
 
         if ($die->has_skill('Mad')) {
             if (isset($die->swingType)) {
-                $postRollMax = $die->swingMax - ($die->swingMax % 2);
+                if ($minimumSides) {
+                    $postRollMax = $die->swingMin + ($die->swingMin % 2);
+                } else {
+                    $postRollMax = $die->swingMax - ($die->swingMax % 2);
+                }
             }
         } elseif ($die->has_skill('Mood')) {
             if (isset($die->swingType)) {
-                $postRollMax = $die->swingMax;
+                if ($minimumSides) {
+                    $postRollMax = $die->swingMin;
+                } else {
+                    $postRollMax = $die->swingMax;
+                }
             }
         }
 
