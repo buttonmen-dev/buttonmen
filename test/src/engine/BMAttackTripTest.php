@@ -355,4 +355,48 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
     }
+
+    /**
+     * Trip dice should be able to attack Maximum Mad/Mood dice if the minimum moody die size allows it
+     *
+     * @covers BMAttackTrip::validate_attack
+     */
+    public function testValidate_attack_trip_targeting_maximum_mood() {
+        $game = new BMGame;
+
+        // t(8) vs M(X)? should be allowed
+        $die1 = BMDie::create_from_recipe('t(8)');
+        $die1->value = 6;
+
+        $die2 = BMDie::create_from_recipe('M(X)?');
+        $die2->set_swingValue(array('X' => 10));
+        $die2->value = 10;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+
+
+        // t(3) vs M(X)? should be rejected
+        $die1 = BMDie::create_from_recipe('t(3)');
+        $die1->value = 2;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+
+
+        // t(2) vs M(Y)& should be allowed
+        $die1 = BMDie::create_from_recipe('t(2)');
+        $die1->value = 1;
+
+        $die2 = BMDie::create_from_recipe('M(Y)&');
+        $die2->set_swingValue(array('Y' => 10));
+        $die2->value = 10;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+
+
+        // t(1) vs M(Y)& should be rejected
+        $die1 = BMDie::create_from_recipe('t(1)');
+        $die1->value = 1;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
 }
