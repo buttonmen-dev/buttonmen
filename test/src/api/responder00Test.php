@@ -976,7 +976,16 @@ class responder00Test extends responderTestFramework {
             $gameData['data'], array(array(0, 0), array(1, 0)),
             $real_game_id, 1, 'Power', 1, 0, '');
 
-        // now try to dismiss the game
+        // dismissing the game as a non-participant should fail
+        $_SESSION = $this->mock_test_user_login('responder005');
+        $args = array(
+            'type' => 'dismissGame',
+            'gameId' => $real_game_id,
+        );
+        $retval = $this->verify_api_failure($args, 'Game ' . $real_game_id . ' does not exist, or you are not a participant');
+        $_SESSION = $this->mock_test_user_login('responder004');
+
+        // now try to dismiss the game as responder004
         $args = array(
             'type' => 'dismissGame',
             'gameId' => $real_game_id,
@@ -990,6 +999,13 @@ class responder00Test extends responderTestFramework {
         // Hardcode a single fake game number here until we need to test dismissing in a more complex way
         $fakeGameNumber = 5;
         $this->cache_json_api_output('dismissGame', $fakeGameNumber, $retval);
+
+        // dismissing the same game again should fail
+        $args = array(
+            'type' => 'dismissGame',
+            'gameId' => $real_game_id,
+        );
+        $retval = $this->verify_api_failure($args, 'You have already dismissed game ' . $real_game_id);
     }
 
     ////////////////////////////////////////////////////////////

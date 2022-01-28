@@ -1631,7 +1631,7 @@ class BMInterfaceGame extends BMInterface {
                 'SELECT s.name AS "status", m.was_game_dismissed ' .
                 'FROM game AS g ' .
                 'INNER JOIN game_status AS s ON s.id = g.status_id ' .
-                    'LEFT JOIN game_player_map AS m ' .
+                    'INNER JOIN game_player_map AS m ' .
                     'ON m.game_id = g.id AND m.player_id = :player_id ' .
                 'WHERE g.id = :game_id';
             $parameters = array(
@@ -1645,7 +1645,7 @@ class BMInterfaceGame extends BMInterface {
             $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
             if (count($rows) == 0) {
-                $this->set_message("Game $gameId does not exist");
+                $this->set_message("Game $gameId does not exist, or you are not a participant");
                 return NULL;
             }
             if (($rows[0]['status'] != 'COMPLETE') &&
