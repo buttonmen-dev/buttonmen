@@ -1012,7 +1012,7 @@ class LoggingBMClient():
       post_trip_sides = self._next_weak_value(post_trip_sides)
     # TODO: make attack-selection in general aware of Turbo, don't
     # just hack in the max possible value
-    if 'Turbo' in die['skills']:
+    if 'Turbo' in die['skills'] or 'Mad' in die['skills'] or 'Mood' in die['skills']:
       # TODO: don't hardcode ranges, parse turboVals
       sides_part = die['recipe'].split('(')[1].split(')')[0]
       if '/' in sides_part:
