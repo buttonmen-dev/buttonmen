@@ -80,10 +80,10 @@ test("test_Faq.generalInfo", function(assert) {
 });
 
 test("test_Faq.tableOfContents", function(assert) {
-  var node = Faq.generalInfo();
-  assert.equal(node[0].nodeName, "DIV", "tableOfContents returns a DIV");
-  assert.equal(node[0].childNodes[0].nodeName, "H1", "toc start with an H1");
-  assert.equal(node[0].childNodes[1].nodeName, "UL", "toc contain a UL");
+  var node = Faq.tableOfContents();
+  assert.equal(node[0].nodeName, "UL", "tableOfContents returns a UL");
+  assert.equal(node[0].childNodes[0].nodeName, "LI", "toc start with an LI");
+  assert.equal(node[0].childNodes[1].nodeName, "LI", "toc contain a LI");
 });
 
 test("test_Faq.gameplayLinks", function(assert) {
