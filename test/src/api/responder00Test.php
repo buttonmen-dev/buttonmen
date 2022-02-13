@@ -344,7 +344,7 @@ class responder00Test extends responderTestFramework {
                                        array('responder004', 'CustomBM')),
             'maxWins' => '3',
         );
-        $this->verify_api_failure($args, 'Custom recipes can only be used on development sites.');
+        $this->verify_api_failure($args, 'Custom recipes can only be used on development or staging sites.');
 
         // On development, CustomBM should fail if no recipe array is supplied
         $this->update_config_site_type('development');

@@ -803,7 +803,7 @@ Newgame.updateButtonList = function(player, limitid) {
   if (Newgame.activity.buttonLimits[player].button_sets.ANY &&
       Newgame.activity.buttonLimits[player].tourn_legal.ANY &&
       Newgame.activity.buttonLimits[player].die_skills.ANY) {
-    if (Config.siteType == 'development') {
+    if (Config.siteType == 'development' || Config.siteType == 'staging') {
       Newgame.activity.buttonList[player] = {
         '__random': 'Random button',
         'CustomBM': 'Custom recipe',
@@ -813,7 +813,8 @@ Newgame.updateButtonList = function(player, limitid) {
         '__random': 'Random button',
       };
     }
-  } else if ((Config.siteType == 'development') &&
+  } else if ((Config.siteType == 'development' ||
+              Config.siteType == 'staging') &&
              Newgame.activity.buttonLimits[player].button_sets[
                'limit_' + player + '_button_sets_custombm'
              ]) {
