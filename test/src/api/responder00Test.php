@@ -344,7 +344,7 @@ class responder00Test extends responderTestFramework {
                                        array('responder004', 'CustomBM')),
             'maxWins' => '3',
         );
-        $this->verify_api_failure($args, 'Custom recipes can only be used on development sites.');
+        $this->verify_api_failure($args, 'Custom recipes can only be used on development or staging sites.');
 
         // On development, CustomBM should fail if no recipe array is supplied
         $this->update_config_site_type('development');
@@ -560,7 +560,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 697);
+        $this->assertEquals(count($retval['data']), 721);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -616,7 +616,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button set data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 80);
+        $this->assertEquals(count($retval['data']), 81);
 
         $this->cache_json_api_output('loadButtonSetData', 'noargs', $retval);
     }
