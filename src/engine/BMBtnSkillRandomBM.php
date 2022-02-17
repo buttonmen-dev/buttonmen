@@ -54,7 +54,7 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
      * @param array $possibleSkillArray
      * @return array
      */
-    public static function randomly_select_skills($nSkills, array $possibleSkillArray) {
+    public static function randomly_select_skills($nSkills, array $possibleSkillArray, bool $includeSwingOnlySkills) {
         if (count($possibleSkillArray) < $nSkills) {
             throw new LogicException('Not enough possible skills to select from');
         }
@@ -62,8 +62,16 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         $skillArray = array();
         $nPossibleSkills = count($possibleSkillArray);
 
+        $excludeSkills = array();
+        if (!$includeSwingOnlySkills) {
+            $excludeSkills = self::swing_only_skill_char_array();
+        }
+
         while (count($skillArray) < $nSkills) {
-            $skillArray[$possibleSkillArray[bm_skill_rand(0, $nPossibleSkills - 1)]] = TRUE;
+            $newSkill = $possibleSkillArray[bm_skill_rand(0, $nPossibleSkills - 1)];
+            if (!in_array($newSkill, $excludeSkills)) {
+                $skillArray[$newSkill] = TRUE;
+            }
         }
 
         return array_keys($skillArray);
@@ -124,16 +132,49 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         array $validDieSkillLetterArray,
         $nSkillsToBeGeneratedRandomly,
         $nTimesToGenerateAllSkills,
+        $dieIdxIsSwingArray,
         $maxSkillsPerDie = PHP_INT_MAX
     ) {
         if ($nDice*$maxSkillsPerDie < $nSkillsToBeGeneratedRandomly +
                                       $nTimesToGenerateAllSkills*count($validDieSkillLetterArray)) {
             throw new LogicException('Each die would have too many skills');
         }
+        $swingOnlyValidDieSkillLetterArray = array_intersect(
+            $validDieSkillLetterArray,
+            self::swing_only_skill_char_array()
+        );
+        $unrestrictedValidDieSkillLetterArray = array_diff(
+            $validDieSkillLetterArray,
+            $swingOnlyValidDieSkillLetterArray
+        );
+        $numSwingDice = count($dieIdxIsSwingArray);
+        $nTimesToGenerateSwingOnlySkills = min($nTimesToGenerateAllSkills, $numSwingDice);
+        if ((count($swingOnlyValidDieSkillLetterArray) > 0) && ($numSwingDice == 0)) {
+            throw new LogicException('Swing-only skills were assigned to a button with no swing dice');
+        }
 
         $dieSkillLetterArrayArray = array_fill(0, $nDice, array());
 
-        foreach ($validDieSkillLetterArray as $skillLetter) {
+        // Assign swing-only skills first, since they can only be used on a subset of dice
+        foreach ($swingOnlyValidDieSkillLetterArray as $skillLetter) {
+            for ($nSkillIdx = 0; $nSkillIdx < $nTimesToGenerateSwingOnlySkills; $nSkillIdx++) {
+                $assigned = FALSE;
+                while (!$assigned) {
+                    $dieIsSwingArrayIdx = bm_rand(0, $numSwingDice - 1);
+                    $dieIdx = $dieIdxIsSwingArray[$dieIsSwingArrayIdx];
+                    if ((count($dieSkillLetterArrayArray[$dieIdx]) < $maxSkillsPerDie) &&
+                        (!in_array($skillLetter, $dieSkillLetterArrayArray[$dieIdx]))) {
+                        // add the $skillLetter to the index to ensure that the final
+                        // string is sorted in alphabetical order
+                        $dieSkillLetterArrayArray[$dieIdx][$skillLetter] = $skillLetter;
+                        $assigned = TRUE;
+                    }
+                }
+            }
+        }
+
+        // Now assign the unrestricted skills
+        foreach ($unrestrictedValidDieSkillLetterArray as $skillLetter) {
             for ($nSkillIdx = 0; $nSkillIdx < $nTimesToGenerateAllSkills; $nSkillIdx++) {
                 $assigned = FALSE;
                 while (!$assigned) {
@@ -223,11 +264,39 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         // after we deal with bugs that arise from strange skill combinations
         return array(
             'Auxiliary', 'Reserve', 'Warrior', // game-level skills
-            'Doppelganger', 'Mad', 'Mood', 'Turbo',
+            'Doppelganger', 'Turbo',
             'Morphing', 'Radioactive', // recipe-changing skills
             'Fire', // skills that add an extra step to attacks
             'Slow', // skills excluded because they're no fun
         );
+    }
+
+    /**
+     * Array containing die skill names which should only be used on swing dice
+     *
+     * @return array
+     */
+    protected static function swing_only_skill_array() {
+        // Include skills which are meaningless (and therefore not fun)
+        // when used on non-swing dice in RandomBM recipes
+        return array(
+            'Mad',
+            'Mood',
+        );
+    }
+
+    /**
+     * Array containing characters for die skills which should only be used on swing dice
+     *
+     * @return array
+     */
+    protected static function swing_only_skill_char_array() {
+        $swingOnlySkillCharArray = array_map(
+            'BMSkill::abbreviate_skill_name',
+            self::swing_only_skill_array()
+        );
+        sort($swingOnlySkillCharArray);
+        return $swingOnlySkillCharArray;
     }
 
     /**
@@ -242,5 +311,18 @@ class BMBtnSkillRandomBM extends BMBtnSkill {
         );
         sort($skillCharArray);
         return $skillCharArray;
+    }
+
+    /**
+     * Array containing included die skill characters
+     *
+     * @return array
+     */
+    protected static function included_skill_char_array() {
+        $includedSkillCharArray = array_merge(array_diff(
+            BMSkill::all_skill_chars(),
+            self::excluded_skill_char_array()
+        ));
+        return $includedSkillCharArray;
     }
 }

@@ -31,19 +31,18 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
             return FALSE;
         }
 
-        $skillCharArray = array_merge(array_diff(
-            BMSkill::all_skill_chars(),
-            self::excluded_skill_char_array()
-        ));
+        $skillCharArray = self::included_skill_char_array();
 
         $button = $args['button'];
         $nDice = 5;
         $dieSizeArray = parent::generate_die_sizes($nDice);
+        $dieIdxIsSwingArray = array();
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills(3, $skillCharArray),
+            parent::randomly_select_skills(3, $skillCharArray, FALSE),
             0,
-            2
+            2,
+            $dieIdxIsSwingArray
         );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
 
@@ -58,7 +57,7 @@ class BMBtnSkillRandomBMMixed extends BMBtnSkillRandomBM {
     public static function get_description() {
         return '5 dice, no swing dice, three skills chosen from all ' .
                'existing skills except ' .
-               implode(self::excluded_skill_char_array()) .
+               implode(self::excluded_skill_char_array(FALSE)) .
                ', with each skill dealt out twice ' .
                'randomly and independently over all dice.';
     }
