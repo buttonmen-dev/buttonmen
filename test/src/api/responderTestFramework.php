@@ -506,6 +506,10 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
      */
     protected function get_type_info() {
         $typeInfo = array(
+            '(P)' => array(
+                'name' => 'P Swing',
+                'description' => 'P Swing Dice can be any die between 1 and 30. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',
+            ),
             '(R)' => array(
                 'name' => 'R Swing',
                 'description' => 'R Swing Dice can be any die between 2 and 16. Swing Dice are allowed to be any integral size between their upper and lower limit, including both ends, and including nonstandard die sizes like 17 or 9. Each player chooses his or her Swing Die in secret at the beginning of the match, and thereafter the loser of each round may change their Swing Die between rounds. If a character has any two Swing Dice of the same letter, they must always be the same size.',

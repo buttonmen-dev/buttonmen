@@ -19,8 +19,8 @@ import string
 VALID_SKILLS = '!#%&+?^`BbcDdFfGgHhIJkMmnopqrstvwz'
 VALID_ISH_SKILLS = string.punctuation + string.ascii_letters
 
-VALID_SHORT_SIDES_LIST = range(0, 20) + [30, 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-VALID_SIDES_LIST = range(0, 100) + ['R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+VALID_SHORT_SIDES_LIST = range(0, 20) + [30, 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+VALID_SIDES_LIST = range(0, 100) + ['P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 VALID_ISH_SIDES_LIST = range(-3, 102) + [x for x in string.ascii_uppercase]
 
 def get_fuzzy_skills():
@@ -39,7 +39,7 @@ def get_fuzzy_skills():
 
 def get_side_max(die_sides):
   SWING_MAX = {
-    'R': 16, 'S': 16, 'T': 12,
+    'P': 30, 'R': 16, 'S': 16, 'T': 12,
     'U': 30, 'V': 12, 'W': 12,
     'X': 20, 'Y': 20, 'Z': 30,
   }
@@ -162,6 +162,7 @@ UNUSED_DURING_AUTOPLAY_KEYS = [
 # TODO: we shouldn't need to hardcode this, there should always be
 # another source of the information - place a TODO anywhere we use this
 SWING_RANGES = {
+  'P': (1, 30),
   'R': (2, 16),
   'S': (6, 20),
   'T': (2, 12),
@@ -196,7 +197,7 @@ def min_die_value(die):
 class PHPBMClientOutputWriter():
   """
   This module takes an internal representation of the API call and
-  return values of a BM game, and outputs them in PHP format usable by 
+  return values of a BM game, and outputs them in PHP format usable by
   test/src/api/responderTest.php for replay tests
   """
 
@@ -343,7 +344,7 @@ class PHPBMClientOutputWriter():
     self.olddata = data
 
   def _write_entry_type_loadGameData(self, entry):
-    self.num_load_game_data += 1 
+    self.num_load_game_data += 1
     if self.num_load_game_data > LOAD_GAMES_DATA_MAX_PER_GAME:
       self.f.write("""
         // Skipping $this->verify_api_loadGameData() because it has been run %d times this game.
@@ -751,7 +752,7 @@ class LoggingBMClient():
       })
 
   def _list_all_idx_combos(self, list_len, combo_len):
-    return [x for x in itertools.combinations(range(list_len), combo_len)] 
+    return [x for x in itertools.combinations(range(list_len), combo_len)]
 
   def _look_for_attacker_defender_combo(self, attacker_dice, defender_dice, n_att, n_def, validate_fn):
     attacker_combos = self._list_all_idx_combos(len(attacker_dice), n_att)
@@ -997,8 +998,8 @@ class LoggingBMClient():
     if attacker_okay_skills == False: return False
     defender_okay_skills = self._valid_dice_for_skill(defenders, defend_skills)
     if defender_okay_skills == False: return False
-    attacker = attackers[0] 
-    defender = defenders[0] 
+    attacker = attackers[0]
+    defender = defenders[0]
     attacker_max = self._max_trip_value(attacker)
     defender_min = self._min_trip_value(defender)
     return attacker_max >= defender_min
@@ -1012,7 +1013,7 @@ class LoggingBMClient():
       post_trip_sides = self._next_weak_value(post_trip_sides)
     # TODO: make attack-selection in general aware of Turbo, don't
     # just hack in the max possible value
-    if 'Turbo' in die['skills']:
+    if 'Turbo' in die['skills'] or 'Mad' in die['skills'] or 'Mood' in die['skills']:
       # TODO: don't hardcode ranges, parse turboVals
       sides_part = die['recipe'].split('(')[1].split(')')[0]
       if '/' in sides_part:
@@ -1226,7 +1227,7 @@ class LoggingBMClient():
     num_defenders = range(1, len(defenderData['activeDieArray']) + 1)
     random.shuffle(num_defenders)
     while len(num_defenders) > 0:
-      n_def = num_defenders.pop() 
+      n_def = num_defenders.pop()
       retval = self._look_for_attacker_defender_combo(
         attackerData['activeDieArray'], defenderData['activeDieArray'], 1, n_def,
         self._is_valid_attack_of_type_Berserk)
@@ -1262,7 +1263,7 @@ class LoggingBMClient():
     num_attackers = range(1, len(attackerData['activeDieArray']) + 1)
     random.shuffle(num_attackers)
     while len(num_attackers) > 0:
-      n_att = num_attackers.pop() 
+      n_att = num_attackers.pop()
       retval = self._look_for_attacker_defender_combo(
         attackerData['activeDieArray'], defenderData['activeDieArray'], n_att, 1,
         self._is_valid_attack_of_type_Skill)
@@ -1274,7 +1275,7 @@ class LoggingBMClient():
     num_defenders = range(1, len(defenderData['activeDieArray']) + 1)
     random.shuffle(num_defenders)
     while len(num_defenders) > 0:
-      n_def = num_defenders.pop() 
+      n_def = num_defenders.pop()
       retval = self._look_for_attacker_defender_combo(
         attackerData['activeDieArray'], defenderData['activeDieArray'], 1, n_def,
         self._is_valid_attack_of_type_Speed)
@@ -1426,7 +1427,7 @@ class LoggingBMClient():
         still_needed = (defender_sum - attacker_sum)
       turndown_to = {}
       while still_needed > 0:
-        die_idx = self._random_array_element(turndown_choices) 
+        die_idx = self._random_array_element(turndown_choices)
         turndown_to.setdefault(die_idx, playerData['activeDieArray'][die_idx]['value'])
         if turndown_to[die_idx] > self._die_fire_min(playerData['activeDieArray'][die_idx]):
           turndown_to[die_idx] -= 1
@@ -1506,7 +1507,7 @@ class LoggingBMClient():
     self.record_load_game_data()
 
   def _game_action_specify_dice_player(self, b, playerData):
-    swing_array = {} 
+    swing_array = {}
     if playerData['swingRequestArray']:
       unique_swing_among_swing = playerData['button']['name'] in ['Guillermo', 'Oregon']
       unique_swing_among_dice = playerData['button']['name'] == 'Gordo'
@@ -1808,7 +1809,7 @@ class LoggingBMClient():
       elif state == 'CHOOSE_AUXILIARY_DICE': self._game_action_choose_auxiliary_dice()
       elif state == 'ADJUST_FIRE_DICE': self._game_action_adjust_fire_dice()
       else:
-        self.bug("LoggingBMClient.next_game_action() has no action for state %s" % state) 
+        self.bug("LoggingBMClient.next_game_action() has no action for state %s" % state)
       state = self.loaded_data['gameState']
     return True
 
