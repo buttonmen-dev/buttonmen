@@ -23,7 +23,7 @@ else
   MYSQL_ARGS="-u root"
 fi
 
-mysqldump ${MYSQL_ARGS} $DBNAME > $BACKUPFILE
+mysqldump ${MYSQL_ARGS} --single-transaction $DBNAME > $BACKUPFILE
 if [ ! -s "$BACKUPFILE" ]; then
   echo "after backup, backup file is missing or zero size"
   exit 1
