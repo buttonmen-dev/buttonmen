@@ -61,11 +61,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     aws.secret_access_key = "BUTTONMEN_SECRET_ACCESS_KEY"
     aws.keypair_name = "BUTTONMEN_SSH_KEYPAIR_NAME"
 
-    # firewall settings
-    aws.security_groups = ["buttonmen-dev"]
+    # AWS networking and security settings
+    aws.subnet_id = "BUTTONMEN_SUBNET_ID"
+    aws.associate_public_ip = true
+    aws.security_groups = ["BUTTONMEN_SECURITY_GROUP"]
     aws.iam_instance_profile_name = "ec2_instance_perms"
 
-    aws.instance_type = "t1.micro"
+    aws.instance_type = "t3.micro"
     aws.ami = "ami-0735ea082a1534cac"
 
     override.ssh.username = "ubuntu"
