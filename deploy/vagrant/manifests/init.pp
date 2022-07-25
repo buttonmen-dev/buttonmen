@@ -11,17 +11,9 @@ node default {
   # wrong for EC2, and don't bother to lookup IPs in DNS because
   # we have very few hosts.  Just hardcode the list of roles.
   case "$ec2_public_ipv4" {
-    "54.147.204.115": {
-      $puppet_hostname = "ec2-54-147-204-115.compute-1.amazonaws.com"
+    "44.206.106.227": {
+      $puppet_hostname = "rds.dev.buttonweavers.com"
       $database_fqdn = "buttonmen-cgolubi1-2523-rds.cyk4kpmwmefe.us-east-1.rds.amazonaws.com"
-    }
-    "174.129.14.204": {
-      $puppet_hostname = "alpha.buttonweavers.com"
-      $database_fqdn = "127.0.0.1"
-    }
-    "54.83.36.215": {
-      $puppet_hostname = "dev.buttonweavers.com"
-      $database_fqdn = "127.0.0.1"
     }
     "54.235.150.227": {
       $puppet_hostname = "staging.buttonweavers.com"
