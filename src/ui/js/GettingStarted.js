@@ -222,6 +222,12 @@ GettingStarted.basicRulesContent = function() {
       '">here</a>.'
     )
   );
+  content.append(
+    $('<p>').html(
+      'There is also a tutorial: ' +
+      '<a href="how_to_play.html">How to Play Button Men</a>.'
+    )
+  );
 
   return content;
 };
