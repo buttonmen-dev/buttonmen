@@ -2,16 +2,17 @@
 ##### mysql_root_cli
 # Connect to the buttonmen database as the privileged user
 
-CREDS_FILE=/usr/local/etc/buttonmen_db_creds
+EXTRA_ARGS=$@
+
+CONF_FILE=/usr/local/etc/buttonmen_db.cnf
 DBNAME=buttonmen
 
-# Look for a creds file indicating that this BM server has a remote
-# database, and in particular an admin password
-if [ -f "${CREDS_FILE}" ]; then
-  . ${CREDS_FILE}
-  MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= @database_fqdn %>"
+# Look for a conf file indicating that this BM server has a remote
+# database --- that file will specify username and password for root login
+if [ -f "${CONF_FILE}" ]; then
+  MYSQL_ARGS="--defaults-file=${CONF_FILE} -h <%= @database_fqdn %> ${EXTRA_ARGS}"
 else
-  MYSQL_ARGS="-u root"
+  MYSQL_ARGS="-u root ${EXTRA_ARGS}"
 fi
 
 exec mysql ${MYSQL_ARGS} ${DBNAME}

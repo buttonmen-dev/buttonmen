@@ -1,20 +1,8 @@
 #!/bin/bash
 
-CREDS_FILE=/usr/local/etc/buttonmen_db_creds
-DBNAME=buttonmen
-
 CONFIGFILE=/var/www/ui/js/Config.js
 
-# Look for a creds file indicating that this BM server has a remote
-# database, and in particular an admin password
-if [ -f "${CREDS_FILE}" ]; then
-  . ${CREDS_FILE}
-  MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= @database_fqdn %>"
-else
-  MYSQL_ARGS="-u root"
-fi
-
-DB_SITE_TYPE=$(echo "select conf_value from config where conf_key='site_type'" | mysql -N ${MYSQL_ARGS} ${DBNAME})
+DB_SITE_TYPE=$(echo "select conf_value from config where conf_key='site_type'" | /usr/local/bin/mysql_root_cli -N)
 
 FILE_SITE_TYPE=$(grep "^Config.siteType" ${CONFIGFILE} | awk -F"'" '{print $2}')
 
