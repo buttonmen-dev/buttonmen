@@ -38,7 +38,6 @@ Loader.loadScripts = function(scripts, callback) {
     $.ajax({
       url: script,
       dataType: 'script',
-      cache: true,
       success: function() {
         Loader.loadStatus[script] = true;
         var allScriptsAreLoaded = true;
