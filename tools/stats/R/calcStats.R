@@ -185,6 +185,18 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   dt <- data.table(games.played.df, key = c('first_button_id', 'second_button_id'))
   freq.dt <- dt[, .N, by = key(dt)]
   freq.matrix <- as.matrix(with(freq.dt, sparseMatrix(i = first_button_id, j = second_button_id, x = N, dims = c(max.button, max.button))))
+  
+  freq.matrix.df <- as.data.frame(freq.matrix, row.names = button.names.df$button_name)
+  colnames(freq.matrix.df) <- button.names.df$button_name
+  # Note that the col.names = NA is necessary to force an extra blank column name for the column of row names
+  write.table(
+    freq.matrix.df, 
+    file = 'matchup_frequency.csv',
+    col.names = NA,
+    sep = ',', 
+    quote = FALSE
+  )
+  
   freq.matrix[0 == freq.matrix] <- NA
 
   # Take log of frequency matrix and increase dynamic range
@@ -248,6 +260,15 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
   n.games.matrix <- freq.matrix + t(freq.matrix)
   n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] <- n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] / 2
 
+  # Create a data frame with unplayed matchups
+  n.games.df <- data.frame(
+    button1 = rep(button.names.df$button_name, each = nrow(button.names.df)),
+    button2 = button.names.df$button_name,
+    n.games = as.vector(n.games.matrix)
+  )
+  unplayed.df <- n.games.df[0 == n.games.df$n.games, 1:2]
+  write.csv(unplayed.df, file = 'unplayed_button_matchups.csv', row.names = FALSE)
+  
   # Calculate the win percentage for each matchup
   win.percentage.matrix <- round(100 * freq.matrix / n.games.matrix, 2)
   win.percentage.matrix[row(win.percentage.matrix) == col(win.percentage.matrix)] <- NA
@@ -260,10 +281,19 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
     n.games = c(t(n.games.matrix))
   )
 
-  # Save data as JSON object
+  # Save data as CSV and JSON object
   library(jsonlite)
   win.percentage.df.short <- win.percentage.df
   colnames(win.percentage.df.short) <- c('b1', 'b2', 'wp', 'ng')
+  
+  write.table(
+    win.percentage.df.short, 
+    file = 'win_percentage_stats.csv', 
+    col.names = c('button_1', 'button_2', 'win_percentage', 'number_of_games'), 
+    row.names = FALSE,
+    sep = ','
+  )
+  
   df.json <- toJSON(win.percentage.df.short, pretty = TRUE, digits = 2)
   writeLines(df.json, paste0(save_dir(), 'win_percentage_stats.json'))
 
@@ -411,7 +441,7 @@ runAll <- function() {
   generateHtmlFile(calcSingleButtonStats(data.df), 'button_stats.html')
   calcButtonMatchupsPlayed(data.df, button.names.df)
   generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, TRUE), 'player_matchup_stats.html')
-  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, TRUE), 'button_matchup_stats.html')
+  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, FALSE), 'button_matchup_stats.html')
 }
 
 # runAll()
