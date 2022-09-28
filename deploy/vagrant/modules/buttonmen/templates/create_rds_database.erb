@@ -1,13 +1,12 @@
 #!/bin/sh
 
-CREDS_FILE="/usr/local/etc/buttonmen_db_creds"
-if [ ! -f ${CREDS_FILE} ]; then
-  echo "Create a creds file in ${CREDS_FILE} and define BM_DB_ADMIN_USER and BM_DB_ADMIN_PW before using this"
+CONF_FILE="/usr/local/etc/buttonmen_db.cnf"
+if [ ! -f ${CONF_FILE} ]; then
+  echo "Create a conf file in ${CONF_FILE} and define user= and password= before using this"
   exit 1
 fi
-. ${CREDS_FILE}
 
-MYSQL_ARGS="-u ${BM_DB_ADMIN_USER} -p${BM_DB_ADMIN_PW} -h <%= @database_fqdn %>" 
+MYSQL_ARGS="--defaults-file=${CONF_FILE} -h <%= @database_fqdn %>"
 
 mysqlshow ${MYSQL_ARGS} <%= @buttonmen_db1_name %> | grep -q "^Database: buttonmen"
 if [ "$?" = "0" ]; then
