@@ -69,11 +69,52 @@ jobs:
       - name: Aggregate tool output with PHP_CodeBrowser
         run: php /etc/php/7.0/deploy-includes/phpcb.phar --log ./build/logs --source ./src --output ./build/code-browser
       
-      - uses: actions/upload-artifact@v2 
-        if: success() || failure()        
+      - name: Upload Build Files
+        uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: build_files
           path: ./build/*
+
+  event_file:
+    name: "Event File"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: Event File
+          path: ${{ github.event_path }}
+
+
+  test-report:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion != 'skipped'
+    permissions:
+      checks: write
+      # needed unless run with comment_mode: off
+      pull-requests: write
+      # only needed for private repository
+      contents: read
+      # only needed for private repository
+      issues: read
+      # required by download step to access artifacts API
+      actions: read
+    steps:
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: build_files
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          commit: ${{ github.event.workflow_run.head_sha }}
+          event_file: artifacts/Event File/event.json
+          event_name: ${{ github.event.workflow_run.event }}
+          junit_files: './logs/*.xml'
+          artifact: build_files
 
       # see notes at top of test-report.yml
 #      - name: Publish Unit Test Results
