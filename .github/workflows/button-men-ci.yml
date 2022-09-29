@@ -1,5 +1,9 @@
 name: 'Button Men CI'
 on: [push]
+
+# jobs will be run in parallel
+# make sure jobs do not attempt to depend on each other
+
 jobs:
   Button-Men-tests:
     runs-on: ubuntu-latest
@@ -76,37 +80,11 @@ jobs:
           name: build_files
           path: ./build/*
 
+# if the following step breaks on a PR that is from a fork then see this link:
+# https://github.com/EnricoMi/publish-unit-test-result-action#support-fork-repositories-and-dependabot-branches
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
         with:
-          junit_files: './logs/*.xml'
-
-  event_file:
-    name: "Event File"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Upload
-        uses: actions/upload-artifact@v2
-        with:
-          name: Event File
-          path: ${{ github.event_path }}
-
-
-
-
-      # see notes at top of test-report.yml
-#      - name: Publish Unit Test Results
-#        uses: EnricoMi/publish-unit-test-result-action@v1
-#        if: success() || failure()
-#        with:
-#          files: ./build/**/*.xml
-
-      # another test publisher i was playing with
-      # - name: DORNY LOCAL WORKFLOW
-      #   uses: dorny/test-reporter@v1
-      #   if: success() || failure()
-      #   with:
-      #     # artifact: build_files 
-      #     name: Some Tests               
-      #     path: './build/logs/*.xml'                 
-      #     reporter: jest-junit
+          junit_files: './build/logs/*.xml'
