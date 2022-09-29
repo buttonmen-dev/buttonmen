@@ -7,7 +7,7 @@
 # https://github.com/marketplace/actions/publish-unit-test-results#support-fork-repositories-and-dependabot-branches
 # https://github.com/marketplace/actions/test-reporter#recommended-setup-for-public-repositories
 
-name: Test Report
+name: 'Test Report'
 on:
   workflow_run:
     workflows: ['Button Men CI']                     
@@ -27,3 +27,14 @@ jobs:
         with:
           artifact: build_files   
           path: './logs/*.xml'
+
+
+    # another test publisher i was playing with
+    # - name: DORNY LOCAL WORKFLOW
+    #   uses: dorny/test-reporter@v1
+    #   if: success() || failure()
+    #   with:
+    #     # artifact: build_files
+    #     name: Some Tests
+    #     path: './build/logs/*.xml'
+    #     reporter: jest-junit

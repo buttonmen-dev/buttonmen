@@ -1,4 +1,4 @@
-name: Button Men CI
+name: 'Button Men CI'
 on: [push]
 jobs:
   Button-Men-tests:
@@ -76,11 +76,11 @@ jobs:
           path: ./build/*
 
       # see notes at top of test-report.yml
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: success() || failure()
-        with:
-          files: ./build/**/*.xml
+#      - name: Publish Unit Test Results
+#        uses: EnricoMi/publish-unit-test-result-action@v1
+#        if: success() || failure()
+#        with:
+#          files: ./build/**/*.xml
 
       # another test publisher i was playing with
       # - name: DORNY LOCAL WORKFLOW
