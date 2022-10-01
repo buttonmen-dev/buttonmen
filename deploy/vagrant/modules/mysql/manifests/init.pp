@@ -2,6 +2,7 @@
 class mysql::server {
 
   # Install mysql-server only if this site doesn't use RDS
+  # Always install a mysql client for e.g. database backups
   case "$database_fqdn" {
     "127.0.0.1": {
       package {
@@ -11,6 +12,7 @@ class mysql::server {
     default: {
       package {
         "mysql-server": ensure => absent;
+        "mysql-client-5.7": ensure => installed;
       }
     }
   }
@@ -43,10 +45,14 @@ class mysql::server {
   }
 
   # Customize mysqld for buttonmen use
-  file {
-    "/etc/mysql/mysql.conf.d/buttonmen.cnf":
-      ensure => file,
-      content => template("mysql/buttonmen.cnf.erb"),
-      notify => Service["mysql"];
+  case "$database_fqdn" {
+    "127.0.0.1": {
+      file {
+        "/etc/mysql/mysql.conf.d/buttonmen.cnf":
+          ensure => file,
+          content => template("mysql/buttonmen.cnf.erb"),
+          notify => Service["mysql"];
+      }
+    }
   }
 }
