@@ -129,8 +129,10 @@ Help.developerInfo = function() {
   text.append(
     $('<p>').html(
       'If you\'d like to contribute to the project, ' +
-      'one of the best things to do is come and chat to the developers on ' +
-      '<a href="irc://irc.freenode.net/buttonmen">IRC</a>. ' +
+      'one of the best things to do is chat to one of the lead developers ' +
+      '(<a href="profile.html?player=glassonion">glassonion</a> or ' +
+      '<a href="profile.html?player=blackshadowshade">blackshadowshade</a>). ' +
+      'A good way to make contact is to challenge them to a game! ' +
       'You can also check out our ' +
       '<a href=' +
       '"https://github.com/buttonmen-dev/buttonmen/wiki/Developer-guide">' +
