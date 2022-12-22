@@ -425,6 +425,10 @@ abstract class BMAttack {
     protected function search_onevone($game, $attackers, $defenders, array $args = array()) {
         // Sanity check
 
+        if (!isset($attackers) || !isset($defenders)) {
+            return FALSE;
+        }
+        
         if (count($attackers) < 1 || count($defenders) < 1) {
             return FALSE;
         }

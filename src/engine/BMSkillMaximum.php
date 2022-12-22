@@ -24,7 +24,7 @@ class BMSkillMaximum extends BMSkill {
      * @return bool
      */
     public static function roll(&$args) {
-        if (!($args['die'] instanceof BMDie)) {
+        if (!isset($args['die']) || !($args['die'] instanceof BMDie)) {
             return FALSE;
         }
 

@@ -32,7 +32,7 @@
 
                 // recreate database
                 print "Creating database $dbname<br>";
-                $query = "CREATE DATABASE `$dbname`;".
+                $query = "CREATE DATABASE `$dbname` CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci;".
                          "CREATE USER :user@:host IDENTIFIED BY :pass;".
                          "GRANT ALL ON `$dbname`.* TO :user@:host;".
                          "FLUSH PRIVILEGES;";
@@ -107,7 +107,7 @@
         function db_connect($name) {
             print "Connecting to database $name<br>";
             $host = 'localhost';
-            $port = 8178;
+            $port = 3306;
             $user = 'root';
             $pass = 'root';
 
