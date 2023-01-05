@@ -3384,7 +3384,7 @@ class BMGame {
                 'Invalid tournament ID.'
             );
         }
-        $this->tournamentId = (int)$value;
+        $this->tournamentId = $value;
     }
 
     /**
@@ -3408,7 +3408,7 @@ class BMGame {
                 'Invalid tournament round number.'
             );
         }
-        $this->tournamentRoundNumber = (int)$value;
+        $this->tournamentRoundNumber = $value;
     }
 
     /**
