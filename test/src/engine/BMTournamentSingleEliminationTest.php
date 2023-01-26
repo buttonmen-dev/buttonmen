@@ -118,47 +118,62 @@ class BMTournamentSingleEliminationTest extends PHPUnit_Framework_TestCase {
 
         // now add the last player needed to start the tournament
         $this->object->add_player(26, array(197));
-        
-        $this->gameArrayArray = array(
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 45),
-                    array('playerId' => 57)
-                )
-            ),
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 23),
-                    array('playerId' => 101)
-                )
-            ),
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 102),
-                    array('playerId' => 150)
-                )
-            ),
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 3),
-                    array('playerId' => 26)
-                )
-            )
-        );
 
         $this->object->proceed_to_next_user_action();
+
+        // manually add the games, which would normally happen in BMInterfaceTournament->save_tournament()
+                $game1 = new BMGame;
+        $game1->activePlayerIdx = 0;
+        $game1->gameState = BMGameState::END_GAME;
+        $game1->maxWins = 3;
+
+        $game2 = clone $game1;
+        $game3 = clone $game1;
+        $game4 = clone $game1;
+
+        $playerArray1 = array(new BMPlayer, new BMPlayer);
+        $playerArray1[0]->playerId = 45;
+        $playerArray1[1]->playerId = 57;
+        $game1->playerArray = $playerArray1;
+        $game1->gameScoreArrayArray = array(
+            array('W' => 0, 'L' => 3, 'D' => 0),
+            array('W' => 3, 'L' => 0, 'D' => 0)
+        );
+
+        $playerArray2 = array(new BMPlayer, new BMPlayer);
+        $playerArray2[0]->playerId = 23;
+        $playerArray2[1]->playerId = 101;
+        $game2->playerArray = $playerArray2;
+        $game2->gameScoreArrayArray = array(
+            array('W' => 0, 'L' => 3, 'D' => 0),
+            array('W' => 3, 'L' => 0, 'D' => 0)
+        );
+
+        $playerArray3 = array(new BMPlayer, new BMPlayer);
+        $playerArray3[0]->playerId = 102;
+        $playerArray3[1]->playerId = 150;
+        $game3->playerArray = $playerArray3;
+        $game3->gameScoreArrayArray = array(
+            array('W' => 0, 'L' => 3, 'D' => 0),
+            array('W' => 3, 'L' => 0, 'D' => 0)
+        );
+
+        $playerArray4 = array(new BMPlayer, new BMPlayer);
+        $playerArray4[0]->playerId = 3;
+        $playerArray4[1]->playerId = 26;
+        $game4->playerArray = $playerArray4;
+        $game4->gameScoreArrayArray = array(
+            array('W' => 0, 'L' => 3, 'D' => 0),
+            array('W' => 3, 'L' => 0, 'D' => 0)
+        );
+
+        $this->object->gameArrayArray = array(
+            array($game1, $game2, $game3, $game4)
+        );
+
+        $this->object->gameIdArrayArray = array(
+            array(55, 56, 57, 58)
+        );
 
         $this->assertEquals(BMTournamentState::PLAY_GAMES, $this->object->tournamentState);
         $this->assertCount(8, $this->object->playerIdArray);
@@ -179,99 +194,82 @@ class BMTournamentSingleEliminationTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $this->object->gameIdArrayArray);
         $this->assertCount(4, $this->object->gameIdArrayArray[0]);
 
-//        // allow access to protected methods load_game and save_game via reflection
-//        $interfaceClassGame = new ReflectionClass('BMInterface');
-//        $interfaceGameInstance = $interfaceClassGame->newInstanceArgs(array(TRUE));
-//        $loadGameMethod = $interfaceClassGame->getMethod('load_game');
-//        $loadGameMethod->setAccessible(true);
-//        $saveGameMethod = $interfaceClassGame->getMethod('save_game');
-//        $saveGameMethod->setAccessible(true);
-//
-//        foreach ($this->object->gameIdArrayArray[0] as $gameId) {
-//            $game = $loadGameMethod->invokeArgs($interfaceGameInstance, array($gameId));
-//            $game->gameState = BMGameState::END_GAME;
-//            $game->gameScoreArrayArray = array(
-//                array('W' => 0, 'L' => 3, 'D' => 0),
-//                array('W' => 3, 'L' => 0, 'D' => 0)
-//            );
-//
-//            $saveGameMethod->invokeArgs($interfaceGameInstance, array($game));
-//        }
-        
-        $this->gameArrayArray = array(
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 45),
-                    array('playerId' => 57)
-                )
-            ),
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 23),
-                    array('playerId' => 101)
-                )
-            ),
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 102),
-                    array('playerId' => 150)
-                )
-            ),
-            array(
-                'activePlayerIdx' => 0,
-                'gameState' => BMGameState::END_GAME,
-                'maxWins' => 3,
-                'playerArray' => array(
-                    array('playerId' => 3),
-                    array('playerId' => 26)
-                )
-            )
-        );
-
         $this->object->proceed_to_next_user_action();
 
         $this->assertCount(2, $this->object->gameIdArrayArray);
+
+        // manually add the games, which would normally happen in BMInterfaceTournament->save_tournament()
+        $game5 = new BMGame;
+        $game5->activePlayerIdx = 0;
+        $game5->gameState = BMGameState::END_GAME;
+        $game5->maxWins = 3;
+
+        $game6 = clone $game5;
+
+        $playerArray5 = array(new BMPlayer, new BMPlayer);
+        $playerArray5[0]->playerId = 57;
+        $playerArray5[1]->playerId = 101;
+        $game5->playerArray = $playerArray5;
+        $game5->gameScoreArrayArray = array(
+            array('W' => 3, 'L' => 1, 'D' => 0),
+            array('W' => 1, 'L' => 3, 'D' => 0)
+        );
+
+        $playerArray6 = array(new BMPlayer, new BMPlayer);
+        $playerArray6[0]->playerId = 150;
+        $playerArray6[1]->playerId = 26;
+        $game6->playerArray = $playerArray6;
+        $game6->gameScoreArrayArray = array(
+            array('W' => 3, 'L' => 1, 'D' => 0),
+            array('W' => 1, 'L' => 3, 'D' => 0)
+        );
+
+        $this->object->gameArrayArray = array(
+            array($game1, $game2, $game3, $game4),
+            array($game5, $game6)
+        );
+
+        $this->object->gameIdArrayArray = array(
+            array(55, 56, 57, 58),
+            array(67, 68)
+        );
+
         $this->assertCount(2, $this->object->gameIdArrayArray[1]);
         $this->assertEquals(array(57, 101, 150, 26), $this->object->remainingPlayerIdArray());
-
-        foreach ($this->object->gameIdArrayArray[1] as $gameId) {
-            $game = $loadGameMethod->invokeArgs($interfaceGameInstance, array($gameId));
-            $game->gameState = BMGameState::END_GAME;
-            $game->gameScoreArrayArray = array(
-                array('W' => 3, 'L' => 1, 'D' => 0),
-                array('W' => 1, 'L' => 3, 'D' => 0)
-            );
-
-            $saveGameMethod->invokeArgs($interfaceGameInstance, array($game));
-        }
 
         $this->object->proceed_to_next_user_action();
 
         $this->assertCount(3, $this->object->gameIdArrayArray);
+
+        // manually add the games, which would normally happen in BMInterfaceTournament->save_tournament()
+        $game7 = new BMGame;
+        $game7->activePlayerIdx = 0;
+        $game7->gameState = BMGameState::END_GAME;
+        $game7->maxWins = 3;
+
+        $playerArray7 = array(new BMPlayer, new BMPlayer);
+        $playerArray7[0]->playerId = 57;
+        $playerArray7[1]->playerId = 150;
+        $game7->playerArray = $playerArray7;
+        $game7->gameScoreArrayArray = array(
+            array('W' => 2, 'L' => 3, 'D' => 1),
+            array('W' => 3, 'L' => 2, 'D' => 1)
+        );
+
+        $this->object->gameArrayArray = array(
+            array($game1, $game2, $game3, $game4),
+            array($game5, $game6),
+            array($game7)
+        );
+
+        $this->object->gameIdArrayArray = array(
+            array(55, 56, 57, 58),
+            array(67, 68),
+            array(90)
+        );
+
         $this->assertCount(1, $this->object->gameIdArrayArray[2]);
         $this->assertEquals(array(57, 150), $this->object->remainingPlayerIdArray());
-
-        // this should only be one game, but keep structure to ensure that the
-        // same logic as before is being maintained
-        foreach ($this->object->gameIdArrayArray[2] as $gameId) {
-            $game = $loadGameMethod->invokeArgs($interfaceGameInstance, array($gameId));
-            $game->gameState = BMGameState::END_GAME;
-            $game->gameScoreArrayArray = array(
-                array('W' => 2, 'L' => 3, 'D' => 1),
-                array('W' => 3, 'L' => 2, 'D' => 1)
-            );
-
-            $saveGameMethod->invokeArgs($interfaceGameInstance, array($game));
-        }
 
         $this->object->proceed_to_next_user_action();
 

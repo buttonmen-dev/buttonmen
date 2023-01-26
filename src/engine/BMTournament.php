@@ -152,7 +152,7 @@ abstract class BMTournament {
      * @var array
      */
     protected $gameIdArrayArray;
-    
+
     /**
      * Array of arrays of games that are part of the tournament
      *
@@ -181,7 +181,7 @@ abstract class BMTournament {
      * @var array
      */
     protected $gameDataToBeCreatedArray;
-    
+
     /**
      * Indicates if games are created in the test database
      *
@@ -378,12 +378,18 @@ abstract class BMTournament {
      * Update tournament state from BMTournamentState::END_ROUND if necessary
      */
     protected function update_tournament_state_end_round() {
+        var_dump('update tournament state end round');
+        var_dump('update remain count array');
         $this->update_remainCountArray();
+
+        var_dump('check in tournament is complete');
 
         if ($this->has_tournament_completed()) {
             $this->tournamentState = BMTournamentState::END_TOURNAMENT;
             return;
         }
+
+        var_dump('update round number');
 
         $this->roundNumber++;
         $this->tournamentState = BMTournamentState::START_ROUND;
@@ -441,6 +447,12 @@ abstract class BMTournament {
         $this->do_next_step();
 
         while (!$this->isWaitingOnAnyAction()) {
+            // james: this is here for debugging only!
+            if ($this->roundNumber > 5) {
+                var_dump('too many rounds');
+                return;
+            }
+
             $tempTournamentState = $this->tournamentState;
             $this->update_tournament_state();
 
@@ -483,12 +495,12 @@ abstract class BMTournament {
         if (BMTournamentState::PLAY_GAMES == $this->tournamentState) {
             if (!isset($this->gameArrayArray) ||
                 !isset($this->gameArrayArray[$this->roundNumber - 1])) {
-                return FALSE;
+                return TRUE;
             }
-            
+
             // check whether all games in this current tournament round are complete
             foreach ($this->gameArrayArray[$this->roundNumber - 1] as $game) {
-                if ($game->gameState >= BMGameState::END_GAME) {
+                if ($game->gameState < BMGameState::END_GAME) {
                     return TRUE;
                 }
             }

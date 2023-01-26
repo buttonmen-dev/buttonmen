@@ -50,7 +50,7 @@ class BMTournamentSingleElimination extends BMTournament {
             $playerId2 = $remainingPlayerIdArray[2*$gameIdx + 1];
             $buttonId1 = $this->buttonIdArrayArray[$playerId1][0];
             $buttonId2 = $this->buttonIdArrayArray[$playerId2][0];
-            
+
             $this->gameDataToBeCreatedArray[] = array(
                 'playerId1' => $playerId1,
                 'playerId2' => $playerId2,
@@ -58,7 +58,7 @@ class BMTournamentSingleElimination extends BMTournament {
                 'buttonId2' => $buttonId2,
                 'roundNumber' => $roundNumber
             );
-            
+
             // games are not actually created here, they will be created by
             // BMInterfaceTournament->save_tournament()
         }
@@ -68,6 +68,10 @@ class BMTournamentSingleElimination extends BMTournament {
      * Update array of player remain chances based on last round
      */
     protected function update_remainCountArray() {
+        if (!isset($this->gameArrayArray[$this->roundNumber - 1])) {
+            return;
+        }
+
         $thisRoundGameArray = $this->gameArrayArray[$this->roundNumber - 1];
         $remainCountArray = $this->remainCountArray;
 
