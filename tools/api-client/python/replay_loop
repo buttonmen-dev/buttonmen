@@ -3,17 +3,31 @@
 # This loop is designed for use on a VM which is recording games
 # for use in replay-testing of new code, or on a VM which is
 # replay-testing new code against recorded games.  It does:
-# 1. Play 100 new games using random_ai, generating replay logs in
-#    an internal log format, and caching it in pickle files
-# 2. Translate the 100 games into responderTest's PHP replay format
-# 3. If games are being recorded for future use, tar those generated
-#    files and cache them in an expected archive location
-# 4. Look for any new recorded files which may have showed up in the
-#    archive location, translate them into responderTest's PHP replay
-#    format, and use responderTest to test them.
-# These steps repeat indefinitely.  If steps 1 or 2 fail, the loop
-# will blow up and stop running.  Failures in step 4 are saved in
+# A. Steps involving novel games generated using the new code:
+#   1. Play 100 new games using random_ai, generating replay logs in
+#      an internal log format, and caching it in pickle files
+#   2. Translate the 100 games into responderTest's PHP replay format
+#   3. If local replay is requested, translate the games into
+#      responderTest's PHP replay format again, and use responderTest
+#      to test them.
+#   4. If games are being recorded for future use, tar those generated
+#      files and cache them in an expected archive location
+# B. Steps involving replaying games recorded by a previous code version:
+#   1. Look for any new recorded files which may have showed up in the
+#      archive location, translate them into responderTest's PHP replay
+#      format, and use responderTest to test them.
+# These steps repeat indefinitely.  If any "novel game" steps fail, the loop
+# will blow up and stop running.  Failures in replay are saved in
 # log files for later inspection, but the loop continues.
+
+# What problems will cause each of these test types to fail?
+# * If normal gameplay with the new code causes internal errors, A1 will fail
+# * If loadGameData in the new code returns game state that the
+#   replay rig doesn't understand or doesn't think is sane, A1 or A2 will fail
+# * If responderTest doesn't have functionality to test the new
+#   code correctly, A3 will fail
+# * If the new code causes game behavior to differ from the behavior
+#   of old code, B1 will fail
 
 import os
 import re
@@ -21,6 +35,9 @@ import subprocess
 import sys
 import time
 import datetime
+
+# Comma-separated list of button names to use in all novel tests, e.g.: 'Avis,Timea'
+PLAYER_BUTTONNAMES = None
 
 HOSTNAME = subprocess.check_output(['hostname', ]).strip()
 COMMITID = None
@@ -45,8 +62,9 @@ GAMEFILE_RE = re.compile('^([0-9a-f]{40})\.games\.([0-9]{8}\.[0-9]{6})\.tar\.bz2
 ORIGDIR = os.getcwd()
 HOMEBMDIR = "%s/src/buttonmen" % ORIGDIR
 
-ARCHIVE_GAMES = len(sys.argv) > 1 and sys.argv[1] in [ '-a', '--archive', ]
-SKIP_INIT_NEW_GAMES = len(sys.argv) > 1 and sys.argv[1] in [ '-s', '--skip-init', ]
+ARCHIVE_GAMES = ('-a' in sys.argv[1:] or '--archive' in sys.argv[1:])
+LOCAL_REPLAY_GAMES = ('-l' in sys.argv[1:] or '--local-replay' in sys.argv[1:])
+SKIP_INIT_NEW_GAMES = ('-s' in sys.argv[1:] or '--skip-init' in sys.argv[1:])
 
 def setup():
   global COMMITID
@@ -88,13 +106,32 @@ def find_next_file(state):
         newest_file = dirfile
   return newest_file
 
-def test_file(filename):
-  ## prep test file for replay
-  os.chdir(HOMEBMDIR)
+def generate_responder_testfile(gen_command, output_file):
   if USERNAME == 'vagrant':
     write_to_bm_prefix = 'sudo -u %s' % USERNAME
   else:
     write_to_bm_prefix = ''
+
+  commands = [
+    'sudo -u %s touch %s' % (USERNAME, output_file),
+    'sudo chown chaos %s' % output_file,
+    'echo "<?php" | %s tee -a %s' % (write_to_bm_prefix, output_file),
+    'echo "require_once \'responderTestFramework.php\';" | %s tee -a %s' % (write_to_bm_prefix, output_file),
+    'echo "class responder99Test extends responderTestFramework {" | %s tee -a %s' % (write_to_bm_prefix, output_file),
+    '%s ./output | %s tee -a %s > /dev/null' % (gen_command, write_to_bm_prefix, output_file),
+    'echo "}" | %s tee -a %s > /dev/null' % (write_to_bm_prefix, output_file),
+  ]
+  if os.path.isfile(output_file):
+    commands.insert(0, 'sudo -u %s rm -f %s' % (USERNAME, output_file))
+  for command in commands:
+    retval = os.system(command)
+    if retval != 0:
+      print "command failed: %s" % command
+      sys.exit(1)
+
+def test_file(filename):
+  ## prep test file for replay
+  os.chdir(HOMEBMDIR)
   tar_command = 'tar xf %s/%s' % (GAMESDIR, filename)
   for retry in range(3):
     retval = os.system(tar_command)
@@ -105,30 +142,23 @@ def test_file(filename):
   else:
     print "tar failed too many times - giving up"
     sys.exit(1)
-  commands = [
-    'sudo -u %s touch %s' % (USERNAME, TESTFILE),
-    'sudo chown chaos %s' % TESTFILE,
-    'echo "<?php" | %s tee -a %s' % (write_to_bm_prefix, TESTFILE),
-    'echo "require_once \'responderTestFramework.php\';" | %s tee -a %s' % (write_to_bm_prefix, TESTFILE),
-    'echo "class responder99Test extends responderTestFramework {" | %s tee -a %s' % (write_to_bm_prefix, TESTFILE),
-    './update_replay_games ./output | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
-    '/bin/rm ./output/*',
-    'echo "}" | %s tee -a %s > /dev/null' % (write_to_bm_prefix, TESTFILE),
-  ]
-  if os.path.isfile(TESTFILE):
-    commands.insert(0, 'sudo -u %s rm -f %s' % (USERNAME, TESTFILE))
-  for command in commands:
-    retval = os.system(command)
-    if retval != 0:
-      print "command failed: %s" % command
-      sys.exit(1)
+
+  generate_responder_testfile('./update_replay_games', TESTFILE)
+  os.system('/bin/rm ./output/*')
+  execute_responder_test(filename)
+
+def execute_responder_test(testname):
+  # actually run the test, capturing output
+  prevcwd = os.getcwd()
+
   os.chdir(SRCDIR)
 
-  # actually run the test, capturing output
-  logfile = '%s/%s.output' % (STATEDIR, filename)
+  logfile = '%s/%s.output' % (STATEDIR, testname)
   cmdargs = 'sudo -u %s sh -c "phpunit --bootstrap /usr/local/etc/buttonmen_phpunit.php --group fulltest_deps /buttonmen/test/src/api/ 2>&1" | tee %s' % (USERNAME, logfile)
   print "About to execute: %s" % cmdargs
   os.system(cmdargs)
+
+  os.chdir(prevcwd)
   return
 
 def test_new_games():
@@ -145,7 +175,11 @@ def test_new_games():
   os.system('cat ~/example_players.sql | sudo mysql')
 
   os.chdir(HOMEBMDIR)
-  retval = os.system('./test_log_games 100')
+  if PLAYER_BUTTONNAMES:
+    cmdargs = './test_log_games 100 "name=%s" ""' % PLAYER_BUTTONNAMES
+  else:
+    cmdargs = './test_log_games 100'
+  retval = os.system(cmdargs)
   if retval != 0:
     sys.exit(1)
 
@@ -154,8 +188,13 @@ def test_new_games():
   if retval != 0:
     sys.exit(1)
 
+  timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
+
+  if LOCAL_REPLAY_GAMES:
+    generate_responder_testfile('./prep_replay_games', TESTFILE)
+    execute_responder_test('local.%s' % timestamp)
+
   if ARCHIVE_GAMES:
-    timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
     targetpath = '%s/%s.games.%s.tar' % (GAMESDIR, COMMITID, timestamp)
     os.system('tar cf %s ./output' % (targetpath))
     os.system('bzip2 %s' % (targetpath))
