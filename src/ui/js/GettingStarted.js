@@ -409,8 +409,8 @@ GettingStarted.buttonProgressionContent = function() {
   content.append(
     $('<p>').html(
       'A full list of skills can be found on the ' +
-      '<a href="skills.html">Die Skills and Types</a> page, which is accessible ' +
-      'from the help page.'
+      '<a href="skills.html">Die Skills and Types</a> page, which is ' +
+      'accessible from the help page.'
     )
   );
 
