@@ -21,13 +21,14 @@ Tournament.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Tournament.showLoggedInPage() is the landing function.  Always call this first
-//   if logged in.
+// * Tournament.showLoggedInPage() is the landing function.  Always call this
+//   first if logged in.
 // * Tournament.getCurrentTournament() asks the API for information about the
 //   requested tournament.  It clobbers Api.tournament.  If successful, it calls
 // * Tournament.showStatePage() determines what action to take next based on
 //   the received data from getCurrentTournament().  It calls one of several
-//   functions, Tournament.action<SomeAction>(), and then calls Login.arrangePage()
+//   functions, Tournament.action<SomeAction>(), and then calls
+//   Login.arrangePage()
 // * each Tournament.action<SomeAction>() function must set Tournament.page and
 //   Tournament.form
 ////////////////////////////////////////////////////////////////////////
@@ -94,7 +95,11 @@ Tournament.showStatePage = function() {
   }
 
   // Now lay out the page
-  Login.arrangePage(Tournament.page, Tournament.form, '#tournament_action_button');
+  Login.arrangePage(
+    Tournament.page, 
+    Tournament.form, 
+    '#tournament_action_button'
+  );
 };
 
 Tournament.showTournamentContents = function() {
@@ -131,17 +136,21 @@ Tournament.showTournamentContents = function() {
 Tournament.pageAddTournamentHeader = function() {
   var tournamentTitle =
     'Tournament #' + Api.tournament.tournamentId + Tournament.SPACE_BULLET;
-  if (Api.tournament.tournamentState == Tournament.TOURN_STATE_END_TOURNAMENT) {
+  if (Api.tournament.tournamentState == 
+      Tournament.TOURN_STATE_END_TOURNAMENT) {
     tournamentTitle += 'Completed';
-  } else if (Api.tournament.tournamentState == Tournament.TOURN_STATE_CANCELLED) {
+  } else if (Api.tournament.tournamentState == 
+             Tournament.TOURN_STATE_CANCELLED) {
     tournamentTitle += 'Cancelled';
-  } else if (Api.tournament.tournamentState == Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
+  } else if (Api.tournament.tournamentState == 
+             Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     tournamentTitle += 'New Tournament';
   } else {
     tournamentTitle += 'Round #' + Api.tournament.roundNumber;
   }
 
-  tournamentTitle += Tournament.SPACE_BULLET + 'Created by ' + Api.tournament.creatorName;
+  tournamentTitle += Tournament.SPACE_BULLET + 'Created by ' + 
+                     Api.tournament.creatorName;
 
   $('title').html(tournamentTitle + ' &mdash; Button Men Online');
 
@@ -172,8 +181,10 @@ Tournament.pageAddTournamentHeader = function() {
 
 Tournament.pageAddUnfollowTournamentLink = function () {
   if (Api.tournament.isParticipant &&
-      (Api.tournament.tournamentState != Tournament.TOURN_STATE_END_TOURNAMENT) &&
-      (Api.tournament.tournamentState != Tournament.TOURN_STATE_CANCELLED)) {
+      (Api.tournament.tournamentState != 
+       Tournament.TOURN_STATE_END_TOURNAMENT) &&
+      (Api.tournament.tournamentState != 
+       Tournament.TOURN_STATE_CANCELLED)) {
     return;
   }
 
@@ -241,7 +252,8 @@ Tournament.pageAddTournamentInfo = function () {
   Tournament.page.append(infoDiv);
 
   var tournamentTypePar = $('<p>', {
-    'text': 'Tournament type: ' + Tournament.friendlyTournamentType(Api.tournament.type),
+    'text': 'Tournament type: ' + 
+            Tournament.friendlyTournamentType(Api.tournament.type),
   });
   infoDiv.append(tournamentTypePar);
 
@@ -298,7 +310,8 @@ Tournament.pageAddPlayerInfo = function () {
 };
 
 Tournament.pageAddActions = function () {
-  if (Api.tournament.tournamentState == Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
+  if (Api.tournament.tournamentState == 
+      Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     var actionDiv = $('<div>', {
       'id': 'actionDiv',
     });
@@ -378,7 +391,9 @@ Tournament.formChooseButton = function () {
   });
 };
 
-Tournament.formUpdateTournament = function (type, successText, e, buttonNameArray) {
+Tournament.formUpdateTournament = function (
+  type, successText, e, buttonNameArray
+) {
   e.preventDefault();
   var args = {
     'type': 'updateTournament',
@@ -399,7 +414,9 @@ Tournament.formUpdateTournament = function (type, successText, e, buttonNameArra
 };
 
 Tournament.formCancelTournament = function (e) {
-  Tournament.formUpdateTournament('cancel', 'Successfully cancelled tournament', e);
+  Tournament.formUpdateTournament(
+    'cancel', 'Successfully cancelled tournament', e
+  );
 };
 
 Tournament.formJoinTournament = function (e) {

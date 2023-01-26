@@ -54,8 +54,8 @@ Newtournament.showPage = function() {
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newtournament.js.
-// Each function should start by populating Newtournament.page and Newtournament.form
-// ane end by invoking Login.arrangePage();
+// Each function should start by populating Newtournament.page and
+// Newtournament.form and end by invoking Login.arrangePage();
 
 Newtournament.actionLoggedOut = function() {
 
@@ -67,7 +67,11 @@ Newtournament.actionLoggedOut = function() {
   Newtournament.addLoggedOutPage();
 
   // Lay out the page
-  Login.arrangePage(Newtournament.page, Newtournament.form, '#newtournament_action_button');
+  Login.arrangePage(
+    Newtournament.page, 
+    Newtournament.form, 
+    '#newtournament_action_button'
+  );
 };
 
 Newtournament.actionInternalErrorPage = function() {
@@ -80,7 +84,11 @@ Newtournament.actionInternalErrorPage = function() {
   Newtournament.addInternalErrorPage();
 
   // Lay out the page
-  Login.arrangePage(Newtournament.page, Newtournament.form, '#newtournament_action_button');
+  Login.arrangePage(
+    Newtournament.page, 
+    Newtournament.form, 
+    '#newtournament_action_button'
+  );
 };
 
 Newtournament.actionCreateTournament = function() {
@@ -105,7 +113,9 @@ Newtournament.actionCreateTournament = function() {
   createform.append(Newtournament.createMiscOptionsTable()).append($('<br />'));
 
 //  // add table of button selections to the form
-//  createform.append(Newtournament.createButtonOptionsTable()).append($('<br />'));
+//  createform.append(
+//    Newtournament.createButtonOptionsTable()).append($('<br />')
+//  );
 
   // Form submission button
   createform.append($('<button>', {
@@ -120,7 +130,11 @@ Newtournament.actionCreateTournament = function() {
   Newtournament.form = Newtournament.formCreateTournament;
 
   // Lay out the page
-  Login.arrangePage(Newtournament.page, Newtournament.form, '#newtournament_action_button');
+  Login.arrangePage(
+    Newtournament.page, 
+    Newtournament.form, 
+    '#newtournament_action_button'
+  );
 
   // Unlock player 1 if this was previously unlocked before form submission
   if (Newtournament.activity.isPlayer1Unlocked) {
@@ -174,7 +188,8 @@ Newtournament.createNPlayerRow = function() {
 };
 
 Newtournament.createRoundSelectRow = function() {
-  if (!('nRounds' in Newtournament.activity) || !Newtournament.activity.nRounds) {
+  if (!('nRounds' in Newtournament.activity) || 
+      !Newtournament.activity.nRounds) {
     Newtournament.activity.nRounds = '3';
   }
   var selectRow = Newtournament.getSelectRow(

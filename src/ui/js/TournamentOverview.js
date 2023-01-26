@@ -7,15 +7,16 @@ TournamentOverview.bodyDivId = 'tournament_overview_page';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * TournamentOverview.showLoggedInPage() is the landing function. Always call this
-//   first when logged in.
-// * TournamentOverview.getTournamentOverview() asks the API for information about the
-//   player's tournament overview status (currently, the lists of new, active,
-//   completed, and cancelled tournaments, and potentially any other
+// * TournamentOverview.showLoggedInPage() is the landing function. Always call
+//   this first when logged in.
+// * TournamentOverview.getTournamentOverview() asks the API for information
+//   about the player's tournament overview status (currently, the lists of new,
+//   active, completed, and cancelled tournaments, and potentially any other
 //   tournaments that have been tagged to be watched).
-//   It sets Api.new_tournaments, Api.active_tournaments, Api.completed_tournaments,
-//   Api.cancelled_tournaments, and potentially Api.tagged_tournaments. If successful, it
-//   calls TournamentOverview.showPage().
+//   It sets Api.new_tournaments, Api.active_tournaments,
+//   Api.completed_tournaments, Api.cancelled_tournaments, and potentially
+//   Api.tagged_tournaments. If successful, it calls
+//   TournamentOverview.showPage().
 // * TournamentOverview.showPage() assembles the page contents as a variable.
 //
 // N.B. There is no form submission on this page (aside from the [Dismiss]
@@ -76,8 +77,12 @@ TournamentOverview.pageAddTournamentTables = function() {
   TournamentOverview.pageAddTournamentTable('created', 'Created tournaments');
   TournamentOverview.pageAddTournamentTable('joined', 'Joined tournaments');
   TournamentOverview.pageAddTournamentTable('active', 'Active tournaments');
-  TournamentOverview.pageAddTournamentTable('completed', 'Completed tournaments');
-  TournamentOverview.pageAddTournamentTable('cancelled', 'Cancelled tournaments');
+  TournamentOverview.pageAddTournamentTable(
+    'completed', 'Completed tournaments'
+  );
+  TournamentOverview.pageAddTournamentTable(
+    'cancelled', 'Cancelled tournaments'
+  );
 };
 
 TournamentOverview.pageAddTournamentTable = function(
@@ -94,7 +99,7 @@ TournamentOverview.pageAddTournamentTable = function(
   switch (tournamentType) {
   case 'new':
     for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status == 'OPEN') &&
+      if ((Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
           !Api.tournaments.tournaments[tournamentIdx].hasJoined) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
@@ -103,7 +108,9 @@ TournamentOverview.pageAddTournamentTable = function(
     tableClass = 'newtournaments';
     break;
   case 'created':
-    for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
+    for (tournamentIdx = 0; 
+         tournamentIdx < Api.tournaments.tournaments.length;
+         tournamentIdx++) {
       if (Api.tournaments.tournaments[tournamentIdx].isCreator &&
           Api.tournaments.tournaments[tournamentIdx].isWatched) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
@@ -113,8 +120,10 @@ TournamentOverview.pageAddTournamentTable = function(
     tableClass = 'createdtournaments';
     break;
   case 'joined':
-    for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status == 'OPEN') &&
+    for (tournamentIdx = 0; 
+         tournamentIdx < Api.tournaments.tournaments.length; 
+         tournamentIdx++) {
+      if ((Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
           Api.tournaments.tournaments[tournamentIdx].hasJoined) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
@@ -124,7 +133,7 @@ TournamentOverview.pageAddTournamentTable = function(
     break;
   case 'active':
     for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status == 'ACTIVE') &&
+      if ((Api.tournaments.tournaments[tournamentIdx].status === 'ACTIVE') &&
           Api.tournaments.tournaments[tournamentIdx].isWatched) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
@@ -132,8 +141,10 @@ TournamentOverview.pageAddTournamentTable = function(
     tableClass = 'activetournaments';
     break;
   case 'completed':
-    for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status == 'COMPLETE') &&
+    for (tournamentIdx = 0; 
+         tournamentIdx < Api.tournaments.tournaments.length; 
+         tournamentIdx++) {
+      if ((Api.tournaments.tournaments[tournamentIdx].status === 'COMPLETE') &&
           Api.tournaments.tournaments[tournamentIdx].isWatched) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
@@ -142,8 +153,10 @@ TournamentOverview.pageAddTournamentTable = function(
     showDismiss = true;
     break;
   case 'cancelled':
-    for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status == 'CANCELLED') &&
+    for (tournamentIdx = 0; 
+         tournamentIdx < Api.tournaments.tournaments.length; 
+         tournamentIdx++) {
+      if ((Api.tournaments.tournaments[tournamentIdx].status === 'CANCELLED') &&
           Api.tournaments.tournaments[tournamentIdx].isWatched) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
@@ -164,7 +177,9 @@ TournamentOverview.pageAddTournamentTable = function(
   }
 
   TournamentOverview.addTableRows(
-    TournamentOverview.addTableStructure(tableClass, sectionHeader, showDismiss),
+    TournamentOverview.addTableStructure(
+      tableClass, sectionHeader, showDismiss
+    ),
     tournamentsource,
     showDismiss,
     showNPlayersJoined
@@ -174,7 +189,9 @@ TournamentOverview.pageAddTournamentTable = function(
 TournamentOverview.addTableStructure = function(
   tableClass, sectionHeader, showDismiss
 ) {
-  var tableBody = TournamentOverview.page.find('table.' + tableClass + ' tbody');
+  var tableBody = TournamentOverview.page.find(
+    'table.' + tableClass + ' tbody'
+  );
 
   // create table
   var tableDiv = $('<div>', { 'class': tableClass + 'Holder listHolder', });
@@ -192,8 +209,10 @@ TournamentOverview.addTableStructure = function(
     }
     TournamentOverview.activity.visibility[tableClass] =
       $('#pre-caret-' + tableClass).hasClass('ui-icon-triangle-1-s');
-    sessionStorage.setItem('TournamentOverviewVisibility',
-                           JSON.stringify(TournamentOverview.activity.visibility));
+    sessionStorage.setItem(
+      'TournamentOverviewVisibility',
+      JSON.stringify(TournamentOverview.activity.visibility)
+    );
   });
   tableDiv.append(h2SectionHeader);
   // need an extra div so that the blind animation works correctly
@@ -230,14 +249,20 @@ TournamentOverview.addTableRows = function(
   var tournamentInfo;
   var tournamentRow;
 
-  for (var tournamentIdx = 0; tournamentIdx < tournamentsource.length; tournamentIdx++) {
+  for (var tournamentIdx = 0; 
+       tournamentIdx < tournamentsource.length; 
+       tournamentIdx++) {
     tournamentInfo = tournamentsource[tournamentIdx];
 
     tournamentRow = $('<tr>');
     TournamentOverview.addTournamentCol(tournamentRow, tournamentInfo);
-    TournamentOverview.addDescCol(tournamentRow, tournamentInfo.tournamentDescription);
+    TournamentOverview.addDescCol(
+      tournamentRow, tournamentInfo.tournamentDescription
+    );
     TournamentOverview.addTypeCol(tournamentRow, tournamentInfo);
-    TournamentOverview.addNPlayersCol(tournamentRow, tournamentInfo, showNPlayersJoined);
+    TournamentOverview.addNPlayersCol(
+      tournamentRow, tournamentInfo, showNPlayersJoined
+    );
     TournamentOverview.addPlayerCol(tournamentRow, tournamentInfo.creatorName);
     if (showDismiss) {
       TournamentOverview.addDismissCol(tournamentRow, tournamentInfo);
@@ -266,7 +291,7 @@ TournamentOverview.addTypeCol = function(tournamentRow, tournamentInfo) {
 
 TournamentOverview.addDescCol = function(tournamentRow, description) {
   var descText = '';
-  if (typeof(description) == 'string') {
+  if (typeof(description) === 'string') {
     descText = description.substring(0, 30) +
                ((description.length > 30) ? '...' : '');
   }
