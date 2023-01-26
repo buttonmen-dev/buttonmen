@@ -81,7 +81,7 @@ div.help_column li {
     padding-bottom: 0.3em;
 }
 
-div.follow_tourn {
+div.follow_tournament {
     padding-bottom: 20px;
 }
 
@@ -606,19 +606,19 @@ div.listHolder {
     margin-bottom: 3em;
 }
 
-table.gameList a, table.tournList a {
+table.gameList a, table.tournamentList a {
     color: black;
 }
 
-table.gameList tfoot a, table.tournList tfoot a {
+table.gameList tfoot a, table.tournamentList tfoot a {
     color: blue;
 }
 
-table.gameList th, table.tournList th {
+table.gameList th, table.tournamentList th {
     background-color: #cccccc;
 }
 
-table.gameList tbody, table.tournList tbody
+table.gameList tbody, table.tournamentList tbody
 {
     border-top: 2px solid #cccccc;
     border-bottom: 2px solid #cccccc;
@@ -626,22 +626,22 @@ table.gameList tbody, table.tournList tbody
 
 table.gameList tbody td:first-child,
 table.gameList tbody th:first-child,
-table.tournList tbody td:first-child,
-table.tournList tbody th:first-child
+table.tournamentList tbody td:first-child,
+table.tournamentList tbody th:first-child
 {
     border-left: 2px solid #cccccc;
 }
 
 table.gameList tbody td:last-child,
 table.gameList tbody th:last-child,
-table.tournList tbody td:last-child,
-table.tournList tbody th:last-child
+table.tournamentList tbody td:last-child,
+table.tournamentList tbody th:last-child
 {
     border-right: 2px solid #cccccc;
 }
 
 table.gameList tr.spacer td,
-table.tournList tr.spacer td{
+table.tournamentList tr.spacer td{
     border-left: none;
     border-right: none;
     border-top: 2px solid #cccccc;
@@ -650,8 +650,8 @@ table.tournList tr.spacer td{
 
 table.gameList thead:after,
 table.gameList tfoot:before,
-table.tournList thead:after,
-table.tournList tfoot:before {
+table.tournamentList thead:after,
+table.tournamentList tfoot:before {
     line-height: 1em;
     content: "-";
     color: white; /* to hide text */
@@ -659,12 +659,12 @@ table.tournList tfoot:before {
 }
 
 table.gameList input[type=text],
-table.tournList input[type=text]{
+table.tournamentList input[type=text]{
     width: 70px;
 }
 
 table.gameList select,
-table.tournList select{
+table.tournamentList select{
     max-width: 120px;
 }
 

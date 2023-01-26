@@ -8,6 +8,6 @@ INSERT INTO tournament_status (name) VALUES
 ('CANCELLED'),
 ('BROKEN');
 
-DELETE FROM tourn_player_map;
+DELETE FROM tournament_player_map;
 
-DELETE FROM tourn_player_watch_map;
+DELETE FROM tournament_player_watch_map;

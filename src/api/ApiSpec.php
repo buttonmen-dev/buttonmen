@@ -48,13 +48,13 @@ class ApiSpec {
      * @var array
      */
     private $functionArgs = array(
-        'actTourn' => array(
+        'updateTournament' => array(
             'mandatory' => array(
-                'tourn' => 'number',
+                'tournament' => 'number',
                 'action' => 'alnum',
             ),
             'permitted' => array(
-                'button_names' => 'string',
+                'buttonNames' => 'string',
             ),
         ),
         'adjustFire' => array(
@@ -211,9 +211,9 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
-        'dismissTourn' => array(
+        'dismissTournament' => array(
             'mandatory' => array(
-                'tournId' => 'number',
+                'tournamentId' => 'number',
             ),
             'permitted' => array(),
         ),
@@ -246,9 +246,9 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
-        'followTourn' => array(
+        'followTournament' => array(
             'mandatory' => array(
-                'tournId' => 'number',
+                'tournamentId' => 'number',
             ),
             'permitted' => array(),
         ),
@@ -425,13 +425,13 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
-        'loadTournData' => array(
+        'loadTournamentData' => array(
             'mandatory' => array(
-                'tourn' => 'number',
+                'tournament' => 'number',
             ),
             'permitted' => array(),
         ),
-        'loadTourns' => array(
+        'loadTournaments' => array(
             'mandatory' => array(),
             'permitted' => array(),
         ),
@@ -723,9 +723,9 @@ class ApiSpec {
                 ),
             ),
         ),
-        'unfollowTourn' => array(
+        'unfollowTournament' => array(
             'mandatory' => array(
-                'tournId' => 'number',
+                'tournamentId' => 'number',
             ),
             'permitted' => array(),
         ),

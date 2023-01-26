@@ -23,8 +23,9 @@
  * @property-read array  $playerIdArray          Array of player IDs taking part in the tournament
  * @property-read array  $remainCountArray       Array of remain chances for each player in the tournament
  * @property-read array  $buttonIdArrayArray     Array of arrays of button IDs, indexed by player ID
- * @property-read array  $gameIdArrayArray       Array of arrays of game IDs, zero-indexed
+ * @property      array  $gameIdArrayArray       Array of arrays of game IDs, zero-indexed
  * @property-read BMTournamentState $tournamentState Current tournament state as an enum
+ * @property-read array  $gameDataToBeCreatedArray Array of game data to be created by BMInterface at save time
  *
  * @SuppressWarnings(PMD.TooManyFields)
  */
@@ -151,6 +152,21 @@ abstract class BMTournament {
      * @var array
      */
     protected $gameIdArrayArray;
+    
+    /**
+     * Array of arrays of games that are part of the tournament
+     *
+     * The outer array is indexed by round number (zero-indexed),
+     * the inner array by position number (zero-indexed)
+     *
+     * e.g.  array(
+     *         array(456, 457, 458, 459),
+     *         array(562, 563)
+     *       )
+     *
+     * @var array
+     */
+    protected $gameArrayArray;
 
     /**
      * Current tournament state as a BMTournamentState enum
@@ -159,6 +175,13 @@ abstract class BMTournament {
      */
     protected $tournamentState;
 
+    /**
+     * Array of game data to be created by BMInterface at save time
+     * 
+     * @var array
+     */
+    protected $gameDataToBeCreatedArray;         
+    
     /**
      * Indicates if games are created in the test database
      *
@@ -207,7 +230,7 @@ abstract class BMTournament {
             return;
         }
 
-        array_push($this->playerIdArray, $playerId);
+        $this->playerIdArray[] = $playerId;
 
         $this->add_button_array($playerId, $buttonIdArray);
     }
@@ -458,10 +481,14 @@ abstract class BMTournament {
         }
 
         if (BMTournamentState::PLAY_GAMES == $this->tournamentState) {
+            if (!isset($this->gameArrayArray) ||
+                !isset($this->gameArrayArray[$this->roundNumber - 1])) {
+                return FALSE;
+            }
+            
             // check whether all games in this current tournament round are complete
-            foreach ($this->gameIdArrayArray[$this->roundNumber - 1] as $gameId) {
-                $interface = new BMInterface($this->isTest);
-                if (!$interface->game()->isGameComplete($gameId)) {
+            foreach ($this->gameArrayArray[$this->roundNumber - 1] as $game) {
+                if ($game->gameState >= BMGameState::END_GAME) {
                     return TRUE;
                 }
             }
@@ -549,6 +576,7 @@ abstract class BMTournament {
         $this->remainCountArray = array();
         $this->buttonIdArrayArray = array();
         $this->gameIdArrayArray = array();
+        $this->gameArrayArray = array();
         $this->tournamentState = BMTournamentState::START_TOURNAMENT;
         $this->isTest = FALSE;
     }
@@ -632,11 +660,11 @@ abstract class BMTournament {
     }
 
     /**
-     * Prevent setting the game ID array
+     * Prevent setting the array containing data for games that need to be created
      */
-    protected function set__gameIdArrayArray() {
+    protected function set__gameDataToBeCreatedArray() {
         throw new LogicException(
-            'gameIdArrayArray is altered exclusively via BMTournament->create_games_for_round().'
+            'gameDataToBeCreatedArray is altered exclusively via BMTournament->create_games_for_round().'
         );
     }
 

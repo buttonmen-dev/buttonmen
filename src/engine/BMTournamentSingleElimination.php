@@ -42,7 +42,7 @@ class BMTournamentSingleElimination extends BMTournament {
         }
 
         $this->gameIdArrayArray[$roundNumber - 1] = array();
-        $interface = new BMInterface($this->isTest);
+        $this->gameDataToBeCreatedArray = array();
 
         for ($gameIdx = 0; $gameIdx < count($remainingPlayerIdArray) / 2; $gameIdx++) {
             // create game between players 2*$gameIdx and 2*$gameIdx + 1
@@ -50,26 +50,17 @@ class BMTournamentSingleElimination extends BMTournament {
             $playerId2 = $remainingPlayerIdArray[2*$gameIdx + 1];
             $buttonId1 = $this->buttonIdArrayArray[$playerId1][0];
             $buttonId2 = $this->buttonIdArrayArray[$playerId2][0];
-            $buttonNames = $interface->game()->retrieve_button_names(array($buttonId1, $buttonId2));
-
-            $interfaceResponse = $interface->game()->create_game_from_button_ids(
-                array($playerId1, $playerId2),
-                array($buttonId1, $buttonId2),
-                $buttonNames,
-                $this->gameMaxWins,
-                $this->description . ' Round ' . $roundNumber,
-                NULL,
-                0,                   // needs to be non-null, but also a non-player ID
-                TRUE,
-                array(),
-                $this->tournamentId,
-                $roundNumber
+            
+            $this->gameDataToBeCreatedArray[] = array(
+                'playerId1' => $playerId1,
+                'playerId2' => $playerId2,
+                'buttonId1' => $buttonId1,
+                'buttonId2' => $buttonId2,
+                'roundNumber' => $roundNumber
             );
-
-            // add game number to $this->gameIdArrayArray
-            if (is_array($interfaceResponse) && array_key_exists('gameId', $interfaceResponse)) {
-                array_push($this->gameIdArrayArray[$roundNumber - 1], $interfaceResponse['gameId']);
-            }
+            
+            // games are not actually created here, they will be created by
+            // BMInterfaceTournament->save_tournament()
         }
     }
 
@@ -77,22 +68,18 @@ class BMTournamentSingleElimination extends BMTournament {
      * Update array of player remain chances based on last round
      */
     protected function update_remainCountArray() {
-        $thisRoundGameIdArray = $this->gameIdArrayArray[$this->roundNumber - 1];
+        $thisRoundGameArray = $this->gameArrayArray[$this->roundNumber - 1];
         $remainCountArray = $this->remainCountArray;
 
-        $interface = new BMInterface($this->isTest);
-
         // reduce remain count for losers of the previous round
-        foreach ($thisRoundGameIdArray as $gameId) {
-            $gameData = $interface->load_api_game_data(0, $gameId, 0);
-
-            if ($gameData['maxWins'] == $gameData['playerDataArray'][0]['gameScoreArray']['L']) {
-                $loserId = $gameData['playerDataArray'][0]['playerId'];
-            } elseif ($gameData['maxWins'] == $gameData['playerDataArray'][1]['gameScoreArray']['L']) {
-                $loserId = $gameData['playerDataArray'][1]['playerId'];
+        foreach ($thisRoundGameArray as $game) {
+            if ($game->maxWins == $game->playerArray[0]->gameScoreArray['L']) {
+                $loserId = $game->playerArray[0]->playerId;
+            } elseif ($game->maxWins == $game->playerArray[1]->gameScoreArray['L']) {
+                $loserId = $game->playerArray[1]->playerId;
             } else {
                 // loser is the one who is currently active, since this is the person who is holding up play
-                $loserId = $gameData['playerDataArray'][$gameData['activePlayerIdx']]['playerId'];
+                $loserId = $game->playerArray[$game->activePlayerIdx]->playerId;
             }
 
             $loserIdx = array_search($loserId, $this->playerIdArray);

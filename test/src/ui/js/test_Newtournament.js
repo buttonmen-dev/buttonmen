@@ -1,16 +1,16 @@
-module("Newtourn", {
+module("Newtournament", {
   'setup': function() {
-    BMTestUtils.NewtournPre = BMTestUtils.getAllElements();
+    BMTestUtils.NewtournamentPre = BMTestUtils.getAllElements();
 
     BMTestUtils.setupFakeLogin();
 
-    // Create the newtourn_page div so functions have something to modify
-    if (document.getElementById('newtourn_page') == null) {
+    // Create the newtournament_page div so functions have something to modify
+    if (document.getElementById('newtournament_page') == null) {
       $('body').append($('<div>', {'id': 'env_message', }));
-      $('body').append($('<div>', {'id': 'newtourn_page', }));
+      $('body').append($('<div>', {'id': 'newtournament_page', }));
     }
 
-    Login.pageModule = { 'bodyDivId': 'newtourn_page' };
+    Login.pageModule = { 'bodyDivId': 'newtournament_page' };
   },
   'teardown': function(assert) {
 
@@ -24,98 +24,98 @@ module("Newtourn", {
     // JS objects
     delete Api.button;
     delete Api.player;
-    delete Newtourn.page;
-    delete Newtourn.form;
-//    delete Newtourn.justCreatedGame;
+    delete Newtournament.page;
+    delete Newtournament.form;
+//    delete Newtournament.justCreatedGame;
 
     Login.pageModule = null;
-    Newtourn.activity = {};
+    Newtournament.activity = {};
 
     // Page elements
-    $('#newtourn_page').remove();
+    $('#newtournament_page').remove();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
 
     // Fail if any other elements were added or removed
-    BMTestUtils.NewtournPost = BMTestUtils.getAllElements();
+    BMTestUtils.NewtournamentPost = BMTestUtils.getAllElements();
     assert.deepEqual(
-      BMTestUtils.NewtournPost, BMTestUtils.NewtournPre,
+      BMTestUtils.NewtournamentPost, BMTestUtils.NewtournamentPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
-// pre-flight test of whether the Newtourn module has been loaded
-test("test_Newtourn_is_loaded", function(assert) {
-  assert.ok(Newtourn, "The Newtourn namespace exists");
+// pre-flight test of whether the Newtournament module has been loaded
+test("test_Newtournament_is_loaded", function(assert) {
+  assert.ok(Newtournament, "The Newtournament namespace exists");
 });
 
 // The purpose of these tests is to demonstrate that the flow of
-// Newtourn.showLoggedInPage() is correct for a showXPage function, namely
+// Newtournament.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
 
-test("test_Newtourn.showLoggedInPage", function(assert) {
+test("test_Newtournament.showLoggedInPage", function(assert) {
 
 });
 
-test("test_Newtourn.showLoggedInPage_logged_out", function(assert) {
+test("test_Newtournament.showLoggedInPage_logged_out", function(assert) {
 
 });
 
-//test("test_Newtourn.getNewtournData", function(assert) {
+//test("test_Newtournament.getNewtournamentData", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
+//  Newtournament.getNewtournamentData(function() {
 //    start();
 //  });
 //});
 
-test("test_Newtourn.showPage", function(assert) {
+test("test_Newtournament.showPage", function(assert) {
   stop();
-  Newtourn.showPage();
-  var htmlout = Newtourn.page.html();
+  Newtournament.showPage();
+  var htmlout = Newtournament.page.html();
   assert.ok(htmlout.length > 0,
      "The created page should have nonzero contents");
   start();
 });
 
-test("test_Newtourn.actionLoggedOut", function(assert) {
+test("test_Newtournament.actionLoggedOut", function(assert) {
   stop();
-  Newtourn.actionLoggedOut();
-  assert.equal(Newtourn.form, null,
+  Newtournament.actionLoggedOut();
+  assert.equal(Newtournament.form, null,
         "Form is null after the 'logged out' action is processed");
   start();
 });
 
-test("test_Newtourn.actionInternalErrorPage", function(assert) {
+test("test_Newtournament.actionInternalErrorPage", function(assert) {
   stop();
-  Newtourn.actionInternalErrorPage();
-  assert.equal(Newtourn.form, null,
+  Newtournament.actionInternalErrorPage();
+  assert.equal(Newtournament.form, null,
         "Form is null after the 'internal error' action is processed");
   start();
 });
 
-test("test_Newtourn.actionCreateTourn", function(assert) {
+test("test_Newtournament.actionCreateTournament", function(assert) {
   stop();
-  Newtourn.actionCreateTourn();
-  assert.equal(Newtourn.form, Newtourn.formCreateTourn,
+  Newtournament.actionCreateTournament();
+  assert.equal(Newtournament.form, Newtournament.formCreateTournament,
         "Form is set after the 'create game' action is processed");
 //    assert.equal($('#n_rounds').val(), 3, 'Rounds should default to 3');
   start();
 });
 
-test("test_Newtourn.actionCreateTourn_prevvals", function(assert) {
+test("test_Newtournament.actionCreateTournament_prevvals", function(assert) {
   stop();
-  Newtourn.activity = {
+  Newtournament.activity = {
     'type': 'Single Elimination',
     'nPlayer': '8',
     'nRounds': '4',
   };
-  Newtourn.actionCreateTourn();
+  Newtournament.actionCreateTournament();
 
-  assert.equal(Newtourn.form, Newtourn.formCreateTourn,
+  assert.equal(Newtournament.form, Newtournament.formCreateTournament,
         "Form is set after the 'create tournament' action is processed");
   assert.equal($('#type').val(), 'Single Elimination',
         "Tournament type is retained from previous page activity");
@@ -126,14 +126,14 @@ test("test_Newtourn.actionCreateTourn_prevvals", function(assert) {
   start();
 });
 
-test("test_Newtourn.createMiscOptionsTable", function(assert) {
+test("test_Newtournament.createMiscOptionsTable", function(assert) {
 
 });
 
-test("test_Newtourn.createTypeRow", function(assert) {
+test("test_Newtournament.createTypeRow", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
-//    var row = Newtourn.createPlayer1Row();
+//  Newtournament.getNewtournamentData(function() {
+//    var row = Newtournament.createPlayer1Row();
 //    assert.ok(row.is('tr'), 'Function should return a row');
 //    assert.equal(row.children().length, 2, 'Row should have two children');
 //
@@ -153,14 +153,14 @@ test("test_Newtourn.createTypeRow", function(assert) {
 //  });
 });
 
-test("test_Newtourn.createNPlayerRow", function(assert) {
+test("test_Newtournament.createNPlayerRow", function(assert) {
 
 });
 
 //
-//test("test_Newtourn.createPlayer2Row", function(assert) {
+//test("test_Newtournament.createPlayer2Row", function(assert) {
 //  stop();
-//  Newtourn.activity = {
+//  Newtournament.activity = {
 //    'opponentNames': {
 //      tester1 : 'tester1',
 //      tester2 : 'tester2',
@@ -168,8 +168,8 @@ test("test_Newtourn.createNPlayerRow", function(assert) {
 //    },
 //  };
 //
-//  Newtourn.getNewtournData(function() {
-//    var row = Newtourn.createPlayer2Row();
+//  Newtournament.getNewtournamentData(function() {
+//    var row = Newtournament.createPlayer2Row();
 //    assert.ok(row.is('tr'), 'Function should return a row');
 //    assert.equal(row.children().length, 2, 'Row should have two children');
 //
@@ -201,10 +201,10 @@ test("test_Newtourn.createNPlayerRow", function(assert) {
 //  });
 //});
 //
-test("test_Newtourn.createRoundSelectRow", function(assert) {
+test("test_Newtournament.createRoundSelectRow", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
-//    var row = Newtourn.createRoundSelectRow();
+//  Newtournament.getNewtournamentData(function() {
+//    var row = Newtournament.createRoundSelectRow();
 //    assert.ok(row.is('tr'), 'Function should return a row');
 //    assert.equal(row.children().length, 2, 'Row should have two children');
 //
@@ -231,22 +231,22 @@ test("test_Newtourn.createRoundSelectRow", function(assert) {
 //  });
 });
 //
-//test("test_Newtourn.createPrevGameRow", function(assert) {
+//test("test_Newtournament.createPrevGameRow", function(assert) {
 //  stop();
 //
-//  Newtourn.getNewtournData(function() {
-//    var row = Newtourn.createPrevGameRow();
+//  Newtournament.getNewtournamentData(function() {
+//    var row = Newtournament.createPrevGameRow();
 //
 //    assert.equal(row, null, 'No row should be created when there is no previous game ID');
-//    assert.equal(Newtourn.activity.previousGameId, null, 'Previous game ID should be null');
+//    assert.equal(Newtournament.activity.previousGameId, null, 'Previous game ID should be null');
 //
 //    start();
 //  });
 //});
 //
-//test("test_Newtourn.createPrevGameRow_prevgame", function(assert) {
+//test("test_Newtournament.createPrevGameRow_prevgame", function(assert) {
 //  stop();
-//    Newtourn.activity = {
+//    Newtournament.activity = {
 //    'opponentName': 'tester2',
 //    'playerButton': 'Avis',
 //    'opponentButton': 'Crab',
@@ -256,8 +256,8 @@ test("test_Newtourn.createRoundSelectRow", function(assert) {
 //    'previousGameId': 12345,
 //  };
 //
-//  Newtourn.getNewtournData(function() {
-//    var row = $(Newtourn.createPrevGameRow());
+//  Newtournament.getNewtournamentData(function() {
+//    var row = $(Newtournament.createPrevGameRow());
 //    assert.ok(row.is('tr'), 'Function should return a row');
 //    assert.equal(row.children().length, 2, 'Row should have two children');
 //
@@ -274,11 +274,11 @@ test("test_Newtourn.createRoundSelectRow", function(assert) {
 //  });
 //});
 //
-test("test_Newtourn.createDescRow", function(assert) {
+test("test_Newtournament.createDescRow", function(assert) {
 //  stop();
 //
-//  Newtourn.getNewtournData(function() {
-//    var row = $(Newtourn.createDescRow());
+//  Newtournament.getNewtournamentData(function() {
+//    var row = $(Newtournament.createDescRow());
 //    assert.ok(row.is('tr'), 'A row should be created even when there is no description');
 //    assert.equal(row.children().length, 2, 'Row should have two children');
 //
@@ -294,16 +294,16 @@ test("test_Newtourn.createDescRow", function(assert) {
 //    assert.ok(textarea.is('textarea'), 'Contents should contain a textarea');
 //    assert.equal(textarea.text(), '', 'Textarea should contain no text');
 //
-//    assert.equal(Newtourn.activity.description, '', 'Stored description should be empty');
+//    assert.equal(Newtournament.activity.description, '', 'Stored description should be empty');
 //
 //    start();
 //  });
 });
 
-//test("test_Newtourn.createDescRow_with_description", function(assert) {
+//test("test_Newtournament.createDescRow_with_description", function(assert) {
 //  stop();
 //
-//  Newtourn.activity = {
+//  Newtournament.activity = {
 //    'opponentName': 'tester2',
 //    'playerButton': 'Avis',
 //    'opponentButton': 'Crab',
@@ -313,10 +313,10 @@ test("test_Newtourn.createDescRow", function(assert) {
 //    'description': 'test descriptor',
 //  };
 //
-//  Newtourn.getNewtournData(function() {
-//    var row = $(Newtourn.createDescRow());
+//  Newtournament.getNewtournamentData(function() {
+//    var row = $(Newtournament.createDescRow());
 //
-//    var row = $(Newtourn.createDescRow());
+//    var row = $(Newtournament.createDescRow());
 //    assert.ok(row.is('tr'), 'A row should be created when there is a description');
 //    assert.equal(row.children().length, 2, 'Row should have two children');
 //
@@ -332,71 +332,71 @@ test("test_Newtourn.createDescRow", function(assert) {
 //    assert.ok(textarea.is('textarea'), 'Contents should contain a textarea');
 //    assert.equal(textarea.text(), 'test descriptor', 'Textarea should contain no text');
 //
-//    assert.equal(Newtourn.activity.description, 'test descriptor', 'Description should be stored');
+//    assert.equal(Newtournament.activity.description, 'test descriptor', 'Description should be stored');
 //
 //    start();
 //  });
 //});
 
 
-//// The logic here is a little hairy: since Newtourn.getNewtournData()
+//// The logic here is a little hairy: since Newtournament.getNewtournamentData()
 //// takes a callback, we can use the normal asynchronous logic there.
 //// However, the POST done by our forms doesn't take a callback (it
 //// just redraws the page), so turn off asynchronous handling in
 //// AJAX while we test that, to make sure the test sees the return
 //// from the POST.
-test("test_Newtourn.formCreateTourn", function(assert) {
+test("test_Newtournament.formCreateTournament", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
-//    Newtourn.actionCreateTourn();
+//  Newtournament.getNewtournamentData(function() {
+//    Newtournament.actionCreateTournament();
 //    $('#opponent_name').val('tester2');
 //    $('#player_button').val('Avis');
 //    $('#opponent_button').val('Avis');
 //    $.ajaxSetup({ async: false });
-//    $('#Newtourn_action_button').trigger('click');
+//    $('#Newtournament_action_button').trigger('click');
 //    assert.equal(
 //      Env.message.type, "success",
-//      "Newtourn action succeeded when expected arguments were set");
+//      "Newtournament action succeeded when expected arguments were set");
 //    $.ajaxSetup({ async: true });
 //    start();
 //  });
 });
 //
-//test("test_Newtourn.formCreateGame_no_vals", function(assert) {
+//test("test_Newtournament.formCreateGame_no_vals", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
-//    Newtourn.actionCreateGame();
+//  Newtournament.getNewtournamentData(function() {
+//    Newtournament.actionCreateGame();
 //    $.ajaxSetup({ async: false });
-//    $('#Newtourn_action_button').trigger('click');
+//    $('#Newtournament_action_button').trigger('click');
 //    assert.equal(
 //      Env.message.type, "error",
-//      "Newtourn action failed when expected arguments were not set");
+//      "Newtournament action failed when expected arguments were not set");
 //    $.ajaxSetup({ async: true });
 //    start();
 //  });
 //});
 //
 //
-//test("test_Newtourn.formCreateGame_no_opponent_button", function(assert) {
+//test("test_Newtournament.formCreateGame_no_opponent_button", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
-//    Newtourn.actionCreateGame();
+//  Newtournament.getNewtournamentData(function() {
+//    Newtournament.actionCreateGame();
 //    $('#opponent_name').val('tester2');
 //    $('#player_button').val('Crab');
 //    $.ajaxSetup({ async: false });
-//    $('#Newtourn_action_button').trigger('click');
+//    $('#Newtournament_action_button').trigger('click');
 //    assert.equal(
 //      Env.message.type, "error",
-//      "Newtourn action failed when expected arguments were not set");
+//      "Newtournament action failed when expected arguments were not set");
 //    $.ajaxSetup({ async: true });
 //    start();
 //  });
 //});
 //
-//test("test_Newtourn.formCreateGame_invalid_player", function(assert) {
+//test("test_Newtournament.formCreateGame_invalid_player", function(assert) {
 //  stop();
-//  Newtourn.getNewtournData(function() {
-//    Newtourn.actionCreateGame();
+//  Newtournament.getNewtournamentData(function() {
+//    Newtournament.actionCreateGame();
 //    $('#opponent_name').append(
 //      $('<option>', {
 //        'value': 'nontester1',
@@ -408,40 +408,40 @@ test("test_Newtourn.formCreateTourn", function(assert) {
 //    $('#player_button').val('Crab');
 //    $('#opponent_button').val('John Kovalic');
 //    $.ajaxSetup({ async: false });
-//    $('#Newtourn_action_button').trigger('click');
+//    $('#Newtournament_action_button').trigger('click');
 //    assert.equal(
 //      Env.message.type, "error",
-//      "Newtourn action failed when opponent was not a known player");
+//      "Newtournament action failed when opponent was not a known player");
 //    assert.equal(
 //      Env.message.text, "Specified opponent nontester1 is not recognized",
-//      "Newtourn action failed when opponent was not a known player");
+//      "Newtournament action failed when opponent was not a known player");
 //    $.ajaxSetup({ async: true });
 //    start();
 //  });
 //});
 //
-test("test_Newtourn.addLoggedOutPage", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Newtourn.addLoggedOutPage not implemented");
+test("test_Newtournament.addLoggedOutPage", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Newtournament.addLoggedOutPage not implemented");
 });
 
-test("test_Newtourn.addInternalErrorPage", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Newtourn.addInternalErrorPage not implemented");
+test("test_Newtournament.addInternalErrorPage", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Newtournament.addInternalErrorPage not implemented");
 });
 
-test("test_Newtourn.getSelectRow", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Newtourn.getSelectRow not implemented");
+test("test_Newtournament.getSelectRow", function(assert) {
+  assert.ok(true, "INCOMPLETE: Test of Newtournament.getSelectRow not implemented");
 });
 
-test("test_Newtourn.setCreateTournSuccessMessage", function(assert) {
-  Newtourn.setCreateTournSuccessMessage(
+test("test_Newtournament.setCreateTournamentSuccessMessage", function(assert) {
+  Newtournament.setCreateTournamentSuccessMessage(
     'test invocation succeeded',
-    { 'tournId': 8, }
+    { 'tournamentId': 8, }
   );
   assert.equal(Env.message.type, 'success', "set Env.message to a successful type");
 });
 
-test("test_Newtourn.getSelectTd", function(assert) {
-  var item = Newtourn.getSelectTd(
+test("test_Newtournament.getSelectTd", function(assert) {
+  var item = Newtournament.getSelectTd(
     'test items',
     'test_select',
     { 'a': 'First Value', 'b': 'Second Value', },
@@ -450,8 +450,8 @@ test("test_Newtourn.getSelectTd", function(assert) {
   assert.equal(item[0].tagName, "TD", "Return value is of type td");
 });
 
-test("test_Newtourn.getSelectOptionList", function(assert) {
-  var optionlist = Newtourn.getSelectOptionList(
+test("test_Newtournament.getSelectOptionList", function(assert) {
+  var optionlist = Newtournament.getSelectOptionList(
     'test items',
     { 'a': 'First Value', 'b': 'Second Value', },
     { 'b': true, },
@@ -461,13 +461,13 @@ test("test_Newtourn.getSelectOptionList", function(assert) {
 });
 //
 //
-//test("test_Newtourn.getLimitSelectid", function(assert) {
-//  var item = Newtourn.getLimitSelectid('opponent', 'test');
+//test("test_Newtournament.getLimitSelectid", function(assert) {
+//  var item = Newtournament.getLimitSelectid('opponent', 'test');
 //  assert.equal(item, 'limit_opponent_test', "Expected ID is returned");
 //});
 //
-//test("test_Newtourn.getChoiceId", function(assert) {
-//  var item = Newtourn.getChoiceId('opponent', 'test', 'Weird iteM?.');
+//test("test_Newtournament.getChoiceId", function(assert) {
+//  var item = Newtournament.getChoiceId('opponent', 'test', 'Weird iteM?.');
 //  assert.equal(item, 'limit_opponent_test_weird_item', "Expected ID is returned");
 //});
 //

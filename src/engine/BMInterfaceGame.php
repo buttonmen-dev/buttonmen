@@ -11,7 +11,12 @@
  */
 
 class BMInterfaceGame extends BMInterface {
-    const RANDOM_BUTTON_VALUE = -999;
+    /**
+     * This magic constant for a random button ID is an obviously invalid
+     * (negative) value. It is used by the tournament code to signal that
+     * the tournament code needs to randomly select a button when it begins.
+     */
+    const RANDOM_BUTTON_ID = -999;
 
     /**
      * Create a game
@@ -77,14 +82,14 @@ class BMInterfaceGame extends BMInterface {
         array $playerIdArray,
         array $buttonIdArray,
         array $buttonNameArray,
-        $maxWins = 3,
-        $description = '',
-        $previousGameId = NULL,
-        $currentPlayerId = NULL,
-        $autoAccept = TRUE,
-        $customRecipeArray = array(),
-        $tournamentId = NULL,
-        $tournamentRoundNumber = NULL
+        $maxWins,
+        $description,
+        $previousGameId,
+        $currentPlayerId,
+        $autoAccept,
+        $customRecipeArray,
+        $tournamentId,
+        $tournamentRoundNumber
     ) {
         try {
             if (!isset($currentPlayerId)) {
@@ -246,7 +251,7 @@ class BMInterfaceGame extends BMInterface {
      */
     protected function set_random_button_flags($gameId, array $buttonIdArray) {
         foreach ($buttonIdArray as $position => $buttonId) {
-            if (self::RANDOM_BUTTON_VALUE == $buttonId) {
+            if (self::RANDOM_BUTTON_ID == $buttonId) {
                 $query = 'UPDATE game_player_map '.
                          'SET is_button_random = 1 '.
                          'WHERE game_id = :game_id '.
@@ -378,18 +383,10 @@ class BMInterfaceGame extends BMInterface {
             return FALSE;
         }
 
-        if (FALSE ===
-            filter_var(
-                $maxWins,
-                FILTER_VALIDATE_INT,
-                array('options'=>
-                      array('min_range' => 1,
-                            'max_range' => 5))
-            )) {
-            $this->set_message('Game create failed because the maximum number of wins was invalid.');
+        if (!$this->validate_max_wins($maxWins)) {
             return FALSE;
         }
-
+       
         // Check that players match those from previous game, if specified
         $arePreviousPlayersValid =
             $this->validate_previous_game_players($previousGameId, $playerIdArray);
@@ -409,7 +406,7 @@ class BMInterfaceGame extends BMInterface {
 
         return TRUE;
     }
-
+    
     /**
      * Validate player ID array that required players are specified, unique, and valid
      *
@@ -454,6 +451,22 @@ class BMInterfaceGame extends BMInterface {
         return TRUE;
     }
 
+    public function validate_max_wins($maxWins) {
+        if (FALSE ===
+            filter_var(
+                $maxWins,
+                FILTER_VALIDATE_INT,
+                array('options'=>
+                      array('min_range' => 1,
+                            'max_range' => 5))
+            )) {
+            $this->set_message('Game create failed because the maximum number of wins was invalid.');
+            return FALSE;
+        }
+        
+        return TRUE;
+    }
+    
     /**
      * Validate that the players in the previous game were the same as the current game
      *
@@ -542,7 +555,7 @@ class BMInterfaceGame extends BMInterface {
             $buttonName = $buttonNameArray[$position];
 
             if ('__random' == $buttonName) {
-                $buttonIdArray[] = self::RANDOM_BUTTON_VALUE;
+                $buttonIdArray[] = self::RANDOM_BUTTON_ID;
             } elseif (!empty($buttonName)) {
                 try {
                     $query = 'SELECT id FROM button '.

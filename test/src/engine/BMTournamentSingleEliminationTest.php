@@ -118,6 +118,45 @@ class BMTournamentSingleEliminationTest extends PHPUnit_Framework_TestCase {
 
         // now add the last player needed to start the tournament
         $this->object->add_player(26, array(197));
+        
+        $this->gameArrayArray = array(
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 45),
+                    array('playerId' => 57)
+                )
+            ),
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 23),
+                    array('playerId' => 101)
+                )
+            ),
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 102),
+                    array('playerId' => 150)
+                )
+            ),
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 3),
+                    array('playerId' => 26)
+                )
+            )
+        );
 
         $this->object->proceed_to_next_user_action();
 
@@ -140,24 +179,63 @@ class BMTournamentSingleEliminationTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $this->object->gameIdArrayArray);
         $this->assertCount(4, $this->object->gameIdArrayArray[0]);
 
-        // allow access to protected methods load_game and save_game via reflection
-        $interfaceClassGame = new ReflectionClass('BMInterface');
-        $interfaceGameInstance = $interfaceClassGame->newInstanceArgs(array(TRUE));
-        $loadGameMethod = $interfaceClassGame->getMethod('load_game');
-        $loadGameMethod->setAccessible(true);
-        $saveGameMethod = $interfaceClassGame->getMethod('save_game');
-        $saveGameMethod->setAccessible(true);
-
-        foreach ($this->object->gameIdArrayArray[0] as $gameId) {
-            $game = $loadGameMethod->invokeArgs($interfaceGameInstance, array($gameId));
-            $game->gameState = BMGameState::END_GAME;
-            $game->gameScoreArrayArray = array(
-                array('W' => 0, 'L' => 3, 'D' => 0),
-                array('W' => 3, 'L' => 0, 'D' => 0)
-            );
-
-            $saveGameMethod->invokeArgs($interfaceGameInstance, array($game));
-        }
+//        // allow access to protected methods load_game and save_game via reflection
+//        $interfaceClassGame = new ReflectionClass('BMInterface');
+//        $interfaceGameInstance = $interfaceClassGame->newInstanceArgs(array(TRUE));
+//        $loadGameMethod = $interfaceClassGame->getMethod('load_game');
+//        $loadGameMethod->setAccessible(true);
+//        $saveGameMethod = $interfaceClassGame->getMethod('save_game');
+//        $saveGameMethod->setAccessible(true);
+//
+//        foreach ($this->object->gameIdArrayArray[0] as $gameId) {
+//            $game = $loadGameMethod->invokeArgs($interfaceGameInstance, array($gameId));
+//            $game->gameState = BMGameState::END_GAME;
+//            $game->gameScoreArrayArray = array(
+//                array('W' => 0, 'L' => 3, 'D' => 0),
+//                array('W' => 3, 'L' => 0, 'D' => 0)
+//            );
+//
+//            $saveGameMethod->invokeArgs($interfaceGameInstance, array($game));
+//        }
+        
+        $this->gameArrayArray = array(
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 45),
+                    array('playerId' => 57)
+                )
+            ),
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 23),
+                    array('playerId' => 101)
+                )
+            ),
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 102),
+                    array('playerId' => 150)
+                )
+            ),
+            array(
+                'activePlayerIdx' => 0,
+                'gameState' => BMGameState::END_GAME,
+                'maxWins' => 3,
+                'playerArray' => array(
+                    array('playerId' => 3),
+                    array('playerId' => 26)
+                )
+            )
+        );
 
         $this->object->proceed_to_next_user_action();
 

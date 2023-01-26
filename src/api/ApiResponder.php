@@ -787,14 +787,14 @@ class ApiResponder {
     // Tournament-related methods
 
     /**
-     * Interface redirect for loadTourns
+     * Interface redirect for loadTournaments
      *
      * @param BMInterface $interface
      * @param array $args
      * @return NULL|array
      */
-    protected function get_interface_response_loadTourns($interface) {
-        return $interface->get_all_tourns($this->session_user_id());
+    protected function get_interface_response_loadTournaments($interface) {
+        return $interface->get_all_tournaments($this->session_user_id());
     }
 
     /**
@@ -815,50 +815,50 @@ class ApiResponder {
     }
 
     /**
-     * Interface redirect for loadTournData
+     * Interface redirect for loadTournamentData
      *
      * @param BMInterface $interface
      * @param array $args
      * @return NULL|array
      */
-    protected function get_interface_response_loadTournData($interface, $args) {
+    protected function get_interface_response_loadTournamentData($interface, $args) {
         return $interface->load_api_tournament_data(
             $this->session_user_id(),
-            $args['tourn']
+            $args['tournament']
         );
     }
 
     /**
-     * Interface redirect for actTourn
+     * Interface redirect for updateTournament
      *
      * @param BMInterface $interface
      * @param array $args
      * @return NULL|array
      */
-    protected function get_interface_response_actTourn($interface, $args) {
-        if (array_key_exists('button_names', $args)) {
-            $button_name_array = json_decode($args['button_names'], TRUE);
+    protected function get_interface_response_updateTournament($interface, $args) {
+        if (array_key_exists('buttonNames', $args)) {
+            $button_name_array = json_decode($args['buttonNames'], TRUE);
         } else {
             $button_name_array = NULL;
         }
 
         return $interface->tournament()->act_on_tournament(
             $this->session_user_id(),
-            $args['tourn'],
+            $args['tournament'],
             $args['action'],
             $button_name_array
         );
     }
 
     /**
-     * Interface redirect for dismissTourn
+     * Interface redirect for dismissTournament
      *
      * @param BMInterface $interface
      * @param array $args
      * @return NULL|bool
      */
-    protected function get_interface_response_dismissTourn($interface, $args) {
-        $retval = $interface->tournament()->dismiss_tourn($this->session_user_id(), $args['tournId']);
+    protected function get_interface_response_dismissTournament($interface, $args) {
+        $retval = $interface->tournament()->dismiss_tournament($this->session_user_id(), $args['tournamentId']);
         if (isset($retval)) {
             $interface->player()->update_last_action_time($this->session_user_id());
         }
@@ -866,14 +866,14 @@ class ApiResponder {
     }
 
     /**
-     * Interface redirect for followTourn
+     * Interface redirect for followTournament
      *
      * @param BMInterface $interface
      * @param array $args
      * @return NULL|bool
      */
-    protected function get_interface_response_followTourn($interface, $args) {
-        $retval = $interface->tournament()->watch_tournament($this->session_user_id(), $args['tournId']);
+    protected function get_interface_response_followTournament($interface, $args) {
+        $retval = $interface->tournament()->watch_tournament($this->session_user_id(), $args['tournamentId']);
         if (isset($retval)) {
             $interface->player()->update_last_action_time($this->session_user_id());
         }
@@ -881,14 +881,14 @@ class ApiResponder {
     }
 
     /**
-     * Interface redirect for unfollowTourn
+     * Interface redirect for unfollowTournament
      *
      * @param BMInterface $interface
      * @param array $args
      * @return NULL|bool
      */
-    protected function get_interface_response_unfollowTourn($interface, $args) {
-        $retval = $interface->tournament()->unwatch_tournament($this->session_user_id(), $args['tournId']);
+    protected function get_interface_response_unfollowTournament($interface, $args) {
+        $retval = $interface->tournament()->unwatch_tournament($this->session_user_id(), $args['tournamentId']);
         if (isset($retval)) {
             $interface->player()->update_last_action_time($this->session_user_id());
         }

@@ -1,45 +1,45 @@
 // namespace for this "module"
-var Newtourn = {
+var Newtournament = {
   'activity': {},
 };
 
-Newtourn.bodyDivId = 'newtournament_page';
+Newtournament.bodyDivId = 'newtournament_page';
 
 // Maximum number of characters permitted in the game description
-Newtourn.TOURNAMENT_DESCRIPTION_MAX_LENGTH = 255;
+Newtournament.TOURNAMENT_DESCRIPTION_MAX_LENGTH = 255;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Newtourn.showLoggedInPage() is the landing function.  Always call
+// * Newtournament.showLoggedInPage() is the landing function.  Always call
 //   this first
-// * Newtourn.getNewtournamentOptions() asks the API for information about
+// * Newtournament.getNewtournamentOptions() asks the API for information about
 //   players and buttons to be used when creating the tournament.  It clobbers
-//   Newtourn.api.  If successful, it calls
-// * Newtourn.showStatePage() determines what action to take next based on
-//   the received data from getNewtournOptions().  It calls one of several
-//   functions, Newtourn.action<SomeAction>()
-// * each Newtourn.action<SomeAction>() function must set
-//   Newtourn.page and Newtourn.form, then call Login.arrangePage()
+//   Newtournament.api.  If successful, it calls
+// * Newtournament.showStatePage() determines what action to take next based on
+//   the received data from getNewtournamentOptions().  It calls one of several
+//   functions, Newtournament.action<SomeAction>()
+// * each Newtournament.action<SomeAction>() function must set
+//   Newtournament.page and Newtournament.form, then call Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-Newtourn.showLoggedInPage = function() {
-  if (!Newtourn.activity.type) {
-    Newtourn.activity.type = Env.getParameterByName('tournamentType');
+Newtournament.showLoggedInPage = function() {
+  if (!Newtournament.activity.type) {
+    Newtournament.activity.type = Env.getParameterByName('tournamentType');
   }
-  if (!Newtourn.activity.nPlayer) {
-    Newtourn.activity.nPlayer = Env.getParameterByName('nPlayer');
+  if (!Newtournament.activity.nPlayer) {
+    Newtournament.activity.nPlayer = Env.getParameterByName('nPlayer');
   }
-  if (!Newtourn.activity.nRounds) {
-    Newtourn.activity.nRounds = Env.getParameterByName('maxWins');
+  if (!Newtournament.activity.nRounds) {
+    Newtournament.activity.nRounds = Env.getParameterByName('maxWins');
   }
 
-  Newtourn.showPage();
+  Newtournament.showPage();
 };
 
-//Newtourn.getNewtournData = function(callback) {
+//Newtournament.getNewtournamentData = function(callback) {
 ////  Env.callAsyncInParallel(
 ////    [
 ////      { 'func': Api.getButtonData, 'args': [ null ] },
@@ -47,49 +47,49 @@ Newtourn.showLoggedInPage = function() {
 ////    ], callback);
 //};
 
-Newtourn.showPage = function() {
-  Newtourn.actionCreateTourn();
+Newtournament.showPage = function() {
+  Newtournament.actionCreateTournament();
 };
 
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
-// flow through the page being laid out by Newtourn.js.
-// Each function should start by populating Newtourn.page and Newtourn.form
+// flow through the page being laid out by Newtournament.js.
+// Each function should start by populating Newtournament.page and Newtournament.form
 // ane end by invoking Login.arrangePage();
 
-Newtourn.actionLoggedOut = function() {
+Newtournament.actionLoggedOut = function() {
 
   // Create empty page and undefined form objects to be filled later
-  Newtourn.page = $('<div>');
-  Newtourn.form = null;
+  Newtournament.page = $('<div>');
+  Newtournament.form = null;
 
   // Add the "logged out player" HTML contents
-  Newtourn.addLoggedOutPage();
+  Newtournament.addLoggedOutPage();
 
   // Lay out the page
-  Login.arrangePage(Newtourn.page, Newtourn.form, '#newtourn_action_button');
+  Login.arrangePage(Newtournament.page, Newtournament.form, '#newtournament_action_button');
 };
 
-Newtourn.actionInternalErrorPage = function() {
+Newtournament.actionInternalErrorPage = function() {
 
   // Create empty page and undefined form objects to be filled later
-  Newtourn.page = $('<div>');
-  Newtourn.form = null;
+  Newtournament.page = $('<div>');
+  Newtournament.form = null;
 
   // Add the internal error HTML contents
-  Newtourn.addInternalErrorPage();
+  Newtournament.addInternalErrorPage();
 
   // Lay out the page
-  Login.arrangePage(Newtourn.page, Newtourn.form, '#newtourn_action_button');
+  Login.arrangePage(Newtournament.page, Newtournament.form, '#newtournament_action_button');
 };
 
-Newtourn.actionCreateTourn = function() {
+Newtournament.actionCreateTournament = function() {
   // Create empty page and undefined form objects to be filled later
-  Newtourn.page = $('<div>');
-  if (Newtourn.justCreatedTourn === true) {
-    Newtourn.page.css('display', 'none');
+  Newtournament.page = $('<div>');
+  if (Newtournament.justCreatedTournament === true) {
+    Newtournament.page.css('display', 'none');
   }
-  Newtourn.form = null;
+  Newtournament.form = null;
 
   var creatediv = $('<div>');
   creatediv.append($('<div>', {
@@ -97,33 +97,33 @@ Newtourn.actionCreateTourn = function() {
     'text': 'Create a new tournament',
   }));
   var createform = $('<form>', {
-    'id': 'newtourn_action_form',
+    'id': 'newtournament_action_form',
     'action': 'javascript:void(0);',
   });
 
   // add generic options table to the form
-  createform.append(Newtourn.createMiscOptionsTable()).append($('<br />'));
+  createform.append(Newtournament.createMiscOptionsTable()).append($('<br />'));
 
 //  // add table of button selections to the form
-//  createform.append(Newtourn.createButtonOptionsTable()).append($('<br />'));
+//  createform.append(Newtournament.createButtonOptionsTable()).append($('<br />'));
 
   // Form submission button
   createform.append($('<button>', {
-    'id': 'newtourn_action_button',
+    'id': 'newtournament_action_button',
     'text': 'Create tournament!',
   }));
   creatediv.append(createform);
 
-  Newtourn.page.append(creatediv);
+  Newtournament.page.append(creatediv);
 
   // Function to invoke on button click
-  Newtourn.form = Newtourn.formCreateTourn;
+  Newtournament.form = Newtournament.formCreateTournament;
 
   // Lay out the page
-  Login.arrangePage(Newtourn.page, Newtourn.form, '#newtourn_action_button');
+  Login.arrangePage(Newtournament.page, Newtournament.form, '#newtournament_action_button');
 
   // Unlock player 1 if this was previously unlocked before form submission
-  if (Newtourn.activity.isPlayer1Unlocked) {
+  if (Newtournament.activity.isPlayer1Unlocked) {
     $('#player1_toggle').click();
   }
 
@@ -131,33 +131,33 @@ Newtourn.actionCreateTourn = function() {
 //  $('.chosen-select').chosen({ search_contains: true });
 };
 
-Newtourn.createMiscOptionsTable = function() {
-  var miscOptionsTable = $('<table>', {'id': 'newtourn_create_table', });
+Newtournament.createMiscOptionsTable = function() {
+  var miscOptionsTable = $('<table>', {'id': 'newtournament_create_table', });
 
-  miscOptionsTable.append(Newtourn.createTypeRow());
-  miscOptionsTable.append(Newtourn.createNPlayerRow());
-  miscOptionsTable.append(Newtourn.createRoundSelectRow());
-  miscOptionsTable.append(Newtourn.createDescRow());
+  miscOptionsTable.append(Newtournament.createTypeRow());
+  miscOptionsTable.append(Newtournament.createNPlayerRow());
+  miscOptionsTable.append(Newtournament.createRoundSelectRow());
+  miscOptionsTable.append(Newtournament.createDescRow());
 
   return miscOptionsTable;
 };
 
-Newtourn.createTypeRow = function() {
-  var selectRow = Newtourn.getSelectRow(
+Newtournament.createTypeRow = function() {
+  var selectRow = Newtournament.getSelectRow(
     'Tournament type',
     'type',
     {
       'Single Elimination': 'Single Elimination',
     },
     null,
-    Newtourn.activity.type
+    Newtournament.activity.type
   );
 
   return selectRow;
 };
 
-Newtourn.createNPlayerRow = function() {
-  var selectRow = Newtourn.getSelectRow(
+Newtournament.createNPlayerRow = function() {
+  var selectRow = Newtournament.getSelectRow(
     'Number of players',
     'n_player',
     {
@@ -167,17 +167,17 @@ Newtourn.createNPlayerRow = function() {
       '32': '32',
     },
     null,
-    Newtourn.activity.nPlayer
+    Newtournament.activity.nPlayer
   );
 
   return selectRow;
 };
 
-Newtourn.createRoundSelectRow = function() {
-  if (!('nRounds' in Newtourn.activity) || !Newtourn.activity.nRounds) {
-    Newtourn.activity.nRounds = '3';
+Newtournament.createRoundSelectRow = function() {
+  if (!('nRounds' in Newtournament.activity) || !Newtournament.activity.nRounds) {
+    Newtournament.activity.nRounds = '3';
   }
-  var selectRow = Newtourn.getSelectRow(
+  var selectRow = Newtournament.getSelectRow(
     'Each game has',
     'n_rounds',
     {
@@ -188,15 +188,15 @@ Newtourn.createRoundSelectRow = function() {
       '5': '5 rounds',
     },
     null,
-    Newtourn.activity.nRounds
+    Newtournament.activity.nRounds
   );
 
   return selectRow;
 };
 
-Newtourn.createDescRow = function() {
-  if (!('description' in Newtourn.activity)) {
-    Newtourn.activity.description = '';
+Newtournament.createDescRow = function() {
+  if (!('description' in Newtournament.activity)) {
+    Newtournament.activity.description = '';
   }
   var descRow = $('<tr>');
   descRow.append($('<th>', {'text': 'Description (optional):' }));
@@ -205,8 +205,8 @@ Newtourn.createDescRow = function() {
     'name': 'description',
     'rows': '3',
     'class': 'gameDescInput',
-    'maxlength': Newtourn.TOURNAMENT_DESCRIPTION_MAX_LENGTH,
-    'text': Newtourn.activity.description,
+    'maxlength': Newtournament.TOURNAMENT_DESCRIPTION_MAX_LENGTH,
+    'text': Newtournament.activity.description,
   });
   descRow.append($('<td>').append(descInput));
 
@@ -217,17 +217,17 @@ Newtourn.createDescRow = function() {
 ////////////////////////////////////////////////////////////////////////
 // These functions define form submissions, one per action type
 
-Newtourn.formCreateTourn = function() {
-  Newtourn.activity.type = $('#type').val();
-  Newtourn.activity.nPlayer = $('#n_player').val();
-  Newtourn.activity.nRounds = $('#n_rounds').val();
-  Newtourn.activity.description = $('#description').val();
+Newtournament.formCreateTournament = function() {
+  Newtournament.activity.type = $('#type').val();
+  Newtournament.activity.nPlayer = $('#n_player').val();
+  Newtournament.activity.nRounds = $('#n_rounds').val();
+  Newtournament.activity.description = $('#description').val();
 
   var errorMessage = '';
 
-  if (!Newtourn.activity.type) {
+  if (!Newtournament.activity.type) {
     errorMessage = 'Please select a tournament type.';
-  } else if (!Newtourn.activity.nPlayer) {
+  } else if (!Newtournament.activity.nPlayer) {
     errorMessage = 'Please select the number of players.';
   }
 
@@ -236,18 +236,18 @@ Newtourn.formCreateTourn = function() {
       'type': 'error',
       'text': errorMessage,
     };
-    Newtourn.showLoggedInPage();
+    Newtournament.showLoggedInPage();
   } else {
     var args =
       {
         type: 'createTournament',
-        tournamentType: Newtourn.activity.type,
-        nPlayer: Newtourn.activity.nPlayer,
-        maxWins: Newtourn.activity.nRounds,
-        description: Newtourn.activity.description,
+        tournamentType: Newtournament.activity.type,
+        nPlayer: Newtournament.activity.nPlayer,
+        maxWins: Newtournament.activity.nRounds,
+        description: Newtournament.activity.description,
       };
 
-    // N.B. Newtourn.activity is always retained between loads: on
+    // N.B. Newtournament.activity is always retained between loads: on
     // failure so the player can correct selections, on success in
     // case the player wants to create another similar game.
     // Therefore, it's fine to pass the form post the same function
@@ -257,81 +257,81 @@ Newtourn.formCreateTourn = function() {
       {
         'ok': {
           'type': 'function',
-          'msgfunc': Newtourn.setCreateTournSuccessMessage,
+          'msgfunc': Newtournament.setCreateTournamentSuccessMessage,
         },
         'notok': { 'type': 'server', },
       },
-      '#newtourn_action_button',
-      Newtourn.showLoggedInPage,
-      Newtourn.showLoggedInPage
+      '#newtournament_action_button',
+      Newtournament.showLoggedInPage,
+      Newtournament.showLoggedInPage
     );
   }
 };
 
 ////////////////////////////////////////////////////////////////////////
-// These functions add pieces of HTML to Newtourn.page
+// These functions add pieces of HTML to Newtournament.page
 
-Newtourn.addLoggedOutPage = function() {
+Newtournament.addLoggedOutPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
     'text': 'Can\'t create a tournament because you are not logged in',
   }));
-  Newtourn.page.append(errorDiv);
+  Newtournament.page.append(errorDiv);
 };
 
-Newtourn.addInternalErrorPage = function() {
+Newtournament.addInternalErrorPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
     'text': 'Can\'t create a tournament.  Something went wrong when ' +
             'loading data from server.',
   }));
-  Newtourn.page.append(errorDiv);
+  Newtournament.page.append(errorDiv);
 };
 
-Newtourn.setCreateTournSuccessMessage = function(message, data) {
-  Newtourn.justCreatedTourn = true;
+Newtournament.setCreateTournamentSuccessMessage = function(message, data) {
+  Newtournament.justCreatedTournament = true;
 
   var tournamentId = data.tournamentId;
-  var tournLink = $('<a>', {
+  var tournamentLink = $('<a>', {
     'href': 'tournament.html?tournament=' + tournamentId,
     'text': 'Go to tournament page',
   });
 
-  var tournPar = $('<p>', {'text': message + ' ', });
-  tournPar.append(tournLink);
+  var tournamentPar = $('<p>', {'text': message + ' ', });
+  tournamentPar.append(tournamentLink);
 
-  var anotherTournPar = $('<p>', { 'id': 'createAnotherTourn', });
-  var anotherTournBtn = $('<input>', {
+  var anotherTournamentPar = $('<p>', { 'id': 'createAnotherTournament', });
+  var anotherTournamentBtn = $('<input>', {
     'type': 'button',
     'value': 'Create another tournament?',
   });
-  anotherTournBtn.click(function() {
-    Newtourn.justCreatedTourn = false;
-    $('p#createAnotherTourn').hide();
+  anotherTournamentBtn.click(function() {
+    Newtournament.justCreatedTournament = false;
+    $('p#createAnotherTournament').hide();
     $('div#newtournament_page > div').show();
     // reset Chosen select dropdowns
 //    $('.chosen-select').chosen('destroy').chosen({ search_contains: true });
   });
-  anotherTournPar.append(anotherTournBtn);
-  tournPar.append(anotherTournPar);
+  anotherTournamentPar.append(anotherTournamentBtn);
+  tournamentPar.append(anotherTournamentPar);
 
   Env.message = {
     'type': 'success',
     'text': '',
-    'obj': tournPar,
+    'obj': tournamentPar,
   };
 };
 
 ////////////////////////////////////////////////////////////////////////
 // These functions generate and return pieces of HTML
 
-Newtourn.getSelectRow = function(rowname, selectname, valuedict,
+Newtournament.getSelectRow = function(rowname, selectname, valuedict,
                                 greydict, selectedval, isComboBox,
                                 blankOption) {
   var selectRow = $('<tr>');
   selectRow.append($('<th>', {'text': rowname + ':', }));
 
-  var selectTd = Newtourn.getSelectTd(rowname, selectname, valuedict,
+  var selectTd = Newtournament.getSelectTd(rowname, selectname, valuedict,
                                      greydict, selectedval, isComboBox,
                                      blankOption);
 
@@ -339,7 +339,7 @@ Newtourn.getSelectRow = function(rowname, selectname, valuedict,
   return selectRow;
 };
 
-Newtourn.getSelectTd = function(nametext, selectname, valuedict,
+Newtournament.getSelectTd = function(nametext, selectname, valuedict,
                                greydict, selectedval, isComboBox, blankOption) {
   var select = $('<select>', {
     'id': selectname,
@@ -350,7 +350,7 @@ Newtourn.getSelectTd = function(nametext, selectname, valuedict,
     select.addClass('chosen-select');
   }
 
-  var optionlist = Newtourn.getSelectOptionList(
+  var optionlist = Newtournament.getSelectOptionList(
     nametext, valuedict, greydict, selectedval, blankOption);
   var optioncount = optionlist.length;
   for (var i = 0; i < optioncount; i++) {
@@ -363,7 +363,7 @@ Newtourn.getSelectTd = function(nametext, selectname, valuedict,
   return selectTd;
 };
 
-Newtourn.getSelectOptionList = function(
+Newtournament.getSelectOptionList = function(
     nametext, valuedict, greydict, selectedval, blankOption) {
 
   var optionlist = [];

@@ -16,7 +16,7 @@ CREATE TABLE game (
     current_player_id  SMALLINT UNSIGNED,
     last_winner_id     SMALLINT UNSIGNED,
     tournament_id      SMALLINT UNSIGNED,
-    tournament_round_number TINYINT UNSIGNED,
+    tournament_round_number SMALLINT UNSIGNED,
     description        VARCHAR(255) NOT NULL,
     chat               TEXT,
     previous_game_id   MEDIUMINT UNSIGNED,

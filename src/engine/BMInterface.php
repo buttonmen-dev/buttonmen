@@ -2551,39 +2551,42 @@ class BMInterface {
      * @param int $playerId
      * @return array
      */
-    public function get_all_tourns($playerId) {
+    public function get_all_tournaments($playerId) {
         try {
             $this->set_message('All tournament details retrieved successfully.');
 
+            // NOWDOC used here because of the complexity of the query
+            // and to allow the query to be more easily copy/pasted into a
+            // SQL client
             $query = <<<'NOWDOC'
                 SELECT * FROM (
-                  SELECT t.id AS tourn_id,
+                  SELECT t.id AS tournament_id,
                   t.start_time,
                   t.tournament_state,
                   t.round_number,
                   t.n_players,
                   (
-                      SELECT COUNT(*) FROM tourn_player_map
-                      WHERE tourn_id = t.id
+                      SELECT COUNT(*) FROM tournament_player_map
+                      WHERE tournament_id = t.id
                   ) AS n_players_joined,
                   t.n_target_wins,
                   t.tournament_type,
                   p.name_ingame AS creator_name,
                   t.description,
                   s.name AS status,
-                  (t.creator_id = :player_id_1) AS is_creator,
+                  (t.creator_id = :player_id_check_creator) AS is_creator,
                   (
                     EXISTS (
-                      SELECT * FROM tourn_player_map
-                      WHERE player_id = :player_id_2
-                      AND tourn_id = t.id
+                      SELECT * FROM tournament_player_map
+                      WHERE player_id = :player_id_check_joined
+                      AND tournament_id = t.id
                     )
                   ) AS has_joined,
                   (
                     EXISTS (
-                      SELECT * FROM tourn_player_watch_map
-                      WHERE player_id = :player_id_3
-                      AND tourn_id = t.id
+                      SELECT * FROM tournament_player_watch_map
+                      WHERE player_id = :player_id_check_watched
+                      AND tournament_id = t.id
                     )
                   ) AS is_watched
                   FROM tournament AS t
@@ -2591,23 +2594,23 @@ class BMInterface {
                   ON t.status_id = s.id
                   LEFT JOIN player AS p
                   ON p.id = t.creator_id
-                  LEFT JOIN tourn_player_map AS m
-                  ON m.tourn_id = t.id
-                  AND m.player_id = :player_id_4
+                  LEFT JOIN tournament_player_map AS m
+                  ON m.tournament_id = t.id
+                  AND m.player_id = :player_id_map_info
                 ) AS innerTable
                 WHERE is_watched OR
                       is_creator OR
                       has_joined OR
                       status = 'OPEN'
-                ORDER BY tourn_id DESC
+                ORDER BY tournament_id DESC
 NOWDOC;
 
-            $parameters = array(':player_id_1' => $playerId,
-                                ':player_id_2' => $playerId,
-                                ':player_id_3' => $playerId,
-                                ':player_id_4' => $playerId);
+            $parameters = array(':player_id_check_creator' => $playerId,
+                                ':player_id_check_joined' => $playerId,
+                                ':player_id_check_watched' => $playerId,
+                                ':player_id_map_info' => $playerId);
             $columnReturnTypes = array(
-                'tourn_id' => 'int',
+                'tournament_id' => 'int',
                 'description' => 'str',
                 'n_target_wins' => 'int',
                 'tournament_state' => 'int',
@@ -2624,10 +2627,10 @@ NOWDOC;
             );
             $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            return self::read_tourn_list_from_db_results($rows);
+            return self::read_tournament_list_from_db_results($rows);
         } catch (Exception $e) {
             error_log(
-                'Caught exception in BMInterface::get_all_tourns: ' .
+                'Caught exception in BMInterface::get_all_tournaments: ' .
                 $e->getMessage()
             );
             $this->set_message('Tournament detail get failed.');
@@ -2641,15 +2644,15 @@ NOWDOC;
      * @param array $rows
      * @return array
      */
-    protected function read_tourn_list_from_db_results($rows) {
+    protected function read_tournament_list_from_db_results($rows) {
         // Initialize the arrays
-        $tournIdArray = array();
-        $tournDescriptionArray = array();
+        $tournamentIdArray = array();
+        $tournamentDescriptionArray = array();
         $nTargetWinsArray = array();
-        $tournStateArray = array();
+        $tournamentStateArray = array();
         $statusArray = array();
         $roundNumberArray = array();
-        $tournTypeArray = array();
+        $tournamentTypeArray = array();
         $creatorNameArray = array();
         $startTimeArray = array();
         $nPlayersArray = array();
@@ -2659,13 +2662,13 @@ NOWDOC;
         $isWatchedArray = array();
 
         foreach ($rows as $row) {
-            $tournIdArray[]          = $row['tourn_id'];
-            $tournDescriptionArray[] = $row['description'];
+            $tournamentIdArray[]     = $row['tournament_id'];
+            $tournamentDescriptionArray[] = $row['description'];
             $nTargetWinsArray[]      = $row['n_target_wins'];
-            $tournStateArray[]       = BMTournamentState::as_string($row['tournament_state']);
+            $tournamentStateArray[]  = BMTournamentState::as_string($row['tournament_state']);
             $statusArray[]           = $row['status'];
             $roundNumberArray[]      = $row['round_number'];
-            $tournTypeArray[]        = $row['tournament_type'];
+            $tournamentTypeArray[]   = $row['tournament_type'];
             $creatorNameArray[]      = $row['creator_name'];
             $startTimeArray[]        = $row['start_time'];
             $nPlayersArray[]         = $row['n_players'];
@@ -2675,13 +2678,13 @@ NOWDOC;
             $isWatchedArray[]        = $row['is_watched'];
         }
 
-        $result = array('tournIdArray'          => $tournIdArray,
-                        'tournDescriptionArray' => $tournDescriptionArray,
+        $result = array('tournamentIdArray'     => $tournamentIdArray,
+                        'tournamentDescriptionArray' => $tournamentDescriptionArray,
                         'nTargetWinsArray'      => $nTargetWinsArray,
-                        'tournStateArray'       => $tournStateArray,
+                        'tournamentStateArray'  => $tournamentStateArray,
                         'statusArray'           => $statusArray,
                         'roundNumberArray'      => $roundNumberArray,
-                        'tournTypeArray'        => $tournTypeArray,
+                        'tournamentTypeArray'   => $tournamentTypeArray,
                         'creatorNameArray'      => $creatorNameArray,
                         'startTimeArray'        => $startTimeArray,
                         'nPlayersArray'         => $nPlayersArray,
@@ -2811,7 +2814,7 @@ NOWDOC;
      */
     protected function load_die_background_type($playerId) {
         $playerInfoArray = $this->player()->get_player_info($playerId);
-
+        
         return $playerInfoArray['user_prefs']['die_background'];
     }
 

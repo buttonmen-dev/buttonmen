@@ -676,35 +676,35 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////
   // Tournament-related methods
 
-  my.getTournsData = function(callbackfunc) {
-    my.tourns = {};
+  my.getTournamentsData = function(callbackfunc) {
+    my.tournaments = {};
     var parserargs = [];
-    parserargs.target = my.tourns;
+    parserargs.target = my.tournaments;
     parserargs.isSplit = false;
     my.apiParsePost(
-      {'type': 'loadTourns',},
-      'tourns',
-      my.packageTournData,
+      {'type': 'loadTournaments',},
+      'tournaments',
+      my.packageTournamentData,
       callbackfunc,
       callbackfunc,
       parserargs
     );
   };
 
-  my.packageTournData = function(data, _apikey, parserargs) {
-    parserargs.target.tourns = [];
-    parserargs.target.nTourns = data.tournIdArray.length;
+  my.packageTournamentData = function(data, _apikey, parserargs) {
+    parserargs.target.tournaments = [];
+    parserargs.target.nTournaments = data.tournamentIdArray.length;
 
-    for (var i = 0; i < parserargs.target.nTourns; i++) {
-      var tournInfo = {
-        'tournId': data.tournIdArray[i],
+    for (var i = 0; i < parserargs.target.nTournaments; i++) {
+      var tournamentInfo = {
+        'tournamentId': data.tournamentIdArray[i],
         'creatorName': data.creatorNameArray[i],
-        'tournType': data.tournTypeArray[i],
-        'tournDescription': data.tournDescriptionArray[i],
+        'tournamentType': data.tournamentTypeArray[i],
+        'tournamentDescription': data.tournamentDescriptionArray[i],
         'nPlayers': data.nPlayersArray[i],
         'nPlayersJoined': data.nPlayersJoinedArray[i],
         'maxWins': data.nTargetWinsArray[i],
-        'tournState': data.tournStateArray[i],
+        'tournamentState': data.tournamentStateArray[i],
         'status': data.statusArray[i],
         'roundNumber': data.roundNumberArray[i],
         'startTime': data.startTimeArray[i],
@@ -713,18 +713,18 @@ var Api = (function () {
         'isWatched': data.isWatchedArray[i],
       };
 
-      parserargs.target.tourns.push(tournInfo);
+      parserargs.target.tournaments.push(tournamentInfo);
     }
 
     return true;
   };
 
-  my.getTournData = function(tourn, callback) {
-    activity.tournamentId = tourn;
+  my.getTournamentData = function(tournament, callback) {
+    activity.tournamentId = tournament;
     Api.apiParsePost(
-      { type: 'loadTournData', tourn: tourn },
-      'tourn',
-      my.parseTournData,
+      { type: 'loadTournamentData', tournament: tournament },
+      'tournament',
+      my.parseTournamentData,
       callback,
       callback
     );
@@ -732,38 +732,38 @@ var Api = (function () {
 
   // Utility routine to parse the tournament data returned by the server
   // Adds tournament data:
-  //   Api.tourn.*: metadata about the entire tournament
-  my.parseTournData = function(data) {
+  //   Api.tournament.*: metadata about the entire tournament
+  my.parseTournamentData = function(data) {
     // Store some initial high-level tournament elements
-    my.tourn.tournamentId = data.tournamentId;
-    my.tourn.tournamentState = data.tournamentState;
-    my.tourn.roundNumber = data.tournamentRoundNumber;
-    my.tourn.type = data.type;
-    my.tourn.nPlayers = data.nPlayers;
-    my.tourn.maxWins = data.maxWins;
-    my.tourn.description = data.description;
-    my.tourn.playerDataArray = data.playerDataArray;
-    my.tourn.gameIdArrayArray = data.gameIdArrayArray;
-    my.tourn.remainCountArray = data.remainCountArray;
+    my.tournament.tournamentId = data.tournamentId;
+    my.tournament.tournamentState = data.tournamentState;
+    my.tournament.roundNumber = data.tournamentRoundNumber;
+    my.tournament.type = data.type;
+    my.tournament.nPlayers = data.nPlayers;
+    my.tournament.maxWins = data.maxWins;
+    my.tournament.description = data.description;
+    my.tournament.playerDataArray = data.playerDataArray;
+    my.tournament.gameIdArrayArray = data.gameIdArrayArray;
+    my.tournament.remainCountArray = data.remainCountArray;
 
-    my.tourn.timestamp = data.timestamp;
+    my.tournament.timestamp = data.timestamp;
 
     // Do some sanity-checking of the data we have
-    if (activity.tournamentId != my.tourn.tournamentId) {
+    if (activity.tournamentId != my.tournament.tournamentId) {
       return false;
     }
 
-    my.tourn.creatorId = data.creatorDataArray.creatorId;
-    my.tourn.creatorName = data.creatorDataArray.creatorName;
-    my.tourn.isCreator = data.isCreator;
+    my.tournament.creatorId = data.creatorDataArray.creatorId;
+    my.tournament.creatorName = data.creatorDataArray.creatorName;
+    my.tournament.isCreator = data.isCreator;
 
     if ($.isNumeric(data.currentPlayerIdx)) {
-      my.tourn.isParticipant = true;
+      my.tournament.isParticipant = true;
     } else {
-      my.tourn.isParticipant = false;
+      my.tournament.isParticipant = false;
     }
 
-    my.tourn.isWatched = data.isWatched;
+    my.tournament.isWatched = data.isWatched;
 
     return true;
   };
