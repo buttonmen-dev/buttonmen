@@ -23,7 +23,9 @@ class BMInterfaceTournament extends BMInterface {
 
             return $statement->fetchColumn() > 0;
         } catch (BMExceptionDatabase $e) {
-            $this->set_message('Cannot determine if tournament is watched because a player or tournament ID was not valid');
+            $this->set_message(
+                'Cannot determine if tournament is watched because a player or tournament ID was not valid'
+            );
             return NULL;
         } catch (Exception $e) {
             // Failure might occur on DB insert or afterward
@@ -320,7 +322,7 @@ class BMInterfaceTournament extends BMInterface {
                 $tournament->gameIdArrayArray = $gameIdArrayArray;
                 
                 $gameArrayArray = $tournament->gameArrayArray;
-                $gameArrayArray[$row['tournament_round_number'] - 1][] = 
+                $gameArrayArray[$row['tournament_round_number'] - 1][] =
                     $this->load_game($row['game_id']);
                 $tournament->gameArrayArray = $gameArrayArray;
             }
@@ -689,7 +691,8 @@ class BMInterfaceTournament extends BMInterface {
                  '    :tournament_id_to_be_joined,'.
                  '    :player_id_wants_to_join,'.
                  '    :button_id,'.
-                 '    (SELECT MAX(m.position) FROM tournament_player_map AS m WHERE m.tournament_id = :tournament_id_check_position_to_join) + 1 '.
+                 '    (SELECT MAX(m.position) FROM tournament_player_map AS m '.
+                 '     WHERE m.tournament_id = :tournament_id_check_position_to_join) + 1 '.
                  'FROM DUAL '.
                  'WHERE ('.
                  '    SELECT COUNT(*) '.

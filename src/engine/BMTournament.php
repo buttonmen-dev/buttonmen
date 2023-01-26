@@ -177,10 +177,10 @@ abstract class BMTournament {
 
     /**
      * Array of game data to be created by BMInterface at save time
-     * 
+     *
      * @var array
      */
-    protected $gameDataToBeCreatedArray;         
+    protected $gameDataToBeCreatedArray;
     
     /**
      * Indicates if games are created in the test database
