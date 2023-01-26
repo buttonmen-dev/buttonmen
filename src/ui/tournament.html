@@ -24,19 +24,18 @@
   <script>
     $(document).ready(function() {
       $.ajax({
-        url: 'js/Loader.VERSION_COOKIE.js',
+        url: 'js/Loader.js',
         dataType: 'script',
         cache: true,
         success: function() {
           Loader.loadScripts([
             'js/extern/chosen.jquery.min.js',
-            'js/Newgame.VERSION_COOKIE.js',
-            'js/Tourn.VERSION_COOKIE.js'
+            'js/Newgame.js',
+            'js/Tourn.js'
           ],
           function() {
             Login.showLoginHeader(Tourn);
-          },
-          'VERSION_COOKIE');
+          });
         }
       });
     });

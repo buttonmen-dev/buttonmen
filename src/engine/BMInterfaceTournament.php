@@ -349,15 +349,15 @@ class BMInterfaceTournament extends BMInterface {
             'round_number' => 'int',
             'n_players' => 'int',
             'n_target_wins' => 'int',
-            'tournament_type' => '',
+            'tournament_type' => 'str',
             'creator_id' => 'int',
             'description' => 'str',
-            'game_id' => 'int',
-            'tournament_round_number' => 'int',
+            'game_id' => 'int_or_null',
+            'tournament_round_number' => 'int_or_null',
         );
 
         $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
-
+        
         foreach ($rows as $row) {
             // load tournament attributes
             if (!isset($tournament)) {
