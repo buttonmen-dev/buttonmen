@@ -98,7 +98,9 @@ TournamentOverview.pageAddTournamentTable = function(
 
   switch (tournamentType) {
   case 'new':
-    for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
+    for (tournamentIdx = 0; 
+         tournamentIdx < Api.tournaments.tournaments.length; 
+         tournamentIdx++) {
       if ((Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
           !Api.tournaments.tournaments[tournamentIdx].hasJoined) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
@@ -132,7 +134,9 @@ TournamentOverview.pageAddTournamentTable = function(
     tableClass = 'joinedtournaments';
     break;
   case 'active':
-    for (tournamentIdx = 0; tournamentIdx < Api.tournaments.tournaments.length; tournamentIdx++) {
+    for (tournamentIdx = 0; 
+         tournamentIdx < Api.tournaments.tournaments.length; 
+         tournamentIdx++) {
       if ((Api.tournaments.tournaments[tournamentIdx].status === 'ACTIVE') &&
           Api.tournaments.tournaments[tournamentIdx].isWatched) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
@@ -311,8 +315,9 @@ TournamentOverview.addNPlayersCol = function(
   var tournamentNPlayersTd;
 
   if (showNPlayersJoined) {
-    tournamentNPlayersTd = $('<td>', {'text': tournamentInfo.nPlayersJoined + '/' +
-                                         tournamentInfo.nPlayers});
+    tournamentNPlayersTd = $('<td>', 
+      {'text': tournamentInfo.nPlayersJoined + '/' + tournamentInfo.nPlayers}
+    );
   } else {
     tournamentNPlayersTd = $('<td>', {'text': tournamentInfo.nPlayers});
   }
