@@ -53,7 +53,7 @@ Help.generalInfo = function() {
   text.append(
     $('<p>').html(
       'We have a ' +
-      '<a href="getting-started.html">tutorial to help you get started</a>' +
+      '<a href="getting_started.html">page to help you get started</a>' +
       ' using this site.'
     )
   );

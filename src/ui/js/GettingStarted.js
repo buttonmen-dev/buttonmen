@@ -255,7 +255,8 @@ GettingStarted.strategyContent = function() {
       '<a href="https://buttonmen.fandom.com/wiki/Button_Men_Strategy">' +
       'here</a>. There are also many discussions of Button Men strategy on ' +
       'the ' +
-      '<a href="forum.html">forums</a>. Also, ElihuRoot has a ' +
+      '<a href="forum.html">forums</a>. Also, ' +
+      '<a href="profile.html?player=ElihuRoot">ElihuRoot</a> has a ' +
       '<a href="https://buttonmen.blogspot.com">blog</a> that focuses ' +
       'on Button Men strategy.'
     )
@@ -400,7 +401,7 @@ GettingStarted.buttonProgressionContent = function() {
     $('<p>').html(
       'A full list of button sets, along with the skills used, can be ' +
       'found on the ' +
-      '<a href="buttons.html">button page</a>, which is accessible from ' +
+      '<a href="buttons.html">Buttons</a> page, which is accessible from ' +
       'the navigation bar at the top of the page.'
     )
   );
@@ -408,7 +409,7 @@ GettingStarted.buttonProgressionContent = function() {
   content.append(
     $('<p>').html(
       'A full list of skills can be found on the ' +
-      '<a href="skills.html">skills reference page</a>, which is accessible ' +
+      '<a href="skills.html">Die Skills and Types</a> page, which is accessible ' +
       'from the help page.'
     )
   );
@@ -467,7 +468,7 @@ GettingStarted.startGameContent = function() {
       'selected at random. To do this, leave the corresponding button ' +
       'dropdown set to <em>Random button</em>. Beware, the button ' +
       'may end up having a really complicated recipe! ' +
-      '(Note: Random Button does not currently restrict its choice ' +
+      '(Note: <em>Random button</em> does not currently restrict its choice ' +
       'based on skill or set filters.)'
     )
   );

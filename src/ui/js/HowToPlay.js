@@ -409,7 +409,7 @@ HowToPlay.info = function() {
 
   bodytext.append(
     $('<h2>').text(
-      'The Next Round'
+      'The next round'
     )
   );
 
@@ -474,8 +474,8 @@ HowToPlay.info = function() {
   );
 
   bodytext.append(
-    $('<p>').text(
-      'Written by jl8e'
+    $('<p>').html(
+      'Written by <a href="profile.html?player=jl8e">jl8e</a>'
     ).addClass('byline')
   );
 
