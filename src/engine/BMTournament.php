@@ -447,12 +447,6 @@ abstract class BMTournament {
         $this->do_next_step();
 
         while (!$this->isWaitingOnAnyAction()) {
-            // james: this is here for debugging only!
-            if ($this->roundNumber > 5) {
-                var_dump('too many rounds');
-                return;
-            }
-
             $tempTournamentState = $this->tournamentState;
             $this->update_tournament_state();
 
