@@ -128,7 +128,7 @@ Faq.userprefsLinks = function() {
 Faq.forumLinks = function() {
   var links = $('<li>').append(
     $('<a>').attr('href', '#Forum').text(
-      'Forum'
+      'Forums'
     )
   );
 
@@ -488,7 +488,7 @@ Faq.forumContent = function() {
   var content = $(document.createDocumentFragment());
 
   content.append($('<a>').attr('name', 'Forum'));
-  content.append($('<h2>').text('Forum'));
+  content.append($('<h2>').text('Forums'));
 
   content.append(Faq.forumLinkContent());
 
