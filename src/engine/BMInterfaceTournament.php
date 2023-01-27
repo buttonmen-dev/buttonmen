@@ -788,8 +788,8 @@ class BMInterfaceTournament extends BMInterface {
         }
 
         if (count($tournament->playerIdArray) == $tournament->nPlayers) {
-            $this->set_message('You cannot leave when the tournament is full.');
-            return NULL;
+            $this->error_log('A tournament should not still be in JOIN_TOURNAMENT when it is full.');
+            throw new LogicException('Tournament is in JOIN_TOURNAMENT and has a full complement of players.');
         }
 
         return TRUE;
@@ -946,14 +946,11 @@ class BMInterfaceTournament extends BMInterface {
             $columnReturnTypes = array(
                 'status' => 'str',
             );
-            $rows = self::$db->select_rows($query1, $parameters, $columnReturnTypes);
 
-            if (count($rows) == 0) {
-                $this->set_message("Tournament $tournamentId does not exist");
-                return NULL;
-            }
-            if (($rows[0]['status'] != 'COMPLETE') &&
-                ($rows[0]['status'] != 'CANCELLED')) {
+            $row = self::$db->select_single_value($query1, $parameters, $columnReturnTypes);
+
+            if (($row['status'] != 'COMPLETE') &&
+                ($row['status'] != 'CANCELLED')) {
                 $this->set_message("Tournament $tournamentId isn't complete");
                 return NULL;
             }
