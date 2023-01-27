@@ -966,9 +966,10 @@ class BMInterface {
             $this->delete_dice_marked_as_deleted($game);
             $this->game_action()->save_action_log($game);
             $this->game_chat()->save_chat_log($game);
-            $this->update_containing_tournament($game);
 
             self::$conn->commit();
+
+            $this->update_containing_tournament($game);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_game: ' .
@@ -2284,7 +2285,7 @@ class BMInterface {
             $sets = array();
             foreach ($rows as $row) {
                 $buttons = $this->get_button_data(NULL, $row['name']);
-                
+
                 if (!isset($buttons) || count($buttons) == 0) {
                     continue;
                 }
@@ -2814,7 +2815,7 @@ NOWDOC;
      */
     protected function load_die_background_type($playerId) {
         $playerInfoArray = $this->player()->get_player_info($playerId);
-        
+
         return $playerInfoArray['user_prefs']['die_background'];
     }
 

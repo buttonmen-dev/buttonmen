@@ -378,18 +378,12 @@ abstract class BMTournament {
      * Update tournament state from BMTournamentState::END_ROUND if necessary
      */
     protected function update_tournament_state_end_round() {
-        var_dump('update tournament state end round');
-        var_dump('update remain count array');
         $this->update_remainCountArray();
-
-        var_dump('check in tournament is complete');
 
         if ($this->has_tournament_completed()) {
             $this->tournamentState = BMTournamentState::END_TOURNAMENT;
             return;
         }
-
-        var_dump('update round number');
 
         $this->roundNumber++;
         $this->tournamentState = BMTournamentState::START_ROUND;
