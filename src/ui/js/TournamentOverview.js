@@ -44,12 +44,9 @@ TournamentOverview.showPage = function() {
   // Actually lay out the page
   Login.arrangePage(TournamentOverview.page);
 
-  TournamentOverview.updateSectionHeaderCounts('newtournaments');
-  TournamentOverview.updateSectionHeaderCounts('createdtournaments');
-  TournamentOverview.updateSectionHeaderCounts('joinedtournaments');
+  TournamentOverview.updateSectionHeaderCounts('closedtournaments');
+  TournamentOverview.updateSectionHeaderCounts('opentournaments');
   TournamentOverview.updateSectionHeaderCounts('activetournaments');
-  TournamentOverview.updateSectionHeaderCounts('completedtournaments');
-  TournamentOverview.updateSectionHeaderCounts('cancelledtournaments');
 
   TournamentOverview.updateVisibilityOfTables();
 };
@@ -73,16 +70,9 @@ TournamentOverview.pageAddNewtournamentLink = function() {
 
 // Add tables for types of existing tournaments
 TournamentOverview.pageAddTournamentTables = function() {
-  TournamentOverview.pageAddTournamentTable('new', 'New tournaments');
-  TournamentOverview.pageAddTournamentTable('created', 'Created tournaments');
-  TournamentOverview.pageAddTournamentTable('joined', 'Joined tournaments');
+  TournamentOverview.pageAddTournamentTable('closed', 'Closed tournaments');
+  TournamentOverview.pageAddTournamentTable('open', 'Open tournaments');
   TournamentOverview.pageAddTournamentTable('active', 'Active tournaments');
-  TournamentOverview.pageAddTournamentTable(
-    'completed', 'Completed tournaments'
-  );
-  TournamentOverview.pageAddTournamentTable(
-    'cancelled', 'Cancelled tournaments'
-  );
 };
 
 TournamentOverview.pageAddTournamentTable = function(
@@ -97,45 +87,36 @@ TournamentOverview.pageAddTournamentTable = function(
   var showNPlayersJoined = false;
 
   switch (tournamentType) {
-  case 'new':
-    for (tournamentIdx = 0; 
-         tournamentIdx < Api.tournaments.tournaments.length; 
+  case 'open':
+    // open games that you haven't joined
+    for (tournamentIdx = 0;
+         tournamentIdx < Api.tournaments.tournaments.length;
          tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
-          !Api.tournaments.tournaments[tournamentIdx].hasJoined) {
+      if (
+        (Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
+        !Api.tournaments.tournaments[tournamentIdx].hasJoined
+      ) {
+        tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
+      }
+    }
+
+    // open games that you have joined
+    for (tournamentIdx = 0;
+         tournamentIdx < Api.tournaments.tournaments.length;
+         tournamentIdx++) {
+      if (
+        (Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
+        Api.tournaments.tournaments[tournamentIdx].hasJoined
+      ) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
     }
     showNPlayersJoined = true;
     tableClass = 'newtournaments';
     break;
-  case 'created':
-    for (tournamentIdx = 0; 
-         tournamentIdx < Api.tournaments.tournaments.length;
-         tournamentIdx++) {
-      if (Api.tournaments.tournaments[tournamentIdx].isCreator &&
-          Api.tournaments.tournaments[tournamentIdx].isWatched) {
-        tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
-      }
-    }
-    showNPlayersJoined = true;
-    tableClass = 'createdtournaments';
-    break;
-  case 'joined':
-    for (tournamentIdx = 0; 
-         tournamentIdx < Api.tournaments.tournaments.length; 
-         tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status === 'OPEN') &&
-          Api.tournaments.tournaments[tournamentIdx].hasJoined) {
-        tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
-      }
-    }
-    showNPlayersJoined = true;
-    tableClass = 'joinedtournaments';
-    break;
   case 'active':
-    for (tournamentIdx = 0; 
-         tournamentIdx < Api.tournaments.tournaments.length; 
+    for (tournamentIdx = 0;
+         tournamentIdx < Api.tournaments.tournaments.length;
          tournamentIdx++) {
       if ((Api.tournaments.tournaments[tournamentIdx].status === 'ACTIVE') &&
           Api.tournaments.tournaments[tournamentIdx].isWatched) {
@@ -144,28 +125,21 @@ TournamentOverview.pageAddTournamentTable = function(
     }
     tableClass = 'activetournaments';
     break;
-  case 'completed':
-    for (tournamentIdx = 0; 
-         tournamentIdx < Api.tournaments.tournaments.length; 
+  case 'closed':
+    for (tournamentIdx = 0;
+         tournamentIdx < Api.tournaments.tournaments.length;
          tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status === 'COMPLETE') &&
-          Api.tournaments.tournaments[tournamentIdx].isWatched) {
+      if (
+        (
+          (Api.tournaments.tournaments[tournamentIdx].status === 'COMPLETE') ||
+          (Api.tournaments.tournaments[tournamentIdx].status === 'CANCELLED')
+        ) &&
+        Api.tournaments.tournaments[tournamentIdx].isWatched
+      ) {
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
     }
-    tableClass = 'completedtournaments';
-    showDismiss = true;
-    break;
-  case 'cancelled':
-    for (tournamentIdx = 0; 
-         tournamentIdx < Api.tournaments.tournaments.length; 
-         tournamentIdx++) {
-      if ((Api.tournaments.tournaments[tournamentIdx].status === 'CANCELLED') &&
-          Api.tournaments.tournaments[tournamentIdx].isWatched) {
-        tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
-      }
-    }
-    tableClass = 'cancelledtournaments';
+    tableClass = 'closedtournaments';
     showDismiss = true;
     break;
   default:
@@ -253,8 +227,8 @@ TournamentOverview.addTableRows = function(
   var tournamentInfo;
   var tournamentRow;
 
-  for (var tournamentIdx = 0; 
-       tournamentIdx < tournamentsource.length; 
+  for (var tournamentIdx = 0;
+       tournamentIdx < tournamentsource.length;
        tournamentIdx++) {
     tournamentInfo = tournamentsource[tournamentIdx];
 
@@ -279,9 +253,15 @@ TournamentOverview.addTableRows = function(
 TournamentOverview.addTournamentCol = function(tournamentRow, tournamentInfo) {
   var tournamentLinkTd = $('<td>');
 
+  var verb = 'View';
+
+  if ((tournamentInfo.status === 'OPEN') && !tournamentInfo.hasJoined) {
+    verb = 'Join';
+  }
+
   tournamentLinkTd.append($('<a>', {
     'href': 'tournament.html?tournament=' + tournamentInfo.tournamentId,
-    'text': tournamentInfo.tournamentId,
+    'text': verb + ' ' + tournamentInfo.tournamentId,
   }));
 
   tournamentRow.append(tournamentLinkTd);
@@ -315,7 +295,7 @@ TournamentOverview.addNPlayersCol = function(
   var tournamentNPlayersTd;
 
   if (showNPlayersJoined) {
-    tournamentNPlayersTd = $('<td>', 
+    tournamentNPlayersTd = $('<td>',
       {'text': tournamentInfo.nPlayersJoined + '/' + tournamentInfo.nPlayers}
     );
   } else {
