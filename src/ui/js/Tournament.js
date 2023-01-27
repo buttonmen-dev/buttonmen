@@ -447,11 +447,11 @@ Tournament.showGames = function () {
 
   var nRound = Api.tournament.gameIdArrayArray.length;
 
-  for (roundIdx = nRound - 1; roundIdx >= 0; roundIdx--) {
+  for (roundIdx = 0; roundIdx < nRound; roundIdx++) {
     roundVal = roundIdx + 1;
     gameIdArray = Api.tournament.gameIdArrayArray[roundIdx];
 
-    for (gameIdx = gameIdArray.length - 1; gameIdx >= 0; gameIdx--) {
+    for (gameIdx = 0; gameIdx < gameIdArray.length; gameIdx++) {
       roundCell = $('<td>').text('Round ' + roundVal);
 
       gameId = gameIdArray[gameIdx];
