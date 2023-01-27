@@ -307,7 +307,7 @@ class BMInterfaceTournament extends BMInterface {
         );
 
         $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
-        
+
         foreach ($rows as $row) {
             // load tournament attributes
             if (!isset($tournament)) {
@@ -320,7 +320,7 @@ class BMInterfaceTournament extends BMInterface {
                 $gameIdArrayArray = $tournament->gameIdArrayArray;
                 $gameIdArrayArray[$row['tournament_round_number'] - 1][] = $row['game_id'];
                 $tournament->gameIdArrayArray = $gameIdArrayArray;
-                
+
                 $gameArrayArray = $tournament->gameArrayArray;
                 $gameArrayArray[$row['tournament_round_number'] - 1][] =
                     $this->load_game($row['game_id']);
@@ -424,12 +424,12 @@ class BMInterfaceTournament extends BMInterface {
             (0 == count($tournament->gameDataToBeCreatedArray))) {
             return;
         }
-        
+
         foreach ($tournament->gameDataToBeCreatedArray as $gameData) {
             $buttonNames = $this->game()->retrieve_button_names(
                 array($gameData['buttonId1'], $gameData['buttonId2'])
             );
-            
+
             $interfaceResponse = $this->game()->create_game_from_button_ids(
                 array($gameData['playerId1'], $gameData['playerId2']),
                 array($gameData['buttonId1'], $gameData['buttonId2']),
@@ -452,7 +452,7 @@ class BMInterfaceTournament extends BMInterface {
             }
         }
     }
-    
+
     /**
      * Most of the tournament saving logic
      *
@@ -544,7 +544,6 @@ class BMInterfaceTournament extends BMInterface {
             case 'cancel':
                 return $this->cancel_tournament($userId, $tournamentId);
             default:
-                error_log('Invalid action on tournament');
                 $this->set_message('Invalid action on tournament');
                 return NULL;
         }

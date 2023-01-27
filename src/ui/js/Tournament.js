@@ -96,8 +96,8 @@ Tournament.showStatePage = function() {
 
   // Now lay out the page
   Login.arrangePage(
-    Tournament.page, 
-    Tournament.form, 
+    Tournament.page,
+    Tournament.form,
     '#tournament_action_button'
   );
 };
@@ -136,20 +136,20 @@ Tournament.showTournamentContents = function() {
 Tournament.pageAddTournamentHeader = function() {
   var tournamentTitle =
     'Tournament #' + Api.tournament.tournamentId + Tournament.SPACE_BULLET;
-  if (Api.tournament.tournamentState == 
+  if (Api.tournament.tournamentState ==
       Tournament.TOURN_STATE_END_TOURNAMENT) {
     tournamentTitle += 'Completed';
-  } else if (Api.tournament.tournamentState == 
+  } else if (Api.tournament.tournamentState ==
              Tournament.TOURN_STATE_CANCELLED) {
     tournamentTitle += 'Cancelled';
-  } else if (Api.tournament.tournamentState == 
+  } else if (Api.tournament.tournamentState ==
              Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     tournamentTitle += 'New Tournament';
   } else {
     tournamentTitle += 'Round #' + Api.tournament.roundNumber;
   }
 
-  tournamentTitle += Tournament.SPACE_BULLET + 'Created by ' + 
+  tournamentTitle += Tournament.SPACE_BULLET + 'Created by ' +
                      Api.tournament.creatorName;
 
   $('title').html(tournamentTitle + ' &mdash; Button Men Online');
@@ -181,9 +181,9 @@ Tournament.pageAddTournamentHeader = function() {
 
 Tournament.pageAddUnfollowTournamentLink = function () {
   if (Api.tournament.isParticipant &&
-      (Api.tournament.tournamentState != 
+      (Api.tournament.tournamentState !=
        Tournament.TOURN_STATE_END_TOURNAMENT) &&
-      (Api.tournament.tournamentState != 
+      (Api.tournament.tournamentState !=
        Tournament.TOURN_STATE_CANCELLED)) {
     return;
   }
@@ -252,7 +252,7 @@ Tournament.pageAddTournamentInfo = function () {
   Tournament.page.append(infoDiv);
 
   var tournamentTypePar = $('<p>', {
-    'text': 'Tournament type: ' + 
+    'text': 'Tournament type: ' +
             Tournament.friendlyTournamentType(Api.tournament.type),
   });
   infoDiv.append(tournamentTypePar);
@@ -310,7 +310,7 @@ Tournament.pageAddPlayerInfo = function () {
 };
 
 Tournament.pageAddActions = function () {
-  if (Api.tournament.tournamentState == 
+  if (Api.tournament.tournamentState ==
       Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     var actionDiv = $('<div>', {
       'id': 'actionDiv',
@@ -424,7 +424,7 @@ Tournament.formJoinTournament = function (e) {
     'join',
     'Successfully joined tournament',
     e,
-    '["' + $('#player_button').val() + '"]'
+    [$('#player_button').val()]
   );
 };
 

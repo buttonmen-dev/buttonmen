@@ -15,7 +15,7 @@
  * @property      string $description            Description of tournament
  * @property      int    $nPlayers               Number of players
  * @property      int    $autoAdvanceInterval    Number of days before a game is auto-advanced
- * @property      bool   $arePlayersAnonymous    Do we hide players' names initially?
+ * @property      bool   $arePlayersAnonymous    Do we hide players' names until everyone has joined?
  * @property      bool   $doShufflePlayers       Do we initially shuffle the order of players?
  * @property      bool   $areButtonsAnonymous    Do we hide the selected button names initially?
  * @property-read int    $roundNumber            Current round number of tournament
@@ -200,7 +200,7 @@ abstract class BMTournament {
      */
     public static function create($type = NULL) {
         if ($type) {
-            $cname = "BMTournament" . str_replace(' ', '', $type);
+            $cname = "BMTournament" . preg_replace('/[^a-zA-Z0-9]/', '', $type);
             if (class_exists($cname)) {
                 return $cname::create();
             } else {
@@ -237,7 +237,7 @@ abstract class BMTournament {
 
     public function add_button_array($playerId, $buttonIdArray) {
         if (!is_array($buttonIdArray)) {
-            return;
+            throw new LogicException('Each player must have selected a button');
         }
 
         foreach ($buttonIdArray as $buttonId) {

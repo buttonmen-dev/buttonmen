@@ -805,6 +805,10 @@ class ApiResponder {
      * @return NULL|array
      */
     protected function get_interface_response_createTournament($interface, $args) {
+        if (!(array_key_exists('description', $args))) {
+            $args['description'] = '';
+        }
+
         return $interface->tournament()->create_tournament(
             $this->session_user_id(),
             $args['tournamentType'],
@@ -837,7 +841,7 @@ class ApiResponder {
      */
     protected function get_interface_response_updateTournament($interface, $args) {
         if (array_key_exists('buttonNames', $args)) {
-            $button_name_array = json_decode($args['buttonNames'], TRUE);
+            $button_name_array = $args['buttonNames'];
         } else {
             $button_name_array = NULL;
         }

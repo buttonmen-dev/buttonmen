@@ -43,5 +43,6 @@ CREATE TABLE tournament_player_map (
 
 CREATE TABLE tournament_player_watch_map (
     tournament_id       MEDIUMINT UNSIGNED NOT NULL,
-    player_id           SMALLINT UNSIGNED NOT NULL
+    player_id           SMALLINT UNSIGNED NOT NULL,
+    INDEX (tournament_id, player_id)
 );

@@ -54,7 +54,11 @@ class ApiSpec {
                 'action' => 'alnum',
             ),
             'permitted' => array(
-                'buttonNames' => 'string',
+                'buttonNames' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'elem_type' => 'button',
+                ),
             ),
         ),
         'adjustFire' => array(
