@@ -85,7 +85,7 @@ Tournament.showStatePage = function() {
   Env.showStatusMessage();
 
   // Figure out what to do next based on the tournament state
-  if (Api.tournament.load_status == 'ok') {
+  if (Api.tournament.load_status === 'ok') {
     Tournament.showTournamentContents();
   } else {
     // Tournament retrieval failed, so just layout the page with no contents
@@ -107,7 +107,6 @@ Tournament.showTournamentContents = function() {
   Tournament.form = null;
 
   Tournament.page = $('<div>');
-  Tournament.pageAddTournamentHeader();
 
   if (Api.tournament.isWatched) {
     Tournament.pageAddUnfollowTournamentLink();
@@ -115,12 +114,15 @@ Tournament.showTournamentContents = function() {
     Tournament.pageAddFollowTournamentLink();
   }
 
-  if (Api.tournament.tournamentState == Tournament.TOURN_STATE_END_TOURNAMENT) {
+  Tournament.pageAddTournamentHeader();
+
+  if (Api.tournament.tournamentState ===
+      Tournament.TOURN_STATE_END_TOURNAMENT) {
     Tournament.pageAddWinnerInfo();
     Tournament.page.append($('<br>'));
   }
 
-  if (Api.tournament.tournamentState != Tournament.TOURN_STATE_CANCELLED) {
+  if (Api.tournament.tournamentState !== Tournament.TOURN_STATE_CANCELLED) {
     Tournament.pageAddPlayerInfo();
     Tournament.page.append($('<br>'));
 
@@ -136,13 +138,13 @@ Tournament.showTournamentContents = function() {
 Tournament.pageAddTournamentHeader = function() {
   var tournamentTitle =
     'Tournament #' + Api.tournament.tournamentId + Tournament.SPACE_BULLET;
-  if (Api.tournament.tournamentState ==
+  if (Api.tournament.tournamentState ===
       Tournament.TOURN_STATE_END_TOURNAMENT) {
     tournamentTitle += 'Completed';
-  } else if (Api.tournament.tournamentState ==
+  } else if (Api.tournament.tournamentState ===
              Tournament.TOURN_STATE_CANCELLED) {
     tournamentTitle += 'Cancelled';
-  } else if (Api.tournament.tournamentState ==
+  } else if (Api.tournament.tournamentState ===
              Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     tournamentTitle += 'New Tournament';
   } else {
@@ -181,9 +183,9 @@ Tournament.pageAddTournamentHeader = function() {
 
 Tournament.pageAddUnfollowTournamentLink = function () {
   if (Api.tournament.isParticipant &&
-      (Api.tournament.tournamentState !=
+      (Api.tournament.tournamentState !==
        Tournament.TOURN_STATE_END_TOURNAMENT) &&
-      (Api.tournament.tournamentState !=
+      (Api.tournament.tournamentState !==
        Tournament.TOURN_STATE_CANCELLED)) {
     return;
   }
@@ -310,7 +312,10 @@ Tournament.pageAddPlayerInfo = function () {
 };
 
 Tournament.pageAddActions = function () {
-  if (Api.tournament.tournamentState ==
+  var buttonSelectDiv;
+  var loadingButtonsPar;
+
+  if (Api.tournament.tournamentState ===
       Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     var actionDiv = $('<div>', {
       'id': 'actionDiv',
@@ -334,19 +339,6 @@ Tournament.pageAddActions = function () {
       });
       changeLink.click(Tournament.formChooseButton);
       actionDiv.append('<p>').append(changeLink);
-
-      var buttonSelectDiv = $('<div>', {
-        'id': 'buttonSelectDiv',
-      });
-      var loadingButtonsPar = $('<p>', {
-        'id': 'loadingButtonsPar',
-        'text': 'Loading buttons ...',
-      });
-
-      buttonSelectDiv.append(loadingButtonsPar);
-      actionDiv.append(buttonSelectDiv);
-
-      buttonSelectDiv.hide();
     } else {
       var joinLink = $('<a>', {
         'text': '[Join Tournament]',
@@ -356,20 +348,20 @@ Tournament.pageAddActions = function () {
       });
       joinLink.click(Tournament.formChooseButton);
       actionDiv.append(joinLink);
-
-      var buttonSelectDiv = $('<div>', {
-        'id': 'buttonSelectDiv',
-      });
-      var loadingButtonsPar = $('<p>', {
-        'id': 'loadingButtonsPar',
-        'text': 'Loading buttons ...',
-      });
-
-      buttonSelectDiv.append(loadingButtonsPar);
-      actionDiv.append(buttonSelectDiv);
-
-      buttonSelectDiv.hide();
     }
+
+    var buttonSelectDiv = $('<div>', {
+      'id': 'buttonSelectDiv',
+    });
+    var loadingButtonsPar = $('<p>', {
+      'id': 'loadingButtonsPar',
+      'text': 'Loading buttons ...',
+    });
+
+    buttonSelectDiv.append(loadingButtonsPar);
+    actionDiv.append(buttonSelectDiv);
+
+    buttonSelectDiv.hide();
 
     if (Api.tournament.isCreator) {
       var cancelLink = $('<a>', {
