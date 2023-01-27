@@ -39,7 +39,7 @@ HowToPlay.showPage = function() {
 HowToPlay.bodyText = function() {
   var bodyText = $('<div>').addClass('help_column');
   bodyText.append(
-    $('<h1>').text('How to Play Button Men')
+    $('<h1>').text('How to play Button Men')
   );
   bodyText.append(HowToPlay.tableOfContents());
   bodyText.append(HowToPlay.info());
@@ -208,7 +208,7 @@ HowToPlay.info = function() {
 
   bodytext.append(
     $('<h2>').text(
-      'Starting the Game'
+      'Starting the game'
     )
   );
 
@@ -266,7 +266,7 @@ HowToPlay.info = function() {
 
   bodytext.append(
     $('<h2>').text(
-      'Playing the Round'
+      'Playing the round'
     )
   );
 
@@ -442,7 +442,7 @@ HowToPlay.info = function() {
 
   bodytext.append(
     $('<h2>').text(
-      'Really Basic Strategy'
+      'Really basic strategy'
     )
   );
 
