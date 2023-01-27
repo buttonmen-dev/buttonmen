@@ -161,6 +161,11 @@ def execute_responder_test(testname):
   os.chdir(prevcwd)
   return
 
+def phpunit_log_shows_success(testname):
+  logfile = '%s/%s.output' % (STATEDIR, testname)
+  contents = open(logfile).read()
+  return 'OK (101 tests' in contents
+
 def test_new_games():
   # If we're running in archive mode, this will generate new games
   # and archive them for replay testing on this and other sites.
@@ -192,7 +197,10 @@ def test_new_games():
 
   if LOCAL_REPLAY_GAMES:
     generate_responder_testfile('./prep_replay_games', TESTFILE)
-    execute_responder_test('local.%s' % timestamp)
+    testname = 'local.%s' % timestamp
+    execute_responder_test(testname)
+    if not phpunit_log_shows_success(testname):
+      sys.exit(1)
 
   if ARCHIVE_GAMES:
     targetpath = '%s/%s.games.%s.tar' % (GAMESDIR, COMMITID, timestamp)
