@@ -324,7 +324,29 @@ Tournament.pageAddActions = function () {
         'data-tournamentId': Api.tournament.tournamentId,
       });
       leaveLink.click(Tournament.formLeaveTournament);
-      actionDiv.append(leaveLink);
+      actionDiv.append('<p>').append(leaveLink);
+
+      var changeLink = $('<a>', {
+        'text': '[Change button]',
+        'id': 'changeLink',
+        'href': '#',
+        'data-tournamentId': Api.tournament.tournamentId,
+      });
+      changeLink.click(Tournament.formChooseButton);
+      actionDiv.append('<p>').append(changeLink);
+
+      var buttonSelectDiv = $('<div>', {
+        'id': 'buttonSelectDiv',
+      });
+      var loadingButtonsPar = $('<p>', {
+        'id': 'loadingButtonsPar',
+        'text': 'Loading buttons ...',
+      });
+
+      buttonSelectDiv.append(loadingButtonsPar);
+      actionDiv.append(buttonSelectDiv);
+
+      buttonSelectDiv.hide();
     } else {
       var joinLink = $('<a>', {
         'text': '[Join Tournament]',
@@ -367,6 +389,7 @@ Tournament.formChooseButton = function () {
   // show "Loading buttons ..."
   $('#buttonSelectDiv').show();
   $('#joinLink').hide();
+  $('#changeLink').hide();
   $('#cancelLink').hide();
 
   // load list of Button Men
@@ -376,12 +399,21 @@ Tournament.formChooseButton = function () {
     $('#buttonSelectDiv').append(buttonSelector).append($('<br />'));
 
     // add form submission button
-    var joinButton = $('<button>', {
-      'id': 'join_tournament_button',
-      'text': 'Join Tournament!',
-    });
-    joinButton.click(Tournament.formJoinTournament);
-    $('#buttonSelectDiv').append(joinButton);
+    if ($('#joinLink').length) {
+      var joinButton = $('<button>', {
+        'id': 'join_tournament_button',
+        'text': 'Join Tournament!',
+      });
+      joinButton.click(Tournament.formJoinTournament);
+      $('#buttonSelectDiv').append(joinButton);
+    } else if ($('#changeLink').length) {
+      var changeButton = $('<button>', {
+        'id': 'change_button',
+        'text': 'Select Button',
+      });
+      changeButton.click(Tournament.formChangeButton);
+      $('#buttonSelectDiv').append(changeButton);
+    }
 
     // hide "Loading buttons ..."
     $('#loadingButtonsPar').hide();
@@ -413,6 +445,29 @@ Tournament.formUpdateTournament = function (
     Tournament.showLoggedInPage);
 };
 
+Tournament.formChangeButton = function (
+  type, successText, e, buttonNameArray
+) {
+  e.preventDefault();
+
+  var args = {
+    'type': 'updateTournament',
+    'tournament': Api.tournament.tournamentId,
+    'action': type,
+  };
+
+  if (typeof buttonNameArray !== 'undefined') {
+    args.buttonNames = buttonNameArray;
+  }
+
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': successText, },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Tournament.showLoggedInPage,
+    Tournament.showLoggedInPage);
+};
+
 Tournament.formCancelTournament = function (e) {
   Tournament.formUpdateTournament(
     'cancel', 'Successfully cancelled tournament', e
@@ -423,6 +478,15 @@ Tournament.formJoinTournament = function (e) {
   Tournament.formUpdateTournament(
     'join',
     'Successfully joined tournament',
+    e,
+    [$('#player_button').val()]
+  );
+};
+
+Tournament.formChangeButton = function (e) {
+  Tournament.formUpdateTournament(
+    'changeButton',
+    'Successfully selected button',
     e,
     [$('#player_button').val()]
   );

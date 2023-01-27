@@ -479,14 +479,19 @@ class BMInterfaceTournament extends BMInterface {
      * @param BMTournament $tournament
      */
     protected function save_player_parameters(BMTournament $tournament) {
+        // james: In adding the ability to save button selection, I've taken the shortcut
+        //        of assuming that only one button is being selected at the moment
+
         foreach ($tournament->playerIdArray as $playerIdx => $playerId) {
             $query = 'UPDATE tournament_player_map '.
                      'SET position = :position,'.
-                     '    remain_count = :remain_count '.
+                     '    remain_count = :remain_count,'.
+                     '    button_id = :button_id '.
                      'WHERE tournament_id = :tournament_id '.
                      'AND player_id = :player_id;';
             $parameters = array(':position' => $playerIdx + 1,
                                 ':remain_count' => $tournament->remainCountArray[$playerIdx],
+                                ':button_id' => $tournament->buttonIdArrayArray[$playerId][0],
                                 ':tournament_id' => $tournament-> tournamentId,
                                 ':player_id' => $playerId);
             self::$db->update($query, $parameters);
@@ -544,6 +549,8 @@ class BMInterfaceTournament extends BMInterface {
                 return $this->leave_tournament($userId, $tournamentId);
             case 'cancel':
                 return $this->cancel_tournament($userId, $tournamentId);
+            case 'changeButton':
+                return $this->change_button_in_tournament($userId, $tournamentId, $buttonNameArray);
             default:
                 $this->set_message('Invalid action on tournament');
                 return NULL;
@@ -715,6 +722,97 @@ class BMInterfaceTournament extends BMInterface {
                             ':button_id' => $buttonIdArray[0],
                             ':n_players' => $nPlayers);
         return self::$db->update_and_report_if_changed($query, $parameters);
+    }
+
+    /**
+     * Attempt to change a player's selected button in a tournament
+     *
+     * @param int $userId
+     * @param int $tournamentId
+     * @param array $buttonNameArray
+     * @return bool
+     */
+    protected function change_button_in_tournament($userId, $tournamentId, $buttonNameArray) {
+        try {
+            $tournament = $this->load_tournament($tournamentId);
+
+            if (!$this->validate_change_button_in_tournament($userId, $tournamentId, $tournament, $buttonNameArray)) {
+                return NULL;
+            }
+
+            // convert button names to button IDs
+            $buttonIdArray = $this->game()->retrieve_button_ids(
+                array_fill(0, count($buttonNameArray), $userId),
+                $buttonNameArray
+            );
+
+            $this->resolve_random_button_selection_tournament($buttonIdArray);
+
+            $buttonIdArrayArray = $tournament->buttonIdArrayArray;
+            $buttonIdArrayArray[$userId] = $buttonIdArray;
+            $tournament->buttonIdArrayArray = $buttonIdArrayArray;
+
+            $success = $this->save_tournament($tournament);
+
+            if (!$success) {
+                // something's gone wrong between validation and attempting to add the user
+                $tournament = $this->load_tournament($tournamentId);
+                $validation = $this->validate_change_button_in_tournament($userId, $tournamentId, $tournament);
+
+                if ($validation) {
+                    error_log('Paradoxical validation success in BMInterface::change_button_in_tournament');
+                    $this->set_message('Change of button failed even though it should have succeeded');
+                }
+                return NULL;
+            }
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Cannot update button because a player or tournament ID was not valid');
+            return NULL;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::change_button_in_tournament: ' .
+                $e->getMessage()
+            );
+            $this->set_message("Button change failed: $e");
+            return NULL;
+        }
+
+        $this->update_tournament($tournamentId);
+        $this->set_message('You have successfully updated your button selection');
+        return TRUE;
+    }
+
+    /**
+     * Validate whether a player can change their button choice in a tournament
+     *
+     * @param int $userId
+     * @param int $tournamentId
+     * @param BMTournament $tournament
+     * @param array $buttonIdArray
+     * @return bool
+     */
+    protected function validate_change_button_in_tournament($userId, $tournamentId, $tournament, $buttonIdArray) {
+        if (is_null($tournament)) {
+            $this->set_message("Tournament $tournamentId does not exist");
+            return NULL;
+        }
+
+        if ($tournament->tournamentState > BMTournamentState::JOIN_TOURNAMENT) {
+            $this->set_message('The tournament has already started.');
+            return NULL;
+        }
+
+        if (!in_array($userId, $tournament->playerIdArray)) {
+            $this->set_message('You are not part of this tournament.');
+            return NULL;
+        }
+
+        if (!$tournament->validate_button_choice($buttonIdArray)) {
+            $this->set_message('Invalid button choice.');
+            return NULL;
+        }
+
+        return TRUE;
     }
 
     /**
