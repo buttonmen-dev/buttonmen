@@ -254,7 +254,8 @@ class BMInterfaceTournament extends BMInterface {
                 return NULL;
             }
 
-            if ('' == $this->message) {
+            if (('' === $this->message) ||
+                ('Loaded data for game' === substr($this->message, 0, 20))) {
                 $this->set_message("Loaded data for tournament $tournamentId.");
             }
 

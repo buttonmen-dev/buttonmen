@@ -327,7 +327,7 @@ Tournament.pageAddActions = function () {
       actionDiv.append(leaveLink);
     } else {
       var joinLink = $('<a>', {
-        'text': '[Select Button for Tournament]',
+        'text': '[Join Tournament]',
         'id': 'joinLink',
         'href': '#',
         'data-tournamentId': Api.tournament.tournamentId,
