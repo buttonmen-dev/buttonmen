@@ -312,9 +312,6 @@ Tournament.pageAddPlayerInfo = function () {
 };
 
 Tournament.pageAddActions = function () {
-  var buttonSelectDiv;
-  var loadingButtonsPar;
-
   if (Api.tournament.tournamentState ===
       Tournament.TOURN_STATE_JOIN_TOURNAMENT) {
     var actionDiv = $('<div>', {
