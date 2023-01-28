@@ -330,7 +330,7 @@ Login.addMainNavbar = function() {
     'History': 'history.html',
     'Buttons': 'buttons.html',
     'Who\'s online': 'active_players.html',
-    'Forum': 'forum.html',
+    'Forums': 'forum.html',
     'Next game': Env.ui_root + 'index.html?mode=nextGame',
   };
   $.each(links, function(text, url) {
