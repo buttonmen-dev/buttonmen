@@ -73,6 +73,18 @@ div.help_column p {
     text-align: left;
 }
 
+div.help_column p.byline {
+    direction:rtl;
+    font-style: italic;
+    padding-top: 0.3em;
+    text-align: right;
+    text-indent: 2em;
+}
+
+div.help_column p.die_details {
+    text-indent: 2em;
+}
+
 div.help_column ul {
     text-align: left;
 }

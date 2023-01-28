@@ -60,7 +60,7 @@ class BMSkillMood extends BMSkill {
      * @return bool
      */
     protected static function does_skill_trigger_on_pre_roll($args) {
-        if (!($args['die'] instanceof BMDie)) {
+        if (!isset($args['die']) || !($args['die'] instanceof BMDie)) {
             return FALSE;
         }
 

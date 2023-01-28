@@ -120,7 +120,7 @@ Login.getFooter = function() {
   var copyright = $('<div>');
   Login.footer.append(copyright);
   copyright.append(
-    'Button Men is copyright 1999, 2022 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2023 James Ernest and Cheapass Games: ');
   copyright.append($('<a>', {
     'href': 'https://cheapass.com',
     'text': 'cheapass.com',
@@ -330,7 +330,7 @@ Login.addMainNavbar = function() {
     'History': 'history.html',
     'Buttons': 'buttons.html',
     'Who\'s online': 'active_players.html',
-    'Forum': 'forum.html',
+    'Forums': 'forum.html',
     'Next game': Env.ui_root + 'index.html?mode=nextGame',
   };
   $.each(links, function(text, url) {

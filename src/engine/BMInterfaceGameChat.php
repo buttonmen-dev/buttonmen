@@ -362,7 +362,7 @@ class BMInterfaceGameChat extends BMInterface {
      * @return void
      */
     protected function save_chat_log($game) {
-        if ($game->chat['chat']) {
+        if (isset($game->chat['chat']) && $game->chat['chat']) {
             $this->db_insert_chat(
                 $game->chat['playerIdx'],
                 $game->gameId,
