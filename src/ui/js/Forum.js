@@ -4,7 +4,7 @@ var Forum = {
 };
 
 Forum.bodyDivId = 'forum_page';
-Forum.pageTitle = 'Forum &mdash; Button Men Online';
+Forum.pageTitle = 'Forums &mdash; Button Men Online';
 
 Forum.OPEN_STAR = '&#9734;';
 Forum.SOLID_STAR = '&#9733;';
@@ -187,7 +187,7 @@ Forum.showBoard = function() {
   headingTd.append(breadcrumb);
   breadcrumb.append($('<a>', {
     'class': 'pseudoLink',
-    'text': 'Forum',
+    'text': 'Forums',
   }));
   breadcrumb.append(': ');
   breadcrumb.append($('<span>', {
@@ -336,7 +336,7 @@ Forum.showThread = function() {
 
   linksBack.append($('<a>', {
     'class': 'pseudoLink',
-    'text': 'Forum',
+    'text': 'Forums',
   }));
   linksBack.append(': ');
   linksBack.append($('<a>', {
@@ -793,7 +793,7 @@ Forum.buildPostRow = function(post) {
   postAnchor.click(function(e) {
     e.preventDefault();
     var state = Forum.readStateFromElement(this);
-    Env.history.pushState(state, 'Forum &mdash; Button Men Online',
+    Env.history.pushState(state, 'Forums &mdash; Button Men Online',
       Forum.buildUrlHash(state));
     $('.postAnchor').html(Forum.OPEN_STAR);
     $(this).html(Forum.SOLID_STAR);

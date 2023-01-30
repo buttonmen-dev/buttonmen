@@ -27,7 +27,7 @@ function login($username, $password, $doStayLoggedIn) {
     $returnValue = FALSE;
 
     // check if the username already exists
-    if (1 == count($resultArray)) {
+    if (isset($resultArray) && (1 == count($resultArray))) {
         $result = $resultArray[0];
         $password_hashed = $result['password_hashed'];
         $status = $result['status'];

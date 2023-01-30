@@ -2253,7 +2253,8 @@ class BMInterface {
             $sets = array();
             foreach ($rows as $row) {
                 $buttons = $this->get_button_data(NULL, $row['name']);
-                if (count($buttons) == 0) {
+                
+                if (!isset($buttons) || count($buttons) == 0) {
                     continue;
                 }
 

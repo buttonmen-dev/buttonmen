@@ -87,7 +87,7 @@ test("test_Login.getFooter", function(assert) {
         [ "BR" ]
     ] ],
     [ "DIV", {}, [
-      "Button Men is copyright 1999, 2022 James Ernest and Cheapass Games: ",
+      "Button Men is copyright 1999, 2023 James Ernest and Cheapass Games: ",
       [ "A", { "href": "https://cheapass.com" }, [ "cheapass.com" ] ],
       " and ",
       [ "A", { "href": "https://beatpeopleup.cheapass.com" }, [ "beatpeopleup.cheapass.com" ] ],
@@ -363,7 +363,7 @@ test("test_Login.addMainNavbar", function(assert) {
           [ "TD", {}, [ [ "A", { "href": "history.html" }, [ "History" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "buttons.html" }, [ "Buttons" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "active_players.html" }, [ "Who's online" ] ] ] ],
-          [ "TD", {}, [ [ "A", { "href": "forum.html" }, [ "Forum" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "forum.html" }, [ "Forums" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=nextGame" }, [ "Next game" ] ] ] ] ]
         ] ]
       ] ]
@@ -394,7 +394,7 @@ test("test_Login.addNewPostLink", function(assert) {
   Login.message.append(navRow);
   var navTd = $('<td>');
   navRow.append(navTd);
-  navTd.append($('<a>', { 'href': '#', 'text': 'Forum', }));
+  navTd.append($('<a>', { 'href': '#', 'text': 'Forums', }));
 
   Api.forumNavigation = {
     'nextNewPostId': 7,
@@ -411,7 +411,7 @@ test("test_Login.addNewPostLink_noNewPost", function(assert) {
   var navRow  = $('<tr>', { 'class': 'headerNav' });
   var navTd = $('<td>');
   navRow.append(navTd);
-  navTd.append($('<a>', { 'href': '#', 'text': 'Forum', }));
+  navTd.append($('<a>', { 'href': '#', 'text': 'Forums', }));
 
   Api.forumNavigation = {
     'nextNewPostId': null,
