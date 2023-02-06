@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/conda/envs/python27/bin/python
 ##### update_replay_games
 # This should have the same functionality as prep_replay_games, but
 # can be modified to adjust the API output to account for changes
