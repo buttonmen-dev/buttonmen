@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/conda/envs/python27/bin/python
 ##### replay_single_test
 # This script is designed for use on a VM which is replay-testing new
 # code against recorded games.  It replays a single game from a saved

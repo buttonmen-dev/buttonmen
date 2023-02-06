@@ -1,10 +1,15 @@
-# Python scripts for buttonmen
+# Buttonmen API client and utilities
 
-## Replay scripts
+Buttonmen scripts were written for python2.  We are in the process of migrating them to python3.
 
-Several of the scripts in this directory are designed for use in replay testing of new code.  Here's a quick overview:
-* `replay_loop` - runs a test loop on a VM containing code under test
-* `test_log_games` - play and record new games using RandomAI
-* `prep_replay_games` - translate recorded games for PHP responderTest use
-* `update_replay_games` - translate recorded games for PHP responderTest use with optional modifications to account for known API changes
-See header comments of each individual file for details about that file's use.
+Use the scripts with a python installation that contains all modules in requirements.txt.
+
+## Libraries
+
+* bmapi.py: A minimal implementation of the Buttonweavers API, in python (python2, python3)
+* bmutils.py: Wrappers for frequently-used API methods, which may repackage the arguments and responses to be more intuitive for users (python2, python3)
+* random_ai.py: A client which can play a buttonmen game containing any implemented button skills (not strategically), by taking legal random actions until the game ends.  Used for replay testing (python2 only)
+
+## User scripts
+
+These scripts have been provided by players over time, and are not tested.  Use at your own risk.
