@@ -418,7 +418,7 @@ Tournament.formUpdateTournament = function (
   e.preventDefault();
   var args = {
     'type': 'updateTournament',
-    'tournament': Api.tournament.tournamentId,
+    'tournamentId': Api.tournament.tournamentId,
     'action': type,
   };
 

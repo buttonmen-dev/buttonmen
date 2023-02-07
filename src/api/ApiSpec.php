@@ -50,7 +50,7 @@ class ApiSpec {
     private $functionArgs = array(
         'updateTournament' => array(
             'mandatory' => array(
-                'tournament' => 'number',
+                'tournamentId' => 'number',
                 'action' => 'alnum',
             ),
             'permitted' => array(

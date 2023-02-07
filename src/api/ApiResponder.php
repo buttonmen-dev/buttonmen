@@ -848,7 +848,7 @@ class ApiResponder {
 
         return $interface->tournament()->act_on_tournament(
             $this->session_user_id(),
-            $args['tournament'],
+            $args['tournamentId'],
             $args['action'],
             $button_name_array
         );
