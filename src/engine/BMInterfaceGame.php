@@ -386,7 +386,7 @@ class BMInterfaceGame extends BMInterface {
         if (!$this->validate_max_wins($maxWins)) {
             return FALSE;
         }
-       
+
         // Check that players match those from previous game, if specified
         $arePreviousPlayersValid =
             $this->validate_previous_game_players($previousGameId, $playerIdArray);
@@ -406,7 +406,7 @@ class BMInterfaceGame extends BMInterface {
 
         return TRUE;
     }
-    
+
     /**
      * Validate player ID array that required players are specified, unique, and valid
      *
@@ -463,10 +463,10 @@ class BMInterfaceGame extends BMInterface {
             $this->set_message('Game create failed because the maximum number of wins was invalid.');
             return FALSE;
         }
-        
+
         return TRUE;
     }
-    
+
     /**
      * Validate that the players in the previous game were the same as the current game
      *

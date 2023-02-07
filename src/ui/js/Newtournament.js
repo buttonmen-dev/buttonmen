@@ -68,8 +68,8 @@ Newtournament.actionLoggedOut = function() {
 
   // Lay out the page
   Login.arrangePage(
-    Newtournament.page, 
-    Newtournament.form, 
+    Newtournament.page,
+    Newtournament.form,
     '#newtournament_action_button'
   );
 };
@@ -85,8 +85,8 @@ Newtournament.actionInternalErrorPage = function() {
 
   // Lay out the page
   Login.arrangePage(
-    Newtournament.page, 
-    Newtournament.form, 
+    Newtournament.page,
+    Newtournament.form,
     '#newtournament_action_button'
   );
 };
@@ -131,8 +131,8 @@ Newtournament.actionCreateTournament = function() {
 
   // Lay out the page
   Login.arrangePage(
-    Newtournament.page, 
-    Newtournament.form, 
+    Newtournament.page,
+    Newtournament.form,
     '#newtournament_action_button'
   );
 
@@ -188,7 +188,7 @@ Newtournament.createNPlayerRow = function() {
 };
 
 Newtournament.createRoundSelectRow = function() {
-  if (!('nRounds' in Newtournament.activity) || 
+  if (!('nRounds' in Newtournament.activity) ||
       !Newtournament.activity.nRounds) {
     Newtournament.activity.nRounds = '3';
   }
@@ -307,10 +307,12 @@ Newtournament.setCreateTournamentSuccessMessage = function(message, data) {
   Newtournament.justCreatedTournament = true;
 
   var tournamentId = data.tournamentId;
-  var tournamentLink = $('<a>', {
-    'href': 'tournament.html?tournament=' + tournamentId,
-    'text': 'Go to tournament page',
-  });
+  var tournamentLink = $('<p>').append(
+    $('<a>', {
+      'href': 'tournament.html?tournament=' + tournamentId,
+      'text': 'Go to tournament page',
+    })
+  );
 
   var tournamentPar = $('<p>', {'text': message + ' ', });
   tournamentPar.append(tournamentLink);

@@ -127,6 +127,7 @@ class BMInterfaceTournament extends BMInterface {
         $description = ''
     ) {
         if (!$this->cast('BMInterfaceGame')->validate_max_wins($maxWins)) {
+            $this->set_message('Tournament create failed because the maximum number of wins was invalid');
             return NULL;
         }
 
@@ -161,6 +162,8 @@ class BMInterfaceTournament extends BMInterface {
                 return NULL;
             }
 
+            $this->set_message('Tournament ' . $tournamentId . ' has been created successfully');
+
             return array('tournamentId' => $tournamentId);
         } catch (BMExceptionDatabase $e) {
             $this->set_message('Tournament create failed because the creator ID was not valid');
@@ -185,10 +188,17 @@ class BMInterfaceTournament extends BMInterface {
         $tournament = BMTournament::create($type);
 
         if (is_null($tournament)) {
+            $this->set_message('Invalid tournament type');
             return FALSE;
         }
 
-        return $tournament->validate_n_players($nPlayers);
+        $isValid = $tournament->validate_n_players($nPlayers);
+
+        if (!$isValid) {
+            $this->set_message('Invalid number of players for this tournament type');
+        }
+
+        return $isValid;
     }
 
     /**
