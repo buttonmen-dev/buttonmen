@@ -112,6 +112,11 @@ class BMInterfaceTournament extends BMInterface {
     /**
      * Create a tournament
      *
+     * @param int $creatorId
+     * @param string $type
+     * @param int $nPlayers
+     * @param int $maxWins
+     * @param string $description
      * @return array|FALSE
      */
     public function create_tournament(
@@ -122,6 +127,10 @@ class BMInterfaceTournament extends BMInterface {
         $description = ''
     ) {
         if (!$this->cast('BMInterfaceGame')->validate_max_wins($maxWins)) {
+            return NULL;
+        }
+
+        if (!$this->validate_n_players($type, $nPlayers)) {
             return NULL;
         }
 
@@ -164,6 +173,22 @@ class BMInterfaceTournament extends BMInterface {
             );
             return NULL;
         }
+    }
+
+    /**
+     * Check that the number of players is valid for the type of tournament specified.
+     *
+     * @param string $type
+     * @param int $nPlayers
+     */
+    protected function validate_n_players($type, $nPlayers) {
+        $tournament = BMTournament::create($type);
+
+        if (is_null($tournament)) {
+            return FALSE;
+        }
+
+        return $tournament->validate_n_players($nPlayers);
     }
 
     /**

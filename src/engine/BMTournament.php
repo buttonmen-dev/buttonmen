@@ -522,6 +522,24 @@ abstract class BMTournament {
     abstract protected function has_tournament_completed();
 
     /**
+     * Validate the number of players for this specific tournament type
+     *
+     * @return bool
+     */
+    public function validate_n_players($nPlayers) {
+        return in_array($nPlayers, $this->allowed_n_players());
+    }
+
+    /**
+     * Specify the number of players required to participate in this specific tournament type
+     *
+     * @return array
+     */
+    public function allowed_n_players() {
+        return array(4, 8, 16, 32);
+    }
+
+    /**
      * Validate buttons chosen by a player
      *
      * @param array $buttonIdArray
