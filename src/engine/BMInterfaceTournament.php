@@ -162,7 +162,7 @@ class BMInterfaceTournament extends BMInterface {
                 return NULL;
             }
 
-            $this->set_message('Tournament ' . $tournamentId . ' has been created successfully');
+            $this->set_message("Tournament $tournamentId created successfully");
 
             return array('tournamentId' => $tournamentId);
         } catch (BMExceptionDatabase $e) {
