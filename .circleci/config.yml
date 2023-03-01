@@ -50,14 +50,16 @@ jobs:
           command: /usr/local/bin/phantomjs --web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost/test-ui/phantom-index.html
       - run:
           name: Run python2 client unit tests
-          command: /opt/conda/envs/python27/bin/python ./test/tools/api-client/python/lib/test_bmapi.py
+          command: /usr/local/bin/run_buttonmen_python_tests
           environment:
             BMAPI_TEST_TYPE: circleci
+            PYTHON_VERSION: python27
       - run:
           name: Run python3 client unit tests
-          command: /opt/conda/envs/python39/bin/python ./test/tools/api-client/python/lib/test_bmapi.py
+          command: /usr/local/bin/run_buttonmen_python_tests
           environment:
             BMAPI_TEST_TYPE: circleci
+            PYTHON_VERSION: python39
       - run:
           name: Generate jdepend.xml and software metrics charts using PHP_Depend
           command: pdepend --jdepend-xml=./build/logs/jdepend.xml --jdepend-chart=./build/pdepend/dependencies.svg --overview-pyramid=build/pdepend/overview-pyramid.svg ./src

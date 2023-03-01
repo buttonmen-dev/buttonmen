@@ -47,6 +47,11 @@ class buttonmen::server {
       content => template("buttonmen/run_buttonmen_tests.erb"),
       mode => 0555;
 
+    "/usr/local/bin/run_buttonmen_python_tests":
+      ensure => file,
+      content => template("buttonmen/run_buttonmen_python_tests.erb"),
+      mode => 0555;
+
     "/usr/local/bin/audit_js_unit_test_coverage":
       ensure => file,
       content => template("buttonmen/audit_js_unit_test_coverage.erb"),
