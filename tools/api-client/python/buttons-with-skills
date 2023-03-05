@@ -12,7 +12,7 @@ from __future__ import division
 
 # Import regular stuff.
 
-import ConfigParser
+import configparser
 import argparse
 import os
 import sys
@@ -72,7 +72,7 @@ args = parse_arguments()
 
 try:
   bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
-except ConfigParser.NoSectionError as e:
+except configparser.NoSectionError as e:
   print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site))
   print("(Exception: {0}: {1})".format(e.__module__, e.message))
   sys.exit(1)
@@ -84,7 +84,8 @@ if not bmconn.verify_login():
 # Create a map of letters and lowercased skill names to canonical skill names.
 
 skillmap = bmutils.SkillName
-for skill in skillmap.values():
+skillnames = [skillname for skillname in skillmap.values()]
+for skill in skillnames:
   skillmap[skill.lower()] = skill
 
 # Create a list of skills, with their names canonicalized.

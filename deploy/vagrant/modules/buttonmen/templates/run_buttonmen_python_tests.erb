@@ -1,0 +1,26 @@
+#!/bin/sh
+##### Run a full set of python tests for a given version of python
+
+if [ "${BMAPI_TEST_TYPE}" = "" ]; then
+  echo "Missing required environment variable BMAPI_TEST_TYPE"
+  exit 1
+fi
+
+if [ "${PYTHON_VERSION}" = "" ]; then
+  echo "Missing required environment variable PYTHON_VERSION"
+  exit 1
+fi
+
+any_failures=0
+cd /buttonmen/test/tools/api-client/python/lib
+TESTFILES=$(ls test_*.py)
+cd /buttonmen/src
+for test_script in ${TESTFILES}; do
+  echo "Running test: ${test_script}"
+  env BMAPI_TEST_TYPE=${BMAPI_TEST_TYPE} /opt/conda/envs/${PYTHON_VERSION}/bin/python /buttonmen/test/tools/api-client/python/lib/${test_script}
+  if [ "$?" != "0" ]; then
+    any_failures=1
+  fi
+done
+
+exit ${any_failures}

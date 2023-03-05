@@ -1,33 +1,19 @@
 import unittest
 
+import datetime
 import os
 import sys
 
-mydir = os.path.dirname(os.path.realpath(sys.argv[0]))
-tooldir = mydir + '/../../../../../tools/api-client/python/lib/'
-sys.path.append(tooldir)
-import bmapi
+# dummy_bmapi just wraps bmapi's BMClient for use against dummy
+# responder, so we can use it directly when running bmapi tests
+import dummy_bmapi
 
-TEST_URLS = {
-  'vagrant_local': 'http://localhost/api/dummy_responder',
-  'circleci': 'http://localhost/api/dummy_responder.php',
-}
 TEST_TYPE = None
-
-# Alternate BMClient which overrides rcfile processing and cookie/login
-# use, in order to work correctly for the dummy responder case
-class BMDummyClient(bmapi.BMClient):
-  def __init__(self, url):
-    self.url = url
-    self.username = 'tester1'
-    self.password = None
-    self.cookiefile = None
-    self._setup_cookies()
 
 class TestBMClient(unittest.TestCase):
   def setUp(self):
-    responder_url = TEST_URLS[TEST_TYPE]
-    self.obj = BMDummyClient(responder_url)
+    self.obj = dummy_bmapi.BMClient(TEST_TYPE)
+    self.now = datetime.datetime.now().strftime('%s')
 
   def tearDown(self):
     self.obj.session.close()
@@ -114,6 +100,19 @@ class TestBMClient(unittest.TestCase):
       else:
         self.assertEqual(len(r.data[key]), len(r.data['gameIdArray']))
 
+  def test_load_new_games(self):
+    r = self.obj.load_new_games()
+    self.assertEqual(r.status, 'ok', 'loadNewGames returns successfully')
+    known_keys = [
+      'gameDescriptionArray', 'gameIdArray', 'gameStateArray',
+      'inactivityArray', 'inactivityRawArray',
+      'isAwaitingActionArray', 'isOpponentOnVacationArray', 'myButtonNameArray',
+      'nDrawsArray', 'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
+      'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
+      'opponentNameArray', 'playerColorArray', 'statusArray'
+    ]
+    self.assertEqual(sorted(r.data.keys()), known_keys)
+
   def test_create_game(self):
     known_keys = [
       'gameId',
@@ -156,9 +155,67 @@ class TestBMClient(unittest.TestCase):
     player_data = r.data['playerDataArray'][0]
     self.assertEqual(sorted(player_data.keys()), player_data_keys)
 
+  def test_react_to_new_game(self):
+    r = self.obj.react_to_new_game(6, 'accept')
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'Joined game 6')
+    self.assertEqual(r.data, True)
+
+    r = self.obj.react_to_new_game(8, 'reject')
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'Rejected game 8')
+    self.assertEqual(r.data, True)
+
+  def test_submit_turn(self):
+    die_select_status = {
+      "playerIdx_0_0": True,
+      "playerIdx_1_0": True,
+    }
+    r = self.obj.submit_turn(302, 1, 0, die_select_status, 'Power', 1, self.now, [])
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'responder003 performed Power attack using [(99):54] against [(99):42]; Defender (99) was captured; Attacker (99) rerolled 54 => 10. End of round: responder003 won round 1 (148.5 vs. 0). ')
+    self.assertEqual(r.data, True)
+
+  def test_submit_die_values(self):
+    swingArray = {
+      'V': 6,
+      'W': 4,
+      'X': 4,
+      'Y': 1,
+      'Z': 4,
+    }
+    r = self.obj.submit_die_values(401, swingArray, {}, 1, self.now)
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'Successfully set die sizes')
+    self.assertEqual(r.data, True)
+
+  def test_react_to_initiative(self):
+    r = self.obj.react_to_initiative(915, 'focus', [1, 2], [1, 1], 2, self.now)
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'Successfully gained initiative')
+    self.assertEqual(r.data, {'gainedInitiative': True})
+
+  def test_adjust_fire_dice(self):
+    r = self.obj.adjust_fire_dice(808, 'cancel', [], [], 1, self.now)
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'responder003 chose to abandon this attack and start over. ')
+    self.assertEqual(r.data, True)
+
+  def test_choose_reserve_dice(self):
+    r = self.obj.choose_reserve_dice(1007, 'add', 7)
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'responder003 added a reserve die: r(20). ')
+    self.assertEqual(r.data, True)
+
+  def test_choose_auxiliary_dice(self):
+    r = self.obj.choose_auxiliary_dice(901, 'add', 5)
+    self.assertEqual(r.status, 'ok')
+    self.assertEqual(r.message, 'Chose to add auxiliary die')
+    self.assertEqual(r.data, True)
+
 if __name__ == '__main__':
   if (not os.getenv('BMAPI_TEST_TYPE') or
-      os.getenv('BMAPI_TEST_TYPE') not in TEST_URLS):
+      os.getenv('BMAPI_TEST_TYPE') not in dummy_bmapi.TEST_URLS):
     raise ValueError(
       "Set BMAPI_TEST_TYPE environment variable.  Valid choices: %s" % (
         (" ".join(sorted(TEST_URLS.keys())))))
