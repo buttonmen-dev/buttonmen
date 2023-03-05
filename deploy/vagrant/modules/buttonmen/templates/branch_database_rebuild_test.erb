@@ -1,0 +1,32 @@
+#!/bin/sh
+##### branch_database_rebuild_test
+# Test whether a branch's database updates files are consistent with base DB changes
+#
+# Run this from the working directory containing the git source
+
+set -e
+set -x
+
+# Capture the branch name so we can return to it
+THISBRANCH=$(git branch | grep "^*" | awk '{print $2}')
+
+# Check out the presumed remote, and do a database build
+# This will recreate buttonmen_test
+git checkout origin/master
+/usr/local/bin/create_buttonmen_databases
+
+# Check out this branch, apply all database updates files in the diff, then take a backup
+git checkout ${THISBRANCH}
+for update in $(git diff --name-only origin/master | grep deploy/database/updates/); do
+  echo "applying: ${update}"
+  cat $update | mysql buttonmen_test
+done
+mysqldump --skip-dump-date buttonmen_test > ~/buttonmen_db.updated.sql
+
+# Now recreate buttonmen_test again, and back that up
+/usr/local/bin/create_buttonmen_databases
+mysqldump --skip-dump-date buttonmen_test > ~/buttonmen_db.created.sql
+
+# Display all differences, and exit nonzero if there are any differences
+diff -u ~/buttonmen_db.updated.sql ~/buttonmen_db.created.sql
+exit $?

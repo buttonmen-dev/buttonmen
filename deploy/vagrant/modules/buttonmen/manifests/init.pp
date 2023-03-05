@@ -37,6 +37,11 @@ class buttonmen::server {
       content => template("buttonmen/test_config.erb"),
       mode => 0555;
 
+    "/usr/local/bin/branch_database_rebuild_test":
+      ensure => file,
+      content => template("buttonmen/branch_database_rebuild_test.erb"),
+      mode => 0555;
+
     "/usr/local/bin/mysql_root_cli":
       ensure => file,
       content => template("buttonmen/mysql_root_cli.erb"),

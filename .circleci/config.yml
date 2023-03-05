@@ -33,6 +33,9 @@ jobs:
           name: Generate checkstyle.xml using PHP_CodeSniffer
           command: php /etc/php/7.0/deploy-includes/phpcs.phar --report=checkstyle --report-file=./build/logs/checkstyle.xml --standard=./deploy/circleci/checkstyle/buttonmen.xml ./src/api ./src/engine
       - run:
+          name: Test consistency of mysql database update files
+          command: /usr/local/bin/branch_database_rebuild_test
+      - run:
           name: Run unit tests using PHPUnit and generates junit.xml and clover.xml
           command: phpunit --bootstrap ./deploy/circleci/phpunit_bootstrap.php --log-junit build/logs/junit.xml --coverage-clover build/logs/clover.xml --debug test/
       - run:
