@@ -545,7 +545,8 @@ class PHPBMClientOutputWriter():
         newvals = []
         for [key, value] in sorted(newval.items()):
           if quotevals:
-            valstr = '"%s"' % value
+            if '"' in value: valstr = "'%s'" % value
+            else:            valstr = '"%s"' % value
           elif type(value) == list:
             valstr = 'array(%s)' % ", ".join([str(v) for v in value])
           else:
@@ -614,6 +615,8 @@ class PHPBMClientOutputWriter():
           oldval = {}
           if dkey in olddie: oldval = olddie[dkey]
           self._write_php_diff_subdie_array(suffix, newdie[dkey], oldval)
+        elif dkey in ['wildcardPropsArray', ]:
+          self._write_php_diff_flat_dict_key(suffix, newdie[dkey], olddie.get(dkey, {}), True)
         else:
           raise ValueError, "%s => %s" % (dkey, newdie[dkey])
     for dnum in range(len(olddice) - len(newdice)):
@@ -925,14 +928,23 @@ class LoggingBMClient():
     defender_okay_skills = self._valid_dice_for_skill(defenders, defend_skills)
     if defender_okay_skills == False: return False
     available_fire = 0
+    smallest_turndown = None
     for non_attacker in non_attackers:
       if 'Fire' in non_attacker['skills']:
         available_fire += (non_attacker['value'] - min_die_value(non_attacker))
+        die_smallest_turndown = self._die_smallest_fire_turndown(non_attacker, non_attacker['value'])
+        if smallest_turndown: smallest_turndown = min(smallest_turndown, die_smallest_turndown)
+        else:                 smallest_turndown = die_smallest_turndown
     attacker = attackers[0]
     defender = defenders[0]
-    if 'Queer' in attacker_okay_skills and attacker['value'] % 2 == 1: return False
-    if (attacker['value'] + available_fire) >= defender['value'] \
-       and int(attacker['sides']) >= defender['value']: return True
+    attacker_value = attacker['value']
+    if 'wildcardPropsArray' in attacker and attacker['value'] == 1:
+      attacker_value = 14
+    if 'Queer' in attacker_okay_skills and attacker_value % 2 == 1: return False
+    if attacker_value >= defender['value']: return True
+    if (attacker_value + available_fire) >= defender['value'] \
+       and int(attacker['sides']) >= defender['value'] \
+       and (int(attacker['sides']) - attacker['value']) >= smallest_turndown: return True
     return False
 
   def _is_valid_attack_of_type_Shadow(self, attackers, defenders, non_attackers):
@@ -1114,9 +1126,12 @@ class LoggingBMClient():
     contributions = []
     for non_attacker in non_attackers:
       if 'Fire' in non_attacker['skills']:
-        # non-participating fire dice can contribute from 0 to that die's min
+        # non-participating fire dice can contribute 0, or anywhere
+        # from the minimum amount by which the die can be turned
+        # down, to the amount that takes the die to its minimum value
         range_max = non_attacker['value'] - self._die_fire_min(non_attacker)
-        contributions.append(range(0, range_max + 1))
+        range_min = self._die_smallest_fire_turndown(non_attacker, non_attacker['value'])
+        contributions.append([0] + range(range_min, range_max + 1))
     attacker_max_sides = 0
     for attacker in attackers:
       attacker_max_sides += int(attacker['sides'])
@@ -1374,6 +1389,13 @@ class LoggingBMClient():
   def _die_fire_min(self, die):
     return min_die_value(die)
 
+  def _die_smallest_fire_turndown(self, die, pre_turndown_value):
+    # A wildcard die currently showing 20 must be turned down at least as far as 13,
+    # so the minimum turndown is 20 - 13 = 7
+    if 'wildcardPropsArray' in die and pre_turndown_value == 20:
+      return 7
+    return 1
+
   # Don't cancel fire attacks 50% of the time forever
   #
   # It makes games time out and potentially masks bugs.
@@ -1430,8 +1452,10 @@ class LoggingBMClient():
         die_idx = self._random_array_element(turndown_choices)
         turndown_to.setdefault(die_idx, playerData['activeDieArray'][die_idx]['value'])
         if turndown_to[die_idx] > self._die_fire_min(playerData['activeDieArray'][die_idx]):
-          turndown_to[die_idx] -= 1
-          still_needed -= 1
+          turndown_increment = self._die_smallest_fire_turndown(playerData['activeDieArray'][die_idx], turndown_to[die_idx])
+          if turndown_increment > still_needed: continue
+          turndown_to[die_idx] -= turndown_increment
+          still_needed -= turndown_increment
       for [die_idx, die_value] in sorted(turndown_to.items()):
         idx_array.append(die_idx)
         value_array.append(die_value)

@@ -560,7 +560,7 @@ class responder00Test extends responderTestFramework {
         $retval = $this->verify_api_success($args);
         $this->assertEquals($retval['status'], 'ok');
         $this->assertEquals($retval['message'], 'Button data retrieved successfully.');
-        $this->assertEquals(count($retval['data']), 721);
+        $this->assertEquals(count($retval['data']), 728);
 
         $this->cache_json_api_output('loadButtonData', 'noargs', $retval);
     }
@@ -1320,7 +1320,10 @@ class responder00Test extends responderTestFramework {
         $allSkillInfo = $this->get_skill_info('all_skills');
         $expSkillArray = array();
         foreach ($allSkillInfo as $skillName => $skillInfo) {
-            if ('' === $skillInfo['code']) {
+            // Wildcard ('C') is technically not a die skill, but rather a die type
+            // so exclude it here manually to get the test to pass
+            if (('' === $skillInfo['code']) ||
+                ('C' === $skillInfo['code'])) {
                 continue;
             }
             $expSkillArray[$skillInfo['code']] = array(

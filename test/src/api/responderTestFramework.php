@@ -388,7 +388,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             ),
             'Shadow' => array(
                 'code' => 's',
-                'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
+                'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but no more than its maximum value. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
                 'interacts' => array(
                     'Stinger' => 'Dice with both Shadow and Stinger skills can singly attack with any value from the min to the max of the die (making a shadow attack against a die whose value is greater than or equal to their own, or a skill attack against a die whose value is lower than or equal to their own)',
                     'Trip' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
@@ -477,6 +477,11 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'Fire' => 'Dice with both Fire and Weak skills do not shrink when firing, only when actually rolling',
                 ),
             ),
+            'Wildcard' => array(
+                'code' => 'C',
+                'description' => 'A Wildcard die is not rolled. Instead, a card is drawn from a deck of playing cards with two jokers. The value of the Wildcard die is the value of the card, where Jack, Queen, King, and Joker have a value of 11, 12, 13, and 20, respectively. A Wildcard die showing an Ace has a value of 1 except when the Wildcard die is performing a Power attack, when it can attack as if it had a value of 14. A Wildcard die is scored as if it were a 16-sided die. All active Wildcard dice owned by a player share the same deck. Cards are drawn without replacement, and the deck is only shuffled during a game if it is exhausted. Wildcard dice do not split, shrink, or grow.',
+                'interacts' => array(),
+            ),
             'Zero' => array(
                 'code' => '',
                 'description' => 'Copies the opponent\'s button recipe.',
@@ -553,6 +558,10 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             '( / )' => array(
                 'name' => 'Option',
                 'description' => 'Option Dice are represented as two numbers with a slash between them, resembling a fraction. They function like Swing Dice and can be changed at any time a Swing Die could be changed. However, Option Dice are restricted to only two values. For example, a 4/10 Option Die can be only a 4 or a 10.',
+            ),
+            '(C)' => array(
+                'name' => 'Wildcard',
+                'description' => 'A Wildcard die is not rolled. Instead, a card is drawn from a deck of playing cards with two jokers. The value of the Wildcard die is the value of the card, where Jack, Queen, King, and Joker have a value of 11, 12, 13, and 20, respectively. A Wildcard die showing an Ace has a value of 1 except when the Wildcard die is performing a Power attack, when it can attack as if it had a value of 14. A Wildcard die is scored as if it were a 16-sided die. All active Wildcard dice owned by a player share the same deck. Cards are drawn without replacement, and the deck is only shuffled during a game if it is exhausted. Wildcard dice do not split, shrink, or grow.',
             ),
         );
 

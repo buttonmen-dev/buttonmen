@@ -347,7 +347,14 @@ select.center {
     height: 49px;
     width: 49px;
     background-size: 100%;
+    background-repeat: no-repeat;
     margin: auto;
+    background-position: center center;
+}
+
+.die_img.card {
+    height: 60px;
+    background-size: 85%
 }
 
 .die_img.clickable_warrior {
@@ -373,6 +380,10 @@ select.center {
     text-decoration: line-through;
 }
 
+.die_container_dead span.suit_red {
+    text-decoration-color: white;
+}
+
 /* This matches any .die_container_dead element that immediately follows a
    .die_container_alive */
 .die_container_alive + .die_container_dead {
@@ -391,11 +402,30 @@ select.center {
     color: #cccccc;
 }
 
+.recipe_irrelevant_for_initiative span.suit_black {
+    color: #cccccc;
+}
+
+.recipe_irrelevant_for_initiative span.suit_red {
+    color: #cccccc;
+}
+
 .die_overlay {
     position:relative;
     font-size: 21px;
     line-height: 25px;
-    top: 13.5px;
+    top: 13px;
+}
+
+/* add a special Firefox-specific adjustment to fix die value centration */
+@supports (-moz-appearance:none) {
+    .die_overlay {
+        top: 15px;
+    }
+}
+
+.card .die_overlay {
+    line-height: 37px;
 }
 
 .die_number_player {
@@ -467,6 +497,18 @@ span.prefs_desc {
     border-bottom: 1px dotted #000000;
     text-decoration: none;
     cursor: default;
+}
+
+span.suit_black {
+    color: black;
+}
+
+.die_container_dead span.suit_black {
+    color: white;
+}
+
+span.suit_red {
+    color: red;
 }
 
 span.info_icon {
