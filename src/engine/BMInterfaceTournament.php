@@ -1075,10 +1075,9 @@ class BMInterfaceTournament extends BMInterface {
                 ':tournament_id' => $tournamentId,
             );
 
-            $row = self::$db->select_single_value($query1, $parameters, 'str');
+            $status = self::$db->select_single_value($query1, $parameters, 'str');
 
-            if (($row['status'] != 'COMPLETE') &&
-                ($row['status'] != 'CANCELLED')) {
+            if (($status != 'COMPLETE') && ($status != 'CANCELLED')) {
                 $this->set_message("Tournament $tournamentId isn't complete");
                 return NULL;
             }

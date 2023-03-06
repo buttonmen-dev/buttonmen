@@ -44,5 +44,11 @@ class responderTournamentTest extends responderTestFramework {
             array(),
             'Single Elimination', 4, 1
         );
+
+        // attempt an invalid tournament dismiss
+        $this->verify_api_dismissTournament_failure(
+            array(), "Tournament $tournamentId isn't complete",
+            $tournamentId
+        );
     }
 }

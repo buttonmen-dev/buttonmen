@@ -1553,4 +1553,114 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_failure($args, $expMessage);
         return $retval;
     }
+
+
+    /**
+     * verify_api_dismissTournament() - helper routine which calls the API
+     * dismissTournament method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_dismissTournament(
+        $bmRandValArray, $tournamentId
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'dismissTournament',
+            'tournamentId' => $tournamentId,
+        );
+        $retval = $this->verify_api_success($args);
+        return $retval;
+    }
+
+    /**
+     * verify_api_dismissTournament_failure() - helper routine which calls the API
+     * dismissTournament method using provided invalid arguments, and makes
+     * assertions about how it the call should fail
+     */
+    protected function verify_api_dismissTournament_failure(
+        $bmRandValArray, $expMessage, $tournamentId
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'dismissTournament',
+            'tournamentId' => $tournamentId,
+        );
+        $retval = $this->verify_api_failure($args, $expMessage);
+        return $retval;
+    }
+
+    /**
+     * verify_api_followTournament() - helper routine which calls the API
+     * followTournament method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_followTournament(
+        $bmRandValArray, $tournamentId
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'followTournament',
+            'tournamentId' => $tournamentId,
+        );
+        $retval = $this->verify_api_success($args);
+        return $retval;
+    }
+
+    /**
+     * verify_api_followTournament_failure() - helper routine which calls the API
+     * followTournament method using provided invalid arguments, and makes
+     * assertions about how it the call should fail
+     */
+    protected function verify_api_followTournament_failure(
+        $bmRandValArray, $expMessage, $tournamentId
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'followTournament',
+            'tournamentId' => $tournamentId,
+        );
+        $retval = $this->verify_api_failure($args, $expMessage);
+        return $retval;
+    }
+
+    /**
+     * verify_api_unfollowTournament() - helper routine which calls the API
+     * unfollowTournament method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_unfollowTournament(
+        $bmRandValArray, $tournamentId
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'unfollowTournament',
+            'tournamentId' => $tournamentId,
+        );
+        $retval = $this->verify_api_success($args);
+        return $retval;
+    }
+
+    /**
+     * verify_api_unfollowTournament_failure() - helper routine which calls the API
+     * unfollowTournament method using provided invalid arguments, and makes
+     * assertions about how it the call should fail
+     */
+    protected function verify_api_unfollowTournament_failure(
+        $bmRandValArray, $expMessage, $tournamentId
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'unfollowTournament',
+            'tournamentId' => $tournamentId,
+        );
+        $retval = $this->verify_api_failure($args, $expMessage);
+        return $retval;
+    }
+
 }
