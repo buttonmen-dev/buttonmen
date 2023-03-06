@@ -1070,18 +1070,12 @@ class BMInterfaceTournament extends BMInterface {
                 'SELECT s.name AS "status" ' .
                 'FROM tournament AS t ' .
                 'INNER JOIN tournament_status AS s ON s.id = t.status_id ' .
-                    'LEFT JOIN tournament_player_map AS m ' .
-                    'ON m.tournament_id = t.id AND m.player_id = :player_id ' .
                 'WHERE t.id = :tournament_id';
             $parameters = array(
-                ':player_id' => $playerId,
                 ':tournament_id' => $tournamentId,
             );
-            $columnReturnTypes = array(
-                'status' => 'str',
-            );
 
-            $row = self::$db->select_single_value($query1, $parameters, $columnReturnTypes);
+            $row = self::$db->select_single_value($query1, $parameters, 'str');
 
             if (($row['status'] != 'COMPLETE') &&
                 ($row['status'] != 'CANCELLED')) {
@@ -1094,7 +1088,7 @@ class BMInterfaceTournament extends BMInterface {
             $this->set_message('Dismissing tournament succeeded');
             return TRUE;
         } catch (BMExceptionDatabase $e) {
-            $this->set_message('Cannot dismiss tournament because a player or tournament ID was not valid');
+            $this->set_message('Cannot dismiss tournament because a tournament ID was not valid');
             return NULL;
         } catch (Exception $e) {
             error_log(
