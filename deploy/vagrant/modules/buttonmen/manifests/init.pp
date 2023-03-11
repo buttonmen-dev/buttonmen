@@ -37,6 +37,11 @@ class buttonmen::server {
       content => template("buttonmen/test_config.erb"),
       mode => 0555;
 
+    "/usr/local/bin/branch_database_rebuild_test":
+      ensure => file,
+      content => template("buttonmen/branch_database_rebuild_test.erb"),
+      mode => 0555;
+
     "/usr/local/bin/mysql_root_cli":
       ensure => file,
       content => template("buttonmen/mysql_root_cli.erb"),
@@ -45,6 +50,11 @@ class buttonmen::server {
     "/usr/local/bin/run_buttonmen_tests":
       ensure => file,
       content => template("buttonmen/run_buttonmen_tests.erb"),
+      mode => 0555;
+
+    "/usr/local/bin/run_buttonmen_python_tests":
+      ensure => file,
+      content => template("buttonmen/run_buttonmen_python_tests.erb"),
       mode => 0555;
 
     "/usr/local/bin/audit_js_unit_test_coverage":
@@ -116,5 +126,34 @@ class buttonmen::server {
       command => "/usr/local/bin/test_buttonmen_config",
       minute => "5",
       hour => "0";
+  }
+}
+
+class buttonmen::python-api-client {
+
+  $buttonmen_pyclient_miniconda_version = "py310_22.11.1-1"
+
+  # Use miniconda to install python2 and python3 envs which can be used for testing
+  exec {
+    "bm_pyclient_download_miniconda":
+      command => "/usr/bin/wget -O /usr/local/src/Miniconda3-${buttonmen_pyclient_miniconda_version}-Linux-x86_64.sh https://repo.anaconda.com/miniconda/Miniconda3-${buttonmen_pyclient_miniconda_version}-Linux-x86_64.sh",
+      require => [ Package["wget"] ],
+      creates => "/usr/local/src/Miniconda3-${buttonmen_pyclient_miniconda_version}-Linux-x86_64.sh";
+
+    "bm_pyclient_install_miniconda":
+      command => "/bin/bash /usr/local/src/Miniconda3-${buttonmen_pyclient_miniconda_version}-Linux-x86_64.sh -b -p /opt/conda",
+      require => [ Exec["bm_pyclient_download_miniconda"] ],
+      creates => "/opt/conda";
+
+    "bm_pyclient_create_python27":
+      command => "/opt/conda/bin/conda create python=2.7 --file /buttonmen/tools/api-client/python/requirements.txt -n python27 -y",
+      require => [ Exec["bm_pyclient_install_miniconda"] ],
+      creates => "/opt/conda/envs/python27";
+
+    # The two envs don't actually depend on each other; the explicit require prevents vagrant from trying to create them simultaneously
+    "bm_pyclient_create_python39":
+      command => "/opt/conda/bin/conda create python=3.9 --file /buttonmen/tools/api-client/python/requirements.txt -n python39 -y",
+      require => [ Exec["bm_pyclient_install_miniconda"], Exec["bm_pyclient_create_python27"] ],
+      creates => "/opt/conda/envs/python39";
   }
 }

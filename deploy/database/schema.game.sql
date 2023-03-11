@@ -46,6 +46,7 @@ CREATE TABLE game_player_map (
     is_button_random   BOOLEAN DEFAULT FALSE NOT NULL,
     has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL,
     is_chat_private    BOOLEAN DEFAULT FALSE NOT NULL,
+    cards_drawn        VARCHAR(253),
     INDEX (game_id, player_id)
 );
 
@@ -214,7 +215,8 @@ CREATE TABLE die (
     position           TINYINT UNSIGNED NOT NULL,
     value              SMALLINT,
     actual_max         TINYINT UNSIGNED,
-    flags              VARCHAR(253)
+    flags              VARCHAR(253),
+    internal_value     SMALLINT
 );
 
 CREATE TABLE die_status (

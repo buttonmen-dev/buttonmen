@@ -51,6 +51,7 @@ node default {
   include "apache::server::vagrant"
   include "php::base"
   include "mysql::server"  
+  include "buttonmen::python-api-client"
   include "buttonmen::server"
 
   # location-specific configuration

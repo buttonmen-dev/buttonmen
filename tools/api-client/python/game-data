@@ -8,7 +8,7 @@
 
 # Import regular stuff.
 
-import ConfigParser
+import configparser
 import argparse
 import json
 import os
@@ -50,6 +50,10 @@ def parse_arguments():
     parser.add_argument('--format',
                         choices = ['json', 'yaml'], default = 'yaml',
                         help = "output data format (default: yaml)")
+  else:
+    parser.add_argument('--format',
+                        choices = ['json'], default = 'json',
+                        help = "output data format (default: json)")
 
   # Add general optional arguments.
 
@@ -73,13 +77,13 @@ args = parse_arguments()
 
 try:
   bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
-except ConfigParser.NoSectionError as e:
-  print "ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site)
-  print "(Exception: {0}: {1})".format(e.__module__, e.message)
+except configparser.NoSectionError as e:
+  print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site))
+  print("(Exception: {0}: {1})".format(e.__module__, e.message))
   sys.exit(1)
 
 if not bmconn.verify_login():
-  print "ERROR: Could not log in to {0}".format(args.site)
+  print("ERROR: Could not log in to {0}".format(args.site))
   sys.exit(1)
 
 # Fetch the game data.

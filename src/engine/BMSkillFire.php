@@ -67,7 +67,12 @@ class BMSkillFire extends BMSkill {
             return;
         }
 
-        $args['possibleAssistValues'] = range(1, $die->value - $die->min);
+        if (($die instanceof BMDieWildcard) && ($die->value == 20)) {
+            // Wildcard can only "turn down" to a value of 13 or lower
+            $args['possibleAssistValues'] = range(7, $die->value - $die->min);
+        } else {
+            $args['possibleAssistValues'] = range(1, $die->value - $die->min);
+        }
     }
 
     /**

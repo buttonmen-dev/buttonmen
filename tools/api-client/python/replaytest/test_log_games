@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/conda/envs/python27/bin/python
 ##### test_log_games
 
 import os

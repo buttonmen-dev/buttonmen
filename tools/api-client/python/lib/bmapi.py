@@ -9,43 +9,17 @@
 # Import stuff from the future.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+from future import standard_library
+standard_library.install_aliases()
 
 # Import regular stuff.
 
+import configparser
 import json
 import os
+from http.cookiejar import CookieJar, LWPCookieJar
 
-# Import Python version specific stuff.
-
-try:
-  import configparser
-except ImportError:
-  import ConfigParser as configparser
-
-try:
-  from http.cookiejar import LWPCookieJar
-except ImportError:
-  from cookielib import LWPCookieJar
-
-try:
-  from urllib.parse import urlparse
-except ImportError:
-  from urlparse import urlparse
-
-try:
-  from urllib.parse import urlencode
-except ImportError:
-  from urllib import urlencode
-
-try:
-  from urllib.error import HTTPError
-except ImportError:
-  from urllib2 import HTTPError
-
-try:
-  from urllib.request import urlopen, Request, HTTPCookieProcessor, build_opener, install_opener
-except ImportError:
-  from urllib2 import urlopen, Request, HTTPCookieProcessor, build_opener, install_opener
+import requests
 
 ### Classes
 
@@ -53,7 +27,7 @@ class BMAPIResponse():
   def __init__(self, response_dict):
     for mandatory_arg in ['data', 'message', 'status']:
       if not mandatory_arg in response_dict:
-        raise(ValueError, "Malformed API response is missing key '%s': %s" % (
+        raise ValueError("Malformed API response is missing key '%s': %s" % (
           mandatory_arg, response_dict))
     self.data = response_dict['data']
     self.message = response_dict['message']
@@ -74,20 +48,28 @@ class BMClient():
     self.url = config.get(site, "url")
     self.username = config.get(site, "username")
     self.password = config.get(site, "password")
-    self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
+    try:
+      self.cookiefile = os.path.expanduser(config.get(site, "cookiefile"))
+    except configparser.NoOptionError:
+      self.cookiefile = None
     try:
       self.cachedir = os.path.expanduser(config.get(site, "cachedir"))
-    except (configparser.NoOptionError):
+    except configparser.NoOptionError:
       pass
 
   def _setup_cookies(self):
-    # all requests should use the same cookie jar
-    self.cookiejar = LWPCookieJar(self.cookiefile)
-    if os.path.isfile(self.cookiefile):
-      self.cookiejar.load(ignore_discard=True)
-    self.cookieprocessor = HTTPCookieProcessor(self.cookiejar)
-    self.opener = build_opener(self.cookieprocessor)
-    install_opener(self.opener)
+    # create a session so all requests can use a shared cookie jar
+    self.session = requests.session()
+
+    if self.cookiefile is not None:
+      self.cookiejar = LWPCookieJar(self.cookiefile)
+      if os.path.isfile(self.cookiefile):
+        # load existing cookies from file
+        self.cookiejar.load(ignore_discard=True)
+    else:
+      # use in-memory cookie jar
+      self.cookiejar = CookieJar()
+    self.session.cookies = self.cookiejar
 
   def __init__(self, rcfile, site):
     self.username = None
@@ -102,14 +84,12 @@ class BMClient():
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     }
-    req = Request(self.url, data, headers)
-    response = urlopen(req)
-    jsonval = response.read()
+    response = self.session.post(url=self.url, data=data, headers=headers)
     try:
-      retval = json.loads(jsonval.decode('ascii'))
+      retval = response.json()
       return BMAPIResponse(retval)
-    except (Exception) as e:
-      print("could not parse return: " + jsonval)
+    except ValueError as e:
+      print("could not parse return: " + response.text)
       return False
 
   def login(self):
@@ -120,7 +100,8 @@ class BMClient():
     }
     retval = self._make_request(args)
     if retval.status == 'ok':
-      self.cookiejar.save(ignore_discard=True)
+      if isinstance(self.cookiejar, LWPCookieJar):
+        self.cookiejar.save(ignore_discard=True)
       return True
     return False
 
@@ -183,7 +164,7 @@ class BMClient():
     return self._make_request(args)
 
   def create_game(self, pbutton, obutton='', player='', opponent='', description='', max_wins=3, use_prev_game=False, custom_recipe_array=None):
-    if player == None or player == '':
+    if player is None or player == '':
       player = self.username
     if not obutton:
       obutton = ''

@@ -1,0 +1,1 @@
+UPDATE button SET flavor_text="roujin27 spends more of his time with dogs than with people. He likes chewing on things, barking at nothing in particular, laying down where it's warm and comfy, and beating people up." WHERE name="roujin27";

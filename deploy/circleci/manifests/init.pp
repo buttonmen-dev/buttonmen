@@ -19,6 +19,7 @@ node default {
   include "apache::server::circleci"
   include "php::type::circleci"
   include "mysql::server"  
+  include "buttonmen::python-api-client"
   include "buttonmen::server"
   include "javascript::type::circleci"
 }

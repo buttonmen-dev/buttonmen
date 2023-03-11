@@ -2,3 +2,6 @@ It's okay to provide generic tools "as-is", but for API clients in
 particular, we should maintain test suites which verify them against
 dummy_responder.  The point is to keep client libraries from
 bitrotting when the API changes.
+
+The tests will be run twice to make sure we maintain support for
+Python 2 and Python 3.

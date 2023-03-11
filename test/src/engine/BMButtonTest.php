@@ -189,6 +189,9 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMButton::validate_recipe
+     * @covers BMButton::validate_turbo_restrictions
+     * @covers BMButton::validate_wildcard_restrictions
+     *
      */
     public function test_validate_recipe() {
         $method = new ReflectionMethod('BMButton', 'validate_recipe');
@@ -435,6 +438,28 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         }
 
         $method->invoke(new BMButton, '(4) f(10,20) (12)');
+
+        // invalid recipes with Wildcard
+        try {
+            $method->invoke(new BMButton, '(4) (2/C) (12)');
+            $this->fail('An option Wildcard die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (C/4) (12)');
+            $this->fail('An option Wildcard die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
+
+        try {
+            $method->invoke(new BMButton, '(4) (2,C) (12)');
+            $this->fail('An twin Wildcard die did not cause an exception.');
+        } catch (BMExceptionButtonRecipe $expected) {
+
+        }
     }
 
     /**

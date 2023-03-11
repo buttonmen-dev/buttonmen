@@ -1,0 +1,2 @@
+UPDATE button SET flavor_text="The Assailer combines natural speed with devastating missile power. When she's not casting death magic or raining missiles on her opponents from above, she enjoys beating people up." WHERE name="Assailer";
+UPDATE button SET flavor_text="The Harbinger is an excellent light infantry unit with great melee and save potential. Her hobbies include chariot riding, needlepoint, and beating people up." WHERE name="Harbinger";
