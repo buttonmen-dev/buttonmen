@@ -13,7 +13,7 @@ else
   failed_tests="${failed_tests} audit_php_files.php"
 fi
 echo
-echo "------------------------------------------------------------------------" 
+echo "------------------------------------------------------------------------"
 
 # Run audit script to verify JS unit test coverage
 echo "Auditing JS unit test coverage locations"
@@ -25,7 +25,7 @@ else
   failed_tests="${failed_tests} audit_js_unit_test_coverage"
 fi
 echo
-echo "------------------------------------------------------------------------" 
+echo "------------------------------------------------------------------------"
 
 # Run PHP unit tests
 echo "Running PHP unit tests"
@@ -38,19 +38,31 @@ else
   failed_tests="${failed_tests} buttonmen_phpunit.php"
 fi
 echo
-echo "------------------------------------------------------------------------" 
+echo "------------------------------------------------------------------------"
 
-# Run Python unit tests
-echo "Running python API client unit tests"
-env BMAPI_TEST_TYPE=vagrant_local python /buttonmen/test/tools/api-client/python/lib/test_bmapi.py
+# Run Python 2 unit tests
+echo "Running python2 API client unit tests"
+env BMAPI_TEST_TYPE=vagrant_local PYTHON_VERSION=python27 /usr/local/bin/run_buttonmen_python_tests
 if [ "$?" = "0" ]; then
   echo "Passed"
 else
   echo "FAILED: make sure this passes before committing code"
-  failed_tests="${failed_tests} test_api.py"
+  failed_tests="${failed_tests} python2:api_client_tests"
 fi
 echo
-echo "------------------------------------------------------------------------" 
+echo "------------------------------------------------------------------------"
+
+# Run Python 3 unit tests
+echo "Running python3 API client unit tests"
+env BMAPI_TEST_TYPE=vagrant_local PYTHON_VERSION=python39 /usr/local/bin/run_buttonmen_python_tests
+if [ "$?" = "0" ]; then
+  echo "Passed"
+else
+  echo "FAILED: make sure this passes before committing code"
+  failed_tests="${failed_tests} python3:api_client_tests"
+fi
+echo
+echo "------------------------------------------------------------------------"
 
 if [ "${failed_tests}" = "" ]; then
   echo "All checks passed"

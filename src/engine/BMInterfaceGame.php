@@ -1531,7 +1531,7 @@ class BMInterfaceGame extends BMInterface {
             if ($isSuccessful) {
                 $game->proceed_to_next_user_action();
 
-                if (!is_null($game->turboCache) && (count($game->turboCache) > 0)) {
+                if (!is_null($game->turboCache)) {
                     $this->set_turbo_sizes(
                         $playerId,
                         $game,

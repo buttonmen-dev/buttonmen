@@ -81,7 +81,7 @@ def print_record(bmconn, type, thing):
              type + 'NameA': thing,
              'status': 'COMPLETE' }
 
-  result = bmconn._make_request(apicmd)
+  result = bmconn.client._make_request(apicmd)
 
   # If we don't get an ok result, print some helpful info, and give up.
 

@@ -302,6 +302,7 @@ class BMButton extends BMCanHaveSkill {
 
             $dieType = $matches[1];
             $this->validate_turbo_restrictions($dieRecipe, $dieType);
+            $this->validate_wildcard_restrictions($dieRecipe, $dieType);
 
             if ((FALSE !== strpos($dieType, ',')) && (FALSE !== strpos($dieRecipe, 'f'))) {
                 $subdice = explode(',', $dieType);
@@ -368,6 +369,25 @@ class BMButton extends BMCanHaveSkill {
                     );
                 }
             }
+        }
+    }
+
+    protected function validate_wildcard_restrictions($dieRecipe, $dieType) {
+        // only check recipes including Wildcard
+        if (FALSE === strpos($dieType, 'C')) {
+            return;
+        }
+
+        if (FALSE !== strpos($dieType, '/')) {
+            throw new BMExceptionButtonRecipe(
+                'Option dice cannot include Wildcard.'
+            );
+        }
+
+        if (FALSE !== strpos($dieType, ',')) {
+            throw new BMExceptionButtonRecipe(
+                'Twin dice cannot include Wildcard.'
+            );
         }
     }
 

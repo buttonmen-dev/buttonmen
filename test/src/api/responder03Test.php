@@ -4326,7 +4326,7 @@ class responder03Test extends responderTestFramework {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [D(10):6] against [(X=10)?:6]; Defender (X=10)? was captured; Attacker D(10) changed size from 10 to 4 sides, recipe changed from D(10) to (X=10)? and then to (X=4)?, rerolled 6 => 3'));
         $expData['gameActionLogCount'] = 6;
         $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = "X Mood Swing Die (with 4 sides)";
-        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("HasJustMorphed", "HasJustBeenMoody");
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array("HasJustDoppelgangered", "HasJustBeenMoody");
         $expData['playerDataArray'][0]['activeDieArray'][1]['recipe'] = "(X)?";
         $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 4;
         $expData['playerDataArray'][0]['activeDieArray'][1]['skills'] = array("Mood");
@@ -4410,7 +4410,7 @@ class responder03Test extends responderTestFramework {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [D(X=15):15] against [(X=10)!:4]; Defender (X=10)! was captured; Attacker D(X=15) changed size from 15 to 10 sides, recipe changed from D(X=15) to (X=10)!, rerolled 15 => 9'));
         $expData['gameActionLogCount'] = 8;
         $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = "Turbo X Swing Die (with 10 sides)";
-        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array("HasJustMorphed");
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array("HasJustDoppelgangered");
         $expData['playerDataArray'][0]['activeDieArray'][2]['recipe'] = "(X)!";
         $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 10;
         $expData['playerDataArray'][0]['activeDieArray'][2]['skills'] = array("Turbo");

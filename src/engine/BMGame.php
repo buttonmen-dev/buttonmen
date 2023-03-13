@@ -1726,7 +1726,7 @@ class BMGame {
             $oldValues[] = $fireDie->value;
             $newValues[] = $newValue;
 
-            $fireDie->value = $newValue;
+            $fireDie->set_value($newValue);
         }
 
         $this->firingAmount = $firingAmount;
@@ -1909,6 +1909,7 @@ class BMGame {
         foreach ($attacker->activeDieArray as $activeDie) {
             if ($activeDie->has_skill('Turbo') &&
                 $activeDie->has_flag('IsAttacker') &&
+                !$activeDie->has_flag('HasJustMorphed') &&
                 $activeDie->doesReroll) {
                 $attacker->waitingOnAction = TRUE;
             }
@@ -2011,7 +2012,7 @@ class BMGame {
             if ($die->has_skill('Turbo') &&
                 $die->has_flag('IsAttacker') &&
                 !array_key_exists($dieIdx, $turboSizeArray) &&
-                !$die->has_flag('HasJustMorphed')) {
+                !$die->has_flag('HasJustDoppelgangered')) {
                 $this->message = 'Not all turbo values were specified';
                 return FALSE;
             }
@@ -2538,7 +2539,7 @@ class BMGame {
         $oldDieValueArray = array();
         foreach ($args['focusValueArray'] as $dieIdx => $newDieValue) {
             $oldDieValueArray[$dieIdx] = $player->activeDieArray[$dieIdx]->value;
-            $player->activeDieArray[$dieIdx]->value = $newDieValue;
+            $player->activeDieArray[$dieIdx]->set_value($newDieValue);
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->getBMPlayerProps('activeDieArray')
@@ -2564,7 +2565,7 @@ class BMGame {
             // if the change does not gain initiative unambiguously, it is
             // invalid, so reset die values to original values
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
-                $player->activeDieArray[$dieIdx]->value = $oldDieValue;
+                $player->activeDieArray[$dieIdx]->set_value($oldDieValue);
             }
             $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
             return FALSE;
@@ -3791,6 +3792,14 @@ class BMGame {
                     $subdieArrayArray[$playerIdx][$dieIdx];
             }
 
+            if ($this->activeDieArrayArray[$playerIdx][$dieIdx] instanceof BMDieWildcard) {
+                $wildcardPropsArray = $this->get_wildcardPropsArray($playerIdx, $dieIdx, $requestingPlayerIdx);
+                if (!is_null($wildcardPropsArray)) {
+                    $activeDieDescription['wildcardPropsArray'] =
+                        $this->get_wildcardPropsArray($playerIdx, $dieIdx);
+                }
+            }
+
             $activeDieArray[] = $activeDieDescription;
         }
         return $activeDieArray;
@@ -3812,7 +3821,7 @@ class BMGame {
         if (!empty($this->playerArray[$playerIdx]->capturedDieArray)) {
             foreach ($this->playerArray[$playerIdx]->capturedDieArray as $dieIdx => $die) {
                 $capturedDieArray[$dieIdx] = array(
-                    'value' => $die->value,
+                    'value' => $die->numeric_value(),
                     'sides' => $die->max,
                     'recipe' => $die->recipe,
                     'properties' => $this->get_dieProps($die),
@@ -3822,6 +3831,11 @@ class BMGame {
                     isset($subdieArrayArray[$playerIdx][$dieIdx])) {
                     $capturedDieArray[$dieIdx]['subdieArray'] =
                         $subdieArrayArray[$playerIdx][$dieIdx];
+                }
+
+                if ($die instanceof BMDieWildcard) {
+                    $capturedDieArray[$dieIdx]['wildcardPropsArray'] =
+                        $die->wildcard_properties();
                 }
             }
         }
@@ -3844,7 +3858,7 @@ class BMGame {
         if (!empty($this->playerArray[$playerIdx]->outOfPlayDieArray)) {
             foreach ($this->playerArray[$playerIdx]->outOfPlayDieArray as $dieIdx => $die) {
                 $outOfPlayDieArray[] = array(
-                    'value' => $die->value,
+                    'value' => $die->numeric_value(TRUE),
                     'sides' => $die->max,
                     'recipe' => $die->recipe,
                     'properties' => $this->get_dieProps($die),
@@ -3854,6 +3868,11 @@ class BMGame {
                     isset($subdieArrayArray[$playerIdx][$dieIdx])) {
                     $outOfPlayDieArray[$dieIdx]['subdieArray'] =
                         $subdieArrayArray[$playerIdx][$dieIdx];
+                }
+
+                if ($die instanceof BMDieWildcard) {
+                    $outOfPlayDieArray[$dieIdx]['wildcardPropsArray'] =
+                        $die->wildcard_properties();
                 }
             }
         }
@@ -3878,11 +3897,12 @@ class BMGame {
                 if (is_null($die->max)) {
                     $swingValsSpecified = FALSE;
                 }
-
                 if ($this->shouldDieDataBeHidden($playerIdx, $requestingPlayerIdx)) {
-                    $die->value = NULL;
+                    $dieValue = NULL;
+                } else {
+                    $dieValue = $die->numeric_value(TRUE);
                 }
-                $valueArrayArray[$playerIdx][$dieIdx] = $die->value;
+                $valueArrayArray[$playerIdx][$dieIdx] = $dieValue;
             }
         }
 
@@ -4157,6 +4177,21 @@ class BMGame {
     }
 
     /**
+     * Array of wildcard properties
+     *
+     * @param type $requestingPlayerIdx
+     * @return array|NULL
+     */
+    protected function get_wildcardPropsArray($playerIdx, $dieIdx) {
+        if ($this->wereSwingOrOptionValuesReset() &&
+            $this->isGameStateBeforeSpecifyingDice()) {
+            return NULL;
+        } else {
+            return $this->activeDieArrayArray[$playerIdx][$dieIdx]->wildcard_properties();
+        }
+    }
+
+    /**
      * Array of die properties
      *
      * @param BMDie $die
@@ -4379,12 +4414,17 @@ class BMGame {
         $gameSkillsWithKeysList = array();
         $gameBtnSkillsWithKeysList = array();
 
+        $doesContainWildcard = FALSE;
+
         foreach ($this->playerArray as $player) {
             if (!is_null($player->button)) {
                 $gameBtnSkillsWithKeysList += $player->button->skillList;
 
                 if (!empty($player->button->dieArray)) {
                     foreach ($player->button->dieArray as $buttonDie) {
+                        if ($buttonDie instanceof BMDieWildcard) {
+                            $doesContainWildcard = TRUE;
+                        }
                         if (count($buttonDie->skillList) > 0) {
                             $gameSkillsWithKeysList += $buttonDie->skillList;
                         }
@@ -4412,6 +4452,14 @@ class BMGame {
             foreach ($gameSkillsList as $skillType) {
                 $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
             }
+        }
+
+        if ($doesContainWildcard) {
+            $gameSkillsInfo['Wildcard'] = array(
+                'code' => 'C',
+                'description' => BMDieWildcard::getDescription(),
+                'interacts' => array()
+            );
         }
 
         return $gameSkillsInfo;

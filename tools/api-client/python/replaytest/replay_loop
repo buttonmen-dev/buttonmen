@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/conda/envs/python27/bin/python
 ##### replay_loop
 # This loop is designed for use on a VM which is recording games
 # for use in replay-testing of new code, or on a VM which is

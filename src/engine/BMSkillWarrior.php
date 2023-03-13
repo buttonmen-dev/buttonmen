@@ -129,7 +129,7 @@ class BMSkillWarrior extends BMSkill {
         }
 
         $die = $args['die'];
-        $die->value = $die->max;
+        $die->set_value($die->max);
         return TRUE;
     }
 

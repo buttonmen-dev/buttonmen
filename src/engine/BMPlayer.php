@@ -34,6 +34,7 @@
  * @property      BMGame   $ownerObject            BMGame that owns this BMPlayer object
  * @property      bool     $isOnVacation           Is player on vacation? (Used by BMInterface only)
  * @property      bool     $isChatPrivate          Has player set chat to private for this game?
+ * @property      array    $cardsDrawn             Those cards that have been drawn for Wildcard
  *
  * @SuppressWarnings(PMD.TooManyFields)
  */
@@ -246,6 +247,13 @@ class BMPlayer {
      * @var bool
      */
     protected $isChatPrivate;
+
+    /**
+     * Array of cards that have already been drawn for Wildcard
+     *
+     * @var array
+     */
+    protected $cardsDrawn;
 
     /**
      * Find indices of active dice that do not have reserve
@@ -505,6 +513,19 @@ class BMPlayer {
         $this->isChatPrivate = $value;
     }
 
+    /**
+     * Set cardsDrawn
+     *
+     * @param array $value
+     */
+    protected function set__cardsDrawn($value) {
+        if (!is_array($value)) {
+            throw new InvalidArgumentException('cardsDrawn must be an array');
+        }
+
+        $this->cardsDrawn = $value;
+    }
+
     // utility methods
     /**
      * Constructor
@@ -543,6 +564,7 @@ class BMPlayer {
         $this->hasPlayerDismissedGame = FALSE;
         $this->isButtonChoiceRandom = FALSE;
         $this->lastActionTime = NULL;
+        $this->cardsDrawn = array();
     }
 
     /**
