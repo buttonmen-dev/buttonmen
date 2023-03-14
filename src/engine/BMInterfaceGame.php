@@ -87,6 +87,7 @@ class BMInterfaceGame extends BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId, NULL, TRUE);
+            $prevState = $game->gameState;
             if (!($game instanceof BMGame)) {
                 throw new UnexpectedValueException(
                     "Could not load newly-created game $gameId"
@@ -103,7 +104,7 @@ class BMInterfaceGame extends BMInterface {
                 $chatNotice = '[i]Continued from [game=' . $previousGameId . '][i]';
                 $game->add_chat(-1, $chatNotice);
             }
-            $this->save_game($game);
+            $this->save_game($game, $prevState);
 
             $this->set_message("Game $gameId created successfully.");
             return array('gameId' => $gameId);
@@ -561,6 +562,7 @@ class BMInterfaceGame extends BMInterface {
         }
 
         $game = $this->load_game($gameId);
+        $prevState = $game->gameState;
 
         if (BMGameState::CHOOSE_JOIN_GAME != $game->gameState) {
             if (('reject' == $decision) &&
@@ -597,7 +599,7 @@ class BMInterfaceGame extends BMInterface {
             $game->gameState = BMGameState::CANCELLED;
         }
 
-        $this->save_game($game);
+        $this->save_game($game, $prevState);
 
         if ($decisionFlag) {
             $this->set_message("Joined game $gameId");
@@ -660,9 +662,10 @@ class BMInterfaceGame extends BMInterface {
             self::$db->update($query, $parameters);
 
             $game = $this->load_game($gameId);
+            $prevState = $game->gameState;
             $player = $game->playerArray[$emptyPlayerIdx];
             $player->hasPlayerAcceptedGame = TRUE;
-            $this->save_game($game);
+            $this->save_game($game, $prevState);
             $this->set_message('Successfully joined game ' . $gameId);
 
             return TRUE;
@@ -685,6 +688,7 @@ class BMInterfaceGame extends BMInterface {
     public function cancel_open_game($currentPlayerId, $gameId) {
         try {
             $game = $this->load_game($gameId);
+            $prevState = $game->gameState;
 
             // check that the current player is involved in this game
             $isPlayerInThisGame = ($game->playerArray[0]->playerId == $currentPlayerId);
@@ -707,7 +711,7 @@ class BMInterfaceGame extends BMInterface {
 
             $game->gameState = BMGameState::CANCELLED;
 
-            $this->save_game($game);
+            $this->save_game($game, $prevState);
             $this->set_message("Successfully cancelled game $gameId");
 
             return TRUE;
@@ -786,7 +790,8 @@ class BMInterfaceGame extends BMInterface {
             self::$db->update($query, $parameters);
 
             $game = $this->load_game($gameId);
-            $this->save_game($game);
+            $prevState = $game->gameState;
+            $this->save_game($game, $prevState);
 
             return TRUE;
         } catch (Exception $e) {
@@ -817,6 +822,7 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             $game = $this->load_game($gameId);
+            $prevState = $game->gameState;
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
@@ -876,7 +882,7 @@ class BMInterfaceGame extends BMInterface {
             if ((FALSE == $game->playerArray[$currentPlayerIdx]->waitingOnAction) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
-                $this->save_game($game);
+                $this->save_game($game, $prevState);
                 $this->set_message('Successfully set die sizes');
                 return TRUE;
             } else {
@@ -968,6 +974,7 @@ class BMInterfaceGame extends BMInterface {
     public function submit_turn($args) {
         try {
             $game = $this->load_game($args['game']);
+            $prevState = $game->gameState;
 
             if (!$this->is_action_current(
                 $game,
@@ -1025,7 +1032,7 @@ class BMInterfaceGame extends BMInterface {
                     return NULL;
                 }
 
-                $this->save_game($game);
+                $this->save_game($game, $prevState);
 
                 // On success, don't set a message, because one will be set from the action log
                 return TRUE;
@@ -1152,6 +1159,7 @@ class BMInterfaceGame extends BMInterface {
                 $this->set_message('Invalid game');
                 return FALSE;
             }
+            $prevState = $game->gameState;
             if (!$this->is_action_current(
                 $game,
                 BMGameState::CHOOSE_AUXILIARY_DICE,
@@ -1205,7 +1213,7 @@ class BMInterfaceGame extends BMInterface {
                     $this->set_message('Invalid response to auxiliary choice.');
                     return FALSE;
             }
-            $this->save_game($game);
+            $this->save_game($game, $prevState);
             return TRUE;
         } catch (Exception $e) {
             error_log(
@@ -1265,6 +1273,7 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             $game = $this->load_game($gameId);
+            $prevState = $game->gameState;
             if (!$this->is_action_current(
                 $game,
                 BMGameState::CHOOSE_RESERVE_DICE,
@@ -1309,7 +1318,7 @@ class BMInterfaceGame extends BMInterface {
                     return FALSE;
             }
 
-            $this->save_game($game);
+            $this->save_game($game, $prevState);
 
             return TRUE;
         } catch (Exception $e) {
@@ -1369,6 +1378,7 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             $game = $this->load_game($gameId);
+            $prevState = $game->gameState;
             if (!$this->is_action_current(
                 $game,
                 BMGameState::REACT_TO_INITIATIVE,
@@ -1413,7 +1423,7 @@ class BMInterfaceGame extends BMInterface {
 
             $isSuccessful = $game->react_to_initiative($argArray);
             if ($isSuccessful) {
-                $this->save_game($game);
+                $this->save_game($game, $prevState);
 
                 if ($isSuccessful['gainedInitiative']) {
                     $this->set_message('Successfully gained initiative');
@@ -1481,6 +1491,7 @@ class BMInterfaceGame extends BMInterface {
     ) {
         try {
             $game = $this->load_game($gameId);
+            $prevState = $game->gameState;
             if (!$this->is_action_current(
                 $game,
                 BMGameState::ADJUST_FIRE_DICE,
@@ -1541,7 +1552,7 @@ class BMInterfaceGame extends BMInterface {
                     );
                 }
 
-                $this->save_game($game);
+                $this->save_game($game, $prevState);
             } else {
                 $this->set_message('Invalid fire turndown');
             }
