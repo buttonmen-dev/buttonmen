@@ -459,6 +459,21 @@ class BMGame {
             $player->button->originalRecipe = $player->button->recipe;
         }
 
+        if (isset($this->playerArray)) {
+            foreach ($this->playerArray as $playerIdx => $player) {
+                $button = $player->button;
+                if ($button instanceof BMButton) {
+                    $oppPlayerIdx = ($playerIdx + 1) % 2;
+                    $button->run_hooks(
+                        'after_specify_recipes',
+                        array('button' => $button,
+                              'oppbutton' => $this->playerArray[$oppPlayerIdx]->button,
+                              'game' => $this)
+                    );
+                }
+            }
+        }
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
