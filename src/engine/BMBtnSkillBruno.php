@@ -6,7 +6,7 @@
 
 /**
  * This class currently supports the special skills of Bruno.
- * 
+ *
  */
 class BMBtnSkillBruno extends BMBtnSkill {
     /**

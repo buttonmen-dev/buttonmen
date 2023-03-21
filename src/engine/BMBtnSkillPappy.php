@@ -6,7 +6,7 @@
 
 /**
  * This class currently supports the special skills of Pappy.
- * 
+ *
  */
 class BMBtnSkillPappy extends BMBtnSkill {
     /**
