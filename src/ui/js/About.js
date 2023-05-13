@@ -52,9 +52,9 @@ About.generalInfo = function() {
   text.append(
     $('<p>').html(
       'This website is a place where people play and talk about ' +
-      '<a href="https://cheapass.com/free-games/button-men">Button Men</a>' +
+      '<a href="http://cheapass.com/free-games/button-men">Button Men</a>' +
       ', a game by ' +
-      '<a href="https://cheapass.com/">Cheapass Games</a>.'
+      '<a href="http://cheapass.com/">Cheapass Games</a>.'
     )
   );
 
