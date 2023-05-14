@@ -122,12 +122,12 @@ Login.getFooter = function() {
   copyright.append(
     'Button Men is copyright 1999, 2023 James Ernest and Cheapass Games: ');
   copyright.append($('<a>', {
-    'href': 'https://cheapass.com',
+    'href': 'http://cheapass.com',
     'text': 'cheapass.com',
   }));
   copyright.append(' and ');
   copyright.append($('<a>', {
-    'href': 'https://beatpeopleup.cheapass.com',
+    'href': 'http://beatpeopleup.cheapass.com',
     'text': 'beatpeopleup.cheapass.com',
   }));
   copyright.append(', and is used with permission.');
