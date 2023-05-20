@@ -238,10 +238,10 @@ class BMClient():
         args['optionValueArray'] = optionArray
     return self._make_request(args)
 
-  def submit_chat(self, gameId, chat):
+  def submit_chat(self, game, chat):
     args = {
       'type': 'submitChat',
-      'gameId': gameId,
+      'game': game,
       'chat': chat,
     }
     return self._make_request(args)
