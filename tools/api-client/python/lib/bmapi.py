@@ -238,6 +238,14 @@ class BMClient():
         args['optionValueArray'] = optionArray
     return self._make_request(args)
 
+  def submit_chat(self, gameId, chat):
+    args = {
+      'type': 'submitChat',
+      'gameId': gameId,
+      'chat': chat,
+    }
+    return self._make_request(args)
+
   def react_to_new_game(self, gameId, action):
     args = {
       'type': 'reactToNewGame',
