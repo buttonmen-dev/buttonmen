@@ -120,11 +120,43 @@ class BMClientParser:
       raise ValueError("Failed to call reactToNewGame, got: " + retval.message)
     return retval.data
 
+  def wrap_load_forum_thread(self, thread):
+    retval = self.client.load_forum_thread(thread)
+    if not retval.status == 'ok':
+      raise ValueError("Failed to call loadForumThread, got: " + retval.message)
+    data = retval.data
+
+    return data
+
+  def wrap_edit_forum_post(self, postId, body):
+    retval = self.client.edit_forum_post(postId, body)
+    if not retval.status == 'ok':
+      raise ValueError("Failed to call editForumThread, got: " + retval.message)
+    data = retval.data
+
+    return data
+
   def wrap_load_completed_games(self):
     retval = self.client.load_completed_games()
     if not retval.status == 'ok':
       raise ValueError("Failed to call loadCompletedGames, got: " + retval.message)
     return self._wrap_game_list_data(retval.data)
+
+  def wrap_search_game_history(self, sortColumn, searchDirection="DESC",
+    numberOfResults=20, page=1, status=None, playerNameA=None, playerNameB=None,
+    buttonNameA=None, buttonNameB=None, gameStartMin=None, gameStartMax=None,
+    lastMoveMin=None, lastMoveMax=None):
+    retval = self.client.search_game_history(
+      sortColumn=sortColumn, sortDirection=searchDirection,
+      numberOfResults=numberOfResults, page=page, status=status,
+      playerNameA=playerNameA, playerNameB=playerNameB,
+      buttonNameA=buttonNameA, buttonNameB=buttonNameB,
+      gameStartMin=gameStartMin, gameStartMax=gameStartMax,
+      lastMoveMin=lastMoveMin, lastMoveMax=lastMoveMax
+    )
+    if not retval.status == 'ok':
+      raise ValueError("Failed to call searchGameHistory, got: " + retval.message)
+    return retval.data
 
   def wrap_create_game(self, pbutton, obutton='', player='', opponent='', description=''):
     retval = self.client.create_game(pbutton, obutton, player, opponent, description)
@@ -171,4 +203,39 @@ class BMClientParser:
     opponentIdx = 1 - playerIdx
     data['player'] = data['playerDataArray'][playerIdx]
     data['opponent'] = data['playerDataArray'][opponentIdx]
+    return data
+
+  def wrap_load_button_data(self, button):
+    # if we're using a cache directory
+    if self.cachedir:
+      # if the cache directory doesn't exist, create it
+      if not os.path.isdir(self.cachedir):
+        os.makedirs(self.cachedir)
+      # set the path to the cache file for this game
+      cachefile = self.cachedir + "/{}.json".format(urlsafe_b64encode(button.encode('utf-8')).decode('utf-8'))
+      # if the cache already has a file for this game
+      if os.path.isfile(cachefile):
+        # get the game data from the cache
+        with open(cachefile) as cache_fh:
+          data = json.load(cache_fh)
+      # otherwise (the cache didn't already have a file for this game)
+      else:
+        # load the game
+        retval = self.client.load_button_data(button)
+        # if that didn't work, raise an exception
+        if not retval.status == 'ok':
+          raise ValueError("Failed to call loadButtonData, got: " + retval.message)
+        # if we're still here, we have the game data
+        data = retval.data[0]
+        # put the data for this game into the cache
+        with open(cachefile, 'w') as cache_fh:
+          json.dump(data, cache_fh, indent=1, sort_keys=True)
+    # otherwise (we aren't using a cache directory), load the game
+    else:
+      retval = self.client.load_button_data(button)
+      if not retval.status == 'ok':
+        raise ValueError("Failed to call loadButtonData, got: " + retval.message)
+      data = retval.data[0]
+    # either way, at this point we have the button data in 'data',
+    # and we're done doing anything cache-related
     return data
