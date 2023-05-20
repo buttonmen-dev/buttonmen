@@ -124,17 +124,19 @@ class BMClientParser:
     retval = self.client.load_forum_thread(thread)
     if not retval.status == 'ok':
       raise ValueError("Failed to call loadForumThread, got: " + retval.message)
-    data = retval.data
-
-    return data
+    return retval.data
 
   def wrap_edit_forum_post(self, postId, body):
     retval = self.client.edit_forum_post(postId, body)
     if not retval.status == 'ok':
       raise ValueError("Failed to call editForumThread, got: " + retval.message)
-    data = retval.data
+    return retval.data
 
-    return data
+  def wrap_submit_chat(self, game, chat):
+    retval = self.client.submit_chat(game, chat)
+    if not retval.status == 'ok':
+      raise ValueError("Failed to call submitChat, got: " + retval.message)
+    return retval.data
 
   def wrap_load_completed_games(self):
     retval = self.client.load_completed_games()
