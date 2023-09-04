@@ -32,6 +32,11 @@ class buttonmen::server {
       content => template("buttonmen/backup_database.erb"),
       mode => 0555;
 
+    "/usr/local/bin/set_buttonmen_config":
+      ensure => file,
+      content => template("buttonmen/set_config.erb"),
+      mode => 0555;
+
     "/usr/local/bin/test_buttonmen_config":
       ensure => file,
       content => template("buttonmen/test_config.erb"),

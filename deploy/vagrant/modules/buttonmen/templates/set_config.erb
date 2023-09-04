@@ -1,0 +1,15 @@
+#!/bin/bash
+##### set_buttonmen_config
+# Replace the buttonmen site type configuration in both JS and DB
+
+set -e
+set -x
+
+NEW_SITE_TYPE=$1
+echo "${NEW_SITE_TYPE}" | egrep -q "^(production|staging|development)$"
+
+/bin/sed --follow-symlinks -i -e "/^Config.siteType =/s/Config.siteType.*$/Config.siteType = '"${NEW_SITE_TYPE}"';/" /var/www/ui/js/Config.js
+
+echo "update config set conf_value='"${NEW_SITE_TYPE}"' where conf_key='site_type'" | /usr/local/bin/mysql_root_cli -N
+
+exit 0

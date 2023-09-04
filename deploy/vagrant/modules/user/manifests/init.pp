@@ -1,4 +1,8 @@
 class user::buttonmen-devs {
+  group {
+    "admin": ensure => present;
+  }
+
   include "user::username::chaos"
   include "user::username::irilyth"
   include "user::username::james"

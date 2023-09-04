@@ -14,6 +14,7 @@ node default {
   include "apt::client"
   include "ntp::client"
   include "postfix::base"
+  include "fqdn::base"
 
   # Node configuration needed for the circleci buttonmen server
   include "apache::server::circleci"
