@@ -778,10 +778,6 @@ class BMGameAction {
     /**
      * Describes a button recipe change
      *
-     *
-     * @param array $preInfo
-     * @param array $postInfo
-     * @param bool $showFrom
      * @return string
      */
     protected function friendly_message_button_recipe_change() {
