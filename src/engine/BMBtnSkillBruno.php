@@ -1,6 +1,6 @@
 <?php
 /**
- * BMBtnSkillPappy: Code specific to Bruno
+ * BMBtnSkillBruno: Code specific to Bruno
  *
  */
 
@@ -25,7 +25,8 @@ class BMBtnSkillBruno extends BMBtnSkill {
     public static function specify_recipes(array $args) {
         $areAllArgsPresent =
             array_key_exists('button', $args) &&
-            array_key_exists('oppbutton', $args);
+            array_key_exists('oppbutton', $args) &&
+            array_key_exists('game', $args);
 
         if (!$areAllArgsPresent) {
             throw new LogicException('specify_recipes die hook is missing required input arguments');
@@ -33,6 +34,7 @@ class BMBtnSkillBruno extends BMBtnSkill {
 
         $button = $args['button'];
         $oppbutton = $args['oppbutton'];
+        $game = $args['game'];
 
         if (is_null($oppbutton)) {
             return;
@@ -49,10 +51,20 @@ class BMBtnSkillBruno extends BMBtnSkill {
 
         // check if opponent is Pappy, only alter recipe if that is the case
         if ('Pappy' == $oppbutton->name) {
-                //  Add the new die to Bruno's recipe
-                $newRecipe = $button->recipe . ' (X)';
+            $oldRecipe = $button->recipe;
+            //  Add the new die to Bruno's recipe
+            $newRecipe = $button->recipe . ' (X)';
+            $game->log_action(
+                'button_recipe_change',
+                0,
+                array(
+                    'buttonName' => $button->name,
+                    'preInfo' => array('recipe' => $oldRecipe),
+                    'postInfo' => array('recipe' => $newRecipe),
+                    'reason' => ' because of Bruno\'s button special against Pappy'
+                )
+            );
         }
-       
 
         $button->recipe = $newRecipe;
         $button->hasAlteredRecipe = TRUE;
@@ -64,6 +76,6 @@ class BMBtnSkillBruno extends BMBtnSkill {
      * @return string
      */
     public static function get_description() {
-        return 'Bruno gets an extra die, a (X), if his opponent is Pappy.';
+        return 'Bruno gets an extra die, an (X), if his opponent is Pappy.';
     }
 }

@@ -25,7 +25,8 @@ class BMBtnSkillPappy extends BMBtnSkill {
     public static function specify_recipes(array $args) {
         $areAllArgsPresent =
             array_key_exists('button', $args) &&
-            array_key_exists('oppbutton', $args);
+            array_key_exists('oppbutton', $args) &&
+            array_key_exists('game', $args);
 
         if (!$areAllArgsPresent) {
             throw new LogicException('specify_recipes die hook is missing required input arguments');
@@ -33,6 +34,7 @@ class BMBtnSkillPappy extends BMBtnSkill {
 
         $button = $args['button'];
         $oppbutton = $args['oppbutton'];
+        $game = $args['game'];
 
         if (is_null($oppbutton)) {
             return;
@@ -49,10 +51,20 @@ class BMBtnSkillPappy extends BMBtnSkill {
 
         // check if opponent is Bruno, only alter recipe if that is the case
         if ('Bruno' == $oppbutton->name) {
-                //  Add the new die to Pappy's recipe
-                $newRecipe = $button->recipe . ' B(X)';
+            $oldRecipe = $button->recipe;
+            //  Add the new die to Pappy's recipe
+            $newRecipe = $button->recipe . ' B(X)';
+            $game->log_action(
+                'button_recipe_change',
+                0,
+                array(
+                    'buttonName' => $button->name,
+                    'preInfo' => array('recipe' => $oldRecipe),
+                    'postInfo' => array('recipe' => $newRecipe),
+                    'reason' => ' because of Pappy\'s button special against Bruno'
+                )
+            );
         }
-       
 
         $button->recipe = $newRecipe;
         $button->hasAlteredRecipe = TRUE;
