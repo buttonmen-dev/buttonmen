@@ -1,0 +1,16 @@
+{
+  "production": {
+    "network_subnet": "FIXME",
+    "network_security_group": "FIXME"
+  },
+  "staging": {
+    "network_subnet": "FIXME",
+    "network_security_group": "FIXME"
+  },
+  "development": {
+    "network_subnet": "FIXME",
+    "network_security_group": "FIXME",
+    "dns_update_script_path": "FIXME"
+    "load_database_path": "FIXME"
+  }
+}

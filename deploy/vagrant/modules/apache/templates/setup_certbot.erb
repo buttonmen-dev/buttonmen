@@ -1,0 +1,27 @@
+#!/bin/sh
+##### Script to safely configure certbot for LetsEncrypt
+
+set -e
+set -x
+
+FQDN_FILE=/usr/local/etc/bmsite_fqdn
+SANDBOX_FQDN="sandbox.buttonweavers.com"
+
+if [ ! -f "${FQDN_FILE}" ]; then
+  echo "Missing dependencies - can't find file ${FQDN_FILE}"
+  exit 1
+fi
+
+FQDN=$(cat /usr/local/etc/bmsite_fqdn)
+if [ "${FQDN}" = "${SANDBOX_FQDN}" ]; then
+  echo "Site is using sandbox FQDN (${SANDBOX_FQDN}) - not configuring certbot"
+  exit 0
+fi
+
+if [ -d "/etc/letsencrypt/live" ]; then
+  echo "Directory /etc/letsencrypt/live is already populated - nothing to do"
+  exit 0
+fi
+
+echo "Running certbot to configure this site as FQDN ${FQDN}"
+/usr/bin/certbot --apache -d ${FQDN} -n --email help@buttonweavers.com --agree-tos

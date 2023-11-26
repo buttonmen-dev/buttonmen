@@ -7,6 +7,10 @@ class apt::client {
   # Make sure generic base packages are installed, for the benefit
   # of minimal environments like CircleCI docker
   package {
+    "bzip2": ensure => installed;
+    "cron": ensure => installed;
+    "openssh-server": ensure => installed;
+    "rsyslog": ensure => installed;
     "rsync": ensure => installed;
     "wget": ensure => installed;
   }
