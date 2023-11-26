@@ -26,8 +26,10 @@ $RANDOMBM_SKILL_ARRAY = array(
   'I', // Insult
   'J', // Jolt
   'k', // Konstant
+  '&', // Mad
   'M', // Maximum
   'H', // Mighty
+  '?', // Mood
   'n', // Null
   'o', // Ornery
   'p', // Poison
@@ -336,7 +338,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             ),
             'RandomBMMixed' => array(
                 'code' => '',
-                'description' => '5 dice, no swing dice, three skills chosen from all existing skills except !%&+?DF`mrw, with each skill dealt out twice randomly and independently over all dice.',
+                'description' => '5 dice, no swing dice, three skills chosen from all existing skills except !%+DF`mrw, with each skill dealt out twice randomly and independently over all dice.',
                 'interacts' => array(),
             ),
             'RandomBMMonoskill' => array(
