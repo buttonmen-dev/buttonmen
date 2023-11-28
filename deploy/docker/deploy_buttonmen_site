@@ -341,6 +341,10 @@ def update_ecs_service(git_info, task_definition_arn, ecs_client):
       cluster=cluster,
       serviceName=service_name,
     )
+    if not response['taskArns']:
+      print(f"...waiting for tasks to be created in service {service_name}...")
+      time.sleep(5)
+      continue
     task_statuses = ecs_client.describe_tasks(
       cluster=cluster,
       tasks=response['taskArns'],
