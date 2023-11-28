@@ -64,10 +64,10 @@ class BMBtnSkillBruno extends BMBtnSkill {
                     'reason' => ' because of Bruno\'s button special against Pappy'
                 )
             );
-        }
 
-        $button->recipe = $newRecipe;
-        $button->hasAlteredRecipe = TRUE;
+            $button->recipe = $newRecipe;
+            $button->hasAlteredRecipe = TRUE;
+        }
     }
 
     /**
