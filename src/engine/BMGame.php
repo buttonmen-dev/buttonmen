@@ -437,7 +437,8 @@ class BMGame {
                     $button->run_hooks(
                         'specify_recipes',
                         array('button' => $button,
-                              'oppbutton' => $this->playerArray[$oppPlayerIdx]->button)
+                              'oppbutton' => $this->playerArray[$oppPlayerIdx]->button,
+                              'game' => $this)
                     );
                 }
             }
