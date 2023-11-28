@@ -781,10 +781,10 @@ class BMGameAction {
      * @return string
      */
     protected function friendly_message_button_recipe_change() {
-        $message .= 'The button recipe for ' . $this->params['buttonName'] . ' changed' .
-                    ' from ' . $this->params['preInfo']['recipe'] .
-                    ' to ' . $this->params['postInfo']['recipe'] .
-                    $this->params['reason'];
+        $message = 'The button recipe for ' . $this->params['buttonName'] . ' changed' .
+                   ' from ' . $this->params['preInfo']['recipe'] .
+                   ' to ' . $this->params['postInfo']['recipe'] .
+                   $this->params['reason'];
 
         return $message;
     }
