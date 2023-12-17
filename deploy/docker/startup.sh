@@ -12,7 +12,9 @@ set -x
 
 # Buttonmen services
 /etc/init.d/apache2 start
-/etc/init.d/mysql start
+if [ -f /etc/init.d/mysql ]; then
+  /etc/init.d/mysql start
+fi
 
 # Container should keep running
 sleep infinity

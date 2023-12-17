@@ -100,27 +100,6 @@ class buttonmen::server {
     }
   }
 
-  # After updating source code, override the Config.js site type
-  # for the dev site
-  case $puppet_hostname {
-    "dev.buttonweavers.com": {
-      exec {
-        "buttonmen_update_config_sitetype":
-          command =>
-            "/bin/sed --follow-symlinks -i -e '/^Config.siteType =/s/production/development/' /var/www/ui/js/Config.js",
-          require => Exec["buttonmen_src_rsync"];
-      }
-    }
-    "staging.buttonweavers.com": {
-      exec {
-        "buttonmen_update_config_sitetype":
-          command =>
-            "/bin/sed --follow-symlinks -i -e '/^Config.siteType =/s/production/staging/' /var/www/ui/js/Config.js",
-          require => Exec["buttonmen_src_rsync"];
-      }
-    }
-  }
-
   cron {
     "buttonmen_backup_database":
       command => "/usr/local/bin/backup_buttonmen_database",

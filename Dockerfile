@@ -10,6 +10,7 @@ RUN mkdir -p build/logs
 RUN bash ./deploy/vagrant/bootstrap.sh
 
 # Run puppet
-RUN puppet apply --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/vagrant/manifests/init.pp
+RUN bash ./deploy/vagrant/run_puppet.sh
 
+# Run startup script
 CMD ["/bin/bash", "/buttonmen/deploy/docker/startup.sh"]
