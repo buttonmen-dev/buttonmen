@@ -91,7 +91,7 @@ def validate_vars(git_info, args):
       raise ValueError(f"Repo is {git_info['reponame']}, but branch {git_info['branch']} is not a known staging or prod branch - refusing to deploy")
 
 
-def add_ecs_config(git_info):
+def add_ecs_config(git_info, args):
   if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
   file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
@@ -106,10 +106,19 @@ def add_ecs_config(git_info):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_subnet' entry for key {key}")
   if not git_info['config'].get('network_security_group', '').startswith('sg-'):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_security_group' entry for key {key}")
-  # bzipped SQL is the file format output by buttonmen database backups, and is the only allowable input for dev site database loads
-  if not git_info['config'].get('load_database_path', '').endswith('.sql.bz2'):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} contains an optional 'load_database_path' entry for key {key}, which is invalid")
 
+  # Non-dev branches always use a remote database; dev branches do if it's requested as a CLI
+  git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key != 'development'
+
+  if git_info['config']['use_remote_database']:
+    if not git_info['config']['remote_database_fqdn']:
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'remote_database_fqdn' entry for key {key}")
+    if not git_info['config']['remote_database_admin_pw']:
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'remote_database_admin_pw' entry for key {key}")
+  else:
+    # bzipped SQL is the file format output by buttonmen database backups, and is the only allowable input for local database loads
+    if not git_info['config'].get('load_database_path', '').endswith('.sql.bz2'):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'load_database_path' entry for key {key}")
 
 def connect_boto_clients():
   return {
@@ -130,10 +139,30 @@ def docker_tag(git_info):
   shorttag = docker_shorttag(git_info)
   return f"{reponame}:{shorttag}"
 
+def get_database_fqdn(git_info):
+  if git_info['config']['use_remote_database']:
+    return git_info['config']['remote_database_fqdn']
+  return '127.0.0.1'
 
 def find_docker_image_with_tag(tag):
   return get_subprocess_output(['docker', 'images', tag, '--format', '{{.ID}}']).strip()
 
+
+def customize_vagrant(git_info):
+  database_fqdn = get_database_fqdn(git_info)
+  bmsite_fqdn = buttonmen_site_fqdn(git_info)
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install {database_fqdn} as vagrant database_fqdn: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_PUPPET_HOSTNAME/{bmsite_fqdn}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install {bmsite_fqdn} as vagrant puppet_hostname: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
 
 def build_docker_image(git_info):
   tag = docker_tag(git_info)
@@ -418,6 +447,18 @@ def configure_container_setup_certbot(public_ipv4):
   cmdargs = 'sudo /usr/local/bin/apache_setup_certbot'
   run_ssh_command(cmdargs, public_ipv4)
 
+def configure_container_setup_remote_database_access(git_info, public_ipv4):
+  admin_pw = git_info['config']['remote_database_admin_pw']
+  cmdargses = [
+    "sudo touch /usr/local/etc/buttonmen_db.cnf",
+    "sudo chmod 600 /usr/local/etc/buttonmen_db.cnf",
+    "sudo sh -c 'echo [client] >> /usr/local/etc/buttonmen_db.cnf'",
+    "sudo sh -c 'echo user=admin >> /usr/local/etc/buttonmen_db.cnf'",
+    f"sudo sh -c 'echo password={admin_pw} >> /usr/local/etc/buttonmen_db.cnf'",
+  ]
+  for cmdargs in cmdargses:
+    run_ssh_command(cmdargs, public_ipv4)
+
 def configure_container_load_database(git_info, public_ipv4):
   load_database_path = git_info['config'].get('load_database_path', None)
   if not load_database_path: return
@@ -431,17 +472,22 @@ def configure_container_set_site_type(git_info, public_ipv4):
   run_ssh_command(cmdargs, public_ipv4)
 
 def configure_container_post_install(git_info, public_ipv4):
+  use_remote_database = git_info['config']['use_remote_database']
   configure_container_populate_etc_bmsite_fqdn(git_info, public_ipv4)
   configure_container_setup_certbot(public_ipv4)
-  configure_container_load_database(git_info, public_ipv4)
+  if use_remote_database:
+    configure_container_setup_remote_database_access(git_info, public_ipv4)
+  else:
+    configure_container_load_database(git_info, public_ipv4)
   configure_container_set_site_type(git_info, public_ipv4)
 
 
 def deploy(args):
   git_info = get_working_directory_info()
   validate_vars(git_info, args)
-  add_ecs_config(git_info)
+  add_ecs_config(git_info, args)
   clients = connect_boto_clients()
+  customize_vagrant(git_info)
   image_id = build_docker_image(git_info)
   repo_uri = push_docker_image_to_ecr(git_info, image_id, clients['ecr'])
   task_definition_arn = update_ecs_task_definition(git_info, repo_uri, clients['ecs'])
@@ -456,6 +502,7 @@ def deploy(args):
 def parse_args(argv):
   return {
     'allow_unclean_repo_deployment': '-u' in argv,
+    'use_remote_database_for_dev': '-r' in argv,
   }
 
 args = parse_args(sys.argv[1:])
