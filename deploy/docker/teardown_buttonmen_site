@@ -1,0 +1,236 @@
+##### teardown_buttonmen_site
+# Tear down all resources for the buttonmen site represented by this
+# working directory
+# The caller is responsible for:
+# * invoking this script using a python with boto3 available
+# * passing correct environment variables for boto3 to authenticate
+#   to the desired region (e.g. an AWS_PROFILE + ~/.aws/config,
+#   or all needed envvars, or whatever)
+# * having docker running locally and the "docker" CLI in the $PATH
+# * copying deploy/docker/buttonmen_ecs_config.json to
+#   ~/.aws/buttonmen_ecs_config.json and populating the fields with
+#   network configuration from the AWS account hosting buttonmen sites
+#
+# Note:
+# * this script is only usable for dev sites
+# * this script only cleans up AWS resources, not local docker resources
+# * this script assumes you know what you're doing and are done
+#   with the dev site - use at your own risk
+
+import boto3
+import json
+import os
+import re
+import subprocess
+import sys
+
+BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
+
+def get_subprocess_output(cmdargs):
+  return subprocess.check_output(cmdargs).decode()
+
+REPO_MATCH = re.compile('^origin\s+git@github.com:(\w+)/buttonmen.git \(fetch\)$')
+def get_working_directory_info():
+  git_info = {
+    'reponame': None,
+    'branch': None,
+  }
+
+  # Find repo name using git remote
+  output = get_subprocess_output(['git', 'remote', '-v'])
+  for line in output.split('\n'):
+    match = REPO_MATCH.match(line)
+    if not match: continue
+    git_info['reponame'] = match.group(1)
+  if git_info['reponame']:
+    print(f"Detected buttonmen repo: {git_info['reponame']}")
+  else:
+    raise ValueError(f"Could not detect repo name from git remote: {output}")
+
+  # Find branch name using git branch
+  output = get_subprocess_output(['git', 'branch'])
+  for line in output.split('\n'):
+    if not line.startswith('* '): continue
+    words = line.split()
+    assert len(words) == 2, f"Found unexpected output line {line} in git branch output: {output}"
+    git_info['branch'] = words[1]
+  if git_info['branch']:
+    print(f"Detected git branch: {git_info['branch']}")
+  else:
+    raise ValueError(f"Could not detect branch name from git branch: {output}")
+
+  return git_info
+
+def validate_vars(git_info, args):
+  # This reponame should only be used for staging and prod, which we don't want to be allowed to tear down
+  if git_info['reponame'] == 'buttonmen-dev':
+    raise ValueError(f"Repo is {git_info['reponame']}, refusing to teardown non-dev branch")
+
+def add_ecs_config(git_info, args):
+  if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
+  file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
+  target_config = {}
+  key = 'development'
+  git_info['site_type'] = key
+  git_info['config'] = file_config.get(key, {})
+  if not 'backup_database_path' in git_info['config']:
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing 'backup_database_path' parameter for download database backups before container delete")
+
+def connect_boto_clients():
+  return {
+    'ec2': boto3.client('ec2'),
+    'ecr': boto3.client('ecr'),
+    'ecs': boto3.client('ecs'),
+  }
+
+def docker_reponame(git_info):
+  return f"buttonmen-{git_info['reponame']}/{git_info['branch']}"
+
+def teardown_ecr_repo(git_info, ecr_client):
+  reponame = docker_reponame(git_info)
+  try:
+    repo_status = ecr_client.describe_repositories(repositoryNames=[reponame])
+  except ecr_client.exceptions.RepositoryNotFoundException:
+    print(f"Repository {reponame} doesn't exist - nothing to do")
+    return
+  print(f"About to delete repository {reponame}")
+  # Force is needed to avoid having to delete all the images first
+  response = ecr_client.delete_repository(repositoryName=reponame, force=True)
+  print(response)
+
+def ecs_task_family_name(git_info):
+  return f"buttonmen-{git_info['reponame']}-{git_info['branch']}"
+
+def ecs_service_name(git_info):
+  return ecs_task_family_name(git_info)
+
+def ecs_cluster_name(git_info):
+  return "buttonmen-dev"
+
+def get_active_ecs_service_info(git_info, ecs_client):
+  cluster = ecs_cluster_name(git_info)
+  service_name = ecs_service_name(git_info)
+  ecs_info = {
+    'service': None,
+    'task_definition': None,
+    'eni': None,
+  }
+
+  response = ecs_client.describe_services(
+    cluster=cluster,
+    services=[service_name],
+  )
+  for service in response.get('services', []):
+    if service['serviceName'] == service_name:
+      print(f"Found ECS service (arn={service['serviceArn']}) with task definition {service['taskDefinition']}")
+      if service['status'] == 'INACTIVE':
+        print(f"Service is already INACTIVE; nothing to do")
+      else:
+        ecs_info['service'] = service_name
+  if not ecs_info['service']:
+    print(f"No active service {service_name} found - assuming no ECS resources to teardown")
+    return ecs_info
+
+  response = ecs_client.list_tasks(
+    cluster=cluster,
+    serviceName=service_name,
+  )
+  if not response['taskArns']:
+    print(f"No tasks exist in service {service_name}...")
+    return ecs_info
+
+  task_statuses = ecs_client.describe_tasks(
+    cluster=cluster,
+    tasks=response['taskArns'],
+  )
+  for task_status in task_statuses['tasks']:
+    print(f"Examining task: {task_status['taskArn']}, taskDefinitionArn={task_status['taskDefinitionArn']}, desiredStatus={task_status['desiredStatus']}, lastStatus={task_status['lastStatus']}")
+    if task_status['desiredStatus'] != 'RUNNING':
+      print(f"...desired task status is not RUNNING - skipping this task")
+      continue
+    ecs_info['task_definition'] = task_status['taskDefinitionArn']
+    for detail in task_status['attachments'][0]['details']:
+      if detail['name'] == 'networkInterfaceId':
+        ecs_info['eni'] = detail['value']
+    print(f"...found task data: {ecs_info}")
+  return ecs_info
+
+def teardown_ecs_service(git_info, ecs_info, ecs_client):
+  cluster = ecs_cluster_name(git_info)
+  service_name = ecs_service_name(git_info)
+
+  if ecs_info['task_definition']:
+    print(f"Updating cluster={cluster} service={service_name} task_definition={ecs_info['task_definition']} to have no running tasks")
+    ecs_client.update_service(
+      cluster=cluster,
+      service=service_name,
+      taskDefinition=ecs_info['task_definition'],
+      desiredCount=0,
+    )
+
+  if ecs_info['service']:
+    assert ecs_info['service'] == service_name
+    print(f"Deleting cluster={cluster} service={service_name}")
+    response = ecs_client.delete_service(
+      cluster=cluster,
+      service=service_name,
+    )
+    print(response)
+
+# The ECS task doesn't know its public IP directly.
+# * It belongs to the ENI attached to the container
+# * So the way to find out about it is to query the ENI, which is an EC2 resource
+def get_site_public_ipv4(eni_id, ec2_client):
+  response = ec2_client.describe_network_interfaces(
+    NetworkInterfaceIds=[eni_id],
+  )
+  public_ipv4 = response['NetworkInterfaces'][0]['Association']['PublicIp']
+  print(f"Found public IPv4 for {eni_id}: {public_ipv4}")
+  return public_ipv4
+
+def run_ssh_command_with_output(cmdargs, public_ipv4):
+  SSH_CMD = "ssh"
+  SSH_ARGS = "-o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null"
+  ssh_cmdargs = f'{SSH_CMD} {SSH_ARGS} {public_ipv4}'.split()
+  ssh_cmdargs.append(f'{cmdargs}')
+  return get_subprocess_output(ssh_cmdargs)
+
+
+def run_scp_download_command(remote_path, local_path, public_ipv4):
+  SCP_CMD = "scp"
+  SCP_ARGS = "-o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null"
+  full_cmdargs = f'{SCP_CMD} {SCP_ARGS} {public_ipv4}:{remote_path} {local_path}'
+  print(f"About to run: {full_cmdargs}")
+  os.system(full_cmdargs)
+
+def configure_container_backup_database(git_info, public_ipv4):
+  cmdargs = "ls /srv/backup"
+  backup_files = sorted([x for x in run_ssh_command_with_output(cmdargs, public_ipv4).split('\n') if x.endswith('.sql.bz2')])
+  if not backup_files:
+    print("Not running a database backup - no file found in /srv/backup on container")
+    return
+  latest_backup = backup_files[-1]
+  target_filename = f"{git_info['config']['backup_database_path']}/dev-{git_info['reponame']}-{git_info['branch']}.{latest_backup}"
+  run_scp_download_command(f"/srv/backup/{latest_backup}", target_filename, public_ipv4)
+
+def configure_container_pre_teardown(git_info, public_ipv4):
+   configure_container_backup_database(git_info, public_ipv4)
+
+def teardown(args):
+  git_info = get_working_directory_info()
+  validate_vars(git_info, args)
+  add_ecs_config(git_info, args)
+  clients = connect_boto_clients()
+  ecs_info = get_active_ecs_service_info(git_info, clients['ecs'])
+  if ecs_info['eni']:
+    public_ipv4 = get_site_public_ipv4(ecs_info['eni'], clients['ec2'])
+    configure_container_pre_teardown(git_info, public_ipv4)
+  teardown_ecs_service(git_info, ecs_info, clients['ecs'])
+  teardown_ecr_repo(git_info, clients['ecr'])
+
+def parse_args(argv):
+  return {}
+
+args = parse_args(sys.argv[1:])
+teardown(args)
