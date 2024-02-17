@@ -6,6 +6,7 @@ node default {
 
   $puppet_hostname = "sandbox.buttonweavers.com"
   $database_fqdn = "127.0.0.1"
+  $buttonmen_site_type = "production"
   $puppet_timestamp = generate('/bin/date', '+%s')
 
   $puppet_apache_sitesdir = "sites-enabled"

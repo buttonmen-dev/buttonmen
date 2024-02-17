@@ -89,6 +89,10 @@ class buttonmen::server {
 
   # Create databases only if we're using local database (i.e. for dev/test sites)
   # (See deploy/database/README.RDS_MIGRATION for how to bootstrap a remote database)
+  #
+  # If we're creating a database, we have to set the config after
+  # it's created (if we're using a remote database, we don't have
+  # that dependency); either way, set the config now.
   case "$database_fqdn" {
     "127.0.0.1": {
       exec {
@@ -96,6 +100,20 @@ class buttonmen::server {
           command => "/usr/local/bin/create_buttonmen_databases",
           require => [ Service["mysql"],
                        Exec["buttonmen_src_rsync"] ];
+
+        "buttonmen_set_config":
+          command => "/usr/local/bin/set_buttonmen_config",
+          require => [ Exec["buttonmen_src_rsync"],
+                       File["/usr/local/bin/set_buttonmen_config"],
+                       Exec["buttonmen_create_databases"] ];
+      }
+    }
+    default: {
+      exec {
+        "buttonmen_set_config":
+          command => "/usr/local/bin/set_buttonmen_config",
+          require => [ Exec["buttonmen_src_rsync"],
+                       File["/usr/local/bin/set_buttonmen_config"] ];
       }
     }
   }

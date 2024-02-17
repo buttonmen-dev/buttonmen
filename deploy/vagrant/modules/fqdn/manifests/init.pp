@@ -7,17 +7,10 @@
 
 class fqdn::base {
   file {
-    # The script that queries EC2 instance tags to get an FQDN 
-    "/usr/local/bin/fqdn_from_ec2_tags":
+    # Set the FQDN which is configured in puppet via manifests/init.pp, within the container
+    "/usr/local/etc/bmsite_fqdn":
       ensure => file,
-      content => template("fqdn/from_ec2_tags.erb"),
-      mode => 555;
-  }
-
-  # Use fqdn_from_ec2_tags to populate or update a site file
-  exec {
-    "fqdn_populate_etc_file":
-      command => "/usr/local/bin/fqdn_from_ec2_tags /usr/local/etc/bmsite_fqdn",
-      require => [ File["/usr/local/bin/fqdn_from_ec2_tags"] ];
+      content => template("fqdn/bmsite_fqdn.erb"),
+      mode => 444;
   }
 }
