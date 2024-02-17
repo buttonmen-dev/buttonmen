@@ -151,6 +151,7 @@ def find_docker_image_with_tag(tag):
 def customize_vagrant(git_info):
   database_fqdn = get_database_fqdn(git_info)
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
+  site_type = git_info['site_type']
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
   print(f"About to install {database_fqdn} as vagrant database_fqdn: {cmdargs}")
@@ -160,6 +161,12 @@ def customize_vagrant(git_info):
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_PUPPET_HOSTNAME/{bmsite_fqdn}/", './deploy/vagrant/manifests/init.pp']
   print(f"About to install {bmsite_fqdn} as vagrant puppet_hostname: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_BUTTONMEN_SITE_TYPE/{site_type}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install {site_type} as vagrant buttonmen_site_type: {cmdargs}")
   retcode = subprocess.call(cmdargs)
   if retcode != 0:
     raise ValueError(f"Replacement failed: {retcode}")
@@ -438,11 +445,6 @@ def run_scp_command(local_path, remote_path, public_ipv4):
   print(f"About to run: {full_cmdargs}")
   os.system(full_cmdargs)
 
-def configure_container_populate_etc_bmsite_fqdn(git_info, public_ipv4):
-  bmsite_fqdn = buttonmen_site_fqdn(git_info)
-  cmdargs = f"sudo sh -c 'echo {bmsite_fqdn} > /usr/local/etc/bmsite_fqdn'"
-  run_ssh_command(cmdargs, public_ipv4)
-
 def configure_container_setup_certbot(public_ipv4):
   cmdargs = 'sudo /usr/local/bin/apache_setup_certbot'
   run_ssh_command(cmdargs, public_ipv4)
@@ -468,18 +470,17 @@ def configure_container_load_database(git_info, public_ipv4):
   run_ssh_command(cmdargs, public_ipv4)
 
 def configure_container_set_site_type(git_info, public_ipv4):
-  cmdargs = f"sudo /usr/local/bin/set_buttonmen_config {git_info['site_type']}"
+  cmdargs = f"sudo /usr/local/bin/set_buttonmen_config"
   run_ssh_command(cmdargs, public_ipv4)
 
 def configure_container_post_install(git_info, public_ipv4):
   use_remote_database = git_info['config']['use_remote_database']
-  configure_container_populate_etc_bmsite_fqdn(git_info, public_ipv4)
   configure_container_setup_certbot(public_ipv4)
   if use_remote_database:
     configure_container_setup_remote_database_access(git_info, public_ipv4)
   else:
     configure_container_load_database(git_info, public_ipv4)
-  configure_container_set_site_type(git_info, public_ipv4)
+    configure_container_set_site_type(git_info, public_ipv4)
 
 
 def deploy(args):

@@ -69,9 +69,16 @@ class apache::server::feature::monitor-logs {
   }
 
   # Run the log-monitoring script from a nightly cron job
+  #
+  # Note: assuming this is the first cron job to be installed, the
+  # environment variable will be applied to all jobs.  Hackishly
+  # taking advantage of the fact that this appears to be the case,
+  # because puppet provides no clean way to get an envvar installed
+  # at the top of /var/spool/cron/crontabs/root exactly once.
   cron {
     "apache_monitor_logs":
       command => "/usr/local/sbin/monitor_apache_logs",
+      environment => "BMSITE=${puppet_hostname}",
       hour => 0,
       minute => 5;
   }
@@ -114,13 +121,5 @@ class apache::server::feature::letsencrypt {
       ensure => file,
       content => template("apache/setup_certbot.erb"),
       mode => 0555;
-  }
-
-  exec {
-    # Run certbot to configure LetsEncrypt
-    "apache_certbot_setup":
-      command => "/usr/local/bin/apache_setup_certbot",
-      require => [ Exec["fqdn_populate_etc_file"], Package["python-certbot-apache"], File["/usr/local/bin/apache_setup_certbot"] ],
-      creates => "/etc/letsencrypt/live";
   }
 }
