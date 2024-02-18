@@ -1,17 +1,24 @@
 {
   "production": {
+    "bmsite_fqdn": "FIXME",
     "network_subnet": "FIXME",
     "network_security_group": "FIXME",
+    "nlb_arn_port_80": "FIXME",
+    "nlb_arn_port_443": "FIXME",
     "remote_database_fqdn": "FIXME",
     "remote_database_admin_pw": "FIXME"
   },
   "staging": {
+    "bmsite_fqdn": "FIXME",
     "network_subnet": "FIXME",
     "network_security_group": "FIXME",
+    "nlb_arn_port_80": "FIXME",
+    "nlb_arn_port_443": "FIXME",
     "remote_database_fqdn": "FIXME",
     "remote_database_admin_pw": "FIXME"
   },
   "development": {
+    "bmsite_fqdn_suffix": "FIXME",
     "network_subnet": "FIXME",
     "network_security_group": "FIXME",
     "dns_update_script_path": "FIXME"

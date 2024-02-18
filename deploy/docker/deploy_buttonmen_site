@@ -20,12 +20,6 @@ import sys
 import time
 
 BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
-BUTTONMEN_FQDN_BASE = 'buttonweavers.com'
-BUTTONMEN_DEVELOPMENT_SUBDOMAIN = 'dev'
-BUTTONMEN_PROD_FDQN_PREFIXES = {
-  'production': 'www',
-  'staging': 'staging',
-}
 
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
@@ -119,6 +113,21 @@ def add_ecs_config(git_info, args):
     # bzipped SQL is the file format output by buttonmen database backups, and is the only allowable input for local database loads
     if not git_info['config'].get('load_database_path', '').endswith('.sql.bz2'):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'load_database_path' entry for key {key}")
+
+  # Non-dev branches always use an elastic IP; dev branches do if it's requested as a CLI
+  git_info['config']['use_elastic_ip'] = args['use_elastic_ip_for_dev'] or key != 'development'
+
+  if git_info['config']['use_elastic_ip']:
+    if not git_info['config'].get('bmsite_fqdn', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'bmsite_fqdn' entry for key {key}")
+    if not git_info['config'].get('nlb_arn_port_80', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'nlb_arn_port_80' entry for key {key}")
+    if not git_info['config'].get('nlb_arn_port_443', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'nlb_arn_port_443' entry for key {key}")
+  else:
+    if not git_info['config'].get('bmsite_fqdn_suffix', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'bmsite_fqdn_suffix' entry for key {key}")
+
 
 def connect_boto_clients():
   return {
@@ -265,9 +274,9 @@ def ecs_task_tags(git_info):
   ]
 
 def buttonmen_site_fqdn(git_info):
-  if git_info['reponame'] == 'buttonmen-dev':
-    return f"{BUTTONMEN_PROD_FDQN_PREFIXES[git_info['branch']]}.{BUTTONMEN_FQDN_BASE}"
-  return f"{git_info['branch']}.{git_info['reponame']}.{BUTTONMEN_DEVELOPMENT_SUBDOMAIN}.{BUTTONMEN_FQDN_BASE}".replace('_', '-')
+  if git_info['config']['use_elastic_ip']:
+    return git_info['config']['bmsite_fqdn']
+  return f"{git_info['branch']}.{git_info['reponame']}.{git_info['config']['bmsite_fqdn_suffix']}".replace('_', '-')
 
 
 def update_ecs_task_definition(git_info, repo_uri, ecs_client):
@@ -307,6 +316,16 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
           '/bin/bash',
           '/buttonmen/deploy/docker/startup.sh',
         ],
+        'portMappings': [
+          {
+            'containerPort': 80,
+            'protocol': 'tcp',
+          },
+          {
+            'containerPort': 443,
+            'protocol': 'tcp',
+          },
+        ],
       },
     ],
     cpu="256",
@@ -335,10 +354,36 @@ def ecs_network_config(git_info):
     },
   }
 
+def ecs_load_balancer_config(git_info):
+  if not git_info['config']['use_elastic_ip']: return None
+  return [
+    {
+      'targetGroupArn': git_info['config']['nlb_arn_port_80'],
+      'containerName': 'buttonmen',
+      'containerPort': 80,
+    },
+    {
+      'targetGroupArn': git_info['config']['nlb_arn_port_443'],
+      'containerName': 'buttonmen',
+      'containerPort': 443,
+    },
+  ]
+
+
 def update_ecs_service(git_info, task_definition_arn, ecs_client):
   cluster = ecs_cluster_name(git_info)
   service_name = ecs_service_name(git_info)
   network_config = ecs_network_config(git_info)
+  load_balancer_config = ecs_load_balancer_config(git_info)
+
+  service_args = {
+    'cluster': cluster,
+    'taskDefinition': task_definition_arn,
+    'desiredCount': 1,
+    'networkConfiguration': network_config,
+  }
+  if load_balancer_config:
+    service_args['loadBalancers'] = load_balancer_config
 
   response = ecs_client.describe_services(
     cluster=cluster,
@@ -347,28 +392,21 @@ def update_ecs_service(git_info, task_definition_arn, ecs_client):
   service_name_found = False
   for service in response.get('services', []):
     if service['serviceName'] == service_name:
+      if service['status'] != 'ACTIVE':
+        print(f"Found ECS service (arn={service['serviceArn']}), but its status is {service['status']} != 'ACTIVE'; ignoring it")
+        continue
       service_name_found = True
       if service['taskDefinition'] == task_definition_arn:
         print(f"Found ECS service (arn={service['serviceArn']}) with expected task definition {task_definition_arn}")
       else:
         print(f"ECS service (arn={service['serviceArn']}) has stale task definition: found {service['taskDefinition']}, wanted {task_definition_arn}... updating")
-        ecs_client.update_service(
-          cluster=cluster,
-          service=service_name,
-          taskDefinition=task_definition_arn,
-          desiredCount=1,
-          networkConfiguration=network_config,
-        )
+        service_args['service'] = service_name
+        ecs_client.update_service(**service_args)
   if not service_name_found:
     print(f"Expected service {service_name} not found - creating it now")
-    ecs_client.create_service(
-      cluster=cluster,
-      serviceName=service_name,
-      taskDefinition=task_definition_arn,
-      desiredCount=1,
-      launchType='FARGATE',
-      networkConfiguration=network_config,
-    )
+    service_args['serviceName'] = service_name
+    service_args['launchType'] = 'FARGATE'
+    ecs_client.create_service(**service_args)
 
   print(f"Waiting for service task to enter status: Running")
   eni_id = None
@@ -480,7 +518,7 @@ def configure_container_post_install(git_info, public_ipv4):
     configure_container_setup_remote_database_access(git_info, public_ipv4)
   else:
     configure_container_load_database(git_info, public_ipv4)
-    configure_container_set_site_type(git_info, public_ipv4)
+  configure_container_set_site_type(git_info, public_ipv4)
 
 
 def deploy(args):
@@ -504,6 +542,7 @@ def parse_args(argv):
   return {
     'allow_unclean_repo_deployment': '-u' in argv,
     'use_remote_database_for_dev': '-r' in argv,
+    'use_elastic_ip_for_dev': '-e' in argv,
   }
 
 args = parse_args(sys.argv[1:])
