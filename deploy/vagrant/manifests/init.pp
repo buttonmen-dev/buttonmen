@@ -15,6 +15,7 @@ node default {
   $puppet_hostname = "REPLACE_WITH_PUPPET_HOSTNAME"
   $database_fqdn = "REPLACE_WITH_DATABASE_FQDN"
   $buttonmen_site_type = "REPLACE_WITH_BUTTONMEN_SITE_TYPE"
+  $remote_database_password = "REPLACE_WITH_REMOTE_DATABASE_PASSWORD"
 
   $puppet_timestamp = generate('/bin/date', '+%s')
 

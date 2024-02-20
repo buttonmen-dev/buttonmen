@@ -108,6 +108,16 @@ class buttonmen::server {
                        Exec["buttonmen_create_databases"] ];
       }
     }
+
+    # Database access config file for remote databases only
+    default: {
+      file {
+        "/usr/local/etc/buttonmen_db.cnf":
+          ensure => file,
+          content => template("buttonmen/buttonmen_db.cnf.erb"),
+          mode => 0400;
+      }
+    }
   }
 
   cron {
