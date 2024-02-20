@@ -100,6 +100,8 @@ def add_ecs_config(git_info, args):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_subnet' entry for key {key}")
   if not git_info['config'].get('network_security_group', '').startswith('sg-'):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_security_group' entry for key {key}")
+  if not git_info['config'].get('log_group', None):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'log_group' entry for key {key}")
 
   # Non-dev branches always use a remote database; dev branches do if it's requested as a CLI
   git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key != 'development'
@@ -284,6 +286,7 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
   tags = ecs_task_tags(git_info)
   image_tag = docker_shorttag(git_info)
   image_name_tag = f"{repo_uri}:{image_tag}"
+  bmsite_fqdn = buttonmen_site_fqdn(git_info)
 
   # Check if the most recent task definition in the family already matches our tag
   try:
@@ -326,6 +329,14 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
             'protocol': 'tcp',
           },
         ],
+        'logConfiguration': {
+          'logDriver': 'awslogs',
+          'options': {
+            'awslogs-group': git_info['config']['log_group'],
+            'awslogs-region': ecs_client.meta.region_name,
+            'awslogs-stream-prefix': f"{bmsite_fqdn}",
+          },
+        },
       },
     ],
     cpu="256",
