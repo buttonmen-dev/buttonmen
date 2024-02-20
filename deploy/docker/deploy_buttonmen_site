@@ -155,13 +155,19 @@ def get_database_fqdn(git_info):
     return git_info['config']['remote_database_fqdn']
   return '127.0.0.1'
 
+def get_remote_database_password(git_info):
+  if git_info['config']['use_remote_database']:
+    return git_info['config']['remote_database_admin_pw']
+  return None
+
 def find_docker_image_with_tag(tag):
   return get_subprocess_output(['docker', 'images', tag, '--format', '{{.ID}}']).strip()
 
 
 def customize_vagrant(git_info):
-  database_fqdn = get_database_fqdn(git_info)
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
+  database_fqdn = get_database_fqdn(git_info)
+  remote_database_password = get_remote_database_password(git_info)
   site_type = git_info['site_type']
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
@@ -181,6 +187,13 @@ def customize_vagrant(git_info):
   retcode = subprocess.call(cmdargs)
   if retcode != 0:
     raise ValueError(f"Replacement failed: {retcode}")
+
+  if remote_database_password:
+    cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_REMOTE_DATABASE_PASSWORD/{remote_database_password}/", './deploy/vagrant/manifests/init.pp']
+    print(f"About to install vagrant remote_database_password...")
+    retcode = subprocess.call(cmdargs)
+    if retcode != 0:
+      raise ValueError(f"Replacement failed: {retcode}")
 
 def build_docker_image(git_info):
   tag = docker_tag(git_info)
@@ -498,18 +511,6 @@ def configure_container_setup_certbot(public_ipv4):
   cmdargs = 'sudo /usr/local/bin/apache_setup_certbot'
   run_ssh_command(cmdargs, public_ipv4)
 
-def configure_container_setup_remote_database_access(git_info, public_ipv4):
-  admin_pw = git_info['config']['remote_database_admin_pw']
-  cmdargses = [
-    "sudo touch /usr/local/etc/buttonmen_db.cnf",
-    "sudo chmod 600 /usr/local/etc/buttonmen_db.cnf",
-    "sudo sh -c 'echo [client] >> /usr/local/etc/buttonmen_db.cnf'",
-    "sudo sh -c 'echo user=admin >> /usr/local/etc/buttonmen_db.cnf'",
-    f"sudo sh -c 'echo password={admin_pw} >> /usr/local/etc/buttonmen_db.cnf'",
-  ]
-  for cmdargs in cmdargses:
-    run_ssh_command(cmdargs, public_ipv4)
-
 def configure_container_load_database(git_info, public_ipv4):
   load_database_path = git_info['config'].get('load_database_path', None)
   if not load_database_path: return
@@ -525,9 +526,7 @@ def configure_container_set_site_type(git_info, public_ipv4):
 def configure_container_post_install(git_info, public_ipv4):
   use_remote_database = git_info['config']['use_remote_database']
   configure_container_setup_certbot(public_ipv4)
-  if use_remote_database:
-    configure_container_setup_remote_database_access(git_info, public_ipv4)
-  else:
+  if not use_remote_database:
     configure_container_load_database(git_info, public_ipv4)
   configure_container_set_site_type(git_info, public_ipv4)
 
