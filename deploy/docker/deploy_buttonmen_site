@@ -528,7 +528,7 @@ def configure_container_post_install(git_info, public_ipv4):
   configure_container_setup_certbot(public_ipv4)
   if not use_remote_database:
     configure_container_load_database(git_info, public_ipv4)
-  configure_container_set_site_type(git_info, public_ipv4)
+    configure_container_set_site_type(git_info, public_ipv4)
 
 
 def deploy(args):

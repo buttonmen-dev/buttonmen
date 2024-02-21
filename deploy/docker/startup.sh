@@ -16,5 +16,8 @@ if [ -f /etc/init.d/mysql ]; then
   /etc/init.d/mysql start
 fi
 
+# Set site type so it's correct in UI JS
+/usr/local/bin/set_buttonmen_config
+
 # Container should keep running
 sleep infinity
