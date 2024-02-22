@@ -3,6 +3,7 @@
     "bmsite_fqdn": "FIXME",
     "network_subnet": "FIXME",
     "network_security_group": "FIXME",
+    "filesystem_id": "FIXME",
     "log_group": "FIXME",
     "nlb_arn_port_80": "FIXME",
     "nlb_arn_port_443": "FIXME",
@@ -13,6 +14,7 @@
     "bmsite_fqdn": "FIXME",
     "network_subnet": "FIXME",
     "network_security_group": "FIXME",
+    "filesystem_id": "FIXME",
     "log_group": "FIXME",
     "nlb_arn_port_80": "FIXME",
     "nlb_arn_port_443": "FIXME",
@@ -23,6 +25,7 @@
     "bmsite_fqdn_suffix": "FIXME",
     "network_subnet": "FIXME",
     "network_security_group": "FIXME",
+    "filesystem_id": "FIXME",
     "log_group": "FIXME",
     "dns_update_script_path": "FIXME",
     "load_database_path": "FIXME"
