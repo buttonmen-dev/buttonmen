@@ -80,7 +80,7 @@ Help.generalInfo = function() {
       '<a href="forum.html">forums</a>' +
       ' on this site are a good place to engage with the community. ' +
       'There\'s also a ' +
-      '<a href="https://buttonweavers.fandom.com/">Buttonweavers wiki</a> ' +
+      '<a href="https://buttonmen.wiki/">Buttonweavers wiki</a> ' +
       'and a ' +
       '<a href="https://buttonmen.fandom.com/">Button Men wiki</a>.'
     )
