@@ -163,6 +163,28 @@ class BMClient():
     }
     return self._make_request(args)
 
+  def load_button_data(self, button):
+    args = {
+      'type': 'loadButtonData',
+      'buttonName': button,
+    }
+    return self._make_request(args)
+
+  def load_forum_thread(self, thread):
+    args = {
+      'type': 'loadForumThread',
+      'threadId': thread,
+    }
+    return self._make_request(args)
+
+  def edit_forum_post(self, postId, body):
+    args = {
+      'type': 'editForumPost',
+      'postId': postId,
+      'body': body,
+    }
+    return self._make_request(args)
+
   def create_game(self, pbutton, obutton='', player='', opponent='', description='', max_wins=3, use_prev_game=False, custom_recipe_array=None):
     if player is None or player == '':
       player = self.username
@@ -216,6 +238,14 @@ class BMClient():
         args['optionValueArray'] = optionArray
     return self._make_request(args)
 
+  def submit_chat(self, game, chat):
+    args = {
+      'type': 'submitChat',
+      'game': game,
+      'chat': chat,
+    }
+    return self._make_request(args)
+
   def react_to_new_game(self, gameId, action):
     args = {
       'type': 'reactToNewGame',
@@ -266,4 +296,40 @@ class BMClient():
     }
     if dieIdx is not None:
       args['dieIdx'] = dieIdx
+    return self._make_request(args)
+
+  def search_game_history(self, sortColumn, sortDirection="DESC",
+    numberOfResults=20, page=1, status=None, playerNameA=None, playerNameB=None,
+    buttonNameA=None, buttonNameB=None, gameStartMin=None, gameStartMax=None,
+    lastMoveMin=None, lastMoveMax=None):
+    """
+    {"status":"COMPLETE","sortColumn":"lastMove","sortDirection":"ASC","numberOfResults":"100","page":"1","type":"searchGameHistory","automatedApiCall":false}:
+    {"playerNameA":"glassonion","buttonNameA":"Bunnies","buttonNameB":"McGinty","playerNameB":"Jota","gameStartMin":1546326000,"gameStartMax":1577775600,"status":"COMPLETE","sortColumn":"lastMove","sortDirection":"ASC","numberOfResults":"100","page":"1","type":"searchGameHistory","automatedApiCall":false}:
+    """
+    args = {
+      'type': 'searchGameHistory',
+      'sortColumn': sortColumn,
+      'sortDirection': sortDirection,
+      'numberOfResults': numberOfResults,
+      'page': page
+    }
+    if status is not None:
+      args['status'] = status
+    if playerNameA is not None:
+      args['playerNameA'] = playerNameA
+    if playerNameB is not None:
+      args['playerNameB'] = playerNameB
+    if buttonNameA is not None:
+      args['buttonNameA'] = buttonNameA
+    if buttonNameB is not None:
+      args['buttonNameB'] = buttonNameB
+    if gameStartMin is not None:
+      args['gameStartMin'] = gameStartMin
+    if gameStartMax is not None:
+      args['gameStartMax'] = gameStartMax
+    if lastMoveMin is not None:
+      args['lastMoveMin'] = lastMoveMin
+    if lastMoveMax is not None:
+      args['lastMoveMax'] = lastMoveMax
+
     return self._make_request(args)
