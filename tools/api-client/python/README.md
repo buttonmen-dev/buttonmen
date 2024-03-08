@@ -12,4 +12,4 @@ Use the scripts with a python installation that contains all modules in requirem
 
 ## User scripts
 
-These scripts have been provided by players over time, and are not tested.  Use at your own risk.
+These scripts have been provided by players over time, and not all of them are routinely or automatically tested.  Use at your own risk.
