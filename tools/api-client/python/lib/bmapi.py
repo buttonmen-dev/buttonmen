@@ -9,8 +9,8 @@
 # Import stuff from the future.
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-from future import standard_library
-standard_library.install_aliases()
+# from future import standard_library
+# standard_library.install_aliases()
 
 # Import regular stuff.
 
@@ -266,4 +266,42 @@ class BMClient():
     }
     if dieIdx is not None:
       args['dieIdx'] = dieIdx
+    return self._make_request(args)
+
+  def search_game_history(self, params):
+    args = {
+      'type': 'searchGameHistory',
+    }
+    searchKeys = [
+      "gameId",
+      "playerNameA",
+      "playerNameB",
+      "buttonNameA",
+      "buttonNameB",
+      "gameStartMin",
+      "gameStartMax",
+      "lastMoveMin",
+      "lastMoveMax",
+      "winningPlayer",
+      "status",
+      "sortColumn",
+      "sortDirection",
+      "numberOfResults",
+      "page",
+    ]
+    for key in searchKeys:
+      try:
+        args[key] = params[key]
+      except KeyError:
+        pass
+
+    return self._make_request(args)
+
+  def load_button_set_data(self, buttonSet=None):
+    args = {
+      'type': 'loadButtonSetData',
+    }
+    if buttonSet:
+      args['buttonSet'] = buttonSet
+
     return self._make_request(args)
