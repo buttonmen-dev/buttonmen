@@ -18,10 +18,9 @@ if [ "${FQDN}" = "${SANDBOX_FQDN}" ]; then
   exit 0
 fi
 
-if [ -d "/etc/letsencrypt/live" ]; then
-  echo "Directory /etc/letsencrypt/live is already populated - nothing to do"
-  exit 0
+if [ -d "/etc/letsencrypt/live/${FQDN}" ]; then
+  echo "Directory /etc/letsencrypt/live is already populated; continuing in case we need to reinstall the cert to apache"
 fi
 
 echo "Running certbot to configure this site as FQDN ${FQDN}"
-/usr/bin/certbot --apache -d ${FQDN} -n --email help@buttonweavers.com --agree-tos
+/usr/bin/certbot --apache -d ${FQDN} -n --email help@buttonweavers.com --agree-tos --reinstall
