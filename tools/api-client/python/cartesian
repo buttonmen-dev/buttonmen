@@ -1,0 +1,133 @@
+#!/bin/python
+
+import configparser
+import argparse
+import os
+import sys
+import json
+import time
+
+# Import Button Men utilities.
+
+sys.path.append('lib')
+import bmutils
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Determine and create games for projects of completing certain cartesian products of play counts.")
+
+    parser.add_argument("specs",
+                        nargs = "*",
+                        help = "button or set names to include")
+
+    parser.add_argument("--limit",
+                        default = 5,
+                        help = "target game count")
+
+    parser.add_argument("--mirrors",
+                        default = False,
+                        help = "include mirror matches")
+
+    parser.add_argument("--include-active",
+                        default = True,
+                        help = "include active games")
+
+    
+    parser.add_argument("--stale-threshold",
+                        default = 14,
+                        help = "days until a game is considered stale")
+
+
+    parser.add_argument('--site',
+                      default = 'www',
+                      help = "site to check ('www' by default)")
+
+    parser.add_argument('--config', '-c',
+                      default='~/.bmrc',
+                      help="config file containing site parameters")
+
+    return parser.parse_args()
+
+def establish_conn(args):
+    try:
+        bmconn = bmutils.BMClientParser(os.path.expanduser(args.config), args.site)
+    except configparser.NoSectionError as e:
+        print("ERROR: {0} doesn't seem to have a '{1}' section".format(args.config, args.site))
+        print("(Exception: {0}: {1})".format(e.__module__, e.message))
+        sys.exit(1)
+
+    if not bmconn.verify_login():
+        print("ERROR: Could not log in to {0}".format(args.site))
+        sys.exit(1)
+
+    return bmconn
+
+def count(bmconn, args, buttonA, buttonB):
+    completedCount =  bmconn.client.search_game_history({
+        "buttonNameA": buttonA,
+        "buttonNameB": buttonB,
+        "status": "COMPLETE",
+        "sortColumn": "lastMove",
+        "sortDirection": "DESC",
+        "numberOfResults": 0,
+        "page": 1,
+    }).data["summary"]["matchesFound"]
+
+    if completedCount >= int(args.limit) or not args.include_active:
+        return completedCount
+
+    activeCount = bmconn.client.search_game_history({
+        "buttonNameA": buttonA,
+        "buttonNameB": buttonB,
+        "status": "ACTIVE",
+        "lastMoveMin": int(time.time() - (60 * 60 * 24 * args.stale_threshold)),
+        "sortColumn": "lastMove",
+        "sortDirection": "DESC",
+        "numberOfResults": 0,
+        "page": 1,
+    }).data["summary"]["matchesFound"]
+
+    return completedCount + activeCount
+
+def load_buttons(bmconn, args):
+    allButtons = bmconn.wrap_load_button_names()
+
+    buttons = []
+    
+    for spec in args.specs:
+        if spec in allButtons:
+            buttons.append(spec)
+        else:
+            data = bmconn.client.load_button_set_data(spec)
+            if data.status == "ok":
+                for button in data.data[0]["buttons"]:
+                    buttons.append(button["buttonName"])
+            else:
+                raise RuntimeError("Unknown spec: " + spec)
+    return buttons
+                    
+    
+
+def main():
+    args = parse_arguments()
+    bmconn = establish_conn(args)
+
+    buttons = load_buttons(bmconn, args)
+
+    for idx, buttonA in enumerate(buttons):
+        print(buttonA)
+        print("---")
+        for buttonB in buttons[idx:]:
+            if buttonA == buttonB and not args.mirrors:
+                continue
+            c = count(bmconn, args, buttonA, buttonB);
+            if c < int(args.limit):
+                print(buttonB, c)
+        print()
+            
+
+    # print(json.dumps(bmconn.wrap_load_completed_games()))
+
+if __name__ == "__main__":
+    main()
+    
+    
