@@ -113,6 +113,8 @@ def main():
 
     buttons = load_buttons(bmconn, args)
 
+    total = 0
+
     for idx, buttonA in enumerate(buttons):
         print(buttonA)
         print("---")
@@ -121,8 +123,11 @@ def main():
                 continue
             c = count(bmconn, args, buttonA, buttonB);
             if c < int(args.limit):
+                total += int(args.limit) - c
                 print(buttonB, c)
         print()
+
+    print(f"Total: {total}");
             
 
     # print(json.dumps(bmconn.wrap_load_completed_games()))
