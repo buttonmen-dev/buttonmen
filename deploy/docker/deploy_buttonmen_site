@@ -24,7 +24,7 @@ BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.jso
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
 
-REPO_MATCH = re.compile('^origin\s+git@github.com:(\w+)/buttonmen.git \(fetch\)$')
+REPO_MATCH = re.compile('^origin\s+git@github.com:([\w-]+)/buttonmen.git \(fetch\)$')
 def get_working_directory_info():
   git_info = {
     'reponame': None,
