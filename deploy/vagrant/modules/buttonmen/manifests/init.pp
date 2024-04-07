@@ -32,6 +32,11 @@ class buttonmen::server {
       content => template("buttonmen/backup_database.erb"),
       mode => 0555;
 
+    "/usr/local/bin/set_buttonmen_config":
+      ensure => file,
+      content => template("buttonmen/set_config.erb"),
+      mode => 0555;
+
     "/usr/local/bin/test_buttonmen_config":
       ensure => file,
       content => template("buttonmen/test_config.erb"),
@@ -84,6 +89,10 @@ class buttonmen::server {
 
   # Create databases only if we're using local database (i.e. for dev/test sites)
   # (See deploy/database/README.RDS_MIGRATION for how to bootstrap a remote database)
+  #
+  # If we're creating a database, we have to set the config after it's created.
+  # (If we're using a remote database, we don't have the option of
+  # setting the config now, and need to do that later in the container standup process.)
   case "$database_fqdn" {
     "127.0.0.1": {
       exec {
@@ -91,27 +100,22 @@ class buttonmen::server {
           command => "/usr/local/bin/create_buttonmen_databases",
           require => [ Service["mysql"],
                        Exec["buttonmen_src_rsync"] ];
-      }
-    }
-  }
 
-  # After updating source code, override the Config.js site type
-  # for the dev site
-  case $puppet_hostname {
-    "dev.buttonweavers.com": {
-      exec {
-        "buttonmen_update_config_sitetype":
-          command =>
-            "/bin/sed --follow-symlinks -i -e '/^Config.siteType =/s/production/development/' /var/www/ui/js/Config.js",
-          require => Exec["buttonmen_src_rsync"];
+        "buttonmen_set_config":
+          command => "/usr/local/bin/set_buttonmen_config",
+          require => [ Exec["buttonmen_src_rsync"],
+                       File["/usr/local/bin/set_buttonmen_config"],
+                       Exec["buttonmen_create_databases"] ];
       }
     }
-    "staging.buttonweavers.com": {
-      exec {
-        "buttonmen_update_config_sitetype":
-          command =>
-            "/bin/sed --follow-symlinks -i -e '/^Config.siteType =/s/production/staging/' /var/www/ui/js/Config.js",
-          require => Exec["buttonmen_src_rsync"];
+
+    # Database access config file for remote databases only
+    default: {
+      file {
+        "/usr/local/etc/buttonmen_db.cnf":
+          ensure => file,
+          content => template("buttonmen/buttonmen_db.cnf.erb"),
+          mode => 0400;
       }
     }
   }

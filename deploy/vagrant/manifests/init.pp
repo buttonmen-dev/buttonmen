@@ -7,27 +7,16 @@ node default {
     require => Exec["apt_client_update"],
   }
 
-  # Don't use facter to get hostname and domain because these are
-  # wrong for EC2, and don't bother to lookup IPs in DNS because
-  # we have very few hosts.  Just hardcode the list of roles.
-  case "$ec2_public_ipv4" {
-    "44.206.106.227": {
-      $puppet_hostname = "rds.dev.buttonweavers.com"
-      $database_fqdn = "buttonmen-cgolubi1-2523-rds.cyk4kpmwmefe.us-east-1.rds.amazonaws.com"
-    }
-    "54.235.150.227": {
-      $puppet_hostname = "staging.buttonweavers.com"
-      $database_fqdn = "buttonmen-staging.cyk4kpmwmefe.us-east-1.rds.amazonaws.com"
-    }
-    "54.83.36.209": {
-      $puppet_hostname = "www.buttonweavers.com"
-      $database_fqdn = "buttonmen-prod.cyk4kpmwmefe.us-east-1.rds.amazonaws.com"
-    }
-    default: {
-      $puppet_hostname = "sandbox.buttonweavers.com"
-      $database_fqdn = "127.0.0.1"
-    }
-  }
+  # The deploy_buttonmen_site wrapper should set these correctly
+  # for ECS, based on the config file contents.
+  # If you are deploying locally and don't have access to that wrapper, try:
+  #   $puppet_hostname = "sandbox.buttonweavers.com"
+  #   $database_fqdn = "127.0.0.1"
+  $puppet_hostname = "REPLACE_WITH_PUPPET_HOSTNAME"
+  $database_fqdn = "REPLACE_WITH_DATABASE_FQDN"
+  $buttonmen_site_type = "REPLACE_WITH_BUTTONMEN_SITE_TYPE"
+  $remote_database_password = "REPLACE_WITH_REMOTE_DATABASE_PASSWORD"
+
   $puppet_timestamp = generate('/bin/date', '+%s')
 
   case "$operatingsystemrelease" {
