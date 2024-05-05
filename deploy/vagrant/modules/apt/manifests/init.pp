@@ -10,9 +10,15 @@ class apt::client {
     "bzip2": ensure => installed;
     "cron": ensure => installed;
     "openssh-server": ensure => installed;
-    "rsyslog": ensure => installed;
     "rsync": ensure => installed;
     "wget": ensure => installed;
+
+    # These packages aren't strictly needed for execution, so we
+    # can remove them if they cause a problem, but they're handy for diagnostics
+    "less": ensure => installed;
+    "lsof": ensure => installed;
+    "strace": ensure => installed;
+    "vim-tiny": ensure => installed;
   }
 
   # Configure periodic apt cron job
