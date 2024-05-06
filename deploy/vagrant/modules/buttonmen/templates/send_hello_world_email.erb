@@ -1,0 +1,31 @@
+#!/bin/bash
+##### send_hello_world_email
+# Send an e-mail from a new BM site container at launch time, to
+# tell devs how to SSH into it.
+
+FQDN_FILE=/usr/local/etc/bmsite_fqdn
+SANDBOX_FQDN="sandbox.buttonweavers.com"
+
+FQDN=$(cat /usr/local/etc/bmsite_fqdn)
+
+if [ "${FQDN}" = "${SANDBOX_FQDN}" ]; then
+  echo "Site is using sandbox FQDN (${SANDBOX_FQDN}) - not sending email"
+  exit 0
+fi
+
+cat <<EOF | /usr/sbin/sendmail -t
+From: root@buttonweavers.com
+To: help@buttonweavers.com
+Subject: New container for BM site: ${FQDN}
+
+Hello world!  I am a new container which was just launched for Button Men site
+
+  ${FQDN}
+
+If you think you'll need the direct IP address of this site to SSH into
+it, hang onto this e-mail.  The header which starts with:
+
+  Received: from ${FQDN}
+
+contains my IP address and EC2 hostname.
+EOF

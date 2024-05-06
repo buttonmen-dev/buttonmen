@@ -50,5 +50,8 @@ fi
 # Set site type so it's correct in UI JS
 /usr/local/bin/set_buttonmen_config
 
+# Send hello world e-mail
+/usr/local/bin/send_hello_world_email
+
 # Container should keep running
 sleep infinity
