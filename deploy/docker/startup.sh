@@ -10,8 +10,11 @@ set -x
 /etc/init.d/ssh start
 /etc/init.d/postfix start
 
-## Remote filesystem setup
+# Host identity variables
 FQDN=$(cat /usr/local/etc/bmsite_fqdn)
+HOSTNAME_LOCALIP_PART=$(/bin/hostname | awk -F\. '{print $1}')
+
+## Remote filesystem setup
 MNT_DIR="/mnt/efs/${FQDN}"
 if [ ! -e "${MNT_DIR}" ]; then
   mkdir ${MNT_DIR}
@@ -25,6 +28,18 @@ if [ ! -e "${MNT_DIR}/backup" ]; then
 fi
 rmdir /srv/backup
 ln -s ${MNT_DIR}/backup /srv/backup
+
+# Replace the /var/log/apache2 in the image with a remotely-mounted one
+# Add a per-container piece because logs may be written during deployments
+APACHE_LOG_DIR="${MNT_DIR}/apache_logs/${HOSTNAME_LOCALIP_PART}"
+if [ ! -e "${APACHE_LOG_DIR}" ]; then
+  mkdir -p ${APACHE_LOG_DIR}
+  chown root:adm ${APACHE_LOG_DIR}
+  chmod 750 ${APACHE_LOG_DIR}
+fi
+mv -f /var/log/apache2/* ${APACHE_LOG_DIR}/
+rmdir /var/log/apache2
+ln -s ${APACHE_LOG_DIR} /var/log/apache2
 
 # Replace the /etc/letsencrypt in the image with a remotely-mounted one
 if [ ! -e "${MNT_DIR}/letsencrypt" ]; then
