@@ -32,6 +32,7 @@ node default {
   include "apt::client"
   include "ntp::client"
   include "postfix::base"
+  include "syslog::base"
   include "user::buttonmen-devs"
   include "sudo::buttonmen-devs"
   include "fqdn::base"
