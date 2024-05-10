@@ -52,6 +52,11 @@ class buttonmen::server {
       content => template("buttonmen/mysql_root_cli.erb"),
       mode => 0544;
 
+    "/usr/local/bin/send_hello_world_email":
+      ensure => file,
+      content => template("buttonmen/send_hello_world_email.erb"),
+      mode => 0555;
+
     "/usr/local/bin/run_buttonmen_tests":
       ensure => file,
       content => template("buttonmen/run_buttonmen_tests.erb"),
