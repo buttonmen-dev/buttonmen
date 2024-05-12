@@ -1,0 +1,8 @@
+#!/bin/sh
+##### rsyslog-rotate
+# Replace the rsyslog-rotate script packaged with rsyslog-8.16.0-1ubuntu3.1
+# with one that works on containers that lack full access to /proc
+
+# Send SIGHUP to all processes owned by the "syslog" user, which
+# should be only rsyslogd itself
+/usr/bin/killall -HUP --user syslog

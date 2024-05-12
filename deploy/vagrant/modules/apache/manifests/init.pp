@@ -20,12 +20,8 @@ class apache::server {
   # Monitor the error log
   include "apache::server::feature::monitor-logs"
 
-  # Install and configure letsencrypt (SSL/certbot) for AWS instances 
-  case "${ec2_services_partition}" {
-    "aws": {
-      include "apache::server::feature::letsencrypt"
-    }
-  }
+  # Install letsencrypt
+  include "apache::server::feature::letsencrypt"
 }
 
 class apache::server::vagrant {
@@ -73,9 +69,16 @@ class apache::server::feature::monitor-logs {
   }
 
   # Run the log-monitoring script from a nightly cron job
+  #
+  # Note: assuming this is the first cron job to be installed, the
+  # environment variable will be applied to all jobs.  Hackishly
+  # taking advantage of the fact that this appears to be the case,
+  # because puppet provides no clean way to get an envvar installed
+  # at the top of /var/spool/cron/crontabs/root exactly once.
   cron {
     "apache_monitor_logs":
       command => "/usr/local/sbin/monitor_apache_logs",
+      environment => "BMSITE=${puppet_hostname}",
       hour => 0,
       minute => 5;
   }
@@ -103,6 +106,9 @@ class apache::server::feature::mod-pagespeed {
   }
 }
 
+# This configuration is only meaningful if we're on a non-sandboxed
+# site, but the logic to enforce that is within the apache_setup_certbot
+# script, so it's harmless to run this configuration anywhere
 class apache::server::feature::letsencrypt {
 
   # Install the certbot package
@@ -110,13 +116,10 @@ class apache::server::feature::letsencrypt {
     "python-certbot-apache": ensure => installed;
   }
 
-  exec {
-    # Run certbot to configure LetsEncrypt
-    # If the site has the special FQDN indicating it's a non-networked sandbox, don't run certbot
-    "apache_certbot_setup":
-      command => "/usr/bin/certbot --apache -d $(/bin/cat /usr/local/etc/bmsite_fqdn) -n --email help@buttonweavers.com --agree-tos",
-      require => [ Exec["fqdn_populate_etc_file"], Package["python-certbot-apache"] ],
-      creates => "/etc/letsencrypt/live",
-      unless => "/bin/grep -q sandbox.buttonweavers.com /usr/local/etc/bmsite_fqdn";
+  file {
+    "/usr/local/bin/apache_setup_certbot":
+      ensure => file,
+      content => template("apache/setup_certbot.erb"),
+      mode => 0555;
   }
 }

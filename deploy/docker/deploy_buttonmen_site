@@ -1,0 +1,579 @@
+##### deploy_buttonmen_site
+# Deploy the buttonmen site represented by this working directory
+# The caller is responsible for:
+# * invoking this script using a python with boto3 available
+# * passing correct environment variables for boto3 to authenticate
+#   to the desired region (e.g. an AWS_PROFILE + ~/.aws/config,
+#   or all needed envvars, or whatever)
+# * having docker running locally and the "docker" CLI in the $PATH
+# * copying deploy/docker/buttonmen_ecs_config.json to
+#   ~/.aws/buttonmen_ecs_config.json and populating the fields with
+#   network configuration from the AWS account hosting buttonmen sites
+
+import base64
+import boto3
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
+
+def get_subprocess_output(cmdargs):
+  return subprocess.check_output(cmdargs).decode()
+
+REPO_MATCH = re.compile('^origin\s+git@github.com:([\w-]+)/buttonmen.git \(fetch\)$')
+def get_working_directory_info():
+  git_info = {
+    'reponame': None,
+    'branch': None,
+    'commitid': None,
+    'is_clean': True,
+  }
+
+  # Find repo name using git remote
+  output = get_subprocess_output(['git', 'remote', '-v'])
+  for line in output.split('\n'):
+    match = REPO_MATCH.match(line)
+    if not match: continue
+    git_info['reponame'] = match.group(1)
+  if git_info['reponame']:
+    print(f"Detected buttonmen repo: {git_info['reponame']}")
+  else:
+    raise ValueError(f"Could not detect repo name from git remote: {output}")
+
+  # Find branch name using git branch
+  output = get_subprocess_output(['git', 'branch'])
+  for line in output.split('\n'):
+    if not line.startswith('* '): continue
+    words = line.split()
+    assert len(words) == 2, f"Found unexpected output line {line} in git branch output: {output}"
+    git_info['branch'] = words[1]
+  if git_info['branch']:
+    print(f"Detected git branch: {git_info['branch']}")
+  else:
+    raise ValueError(f"Could not detect branch name from git branch: {output}")
+
+  # Find commit ID using git show
+  output = get_subprocess_output(['git', 'show', '--oneline'])
+  git_info['commitid'] = output.split('\n')[0].split()[0]
+  if len(git_info['commitid']) == 8:
+    print(f"Detected git short commit ID: {git_info['commitid']}")
+  else:
+    raise ValueError(f"Expected git show --oneline output to start with an 8-character identifier, but got {git_info['commitid']}: {output}")
+
+  # Determine whether the working directory is clean
+  output = get_subprocess_output(['git', 'status', '-s']).strip()
+  if len(output) > 0:
+    print(f"Working directory is not clean.  Found:\n {output}")
+    git_info['is_clean'] = False
+
+  return git_info
+
+
+def validate_vars(git_info, args):
+  if not git_info['is_clean']:
+    if args['allow_unclean_repo_deployment']:
+      print("Working directory is unclean, but deploying anyway based on CLI flags")
+    else:
+      raise ValueError("Working directory is not clean - refusing to deploy")
+
+  if git_info['reponame'] == 'buttonmen-dev':
+    if git_info['branch'] not in ['staging', 'production']:
+      raise ValueError(f"Repo is {git_info['reponame']}, but branch {git_info['branch']} is not a known staging or prod branch - refusing to deploy")
+
+
+def add_ecs_config(git_info, args):
+  if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
+  file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
+  target_config = {}
+  if git_info['reponame'] == 'buttonmen-dev':
+    key = git_info['branch']
+  else:
+    key = 'development'
+  git_info['site_type'] = key
+  git_info['config'] = file_config.get(key, {})
+  if not git_info['config'].get('network_subnet', '').startswith('subnet-'):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_subnet' entry for key {key}")
+  if not git_info['config'].get('network_security_group', '').startswith('sg-'):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_security_group' entry for key {key}")
+  if not git_info['config'].get('log_group', None):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'log_group' entry for key {key}")
+  if not git_info['config'].get('filesystem_id', None):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'filesystem_id' entry for key {key}")
+
+  # Non-dev branches always use a remote database; dev branches do if it's requested as a CLI
+  git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key != 'development'
+
+  if git_info['config']['use_remote_database']:
+    if not git_info['config']['remote_database_fqdn']:
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'remote_database_fqdn' entry for key {key}")
+    if not git_info['config']['remote_database_admin_pw']:
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'remote_database_admin_pw' entry for key {key}")
+  else:
+    # bzipped SQL is the file format output by buttonmen database backups, and is the only allowable input for local database loads
+    if not git_info['config'].get('load_database_path', '').endswith('.sql.bz2'):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'load_database_path' entry for key {key}")
+
+  # Non-dev branches always use an elastic IP; dev branches do if it's requested as a CLI
+  git_info['config']['use_elastic_ip'] = args['use_elastic_ip_for_dev'] or key != 'development'
+
+  if git_info['config']['use_elastic_ip']:
+    if not git_info['config'].get('bmsite_fqdn', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'bmsite_fqdn' entry for key {key}")
+    if not git_info['config'].get('nlb_arn_port_80', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'nlb_arn_port_80' entry for key {key}")
+    if not git_info['config'].get('nlb_arn_port_443', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'nlb_arn_port_443' entry for key {key}")
+  else:
+    if not git_info['config'].get('bmsite_fqdn_suffix', ''):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'bmsite_fqdn_suffix' entry for key {key}")
+
+
+def connect_boto_clients():
+  return {
+    'ec2': boto3.client('ec2'),
+    'ecr': boto3.client('ecr'),
+    'ecs': boto3.client('ecs'),
+  }
+
+
+def docker_reponame(git_info):
+  return f"buttonmen-{git_info['reponame']}/{git_info['branch']}"
+
+def docker_shorttag(git_info):
+  return f"{git_info['commitid']}"
+
+def docker_tag(git_info):
+  reponame = docker_reponame(git_info)
+  shorttag = docker_shorttag(git_info)
+  return f"{reponame}:{shorttag}"
+
+def get_database_fqdn(git_info):
+  if git_info['config']['use_remote_database']:
+    return git_info['config']['remote_database_fqdn']
+  return '127.0.0.1'
+
+def get_remote_database_password(git_info):
+  if git_info['config']['use_remote_database']:
+    return git_info['config']['remote_database_admin_pw']
+  return None
+
+def find_docker_image_with_tag(tag):
+  return get_subprocess_output(['docker', 'images', tag, '--format', '{{.ID}}']).strip()
+
+
+def customize_vagrant(git_info):
+  bmsite_fqdn = buttonmen_site_fqdn(git_info)
+  database_fqdn = get_database_fqdn(git_info)
+  remote_database_password = get_remote_database_password(git_info)
+  site_type = git_info['site_type']
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install {database_fqdn} as vagrant database_fqdn: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_PUPPET_HOSTNAME/{bmsite_fqdn}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install {bmsite_fqdn} as vagrant puppet_hostname: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_BUTTONMEN_SITE_TYPE/{site_type}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install {site_type} as vagrant buttonmen_site_type: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  if remote_database_password:
+    cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_REMOTE_DATABASE_PASSWORD/{remote_database_password}/", './deploy/vagrant/manifests/init.pp']
+    print(f"About to install vagrant remote_database_password...")
+    retcode = subprocess.call(cmdargs)
+    if retcode != 0:
+      raise ValueError(f"Replacement failed: {retcode}")
+
+def build_docker_image(git_info):
+  tag = docker_tag(git_info)
+
+  # Check if an image has already been created for this version
+  image_id = find_docker_image_with_tag(tag)
+  if image_id:
+    print(f"Local docker image with tag {tag} already exists: ID is {image_id}")  
+    return image_id
+
+  # Actually build the image
+  cmdargs = ['docker', 'build', '--progress', 'plain', '-t', tag, '.']
+  print(f"About to build docker image locally: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Image build failed: {retcode}")
+
+  image_id = find_docker_image_with_tag(tag)
+  if image_id:
+    print(f"Local docker image with tag {tag} created successfully: ID is {image_id}")  
+    return image_id
+  raise ValueError(f"Image build reported success, but no image with tag {tag} was created")
+
+
+def update_ecr_repo(reponame, ecr_client):
+  try:
+    repo_status = ecr_client.describe_repositories(repositoryNames=[reponame])
+  except ecr_client.exceptions.RepositoryNotFoundException:
+    print(f"Repository {reponame} doesn't exist - we need to create it")
+    response = ecr_client.create_repository(repositoryName=reponame)
+    repo_status = ecr_client.describe_repositories(repositoryNames=[reponame])
+  assert len(repo_status['repositories']) == 1, f"Found unexpected number of repositories in status, expected 1: {repo_status}"
+  repo_uri = repo_status['repositories'][0]['repositoryUri']
+  print(f"Found repository {reponame} with URI {repo_uri}")
+  return repo_uri
+
+
+def find_ecr_image_with_tag(reponame, shorttag, ecr_client):
+  try:
+    image_status = ecr_client.describe_images(repositoryName=reponame, imageIds=[{'imageTag': shorttag}])
+    print(f"Found ECR image, status is: {image_status['imageDetails']}")
+    return True
+  except ecr_client.exceptions.ImageNotFoundException:
+    print(f"Image with tag {shorttag} not found in repo {reponame}")
+    return None
+
+def docker_login_to_ecr(ecr_client):
+  response = ecr_client.get_authorization_token()
+  username, token = base64.b64decode(response['authorizationData'][0]['authorizationToken']).decode().split(':', 1)
+  proxy_endpoint = response['authorizationData'][0]['proxyEndpoint']
+  retcode = os.system(f"echo '{token}' | docker login --username {username} --password-stdin {proxy_endpoint}")
+  if retcode == 0:
+    print(f"Docker login to ECR endpoint {proxy_endpoint} succeeded")
+    return
+  raise ValueError(f"Docker login to ECR endpoint {proxy_endpoint} failed with exit code {retcode}")
+
+
+def tag_and_push_docker_image_to_ecr(image_id, repo_uri, shorttag):
+  repotag = f"{repo_uri}:{shorttag}"
+  cmdargs = ['docker', 'tag', image_id, repotag]
+  print(f"About to tag docker image for ECR: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Image tag failed: {retcode}")
+
+  cmdargs = ['docker', 'push', repotag]
+  print(f"About to push docker image to ECR: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Image push failed: {retcode}")
+
+
+def push_docker_image_to_ecr(git_info, image_id, ecr_client):
+  reponame = docker_reponame(git_info)
+  shorttag = docker_shorttag(git_info)
+  repo_uri = update_ecr_repo(reponame, ecr_client)
+  ecr_image_id = find_ecr_image_with_tag(reponame, shorttag, ecr_client)
+  if not ecr_image_id:
+    docker_login_to_ecr(ecr_client)
+    tag_and_push_docker_image_to_ecr(image_id, repo_uri, shorttag)
+  return repo_uri
+
+
+def ecs_task_family_name(git_info):
+  return f"buttonmen-{git_info['reponame']}-{git_info['branch']}"
+
+def ecs_service_name(git_info):
+  return ecs_task_family_name(git_info)
+
+def ecs_task_tags(git_info):
+  return [
+    { 'key': 'commit_id', 'value': docker_shorttag(git_info), },
+  ]
+
+def buttonmen_site_fqdn(git_info):
+  if git_info['config']['use_elastic_ip']:
+    return git_info['config']['bmsite_fqdn']
+  return f"{git_info['branch']}.{git_info['reponame']}.{git_info['config']['bmsite_fqdn_suffix']}".replace('_', '-')
+
+
+def update_ecs_task_definition(git_info, repo_uri, ecs_client):
+  family = ecs_task_family_name(git_info)
+  tags = ecs_task_tags(git_info)
+  image_tag = docker_shorttag(git_info)
+  image_name_tag = f"{repo_uri}:{image_tag}"
+  bmsite_fqdn = buttonmen_site_fqdn(git_info)
+
+  # Check if the most recent task definition in the family already matches our tag
+  try:
+    response = ecs_client.describe_task_definition(taskDefinition=family, include=['TAGS'])
+    if response['tags'] == tags:
+      print(f"Found task definition with expected tags: {response}")
+      return response['taskDefinition']['taskDefinitionArn']
+    print(f"Most recent task definition in family {family} had tags {response['tags']}, where we expected {tags}")
+  except ecs_client.exceptions.ClientException as e:
+    # If there's no matching task definition for the family, describe_task_definition() throws a generic exception
+    if "Unable to describe task definition" not in str(e):
+      print(f"Tried to catch ClientException from ecs_client.describe_task_definition(), but it didn't look right")
+      raise(e)
+    print(f"No ECS task definition with family {family} found")
+  
+  # Register a new task definition
+  print(f"About to register a new task definition with family {family} and tags {tags}")
+  ecs_client.register_task_definition(
+    family=family,
+    executionRoleArn='ecsTaskExecutionRole',
+    networkMode='awsvpc',
+    containerDefinitions=[
+      {
+        'name': "buttonmen",
+        'image': image_name_tag,
+        'linuxParameters': {
+            'initProcessEnabled': True,
+        },
+        'command': [
+          '/bin/bash',
+          '/buttonmen/deploy/docker/startup.sh',
+        ],
+        'portMappings': [
+          {
+            'containerPort': 80,
+            'protocol': 'tcp',
+          },
+          {
+            'containerPort': 443,
+            'protocol': 'tcp',
+          },
+        ],
+        'mountPoints': [
+          {
+            "containerPath": "/mnt/efs",
+            "sourceVolume": "buttonmen-efs",
+          }
+        ],
+        'logConfiguration': {
+          'logDriver': 'awslogs',
+          'options': {
+            'awslogs-group': git_info['config']['log_group'],
+            'awslogs-region': ecs_client.meta.region_name,
+            'awslogs-stream-prefix': f"{bmsite_fqdn}",
+          },
+        },
+      },
+    ],
+    volumes=[
+      {
+        'name': 'buttonmen-efs',
+        'efsVolumeConfiguration': {
+          'fileSystemId': git_info['config']['filesystem_id'],
+        },
+      },
+    ],
+    cpu="256",
+    memory="512",
+    requiresCompatibilities=[
+      'FARGATE',
+    ],
+    tags=tags,
+  )
+
+  response = ecs_client.describe_task_definition(taskDefinition=family, include=['TAGS'])
+  assert response['tags'] == tags, f"Task definition register succeeded, but tags don't match {tags}: {response}"
+  print(f"Successfully created task definition with expected tags: {response}")
+  return response['taskDefinition']['taskDefinitionArn']
+
+
+def ecs_cluster_name(git_info):
+  return "buttonmen-dev"
+
+def ecs_network_config(git_info):
+  return {
+    'awsvpcConfiguration': {
+      'subnets': [ git_info['config']['network_subnet'] ],
+      'securityGroups': [ git_info['config']['network_security_group'] ],
+      'assignPublicIp': 'ENABLED',
+    },
+  }
+
+def ecs_load_balancer_config(git_info):
+  if not git_info['config']['use_elastic_ip']: return None
+  return [
+    {
+      'targetGroupArn': git_info['config']['nlb_arn_port_80'],
+      'containerName': 'buttonmen',
+      'containerPort': 80,
+    },
+    {
+      'targetGroupArn': git_info['config']['nlb_arn_port_443'],
+      'containerName': 'buttonmen',
+      'containerPort': 443,
+    },
+  ]
+
+
+def update_ecs_service(git_info, task_definition_arn, ecs_client):
+  cluster = ecs_cluster_name(git_info)
+  service_name = ecs_service_name(git_info)
+  network_config = ecs_network_config(git_info)
+  load_balancer_config = ecs_load_balancer_config(git_info)
+
+  service_args = {
+    'cluster': cluster,
+    'taskDefinition': task_definition_arn,
+    'desiredCount': 1,
+    'networkConfiguration': network_config,
+  }
+  if load_balancer_config:
+    service_args['loadBalancers'] = load_balancer_config
+
+  response = ecs_client.describe_services(
+    cluster=cluster,
+    services=[service_name],
+  )
+  service_name_found = False
+  for service in response.get('services', []):
+    if service['serviceName'] == service_name:
+      if service['status'] != 'ACTIVE':
+        print(f"Found ECS service (arn={service['serviceArn']}), but its status is {service['status']} != 'ACTIVE'; ignoring it")
+        continue
+      service_name_found = True
+      if service['taskDefinition'] == task_definition_arn:
+        print(f"Found ECS service (arn={service['serviceArn']}) with expected task definition {task_definition_arn}")
+      else:
+        print(f"ECS service (arn={service['serviceArn']}) has stale task definition: found {service['taskDefinition']}, wanted {task_definition_arn}... updating")
+        service_args['service'] = service_name
+        ecs_client.update_service(**service_args)
+  if not service_name_found:
+    print(f"Expected service {service_name} not found - creating it now")
+    service_args['serviceName'] = service_name
+    service_args['launchType'] = 'FARGATE'
+    ecs_client.create_service(**service_args)
+
+  print(f"Waiting for service task to enter status: Running")
+  eni_id = None
+  while True:
+    response = ecs_client.list_tasks(
+      cluster=cluster,
+      serviceName=service_name,
+    )
+    if not response['taskArns']:
+      print(f"...waiting for tasks to be created in service {service_name}...")
+      time.sleep(5)
+      continue
+    task_statuses = ecs_client.describe_tasks(
+      cluster=cluster,
+      tasks=response['taskArns'],
+    )
+    for task_status in task_statuses['tasks']:
+      print(f"Examining task: {task_status['taskArn']}, taskDefinitionArn={task_status['taskDefinitionArn']}, desiredStatus={task_status['desiredStatus']}, lastStatus={task_status['lastStatus']}")
+      if task_status['taskDefinitionArn'] != task_definition_arn:
+        print(f"...task definition arn is not current - skipping this task")
+        continue
+      if task_status['desiredStatus'] != 'RUNNING':
+        print(f"...desired task status is not RUNNING - skipping this task")
+        continue
+      if task_status['lastStatus'] != 'RUNNING':
+        print(f"...actual task status is not RUNNING - waiting")
+        continue
+      for detail in task_status['attachments'][0]['details']:
+        if detail['name'] == 'networkInterfaceId':
+          eni_id = detail['value']
+      print(f"...task is RUNNING and has ENI {eni_id}")
+    if eni_id:
+      return eni_id
+    time.sleep(60)
+
+
+# The ECS task doesn't know its public IP directly.
+# * It belongs to the ENI attached to the container
+# * So the way to find out about it is to query the ENI, which is an EC2 resource
+def get_site_public_ipv4(eni_id, ec2_client):
+  response = ec2_client.describe_network_interfaces(
+    NetworkInterfaceIds=[eni_id],
+  )
+  public_ipv4 = response['NetworkInterfaces'][0]['Association']['PublicIp']
+  print(f"Found public IPv4 for {eni_id}: {public_ipv4}")
+  return public_ipv4
+
+
+def configure_dns(git_info, public_ipv4):
+  bmsite_fqdn = buttonmen_site_fqdn(git_info)
+  dns_update_script = git_info['config'].get('dns_update_script_path', None)
+  use_elastic_ip = git_info['config']['use_elastic_ip']
+  if use_elastic_ip:
+    print(f"Not configuring DNS for this target - it uses an elastic IP for {bmsite_fqdn}")
+    return
+  if not dns_update_script:
+    print("Not configuring DNS for this target - dns_update_script_path is not defined in the config file")
+    return
+  cmdargs = f"{dns_update_script} {bmsite_fqdn} {public_ipv4}"
+  print(f"About to run DNS update script: {cmdargs}")
+  retcode = os.system(cmdargs)
+  if retcode == 0:
+    print(f"DNS update succeeded succeeded")
+    return
+  raise ValueError(f"DNS update failed with exit code: {retcode}")
+
+def run_ssh_command(cmdargs, public_ipv4):
+  SSH_CMD = "ssh"
+  SSH_ARGS = "-o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null"
+  full_cmdargs = f'{SSH_CMD} {SSH_ARGS} {public_ipv4} "{cmdargs}"'
+  print(f"About to run: {full_cmdargs}")
+  os.system(full_cmdargs)
+
+def run_scp_command(local_path, remote_path, public_ipv4):
+  SCP_CMD = "scp"
+  SCP_ARGS = "-o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null"
+  full_cmdargs = f'{SCP_CMD} {SCP_ARGS} {local_path} {public_ipv4}:{remote_path}'
+  print(f"About to run: {full_cmdargs}")
+  os.system(full_cmdargs)
+
+def configure_container_setup_certbot(public_ipv4):
+  cmdargs = 'sudo /usr/local/bin/apache_setup_certbot'
+  run_ssh_command(cmdargs, public_ipv4)
+
+def configure_container_load_database(git_info, public_ipv4):
+  load_database_path = git_info['config'].get('load_database_path', None)
+  if not load_database_path: return
+  remote_database_path = 'buttonmen.sql.bz2'
+  run_scp_command(load_database_path, remote_database_path, public_ipv4)
+  cmdargs = f"bzcat {remote_database_path} | grep -v 'SQL SECURITY DEFINER' | sudo /usr/local/bin/mysql_root_cli"
+  run_ssh_command(cmdargs, public_ipv4)
+
+def configure_container_set_site_type(git_info, public_ipv4):
+  cmdargs = f"sudo /usr/local/bin/set_buttonmen_config"
+  run_ssh_command(cmdargs, public_ipv4)
+
+def configure_container_post_install(git_info, public_ipv4):
+  use_remote_database = git_info['config']['use_remote_database']
+  configure_container_setup_certbot(public_ipv4)
+  if not use_remote_database:
+    configure_container_load_database(git_info, public_ipv4)
+    configure_container_set_site_type(git_info, public_ipv4)
+
+
+def deploy(args):
+  git_info = get_working_directory_info()
+  validate_vars(git_info, args)
+  add_ecs_config(git_info, args)
+  clients = connect_boto_clients()
+  customize_vagrant(git_info)
+  image_id = build_docker_image(git_info)
+  repo_uri = push_docker_image_to_ecr(git_info, image_id, clients['ecr'])
+  task_definition_arn = update_ecs_task_definition(git_info, repo_uri, clients['ecs'])
+  eni_id = update_ecs_service(git_info, task_definition_arn, clients['ecs'])
+  bmsite_fqdn = buttonmen_site_fqdn(git_info)
+  public_ipv4 = get_site_public_ipv4(eni_id, clients['ec2'])
+  print(f"{bmsite_fqdn} {public_ipv4}")
+  configure_dns(git_info, public_ipv4)
+  configure_container_post_install(git_info, public_ipv4)
+
+
+def parse_args(argv):
+  return {
+    'allow_unclean_repo_deployment': '-u' in argv,
+    'use_remote_database_for_dev': '-r' in argv,
+    'use_elastic_ip_for_dev': '-e' in argv,
+  }
+
+args = parse_args(sys.argv[1:])
+deploy(args)
