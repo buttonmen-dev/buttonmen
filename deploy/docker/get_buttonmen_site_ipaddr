@@ -1,0 +1,157 @@
+##### get_buttonmen_site_ipaddr
+# Retrieve the IP address of the ECS container running the site,
+# and print it to STDOUT
+# The caller is responsible for:
+# * invoking this script using a python with boto3 available
+# * passing correct environment variables for boto3 to authenticate
+#   to the desired region (e.g. an AWS_PROFILE + ~/.aws/config,
+#   or all needed envvars, or whatever)
+# * having docker running locally and the "docker" CLI in the $PATH
+# * copying deploy/docker/buttonmen_ecs_config.json to
+#   ~/.aws/buttonmen_ecs_config.json and populating the fields with
+#   network configuration from the AWS account hosting buttonmen sites
+#
+# Note:
+# * this script only works for the AWS account which created the
+#   buttonmen site; it's a helper utility for the person running
+#   deployments, not a general-purpose way to get a site IP address
+#   (for the latter, see the "hello world" emails sent by new containers)
+
+import boto3
+import json
+import os
+import re
+import subprocess
+import sys
+
+BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
+
+def get_subprocess_output(cmdargs):
+  return subprocess.check_output(cmdargs).decode()
+
+REPO_MATCH = re.compile('^origin\s+git@github.com:(\w+)/buttonmen.git \(fetch\)$')
+def get_working_directory_info():
+  git_info = {
+    'reponame': None,
+    'branch': None,
+  }
+
+  # Find repo name using git remote
+  output = get_subprocess_output(['git', 'remote', '-v'])
+  for line in output.split('\n'):
+    match = REPO_MATCH.match(line)
+    if not match: continue
+    git_info['reponame'] = match.group(1)
+  if not git_info['reponame']:
+    raise ValueError(f"Could not detect repo name from git remote: {output}")
+
+  # Find branch name using git branch
+  output = get_subprocess_output(['git', 'branch'])
+  for line in output.split('\n'):
+    if not line.startswith('* '): continue
+    words = line.split()
+    assert len(words) == 2, f"Found unexpected output line {line} in git branch output: {output}"
+    git_info['branch'] = words[1]
+  if not git_info['branch']:
+    raise ValueError(f"Could not detect branch name from git branch: {output}")
+
+  return git_info
+
+def validate_vars(git_info, args):
+  return True
+
+def add_ecs_config(git_info, args):
+  if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
+    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
+  file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
+  target_config = {}
+  key = 'development'
+  git_info['site_type'] = key
+  git_info['config'] = file_config.get(key, {})
+
+def connect_boto_clients():
+  return {
+    'ec2': boto3.client('ec2'),
+    'ecr': boto3.client('ecr'),
+    'ecs': boto3.client('ecs'),
+  }
+
+def docker_reponame(git_info):
+  return f"buttonmen-{git_info['reponame']}/{git_info['branch']}"
+
+def ecs_task_family_name(git_info):
+  return f"buttonmen-{git_info['reponame']}-{git_info['branch']}"
+
+def ecs_service_name(git_info):
+  return ecs_task_family_name(git_info)
+
+def ecs_cluster_name(git_info):
+  return "buttonmen-dev"
+
+def get_active_ecs_service_info(git_info, ecs_client):
+  cluster = ecs_cluster_name(git_info)
+  service_name = ecs_service_name(git_info)
+  ecs_info = {
+    'service': None,
+    'task_definition': None,
+    'eni': None,
+  }
+
+  response = ecs_client.describe_services(
+    cluster=cluster,
+    services=[service_name],
+  )
+  for service in response.get('services', []):
+    if service['serviceName'] == service_name:
+      if service['status'] != 'ACTIVE':
+        raise ValueError(f"Service status is {service['status']}, not ACTIVE")
+      else:
+        ecs_info['service'] = service_name
+  if not ecs_info['service']:
+    raise ValueError(f"No active service {service_name} found")
+
+  response = ecs_client.list_tasks(
+    cluster=cluster,
+    serviceName=service_name,
+  )
+  if not response['taskArns']:
+    raise ValueError(f"No tasks exist in service {service_name}...")
+
+  task_statuses = ecs_client.describe_tasks(
+    cluster=cluster,
+    tasks=response['taskArns'],
+  )
+  for task_status in task_statuses['tasks']:
+    if task_status['desiredStatus'] != 'RUNNING':
+      continue
+    ecs_info['task_definition'] = task_status['taskDefinitionArn']
+    for detail in task_status['attachments'][0]['details']:
+      if detail['name'] == 'networkInterfaceId':
+        ecs_info['eni'] = detail['value']
+  return ecs_info
+
+# The ECS task doesn't know its public IP directly.
+# * It belongs to the ENI attached to the container
+# * So the way to find out about it is to query the ENI, which is an EC2 resource
+def get_site_public_ipv4(eni_id, ec2_client):
+  response = ec2_client.describe_network_interfaces(
+    NetworkInterfaceIds=[eni_id],
+  )
+  public_ipv4 = response['NetworkInterfaces'][0]['Association']['PublicIp']
+  return public_ipv4
+
+def print_ip_address(args):
+  git_info = get_working_directory_info()
+  validate_vars(git_info, args)
+  add_ecs_config(git_info, args)
+  clients = connect_boto_clients()
+  ecs_info = get_active_ecs_service_info(git_info, clients['ecs'])
+  if ecs_info['eni']:
+    public_ipv4 = get_site_public_ipv4(ecs_info['eni'], clients['ec2'])
+    print(public_ipv4)
+
+def parse_args(argv):
+  return {}
+
+args = parse_args(sys.argv[1:])
+print_ip_address(args)
