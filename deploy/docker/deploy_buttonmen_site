@@ -20,6 +20,7 @@ import sys
 import time
 
 BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
+SANDBOX_FQDN = 'sandbox.buttonweavers.com'
 
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
@@ -83,7 +84,11 @@ def validate_vars(git_info, args):
   if git_info['reponame'] == 'buttonmen-dev':
     if git_info['branch'] not in ['staging', 'production']:
       raise ValueError(f"Repo is {git_info['reponame']}, but branch {git_info['branch']} is not a known staging or prod branch - refusing to deploy")
+    if args['deploy_replay_site']:
+      raise ValueError(f"Replay testing can only be done using development branches, not {git_info['branch']}")
 
+  if args['deploy_replay_site'] and (args['use_remote_database_for_dev'] or args['use_elastic_ip_for_dev']):
+    raise ValueError(f"Replay testing cannot be combined with remote databases or elastic IPs")
 
 def add_ecs_config(git_info, args):
   if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
@@ -92,6 +97,8 @@ def add_ecs_config(git_info, args):
   target_config = {}
   if git_info['reponame'] == 'buttonmen-dev':
     key = git_info['branch']
+  elif args['deploy_replay_site']:
+    key = 'replay'
   else:
     key = 'development'
   git_info['site_type'] = key
@@ -106,20 +113,20 @@ def add_ecs_config(git_info, args):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'filesystem_id' entry for key {key}")
 
   # Non-dev branches always use a remote database; dev branches do if it's requested as a CLI
-  git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key != 'development'
+  git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key not in ['development', 'replay']
 
   if git_info['config']['use_remote_database']:
     if not git_info['config']['remote_database_fqdn']:
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'remote_database_fqdn' entry for key {key}")
     if not git_info['config']['remote_database_admin_pw']:
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'remote_database_admin_pw' entry for key {key}")
-  else:
+  elif key == 'development':
     # bzipped SQL is the file format output by buttonmen database backups, and is the only allowable input for local database loads
     if not git_info['config'].get('load_database_path', '').endswith('.sql.bz2'):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'load_database_path' entry for key {key}")
 
   # Non-dev branches always use an elastic IP; dev branches do if it's requested as a CLI
-  git_info['config']['use_elastic_ip'] = args['use_elastic_ip_for_dev'] or key != 'development'
+  git_info['config']['use_elastic_ip'] = args['use_elastic_ip_for_dev'] or key not in ['development', 'replay']
 
   if git_info['config']['use_elastic_ip']:
     if not git_info['config'].get('bmsite_fqdn', ''):
@@ -128,7 +135,7 @@ def add_ecs_config(git_info, args):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'nlb_arn_port_80' entry for key {key}")
     if not git_info['config'].get('nlb_arn_port_443', ''):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'nlb_arn_port_443' entry for key {key}")
-  else:
+  elif key == 'development':
     if not git_info['config'].get('bmsite_fqdn_suffix', ''):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'bmsite_fqdn_suffix' entry for key {key}")
 
@@ -142,7 +149,8 @@ def connect_boto_clients():
 
 
 def docker_reponame(git_info):
-  return f"buttonmen-{git_info['reponame']}/{git_info['branch']}"
+  prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
+  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}"
 
 def docker_shorttag(git_info):
   return f"{git_info['commitid']}"
@@ -170,7 +178,7 @@ def customize_vagrant(git_info):
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
   database_fqdn = get_database_fqdn(git_info)
   remote_database_password = get_remote_database_password(git_info)
-  site_type = git_info['site_type']
+  site_type = (git_info['site_type'] == 'replay') and 'development' or git_info['site_type']
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
   print(f"About to install {database_fqdn} as vagrant database_fqdn: {cmdargs}")
@@ -280,7 +288,8 @@ def push_docker_image_to_ecr(git_info, image_id, ecr_client):
 
 
 def ecs_task_family_name(git_info):
-  return f"buttonmen-{git_info['reponame']}-{git_info['branch']}"
+  prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
+  return f"{prefix}-{git_info['reponame']}-{git_info['branch']}"
 
 def ecs_service_name(git_info):
   return ecs_task_family_name(git_info)
@@ -291,10 +300,21 @@ def ecs_task_tags(git_info):
   ]
 
 def buttonmen_site_fqdn(git_info):
+  if git_info['site_type'] == 'replay':
+    return SANDBOX_FQDN
   if git_info['config']['use_elastic_ip']:
     return git_info['config']['bmsite_fqdn']
   return f"{git_info['branch']}.{git_info['reponame']}.{git_info['config']['bmsite_fqdn_suffix']}".replace('_', '-')
 
+def startup_script_path(git_info):
+  if git_info['site_type'] == 'replay':
+    return '/buttonmen/deploy/docker/startup_replay.sh'
+  return '/buttonmen/deploy/docker/startup.sh'
+
+def cloudwatch_log_prefix(git_info):
+  if git_info['site_type'] == 'replay':
+    return f"replay-{git_info['reponame']}-{git_info['branch']}"
+  return buttonmen_site_fqdn(git_info)
 
 def update_ecs_task_definition(git_info, repo_uri, ecs_client):
   family = ecs_task_family_name(git_info)
@@ -302,6 +322,8 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
   image_tag = docker_shorttag(git_info)
   image_name_tag = f"{repo_uri}:{image_tag}"
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
+  startup_script = startup_script_path(git_info)
+  log_prefix = cloudwatch_log_prefix(git_info)
 
   # Check if the most recent task definition in the family already matches our tag
   try:
@@ -332,7 +354,7 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
         },
         'command': [
           '/bin/bash',
-          '/buttonmen/deploy/docker/startup.sh',
+          startup_script,
         ],
         'portMappings': [
           {
@@ -355,7 +377,7 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
           'options': {
             'awslogs-group': git_info['config']['log_group'],
             'awslogs-region': ecs_client.meta.region_name,
-            'awslogs-stream-prefix': f"{bmsite_fqdn}",
+            'awslogs-stream-prefix': log_prefix,
           },
         },
       },
@@ -499,6 +521,8 @@ def configure_dns(git_info, public_ipv4):
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
   dns_update_script = git_info['config'].get('dns_update_script_path', None)
   use_elastic_ip = git_info['config']['use_elastic_ip']
+  if bmsite_fqdn == SANDBOX_FQDN:
+    print(f"Not configuring DNS for this target - site is using sandbox FQDN {SANDBOX_FQDN}")
   if use_elastic_ip:
     print(f"Not configuring DNS for this target - it uses an elastic IP for {bmsite_fqdn}")
     return
@@ -571,6 +595,7 @@ def deploy(args):
 def parse_args(argv):
   return {
     'allow_unclean_repo_deployment': '-u' in argv,
+    'deploy_replay_site': '-p' in argv,
     'use_remote_database_for_dev': '-r' in argv,
     'use_elastic_ip_for_dev': '-e' in argv,
   }
