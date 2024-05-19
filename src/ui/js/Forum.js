@@ -924,7 +924,7 @@ Forum.buildHelp = function() {
   helpDiv.append($('<div>', {
     'class': 'help',
     'html': '[wiki=UBFC]: ' +
-            '<a href="https://buttonweavers.fandom.com/wiki/UBFC">' +
+            '<a href="https://buttonmen.wiki/wiki/UBFC">' +
             'Wiki: UBFC</a>',
   }));
   helpDiv.append($('<div>', {
