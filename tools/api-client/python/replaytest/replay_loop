@@ -66,6 +66,13 @@ ARCHIVE_GAMES = ('-a' in sys.argv[1:] or '--archive' in sys.argv[1:])
 LOCAL_REPLAY_GAMES = ('-l' in sys.argv[1:] or '--local-replay' in sys.argv[1:])
 SKIP_INIT_NEW_GAMES = ('-s' in sys.argv[1:] or '--skip-init' in sys.argv[1:])
 
+def read_commit_id():
+  prevcwd = os.getcwd()
+  os.chdir('/buttonmen/.git')
+  commitid = subprocess.check_output(['git', 'show', '--format=%H']).strip()
+  os.chdir(prevcwd)
+  return commitid
+
 def setup():
   global COMMITID
   global LOGF
@@ -73,9 +80,7 @@ def setup():
     os.mkdir(STATEDIR)
   os.chdir(SRCDIR)
   if ARCHIVE_GAMES:
-    f = open('/buttonmen/.git/FETCH_HEAD')
-    COMMITID = f.readline().split()[0]
-    f.close()
+    COMMITID = read_commit_id()
   LOGF = open(LOGFILE, 'a')
 
 def load_state():
