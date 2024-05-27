@@ -13,7 +13,7 @@ import subprocess
 import sys
 import time
 
-USERNAME = 'ubuntu'
+USERNAME = 'root'
 
 PARENTDIR = '/srv/bmgames/chaos-test'
 GAMESDIR = '%s/archive' % (PARENTDIR)
