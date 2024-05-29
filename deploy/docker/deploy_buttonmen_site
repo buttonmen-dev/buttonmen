@@ -21,6 +21,7 @@ import time
 
 BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
 SANDBOX_FQDN = 'sandbox.buttonweavers.com'
+LOCALHOST_IPV4 = '127.0.0.1'
 
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
@@ -86,34 +87,46 @@ def validate_vars(git_info, args):
       raise ValueError(f"Repo is {git_info['reponame']}, but branch {git_info['branch']} is not a known staging or prod branch - refusing to deploy")
     if args['deploy_replay_site']:
       raise ValueError(f"Replay testing can only be done using development branches, not {git_info['branch']}")
+    if args['deploy_local_site']:
+      raise ValueError(f"Local docker testing can only be done using development branches, not {git_info['branch']}")
 
   if args['deploy_replay_site'] and (args['use_remote_database_for_dev'] or args['use_elastic_ip_for_dev']):
     raise ValueError(f"Replay testing cannot be combined with remote databases or elastic IPs")
+  if args['deploy_local_site'] and (args['use_remote_database_for_dev'] or args['use_elastic_ip_for_dev']):
+    raise ValueError(f"Local docker sites cannot be combined with remote databases or elastic IPs")
+  if args['deploy_replay_site'] and args['deploy_local_site']:
+    raise ValueError(f"Replay testing is not supported on local docker sites")
 
 def add_ecs_config(git_info, args):
-  if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
-  file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
-  target_config = {}
+  # Don't require or use an ECS config file for local testing
+  if args['deploy_local_site']:
+    file_config = {}
+  else:
+    if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
+    file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
   if git_info['reponame'] == 'buttonmen-dev':
     key = git_info['branch']
   elif args['deploy_replay_site']:
     key = 'replay'
+  elif args['deploy_local_site']:
+    key = 'local'
   else:
     key = 'development'
   git_info['site_type'] = key
   git_info['config'] = file_config.get(key, {})
-  if not git_info['config'].get('network_subnet', '').startswith('subnet-'):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_subnet' entry for key {key}")
-  if not git_info['config'].get('network_security_group', '').startswith('sg-'):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_security_group' entry for key {key}")
-  if not git_info['config'].get('log_group', None):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'log_group' entry for key {key}")
-  if not git_info['config'].get('filesystem_id', None):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'filesystem_id' entry for key {key}")
+  if git_info['site_type'] != 'local':
+    if not git_info['config'].get('network_subnet', '').startswith('subnet-'):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_subnet' entry for key {key}")
+    if not git_info['config'].get('network_security_group', '').startswith('sg-'):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'network_security_group' entry for key {key}")
+    if not git_info['config'].get('log_group', None):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'log_group' entry for key {key}")
+    if not git_info['config'].get('filesystem_id', None):
+      raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'filesystem_id' entry for key {key}")
 
   # Non-dev branches always use a remote database; dev branches do if it's requested as a CLI
-  git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key not in ['development', 'replay']
+  git_info['config']['use_remote_database'] = args['use_remote_database_for_dev'] or key not in ['development', 'replay', 'local']
 
   if git_info['config']['use_remote_database']:
     if not git_info['config']['remote_database_fqdn']:
@@ -126,7 +139,7 @@ def add_ecs_config(git_info, args):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'load_database_path' entry for key {key}")
 
   # Non-dev branches always use an elastic IP; dev branches do if it's requested as a CLI
-  git_info['config']['use_elastic_ip'] = args['use_elastic_ip_for_dev'] or key not in ['development', 'replay']
+  git_info['config']['use_elastic_ip'] = args['use_elastic_ip_for_dev'] or key not in ['development', 'replay', 'local']
 
   if git_info['config']['use_elastic_ip']:
     if not git_info['config'].get('bmsite_fqdn', ''):
@@ -140,7 +153,9 @@ def add_ecs_config(git_info, args):
       raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing a valid 'bmsite_fqdn_suffix' entry for key {key}")
 
 
-def connect_boto_clients():
+def connect_boto_clients(git_info):
+  if git_info['site_type'] == 'local':
+    return {}
   return {
     'ec2': boto3.client('ec2'),
     'ecr': boto3.client('ecr'),
@@ -149,7 +164,7 @@ def connect_boto_clients():
 
 
 def docker_reponame(git_info):
-  prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
+  prefix = (git_info['site_type'] in ['replay', 'local']) and git_info['site_type'] or 'buttonmen'
   return f"{prefix}-{git_info['reponame']}/{git_info['branch']}"
 
 def docker_shorttag(git_info):
@@ -178,7 +193,7 @@ def customize_vagrant(git_info):
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
   database_fqdn = get_database_fqdn(git_info)
   remote_database_password = get_remote_database_password(git_info)
-  site_type = (git_info['site_type'] == 'replay') and 'development' or git_info['site_type']
+  site_type = (git_info['site_type'] in ['replay', 'local']) and 'development' or git_info['site_type']
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
   print(f"About to install {database_fqdn} as vagrant database_fqdn: {cmdargs}")
@@ -226,6 +241,22 @@ def build_docker_image(git_info):
     print(f"Local docker image with tag {tag} created successfully: ID is {image_id}")  
     return image_id
   raise ValueError(f"Image build reported success, but no image with tag {tag} was created")
+
+
+def run_docker_image(git_info):
+  tag = docker_tag(git_info)
+  startup_script = startup_script_path(git_info)
+
+  cmdargs = ['docker', 'run', '--init', '-d', '-p', '8080:80/tcp', f"{tag}", "/bin/bash", startup_script]
+  print(f"About to run docker image locally: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Image run failed: {retcode}")
+  print("Site is running locally!  Useful docker commands:")
+  print("* docker ps: find the ID of the running container")
+  print("* docker logs <ID>: find startup logs of a container (e.g. to diagnose a container failure)")
+  print("* docker exec $(docker ps -q) <CMD>: execute a command on the running container")
+  print(f"* Access web URL via: http://{LOCALHOST_IPV4}:8080")
 
 
 def update_ecr_repo(reponame, ecr_client):
@@ -288,30 +319,34 @@ def push_docker_image_to_ecr(git_info, image_id, ecr_client):
 
 
 def ecs_task_family_name(git_info):
+  assert git_info['site_type'] != 'local'
   prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
   return f"{prefix}-{git_info['reponame']}-{git_info['branch']}"
 
 def ecs_service_name(git_info):
+  assert git_info['site_type'] != 'local'
   return ecs_task_family_name(git_info)
 
 def ecs_task_tags(git_info):
+  assert git_info['site_type'] != 'local'
   return [
     { 'key': 'commit_id', 'value': docker_shorttag(git_info), },
   ]
 
 def buttonmen_site_fqdn(git_info):
-  if git_info['site_type'] == 'replay':
+  if git_info['site_type'] in ['replay', 'local']:
     return SANDBOX_FQDN
   if git_info['config']['use_elastic_ip']:
     return git_info['config']['bmsite_fqdn']
   return f"{git_info['branch']}.{git_info['reponame']}.{git_info['config']['bmsite_fqdn_suffix']}".replace('_', '-')
 
 def startup_script_path(git_info):
-  if git_info['site_type'] == 'replay':
+  if git_info['site_type'] in ['replay', 'local']:
     return '/buttonmen/deploy/docker/startup_replay.sh'
   return '/buttonmen/deploy/docker/startup.sh'
 
 def cloudwatch_log_prefix(git_info):
+  assert git_info['site_type'] != 'local'
   if git_info['site_type'] == 'replay':
     return f"replay-{git_info['reponame']}-{git_info['branch']}"
   return buttonmen_site_fqdn(git_info)
@@ -568,6 +603,9 @@ def configure_container_set_site_type(git_info, public_ipv4):
   run_ssh_command(cmdargs, public_ipv4)
 
 def configure_container_post_install(git_info, public_ipv4):
+  if git_info['site_type'] == 'local':
+    print("No post-install configuration for local sites")
+    return
   use_remote_database = git_info['config']['use_remote_database']
   configure_container_setup_certbot(public_ipv4)
   if not use_remote_database:
@@ -579,23 +617,45 @@ def deploy(args):
   git_info = get_working_directory_info()
   validate_vars(git_info, args)
   add_ecs_config(git_info, args)
-  clients = connect_boto_clients()
+  clients = connect_boto_clients(git_info)
   customize_vagrant(git_info)
   image_id = build_docker_image(git_info)
-  repo_uri = push_docker_image_to_ecr(git_info, image_id, clients['ecr'])
-  task_definition_arn = update_ecs_task_definition(git_info, repo_uri, clients['ecs'])
-  eni_id = update_ecs_service(git_info, task_definition_arn, clients['ecs'])
+  if git_info['site_type'] == 'local':
+    run_docker_image(git_info)
+    public_ipv4 = LOCALHOST_IPV4
+  else:
+    repo_uri = push_docker_image_to_ecr(git_info, image_id, clients['ecr'])
+    task_definition_arn = update_ecs_task_definition(git_info, repo_uri, clients['ecs'])
+    eni_id = update_ecs_service(git_info, task_definition_arn, clients['ecs'])
+    public_ipv4 = get_site_public_ipv4(eni_id, clients['ec2'])
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
-  public_ipv4 = get_site_public_ipv4(eni_id, clients['ec2'])
   print(f"{bmsite_fqdn} {public_ipv4}")
   configure_dns(git_info, public_ipv4)
   configure_container_post_install(git_info, public_ipv4)
 
+def usage(exit_code=0):
+  print("""usage: deploy_buttonmen_site <flags>
+
+Supported flags:
+ -h: show this usage text
+
+ -l: create a local site using dockerd (default is a remote site using ECS)
+ -r: create a replay-style site for a dev branch (default is a dev-style site)
+
+ -e: use a fixed elastic IP for a dev branch site (dev default is to use an ephemeral IP)
+ -r: use a remote RDS database for a dev branch site (dev default is to run mysqld locally)
+""")
+  sys.exit(exit_code)
 
 def parse_args(argv):
+  if '-h' in argv:
+    usage()
+  if not all([flag in ['-e', '-l', '-p', '-r', '-u'] for flag in argv]):
+    usage(1)
   return {
     'allow_unclean_repo_deployment': '-u' in argv,
     'deploy_replay_site': '-p' in argv,
+    'deploy_local_site': '-l' in argv,
     'use_remote_database_for_dev': '-r' in argv,
     'use_elastic_ip_for_dev': '-e' in argv,
   }
