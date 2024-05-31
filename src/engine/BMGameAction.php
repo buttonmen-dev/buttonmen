@@ -776,6 +776,20 @@ class BMGameAction {
     }
 
     /**
+     * Describes a button recipe change
+     *
+     * @return string
+     */
+    protected function friendly_message_button_recipe_change() {
+        $message = 'The button recipe for ' . $this->params['buttonName'] . ' changed' .
+                   ' from [' . $this->params['preInfo']['recipe'] . ']' .
+                   ' to [' . $this->params['postInfo']['recipe'] . ']' .
+                   $this->params['reason'];
+
+        return $message;
+    }
+
+    /**
      * Describes a die value change or if the die doesn't reroll
      *
      * @param array $preInfo

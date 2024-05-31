@@ -29,7 +29,7 @@ BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.jso
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
 
-REPO_MATCH = re.compile('^origin\s+git@github.com:(\w+)/buttonmen.git \(fetch\)$')
+REPO_MATCH = re.compile('^origin\s+git@github.com:([\w-]+)/buttonmen.git \(fetch\)$')
 def get_working_directory_info():
   git_info = {
     'reponame': None,
@@ -65,7 +65,7 @@ def add_ecs_config(git_info, args):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
   file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
   target_config = {}
-  key = 'development'
+  key = args['deploy_replay_site'] and 'replay' or 'development'
   git_info['site_type'] = key
   git_info['config'] = file_config.get(key, {})
 
@@ -77,10 +77,12 @@ def connect_boto_clients():
   }
 
 def docker_reponame(git_info):
-  return f"buttonmen-{git_info['reponame']}/{git_info['branch']}"
+  prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
+  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}"
 
 def ecs_task_family_name(git_info):
-  return f"buttonmen-{git_info['reponame']}-{git_info['branch']}"
+  prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
+  return f"{prefix}-{git_info['reponame']}-{git_info['branch']}"
 
 def ecs_service_name(git_info):
   return ecs_task_family_name(git_info)
@@ -151,7 +153,9 @@ def print_ip_address(args):
     print(public_ipv4)
 
 def parse_args(argv):
-  return {}
+  return {
+    'deploy_replay_site': '-p' in argv,
+  }
 
 args = parse_args(sys.argv[1:])
 print_ip_address(args)

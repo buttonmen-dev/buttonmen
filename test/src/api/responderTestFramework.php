@@ -132,6 +132,11 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'Stealth' => 'Stealth dice may be targeted by boom attacks',
                 ),
             ),
+            'Bruno' => array(
+                'code' => '',
+                'description' => 'Bruno gets an extra die, an (X), if his opponent is Pappy.',
+                'interacts' => array(),
+            ),
             'Chance' => array(
                 'code' => 'c',
                 'description' => 'If you do not have the initiative at the start of a round you may re-roll one of your Chance Dice. If this results in you gaining the initiative, your opponent may re-roll one of their Chance Dice. This can continue with each player re-rolling Chance Dice, even re-rolling the same die, until one person fails to gain the initiative or lets their opponent go first. Re-rolling Chance Dice is not only a way to gain the initiative; it can also be useful in protecting your larger dice, or otherwise improving your starting roll. Unlike Focus Dice, Chance Dice can be immediately re-used in an attack even if you do gain the initiative with them.',
@@ -280,6 +285,11 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'Mad' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
                     'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
                 ),
+            ),
+            'Pappy' => array(
+                'code' => '',
+                'description' => 'Pappy gets an extra die, a B(X), if his opponent is Bruno.',
+                'interacts' => array(),
             ),
             'Poison' => array(
                 'code' => 'p',

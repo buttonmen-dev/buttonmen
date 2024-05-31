@@ -77,3 +77,8 @@ load_buttons
   BtnSkillEcho
 hit_table
   Konstant
+specify_recipes
+  Echo
+after_specify_recipes
+  Bruno
+  Pappy
