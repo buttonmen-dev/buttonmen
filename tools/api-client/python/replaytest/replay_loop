@@ -39,15 +39,15 @@ import datetime
 # Comma-separated list of button names to use in all novel tests, e.g.: 'Avis,Timea'
 PLAYER_BUTTONNAMES = None
 
-HOSTNAME = subprocess.check_output(['hostname', ]).strip()
+SITETAG = open('%s/sitetag' % os.getenv('HOME')).read().strip()
 COMMITID = None
 LOGF = None
 
-USERNAME = 'ubuntu'
+USERNAME = 'root'
 
 PARENTDIR = '/srv/bmgames/chaos-test'
 GAMESDIR = '%s/archive' % (PARENTDIR)
-STATEDIR = '%s/replay_state/%s' % (PARENTDIR, HOSTNAME)
+STATEDIR = '%s/replay_state/%s' % (PARENTDIR, SITETAG)
 STATEFILE = '%s/filesread' % (STATEDIR)
 LOGFILE = '%s/replay_loop.log' % (STATEDIR)
 SRCDIR = '/buttonmen/src'
@@ -66,6 +66,13 @@ ARCHIVE_GAMES = ('-a' in sys.argv[1:] or '--archive' in sys.argv[1:])
 LOCAL_REPLAY_GAMES = ('-l' in sys.argv[1:] or '--local-replay' in sys.argv[1:])
 SKIP_INIT_NEW_GAMES = ('-s' in sys.argv[1:] or '--skip-init' in sys.argv[1:])
 
+def read_commit_id():
+  prevcwd = os.getcwd()
+  os.chdir('/buttonmen/.git')
+  commitid = subprocess.check_output(['git', 'show', '--format=%H']).strip()
+  os.chdir(prevcwd)
+  return commitid
+
 def setup():
   global COMMITID
   global LOGF
@@ -73,9 +80,7 @@ def setup():
     os.mkdir(STATEDIR)
   os.chdir(SRCDIR)
   if ARCHIVE_GAMES:
-    f = open('/buttonmen/.git/FETCH_HEAD')
-    COMMITID = f.readline().split()[0]
-    f.close()
+    COMMITID = read_commit_id()
   LOGF = open(LOGFILE, 'a')
 
 def load_state():
@@ -92,6 +97,18 @@ def save_state(state):
   for l in state:
     f.write('%s\n' % l)
   f.close()
+
+def restart_mysqld():
+  os.system('sudo killall -u mysql')
+  time.sleep(2)
+  os.system('sudo /etc/init.d/mysql start')
+  time.sleep(5)
+
+def restart_apache():
+  os.system('sudo /etc/init.d/apache2 stop')
+  time.sleep(2)
+  os.system('sudo /etc/init.d/apache2 start')
+  time.sleep(5)
 
 def find_next_file(state):
   newest_file = None
@@ -149,8 +166,10 @@ def test_file(filename):
 
 def execute_responder_test(testname):
   # actually run the test, capturing output
-  prevcwd = os.getcwd()
 
+  restart_mysqld()
+
+  prevcwd = os.getcwd()
   os.chdir(SRCDIR)
 
   logfile = '%s/%s.output' % (STATEDIR, testname)
@@ -166,6 +185,11 @@ def phpunit_log_shows_success(testname):
   contents = open(logfile).read()
   return 'OK (101 tests' in contents
 
+def log_database_games(logname):
+  logpath = '%s/%s' % (STATEDIR, logname)
+  os.system('echo "select * from game" | sudo mysql_root_cli > %s' % logpath)
+  os.system('echo "select * from game_player_view" | sudo mysql_root_cli >> %s' % logpath)
+
 def test_new_games():
   # If we're running in archive mode, this will generate new games
   # and archive them for replay testing on this and other sites.
@@ -174,7 +198,9 @@ def test_new_games():
   # Regardless, this is intended to blow up if any exceptions are
   # received.
 
-  # Reset primary and test databases
+  # Restart MySQL and apache, then reset primary and test databases
+  restart_mysqld()
+  restart_apache()
   os.system('echo "drop database buttonmen" | sudo mysql')
   os.system('sudo /usr/local/bin/create_buttonmen_databases')
   os.system('cat ~/example_players.sql | sudo mysql')
@@ -194,6 +220,7 @@ def test_new_games():
     sys.exit(1)
 
   timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
+  log_database_games('new_games.%s' % timestamp)
 
   if LOCAL_REPLAY_GAMES:
     generate_responder_testfile('./prep_replay_games', TESTFILE)
