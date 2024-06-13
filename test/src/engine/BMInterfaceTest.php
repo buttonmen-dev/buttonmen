@@ -26,7 +26,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 5));
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // check player info
@@ -147,7 +147,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $player = $game->playerArray[1];
         $player->swingValueArray = array('X' => 8);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // artificially set die values
@@ -165,7 +165,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         $game->activePlayerIdx = 1;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $game->attack = array(1,        // attackerPlayerIdx
@@ -174,7 +174,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(1), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -205,7 +205,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('V'=>11), array('V'=>7));
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // artificially set die values
@@ -223,7 +223,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         $game->activePlayerIdx = 0;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(array(-2.5, 9.5), $game->roundScoreArray);
@@ -234,7 +234,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -359,7 +359,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
         $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
@@ -380,7 +380,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(1), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // artificially set die values
@@ -399,7 +399,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
         $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
@@ -449,12 +449,12 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->buttonArray = array($button1, $button2);
         $game->waitingOnActionArray = array(FALSE, FALSE);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 7), array('V' => 11));
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // artificially set player 1 as winning initiative
@@ -476,7 +476,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::END_GAME, $game->gameState);
@@ -561,7 +561,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $dieArrayArray[0][1] = $newDie;
         $game->activeDieArrayArray = $dieArrayArray;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
@@ -629,7 +629,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                             $game->gameScoreArrayArray);
         $this->assertEquals(1, $game->nRecentPasses);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -699,14 +699,14 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->activePlayerIdx = 0;
         $game->waitingOnActionArray = array(TRUE, FALSE);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // player 1 performs skill attack, player 2 autopasses
         $game->attack = array(0, 1, array(0, 4), array(0), 'Skill');
         $game->proceed_to_next_user_action();
         $this->assertCount(4, $game->activeDieArrayArray[1]);
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -718,10 +718,10 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         // player 1 passes
         $game->attack = array(0, 1, array(), array(), 'Pass');
         $game->proceed_to_next_user_action();
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
         $game->swingValueArrayArray = array(array('X' => 4), array('X' => 20));
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         // should now be at the beginning of round 2
@@ -759,7 +759,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array(), array('V' => 11));
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertTrue($game->activeDieArrayArray[1][3]->dice[0] instanceof BMDieSwing);
@@ -825,7 +825,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(3), // defenderAttackDieIdxArray
                               'Shadow'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -909,7 +909,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0), // defenderAttackDieIdxArray
                               'Skill'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -966,7 +966,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(1), // defenderAttackDieIdxArray
                               'Surrender'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(1, $game->activePlayerIdx);
@@ -988,7 +988,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(),  // defenderAttackDieIdxArray
                               'Surrender'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(1, $game->activePlayerIdx);
@@ -1010,7 +1010,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(),  // defenderAttackDieIdxArray
                               'Surrender'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1056,7 +1056,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->activeDieArrayArray = array(array(), array());
         $game->gameState = BMGameState::START_GAME;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -1078,7 +1078,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(2),    // defenderAttackDieIdxArray
                               'Skill');    // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -1101,7 +1101,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0),    // defenderAttackDieIdxArray
                               'Power');    // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -1124,7 +1124,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(2),    // defenderAttackDieIdxArray
                               'Skill');    // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -1146,7 +1146,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0),    // defenderAttackDieIdxArray
                               'Power');    // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -1167,7 +1167,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0),    // defenderAttackDieIdxArray
                               'Skill');    // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -1202,7 +1202,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $game->optValueArrayArray = array(array(1 => 5), array());
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1226,7 +1226,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // we should now be at the point where the bug triggers, at the stage of
         // loading the previous round's swing values
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(2, $game->roundNumber);
@@ -1278,7 +1278,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(0, $game->activeDieArrayArray[0][3]->originalPlayerIdx);
         $this->assertEquals(0, $game->activeDieArrayArray[0][4]->originalPlayerIdx);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals('(4) (4) (10) (12) (X)', $game->buttonArray[0]->recipe);
@@ -1310,7 +1310,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->activeDieArrayArray = array(array(), array());
         $game->gameState = BMGameState::START_GAME;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals('(V)', $game->buttonArray[0]->recipe);
@@ -1339,7 +1339,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // decline auxiliary dice
         $game->waitingOnActionArray = array(FALSE, FALSE);
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
@@ -1352,7 +1352,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(5, $game->activeDieArrayArray[1]);
 
         $game->swingValueArrayArray = array(array(), array('X' => 5));
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1393,7 +1393,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $player = $game->playerArray[0];
         $player->optValueArray[2] = 6;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertTrue(is_null($game->activeDieArrayArray[0][2]->max));
@@ -1407,7 +1407,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
                             $game->optValueArrayArray);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
@@ -1420,7 +1420,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
@@ -1479,7 +1479,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
                             $game->optValueArrayArray);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
@@ -1551,7 +1551,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
@@ -1618,7 +1618,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[0][4]);
@@ -1694,7 +1694,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
         $postSaveSwingSize = $game->activeDieArrayArray[1][4]->swingValue;
@@ -1735,7 +1735,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('R' => 16), array('R' => 2));
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertTrue($game->activeDieArrayArray[0][4]->has_skill('Mood'));
@@ -1829,7 +1829,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
         $postSaveSwingSize1 = $game->activeDieArrayArray[1][4]->dice[0]->swingValue;
@@ -1864,7 +1864,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $game->optValueArrayArray = array(array(4 => 2), array());
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1887,7 +1887,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // capture the option die
         $game->attack = array(1, 0, array(0, 1), array(4), 'Skill');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -1900,7 +1900,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(4, $game->activeDieArrayArray[1]);
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -1911,11 +1911,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(3, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -1926,11 +1926,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(2, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -1941,11 +1941,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // we should now be at the point where the bug triggers, at end of round
@@ -1981,7 +1981,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $game->swingValueArrayArray = array(array('X' => 7), array());
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -2004,7 +2004,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
 
         // capture a normal die
         $game->attack = array(1, 0, array(0, 1), array(0), 'Skill');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -2017,7 +2017,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(4, $game->activeDieArrayArray[1]);
         $game->attack = array(0, 1, array(3), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -2029,7 +2029,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(3, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(0), array(3), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -2041,7 +2041,7 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(3, $game->activeDieArrayArray[0]);
         $this->assertCount(3, $game->activeDieArrayArray[1]);
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -2052,11 +2052,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(3, $game->activeDieArrayArray[0]);
         $this->assertCount(2, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
@@ -2067,11 +2067,11 @@ class BMInterfaceTest extends BMInterfaceTestAbstract {
         $this->assertCount(3, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         // we should now be at the point where the bug triggers, at end of round
