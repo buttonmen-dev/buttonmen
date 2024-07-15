@@ -4,9 +4,15 @@ mysqlshow -u root <%= @buttonmen_db1_name %> | grep -q "^Database: buttonmen"
 if [ "$?" = "0" ]; then
   echo "<%= @buttonmen_db1_name %> already exists"
 else 
+  echo "SELECT User from mysql.user" | sudo mysql -u root | grep -q "^<%= @buttonmen_db1_user %>$"
+  if [ "$?" != "0" ]; then
+    echo "Creating user <%= @buttonmen_db1_user %>"
+    echo "CREATE USER <%= @buttonmen_db1_user %>@localhost IDENTIFIED WITH mysql_native_password BY '<%= @buttonmen_db1_pass %>'" | mysql -u root
+  fi
+
   echo "Creating <%= @buttonmen_db1_name %>"
   echo "CREATE DATABASE <%= @buttonmen_db1_name %>" | mysql -u root
-  echo "GRANT ALL ON <%= @buttonmen_db1_name %>.* TO <%= @buttonmen_db1_user %>@localhost IDENTIFIED BY '<%= @buttonmen_db1_pass %>'" | mysql -u root
+  echo "GRANT ALL ON <%= @buttonmen_db1_name %>.* TO <%= @buttonmen_db1_user %>@localhost" | mysql -u root
 
   echo "Populating <%= @buttonmen_db1_name %>"
   cd /buttonmen/deploy/database
@@ -18,9 +24,16 @@ if [ "$?" = "0" ]; then
   echo "<%= @buttonmen_db2_name %> already exists - recreating it"
   echo "DROP DATABASE buttonmen_test" | mysql -u root
 fi
+
+echo "SELECT User from mysql.user" | sudo mysql -u root | grep -q "^<%= @buttonmen_db2_user %>$"
+if [ "$?" != "0" ]; then
+  echo "Creating user <%= @buttonmen_db2_user %>"
+  echo "CREATE USER <%= @buttonmen_db2_user %>@localhost IDENTIFIED WITH mysql_native_password BY '<%= @buttonmen_db2_pass %>'" | mysql -u root
+fi
+
 echo "Creating <%= @buttonmen_db2_name %>"
 echo "CREATE DATABASE <%= @buttonmen_db2_name %>" | mysql -u root
-echo "GRANT ALL ON <%= @buttonmen_db2_name %>.* TO <%= @buttonmen_db2_user %>@localhost IDENTIFIED BY '<%= @buttonmen_db2_pass %>'" | mysql -u root
+echo "GRANT ALL ON <%= @buttonmen_db2_name %>.* TO <%= @buttonmen_db2_user %>@localhost" | mysql -u root
 echo "Populating <%= @buttonmen_db2_name %>"
 cd /buttonmen/deploy/database
 mysql -u <%= @buttonmen_db2_user%> -p<%= @buttonmen_db2_pass %> <%= @buttonmen_db2_name %> < initialize_all.sql

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+set -x
+
+# Download a version of mysql-apt-config that supports Ubuntu 16.04 and MySQL 8.0
+wget -O /usr/local/src/mysql-apt-config_0.8.10-1_all.deb https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb
+
+# Install mysql_apt_config using an override configuration which selects MySQL 8.0  
+DEBCONF_DB_OVERRIDE='File {/usr/local/etc/mysql_apt_config.dat}' DEBIAN_FRONTEND=noninteractive dpkg -i /usr/local/src/mysql-apt-config_0.8.10-1_all.deb
+
+# Update the apt DB to bring in the new versions
+apt-get update

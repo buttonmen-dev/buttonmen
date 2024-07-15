@@ -8,4 +8,6 @@
 # * NO_ZERO_DATE - errors out on default 0 timestamps 
 # * STRICT_TRANS_TABLES - yields errors like: Field 'X' doesn't have a default value
 # * ONLY_FULL_GROUP_BY - a search in BMInterface::search_game_history violates this
-sql_mode=NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+# * NO_AUTO_CREATE_USER - MySQL 8.0 no longer supports this
+sql_mode=NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+default-authentication-plugin=mysql_native_password
