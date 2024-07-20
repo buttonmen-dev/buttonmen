@@ -426,7 +426,7 @@ def update_ecs_task_definition(git_info, repo_uri, ecs_client):
       },
     ],
     cpu="256",
-    memory="512",
+    memory="1024",
     requiresCompatibilities=[
       'FARGATE',
     ],
