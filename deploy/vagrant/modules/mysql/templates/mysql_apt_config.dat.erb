@@ -1,0 +1,17 @@
+Name: mysql-apt-config/select-product
+Template: mysql-apt-config/select-product
+Value: Ok
+Owners: mysql-apt-config
+Flags: seen
+Variables:
+ selected_preview = Disabled
+ selected_server = mysql-8.0
+ selected_tools = Enabled
+
+Name: mysql-apt-config/select-server
+Template: mysql-apt-config/select-server
+Value: mysql-8.0
+Owners: mysql-apt-config
+Flags: seen
+Variables:
+ server_versions = mysql-5.7, mysql-8.0, mysql-cluster-7.5, mysql-cluster-7.6
