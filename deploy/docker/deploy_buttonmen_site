@@ -163,9 +163,10 @@ def connect_boto_clients(git_info):
   }
 
 
+# docker repos must have lowercase names
 def docker_reponame(git_info):
   prefix = (git_info['site_type'] in ['replay', 'local']) and git_info['site_type'] or 'buttonmen'
-  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}"
+  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}".lower()
 
 def docker_shorttag(git_info):
   return f"{git_info['commitid']}"
