@@ -35,9 +35,7 @@ import subprocess
 import sys
 import time
 import datetime
-
-# Comma-separated list of button names to use in all novel tests, e.g.: 'Avis,Timea'
-PLAYER_BUTTONNAMES = None
+import argparse
 
 SITETAG = open('%s/sitetag' % os.getenv('HOME')).read().strip()
 COMMITID = None
@@ -62,9 +60,43 @@ GAMEFILE_RE = re.compile('^([0-9a-f]{40})\.games\.([0-9]{8}\.[0-9]{6})\.tar\.bz2
 ORIGDIR = os.getcwd()
 HOMEBMDIR = "%s/src/buttonmen" % ORIGDIR
 
-ARCHIVE_GAMES = ('-a' in sys.argv[1:] or '--archive' in sys.argv[1:])
-LOCAL_REPLAY_GAMES = ('-l' in sys.argv[1:] or '--local-replay' in sys.argv[1:])
-SKIP_INIT_NEW_GAMES = ('-s' in sys.argv[1:] or '--skip-init' in sys.argv[1:])
+def parse_args():
+  parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawDescriptionHelpFormatter,
+    description="""Test game logic by brute force, by playing games and taking random actions.
+
+Once started, this script runs indefinitely in a loop, cycling
+between the actions it has been configured to take:
+* play novel games: play a batch of NUM_GAMES novel games, randomly
+  selecting buttons and moves, using random_ai to play the games.
+  Save output from the games in an internal "game log" format.
+* replay recorded games: unpack a tarball of previously-recorded
+  games, translate them from the internal game log format to the
+  PHP syntax used by responderTestFramework, and test that file using phpunit.
+""")
+
+  parser.add_argument(
+    '--archive-games', '-a', action='store_true',
+    help="archive novel games for replay by other sites")
+  parser.add_argument(
+    '--local-replay', '-l', action='store_true',
+    help="replay each batch of novel games locally after recording it")
+  parser.add_argument(
+    '--skip-init', '-s', action='store_true',
+    help="skip initial batch of novel games, so the first action is replaying a batch")
+  parser.add_argument(
+    '--num-games', '-n', type=int, default=100,
+    help="number of novel games to play in each batch (default 100)")
+  parser.add_argument(
+    '--player-button-names', '-pb', type=str, default=None,
+    help="comma-separated list of buttons for player one to use in novel games (e.g. 'Avis,Timea')")
+  parser.add_argument(
+    '--opponent-button-names', '-ob', type=str, default=None,
+    help="comma-separated list of buttons for player two to use in novel games (e.g. 'Avis,Timea')")
+
+  return parser.parse_args()
+
+ARGS = parse_args()
 
 def read_commit_id():
   prevcwd = os.getcwd()
@@ -79,7 +111,7 @@ def setup():
   if not os.path.isdir(STATEDIR):
     os.mkdir(STATEDIR)
   os.chdir(SRCDIR)
-  if ARCHIVE_GAMES:
+  if ARGS.archive_games:
     COMMITID = read_commit_id()
   LOGF = open(LOGFILE, 'a')
 
@@ -183,12 +215,24 @@ def execute_responder_test(testname):
 def phpunit_log_shows_success(testname):
   logfile = '%s/%s.output' % (STATEDIR, testname)
   contents = open(logfile).read()
-  return 'OK (101 tests' in contents
+  num_tests = ARGS.num_games + 1
+  ok_string = 'OK (%d tests' % (num_tests)
+  return ok_string in contents
 
 def log_database_games(logname):
   logpath = '%s/%s' % (STATEDIR, logname)
   os.system('echo "select * from game" | sudo mysql_root_cli > %s' % logpath)
   os.system('echo "select * from game_player_view" | sudo mysql_root_cli >> %s' % logpath)
+
+def player_one_button_args():
+  if ARGS.player_button_names:
+    return 'name=%s' % ARGS.player_button_names
+  return ''
+
+def player_two_button_args():
+  if ARGS.opponent_button_names:
+    return 'name=%s' % ARGS.opponent_button_names
+  return ''
 
 def test_new_games():
   # If we're running in archive mode, this will generate new games
@@ -206,15 +250,13 @@ def test_new_games():
   os.system('cat ~/example_players.sql | sudo mysql')
 
   os.chdir(HOMEBMDIR)
-  if PLAYER_BUTTONNAMES:
-    cmdargs = './test_log_games 100 "name=%s" ""' % PLAYER_BUTTONNAMES
-  else:
-    cmdargs = './test_log_games 100'
+  cmdargs = './test_log_games %d "%s" "%s"' % (
+    ARGS.num_games, player_one_button_args(), player_two_button_args())
   retval = os.system(cmdargs)
   if retval != 0:
     sys.exit(1)
 
-  target_file = ARCHIVE_GAMES and './output/allgames.php' or '/dev/null'
+  target_file = ARGS.archive_games and './output/allgames.php' or '/dev/null'
   retval = os.system('./prep_replay_games ./output > %s' % target_file)
   if retval != 0:
     sys.exit(1)
@@ -222,14 +264,14 @@ def test_new_games():
   timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
   log_database_games('new_games.%s' % timestamp)
 
-  if LOCAL_REPLAY_GAMES:
+  if ARGS.local_replay:
     generate_responder_testfile('./prep_replay_games', TESTFILE)
     testname = 'local.%s' % timestamp
     execute_responder_test(testname)
     if not phpunit_log_shows_success(testname):
       sys.exit(1)
 
-  if ARCHIVE_GAMES:
+  if ARGS.archive_games:
     targetpath = '%s/%s.games.%s.tar' % (GAMESDIR, COMMITID, timestamp)
     os.system('tar cf %s ./output' % (targetpath))
     os.system('bzip2 %s' % (targetpath))
@@ -245,7 +287,7 @@ def log(message):
 setup()
 log("Starting replay_loop")
 state = load_state()
-skip_init_new_games = SKIP_INIT_NEW_GAMES
+skip_init_new_games = ARGS.skip_init
 while True:
   if skip_init_new_games:
     print "Skipping new games the first time"
