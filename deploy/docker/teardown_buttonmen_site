@@ -84,9 +84,10 @@ def connect_boto_clients():
     'ecs': boto3.client('ecs'),
   }
 
+# docker repos must have lowercase names
 def docker_reponame(git_info):
   prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
-  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}"
+  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}".lower()
 
 def teardown_ecr_repo(git_info, ecr_client):
   reponame = docker_reponame(git_info)
