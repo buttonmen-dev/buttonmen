@@ -1532,13 +1532,18 @@ class BMInterfaceGame extends BMInterface {
                 $game->proceed_to_next_user_action();
 
                 if (!is_null($game->turboCache)) {
-                    $this->set_turbo_sizes(
+                    if (!$this->set_turbo_sizes(
                         $playerId,
                         $game,
                         $roundNumber,
                         'ignore',
                         $game->turboCache
-                    );
+                    )) {
+                        $this->set_message(
+                            'Setting turbo dice failed.  Cancel Fire turndown and retry the initial attack.'
+                        );
+                        return NULL;
+                    }
                 }
 
                 $this->save_game($game);
