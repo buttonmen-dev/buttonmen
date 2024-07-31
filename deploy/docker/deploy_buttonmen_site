@@ -26,7 +26,8 @@ LOCALHOST_IPV4 = '127.0.0.1'
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
 
-REPO_MATCH = re.compile('^origin\s+git@github.com:([\w-]+)/buttonmen.git \(fetch\)$')
+REPO_MATCH_SSH = re.compile('^origin\s+git@github.com:([\w-]+)/buttonmen.git \(fetch\)$')
+REPO_MATCH_HTTPS = re.compile('^origin\s+https://github.com/([\w-]+)/buttonmen.git \(fetch\)$')
 def get_working_directory_info():
   git_info = {
     'reponame': None,
@@ -38,8 +39,10 @@ def get_working_directory_info():
   # Find repo name using git remote
   output = get_subprocess_output(['git', 'remote', '-v'])
   for line in output.split('\n'):
-    match = REPO_MATCH.match(line)
-    if not match: continue
+    match = REPO_MATCH_SSH.match(line)
+    if not match:
+        match = REPO_MATCH_HTTPS.match(line)
+        if not match: continue
     git_info['reponame'] = match.group(1)
   if git_info['reponame']:
     print(f"Detected buttonmen repo: {git_info['reponame']}")
