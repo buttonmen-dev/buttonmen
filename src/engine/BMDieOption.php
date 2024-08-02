@@ -58,13 +58,6 @@ class BMDieOption extends BMDie {
 
         $int_optionArray = array();
         foreach ($optionArray as $option) {
-            if ($option === '0') {
-                // see Issue #2614
-                throw new BMExceptionUnimplementedDie(
-                    'Option die size of 0 is currently not supported.'
-                );
-            }
-
             $int_optionArray[] = self::validate_die_size($option, TRUE);
         }
 
