@@ -1,0 +1,2 @@
+UPDATE button SET flavor_text="Parasprites are ravenous little flying creatures who possess the strange ability to reproduce quickly. While they were in Ponyville, they enjoyed eating everything in sight, one-pony band music, and beating people up." WHERE name="Parasprites";
+UPDATE button SET flavor_text="Rarity is a sophisticated unicorn who can often be found in her haute couture studio designing a fabulous new lineup. Known for her generosity, Rarity likes her pet cat Opal, producing fashion shows, and beating people up." WHERE name="Rarity";
