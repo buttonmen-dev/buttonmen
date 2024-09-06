@@ -1050,6 +1050,13 @@ class ApiResponder {
         } else {
             header('Content-Type: application/json');
             echo json_encode($output);
+            $last_error = json_last_error();
+            if ($last_error) {
+                $last_error_msg = json_last_error_msg();
+                error_log(
+                    'Response to API call ' . var_export($args, TRUE) . ' failed json_encode(): ' . $last_error_msg
+                );
+            }
         }
     }
 
