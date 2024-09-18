@@ -1806,6 +1806,12 @@ Game.pageAddGameHeader = function(action_desc) {
   } else {
     gameTitle += 'Round #' + Api.game.roundNumber;
   }
+  if (Api.game.tournamentId) {
+    gameTitle += Game.SPACE_BULLET +
+                 '<a href="tournament.html?tournament=' +
+                 Api.game.tournamentId + '">' +
+                 'Tournament #' + Api.game.tournamentId + '</a>';
+  }
 
   // add creator if the game has been created by a third party
   if (('CHOOSE_JOIN_GAME' == Api.game.gameState) &&
