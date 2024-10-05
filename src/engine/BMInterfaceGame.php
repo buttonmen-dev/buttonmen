@@ -980,6 +980,17 @@ class BMInterfaceGame extends BMInterface {
                 return NULL;
             }
 
+            if (($args['attackType'] != 'Default') &&
+                ($args['attackType'] != 'Surrender')) {
+                $validAttackTypeArray = $game->valid_attack_types();
+                if (!in_array($args['attackType'], $validAttackTypeArray)) {
+                    $this->set_message(
+                        'Attack type ' . $args['attackType'] . ' is not valid right now.'
+                    );
+                    return NULL;
+                }
+            }
+
             $attackers = array();
             $defenders = array();
             $attackerDieIdx = array();
