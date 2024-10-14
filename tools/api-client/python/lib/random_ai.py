@@ -416,17 +416,30 @@ class PHPBMClientOutputWriter():
       entry['attacker_indices'], entry['defender_indices'],
       entry['all_attackers'], entry['all_defenders'],
       entry['attacker'], entry['defender'])
-    php_turbo_vals = 'array(%s)' % ', '.join(['%s => %s' % (k, v) for k, v in sorted(entry['turbo_vals'].items())])
-    self.f.write("""
-        $this->verify_api_submitTurn(
-            %s,
-            '%s',
-            $retval, %s,
-            $gameId, %s, '%s', %d, %d, '', %s);
+    if entry['retval'].status == 'ok':
+      php_turbo_vals = 'array(%s)' % ', '.join(['%s => %s' % (k, v) for k, v in sorted(entry['turbo_vals'].items())])
+      self.f.write("""
+          $this->verify_api_submitTurn(
+              %s,
+              '%s',
+              $retval, %s,
+              $gameId, %s, '%s', %d, %d, '', %s);
 """ % (
-      randstr, self._php_get_message(entry['retval']), php_attack_str,
-      entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender'],
-      php_turbo_vals))
+        randstr, self._php_get_message(entry['retval']), php_attack_str,
+        entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender'],
+        php_turbo_vals))
+    elif entry['retval'].status == 'failed':
+      self.f.write("""
+          $this->verify_api_submitTurn_failure(
+              %s,
+              '%s',
+              $retval, %s,
+              $gameId, %s, '%s', %d, %d, '');
+""" % (
+        randstr, self._php_get_message(entry['retval']), php_attack_str,
+        entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender']))
+    else:
+      raise ValueError("_write_entry_type_submitTurn() doesn't implement behavior for retval.status=%s" % entry['retval'].status)
 
   def _write_entry_type_datachange_numeric(self, entry):
     self.f.write("        $expData%s = %s;\n" % (entry['suffix'], json.dumps(entry['newval'])))
