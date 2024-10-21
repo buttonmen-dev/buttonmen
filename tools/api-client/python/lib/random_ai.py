@@ -416,17 +416,30 @@ class PHPBMClientOutputWriter():
       entry['attacker_indices'], entry['defender_indices'],
       entry['all_attackers'], entry['all_defenders'],
       entry['attacker'], entry['defender'])
-    php_turbo_vals = 'array(%s)' % ', '.join(['%s => %s' % (k, v) for k, v in sorted(entry['turbo_vals'].items())])
-    self.f.write("""
-        $this->verify_api_submitTurn(
-            %s,
-            '%s',
-            $retval, %s,
-            $gameId, %s, '%s', %d, %d, '', %s);
+    if entry['retval'].status == 'ok':
+      php_turbo_vals = 'array(%s)' % ', '.join(['%s => %s' % (k, v) for k, v in sorted(entry['turbo_vals'].items())])
+      self.f.write("""
+          $this->verify_api_submitTurn(
+              %s,
+              '%s',
+              $retval, %s,
+              $gameId, %s, '%s', %d, %d, '', %s);
 """ % (
-      randstr, self._php_get_message(entry['retval']), php_attack_str,
-      entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender'],
-      php_turbo_vals))
+        randstr, self._php_get_message(entry['retval']), php_attack_str,
+        entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender'],
+        php_turbo_vals))
+    elif entry['retval'].status == 'failed':
+      self.f.write("""
+          $this->verify_api_submitTurn_failure(
+              %s,
+              '%s',
+              $retval, %s,
+              $gameId, %s, '%s', %d, %d, '');
+""" % (
+        randstr, self._php_get_message(entry['retval']), php_attack_str,
+        entry['roundNumber'], entry['attackType'], entry['attacker'], entry['defender']))
+    else:
+      raise ValueError("_write_entry_type_submitTurn() doesn't implement behavior for retval.status=%s" % entry['retval'].status)
 
   def _write_entry_type_datachange_numeric(self, entry):
     self.f.write("        $expData%s = %s;\n" % (entry['suffix'], json.dumps(entry['newval'])))
@@ -725,6 +738,7 @@ class LoggingBMClient():
     # Any state that's needed so we can tailor future random decisions based on past ones
     self.decision_state = {
       'cancelled_fire_attacks': 0,
+      'expected_start_turn_status': 'ok',
     }
     self.log = []
 
@@ -757,6 +771,16 @@ class LoggingBMClient():
   def _list_all_idx_combos(self, list_len, combo_len):
     return [x for x in itertools.combinations(range(list_len), combo_len)]
 
+  def _invalid_attack_expected(self):
+    if self.decision_state['expected_start_turn_status'] == 'failed': return True
+    return False
+
+  def _use_invalid_attacker_defender_combo(self):
+    if random.random() < 0.01:
+      self.decision_state['expected_start_turn_status'] = 'failed'
+      return True
+    return False
+
   def _look_for_attacker_defender_combo(self, attacker_dice, defender_dice, n_att, n_def, validate_fn):
     attacker_combos = self._list_all_idx_combos(len(attacker_dice), n_att)
     defender_combos = self._list_all_idx_combos(len(defender_dice), n_def)
@@ -770,13 +794,16 @@ class LoggingBMClient():
           if k in attacker_combos[i]: test_attackers.append(attacker_dice[k])
           else:                       test_non_attackers.append(attacker_dice[k])
         test_defenders = [ defender_dice[k] for k in defender_combos[j] ]
-        if validate_fn(test_attackers, test_defenders, test_non_attackers):
+        if validate_fn(test_attackers, test_defenders, test_non_attackers) \
+           or self._invalid_attack_expected() or self._use_invalid_attacker_defender_combo():
           return [attacker_combos[i], defender_combos[j], ]
     return False
 
   def _find_attacker_defender_combo(self, attacker_dice, defender_dice, n_att, n_def, validate_fn):
     retval = self._look_for_attacker_defender_combo(attacker_dice, defender_dice, n_att, n_def, validate_fn)
     if retval == False:
+      if self._invalid_attack_expected():
+        return [ [], [] ]
       self.bug("Could not find valid attack with function=%s, attackers=%s, defenders=%s" % (
         validate_fn, attacker_dice, defender_dice))
     return retval
@@ -1258,6 +1285,9 @@ class LoggingBMClient():
   def _game_action_start_turn_find_attack_Pass(self, b, attackerData, defenderData):
     return [ [], [], ]
 
+  def _game_action_start_turn_find_attack_Surrender(self, b, attackerData, defenderData):
+    return [ [], [], ]
+
   def _game_action_start_turn_find_attack_Power(self, b, attackerData, defenderData):
     return self._find_attacker_defender_combo(
       attackerData['activeDieArray'], defenderData['activeDieArray'], 1, 1,
@@ -1404,6 +1434,46 @@ class LoggingBMClient():
   def _should_allow_fire_cancellation(self):
     if self.decision_state['cancelled_fire_attacks'] == 0: return True
     return random.random() < (float(1) / (self.decision_state['cancelled_fire_attacks']))
+
+  def _all_known_attack_types(self):
+    funcPrefix = '_game_action_start_turn_find_attack_'
+    return [ x[len(funcPrefix):] for x in sorted(dir(self)) if x.startswith(funcPrefix) and not x.endswith('Surrender')]
+
+  # Given the list of valid attack types, choose one
+  # With low probability, choose an invalid attack type, and expect it to fail.
+  def _choose_attack_type(self, validAttackTypes):
+    allAttackTypes = self._all_known_attack_types()
+    if random.random() < 0.01:
+      # Note: if the attack type we pick turns out to be valid, we'll
+      # fall out of this case and back to the valid attack case
+      # (selecting a different attack type).  This is acceptable behavior.
+      possiblyInvalidAttackType = self._random_array_element(allAttackTypes)
+      if possiblyInvalidAttackType not in validAttackTypes:
+        self.decision_state['expected_start_turn_status'] = 'failed'
+        return possiblyInvalidAttackType
+    elif random.random() < 0.01:
+      chosenAttackType = 'Surrender'
+      self.decision_state['expected_start_turn_status'] = 'ok'
+    chosenAttackType = str(self._random_array_element(validAttackTypes))
+    self.decision_state['expected_start_turn_status'] = 'ok'
+    return chosenAttackType
+
+  # Given the attack type we've chosen and the list of valid attack
+  # types, determine what attack type string to actually submit to the API.
+  #
+  # * With moderate probability, choose Default (it's fine for this
+  #   probability to be relatively high, since players use Default
+  #   a lot, and this shouldn't get in the way of exercising code paths)
+  # * It's okay to choose an ambiguous attack type; the caller needs
+  #   to parse the return value in that case.
+  def _attack_type_to_submit(self, chosenAttackType):
+    if random.random() > 0.25:
+      return chosenAttackType
+    if self.decision_state['expected_start_turn_status'] != 'ok':
+      return chosenAttackType
+    if chosenAttackType in ['Surrender']:
+      return chosenAttackType
+    return 'Default'
 
   def _game_action_adjust_fire_dice_player(self, b, playerData, opponentData):
     is_power_turndown = 'Power' in self.loaded_data['validAttackTypeArray']
@@ -1581,11 +1651,21 @@ class LoggingBMClient():
     self._add_php_post_action_block(b)
     self.record_load_game_data()
 
+  # Is the return value from submitTurn expected based on what was submitted
+  def _submit_turn_retval_is_expected(self, retval, attackType):
+    if not retval: return False
+    if retval.status == self.decision_state['expected_start_turn_status']: return True
+    if attackType == 'Default' \
+       and self.decision_state['expected_start_turn_status'] == 'ok' and retval.status == 'failed' \
+       and retval.message.startswith('Default attack is ambiguous'):
+      return True
+    return False
+
   def _game_action_start_turn_player(self, b, attackerData, defenderData):
     attackTypes = self.loaded_data['validAttackTypeArray']
     if len(attackTypes) == 0:
       self.bug("No valid attack types found during START_TURN")
-    chosenAttackType = str(self._random_array_element(attackTypes))
+    chosenAttackType = self._choose_attack_type(attackTypes)
     chosenAttackFunction = '_game_action_start_turn_find_attack_%s' % chosenAttackType
     if not hasattr(self, chosenAttackFunction):
       self.bug("LoggingBMClient has no function %s to perform %s attack" % (
@@ -1593,23 +1673,25 @@ class LoggingBMClient():
     [attacker_indices, defender_indices] = getattr(self, chosenAttackFunction)(b, attackerData, defenderData)
     attack = self._generate_attack_array(attacker_indices, defender_indices)
     turbo_vals = self._generate_turbo_val_arrays(attacker_indices, chosenAttackType)
+    attackTypeToSubmit = self._attack_type_to_submit(chosenAttackType)
     b.login()
     retval = b.submit_turn(
       self.game_id, self.attacker, self.defender, attack,
-      chosenAttackType, self.loaded_data['roundNumber'],
+      attackTypeToSubmit, self.loaded_data['roundNumber'],
       self.loaded_data['timestamp'], turbo_vals)
-    if not (retval and retval.status == 'ok'):
-      self.bug("API submit_turn(%s, %s, %s, %s, %s, %s, %s, %s) unexpectedly failed: %s" % (
+    if not self._submit_turn_retval_is_expected(retval, attackTypeToSubmit):
+      self.bug("API submit_turn(%s, %s, %s, %s, %s, %s, %s, %s) unexpectedly got status %s, but expected %s: %s" % (
 	self.game_id, self.attacker, self.defender,
-	attack, chosenAttackType, self.loaded_data['roundNumber'],
+	attack, attackTypeToSubmit, self.loaded_data['roundNumber'],
 	self.loaded_data['timestamp'], turbo_vals,
+        retval.status, self.decision_state['expected_start_turn_status'],
         retval and retval.message or "NULL"))
     self._add_php_pre_action_block(b)
     self.log.append({
       'type': 'submitTurn',
       'retval': retval,
       'roundNumber': self.loaded_data['roundNumber'],
-      'attackType': chosenAttackType,
+      'attackType': attackTypeToSubmit,
       'attacker_indices': attacker_indices,
       'defender_indices': defender_indices,
       'all_attackers': self.loaded_data['playerDataArray'][self.attacker]['activeDieArray'],
@@ -1620,6 +1702,8 @@ class LoggingBMClient():
     })
     self._add_php_post_action_block(b)
     self.record_load_game_data()
+    if retval.status == 'failed':
+      self.check_load_game_data_consistency_after_failed_submit_turn()
 
   def _game_action_react_to_initiative(self):
     if self._waiting_on_player(0) and self._waiting_on_player(1):
@@ -1822,6 +1906,19 @@ class LoggingBMClient():
       'type': 'loadGameData',
     })
     self.loaded_data = retval.data
+
+  # The backend must not change the game state when it rejects an attack.
+  # If an attack has just been rejected, look in the log for the
+  # two most recent game data loads, and raise a bug if they don't match.
+  def check_load_game_data_consistency_after_failed_submit_turn(self):
+    game_data_entries = [
+      entry.get('newdata', entry.get('data')) for entry in self.log if entry['type'] in ['updatedGameData', 'initialGameData']
+    ]
+    game_data_before_failure = game_data_entries[-2]
+    game_data_after_failure = game_data_entries[-1]
+    if game_data_before_failure != game_data_after_failure:
+      self.bug("game data was inconsistent before vs after a submitTurn call which returned a failure")
+    
 
   def next_game_action(self):
     state = self.loaded_data['gameState']
