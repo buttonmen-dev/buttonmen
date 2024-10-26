@@ -76,6 +76,10 @@ class buttonmen::server {
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
 
+    "/usr/local/lib/python2.7/dist-packages/buttonmen_mysqldb.py":
+      ensure => file,
+      content => template("buttonmen/buttonmen_mysqldb_27.py.erb");
+
     "/srv/backup":
       ensure => directory,
       group => "adm",
