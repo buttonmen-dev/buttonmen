@@ -82,6 +82,9 @@ between the actions it has been configured to take:
     '--local-replay', '-l', action='store_true',
     help="replay each batch of novel games locally after recording it")
   parser.add_argument(
+    '--test-output', '-o', action='store_true',
+    help="replay the games currently recorded in the output directory")
+  parser.add_argument(
     '--skip-init', '-s', action='store_true',
     help="skip initial batch of novel games, so the first action is replaying a batch")
   parser.add_argument(
@@ -167,7 +170,7 @@ def generate_responder_testfile(gen_command, output_file):
     'echo "<?php" | %s tee -a %s' % (write_to_bm_prefix, output_file),
     'echo "require_once \'responderTestFramework.php\';" | %s tee -a %s' % (write_to_bm_prefix, output_file),
     'echo "class responder99Test extends responderTestFramework {" | %s tee -a %s' % (write_to_bm_prefix, output_file),
-    '%s ./output | %s tee -a %s > /dev/null' % (gen_command, write_to_bm_prefix, output_file),
+    'bash -o pipefail -c "%s ./output | %s tee -a %s > /dev/null"' % (gen_command, write_to_bm_prefix, output_file),
     'echo "}" | %s tee -a %s > /dev/null' % (write_to_bm_prefix, output_file),
   ]
   if os.path.isfile(output_file):
@@ -234,49 +237,64 @@ def player_two_button_args():
     return 'name=%s' % ARGS.opponent_button_names
   return ''
 
-def test_new_games():
-  # If we're running in archive mode, this will generate new games
-  # and archive them for replay testing on this and other sites.
-  # Otherwise, it will simply run the tests and discard the results.
-  #
-  # Regardless, this is intended to blow up if any exceptions are
-  # received.
-
-  # Restart MySQL and apache, then reset primary and test databases
-  restart_mysqld()
-  restart_apache()
+def recreate_buttonmen_databases():
   os.system('echo "drop database buttonmen" | sudo mysql')
   os.system('sudo /usr/local/bin/create_buttonmen_databases')
   os.system('cat ~/example_players.sql | sudo mysql')
 
+# Actually play novel games if that's correct for the arguments we're using
+# Fail if any exceptions are received
+def generate_new_games(timestamp):
+  if ARGS.test_output: return
+
   os.chdir(HOMEBMDIR)
+
+  # Restart MySQL and apache, then reset primary and test databases
+  restart_mysqld()
+  restart_apache()
+  recreate_buttonmen_databases()
+
+  # This command runs the games
   cmdargs = './test_log_games %d "%s" "%s"' % (
     ARGS.num_games, player_one_button_args(), player_two_button_args())
   retval = os.system(cmdargs)
   if retval != 0:
     sys.exit(1)
 
+  # Capture the database signature of the new games for sanity-checking
+  # and easy stats about what's been tested
+  log_database_games('new_games.%s' % timestamp)
+
+  # Always immediately syntax-test the output files we just generated
+  # In archive mode, this is what creates ./output/allgames.php
   target_file = ARGS.archive_games and './output/allgames.php' or '/dev/null'
   retval = os.system('./prep_replay_games ./output > %s' % target_file)
   if retval != 0:
     sys.exit(1)
 
-  timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
-  log_database_games('new_games.%s' % timestamp)
+def replay_generated_games(timestamp):
+  if not (ARGS.archive_games or ARGS.local_replay or ARGS.test_output): return
 
-  if ARGS.local_replay:
-    generate_responder_testfile('./prep_replay_games', TESTFILE)
-    testname = 'local.%s' % timestamp
-    execute_responder_test(testname)
-    if not phpunit_log_shows_success(testname):
-      sys.exit(1)
+  os.chdir(HOMEBMDIR)
 
-  if ARGS.archive_games:
-    targetpath = '%s/%s.games.%s.tar' % (GAMESDIR, COMMITID, timestamp)
-    os.system('tar cf %s ./output' % (targetpath))
-    os.system('bzip2 %s' % (targetpath))
+  generate_responder_testfile('./prep_replay_games', TESTFILE)
+  testname = 'local.%s' % timestamp
+  execute_responder_test(testname)
+  if not phpunit_log_shows_success(testname):
+    sys.exit(1)
+
+def archive_generated_games(timestamp):
+  if not ARGS.archive_games: return
+
+  os.chdir(HOMEBMDIR)
+  targetpath = '%s/%s.games.%s.tar' % (GAMESDIR, COMMITID, timestamp)
+  os.system('tar cf %s ./output' % (targetpath))
+  os.system('bzip2 %s' % (targetpath))
+
+def cleanup_generated_games():
+  if ARGS.test_output: return
+  os.chdir(HOMEBMDIR)
   os.system('rm ./output/*')
-  os.chdir(SRCDIR)
 
 def log(message):
   LOGF.write('%s: %s\n' % (
@@ -294,7 +312,12 @@ while True:
     skip_init_new_games = False
   else:
     log("Testing new games")
-    test_new_games()
+    timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
+    generate_new_games(timestamp)
+    replay_generated_games(timestamp)
+    archive_generated_games(timestamp)
+    cleanup_generated_games()
+    if ARGS.test_output: sys.exit(0)
   nextfile = find_next_file(state)
   if nextfile:
     print "Testing %s..." % nextfile

@@ -330,11 +330,9 @@ class PHPBMClientOutputWriter():
   def _write_entry_type_initialGameData(self, entry):
     data = self.apply_known_changes_to_game_data(entry['data'])
     self.f.write("""
-        $expData = $this->squash_game_data_timestamps(%s);
-        $expData['gameId'] = $gameId;
-        $expData['playerDataArray'][0]['playerId'] = $this->user_ids['responder003'];
-        $expData['playerDataArray'][1]['playerId'] = $this->user_ids['responder004'];
-""" % self._php_json_decode_blob(data))
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', %(maxWins)s, '%(gameState)s');
+""" % data)
+    self._write_php_json_diff(data, {})
     self.olddata = data
 
   def _write_entry_type_updatedGameData(self, entry):
@@ -482,10 +480,11 @@ class PHPBMClientOutputWriter():
       self.f.write("        $expData%s = %s;\n" % (suffix, jsonstr))
 
   def _write_php_diff_action_log(self, keyname, newval, oldval):
-    # Don't think this can actually happen, but handle it just in case
-    if len(newval) == 0:
+    # If we're starting from scratch, populate the object
+    if not oldval or not newval:
       self.f.write("        $expData['gameActionLog'] = array();\n");
-      return
+      # This probably can't happen, but just in case
+      if not newval: return
     nextkey = len(newval) - 1
     # If newval is large enough to imply that we are at the end of
     # the game, empty it and start over
@@ -647,19 +646,22 @@ class PHPBMClientOutputWriter():
         if pkey in olddata: oldval = olddata[pkey]
         self._write_php_diff_player_data_die_array(pnum, pkey, newdata[pkey], oldval)
       elif pkey in ['gameScoreArray', 'swingRequestArray', 'prevSwingValueArray', ]:
-        self._write_php_diff_flat_dict_key(suffix, newdata[pkey], olddata[pkey])
+        self._write_php_diff_flat_dict_key(suffix, newdata[pkey], olddata.get(pkey, {}))
       elif pkey in ['button', ]:
-        self._write_php_diff_flat_dict_key(suffix, newdata[pkey], olddata[pkey], True)
+        self._write_php_diff_flat_dict_key(suffix, newdata[pkey], olddata.get(pkey, {}), True)
       elif pkey in ['prevOptValueArray', ]:
-        self._write_php_diff_prev_opt_value_array(suffix, newdata[pkey], olddata[pkey])
+        self._write_php_diff_prev_opt_value_array(suffix, newdata[pkey], olddata.get(pkey, {}))
       elif pkey in ['optRequestArray', 'turboSizeArray', ]:
-        self._write_php_diff_opt_request_array(suffix, newdata[pkey], olddata[pkey])
+        self._write_php_diff_opt_request_array(suffix, newdata[pkey], olddata.get(pkey, {}))
       elif pkey in NUMERIC_KEYS:
-        self._write_php_diff_numeric_key(suffix, newdata[pkey], olddata[pkey])
+        self._write_php_diff_numeric_key(suffix, newdata[pkey], olddata.get(pkey, None))
       elif pkey in UNUSED_DURING_AUTOPLAY_KEYS:
-        if newdata[pkey] != olddata[pkey]:
+        if olddata and newdata[pkey] != olddata[pkey]:
           self.bug("Playerdata key %s is expected to be static, but unexpectedly changed between loadGameData invocations: %s => %s" % (
             pkey, olddata[pkey], newdata[pkey]))
+	# If olddata isn't defined because we're in game initialization, don't fail.
+        # Don't do anything else either, because nothing else should be needed:
+        # $this->generate_init_expected_data_array() should initialize these items.
       elif pkey == 'lastActionTime':
         pass
       else:
@@ -669,24 +671,28 @@ class PHPBMClientOutputWriter():
     for key in sorted(newobj.keys()):
       suffix = "['%s']" % key
       if key in NUMERIC_KEYS:
-        self._write_php_diff_numeric_key(suffix, newobj[key], oldobj[key])
+        self._write_php_diff_numeric_key(suffix, newobj[key], oldobj.get(key, None))
       elif key in STRING_KEYS:
-        self._write_php_diff_string_key(suffix, newobj[key], oldobj[key])
+        self._write_php_diff_string_key(suffix, newobj[key], oldobj.get(key, None))
       elif key == 'gameActionLog':
-        self._write_php_diff_action_log(key, newobj[key], oldobj[key])
+        self._write_php_diff_action_log(key, newobj[key], oldobj.get(key, []))
       elif key in UNUSED_DURING_AUTOPLAY_KEYS:
-        if newobj[key] != oldobj[key]:
+        if oldobj and newobj[key] != oldobj[key]:
           self.bug("Key %s is expected to be static, but unexpectedly changed between loadGameData invocations: %s => %s" % (
             key, oldobj[key], newobj[key]))
+	# If oldobj isn't defined because we're in game initialization, don't fail.
+        # Don't do anything else either, because nothing else should be needed:
+        # $this->generate_init_expected_data_array() should initialize these items.
       elif key == 'playerDataArray':
         for pnum in range(len(newobj[key])):
-          self._write_php_diff_player_data_array(key, pnum, newobj[key][pnum], oldobj[key][pnum])
+          old_player_data = oldobj[key][pnum] if oldobj else {}
+          self._write_php_diff_player_data_array(key, pnum, newobj[key][pnum], old_player_data)
       elif key == 'timestamp':
         pass
       elif key == 'validAttackTypeArray':
-        self._write_php_diff_flat_array_key(suffix, newobj[key], oldobj[key])
+        self._write_php_diff_flat_array_key(suffix, newobj[key], oldobj.get(key, []))
       elif key == 'gameSkillsInfo':
-        self._write_php_diff_game_skills_info(suffix, newobj[key], oldobj[key])
+        self._write_php_diff_game_skills_info(suffix, newobj[key], oldobj.get(key, None))
       else:
         raise ValueError, key
 
