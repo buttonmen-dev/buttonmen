@@ -1187,9 +1187,17 @@ class responder00Test extends responderTestFramework {
         $this->assertEquals($retval['data']['boardId'], 1);
         $this->assertEquals($retval['data']['threadId'], $thread['data']['threadId']);
 
+        $realThreadId = $retval['data']['threadId'];
         $fakeThreadId = 1;
         $retval['data']['threadId'] = $fakeThreadId;
         $this->cache_json_api_output('loadForumThread', $fakeThreadId, $retval);
+
+        // Loading a non-existent thread should yield a friendly error
+        $args = array(
+            'type' => 'loadForumThread',
+            'threadId' => $realThreadId + 1,
+        );
+        $retval = $this->verify_api_failure($args, 'The requested forum thread does not exist');
     }
 
     public function test_request_loadNextNewPost() {

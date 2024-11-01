@@ -117,15 +117,17 @@ class BMInterfaceNewuser {
                 return NULL;
             }
 
-            // if this is a remote connection, check whether this
-            // IP already has numerous player_verification entries
+            // If this is a remote connection, check whether there
+            // have been too many recent player creation requests.
             if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
-                $query = 'SELECT player_id FROM player_verification WHERE ipaddr = :ipaddr';
+                $query =
+                    'SELECT player_id FROM player_verification ' .
+                    'WHERE generation_time > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE)';
                 $statement = self::$conn->prepare($query);
-                $statement->execute(array(':ipaddr' => $_SERVER['REMOTE_ADDR']));
+                $statement->execute();
                 $fetchResult = $statement->fetchAll();
                 if (count($fetchResult) >= 5) {
-                    $this->message = 'Too many new user requests from IP ' . $_SERVER['REMOTE_ADDR'];
+                    $this->message = 'Too many recent new user requests.  Wait a few minutes and try again.';
                     return NULL;
                 }
             }
@@ -361,15 +363,17 @@ class BMInterfaceNewuser {
                 return NULL;
             }
 
-            // if this is a remote connection, check whether this
-            // IP already has numerous player_verification entries
+           // If this is a remote connection, check whether there
+           // have been too many recent password reset requests.
             if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
-                $query = 'SELECT player_id FROM player_reset_verification WHERE ipaddr = :ipaddr';
+                $query =
+                    'SELECT player_id FROM player_reset_verification ' .
+                    'WHERE generation_time > DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE)';
                 $statement = self::$conn->prepare($query);
-                $statement->execute(array(':ipaddr' => $_SERVER['REMOTE_ADDR']));
+                $statement->execute();
                 $fetchResult = $statement->fetchAll();
                 if (count($fetchResult) >= 5) {
-                    $this->message = 'Too many password reset requests from IP ' . $_SERVER['REMOTE_ADDR'];
+                    $this->message = 'Too many recent password reset requests.  Wait a few minutes and try again.';
                     return NULL;
                 }
             }

@@ -238,7 +238,11 @@ class BMInterfaceForum extends BMInterface {
             );
             $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
-            if (count($rows) != 1) {
+            if (count($rows) == 0) {
+                $this->set_message('The requested forum thread does not exist');
+                return NULL;
+            }
+            if (count($rows) > 1) {
                 $this->set_message('Forum thread loading failed');
                 error_log('Wrong number of records returned for forum_thread.id = ' . $threadId);
                 return NULL;
