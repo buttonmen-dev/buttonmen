@@ -11,3 +11,9 @@
 # * NO_AUTO_CREATE_USER - MySQL 8.0 no longer supports this
 sql_mode=NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 default-authentication-plugin=mysql_native_password
+
+# Use latin1 encoding for text fields
+# (Note: this is just the MySQL encoding.  This setting is compatible
+# with PHP correctly encoding all text as UTF-8.  See discussion in #2974.)
+character-set-server=latin1
+collation-server=latin1_swedish_ci

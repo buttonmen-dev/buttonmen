@@ -17,7 +17,7 @@ git checkout origin/master
 
 # Check out this branch, apply all database updates files in the diff, then take a backup
 git checkout ${THISBRANCH}
-for update in $(git diff --name-only origin/master | grep deploy/database/updates/); do
+for update in $(git diff --name-only origin/master | grep deploy/database/updates/ | grep -v deploy/database/updates/scripts/); do
   echo "applying: ${update}"
   cat $update | mysql buttonmen_test
 done
