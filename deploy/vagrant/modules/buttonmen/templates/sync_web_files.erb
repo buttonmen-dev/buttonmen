@@ -1,0 +1,8 @@
+#!/bin/bash
+##### sync_web_files
+# Copy latest files from the container source directory /buttonmen to /var/www
+
+CHMOD_ARG="--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r"
+
+/usr/bin/rsync -a --delete ${CHMOD_ARG} /buttonmen/src/ /var/www/
+/usr/bin/rsync -a --delete ${CHMOD_ARG} /buttonmen/test/src/ui/ /var/www/test-ui/

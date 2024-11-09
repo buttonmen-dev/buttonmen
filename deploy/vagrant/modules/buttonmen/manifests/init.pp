@@ -32,6 +32,11 @@ class buttonmen::server {
       content => template("buttonmen/backup_database.erb"),
       mode => 0555;
 
+    "/usr/local/bin/sync_buttonmen_web_files":
+      ensure => file,
+      content => template("buttonmen/sync_web_files.erb"),
+      mode => 0555;
+
     "/usr/local/bin/set_buttonmen_config":
       ensure => file,
       content => template("buttonmen/set_config.erb"),
@@ -76,6 +81,10 @@ class buttonmen::server {
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
 
+    "/usr/local/lib/python2.7/dist-packages/buttonmen_mysqldb.py":
+      ensure => file,
+      content => template("buttonmen/buttonmen_mysqldb_27.py.erb");
+
     "/srv/backup":
       ensure => directory,
       group => "adm",
@@ -83,13 +92,9 @@ class buttonmen::server {
   }
 
   exec {
-    "buttonmen_src_rsync":
-      command => "/usr/bin/rsync -a --delete /buttonmen/src/ /var/www/",
+    "buttonmen_sync_web_files":
+      command => "/usr/local/bin/sync_buttonmen_web_files",
       require => [ Package["rsync"], Package["apache2"] ];
-
-    "buttonmen_uitest_rsync":
-      command => "/usr/bin/rsync -a --delete /buttonmen/test/src/ui/ /var/www/test-ui/",
-      require => Exec["buttonmen_src_rsync"];
   }
 
   # Create databases only if we're using local database (i.e. for dev/test sites)
@@ -104,11 +109,11 @@ class buttonmen::server {
         "buttonmen_create_databases":
           command => "/usr/local/bin/create_buttonmen_databases",
           require => [ Service["mysql"],
-                       Exec["buttonmen_src_rsync"] ];
+                       Exec["buttonmen_sync_web_files"] ];
 
         "buttonmen_set_config":
           command => "/usr/local/bin/set_buttonmen_config",
-          require => [ Exec["buttonmen_src_rsync"],
+          require => [ Exec["buttonmen_sync_web_files"],
                        File["/usr/local/bin/set_buttonmen_config"],
                        Exec["buttonmen_create_databases"] ];
       }

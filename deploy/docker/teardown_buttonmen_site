@@ -17,7 +17,6 @@
 # * this script assumes you know what you're doing and are done
 #   with the dev site - use at your own risk
 
-import boto3
 import json
 import os
 import re
@@ -29,7 +28,7 @@ BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.jso
 def get_subprocess_output(cmdargs):
   return subprocess.check_output(cmdargs).decode()
 
-REPO_MATCH = re.compile('^origin\s+git@github.com:(\w+)/buttonmen.git \(fetch\)$')
+REPO_MATCH = re.compile('^origin\\s+(git@github.com:|https://github.com/)([\\w-]+)/buttonmen.git \\(fetch\\)$')
 def get_working_directory_info():
   git_info = {
     'reponame': None,
@@ -41,7 +40,7 @@ def get_working_directory_info():
   for line in output.split('\n'):
     match = REPO_MATCH.match(line)
     if not match: continue
-    git_info['reponame'] = match.group(1)
+    git_info['reponame'] = match.group(2)
   if git_info['reponame']:
     print(f"Detected buttonmen repo: {git_info['reponame']}")
   else:
@@ -78,6 +77,7 @@ def add_ecs_config(git_info, args):
     raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing 'backup_database_path' parameter for download database backups before container delete")
 
 def connect_boto_clients():
+  import boto3
   return {
     'ec2': boto3.client('ec2'),
     'ecr': boto3.client('ecr'),
