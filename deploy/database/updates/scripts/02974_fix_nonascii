@@ -1,0 +1,95 @@
+#!/usr/bin/python
+
+from buttonmen_mysqldb import connect_buttonmen_database
+import sys
+
+DRYRUN = len(sys.argv) > 1 and sys.argv[1] == '--dry-run'
+
+if not DRYRUN:
+  confirm = raw_input("Update database for real (y/n)? ")
+  if not confirm == 'y': sys.exit(1)
+
+conn = connect_buttonmen_database()
+crs = conn.cursor()
+
+def run_update(sqlstr):
+  if DRYRUN:
+    print(sqlstr)
+  else:
+    print(sqlstr)
+    result = crs.execute(sqlstr)
+    print(result)
+
+def assert_text_field_okay(table, field):
+  print("-" * 72)
+  print("Verifying no non-utf8 entries in %s.%s" % (table, field))
+  select_sql = 'SELECT id,%s FROM %s WHERE %s IS NOT NULL' % (field, table, field)
+  result = crs.execute(select_sql)
+  rows = crs.fetchall()
+  for row in rows:
+    try:
+      row[1].decode('utf-8')
+    except UnicodeDecodeError:
+      print("Unexpectedly found a bad entry in %s.%s" % (table, field))
+      raise
+
+def check_and_update_text_field(table, field):
+  print("-" * 72)
+  print("Looking for non-utf8 entries in %s.%s" % (table, field))
+  select_sql = 'SELECT id,%s FROM %s WHERE %s IS NOT NULL' % (field, table, field)
+  result = crs.execute(select_sql)
+  rows = crs.fetchall()
+  for row in rows:
+    try:
+      row[1].decode('utf-8')
+    except UnicodeDecodeError:
+      try:
+        newstr = row[1].decode('windows-1252').encode('utf-8').replace('"', '\\"')
+        update_sql = 'UPDATE %s SET %s="%s" WHERE id=%s' % (table, field, newstr, row[0])
+        run_update(update_sql)
+      except UnicodeDecodeError:
+        print("Line couldn't be decoded using windows-1252, trying latin1: " + row[1])
+        newstr = row[1].decode('latin1').encode('utf-8').replace('"', '\\"')
+        update_sql = 'UPDATE %s SET %s="%s" WHERE id=%s' % (table, field, newstr, row[0])
+        run_update(update_sql)
+
+# Fields that shouldn't be able to have bad values, but we want to check
+assert_text_field_okay('buttonset', 'name')
+assert_text_field_okay('button', 'name')
+assert_text_field_okay('button', 'recipe')
+assert_text_field_okay('button', 'flavor_text')
+assert_text_field_okay('tag', 'name')
+assert_text_field_okay('forum_board', 'name')
+assert_text_field_okay('forum_board', 'board_color')
+assert_text_field_okay('forum_board', 'thread_color')
+assert_text_field_okay('forum_board', 'description')
+assert_text_field_okay('game_status', 'name')
+assert_text_field_okay('game_action_log', 'message')
+assert_text_field_okay('die', 'recipe')
+assert_text_field_okay('die', 'flags')
+assert_text_field_okay('die_status', 'name')
+assert_text_field_okay('tournament', 'description')
+assert_text_field_okay('player_status', 'name')
+assert_text_field_okay('player', 'name_ingame')
+assert_text_field_okay('player', 'name_irl')
+assert_text_field_okay('player', 'email')
+assert_text_field_okay('player', 'image_path')
+assert_text_field_okay('player', 'homepage')
+assert_text_field_okay('player', 'die_background')
+assert_text_field_okay('player', 'player_color')
+assert_text_field_okay('player', 'opponent_color')
+assert_text_field_okay('player', 'neutral_color_a')
+assert_text_field_okay('player', 'neutral_color_b')
+
+# Fields that might have bad values, so we want to check and possibly fix
+check_and_update_text_field('forum_thread', 'title')
+check_and_update_text_field('forum_post', 'body')
+check_and_update_text_field('game', 'description')
+check_and_update_text_field('game_chat_log', 'message')
+check_and_update_text_field('player', 'gender')
+check_and_update_text_field('player', 'pronouns')
+check_and_update_text_field('player', 'comment')
+check_and_update_text_field('player', 'vacation_message')
+    
+if not DRYRUN: 
+  conn.commit()
