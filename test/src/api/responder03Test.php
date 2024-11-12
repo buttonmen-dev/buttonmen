@@ -2301,7 +2301,8 @@ class responder03Test extends responderTestFramework {
                     3, 2, 5, 2, 3,          // initial die rolls for r4
                 ),
                 'bm_skill_rand' => array(
-                    $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['t'],
+                    // Mood should be skipped on a RandomBM type with no swing dice
+                    $RANDOMBM_SKILL['H'], $RANDOMBM_SKILL['M'], $RANDOMBM_SKILL['?'], $RANDOMBM_SKILL['t'],
                     $RANDOMBM_SKILL['v'], $RANDOMBM_SKILL['B'], $RANDOMBM_SKILL['k'],
                 ),
             ),
