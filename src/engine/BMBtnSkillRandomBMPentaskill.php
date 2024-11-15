@@ -29,21 +29,20 @@ class BMBtnSkillRandomBMPentaskill extends BMBtnSkillRandomBM {
             return FALSE;
         }
 
-        $skillCharArray = array_merge(array_diff(
-            BMSkill::all_skill_chars(),
-            self::excluded_skill_char_array()
-        ));
+        $skillCharArray = self::included_skill_char_array();
 
         $button = $args['button'];
         $dieSizeArray = array_merge(
             parent::generate_die_sizes(4),
             parent::randomly_select_swing_types()
         );
+        $dieIdxIsSwingArray = array(4);
         $dieSkillLetterArrayArray = parent::generate_die_skills(
             5,
-            parent::randomly_select_skills(5, $skillCharArray),
+            parent::randomly_select_skills(5, $skillCharArray, TRUE),
             0,
-            2
+            2,
+            $dieIdxIsSwingArray
         );
         $button->recipe = parent::generate_recipe($dieSizeArray, $dieSkillLetterArrayArray);
 
