@@ -75,7 +75,7 @@ class BMBtnSkillRandomBMTest extends PHPUnit_Framework_TestCase {
         $skillArray = array('s1', 's2', 's3', 's4');
 
         $BM_SKILL_RAND_VALS = array(2, 2, 1);
-        $retval = BMBtnSkillRandomBM::randomly_select_skills(2, $skillArray);
+        $retval = BMBtnSkillRandomBM::randomly_select_skills(2, $skillArray, FALSE);
         $this->assertEquals(array('s3', 's2'), $retval);
     }
 

@@ -42,7 +42,7 @@ class BMBtnSkillRandomBMTriskillTest extends PHPUnit_Framework_TestCase {
             4, 1,              // skill positions -- third skill twice
         );
         $BM_SKILL_RAND_VALS = array(
-            8, 2, 6,           // skill type      H, c, k
+            9, 2, 6,           // skill type      H, c, k
         );
 
         $retval = BMBtnSkillRandomBMTriskill::specify_recipes($args);

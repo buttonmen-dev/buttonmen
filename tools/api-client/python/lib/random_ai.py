@@ -1072,13 +1072,22 @@ class LoggingBMClient():
 
   def _min_trip_value(self, die):
     if 'Konstant' in die['skills']: return die['value']
+    if not 'Maximum' in die['skills']: return min_die_value(die)
     post_trip_sides = int(die['sides'])
     if 'Mighty' in die['skills']:
       post_trip_sides = self._next_mighty_value(post_trip_sides)
     if 'Weak' in die['skills']:
       post_trip_sides = self._next_weak_value(post_trip_sides)
-    if 'Maximum' in die['skills']: return post_trip_sides
-    return min_die_value(die)
+    if 'Turbo' in die['skills'] or 'Mad' in die['skills'] or 'Mood' in die['skills']:
+      sides_part = die['recipe'].split('(')[1].split(')')[0]
+      if '/' in sides_part:
+        post_trip_sides = min([int(x) for x in sides_part.split('/')])
+      else:
+        post_trip_sides = sum([
+          SWING_RANGES[s][0] if s in SWING_RANGES else int(s) \
+          for s in sides_part.split(',')
+        ])
+    return post_trip_sides
 
   def _next_mighty_value(self, sides):
     sizes = [1, 2, 4, 6, 8, 10, 12, 16, 20, 30]
