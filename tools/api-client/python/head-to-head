@@ -114,7 +114,7 @@ def print_record(bmconn, type, thing1, thing2):
 
   try:
     winpct = (wins / games) * 100
-  except ZeroDivisionError:
+  except (ZeroDivisionError, TypeError):
     winpct = 0
 
   print("{0} vs {1}: {2} - {3} ({4:.2f}%)".format(thing1, thing2, wins, losses, winpct))
