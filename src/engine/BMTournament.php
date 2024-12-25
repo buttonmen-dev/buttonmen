@@ -324,7 +324,9 @@ abstract class BMTournament {
      */
     protected function do_next_step_shuffle_players() {
         if ($this->doShufflePlayers) {
-            shuffle($this->playerIdArray);
+            $playerIdArray = $this->playerIdArray;
+            bm_shuffle($playerIdArray);
+            $this->playerIdArray = $playerIdArray;
         }
     }
 
