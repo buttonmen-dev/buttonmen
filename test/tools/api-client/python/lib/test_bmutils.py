@@ -93,7 +93,8 @@ class TestBMUtils(unittest.TestCase):
       'gameChatEditable', 'gameChatLog', 'gameChatLogCount',
       'gameId', 'gameSkillsInfo', 'gameState', 'maxWins', 'opponent',
       'player', 'playerDataArray', 'playerWithInitiativeIdx',
-      'previousGameId', 'roundNumber', 'timestamp', 'validAttackTypeArray'
+      'previousGameId', 'roundNumber', 'timestamp', 'tournamentId',
+      'tournamentRoundNumber', 'validAttackTypeArray'
     ]
     self.obj.username = 'responder001'
     r = self.obj.wrap_load_game_data(101)
