@@ -1655,7 +1655,7 @@ class BMInterface {
             return;
         }
 
-        $this->tournament()->update_tournament($game->tournamentId);
+        $this->tournament()->advance_tournament($game->tournamentId);
     }
 
     /**
