@@ -1505,6 +1505,42 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $this->cache_json_api_output('setChatVisibility', $fakeGameNumber, $retval);
     }
 
+    /*
+     * verify_api_loadTournamentData() - helper routine which calls the API
+     * loadTournamentData method, makes standard assertions about its
+     * return value which shouldn't change, and compares its return
+     * value to an expected game state object compiled by the caller.
+     *
+     * Note: this function does *not* sanitize:
+     * - gameIds in gameIdArrayArray
+     * - playerIds in playerDataArray
+     * So the caller must take care of setting those values correctly
+     * in expData, and any consumers of the JSON object must not write
+     * tests which rely on those values to be unchanged.
+     */
+    protected function verify_api_loadTournamentData($expData, $tournamentId, $check=TRUE) {
+        $args = array(
+            'type' => 'loadTournamentData',
+            'tournament' => $tournamentId,
+        );
+        $retval = $this->verify_api_success($args);
+        // BUG: we should be able to test $retval['message'] here, but sometimes it's NULL
+        // and sometimes it's "Loaded data for tournament N."
+        if ($check) {
+            $this->assertEquals($expData, $retval['data']);
+
+            // make this variable if we ever need to
+            $fakeTournamentId = 1;
+
+            // Fill in the fake number before caching the output
+            $retval['data']['tournamentId'] = $fakeTournamentId;
+            $retval['message'] = str_replace($tournamentId, $fakeTournamentId, $retval['message']);
+
+            $this->cache_json_api_output('loadTournamentData', $fakeTournamentId, $retval);
+        }
+        return $retval['data'];
+    }    
+    
     /**
      * verify_api_createTournament() - helper routine which calls the API
      * createTournament method using provided fake die rolls, and makes
@@ -1683,5 +1719,49 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_failure($args, $expMessage);
         return $retval;
     }
+    
+    /**
+     * verify_api_updateTournament() - helper routine which calls the API
+     * updateTournament method using provided fake die rolls, and makes
+     * standard assertions about its return value
+     */
+    protected function verify_api_updateTournament(
+        $bmRandValArray, $tournamentId, $action, $buttonNames=NULL
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'updateTournament',
+            'tournamentId' => $tournamentId,
+            'action' => $action,
+        );
+        if ($buttonNames) {
+            $args['buttonNames'] = $buttonNames;
+        }
+        $retval = $this->verify_api_success($args);
+        return $retval;
+    }
 
+    /**
+     * verify_api_updateTournament_failure() - helper routine which calls the API
+     * updateTournament method using provided invalid arguments, and makes
+     * assertions about how it the call should fail
+     */
+    protected function verify_api_updateTournament_failure(
+        $bmRandValArray, $expMessage, $tournamentId, $action, $buttonNames=NULL
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $bmRandValArray;
+        $args = array(
+            'type' => 'updateTournament',
+            'tournamentId' => $tournamentId,
+            'action' => $action,
+        );
+        if ($buttonNames) {
+            $args['buttonNames'] = $buttonNames;
+        }
+        $retval = $this->verify_api_failure($args, $expMessage);
+        return $retval;
+    }
+    
 }
