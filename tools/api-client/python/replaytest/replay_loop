@@ -136,7 +136,15 @@ def save_state(state):
 def restart_mysqld():
   os.system('sudo killall -u mysql')
   time.sleep(2)
-  os.system('sudo /etc/init.d/mysql start')
+  retry = 0
+  while retry < 5:
+    retval = os.system('sudo /etc/init.d/mysql start')
+    if retval == 0: break
+    time.sleep(5)
+    retry += 1
+  else:
+    print("mysqld failed to start after 5 retries")
+    sys.exit(1)
   time.sleep(5)
 
 def restart_apache():
