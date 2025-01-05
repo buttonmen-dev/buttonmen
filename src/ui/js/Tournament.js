@@ -384,7 +384,9 @@ Tournament.formChooseButton = function () {
   // load list of Button Men
   Api.getButtonData(null, function(){
     // add button selector table
-    var buttonSelector = Newgame.createButtonOptionsTable(false);
+    ButtonSelection.loadButtonsIntoDicts();
+    
+    var buttonSelector = ButtonSelection.getSingleButtonOptionsTable('player');
     $('#buttonSelectDiv').append(buttonSelector).append($('<br />'));
 
     // add form submission button
