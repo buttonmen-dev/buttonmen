@@ -23,7 +23,7 @@ class BMInterfaceTournament extends BMInterface {
             return $statement->fetchColumn() > 0;
         } catch (BMExceptionDatabase $e) {
             $this->set_message(
-                    'Cannot determine if tournament is watched because a player or tournament ID was not valid'
+                'Cannot determine if tournament is watched because a player or tournament ID was not valid'
             );
             return NULL;
         } catch (Exception $e) {
@@ -35,8 +35,8 @@ class BMInterfaceTournament extends BMInterface {
                 $this->set_message('Attempt to determine if tournament is watched failed: ' . $e->getMessage());
             }
             error_log(
-                    'Caught exception in BMInterface::is_tournament_watched: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::is_tournament_watched: ' .
+                $e->getMessage()
             );
             return NULL;
         }
@@ -68,8 +68,8 @@ class BMInterfaceTournament extends BMInterface {
                 $this->set_message('Watch failed: ' . $e->getMessage());
             }
             error_log(
-                    'Caught exception in BMInterface::watch_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::watch_tournament: ' .
+                $e->getMessage()
             );
             return NULL;
         }
@@ -78,7 +78,7 @@ class BMInterfaceTournament extends BMInterface {
     public function unwatch_tournament($playerId, $tournamentId) {
         try {
             $query = 'DELETE FROM tournament_player_watch_map ' .
-                    'WHERE player_id = :player_id AND tournament_id = :tournament_id';
+                     'WHERE player_id = :player_id AND tournament_id = :tournament_id';
 
             $statement = self::$conn->prepare($query);
             $parameters = array(
@@ -100,8 +100,8 @@ class BMInterfaceTournament extends BMInterface {
                 $this->set_message('Unwatch failed: ' . $e->getMessage());
             }
             error_log(
-                    'Caught exception in BMInterface::unwatch_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::unwatch_tournament: ' .
+                $e->getMessage()
             );
             return NULL;
         }
@@ -118,11 +118,11 @@ class BMInterfaceTournament extends BMInterface {
      * @return array|FALSE
      */
     public function create_tournament(
-            $creatorId,
-            $type,
-            $nPlayers,
-            $maxWins = 3,
-            $description = ''
+        $creatorId,
+        $type,
+        $nPlayers,
+        $maxWins = 3,
+        $description = ''
     ) {
         if (!$this->cast('BMInterfaceGame')->validate_max_wins($maxWins)) {
             $this->set_message('Tournament create failed because the maximum number of wins was invalid');
@@ -135,11 +135,11 @@ class BMInterfaceTournament extends BMInterface {
 
         try {
             $tournamentId = $this->insert_new_tournament(
-                    $creatorId,
-                    $type,
-                    $nPlayers,
-                    $maxWins,
-                    $description
+                $creatorId,
+                $type,
+                $nPlayers,
+                $maxWins,
+                $description
             );
 
             if (!$tournamentId) {
@@ -152,8 +152,8 @@ class BMInterfaceTournament extends BMInterface {
             $tournament = $this->load_tournament($tournamentId);
             if (!($tournament instanceof BMTournament)) {
                 throw new Exception(
-                                "Could not load newly-created tournament $tournamentId"
-                        );
+                    "Could not load newly-created tournament $tournamentId"
+                );
             }
 
             if (!$this->save_tournament($tournament)) {
@@ -169,8 +169,8 @@ class BMInterfaceTournament extends BMInterface {
         } catch (Exception $e) {
             $this->set_message('Tournament create failed: ' . $e->getMessage());
             error_log(
-                    'Caught exception in BMInterface::create_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::create_tournament: ' .
+                $e->getMessage()
             );
             return NULL;
         }
@@ -210,11 +210,11 @@ class BMInterfaceTournament extends BMInterface {
      * @return int|FALSE
      */
     protected function insert_new_tournament(
-            $creatorId,
-            $type,
-            $nPlayers,
-            $maxWins,
-            $description
+        $creatorId,
+        $type,
+        $nPlayers,
+        $maxWins,
+        $description
     ) {
         try {
             // create basic game details
@@ -264,8 +264,8 @@ class BMInterfaceTournament extends BMInterface {
                 $this->set_message('Tournament create failed: ' . $e->getMessage());
             }
             error_log(
-                    'Caught exception in BMInterface::insert_new_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::insert_new_tournament: ' .
+                $e->getMessage()
             );
             return NULL;
         }
@@ -298,8 +298,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::load_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::load_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message("Internal error while loading tournament.");
             return NULL;
@@ -414,8 +414,8 @@ class BMInterfaceTournament extends BMInterface {
         foreach ($rows as $row) {
             // load tournament participants
             $tournament->add_player(
-                    $row['player_id'],
-                    array($row['button_id'])
+                $row['player_id'],
+                array($row['button_id'])
             );
             $remainCountArray[] = $row['remain_count'];
         }
@@ -442,8 +442,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::save_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::save_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message("Tournament save failed: $e");
             return NULL;
@@ -460,21 +460,21 @@ class BMInterfaceTournament extends BMInterface {
 
         foreach ($tournament->gameDataToBeCreatedArray as $gameData) {
             $buttonNames = $this->game()->retrieve_button_names(
-                    array($gameData['buttonId1'], $gameData['buttonId2'])
+                array($gameData['buttonId1'], $gameData['buttonId2'])
             );
 
             $interfaceResponse = $this->game()->create_game_from_button_ids(
-                    array($gameData['playerId1'], $gameData['playerId2']),
-                    array($gameData['buttonId1'], $gameData['buttonId2']),
-                    $buttonNames,
-                    $tournament->gameMaxWins,
-                    $tournament->description . ' Round ' . $gameData['roundNumber'],
-                    NULL,
-                    0, // needs to be non-null, but also a non-player ID
-                    TRUE,
-                    array(),
-                    $tournament->tournamentId,
-                    $gameData['roundNumber']
+                array($gameData['playerId1'], $gameData['playerId2']),
+                array($gameData['buttonId1'], $gameData['buttonId2']),
+                $buttonNames,
+                $tournament->gameMaxWins,
+                $tournament->description . ' Round ' . $gameData['roundNumber'],
+                NULL,
+                0, // needs to be non-null, but also a non-player ID
+                TRUE,
+                array(),
+                $tournament->tournamentId,
+                $gameData['roundNumber']
             );
 
             // add game number to $this->gameIdArrayArray
@@ -599,8 +599,8 @@ class BMInterfaceTournament extends BMInterface {
 
             // convert button names to button IDs
             $buttonIdArray = $this->game()->retrieve_button_ids(
-                    array_fill(0, count($buttonNameArray), $userId),
-                    $buttonNameArray
+                array_fill(0, count($buttonNameArray), $userId),
+                $buttonNameArray
             );
 
             if (!$this->validate_join_tournament($userId, $tournamentId, $tournament, $buttonIdArray)) {
@@ -629,8 +629,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::join_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::join_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message("Tournament join failed: $e");
             return NULL;
@@ -687,10 +687,10 @@ class BMInterfaceTournament extends BMInterface {
             if (BMInterfaceGame::RANDOM_BUTTON_ID == $buttonId) {
                 if (empty($allButtonData)) {
                     $allButtonData = $this->get_button_data(
-                            NULL,
-                            NULL,
-                            TRUE,
-                            array('exclude_from_random' => 'false')
+                        NULL,
+                        NULL,
+                        TRUE,
+                        array('exclude_from_random' => 'false')
                     );
                     $nButtons = count($allButtonData);
                 }
@@ -770,8 +770,8 @@ class BMInterfaceTournament extends BMInterface {
 
             // convert button names to button IDs
             $buttonIdArray = $this->game()->retrieve_button_ids(
-                    array_fill(0, count($buttonNameArray), $userId),
-                    $buttonNameArray
+                array_fill(0, count($buttonNameArray), $userId),
+                $buttonNameArray
             );
 
             $this->resolve_random_button_selection_tournament($buttonIdArray);
@@ -798,8 +798,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::change_button_in_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::change_button_in_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message("Button change failed: $e");
             return NULL;
@@ -878,8 +878,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::leave_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::leave_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message("Tournament leave failed: $e");
             return NULL;
@@ -986,8 +986,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::cancel_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::cancel_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message("Tournament cancel failed: $e");
             return NULL;
@@ -1083,8 +1083,8 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         } catch (Exception $e) {
             error_log(
-                    'Caught exception in BMInterface::dismiss_tournament: ' .
-                    $e->getMessage()
+                'Caught exception in BMInterface::dismiss_tournament: ' .
+                $e->getMessage()
             );
             $this->set_message('Internal error while dismissing a tournament');
             return NULL;
