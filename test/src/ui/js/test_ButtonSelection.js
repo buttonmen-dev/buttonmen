@@ -47,9 +47,9 @@ test("test_ButtonSelection_is_loaded", function(assert) {
   assert.ok(ButtonSelection, "The ButtonSelection namespace exists");
 });
 
-test("test_ButtonSelection.getNewgameData", function(assert) {
+test("test_ButtonSelection.getButtonSelectionData", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     assert.ok(Api.player, "player list is parsed from server");
     assert.ok(Api.button, "button list is parsed from server");
     start();
@@ -175,7 +175,7 @@ test("test_ButtonSelection.reactToButtonChange", function(assert) {
 
 test("test_ButtonSelection.updateButtonSelectTd", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     ButtonSelection.loadButtonsIntoDicts();
     $('#newgame_page').append(
       ButtonSelection.getSingleButtonOptionsTable('player')        
@@ -203,7 +203,7 @@ test("test_ButtonSelection.updateButtonSelectTd", function(assert) {
 
 test("test_ButtonSelection.updateButtonList", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     ButtonSelection.loadButtonsIntoDicts();
     $('#newgame_page').append(
       ButtonSelection.getSingleButtonOptionsTable('player')        
@@ -451,7 +451,7 @@ test("test_ButtonSelection.getSingleButtonOptionsTable", function(assert) {
     'opponentButton': null,
   };
   
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
 
     var table = ButtonSelection.getSingleButtonOptionsTable('player');
     assert.ok(table.is('table'), 'Function should return a table');

@@ -50,7 +50,7 @@ Newgame.showLoggedInPage = function() {
   }
 
   // Get all needed information, then display newgame page
-  ButtonSelection.getNewgameData(Newgame.showPage);
+  ButtonSelection.getButtonSelectionData(Newgame.showPage);
 };
 
 // This function is called after Api.player has been loaded with new data
