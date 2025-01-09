@@ -3,7 +3,7 @@ var ButtonSelection = {
   'activity': {},
 };
 
-ButtonSelection.getNewgameData = function(callback) {
+ButtonSelection.getButtonSelectionData = function(callback) {
   Env.callAsyncInParallel(
     [
       { 'func': Api.getButtonData, 'args': [ null ] },
