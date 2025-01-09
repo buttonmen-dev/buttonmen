@@ -60,22 +60,22 @@ test("test_Newgame_is_loaded", function(assert) {
 
 test("test_Newgame.showLoggedInPage", function(assert) {
   expect(4);
-  var cached_getNewgameData = ButtonSelection.getNewgameData;
+  var cached_getButtonSelectionData = ButtonSelection.getButtonSelectionData;
   var cached_showStatePage = Newgame.showPage;
-  var getNewgameDataCalled = false;
+  var getButtonSelectionDataCalled = false;
   Newgame.showPage = function() {
-    assert.ok(getNewgameDataCalled, "ButtonSelection.getNewgameData is called before Newgame.showPage");
+    assert.ok(getButtonSelectionDataCalled, "ButtonSelection.getButtonSelectionData is called before Newgame.showPage");
   };
-  ButtonSelection.getNewgameData = function(callback) {
-    getNewgameDataCalled = true;
+  ButtonSelection.getButtonSelectionData = function(callback) {
+    getButtonSelectionDataCalled = true;
     assert.equal(callback, Newgame.showPage,
-      "ButtonSelection.getNewgameData is called with Newgame.showPage as an argument");
+      "ButtonSelection.getButtonSelectionData is called with Newgame.showPage as an argument");
     callback();
   };
 
   Newgame.showLoggedInPage();
 
-  ButtonSelection.getNewgameData = cached_getNewgameData;
+  ButtonSelection.getButtonSelectionData = cached_getButtonSelectionData;
   Newgame.showPage = cached_showStatePage;
 });
 
@@ -86,28 +86,28 @@ test("test_Newgame.showLoggedInPage_logged_out", function(assert) {
   Login.player = null;
   Login.logged_in = false;
 
-  var cached_getNewgameData = ButtonSelection.getNewgameData;
+  var cached_getButtonSelectionData = ButtonSelection.getButtonSelectionData;
   var cached_showStatePage = Newgame.showPage;
-  var getNewgameDataCalled = false;
+  var getButtonSelectionDataCalled = false;
   Newgame.showPage = function() {
-    assert.ok(getNewgameDataCalled, "ButtonSelection.getNewgameData is called before Newgame.showPage");
+    assert.ok(getButtonSelectionDataCalled, "ButtonSelection.getButtonSelectionData is called before Newgame.showPage");
   };
-  ButtonSelection.getNewgameData = function(callback) {
-    getNewgameDataCalled = true;
+  ButtonSelection.getButtonSelectionData = function(callback) {
+    getButtonSelectionDataCalled = true;
     assert.equal(callback, Newgame.showPage,
-      "ButtonSelection.getNewgameData is called with Newgame.showPage as an argument");
+      "ButtonSelection.getButtonSelectionData is called with Newgame.showPage as an argument");
     callback();
   };
 
   Newgame.showLoggedInPage();
 
-  ButtonSelection.getNewgameData = cached_getNewgameData;
+  ButtonSelection.getButtonSelectionData = cached_getButtonSelectionData;
   Newgame.showPage = cached_showStatePage;
 });
 
 test("test_Newgame.showPage", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.showPage();
     var htmlout = Newgame.page.html();
     assert.ok(htmlout.length > 0,
@@ -119,7 +119,7 @@ test("test_Newgame.showPage", function(assert) {
 
 test("test_Newgame.showPage_button_load_failed", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Api.button.load_status = 'failed';
     Newgame.showPage();
     var htmlout = Newgame.page.html();
@@ -131,7 +131,7 @@ test("test_Newgame.showPage_button_load_failed", function(assert) {
 
 test("test_Newgame.showPage_player_load_failed", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Api.player.load_status = 'failed';
     Newgame.showPage();
     var htmlout = Newgame.page.html();
@@ -143,7 +143,7 @@ test("test_Newgame.showPage_player_load_failed", function(assert) {
 
 test("test_Newgame.actionLoggedOut", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionLoggedOut();
     assert.equal(Newgame.form, null,
           "Form is null after the 'logged out' action is processed");
@@ -153,7 +153,7 @@ test("test_Newgame.actionLoggedOut", function(assert) {
 
 test("test_Newgame.actionInternalErrorPage", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionInternalErrorPage();
     assert.equal(Newgame.form, null,
           "Form is null after the 'internal error' action is processed");
@@ -163,7 +163,7 @@ test("test_Newgame.actionInternalErrorPage", function(assert) {
 
 test("test_Newgame.actionCreateGame", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     assert.equal(Newgame.form, Newgame.formCreateGame,
           "Form is set after the 'create game' action is processed");
@@ -184,7 +184,7 @@ test("test_Newgame.actionCreateGame_prevvals", function(assert) {
     'playerButton': 'Avis',
     'opponentButton': 'Crab',
   };
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     assert.equal(Newgame.form, Newgame.formCreateGame,
           "Form is set after the 'create game' action is processed");
@@ -207,7 +207,7 @@ test("test_Newgame.actionCreateGame_prevvals", function(assert) {
 test("test_Newgame.createPlayerLists", function(assert) {
   stop();
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Login.player = 'tester3';
     Api.player.list = {
       'tester1' : {'status' : 'ACTIVE'},
@@ -251,7 +251,7 @@ test("test_Newgame.createMiscOptionsTable", function(assert) {
     },
   };
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var table = Newgame.createMiscOptionsTable();
     assert.ok(table.is('table'), 'Function should return a table');
 
@@ -261,7 +261,7 @@ test("test_Newgame.createMiscOptionsTable", function(assert) {
 
 test("test_Newgame.createPlayer1Row", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = Newgame.createPlayer1Row();
     assert.ok(row.is('tr'), 'Function should return a row');
     assert.equal(row.children().length, 2, 'Row should have two children');
@@ -284,7 +284,7 @@ test("test_Newgame.createPlayer1Row", function(assert) {
 
 test("test_Newgame.createPlayer1Toggle", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var toggle = Newgame.createPlayer1Toggle();
     assert.ok(toggle.is('input'), 'Function should return an input');
     assert.equal(toggle.prop('type'), 'button', 'Function should return a button');
@@ -304,7 +304,7 @@ test("test_Newgame.createPlayer2Row", function(assert) {
     },
   };
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = Newgame.createPlayer2Row();
     assert.ok(row.is('tr'), 'Function should return a row');
     assert.equal(row.children().length, 2, 'Row should have two children');
@@ -339,7 +339,7 @@ test("test_Newgame.createPlayer2Row", function(assert) {
 
 test("test_Newgame.createRoundSelectRow", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = Newgame.createRoundSelectRow();
     assert.ok(row.is('tr'), 'Function should return a row');
     assert.equal(row.children().length, 2, 'Row should have two children');
@@ -370,7 +370,7 @@ test("test_Newgame.createRoundSelectRow", function(assert) {
 test("test_Newgame.createPrevGameRow", function(assert) {
   stop();
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = Newgame.createPrevGameRow();
 
     assert.equal(row, null, 'No row should be created when there is no previous game ID');
@@ -392,7 +392,7 @@ test("test_Newgame.createPrevGameRow_prevgame", function(assert) {
     'previousGameId': 12345,
   };
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = $(Newgame.createPrevGameRow());
     assert.ok(row.is('tr'), 'Function should return a row');
     assert.equal(row.children().length, 2, 'Row should have two children');
@@ -413,7 +413,7 @@ test("test_Newgame.createPrevGameRow_prevgame", function(assert) {
 test("test_Newgame.createDescRow", function(assert) {
   stop();
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = $(Newgame.createDescRow());
     assert.ok(row.is('tr'), 'A row should be created even when there is no description');
     assert.equal(row.children().length, 2, 'Row should have two children');
@@ -449,7 +449,7 @@ test("test_Newgame.createDescRow_with_description", function(assert) {
     'description': 'test descriptor',
   };
 
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     var row = $(Newgame.createDescRow());
 
     var row = $(Newgame.createDescRow());
@@ -476,7 +476,7 @@ test("test_Newgame.createDescRow_with_description", function(assert) {
 
 test("test_Newgame.createButtonOptionsTable", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
 
     var table = Newgame.createButtonOptionsTable();
     assert.ok(table.is('table'), 'Function should return a table');
@@ -505,7 +505,7 @@ test("test_Newgame.createButtonOptionsTable", function(assert) {
   });
 });
 
-// The logic here is a little hairy: since ButtonSelection.getNewgameData()
+// The logic here is a little hairy: since ButtonSelection.getButtonSelectionData()
 // takes a callback, we can use the normal asynchronous logic there.
 // However, the POST done by our forms doesn't take a callback (it
 // just redraws the page), so turn off asynchronous handling in
@@ -513,7 +513,7 @@ test("test_Newgame.createButtonOptionsTable", function(assert) {
 // from the POST.
 test("test_Newgame.formCreateGame", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     $('#opponent_name').val('tester2');
     $('#player_button').val('Avis');
@@ -530,7 +530,7 @@ test("test_Newgame.formCreateGame", function(assert) {
 
 test("test_Newgame.formCreateThirdPartyGame", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     $.ajaxSetup({ async: false });
     assert.equal(
@@ -555,7 +555,7 @@ test("test_Newgame.formCreateThirdPartyGame", function(assert) {
 
 test("test_Newgame.formCreateGame_no_vals", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     $.ajaxSetup({ async: false });
     $('#newgame_action_button').trigger('click');
@@ -569,7 +569,7 @@ test("test_Newgame.formCreateGame_no_vals", function(assert) {
 
 test("test_Newgame.formCreateGame_no_buttons", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     $('#opponent_name').val('tester2');
     $.ajaxSetup({ async: false });
@@ -584,7 +584,7 @@ test("test_Newgame.formCreateGame_no_buttons", function(assert) {
 
 test("test_Newgame.formCreateGame_no_opponent_button", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     $('#opponent_name').val('tester2');
     $('#player_button').val('Crab');
@@ -600,7 +600,7 @@ test("test_Newgame.formCreateGame_no_opponent_button", function(assert) {
 
 test("test_Newgame.formCreateGame_invalid_player", function(assert) {
   stop();
-  ButtonSelection.getNewgameData(function() {
+  ButtonSelection.getButtonSelectionData(function() {
     Newgame.actionCreateGame();
     $('#opponent_name').append(
       $('<option>', {
