@@ -152,6 +152,17 @@ ButtonSelection.getButtonSelectTd = function(player, isComboBox) {
   }
 };
 
+ButtonSelection.reactToButtonChange = function(player, button) {
+  var customRecipeControls =
+    $('#' + player + '_custom_recipe').parent().children();
+
+  if (button == 'CustomBM') {
+    customRecipeControls.show();
+  } else {
+    customRecipeControls.hide();
+  }
+};
+
 ButtonSelection.updateButtonSelectTd = function(player) {
   var selectid;
   var optionlist;
