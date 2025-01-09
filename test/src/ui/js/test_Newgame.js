@@ -640,7 +640,3 @@ test("test_Newgame.setCreateGameSuccessMessage", function(assert) {
   );
   assert.equal(Env.message.type, 'success', "set Env.message to a successful type");
 });
-
-test("test_Newgame.reactToButtonChange", function(assert) {
-  // currently empty
-});
