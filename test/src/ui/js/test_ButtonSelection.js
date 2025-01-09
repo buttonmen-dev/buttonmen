@@ -169,6 +169,10 @@ test("test_ButtonSelection.getButtonSelectTd", function(assert) {
   assert.equal(opponentTdLimitedSelect.children[2].value, 'Adam Spam', 'The third row in the limited opponent TD select should have a value of Adam Spam');
 });
 
+test("test_ButtonSelection.reactToButtonChange", function(assert) {
+  // currently empty
+});
+
 test("test_ButtonSelection.updateButtonSelectTd", function(assert) {
   stop();
   ButtonSelection.getNewgameData(function() {

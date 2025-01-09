@@ -547,17 +547,3 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
     'obj': gamePar,
   };
 };
-
-////////////////////////////////////////////////////////////////////////
-// These functions generate and return pieces of HTML
-
-Newgame.reactToButtonChange = function(player, button) {
-  var customRecipeControls =
-    $('#' + player + '_custom_recipe').parent().children();
-
-  if (button == 'CustomBM') {
-    customRecipeControls.show();
-  } else {
-    customRecipeControls.hide();
-  }
-};
