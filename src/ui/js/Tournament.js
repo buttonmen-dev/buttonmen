@@ -418,6 +418,23 @@ Tournament.formUpdateTournament = function (
   type, successText, e, buttonNameArray
 ) {
   e.preventDefault();
+  
+  if (!($.isArray(buttonNameArray)) || (buttonNameArray.length < 1)) {
+    Env.message = {
+      'type': 'error',
+      'text': 'buttonNameArray must be a non-empty array.'
+    };
+    return Tournament.showLoggedInPage();
+  }
+  
+  if ('' === buttonNameArray[0]) {
+    Env.message = {
+      'type': 'error',
+      'text': 'No button chosen.'
+    };
+    return Tournament.showLoggedInPage();
+  }
+  
   var args = {
     'type': 'updateTournament',
     'tournamentId': Api.tournament.tournamentId,
