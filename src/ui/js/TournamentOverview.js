@@ -112,7 +112,7 @@ TournamentOverview.pageAddTournamentTable = function(
       }
     }
     showNPlayersJoined = true;
-    tableClass = 'newtournaments';
+    tableClass = 'opentournaments';
     break;
   case 'active':
     for (tournamentIdx = 0;
