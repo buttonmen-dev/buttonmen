@@ -280,13 +280,14 @@ Tournament.friendlyTournamentType = function(tournamentType) {
 };
 
 Tournament.pageAddWinnerInfo = function () {
-  var winnerDiv = $('<div>').addClass('tournament_winner');
+  var winnerDiv = $('<div>');
   Tournament.page.append(winnerDiv);
 
   var winnerIdx = Api.tournament.remainCountArray.findIndex(
     function(x) {return (x > 0);}
   );
   var winnerPar = $('<p>', {
+    'class': 'winner_name',
     'text': 'Winner: ' + Api.tournament.playerDataArray[winnerIdx].playerName
   });
   winnerDiv.append(winnerPar);

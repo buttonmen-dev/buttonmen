@@ -3448,7 +3448,7 @@ Game.gameWinner = function() {
   var winnerDiv = $('<div>');
   winnerDiv.append($('<span>', {
     'class': 'winner_name',
-    'html': $('<b>', { 'text': winnerText, }),
+    'text': winnerText,
   }));
   return winnerDiv;
 };
