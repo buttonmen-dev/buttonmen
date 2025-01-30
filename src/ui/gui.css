@@ -97,10 +97,6 @@ div.follow_tournament {
     padding-bottom: 20px;
 }
 
-div.tournament_winner {
-    font-size: 2em;
-}
-
 h2.monitorMessage {
     color: #800000;
     margin-bottom: 0;
@@ -339,6 +335,7 @@ select.center {
 
 .winner_name {
     font-size: 150%;
+    font-weight: bold;
 }
 
 .die_container {
