@@ -263,6 +263,11 @@ Tournament.pageAddTournamentInfo = function () {
     'text': 'Number of players: ' + Api.tournament.nPlayers,
   });
   infoDiv.append(nPlayersPar);
+  
+  var nRoundsPar = $('<p>', {
+    'text': 'Number of rounds: ' + Api.tournament.maxRound,
+  });
+  infoDiv.append(nRoundsPar);
 };
 
 Tournament.friendlyTournamentType = function(tournamentType) {
