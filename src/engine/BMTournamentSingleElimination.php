@@ -111,6 +111,20 @@ class BMTournamentSingleElimination extends BMTournament {
     }
 
     /**
+     * Calculate the total number of rounds in the tournament, based on the
+     * tournament type and the number of players.
+     * 
+     * @return string
+     */
+    public function max_round() {
+        if (!isset($this->nPlayers)) {
+            return 'Unknown';
+        }
+        
+        return strval(ceil(log($this->nPlayers, 2)));
+    }
+    
+    /**
      * Validate buttons chosen by a player
      *
      * @param array $buttonIdArray
