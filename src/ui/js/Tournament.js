@@ -275,7 +275,7 @@ Tournament.friendlyTournamentType = function(tournamentType) {
 };
 
 Tournament.pageAddWinnerInfo = function () {
-  var winnerDiv = $('<div>');
+  var winnerDiv = $('<div>').addClass('tournament_winner');
   Tournament.page.append(winnerDiv);
 
   var winnerIdx = Api.tournament.remainCountArray.findIndex(
