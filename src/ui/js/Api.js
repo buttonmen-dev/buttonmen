@@ -741,6 +741,7 @@ var Api = (function () {
     my.tournament.type = data.type;
     my.tournament.nPlayers = data.nPlayers;
     my.tournament.maxWins = data.maxWins;
+    my.tournament.maxRound = data.maxRound;
     my.tournament.description = data.description;
     my.tournament.playerDataArray = data.playerDataArray;
     my.tournament.gameIdArrayArray = data.gameIdArrayArray;
