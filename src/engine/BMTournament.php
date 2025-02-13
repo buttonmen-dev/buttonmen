@@ -116,7 +116,7 @@ abstract class BMTournament {
      * @var int
      */
     protected $gameMaxWins;
-    
+
     /**
      * Array of player IDs taking part in the tournament
      *
@@ -540,14 +540,14 @@ abstract class BMTournament {
     public function allowed_n_players() {
         return array(4, 8, 16, 32);
     }
-    
+
     /**
      * Calculate the total number of rounds in the tournament, based on the
      * tournament type and the number of players.
-     * 
+     *
      * This returns a string because of the possibility that there might be
      * an incalculable or infinite number of rounds.
-     * 
+     *
      * @return string
      */
     abstract public function max_round();
@@ -671,7 +671,7 @@ abstract class BMTournament {
             'roundNumber is altered exclusively via BMTournament->advance_to_next_round().'
         );
     }
-    
+
     /**
      * Prevent setting the player ID array
      */
