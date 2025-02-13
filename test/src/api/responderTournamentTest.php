@@ -64,6 +64,7 @@ class responderTournamentTest extends responderTestFramework {
             'timestamp' => NULL,
             'isCreator' => TRUE,
             'isWatched' => TRUE,
+            'maxRound' => 2,
         );
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
@@ -133,7 +134,7 @@ class responderTournamentTest extends responderTestFramework {
 
         // last player joins the tournament
         $_SESSION = $this->mock_test_user_login('responder006');
-        
+
         // by chance, players end up in the same order after shuffling
         $playerShuffleRandVals = array(0, 0, 0, 0);
         $gameOneRandVals = array(1, 1, 1, 1);
