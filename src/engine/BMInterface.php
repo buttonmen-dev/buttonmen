@@ -297,6 +297,7 @@ class BMInterface {
             $data['creatorDataArray']['creatorName'] =
                 $this->get_player_name_from_id($data['creatorDataArray']['creatorId']);
 
+            $this->set_message("Loaded data for game $gameId.");
             return $data;
         }
         return NULL;
@@ -366,8 +367,6 @@ class BMInterface {
             $this->load_drawn_cards($game);
 
             $this->recreate_optRequestArrayArray($game);
-
-            $this->set_message($this->message."Loaded data for game $gameId.");
 
             return $game;
         } catch (Exception $e) {
