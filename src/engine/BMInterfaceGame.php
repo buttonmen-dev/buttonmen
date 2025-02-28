@@ -75,6 +75,11 @@ class BMInterfaceGame extends BMInterface {
             $tournamentRoundNumber
         );
 
+        if (is_array($result)) {
+            $gameId = $result['gameId'];
+            $this->set_message("Game $gameId created successfully.");
+        }
+
         return $result;
     }
 
@@ -149,7 +154,6 @@ class BMInterfaceGame extends BMInterface {
             }
             $this->save_game($game);
 
-            $this->set_message("Game $gameId created successfully.");
             return array('gameId' => $gameId);
         } catch (Exception $e) {
             $this->set_message('Game create failed: ' . $e->getMessage());
