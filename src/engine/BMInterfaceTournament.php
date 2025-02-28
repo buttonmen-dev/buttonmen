@@ -463,12 +463,17 @@ class BMInterfaceTournament extends BMInterface {
                 array($gameData['buttonId1'], $gameData['buttonId2'])
             );
 
+            $description = 'Round ' . $gameData['roundNumber'];
+            if ('' != $tournament->description) {
+                $description = $tournament->description . ' ' . $description;
+            }
+
             $interfaceResponse = $this->game()->create_game_from_button_ids(
                 array($gameData['playerId1'], $gameData['playerId2']),
                 array($gameData['buttonId1'], $gameData['buttonId2']),
                 $buttonNames,
                 $tournament->gameMaxWins,
-                $tournament->description . ' Round ' . $gameData['roundNumber'],
+                $description,
                 NULL,
                 0, // needs to be non-null, but also a non-player ID
                 TRUE,
