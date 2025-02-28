@@ -120,6 +120,41 @@ class responderTournamentTest extends responderTestFramework {
         $_SESSION = $this->mock_test_user_login('responder003');
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
+        // nonparticipant unfollows the tournament, but they weren't previously following it
+// BUG 01: unfollow is erroneously allowed in the case in which the player isn't actually following the tournament
+//        $_SESSION = $this->mock_test_user_login('responder002');
+//        $this->verify_api_unfollowTournament_failure(
+//            array(), "helpful error message", $tournamentId
+//        );
+//        $_SESSION = $this->mock_test_user_login('responder003');
+//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // participant follows the tournament, which isn't allowed because they're already in the tournament
+// BUG 02: follow is erroneously allowed in the case in which the player is already in the tournament
+//        $_SESSION = $this->mock_test_user_login('responder005');
+//        $this->verify_api_followTournament_failure(
+//            array(), "helpful error message", $tournamentId
+//        );
+//        $_SESSION = $this->mock_test_user_login('responder003');
+//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // nonparticipant follows the tournament
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $this->verify_api_followTournament(
+            array(), $tournamentId
+        );
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // participant follows the tournament, which isn't allowed because they're already following it
+// BUG 03: follow is erroneously allowed in the case in which the player is already following the tournament
+//        $_SESSION = $this->mock_test_user_login('responder002');
+//        $this->verify_api_followTournament_failure(
+//            array(), "helpful error message", $tournamentId
+//        );
+//        $_SESSION = $this->mock_test_user_login('responder003');
+//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
         // tournament creator joins the tournament
         $this->verify_api_updateTournament(
             array(), $tournamentId, 'join', array('ConMan')
@@ -137,8 +172,8 @@ class responderTournamentTest extends responderTestFramework {
 
         // by chance, players end up in the same order after shuffling
         $playerShuffleRandVals = array(0, 0, 0, 0);
-        $gameOneRandVals = array(1, 1, 1, 1);
-        $gameTwoRandVals = array(1, 1, 1, 1, 1);
+        $gameOneRandVals = array(1, 1, 1, 1, 54);
+        $gameTwoRandVals = array(1, 1, 1, 1);
         $allRandVals = array_merge($playerShuffleRandVals, $gameOneRandVals, $gameTwoRandVals);
         $this->verify_api_updateTournament(
             $allRandVals, $tournamentId, 'join', array('Haruspex')
@@ -161,9 +196,224 @@ class responderTournamentTest extends responderTestFramework {
         $expData['gameIdArrayArray'][0] = $retval['gameIdArrayArray'][0];
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
+        $gameOneId = $expData['gameIdArrayArray'][0][0];
+        $gameTwoId = $expData['gameIdArrayArray'][0][1];
+
         $_SESSION = $this->mock_test_user_login('responder002');
         $this->verify_api_updateTournament_failure(
             array(), "The tournament has already started.", $tournamentId, 'join', array('Haruspex')
         );
+
+        // Initial game data for game 1
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $gameOneExpData = $this->generate_init_expected_data_array($gameOneId, 'responder004', 'responder005', 1, 'SPECIFY_DICE');
+        $gameOneExpData['tournamentId'] = $tournamentId;
+        $gameOneExpData['tournamentRoundNumber'] = 1;
+        $gameOneExpData['description'] = 'Round 1';
+        $gameOneExpData['currentPlayerIdx'] = FALSE;
+        $gameOneExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
+        $gameOneExpData['gameActionLog'][0]['message'] = 'Game created automatically';
+        $gameOneExpData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $gameOneExpData['playerDataArray'][0]['button'] = array('name' => 'Avis', 'recipe' => '(4) (4) (10) (12) (X)', 'originalRecipe' => '(4) (4) (10) (12) (X)', 'artFilename' => 'avis.png');
+        $gameOneExpData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $gameOneExpData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $gameOneExpData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $gameOneExpData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $gameOneExpData['playerDataArray'][0]['lastActionTime'] = 0;
+        $gameOneExpData['playerDataArray'][1]['lastActionTime'] = 0;
+        $gameOneExpData['playerDataArray'][0]['playerColor'] = '#cccccc';
+        $gameOneExpData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $this->game_number = 100001;
+        $retval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10);
+
+        // Initial game data for game 2
+        $gameTwoExpData = $this->generate_init_expected_data_array($gameTwoId, 'responder003', 'responder006', 1, 'START_TURN');
+        $gameTwoExpData['gameSkillsInfo'] = $this->get_skill_info(array('Poison'));
+        $gameTwoExpData['tournamentId'] = $tournamentId;
+        $gameTwoExpData['tournamentRoundNumber'] = 1;
+        $gameTwoExpData['description'] = 'Round 1';
+        $gameTwoExpData['activePlayerIdx'] = 0;
+        $gameTwoExpData['playerWithInitiativeIdx'] = 0;
+        $gameTwoExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
+        $gameTwoExpData['validAttackTypeArray'] = array('Power', 'Skill');
+        $gameTwoExpData['gameActionLog'][0]['message'] = 'Game created automatically';
+        array_unshift($gameTwoExpData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [(4):1, (6):1, p(20):1], responder006 rolled [(99):1].'));
+        $gameTwoExpData['gameActionLogCount'] = 2;
+        $gameTwoExpData['playerDataArray'][0]['button'] = array('name' => 'ConMan', 'recipe' => '(4) (6) p(20)', 'originalRecipe' => '(4) (6) p(20)', 'artFilename' => 'conman.png');
+        $gameTwoExpData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $gameTwoExpData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 1, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => 1, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => 1, 'sides' => 20, 'skills' => array('Poison'), 'properties' => array(), 'recipe' => 'p(20)', 'description' => 'Poison 20-sided die'),
+        );
+        $gameTwoExpData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 1, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $gameTwoExpData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $gameTwoExpData['playerDataArray'][0]['roundScore'] = -15;
+        $gameTwoExpData['playerDataArray'][1]['roundScore'] = 49.5;
+        $gameTwoExpData['playerDataArray'][0]['sideScore'] = -43.0;
+        $gameTwoExpData['playerDataArray'][1]['sideScore'] = 43.0;
+        $gameTwoExpData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $gameTwoExpData['playerDataArray'][1]['canStillWin'] = TRUE;
+        $gameTwoExpData['playerDataArray'][0]['lastActionTime'] = 0;
+        $gameTwoExpData['playerDataArray'][1]['lastActionTime'] = 0;
+        $this->game_number = 100002;
+        $gameTwoRetval = $this->verify_api_loadGameData($gameTwoExpData, $gameTwoId, 10);
+
+        // Take a turn in game 1
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitDieValues(
+            array(1),
+            $gameOneId, 1, array('X' => 4), NULL);
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+
+        // game activity does not currently change tournament metadata
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // Take a turn in game 2, completing it
+        $this->verify_api_submitTurn(
+            array(4),
+            'responder003 performed Skill attack using [(4):1] against [(99):1]; Defender (99) was captured; Attacker (4) rerolled 1 => 4. End of round: responder003 won round 1 (84 vs. 0). ',
+            $gameTwoRetval, array(array(0, 0), array(1, 0)),
+            $gameTwoId, 1, 'Skill', 0, 1, '');
+
+        // game completion does not currently change tournament metadata
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // Take turns in game 1 until it is completed
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(),
+            'responder004 passed. ',
+            $gameOneRetval, array(),
+            $gameOneId, 1, 'Pass', 0, 1, '');
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+
+        $_SESSION = $this->mock_test_user_login('responder005');
+        $this->verify_api_submitTurn(
+            array(55),
+            'responder005 performed Power attack using [(99):54] against [(4):1]; Defender (4) was captured; Attacker (99) rerolled 54 => 55. responder004 passed. ',
+            $gameOneRetval, array(array(0, 0), array(1, 0)),
+            $gameOneId, 1, 'Power', 1, 0, '');
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+
+        $this->verify_api_submitTurn(
+            array(56),
+            'responder005 performed Power attack using [(99):55] against [(4):1]; Defender (4) was captured; Attacker (99) rerolled 55 => 56. responder004 passed. ',
+            $gameOneRetval, array(array(0, 0), array(1, 0)),
+            $gameOneId, 1, 'Power', 1, 0, '');
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+
+        $this->verify_api_submitTurn(
+            array(57),
+            'responder005 performed Power attack using [(99):56] against [(10):1]; Defender (10) was captured; Attacker (99) rerolled 56 => 57. responder004 passed. ',
+            $gameOneRetval, array(array(0, 0), array(1, 0)),
+            $gameOneId, 1, 'Power', 1, 0, '');
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+
+        $this->verify_api_submitTurn(
+            array(58),
+            'responder005 performed Power attack using [(99):57] against [(12):1]; Defender (12) was captured; Attacker (99) rerolled 57 => 58. responder004 passed. ',
+            $gameOneRetval, array(array(0, 0), array(1, 0)),
+            $gameOneId, 1, 'Power', 1, 0, '');
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+
+        $this->verify_api_submitTurn(
+            array(59, 2, 2, 2, 2),
+        // BUG: this is still not correct, it should show end-of-game feedback
+            'Game created automatically. responder003 won initiative for round 1. Initial die values: responder005 rolled [(99):2], responder003 rolled [(4):2, (6):2, p(20):2]. ',
+            $gameOneRetval, array(array(0, 0), array(1, 0)),
+            $gameOneId, 1, 'Power', 1, 0, '');
+        $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        // Second round of tournament has now started
+        // Again, grab the response without checking it, so we can pull the gameId
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId, $check=FALSE);
+        $this->assertEquals(count($retval['gameIdArrayArray'][1]), 1);
+        $expData['gameIdArrayArray'][1] = $retval['gameIdArrayArray'][1];
+        $gameThreeId = $expData['gameIdArrayArray'][1][0];
+        $expData['tournamentRoundNumber'] = 2;
+        $expData['remainCountArray'][0] = 0;
+        $expData['remainCountArray'][3] = 0;
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // Initial game data for game 3
+        $gameThreeExpData = $this->generate_init_expected_data_array($gameThreeId, 'responder005', 'responder003', 1, 'START_TURN');
+        $gameThreeExpData['gameSkillsInfo'] = $this->get_skill_info(array('Poison'));
+        $gameThreeExpData['tournamentId'] = $tournamentId;
+        $gameThreeExpData['tournamentRoundNumber'] = 2;
+        $gameThreeExpData['description'] = 'Round 2';
+        $gameThreeExpData['activePlayerIdx'] = 1;
+        $gameThreeExpData['playerWithInitiativeIdx'] = 1;
+        $gameThreeExpData['currentPlayerIdx'] = 1;
+        $gameThreeExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
+        $gameThreeExpData['validAttackTypeArray'] = array('Power', 'Skill');
+        $gameThreeExpData['gameActionLog'][0]['message'] = 'Game created automatically';
+        array_unshift($gameThreeExpData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder005 rolled [(99):2], responder003 rolled [(4):2, (6):2, p(20):2].'));
+        $gameThreeExpData['gameActionLogCount'] = 2;
+        $gameThreeExpData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'originalRecipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $gameThreeExpData['playerDataArray'][1]['button'] = array('name' => 'ConMan', 'recipe' => '(4) (6) p(20)', 'originalRecipe' => '(4) (6) p(20)', 'artFilename' => 'conman.png');
+        $gameThreeExpData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 2, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $gameThreeExpData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 2, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => 2, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => 2, 'sides' => 20, 'skills' => array('Poison'), 'properties' => array(), 'recipe' => 'p(20)', 'description' => 'Poison 20-sided die'),
+        );
+        $gameThreeExpData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $gameThreeExpData['playerDataArray'][0]['roundScore'] = 49.5;
+        $gameThreeExpData['playerDataArray'][1]['roundScore'] = -15;
+        $gameThreeExpData['playerDataArray'][0]['sideScore'] = 43.0;
+        $gameThreeExpData['playerDataArray'][1]['sideScore'] = -43.0;
+        $gameThreeExpData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $gameThreeExpData['playerDataArray'][1]['canStillWin'] = TRUE;
+        $gameThreeExpData['playerDataArray'][0]['lastActionTime'] = 0;
+        $gameThreeExpData['playerDataArray'][1]['lastActionTime'] = 0;
+        $gameThreeExpData['playerDataArray'][0]['playerColor'] = '#ddffdd';
+        $gameThreeExpData['playerDataArray'][1]['playerColor'] = '#dd99dd';
+        $this->game_number = 100003;
+        $gameThreeRetval = $this->verify_api_loadGameData($gameThreeExpData, $gameThreeId, 10);
+
+        // Take a turn in game 3, completing it
+        $this->verify_api_submitTurn(
+            array(3),
+            // BUG: again, spam in messages
+            'responder003 performed Power attack using [(4):2] against [(99):2]; Defender (99) was captured; Attacker (4) rerolled 2 => 3. End of round: responder003 won round 1 (84 vs. 0). ',
+            $gameThreeRetval, array(array(0, 0), array(1, 0)),
+            $gameThreeId, 1, 'Power', 1, 0, '');
+
+        // Tournament data at the end of the tournament
+        $expData['tournamentState'] = 'END_TOURNAMENT';
+        $expData['remainCountArray'][1] = 0;
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // bystander dismisses the tournament, which isn't allowed because only participants can dismiss a tournament
+// BUG 04: dismiss is erroneously allowed in the case in which the player was not in the tournament
+//        $_SESSION = $this->mock_test_user_login('responder002');
+//        $this->verify_api_dismissTournament_failure(
+//            array(), "helpful error message", $tournamentId
+//        );
+//        $_SESSION = $this->mock_test_user_login('responder003');
+//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+
+        // Participant dismisses the tournament
+        $this->verify_api_dismissTournament(
+            array(), $tournamentId
+        );
+
+        $expData['isWatched'] = FALSE;
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
     }
 }
