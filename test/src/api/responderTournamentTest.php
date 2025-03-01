@@ -79,7 +79,7 @@ class responderTournamentTest extends responderTestFramework {
 
         // attempt an invalid tournament dismiss
         $this->verify_api_dismissTournament_failure(
-            array(), "Tournament $tournamentId isn't complete",
+            array(), "Only participants can dismiss tournaments",
             $tournamentId
         );
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
@@ -121,22 +121,20 @@ class responderTournamentTest extends responderTestFramework {
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // nonparticipant unfollows the tournament, but they weren't previously following it
-// BUG 01: unfollow is erroneously allowed in the case in which the player isn't actually following the tournament
-//        $_SESSION = $this->mock_test_user_login('responder002');
-//        $this->verify_api_unfollowTournament_failure(
-//            array(), "helpful error message", $tournamentId
-//        );
-//        $_SESSION = $this->mock_test_user_login('responder003');
-//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $this->verify_api_unfollowTournament_failure(
+            array(), "Tournament was not being watched", $tournamentId
+        );
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // participant follows the tournament, which isn't allowed because they're already in the tournament
-// BUG 02: follow is erroneously allowed in the case in which the player is already in the tournament
-//        $_SESSION = $this->mock_test_user_login('responder005');
-//        $this->verify_api_followTournament_failure(
-//            array(), "helpful error message", $tournamentId
-//        );
-//        $_SESSION = $this->mock_test_user_login('responder003');
-//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+        $_SESSION = $this->mock_test_user_login('responder005');
+        $this->verify_api_followTournament_failure(
+            array(), "Tournament was already being watched", $tournamentId
+        );
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // nonparticipant follows the tournament
         $_SESSION = $this->mock_test_user_login('responder002');
@@ -147,13 +145,12 @@ class responderTournamentTest extends responderTestFramework {
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // participant follows the tournament, which isn't allowed because they're already following it
-// BUG 03: follow is erroneously allowed in the case in which the player is already following the tournament
-//        $_SESSION = $this->mock_test_user_login('responder002');
-//        $this->verify_api_followTournament_failure(
-//            array(), "helpful error message", $tournamentId
-//        );
-//        $_SESSION = $this->mock_test_user_login('responder003');
-//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $this->verify_api_followTournament_failure(
+            array(), "Tournament was already being watched", $tournamentId
+        );
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // tournament creator joins the tournament
         $this->verify_api_updateTournament(
@@ -398,13 +395,12 @@ class responderTournamentTest extends responderTestFramework {
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // bystander dismisses the tournament, which isn't allowed because only participants can dismiss a tournament
-// BUG 04: dismiss is erroneously allowed in the case in which the player was not in the tournament
-//        $_SESSION = $this->mock_test_user_login('responder002');
-//        $this->verify_api_dismissTournament_failure(
-//            array(), "helpful error message", $tournamentId
-//        );
-//        $_SESSION = $this->mock_test_user_login('responder003');
-//        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $this->verify_api_dismissTournament_failure(
+            array(), "Only participants can dismiss tournaments", $tournamentId
+        );
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // Participant dismisses the tournament
         $this->verify_api_dismissTournament(
