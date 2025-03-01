@@ -541,8 +541,12 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $tournamentId
      */
     protected function advance_tournament($tournamentId) {
+        // james: we really don't want to show feedback on what's going on
+        //        behind the scenes when a tournament is advancing
+        $message = $this->message;
         $tournament = $this->load_tournament($tournamentId);
         $this->save_tournament($tournament);
+        $this->set_message($message);
     }
 
     /**
