@@ -44,6 +44,11 @@ class BMInterfaceTournament extends BMInterface {
 
     public function watch_tournament($playerId, $tournamentId) {
         try {
+            if ($this->is_tournament_watched($playerId, $tournamentId)) {
+                $this->set_message('Tournament was already being watched');
+                return NULL;
+            }
+
             $query = 'INSERT INTO tournament_player_watch_map (tournament_id, player_id) ' .
                     'SELECT :tournament_id1, :player_id1 ' .
                     'WHERE NOT EXISTS ' .
@@ -77,6 +82,11 @@ class BMInterfaceTournament extends BMInterface {
 
     public function unwatch_tournament($playerId, $tournamentId) {
         try {
+            if (!($this->is_tournament_watched($playerId, $tournamentId))) {
+                $this->set_message('Tournament was not being watched');
+                return NULL;
+            }
+
             $query = 'DELETE FROM tournament_player_watch_map ' .
                      'WHERE player_id = :player_id AND tournament_id = :tournament_id';
 
@@ -421,6 +431,28 @@ class BMInterfaceTournament extends BMInterface {
         }
 
         $tournament->remainCountArray = $remainCountArray;
+    }
+
+    protected function is_player_in_tournament($playerId, $tournamentId) {
+        if (($playerId <= 0) || ($tournamentId <= 0)) {
+            return FALSE;
+        }
+
+        $query = 'SELECT t.player_id ' .
+                'FROM tournament_player_map AS t ' .
+                'WHERE t.player_id = :player_id ' .
+                'AND t.tournament_id = :tournament_id;';
+        $parameters = array(
+            ':player_id' => $playerId,
+            ':tournament_id' => $tournamentId
+        );
+        $columnReturnTypes = array(
+            'player_id' => 'int',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        $is_player_in_tournament = count($rows) > 0;
+
+        return $is_player_in_tournament;
     }
 
     /**
@@ -1068,6 +1100,11 @@ class BMInterfaceTournament extends BMInterface {
      */
     public function dismiss_tournament($playerId, $tournamentId) {
         try {
+            if (!($this->is_player_in_tournament($playerId, $tournamentId))) {
+                $this->set_message('Only participants can dismiss tournaments');
+                return NULL;
+            }
+
             $query1 = 'SELECT s.name AS "status" ' .
                     'FROM tournament AS t ' .
                     'INNER JOIN tournament_status AS s ON s.id = t.status_id ' .
