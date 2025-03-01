@@ -330,8 +330,7 @@ class responderTournamentTest extends responderTestFramework {
 
         $this->verify_api_submitTurn(
             array(59, 2, 2, 2, 2),
-        // BUG: this is still not correct, it should show end-of-game feedback
-            'Game created automatically. responder003 won initiative for round 1. Initial die values: responder005 rolled [(99):2], responder003 rolled [(4):2, (6):2, p(20):2]. ',
+            'responder005 performed Power attack using [(99):58] against [(X=4):1]; Defender (X=4) was captured; Attacker (99) rerolled 58 => 59. End of round: responder005 won round 1 (83.5 vs. 0). ',
             $gameOneRetval, array(array(0, 0), array(1, 0)),
             $gameOneId, 1, 'Power', 1, 0, '');
         $gameOneRetval = $this->verify_api_loadGameData($gameOneExpData, $gameOneId, 10, FALSE);
@@ -389,7 +388,6 @@ class responderTournamentTest extends responderTestFramework {
         // Take a turn in game 3, completing it
         $this->verify_api_submitTurn(
             array(3),
-            // BUG: again, spam in messages
             'responder003 performed Power attack using [(4):2] against [(99):2]; Defender (99) was captured; Attacker (4) rerolled 2 => 3. End of round: responder003 won round 1 (84 vs. 0). ',
             $gameThreeRetval, array(array(0, 0), array(1, 0)),
             $gameThreeId, 1, 'Power', 1, 0, '');
