@@ -397,7 +397,7 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
         $this->assertEmpty($game->playerArray[1]->button);
         $this->assertFalse($game->playerArray[1]->isButtonChoiceRandom);
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
         $this->assertEmpty($game->playerArray[0]->button);
         $this->assertTrue($game->playerArray[0]->isButtonChoiceRandom);
@@ -1088,7 +1088,7 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
         $playerArray[1]->activeDieArray = array();
         $game->playerArray = $playerArray;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
@@ -1175,7 +1175,7 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
         $playerArray[1]->activeDieArray = array();
         $game->playerArray = $playerArray;
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
@@ -1256,7 +1256,7 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
 
         $game->swingValueArrayArray = array(array('X' => 17), array('X' => 5));
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1298,7 +1298,7 @@ class BMInterfaceGameTest extends BMInterfaceTestAbstract {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        self::save_game($game);
+        self::save_game($game, $game->gameState);
         $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
