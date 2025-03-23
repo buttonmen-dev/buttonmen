@@ -1031,7 +1031,7 @@ class ApiSpec {
      */
     protected function verify_argument_of_type_string($arg, $argtype = array()) {
         if (is_string($arg)) {
-            $length = mb_strlen($arg, mb_detect_encoding($arg));
+            $length = strlen($arg);
             if (isset($argtype['maxlength']) && $length > $argtype['maxlength']) {
                 return FALSE;
             }

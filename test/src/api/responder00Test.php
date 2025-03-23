@@ -329,6 +329,33 @@ class responder00Test extends responderTestFramework {
         $this->assertEquals(array('gameId'), array_keys($retval['data']));
         $this->assertTrue(is_numeric($retval['data']['gameId']));
         $this->assertEquals("Game " . $retval['data']['gameId'] . " created successfully.", $retval['message']);
+
+
+        // Check game creation using unicode descriptions
+	// A maximum-length unicode description should succeed,
+	// and loadGameData should report the same description that was submitted
+        $valid_description = 'ααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααα';
+        $retval = $this->verify_api_createGame(
+            array(1, 1, 1, 1, 2, 2, 2, 2),
+            'responder003', 'responder004', 'Avis', 'Avis', 3, $valid_description, NULL, 'data'
+        );
+        $this->assertEquals('ok', $retval['status'], 'Game creation should succeed');
+        $real_game_id = $retval['data']['gameId'];
+        $retval = $this->verify_api_success(
+            array('type' => 'loadGameData', 'game' => $real_game_id, 'logEntryLimit' => 10));
+        $this->assertEquals($valid_description, $retval['data']['description']);
+
+        // Adding a single unicode character to the description above should cause a clean failure
+        $too_long_description = $valid_description . 'α';
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
+            'maxWins' => '3',
+            'description' => $too_long_description,
+        );
+        $this->verify_api_failure($args, 'Argument (description) to function createGame is invalid');
+
     }
 
     /**
