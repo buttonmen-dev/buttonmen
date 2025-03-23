@@ -54,7 +54,7 @@ class TestBMUtils(unittest.TestCase):
   def test_wrap_load_active_games(self):
     r = self.obj.wrap_load_active_games()
     self.assertTrue(isinstance(r, list))
-    self.assertEqual(len(r), 9)
+    self.assertEqual(len(r), 10)
     self.assertEqual(sorted(r[0].keys()), WRAPPED_GAME_DATA_KEYS)
 
   def test_wrap_load_new_games(self):

@@ -189,7 +189,7 @@ test("test_Overview.updateSectionHeaderCounts", function(assert) {
 
     assert.equal(
       header.text(),
-      'Active games (9)',
+      'Active games (10)',
       'activeGames section header contains count'
     );
 
@@ -206,7 +206,7 @@ test("test_Overview.updateSectionHeaderCounts", function(assert) {
 
     assert.equal(
       header.text(),
-      'Active games (8)',
+      'Active games (9)',
       'activeGames count only includes visible games'
     );
 
