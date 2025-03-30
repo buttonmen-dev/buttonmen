@@ -158,12 +158,12 @@ class TestBMClient(unittest.TestCase):
   def test_react_to_new_game(self):
     r = self.obj.react_to_new_game(6, 'accept')
     self.assertEqual(r.status, 'ok')
-    self.assertEqual(r.message, 'Joined game 6')
+    self.assertEqual(r.message, 'Joined game 7')
     self.assertEqual(r.data, True)
 
-    r = self.obj.react_to_new_game(8, 'reject')
+    r = self.obj.react_to_new_game(9, 'reject')
     self.assertEqual(r.status, 'ok')
-    self.assertEqual(r.message, 'Rejected game 8')
+    self.assertEqual(r.message, 'Rejected game 9')
     self.assertEqual(r.data, True)
 
   def test_submit_turn(self):
