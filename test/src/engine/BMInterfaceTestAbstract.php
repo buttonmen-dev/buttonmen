@@ -46,9 +46,9 @@ class BMInterfaceTestAbstract extends PHPUnit_Framework_TestCase {
         return $load_game->invokeArgs($this->object, array($gameId));
     }
 
-    protected function save_game($game) {
+    protected function save_game($game, $prevState) {
         $save_game = self::getMethod('save_game');
-        return $save_game->invokeArgs($this->object, array($game));
+        return $save_game->invokeArgs($this->object, array($game, $prevState));
     }
 
     protected function create_game_self_first(
