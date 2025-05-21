@@ -578,14 +578,18 @@ def run_ssh_command(cmdargs, public_ipv4):
   SSH_ARGS = "-o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null"
   full_cmdargs = f'{SSH_CMD} {SSH_ARGS} {public_ipv4} "{cmdargs}"'
   print(f"About to run: {full_cmdargs}")
-  os.system(full_cmdargs)
+  retcode = os.system(full_cmdargs)
+  if retcode != 0:
+    raise ValueError(f"SSH-based command failed with exit code: {retcode}")
 
 def run_scp_command(local_path, remote_path, public_ipv4):
   SCP_CMD = "scp"
   SCP_ARGS = "-o StrictHostKeyChecking=false -o UserKnownHostsFile=/dev/null"
   full_cmdargs = f'{SCP_CMD} {SCP_ARGS} {local_path} {public_ipv4}:{remote_path}'
   print(f"About to run: {full_cmdargs}")
-  os.system(full_cmdargs)
+  retcode = os.system(full_cmdargs)
+  if retcode != 0:
+    raise ValueError(f"SCP-based command failed with exit code: {retcode}")
 
 def configure_container_setup_certbot(public_ipv4):
   cmdargs = 'sudo /usr/local/bin/apache_setup_certbot'
