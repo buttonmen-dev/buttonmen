@@ -517,7 +517,7 @@ Faq.forumLinkContent = function() {
   content.append($('<p>').html(
     'For example, use the syntax [forum=93,1301]Learn about adopting a ' +
     'button[/forum] to generate a link that looks like ' +
-    '<a href="forum.html#!threadid=93&postid=1301">Learn about adopting a ' +
+    '<a href="forum.html#!threadId=93&postId=1301">Learn about adopting a ' +
     'button</a>.'
   ));
 
