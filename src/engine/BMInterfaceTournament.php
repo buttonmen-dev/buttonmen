@@ -1188,7 +1188,7 @@ class BMInterfaceTournament extends BMInterface {
      */
     public function unfollow_tournament($playerId, $tournamentId) {
         try {
-            if (!is_tournament_watched($playerId, $tournamentId)) {
+            if (!$this->is_tournament_watched($playerId, $tournamentId)) {
                 $this->set_message('Tournament was not being followed');
                 return NULL;
             }
