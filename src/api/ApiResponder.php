@@ -877,7 +877,7 @@ class ApiResponder {
      * @return NULL|bool
      */
     protected function get_interface_response_followTournament($interface, $args) {
-        $retval = $interface->tournament()->watch_tournament($this->session_user_id(), $args['tournamentId']);
+        $retval = $interface->tournament()->follow_tournament($this->session_user_id(), $args['tournamentId']);
         if (isset($retval)) {
             $interface->player()->update_last_action_time($this->session_user_id());
         }
@@ -892,7 +892,7 @@ class ApiResponder {
      * @return NULL|bool
      */
     protected function get_interface_response_unfollowTournament($interface, $args) {
-        $retval = $interface->tournament()->unwatch_tournament($this->session_user_id(), $args['tournamentId']);
+        $retval = $interface->tournament()->unfollow_tournament($this->session_user_id(), $args['tournamentId']);
         if (isset($retval)) {
             $interface->player()->update_last_action_time($this->session_user_id());
         }

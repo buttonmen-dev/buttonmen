@@ -2692,8 +2692,6 @@ class BMInterface {
                   AND m.player_id = :player_id_map_info
                 ) AS innerTable
                 WHERE is_watched OR
-                      is_creator OR
-                      has_joined OR
                       status = 'OPEN'
                 ORDER BY tournament_id DESC
 NOWDOC;
