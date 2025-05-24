@@ -104,7 +104,7 @@ class BMInterfaceTournament extends BMInterface {
     protected function unwatch_tournament($playerId, $tournamentId) {
         try {
             if (!($this->is_tournament_watched($playerId, $tournamentId))) {
-                $this->set_message('Tournament was not being watched');
+                $this->set_message('Tournament was not being followed');
                 return NULL;
             }
 
