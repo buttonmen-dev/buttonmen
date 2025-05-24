@@ -11,6 +11,13 @@
  */
 class BMInterfaceTournament extends BMInterface {
 
+    /**
+     * Check whether a tournament is being watched
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return bool|null
+     */
     public function is_tournament_watched($playerId, $tournamentId) {
         try {
             $query = 'SELECT COUNT(*) FROM tournament_player_watch_map ' .
@@ -42,7 +49,14 @@ class BMInterfaceTournament extends BMInterface {
         }
     }
 
-    public function watch_tournament($playerId, $tournamentId) {
+    /**
+     * Make a tournament visible on the overview page
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return null|bool
+     */
+    protected function watch_tournament($playerId, $tournamentId) {
         try {
             if ($this->is_tournament_watched($playerId, $tournamentId)) {
                 $this->set_message('Tournament was already being watched');
@@ -80,7 +94,14 @@ class BMInterfaceTournament extends BMInterface {
         }
     }
 
-    public function unwatch_tournament($playerId, $tournamentId) {
+    /**
+     * Make a tournament not visible on the overview page
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return null|bool
+     */
+    protected function unwatch_tournament($playerId, $tournamentId) {
         try {
             if (!($this->is_tournament_watched($playerId, $tournamentId))) {
                 $this->set_message('Tournament was not being watched');
@@ -191,6 +212,7 @@ class BMInterfaceTournament extends BMInterface {
      *
      * @param string $type
      * @param int $nPlayers
+     * @return bool
      */
     protected function validate_n_players($type, $nPlayers) {
         $tournament = BMTournament::create($type);
@@ -433,6 +455,13 @@ class BMInterfaceTournament extends BMInterface {
         $tournament->remainCountArray = $remainCountArray;
     }
 
+    /**
+     * Check whether a player is in a tournament
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return bool
+     */
     protected function is_player_in_tournament($playerId, $tournamentId) {
         if (($playerId <= 0) || ($tournamentId <= 0)) {
             return FALSE;
@@ -484,6 +513,11 @@ class BMInterfaceTournament extends BMInterface {
         return TRUE;
     }
 
+    /**
+     * Generate new games required by a tournament
+     *
+     * @param BMTournament $tournament
+     */
     protected function generate_new_games(BMTournament $tournament) {
         if (!isset($tournament->gameDataToBeCreatedArray) ||
                 (0 == count($tournament->gameDataToBeCreatedArray))) {
@@ -602,13 +636,27 @@ class BMInterfaceTournament extends BMInterface {
     }
 
     /**
+     * Check whether a tournament has ended, either through completion or cancellation
+     *
+     * @param int $tournamentId
+     * @return bool
+     */
+    protected function is_tournament_finished($tournamentId) {
+        $tournament = $this->load_tournament($tournamentId);
+        $tournamentState = $tournament->tournamentState;
+
+        return (BMTournamentState::END_TOURNAMENT == $tournamentState) ||
+               (BMTournamentState::CANCELLED == $tournamentState);
+    }
+
+    /**
      * Perform a user action on a tournament
      *
      * @param int $userId
      * @param int $tournamentId
      * @param string $action
      * @param array $buttonNameArray
-     * @return bool
+     * @return bool|null
      */
     public function act_on_tournament($userId, $tournamentId, $action, $buttonNameArray = NULL) {
         switch ($action) {
@@ -632,7 +680,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $userId
      * @param int $tournamentId
      * @param array $buttonNameArray
-     * @return bool
+     * @return bool|null
      */
     protected function join_tournament($userId, $tournamentId, $buttonNameArray) {
         try {
@@ -689,7 +737,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $tournamentId
      * @param BMTournament $tournament
      * @param array $buttonIdArray
-     * @return bool
+     * @return bool|null
      */
     protected function validate_join_tournament($userId, $tournamentId, $tournament, $buttonIdArray) {
         if (is_null($tournament)) {
@@ -799,7 +847,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $userId
      * @param int $tournamentId
      * @param array $buttonNameArray
-     * @return bool
+     * @return bool|null
      */
     protected function change_button_in_tournament($userId, $tournamentId, $buttonNameArray) {
         try {
@@ -858,7 +906,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $tournamentId
      * @param BMTournament $tournament
      * @param array $buttonIdArray
-     * @return bool
+     * @return bool|null
      */
     protected function validate_change_button_in_tournament($userId, $tournamentId, $tournament, $buttonIdArray) {
         if (is_null($tournament)) {
@@ -889,7 +937,7 @@ class BMInterfaceTournament extends BMInterface {
      *
      * @param int $userId
      * @param int $tournamentId
-     * @return bool
+     * @return bool|null
      */
     protected function leave_tournament($userId, $tournamentId) {
         try {
@@ -937,7 +985,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $userId
      * @param int $tournamentId
      * @param BMTournament $tournament
-     * @return bool
+     * @return bool|null
      */
     protected function validate_leave_tournament($userId, $tournamentId, $tournament) {
         if (is_null($tournament)) {
@@ -999,7 +1047,7 @@ class BMInterfaceTournament extends BMInterface {
      *
      * @param int $userId
      * @param int $tournamentId
-     * @return bool
+     * @return bool|null
      */
     protected function cancel_tournament($userId, $tournamentId) {
         try {
@@ -1045,7 +1093,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param int $userId
      * @param int $tournamentId
      * @param BMTournament $tournament
-     * @return bool
+     * @return bool|null
      */
     protected function validate_cancel_tournament($userId, $tournamentId, $tournament) {
         if (is_null($tournament)) {
@@ -1092,30 +1140,103 @@ class BMInterfaceTournament extends BMInterface {
     }
 
     /**
-     * Dismiss tournament link from overview page
+     * Follow tournament
+     *
+     * This adds a link to the tournament on the overview page
      *
      * @param int $playerId
      * @param int $tournamentId
-     * @return bool
+     * @return bool|null
+     */
+    public function follow_tournament($playerId, $tournamentId) {
+        try {
+            if ($this->is_tournament_watched($playerId, $tournamentId)) {
+                $this->set_message('Tournament was already being followed');
+                return TRUE;
+            }
+
+            if ($this->is_tournament_finished($tournamentId)) {
+                $this->set_message('Cannot follow a tournament that has ended');
+                return NULL;
+            }
+
+            $this->watch_tournament($playerId, $tournamentId);
+
+            $this->set_message('Tournament followed');
+            return TRUE;
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Cannot follow tournament because tournament ID was not valid');
+            return NULL;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::follow_tournament: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while following a tournament');
+            return NULL;
+        }
+    }
+
+    /**
+     * Unfollow tournament
+     *
+     * This removes a link to the tournament from the overview page
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return bool|null
+     */
+    public function unfollow_tournament($playerId, $tournamentId) {
+        try {
+            if (!is_tournament_watched($playerId, $tournamentId)) {
+                $this->set_message('Tournament was not being followed');
+                return NULL;
+            }
+
+            if ($this->is_player_in_tournament($playerId, $tournamentId)) {
+                if ($this->is_tournament_finished($tournamentId)) {
+                    $this->set_message('This tournament should be dismissed, not unfollowed');
+                    return NULL;
+                } else {
+                    $this->set_message('Participants cannot unfollow an ongoing tournament');
+                    return NULL;
+                }
+            }
+
+            $this->unwatch_tournament($playerId, $tournamentId);
+
+            $this->set_message('Tournament unfollowed');
+            return TRUE;
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Cannot unfollow tournament because tournament ID was not valid');
+            return NULL;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::unfollow_tournament: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while unfollowing a tournament');
+            return NULL;
+        }
+    }
+
+    /**
+     * Dismiss tournament
+     *
+     * This removes a link to a completed tournament from the overview page
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return bool|null
      */
     public function dismiss_tournament($playerId, $tournamentId) {
         try {
-            if (!($this->is_player_in_tournament($playerId, $tournamentId))) {
+            if (!$this->is_player_in_tournament($playerId, $tournamentId)) {
                 $this->set_message('Only participants can dismiss tournaments');
                 return NULL;
             }
 
-            $query1 = 'SELECT s.name AS "status" ' .
-                    'FROM tournament AS t ' .
-                    'INNER JOIN tournament_status AS s ON s.id = t.status_id ' .
-                    'WHERE t.id = :tournament_id';
-            $parameters = array(
-                ':tournament_id' => $tournamentId,
-            );
-
-            $status = self::$db->select_single_value($query1, $parameters, 'str');
-
-            if (($status != 'COMPLETE') && ($status != 'CANCELLED')) {
+            if (!$this->is_tournament_finished($tournamentId)) {
                 $this->set_message("Tournament $tournamentId isn't complete");
                 return NULL;
             }
@@ -1125,7 +1246,7 @@ class BMInterfaceTournament extends BMInterface {
             $this->set_message('Dismissing tournament succeeded');
             return TRUE;
         } catch (BMExceptionDatabase $e) {
-            $this->set_message('Cannot dismiss tournament because a tournament ID was not valid');
+            $this->set_message('Cannot dismiss tournament because tournament ID was not valid');
             return NULL;
         } catch (Exception $e) {
             error_log(
