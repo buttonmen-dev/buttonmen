@@ -88,7 +88,7 @@ TournamentOverview.pageAddTournamentTable = function(
 
   switch (tournamentType) {
   case 'open':
-    // open games that you haven't joined
+    // open tournaments that you haven't joined
     for (tournamentIdx = 0;
          tournamentIdx < Api.tournaments.tournaments.length;
          tournamentIdx++) {
@@ -100,7 +100,7 @@ TournamentOverview.pageAddTournamentTable = function(
       }
     }
 
-    // open games that you have joined
+    // open tournaments that you have joined
     for (tournamentIdx = 0;
          tournamentIdx < Api.tournaments.tournaments.length;
          tournamentIdx++) {
