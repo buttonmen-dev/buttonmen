@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Create game &mdash; Button Men Online</title>
+  <title>Create tournament &mdash; Button Men Online</title>
   <link rel="stylesheet" href="js/extern/chosen.min.css" />
   <link rel="stylesheet" href="gui.css" />
   <link id="favicon" rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -26,14 +26,14 @@
       $.ajax({
         url: 'js/Loader.js',
         dataType: 'script',
+        cache: true,
         success: function() {
           Loader.loadScripts([
             'js/extern/chosen.jquery.min.js',
-            'js/Newgame.js',
-            'js/ButtonSelection.js'
+            'js/Newtournament.js'
           ],
           function() {
-            Login.showLoginHeader(Newgame);
+            Login.showLoginHeader(Newtournament);
           });
         }
       });
