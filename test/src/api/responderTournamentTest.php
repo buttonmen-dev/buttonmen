@@ -123,7 +123,7 @@ class responderTournamentTest extends responderTestFramework {
         // nonparticipant unfollows the tournament, but they weren't previously following it
         $_SESSION = $this->mock_test_user_login('responder002');
         $this->verify_api_unfollowTournament_failure(
-            array(), "Tournament was not being watched", $tournamentId
+            array(), "Tournament was not being followed", $tournamentId
         );
         $_SESSION = $this->mock_test_user_login('responder003');
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
