@@ -130,9 +130,10 @@ class responderTournamentTest extends responderTestFramework {
 
         // participant follows the tournament, which is allowed because they're already in the tournament
         $_SESSION = $this->mock_test_user_login('responder005');
-        $this->verify_api_followTournament(
+        $retval = $this->verify_api_followTournament(
             array(), $tournamentId
         );
+        $this->assertEquals('Tournament was already being followed', $retval['message']);
         $_SESSION = $this->mock_test_user_login('responder003');
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
@@ -146,9 +147,10 @@ class responderTournamentTest extends responderTestFramework {
 
         // participant follows the tournament, which is allowed because they're already following it
         $_SESSION = $this->mock_test_user_login('responder002');
-        $this->verify_api_followTournament(
+        $retval = $this->verify_api_followTournament(
             array(), $tournamentId
         );
+        $this->assertEquals('Tournament was already being followed', $retval['message']);
         $_SESSION = $this->mock_test_user_login('responder003');
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 

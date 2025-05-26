@@ -1539,8 +1539,8 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
             $this->cache_json_api_output('loadTournamentData', $fakeTournamentId, $retval);
         }
         return $retval['data'];
-    }    
-    
+    }
+
     /**
      * verify_api_createTournament() - helper routine which calls the API
      * createTournament method using provided fake die rolls, and makes
@@ -1719,7 +1719,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_failure($args, $expMessage);
         return $retval;
     }
-    
+
     /**
      * verify_api_updateTournament() - helper routine which calls the API
      * updateTournament method using provided fake die rolls, and makes
@@ -1763,5 +1763,5 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_api_failure($args, $expMessage);
         return $retval;
     }
-    
+
 }

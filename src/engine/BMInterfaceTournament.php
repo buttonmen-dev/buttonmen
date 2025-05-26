@@ -1150,14 +1150,14 @@ class BMInterfaceTournament extends BMInterface {
      */
     public function follow_tournament($playerId, $tournamentId) {
         try {
-            if ($this->is_tournament_watched($playerId, $tournamentId)) {
-                $this->set_message('Tournament was already being followed');
-                return TRUE;
-            }
-
             if ($this->is_tournament_finished($tournamentId)) {
                 $this->set_message('Cannot follow a tournament that has ended');
                 return NULL;
+            }
+
+            if ($this->is_tournament_watched($playerId, $tournamentId)) {
+                $this->set_message('Tournament was already being followed');
+                return TRUE;
             }
 
             $this->watch_tournament($playerId, $tournamentId);
