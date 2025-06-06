@@ -358,6 +358,7 @@ test("test_Login.addMainNavbar", function(assert) {
           [ "TD", {}, [ [ "A", { "href": "../ui/index.html?mode=monitor" }, [ "Monitor" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "create_game.html" }, [ "Create game" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "open_games.html" }, [ "Open games" ] ] ] ],
+          [ "TD", {}, [ [ "A", { "href": "tournaments.html" }, [ "Tournaments" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "prefs.html" }, [ "Preferences" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "profile.html?player=foobar" }, [ "Profile" ] ] ] ],
           [ "TD", {}, [ [ "A", { "href": "history.html" }, [ "History" ] ] ] ],
