@@ -102,8 +102,7 @@ INSERT INTO buttonset (id, name, sort_order) VALUES
 
 # Fanatics
 (65, 'Classic Fanatics', 100000),
-(85, '2020 Fanatics',    100100),
-(87, '2021 Fanatics',    100200),
+(94, 'Modern Fanatics',  110000),
 
 # Special
 (10000, 'RandomBM', 200000),
@@ -1337,22 +1336,21 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (549, 'Zotmeister',      'd(1) d(1) d(2,2) d(8,8) rd(1) rd(26,26)',    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics"));
 
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(788, 'AnnoDomini',       '(W) (4) (R) s(4) (W)',                          0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(789, 'blackshadowshade', 'mkht(T)! Bt(T)& `fg(4) bHt^(0/10) F%(1,10) rbHt^(0/10) rnDt^(1,8)', 1, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(790, 'Blargh',           'Hop(4) hop(10) Mh(8) Mf(8) MF(13)',             0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(791, 'devious',          'dv(S) (16) (16) pqr(S,S) Jm`(0) Jm`(0) Jm`(0)', 0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(792, 'jimmosk',          '(4) %(8) g(12) JIMmo(S) k(2)',                  0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(793, 'jl8e',             'f(7) f(7) p(16) (16) ^#(R,R)',                  0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(794, 'Nala',             'Mkw(1) Mk(1) Mk(3) Mk(9) Mk(27)',               0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(795, 'Nonce Equitaur',   '(S) (3)q (U)It (U) (R)!',                       0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics")),
-(796, 'tavella',          '(5)t^ (23)v# (19)I (6)I^ (7)!',                 0, 0, (SELECT id FROM buttonset WHERE name="2020 Fanatics"));
-
-INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
-(805, 'Bosco312',         'z^(20) z^(10) d(1) d(1)',                       0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
-(806, 'Cycozar',          '(T) (4)g (Y) o(U)rIt! ^%(3) c(Y) coz(4)r #(1)', 0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
-(807, 'GamerXYZ',         'Ho(4) dk(6) sz(X) qt(Y) `M(Z)',                 0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
-(808, 'irilyth',          'Gg(8) Gg(16) Gg(32) `sptH(1) `sptH(2) `sptH(3) `sptH(5) `sptH(8) spohr(4,9) spohr(9,16) spohr(16,25)', 1, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics")),
-(809, 'Scipio',           'bt(1) s(8) (3/19)! (5/23)! #(X)',               0, 0, (SELECT id FROM buttonset WHERE name="2021 Fanatics"));
+(788, 'AnnoDomini',       '(W) (4) (R) s(4) (W)',                          0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(789, 'blackshadowshade', 'mkht(T)! Bt(T)& `fg(4) bHt^(0/10) F%(1,10) rbHt^(0/10) rnDt^(1,8)', 1, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(790, 'Blargh',           'Hop(4) hop(10) Mh(8) Mf(8) MF(13)',             0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(791, 'devious',          'dv(S) (16) (16) pqr(S,S) Jm`(0) Jm`(0) Jm`(0)', 0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(792, 'jimmosk',          '(4) %(8) g(12) JIMmo(S) k(2)',                  0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(793, 'jl8e',             'f(7) f(7) p(16) (16) ^#(R,R)',                  0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(794, 'Nala',             'Mkw(1) Mk(1) Mk(3) Mk(9) Mk(27)',               0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(795, 'Nonce Equitaur',   '(S) (3)q (U)It (U) (R)!',                       0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(796, 'tavella',          '(5)t^ (23)v# (19)I (6)I^ (7)!',                 0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(805, 'Bosco312',         'z^(20) z^(10) d(1) d(1)',                       0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(806, 'Cycozar',          '(T) (4)g (Y) o(U)rIt! ^%(3) c(Y) coz(4)r #(1)', 0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(807, 'GamerXYZ',         'Ho(4) dk(6) sz(X) qt(Y) `M(Z)',                 0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(808, 'irilyth',          'Gg(8) Gg(16) Gg(32) `sptH(1) `sptH(2) `sptH(3) `sptH(5) `sptH(8) spohr(4,9) spohr(9,16) spohr(16,25)', 1, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(809, 'Scipio',           'bt(1) s(8) (3/19)! (5/23)! #(X)',               0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(867, 'nycavri',          '(1) (3) (5) (14) Hs^(14)',                      0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics"));
 
 #############################################
 #####   S P E C I A L   B U T T O N S   #####
@@ -1702,6 +1700,7 @@ UPDATE button SET flavor_text="Cycozar's 3 rules to live by:<br>1. Fun first - w
 UPDATE button SET flavor_text="GamerXYZ likes graham crackers, electric blankets, and beating people up in games." WHERE name="GamerXYZ";
 UPDATE button SET flavor_text="irilyth likes pretty dice with swirly colors, and especially likes using them to beat people up." WHERE name="irilyth";
 UPDATE button SET flavor_text="Scipio is a broadly interested heretic from a mysterious country. He likes cheese, chocolate, watches, and the rule of three. Also beating people up." WHERE name="Scipio";
+UPDATE button SET flavor_text="Described as ""subtle and engaging"" by Lawrence Block, when not beating people up nycavri is reading/writing novels, playing/designing games, and living/loving life.<br><br>Art by Lauren Rogers" WHERE name="nycavri";
 UPDATE button SET flavor_text="Gluttony enjoys eating, eating and the Fat Albert Cartoon. When not eating, or thinking about eating, he spends his time beating people up with his Double-Drumstick Fu." WHERE name="Gluttony";
 UPDATE button SET flavor_text="Pride is a diva of the nose harmonica. When not appearing on Live TV news casts, she enjoys flinging cats, radish carvings and beating people up." WHERE name="Pride";
 UPDATE button SET flavor_text="Lust is an out-of-work actress who is rather top-heavy. While not trying to get bit parts on VIP, Baywatch or any USA shows, she enjoys humming and the color red. She also beats people up." WHERE name="Lust";
@@ -1892,7 +1891,6 @@ UPDATE button SET flavor_text="Kainar Blazing-sky is a young elf looking to make
 UPDATE button SET flavor_text="Inez de Santo Domingo is second in command of the personal guards of the Silver Princess. She likes her post, her princess, her carbine, and shooting people up." WHERE name="Inez";
 UPDATE button SET flavor_text="Anything you get wrong could kill you. Anything you forget could kill you. When in doubt, assume anything can kill you." WHERE name="MrWhite";
 UPDATE button SET flavor_text="Polonius is a chocolate-loving bass player from the far north. He likes sunlight, KelticAngel, and Beating People Up." WHERE name="Polonius";
-UPDATE button SET flavor_text=CONCAT("Brenda Lynn Temple, a.k.a. LdyShade, a.k.a. Bunny (to a select few) was brought to earth on the back of a rabbit and taken away astride a boar. She was a fiery woman with a generous heart. She liked the number five, and her favorite number was 25&mdash", CHAR(59), "five fives. Her favorite color was any version of blue, and she loved when you lost 'the game.' Her favorite Cheapass Game was Kill Doctor Lucky. She loved bunnies, skunks, and dragons. Stars made her laugh with their incandescent gas. When playing Brawl, Button Men, or annoyed with someone, she liked to pretend to beat people up.") WHERE name="Bunny Temple";
 #UPDATE button SET flavor_text="Vanilla is simple, yet complex." WHERE name="Vanilla";
 #UPDATE button SET flavor_text="One mean mother (shut your mouth!) I was only talking about Chocolate Chip! (we can dig it!)" WHERE name="Chocolate Chip";
 #UPDATE button SET flavor_text="The meanest Ice Cream of the bunch. Avoid it like the green plague!" WHERE name="Mint Chip";
