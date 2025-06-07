@@ -133,9 +133,6 @@ page.open(system.args[1], function(status){
                 } catch (e) { }
                 return 10000;
             });
-            page.evaluate(function(){
-                jscoverage_report('js-coverage');
-            });
             phantom.exit((parseInt(failedNum, 10) > 0) ? 1 : 0);
         });
     }
