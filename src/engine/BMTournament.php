@@ -740,7 +740,6 @@ abstract class BMTournament {
             'maxRound'                   => $this->max_round(),
             'description'                => $this->description,
             'creatorDataArray'           => array('creatorId' => $this->creatorId),
-            'gameIdArrayArray'           => $this->gameIdArrayArray,
             'remainCountArray'           => $this->remainCountArray
         );
         return $dataArray;

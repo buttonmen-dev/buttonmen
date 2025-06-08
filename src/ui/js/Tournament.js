@@ -130,7 +130,7 @@ Tournament.showTournamentContents = function() {
     Tournament.page.append($('<br>'));
   }
 
-  if (Api.tournament.gameIdArrayArray.length > 0) {
+  if (Api.tournament.gameDataArrayArray.length > 0) {
     Tournament.showGames();
   }
 };
@@ -263,7 +263,7 @@ Tournament.pageAddTournamentInfo = function () {
     'text': 'Number of players: ' + Api.tournament.nPlayers,
   });
   infoDiv.append(nPlayersPar);
-  
+
   var nRoundsPar = $('<p>', {
     'text': 'Number of rounds: ' + Api.tournament.maxRound,
   });
@@ -294,27 +294,46 @@ Tournament.pageAddWinnerInfo = function () {
 };
 
 Tournament.pageAddPlayerInfo = function () {
-  var playerDiv = $('<div>');
-  Tournament.page.append(playerDiv);
+  var playerCell;
+  var buttonCell;
+  var playerRow;
 
-  var playerArray = [];
-  var playerList = '';
+  var playerDiv = $('<div>');
+  var playerTable = $('<table>');
+
+  var headerRow = $('<tr>').append('<th>Player</th>').append('<th>Button</th>');
+  playerTable.append(headerRow);
+
   if (Api.tournament.playerDataArray) {
     var nPlayersJoined = Api.tournament.playerDataArray.length;
     for (var playerIdx = 0; playerIdx < nPlayersJoined; playerIdx++) {
-      playerArray.push(Api.tournament.playerDataArray[playerIdx].playerName);
+      var playerName = Api.tournament.playerDataArray[playerIdx].playerName;
+      var buttonName = Api.tournament.playerDataArray[playerIdx].buttonName;
+
+      var playerLink = $('<a>', {
+        'href': 'profile.html?player=' + playerName,
+        'text': playerName,
+      });
+      var buttonLink = $('<a>', {
+        'href': 'buttons.html?button=' + buttonName,
+        'text': buttonName,
+      });
+
+      playerCell = $('<td>').append(playerLink);
+      buttonCell = $('<td>').append(buttonLink);
+      playerRow = $('<tr>').append(playerCell, buttonCell);
+      playerTable.append(playerRow);
     }
-    playerList = playerArray.join(', ');
   } else {
-    playerList = 'None';
+    playerTable.append(
+      $('<tr>'),
+      $('<td>None</td>'),
+      $('<td>None</td>')
+    );
   }
 
-  var playersText = 'Players in this tournament: ' + playerList;
-  var playersTitlePar = $('<p>', {
-    'text': playersText,
-  });
-
-  playerDiv.append(playersTitlePar);
+  playerDiv.append(playerTable);
+  Tournament.page.append(playerDiv);
 };
 
 Tournament.pageAddActions = function () {
@@ -351,6 +370,15 @@ Tournament.pageAddActions = function () {
       });
       joinLink.click(Tournament.formChooseButton);
       actionDiv.append(joinLink);
+
+      var dontJoinLink = $('<a>', {
+        'text': '[Don\'t Join Tournament]',
+        'id': 'dontJoinLink',
+        'href': '#',
+      });
+      dontJoinLink.click(Tournament.showLoggedInPage);
+      dontJoinLink.hide();
+      actionDiv.append(dontJoinLink);
     }
 
     var buttonSelectDiv = $('<div>', {
@@ -391,7 +419,7 @@ Tournament.formChooseButton = function () {
   Api.getButtonData(null, function(){
     // add button selector table
     ButtonSelection.loadButtonsIntoDicts();
-    
+
     var buttonSelector = ButtonSelection.getSingleButtonOptionsTable('player');
     $('#buttonSelectDiv').append(buttonSelector).append($('<br />'));
 
@@ -402,14 +430,26 @@ Tournament.formChooseButton = function () {
         'text': 'Join Tournament!',
       });
       joinButton.click(Tournament.formJoinTournament);
+      joinButton.prop('disabled', true);
       $('#buttonSelectDiv').append(joinButton);
+
+      $('#player_button').on('change', function() {
+        joinButton.prop('disabled', '' === this.value);
+      });
+
+      $('#dontJoinLink').show();
     } else if ($('#changeLink').length) {
       var changeButton = $('<button>', {
         'id': 'change_button',
         'text': 'Select Button',
       });
       changeButton.click(Tournament.formChangeButton);
+      changeButton.prop('disabled', true);
       $('#buttonSelectDiv').append(changeButton);
+
+      $('#player_button').on('change', function() {
+        changeButton.prop('disabled', '' === this.value);
+      });
     }
 
     // hide "Loading buttons ..."
@@ -424,23 +464,21 @@ Tournament.formUpdateTournament = function (
   type, successText, e, buttonNameArray
 ) {
   e.preventDefault();
-  
-  if (!($.isArray(buttonNameArray)) || (buttonNameArray.length < 1)) {
-    Env.message = {
-      'type': 'error',
-      'text': 'buttonNameArray must be a non-empty array.'
-    };
-    return Tournament.showLoggedInPage();
-  }
-  
-  if ('' === buttonNameArray[0]) {
+
+  var requiresButtonChoice = ('join' === type) || ('changeButton' === type);
+  var hasButtonChoice =
+    $.isArray(buttonNameArray) &&
+    (buttonNameArray.length >= 1) &&
+    buttonNameArray[0] !== '';
+
+  if (requiresButtonChoice && !hasButtonChoice) {
     Env.message = {
       'type': 'error',
       'text': 'No button chosen.'
     };
     return Tournament.showLoggedInPage();
   }
-  
+
   var args = {
     'type': 'updateTournament',
     'tournamentId': Api.tournament.tournamentId,
@@ -511,34 +549,78 @@ Tournament.formLeaveTournament = function (e) {
 };
 
 Tournament.showGames = function () {
-  var gameCell;
-  var gameId;
-  var gameIdArray;
+  var gameData;
+  var gameDataArray;
   var gameIdx;
   var gameRow;
-  var roundCell;
   var roundIdx;
   var roundVal;
+  var winnerCell;
 
   var gameDiv = $('<div>');
   var gameTable = $('<table>');
 
-  var nRound = Api.tournament.gameIdArrayArray.length;
+  gameTable.append(
+    $('<tr>').append(
+      $('<th>Round</th>'),
+      $('<th>Game</th>'),
+      $('<th>Winner</th>'),
+      $('<th>Score</th>'),
+      $('<th>Player 1</th>'),
+      $('<th>Button 1</th>'),
+      $('<th>Player 2</th>'),
+      $('<th>Button 2</th>')
+    )
+  );
+
+  var nRound = Api.tournament.gameDataArrayArray.length;
 
   for (roundIdx = 0; roundIdx < nRound; roundIdx++) {
     roundVal = roundIdx + 1;
-    gameIdArray = Api.tournament.gameIdArrayArray[roundIdx];
+    gameDataArray = Api.tournament.gameDataArrayArray[roundIdx];
 
-    for (gameIdx = 0; gameIdx < gameIdArray.length; gameIdx++) {
-      roundCell = $('<td>').text('Round ' + roundVal);
+    for (gameIdx = 0; gameIdx < gameDataArray.length; gameIdx++) {
+      gameData = gameDataArray[gameIdx];
 
-      gameId = gameIdArray[gameIdx];
-      gameCell = $('<td>').append($('<a>', {
-        'href': 'game.html?game=' + gameId,
-        'text': 'Game ' + gameId,
-      }));
+      if (null === gameData.winner) {
+        winnerCell = '';
+      } else {
+        winnerCell = $('<a>', {
+          'href': 'profile.html?player=' + gameData.winner,
+          'text': gameData.winner,
+        });
+      }
 
-      gameRow = $('<tr>').append(roundCell, gameCell);
+      gameRow = $('<tr>').append(
+        $('<td>').text(roundVal),
+        $('<td>').append($('<a>', {
+          'href': 'game.html?game=' + gameData.gameId,
+          'text': gameData.gameId,
+        })),
+        $('<td>').append(winnerCell),
+        $('<td>').append(
+          gameData.nwins_0 + '/' +
+          gameData.nwins_1 + '/' +
+          gameData.ndraws + ' (' +
+          gameData.n_target_wins + ')'
+        ),
+        $('<td>').append($('<a>', {
+          'href': 'profile.html?player=' + gameData.name_0,
+          'text': gameData.name_0,
+        })),
+        $('<td>').append($('<a>', {
+          'href': 'buttons.html?button=' + gameData.button_0,
+          'text': gameData.button_0,
+        })),
+        $('<td>').append($('<a>', {
+          'href': 'profile.html?player=' + gameData.name_1,
+          'text': gameData.name_1,
+        })),
+        $('<td>').append($('<a>', {
+          'href': 'buttons.html?button=' + gameData.button_1,
+          'text': gameData.button_1,
+        }))
+      );
 
       gameTable.append(gameRow);
     }
