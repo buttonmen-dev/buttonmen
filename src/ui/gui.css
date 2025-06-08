@@ -17,6 +17,10 @@ div {
     text-align: center;
 }
 
+div#buttonSelectDiv {
+    margin-top: 24px;
+}
+
 div#container {
     min-height:100%;
     position:relative;

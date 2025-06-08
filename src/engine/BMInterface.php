@@ -345,6 +345,111 @@ class BMInterface {
     }
 
     /**
+     * Load a brief summary of a game, including players, buttons, score, and status
+     */
+    protected function load_game_summary($gameId) {
+        try {
+            $this->set_message('Game summary retrieved successfully.');
+
+            $query = <<<'NOWDOC'
+                SELECT v.game_id,
+                       g.status_id,
+                       s.name as status,
+                       v.n_target_wins,
+                       v.position,
+                       v.player_id,
+                       v.player_name,
+                       v.button_id,
+                       v.button_name,
+                       v.n_rounds_won,
+                       v.n_rounds_drawn,
+                       v.n_rounds_won >= v.n_target_wins AS is_winner
+                FROM game_player_view AS v
+                LEFT JOIN game AS g
+                ON g.id = v.game_id
+                LEFT JOIN game_status AS s
+                ON g.status_id = s.id
+                WHERE v.game_id = :game_id
+                ORDER BY g.id
+NOWDOC;
+
+            $parameters = array(':game_id' => $gameId);
+            $columnReturnTypes = array(
+                'game_id' => 'int',
+                'status_id' => 'int',
+                'status' => 'str',
+                'n_target_wins' => 'int',
+                'position' => 'int',
+                'player_id' => 'int',
+                'player_name' => 'str',
+                'button_id' => 'int',
+                'button_name' => 'str',
+                'n_rounds_won' => 'int',
+                'n_rounds_drawn' => 'int',
+                'is_winner' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+
+            return self::read_game_summary_from_db_results($rows);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_game_summary: ' .
+                $e->getMessage()
+            );
+            $this->set_message("Internal error while loading game summary.");
+            return NULL;
+        }
+    }
+
+    /**
+     * Read game summary from DB results
+     *
+     * @param int $playerId
+     * @param array $rows
+     * @return array
+     */
+    protected function read_game_summary_from_db_results($rows) {
+        $button_0 = '';
+        $name_0 = '';
+        $nwins_0 = 0;
+        $button_1 = '';
+        $name_1 = '';
+        $nwins_1 = 0;
+        $winner = '';
+
+        foreach ($rows as $row) {
+            if (0 === $row['position']) {
+                $button_0 = $row['button_name'];
+                $name_0 = $row['player_name'];
+                $nwins_0 = $row['n_rounds_won'];
+            } else {
+                $button_1 = $row['button_name'];
+                $name_1 = $row['player_name'];
+                $nwins_1 = $row['n_rounds_won'];
+            }
+
+            if ($row['is_winner']) {
+                $winner = $row['player_name'];
+            }
+        }
+
+        return array(
+            'gameId' => $rows[0]['game_id'],
+            'statusId' => $rows[0]['status_id'],
+            'status' => $rows[0]['status'],
+            'n_target_wins' => $rows[0]['n_target_wins'],
+            'button_0' => $button_0,
+            'name_0' => $name_0,
+            'nwins_0' => $nwins_0,
+            'button_1' => $button_1,
+            'name_1' => $name_1,
+            'nwins_1' => $nwins_1,
+            'ndraws' => $rows[0]['n_rounds_drawn'],
+            'winner' => $winner
+        );
+    }
+
+    /**
      * Load game from database
      *
      * @param int $gameId
@@ -2587,6 +2692,33 @@ class BMInterface {
     }
 
     /**
+     * Get button name corresponding to a button ID
+     *
+     * @param int $buttonId
+     * @return string
+     */
+    protected function get_button_name_from_id($buttonId) {
+        try {
+            if (empty($buttonId)) {
+                return('');
+            }
+
+            $query = 'SELECT name FROM button '.
+                     'WHERE id = :id';
+            $parameters = array(':id' => $buttonId);
+            return self::$db->select_single_value($query, $parameters, 'str');
+        } catch (BMExceptionDatabase $e) {
+            return('');
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_button_name_from_id: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Button name get failed.');
+        }
+    }
+
+    /**
      * Get button set ID corresponding to a button set name
      *
      * @param string $name
@@ -2807,6 +2939,21 @@ NOWDOC;
                     $data['playerDataArray'][$tournamentPlayerIdx]['playerId'] = $tournamentPlayerId;
                     $data['playerDataArray'][$tournamentPlayerIdx]['playerName'] =
                         $this->get_player_name_from_id($tournamentPlayerId);
+                    $buttonId = $tournament->buttonIdArrayArray[$tournamentPlayerId][0];
+                    $data['playerDataArray'][$tournamentPlayerIdx]['buttonId'] = $buttonId;
+                    $data['playerDataArray'][$tournamentPlayerIdx]['buttonName'] =
+                        $this->get_button_name_from_id($buttonId);
+                }
+            }
+
+            $data['gameDataArrayArray'] = [];
+
+            if (!empty($tournament->gameIdArrayArray)) {
+                foreach ($tournament->gameIdArrayArray as $tournamentRoundIdx => $gameIdArray) {
+                    foreach ($gameIdArray as $gameIdx => $gameId) {
+                        $data['gameDataArrayArray'][$tournamentRoundIdx][$gameIdx] =
+                            $this->load_game_summary($gameId);
+                    }
                 }
             }
 

@@ -59,7 +59,7 @@ class responderTournamentTest extends responderTestFramework {
             'tournamentRoundNumber' => 1,
             'tournamentState' => 'JOIN_TOURNAMENT',
             'currentPlayerIdx' => FALSE,
-            'gameIdArrayArray' => array(),
+            'gameDataArrayArray' => array(),
             'remainCountArray' => array(),
             'timestamp' => NULL,
             'isCreator' => TRUE,
@@ -94,6 +94,8 @@ class responderTournamentTest extends responderTestFramework {
             0 => array(
                 'playerId' => $_SESSION['user_id'],
                 'playerName' => $_SESSION['user_name'],
+                'buttonId' => 256,
+                'buttonName' => 'Avis',
             ),
         );
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -116,6 +118,8 @@ class responderTournamentTest extends responderTestFramework {
         $expData['playerDataArray'][1] = array(
             'playerId' => $_SESSION['user_id'],
             'playerName' => $_SESSION['user_name'],
+            'buttonId' => 442,
+            'buttonName' => 'haruspex',
         );
         $_SESSION = $this->mock_test_user_login('responder003');
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
@@ -160,8 +164,10 @@ class responderTournamentTest extends responderTestFramework {
         );
         $expData['remainCountArray'][2] = 0;
         $expData['playerDataArray'][2] = array(
-             'playerId' => $_SESSION['user_id'],
-             'playerName' => $_SESSION['user_name'],
+            'playerId' => $_SESSION['user_id'],
+            'playerName' => $_SESSION['user_name'],
+            'buttonId' => 8,
+            'buttonName' => 'ConMan',
         );
         $expData['currentPlayerIdx'] = 2;
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
@@ -181,6 +187,8 @@ class responderTournamentTest extends responderTestFramework {
         $expData['playerDataArray'][3] = array(
             'playerId' => $_SESSION['user_id'],
             'playerName' => $_SESSION['user_name'],
+            'buttonId' => 442,
+            'buttonName' => 'haruspex',
         );
         $expData['tournamentState'] = 'PLAY_GAMES';
         $expData['remainCountArray'][0] = 1;
@@ -191,12 +199,12 @@ class responderTournamentTest extends responderTestFramework {
 
         // grab the response without checking it, so we can pull the gameIds
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId, $check=FALSE);
-        $this->assertEquals(count($retval['gameIdArrayArray'][0]), 2);
-        $expData['gameIdArrayArray'][0] = $retval['gameIdArrayArray'][0];
+        $this->assertEquals(count($retval['gameDataArrayArray'][0]), 2);
+        $expData['gameDataArrayArray'][0] = $retval['gameDataArrayArray'][0];
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
-        $gameOneId = $expData['gameIdArrayArray'][0][0];
-        $gameTwoId = $expData['gameIdArrayArray'][0][1];
+        $gameOneId = $expData['gameDataArrayArray'][0][0]['gameId'];
+        $gameTwoId = $expData['gameDataArrayArray'][0][1]['gameId'];
 
         $_SESSION = $this->mock_test_user_login('responder002');
         $this->verify_api_updateTournament_failure(
@@ -286,7 +294,10 @@ class responderTournamentTest extends responderTestFramework {
             $gameTwoRetval, array(array(0, 0), array(1, 0)),
             $gameTwoId, 1, 'Skill', 0, 1, '');
 
-        // game completion does not currently change tournament metadata
+        $expData['gameDataArrayArray'][0][1]['statusId'] = 3;
+        $expData['gameDataArrayArray'][0][1]['status'] = 'COMPLETE';
+        $expData['gameDataArrayArray'][0][1]['nwins_0'] = 1;
+        $expData['gameDataArrayArray'][0][1]['winner'] = 'responder003';
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // Take turns in game 1 until it is completed
@@ -338,12 +349,16 @@ class responderTournamentTest extends responderTestFramework {
         // Second round of tournament has now started
         // Again, grab the response without checking it, so we can pull the gameId
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId, $check=FALSE);
-        $this->assertEquals(count($retval['gameIdArrayArray'][1]), 1);
-        $expData['gameIdArrayArray'][1] = $retval['gameIdArrayArray'][1];
-        $gameThreeId = $expData['gameIdArrayArray'][1][0];
+        $this->assertEquals(count($retval['gameDataArrayArray'][1]), 1);
+        $expData['gameDataArrayArray'][1] = $retval['gameDataArrayArray'][1];
+        $gameThreeId = $expData['gameDataArrayArray'][1][0]['gameId'];
         $expData['tournamentRoundNumber'] = 2;
         $expData['remainCountArray'][0] = 0;
         $expData['remainCountArray'][3] = 0;
+        $expData['gameDataArrayArray'][0][0]['statusId'] = 3;
+        $expData['gameDataArrayArray'][0][0]['status'] = 'COMPLETE';
+        $expData['gameDataArrayArray'][0][0]['nwins_1'] = 1;
+        $expData['gameDataArrayArray'][0][0]['winner'] = 'responder005';
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // Initial game data for game 3
@@ -394,6 +409,10 @@ class responderTournamentTest extends responderTestFramework {
         // Tournament data at the end of the tournament
         $expData['tournamentState'] = 'END_TOURNAMENT';
         $expData['remainCountArray'][1] = 0;
+        $expData['gameDataArrayArray'][1][0]['statusId'] = 3;
+        $expData['gameDataArrayArray'][1][0]['status'] = 'COMPLETE';
+        $expData['gameDataArrayArray'][1][0]['nwins_1'] = 1;
+        $expData['gameDataArrayArray'][1][0]['winner'] = 'responder003';
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
         // bystander dismisses the tournament, which isn't allowed because only participants can dismiss a tournament
