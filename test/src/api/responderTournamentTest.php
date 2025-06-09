@@ -94,7 +94,6 @@ class responderTournamentTest extends responderTestFramework {
             0 => array(
                 'playerId' => $_SESSION['user_id'],
                 'playerName' => $_SESSION['user_name'],
-                'buttonId' => 256,
                 'buttonName' => 'Avis',
             ),
         );
@@ -118,7 +117,6 @@ class responderTournamentTest extends responderTestFramework {
         $expData['playerDataArray'][1] = array(
             'playerId' => $_SESSION['user_id'],
             'playerName' => $_SESSION['user_name'],
-            'buttonId' => 442,
             'buttonName' => 'haruspex',
         );
         $_SESSION = $this->mock_test_user_login('responder003');
@@ -166,7 +164,6 @@ class responderTournamentTest extends responderTestFramework {
         $expData['playerDataArray'][2] = array(
             'playerId' => $_SESSION['user_id'],
             'playerName' => $_SESSION['user_name'],
-            'buttonId' => 8,
             'buttonName' => 'ConMan',
         );
         $expData['currentPlayerIdx'] = 2;
@@ -187,7 +184,6 @@ class responderTournamentTest extends responderTestFramework {
         $expData['playerDataArray'][3] = array(
             'playerId' => $_SESSION['user_id'],
             'playerName' => $_SESSION['user_name'],
-            'buttonId' => 442,
             'buttonName' => 'haruspex',
         );
         $expData['tournamentState'] = 'PLAY_GAMES';
@@ -296,7 +292,7 @@ class responderTournamentTest extends responderTestFramework {
 
         $expData['gameDataArrayArray'][0][1]['statusId'] = 3;
         $expData['gameDataArrayArray'][0][1]['status'] = 'COMPLETE';
-        $expData['gameDataArrayArray'][0][1]['nwins_0'] = 1;
+        $expData['gameDataArrayArray'][0][1]['nWinsArray'][0] = 1;
         $expData['gameDataArrayArray'][0][1]['winner'] = 'responder003';
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
@@ -357,7 +353,7 @@ class responderTournamentTest extends responderTestFramework {
         $expData['remainCountArray'][3] = 0;
         $expData['gameDataArrayArray'][0][0]['statusId'] = 3;
         $expData['gameDataArrayArray'][0][0]['status'] = 'COMPLETE';
-        $expData['gameDataArrayArray'][0][0]['nwins_1'] = 1;
+        $expData['gameDataArrayArray'][0][0]['nWinsArray'][1] = 1;
         $expData['gameDataArrayArray'][0][0]['winner'] = 'responder005';
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
@@ -411,7 +407,7 @@ class responderTournamentTest extends responderTestFramework {
         $expData['remainCountArray'][1] = 0;
         $expData['gameDataArrayArray'][1][0]['statusId'] = 3;
         $expData['gameDataArrayArray'][1][0]['status'] = 'COMPLETE';
-        $expData['gameDataArrayArray'][1][0]['nwins_1'] = 1;
+        $expData['gameDataArrayArray'][1][0]['nWinsArray'][1] = 1;
         $expData['gameDataArrayArray'][1][0]['winner'] = 'responder003';
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
