@@ -26,21 +26,13 @@ class BMInterfaceTournament extends BMInterface {
                 ':player_id' => $playerId);
             $count = self::$db->select_single_value($query, $parameters, 'int');
             return $count > 0;
-
-            return $statement->fetchColumn() > 0;
         } catch (BMExceptionDatabase $e) {
             $this->set_message(
                 'Cannot determine if tournament is watched because a player or tournament ID was not valid'
             );
             return NULL;
         } catch (Exception $e) {
-            // Failure might occur on DB insert or afterward
-            $errorData = $statement->errorInfo();
-            if ($errorData[2]) {
-                $this->set_message('Attempt to determine if tournament is watched failed: ' . $errorData[2]);
-            } else {
-                $this->set_message('Attempt to determine if tournament is watched failed: ' . $e->getMessage());
-            }
+            $this->set_message('Attempt to determine if tournament is watched failed: ' . $e->getMessage());
             error_log(
                 'Caught exception in BMInterface::is_tournament_watched: ' .
                 $e->getMessage()
@@ -79,13 +71,7 @@ class BMInterfaceTournament extends BMInterface {
             $this->set_message('Tournament watch set failed because a player or tournament ID was not valid');
             return NULL;
         } catch (Exception $e) {
-            // Failure might occur on DB insert or afterward
-            $errorData = $statement->errorInfo();
-            if ($errorData[2]) {
-                $this->set_message('Watch failed: ' . $errorData[2]);
-            } else {
-                $this->set_message('Watch failed: ' . $e->getMessage());
-            }
+            $this->set_message('Watch failed: ' . $e->getMessage());
             error_log(
                 'Caught exception in BMInterface::watch_tournament: ' .
                 $e->getMessage()
@@ -123,13 +109,7 @@ class BMInterfaceTournament extends BMInterface {
             $this->set_message('Tournament watch unset failed because a player or tournament ID was not valid');
             return NULL;
         } catch (Exception $e) {
-            // Failure might occur on DB insert or afterward
-            $errorData = $statement->errorInfo();
-            if ($errorData[2]) {
-                $this->set_message('Unwatch failed: ' . $errorData[2]);
-            } else {
-                $this->set_message('Unwatch failed: ' . $e->getMessage());
-            }
+            $this->set_message('Unwatch failed: ' . $e->getMessage());
             error_log(
                 'Caught exception in BMInterface::unwatch_tournament: ' .
                 $e->getMessage()
@@ -288,13 +268,7 @@ class BMInterfaceTournament extends BMInterface {
             $this->set_message('Cannot insert tournament because the creator ID was not valid');
             return NULL;
         } catch (Exception $e) {
-            // Failure might occur on DB insert or afterward
-            $errorData = $statement->errorInfo();
-            if ($errorData[2]) {
-                $this->set_message('Tournament create failed: ' . $errorData[2]);
-            } else {
-                $this->set_message('Tournament create failed: ' . $e->getMessage());
-            }
+            $this->set_message('Tournament create failed: ' . $e->getMessage());
             error_log(
                 'Caught exception in BMInterface::insert_new_tournament: ' .
                 $e->getMessage()
@@ -1034,7 +1008,6 @@ class BMInterfaceTournament extends BMInterface {
                 'AND tournament_id = :tournament_id_current ' .
                 'AND player_id = :player_id';
 
-        $statement = self::$conn->prepare($query);
         $parameters = array(':tournament_id_check_has_started' => $tournamentId,
             ':tournament_id_current' => $tournamentId,
             ':player_id' => $userId,

@@ -301,7 +301,7 @@ Tournament.pageAddPlayerInfo = function () {
   var playerDiv = $('<div>');
   var playerTable = $('<table>');
 
-  var headerRow = $('<tr>').append('<th>Player</th>').append('<th>Button</th>');
+  var headerRow = $('<tr>').append('<th>Player</th>', '<th>Button</th>');
   playerTable.append(headerRow);
 
   if (Api.tournament.playerDataArray) {
@@ -325,11 +325,7 @@ Tournament.pageAddPlayerInfo = function () {
       playerTable.append(playerRow);
     }
   } else {
-    playerTable.append(
-      $('<tr>'),
-      $('<td>None</td>'),
-      $('<td>None</td>')
-    );
+    playerTable.append('<tr>', '<td>None</td>', '<td>None</td>');
   }
 
   playerDiv.append(playerTable);
@@ -562,14 +558,14 @@ Tournament.showGames = function () {
 
   gameTable.append(
     $('<tr>').append(
-      $('<th>Round</th>'),
-      $('<th>Game</th>'),
-      $('<th>Winner</th>'),
-      $('<th>Score</th>'),
-      $('<th>Player 1</th>'),
-      $('<th>Button 1</th>'),
-      $('<th>Player 2</th>'),
-      $('<th>Button 2</th>')
+      '<th>Round</th>',
+      '<th>Game</th>',
+      '<th>Winner</th>',
+      '<th>Score</th>',
+      '<th>Player 1</th>',
+      '<th>Button 1</th>',
+      '<th>Player 2</th>',
+      '<th>Button 2</th>'
     )
   );
 
@@ -599,26 +595,26 @@ Tournament.showGames = function () {
         })),
         $('<td>').append(winnerCell),
         $('<td>').append(
-          gameData.nwins_0 + '/' +
-          gameData.nwins_1 + '/' +
+          gameData.nWinsArray[0] + '/' +
+          gameData.nWinsArray[1] + '/' +
           gameData.ndraws + ' (' +
           gameData.n_target_wins + ')'
         ),
         $('<td>').append($('<a>', {
-          'href': 'profile.html?player=' + gameData.name_0,
-          'text': gameData.name_0,
+          'href': 'profile.html?player=' + gameData.playerArray[0],
+          'text': gameData.playerArray[0],
         })),
         $('<td>').append($('<a>', {
-          'href': 'buttons.html?button=' + gameData.button_0,
-          'text': gameData.button_0,
+          'href': 'buttons.html?button=' + gameData.buttonArray[0],
+          'text': gameData.buttonArray[0],
         })),
         $('<td>').append($('<a>', {
-          'href': 'profile.html?player=' + gameData.name_1,
-          'text': gameData.name_1,
+          'href': 'profile.html?player=' + gameData.playerArray[1],
+          'text': gameData.playerArray[1],
         })),
         $('<td>').append($('<a>', {
-          'href': 'buttons.html?button=' + gameData.button_1,
-          'text': gameData.button_1,
+          'href': 'buttons.html?button=' + gameData.buttonArray[1],
+          'text': gameData.buttonArray[1],
         }))
       );
 
