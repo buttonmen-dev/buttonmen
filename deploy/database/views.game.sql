@@ -27,19 +27,14 @@ AS SELECT
     p.fire_overshooting,
     (length(p.vacation_message) > 0) as is_on_vacation,
     b.name AS button_name,
-    g.n_target_wins,
-    g.status_id,
-    s.name as status,
-    m.n_rounds_won >= g.n_target_wins AS is_winner
+    g.n_target_wins
 FROM game_player_map AS m
 LEFT JOIN player AS p
 ON m.player_id = p.id
 LEFT JOIN button AS b
 ON m.button_id = b.id
 LEFT JOIN game AS g
-ON m.game_id = g.id
-LEFT JOIN game_status AS s
-ON g.status_id = s.id;
+ON m.game_id = g.id;
 
 DROP VIEW IF EXISTS open_game_possible_button_view;
 CREATE VIEW open_game_possible_button_view

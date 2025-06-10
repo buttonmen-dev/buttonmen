@@ -352,21 +352,25 @@ class BMInterface {
             $this->set_message('Game summary retrieved successfully.');
 
             $query = <<<'NOWDOC'
-                SELECT game_id,
-                       status_id,
-                       status,
-                       n_target_wins,
-                       position,
-                       player_id,
-                       player_name,
-                       button_id,
-                       button_name,
-                       n_rounds_won,
-                       n_rounds_drawn,
-                       is_winner
-                FROM game_player_view
-                WHERE game_id = :game_id
-                ORDER BY position
+                SELECT v.game_id,
+                        g.status_id,
+                        s.name as status,
+                        v.n_target_wins,
+                        v.position,
+                        v.player_id,
+                        v.player_name,
+                        v.button_id,
+                        v.button_name,
+                        v.n_rounds_won,
+                        v.n_rounds_drawn,
+                        v.n_rounds_won >= v.n_target_wins AS is_winner
+                 FROM game_player_view AS v
+                 LEFT JOIN game AS g
+                 ON g.id = v.game_id
+                 LEFT JOIN game_status AS s
+                 ON g.status_id = s.id
+                 WHERE v.game_id = :game_id
+                 ORDER BY v.position
 NOWDOC;
 
             $parameters = array(':game_id' => $gameId);
