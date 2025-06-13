@@ -3,6 +3,9 @@ class javascript::type::circleci {
     "npm": ensure => installed;
     "nodejs-legacy": ensure => installed;
 
+    # needed to run a headless script on Ubuntu
+    "xvfb": ensure => installed;
+
     # we'll downgrade phantomjs later, but install it via apt to get its dependencies
     "phantomjs": ensure => installed;
   }
