@@ -174,6 +174,14 @@ test("test_Tournament.pageAddTournamentHeader", function(assert) {
 
 });
 
+test("test_Tournament.pageAddDismissTournamentLink", function(assert) {
+
+});
+
+test("test_Tournament.formDismissTournament", function(assert) {
+
+});
+
 test("test_Tournament.pageAddUnfollowTournamentLink", function(assert) {
 
 });

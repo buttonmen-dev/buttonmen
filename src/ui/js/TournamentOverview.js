@@ -84,6 +84,7 @@ TournamentOverview.pageAddTournamentTable = function(
   var tournamentIdx;
   var tableClass;
   var showDismiss = false;
+  var showFollow = false;
   var showNPlayersJoined = false;
 
   switch (tournamentType) {
@@ -112,6 +113,7 @@ TournamentOverview.pageAddTournamentTable = function(
       }
     }
     showNPlayersJoined = true;
+    showFollow = true;
     tableClass = 'opentournaments';
     break;
   case 'active':
@@ -123,6 +125,7 @@ TournamentOverview.pageAddTournamentTable = function(
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
     }
+    showFollow = true;
     tableClass = 'activetournaments';
     break;
   case 'closed':
@@ -139,8 +142,8 @@ TournamentOverview.pageAddTournamentTable = function(
         tournamentsource.push(Api.tournaments.tournaments[tournamentIdx]);
       }
     }
-    tableClass = 'closedtournaments';
     showDismiss = true;
+    tableClass = 'closedtournaments';
     break;
   default:
 
@@ -156,16 +159,17 @@ TournamentOverview.pageAddTournamentTable = function(
 
   TournamentOverview.addTableRows(
     TournamentOverview.addTableStructure(
-      tableClass, sectionHeader, showDismiss
+      tableClass, sectionHeader, showDismiss, showFollow
     ),
     tournamentsource,
     showDismiss,
+    showFollow,
     showNPlayersJoined
   );
 };
 
 TournamentOverview.addTableStructure = function(
-  tableClass, sectionHeader, showDismiss
+  tableClass, sectionHeader, showDismiss, showFollow
 ) {
   var tableBody = TournamentOverview.page.find(
     'table.' + tableClass + ' tbody'
@@ -210,6 +214,8 @@ TournamentOverview.addTableStructure = function(
   headerRow.append($('<th>', {'text': 'Creator', }));
   if (showDismiss) {
     headerRow.append($('<th>', {'text': 'Dismiss', }));
+  } else if (showFollow) {
+    headerRow.append($('<th>', {'text': 'Follow', }));
   }
   tableHead.append(headerRow);
   table.append(tableHead);
@@ -222,7 +228,7 @@ TournamentOverview.addTableStructure = function(
 };
 
 TournamentOverview.addTableRows = function(
-  tableBody, tournamentsource, showDismiss, showNPlayersJoined
+  tableBody, tournamentsource, showDismiss, showFollow, showNPlayersJoined
 ) {
   var tournamentInfo;
   var tournamentRow;
@@ -244,6 +250,8 @@ TournamentOverview.addTableRows = function(
     TournamentOverview.addPlayerCol(tournamentRow, tournamentInfo.creatorName);
     if (showDismiss) {
       TournamentOverview.addDismissCol(tournamentRow, tournamentInfo);
+    } else if (showFollow) {
+      TournamentOverview.addFollowCol(tournamentRow, tournamentInfo);
     }
 
     tableBody.append(tournamentRow);
@@ -327,6 +335,63 @@ TournamentOverview.formDismissTournament = function(e) {
               'tournamentId': $(this).attr('data-tournamentId'),};
   var messages = {
     'ok': { 'type': 'fixed', 'text': 'Successfully dismissed tournament', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), TournamentOverview.showLoggedInPage,
+    TournamentOverview.showLoggedInPage);
+};
+
+TournamentOverview.addFollowCol = function(tournamentRow, tournamentInfo) {
+  var followTd = $('<td>');
+  followTd.css('white-space', 'nowrap');
+  tournamentRow.append(followTd);
+
+  if (tournamentInfo.hasJoined) {
+    followTd.append('Participant');
+    return;
+  }
+
+  var followLink;
+
+  if (tournamentInfo.isWatched) {
+    followLink = $('<a>', {
+      'text': 'Unfollow',
+      'href': '#',
+      'data-tournamentId': tournamentInfo.tournamentId,
+    });
+    followLink.click(TournamentOverview.formUnfollowTournament);
+  } else {
+    followLink = $('<a>', {
+      'text': 'Follow',
+      'href': '#',
+      'data-tournamentId': tournamentInfo.tournamentId,
+    });
+    followLink.click(TournamentOverview.formFollowTournament);
+  }
+
+  followTd.append('[')
+           .append(followLink)
+           .append(']');
+};
+
+TournamentOverview.formFollowTournament = function(e) {
+  e.preventDefault();
+  var args = {'type': 'followTournament',
+              'tournamentId': $(this).attr('data-tournamentId'),};
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully followed tournament', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), TournamentOverview.showLoggedInPage,
+    TournamentOverview.showLoggedInPage);
+};
+
+TournamentOverview.formUnfollowTournament = function(e) {
+  e.preventDefault();
+  var args = {'type': 'unfollowTournament',
+              'tournamentId': $(this).attr('data-tournamentId'),};
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully unfollowed tournament', },
     'notok': { 'type': 'server' },
   };
   Api.apiFormPost(args, messages, $(this), TournamentOverview.showLoggedInPage,

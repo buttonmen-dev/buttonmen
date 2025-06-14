@@ -108,11 +108,9 @@ Tournament.showTournamentContents = function() {
 
   Tournament.page = $('<div>');
 
-  if (Api.tournament.isWatched) {
-    Tournament.pageAddUnfollowTournamentLink();
-  } else {
-    Tournament.pageAddFollowTournamentLink();
-  }
+  Tournament.pageAddFollowTournamentLink();
+  Tournament.pageAddUnfollowTournamentLink();
+  Tournament.pageAddDismissTournamentLink();
 
   Tournament.pageAddTournamentHeader();
 
@@ -181,12 +179,56 @@ Tournament.pageAddTournamentHeader = function() {
   Tournament.page.append($('<br>'));
 };
 
+Tournament.pageAddDismissTournamentLink = function () {
+  // must be in a completed tournament and following it
+  if (!(
+        Api.tournament.isParticipant &&
+        (
+          (Api.tournament.tournamentState ==
+             Tournament.TOURN_STATE_END_TOURNAMENT) ||
+          (Api.tournament.tournamentState ==
+             Tournament.TOURN_STATE_CANCELLED)
+        ) &&
+        Api.tournament.isWatched
+     )) {
+    return;
+  }
+
+  var dismissTournamentDiv = $('<div>', {
+    'class': 'follow_tournament',
+  });
+  var dismissTournamentLink = $('<a>', {
+    'text': 'Dismiss tournament',
+    'href': '#',
+    'data-tournamentId': Api.tournament.tournamentId,
+  });
+  dismissTournamentLink.click(Tournament.formDismissTournament);
+
+  dismissTournamentDiv.append('[')
+          .append(dismissTournamentLink)
+          .append(']');
+
+  Tournament.page.append(dismissTournamentDiv);
+};
+
+Tournament.formDismissTournament = function(e) {
+  e.preventDefault();
+  var args = {'type': 'dismissTournament',
+              'tournamentId': $(this).attr('data-tournamentId'),};
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed tournament', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Tournament.showLoggedInPage,
+    Tournament.showLoggedInPage);
+};
+
 Tournament.pageAddUnfollowTournamentLink = function () {
-  if (Api.tournament.isParticipant &&
-      (Api.tournament.tournamentState !==
-       Tournament.TOURN_STATE_END_TOURNAMENT) &&
-      (Api.tournament.tournamentState !==
-       Tournament.TOURN_STATE_CANCELLED)) {
+  // must be not in a tournament, but still following it
+  if (!(
+       !Api.tournament.isParticipant &&
+       Api.tournament.isWatched
+     )) {
     return;
   }
 
@@ -220,6 +262,21 @@ Tournament.formUnfollowTournament = function(e) {
 };
 
 Tournament.pageAddFollowTournamentLink = function () {
+  // must be not following a tournament, and the tournament is not complete
+  //
+  // also, since we can't unfollow a tournament that we're in, we don't need
+  // this link for any tournament that we're in
+  if (!(
+    !Api.tournament.isWatched &&
+    (Api.tournament.tournamentState !=
+       Tournament.TOURN_STATE_END_TOURNAMENT) &&
+    (Api.tournament.tournamentState !=
+       Tournament.TOURN_STATE_CANCELLED) &&
+    !Api.tournament.isParticipant
+   )) {
+    return;
+  }
+
   var followTournamentDiv = $('<div>', {
     'class': 'follow_tournament',
   });
@@ -600,7 +657,9 @@ Tournament.showGames = function () {
           gameData.ndraws + ' (' +
           gameData.n_target_wins + ')'
         ),
-        $('<td>').append($('<a>', {
+        $('<td>').append(gameData.isOnVacationArray[0] ?
+                         Env.buildVacationImage() : '')
+                 .append($('<a>', {
           'href': 'profile.html?player=' + gameData.playerArray[0],
           'text': gameData.playerArray[0],
         })),
@@ -608,7 +667,9 @@ Tournament.showGames = function () {
           'href': 'buttons.html?button=' + gameData.buttonArray[0],
           'text': gameData.buttonArray[0],
         })),
-        $('<td>').append($('<a>', {
+        $('<td>').append(gameData.isOnVacationArray[1] ?
+                         Env.buildVacationImage() : '')
+                 .append($('<a>', {
           'href': 'profile.html?player=' + gameData.playerArray[1],
           'text': gameData.playerArray[1],
         })),

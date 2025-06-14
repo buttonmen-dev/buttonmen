@@ -218,6 +218,22 @@ test("test_TournamentOverview.addDismissCol", function(assert) {
 
 });
 
+test("test_TournamentOverview.addFollowCol", function(assert) {
+
+});
+
+test("test_TournamentOverview.formFollowTournament", function(assert) {
+
+});
+
+test("test_TournamentOverview.formUnfollowTournament", function(assert) {
+
+});
+
+test("test_TournamentOverview.addUnfollowCol", function(assert) {
+
+});
+
 test("test_TournamentOverview.linkTextStub", function(assert) {
 
 });
