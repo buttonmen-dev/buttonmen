@@ -363,7 +363,8 @@ class BMInterface {
                         v.button_name,
                         v.n_rounds_won,
                         v.n_rounds_drawn,
-                        v.n_rounds_won >= v.n_target_wins AS is_winner
+                        v.n_rounds_won >= v.n_target_wins AS is_winner,
+                        v.is_on_vacation
                  FROM game_player_view AS v
                  LEFT JOIN game AS g
                  ON g.id = v.game_id
@@ -387,6 +388,7 @@ NOWDOC;
                 'n_rounds_won' => 'int',
                 'n_rounds_drawn' => 'int',
                 'is_winner' => 'bool',
+                'is_on_vacation' => 'bool',
             );
             $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
 
@@ -411,9 +413,11 @@ NOWDOC;
     protected function read_game_summary_from_db_results($rows) {
         $button_0 = '';
         $name_0 = '';
+        $is_on_vacation_0 = FALSE;
         $nwins_0 = 0;
         $button_1 = '';
         $name_1 = '';
+        $is_on_vacation_1 = FALSE;
         $nwins_1 = 0;
         $winner = '';
 
@@ -422,10 +426,12 @@ NOWDOC;
                 $button_0 = $row['button_name'];
                 $name_0 = $row['player_name'];
                 $nwins_0 = $row['n_rounds_won'];
+                $is_on_vacation_0 = $row['is_on_vacation'];
             } else {
                 $button_1 = $row['button_name'];
                 $name_1 = $row['player_name'];
                 $nwins_1 = $row['n_rounds_won'];
+                $is_on_vacation_1 = $row['is_on_vacation'];
             }
 
             if ($row['is_winner']) {
@@ -440,6 +446,7 @@ NOWDOC;
             'n_target_wins' => $rows[0]['n_target_wins'],
             'buttonArray' => array($button_0, $button_1),
             'playerArray' => array($name_0, $name_1),
+            'isOnVacationArray' => array($is_on_vacation_0, $is_on_vacation_1),
             'nWinsArray' => array($nwins_0, $nwins_1),
             'ndraws' => $rows[0]['n_rounds_drawn'],
             'winner' => $winner

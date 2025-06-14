@@ -335,6 +335,14 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'closingHtml': '</a>',
       'escapeParameter': true,
     },
+    'tourn': {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml': '<a class="chatTournLink" ' +
+                       'href="tournament.html?tournament=###">Tournament ',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
     'wiki': {
       'isAtomic': true,
       'isLink': true,
