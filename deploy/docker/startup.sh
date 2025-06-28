@@ -49,12 +49,8 @@ mv /etc/letsencrypt/* ${MNT_DIR}/letsencrypt/
 rmdir /etc/letsencrypt
 ln -s ${MNT_DIR}/letsencrypt /etc/letsencrypt
 
-# If /etc/letsencrypt/live exists, there's an existing cert for
-# this domain, and we need to install it for apache.
-# (If it doesn't exist, we may not have DNS yet, so it's not safe to run certbot.)
-if [ -d /etc/letsencrypt/live ]; then
-  /usr/local/bin/apache_setup_certbot
-fi
+# If there's an existing cert for this domain, install it to apache
+/usr/local/bin/apache_setup_certbot existing_cert
 
 # Buttonmen services
 /etc/init.d/apache2 start
