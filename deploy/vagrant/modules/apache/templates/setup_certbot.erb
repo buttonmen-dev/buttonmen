@@ -7,6 +7,12 @@ set -x
 FQDN_FILE=/usr/local/etc/bmsite_fqdn
 SANDBOX_FQDN="sandbox.buttonweavers.com"
 
+CONDITION=$1
+if [ "${CONDITION}" != "existing_cert" ] && [ "${CONDITION}" != "new_cert" ]; then
+  echo "Usage: apache_setup_certbot [existing_cert|new_cert]"
+  exit 1
+fi
+
 if [ ! -f "${FQDN_FILE}" ]; then
   echo "Missing dependencies - can't find file ${FQDN_FILE}"
   exit 1
@@ -18,8 +24,32 @@ if [ "${FQDN}" = "${SANDBOX_FQDN}" ]; then
   exit 0
 fi
 
-if [ -d "/etc/letsencrypt/live/${FQDN}" ]; then
-  echo "Directory /etc/letsencrypt/live is already populated; continuing in case we need to reinstall the cert to apache"
+CERT_DIR="/etc/letsencrypt/live/${FQDN}"
+
+# If we're looking for an existing cert and don't find one, exit.
+# This case is primarily for use on container startup, where DNS
+# may not be configured yet, so we don't want to ask letsencrypt for a new cert
+if [ "${CONDITION}" = "existing_cert" ]; then
+  if [ -d "${CERT_DIR}" ]; then
+    echo "Directory ${CERT_DIR} was previously created; continuing in order to reinstall the cert to apache"
+  else
+    echo "Directory ${CERT_DIR} has not yet been created; exiting so that a future script can request a new cert"
+    exit 0
+  fi
+fi
+
+# If we're looking for an new cert and find and existing one, exit.
+# This case is primarily for use after container startup, where DNS
+# has been configured, and we want to ask letsencrypt for a new cert.
+# If there's an existing cert, we expect certbot was run on container
+# startup, and don't want to risk a race condition.
+if [ "${CONDITION}" = "new_cert" ]; then
+  if [ -d "${CERT_DIR}" ]; then
+    echo "Directory ${CERT_DIR} was previously created; exiting because a previous script probably already installed this cert to apache"
+    exit 0
+  else
+    echo "Directory ${CERT_DIR} has not yet been created; continuing in order to request a new cert"
+  fi
 fi
 
 echo "Running certbot to configure this site as FQDN ${FQDN}"
