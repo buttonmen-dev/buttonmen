@@ -1350,7 +1350,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (807, 'GamerXYZ',         'Ho(4) dk(6) sz(X) qt(Y) `M(Z)',                 0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
 (808, 'irilyth',          'Gg(8) Gg(16) Gg(32) `sptH(1) `sptH(2) `sptH(3) `sptH(5) `sptH(8) spohr(4,9) spohr(9,16) spohr(16,25)', 1, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
 (809, 'Scipio',           'bt(1) s(8) (3/19)! (5/23)! #(X)',               0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
-(867, 'nycavri',          '(1) (3) (5) (14) Hs^(14)',                      0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics"));
+(867, 'nycavri',          '(1) (3) (5) (14) Hs^(14)',                      0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics")),
+(868, 'xmbrst',           'dk(1) dk(2) (13) (R) (R)!',                      0, 0, (SELECT id FROM buttonset WHERE name="Modern Fanatics"));
 
 #############################################
 #####   S P E C I A L   B U T T O N S   #####
@@ -1701,6 +1702,7 @@ UPDATE button SET flavor_text="GamerXYZ likes graham crackers, electric blankets
 UPDATE button SET flavor_text="irilyth likes pretty dice with swirly colors, and especially likes using them to beat people up." WHERE name="irilyth";
 UPDATE button SET flavor_text="Scipio is a broadly interested heretic from a mysterious country. He likes cheese, chocolate, watches, and the rule of three. Also beating people up." WHERE name="Scipio";
 UPDATE button SET flavor_text="Described as ""subtle and engaging"" by Lawrence Block, when not beating people up nycavri is reading/writing novels, playing/designing games, and living/loving life.<br><br>Art by Lauren Rogers" WHERE name="nycavri";
+UPDATE button SET flavor_text="Xmbrst is an itinerant theremin player who was raised by an anarcho-syndicalist collective onboard a lime-green submarine. He likes word machines, genre calendars, and beating people up." WHERE name="xmbrst";
 UPDATE button SET flavor_text="Gluttony enjoys eating, eating and the Fat Albert Cartoon. When not eating, or thinking about eating, he spends his time beating people up with his Double-Drumstick Fu." WHERE name="Gluttony";
 UPDATE button SET flavor_text="Pride is a diva of the nose harmonica. When not appearing on Live TV news casts, she enjoys flinging cats, radish carvings and beating people up." WHERE name="Pride";
 UPDATE button SET flavor_text="Lust is an out-of-work actress who is rather top-heavy. While not trying to get bit parts on VIP, Baywatch or any USA shows, she enjoys humming and the color red. She also beats people up." WHERE name="Lust";
