@@ -128,6 +128,7 @@ var Api = (function () {
   my.apiFormPost = function(
       args, messages, submitButton, callback, failcallback) {
     my.disableSubmitButton(submitButton);
+
     $.post(
       Env.api_location,
       JSON.stringify(args),
@@ -168,6 +169,7 @@ var Api = (function () {
           } else if (messages.notok.type == 'function') {
             messages.notok.msgfunc(rs.message);
           }
+
           return failcallback();
         }
       }
@@ -471,6 +473,7 @@ var Api = (function () {
 
     // Store some initial high-level game elements
     my.game.gameId = data.gameId;
+    my.game.tournamentId = data.tournamentId;
     my.game.gameState = data.gameState;
     my.game.roundNumber = data.roundNumber;
     my.game.maxWins = data.maxWins;
@@ -669,6 +672,105 @@ var Api = (function () {
     my.cancel_game_result.success = data;
     return true;
   };
+
+  ////////////////////////////////////////////////////////////
+  // Tournament-related methods
+
+  my.getTournamentsData = function(callbackfunc) {
+    my.tournaments = {};
+    var parserargs = [];
+    parserargs.target = my.tournaments;
+    parserargs.isSplit = false;
+    my.apiParsePost(
+      {'type': 'loadTournaments',},
+      'tournaments',
+      my.packageTournamentData,
+      callbackfunc,
+      callbackfunc,
+      parserargs
+    );
+  };
+
+  my.packageTournamentData = function(data, _apikey, parserargs) {
+    parserargs.target.tournaments = [];
+    parserargs.target.nTournaments = data.tournamentIdArray.length;
+
+    for (var i = 0; i < parserargs.target.nTournaments; i++) {
+      var tournamentInfo = {
+        'tournamentId': data.tournamentIdArray[i],
+        'creatorName': data.creatorNameArray[i],
+        'tournamentType': data.tournamentTypeArray[i],
+        'tournamentDescription': data.tournamentDescriptionArray[i],
+        'nPlayers': data.nPlayersArray[i],
+        'nPlayersJoined': data.nPlayersJoinedArray[i],
+        'maxWins': data.nTargetWinsArray[i],
+        'tournamentState': data.tournamentStateArray[i],
+        'status': data.statusArray[i],
+        'roundNumber': data.roundNumberArray[i],
+        'startTime': data.startTimeArray[i],
+        'isCreator': data.isCreatorArray[i],
+        'hasJoined': data.hasJoinedArray[i],
+        'isWatched': data.isWatchedArray[i],
+      };
+
+      parserargs.target.tournaments.push(tournamentInfo);
+    }
+
+    return true;
+  };
+
+  my.getTournamentData = function(tournament, callback) {
+    activity.tournamentId = tournament;
+    Api.apiParsePost(
+      { type: 'loadTournamentData', tournament: tournament },
+      'tournament',
+      my.parseTournamentData,
+      callback,
+      callback
+    );
+  };
+
+  // Utility routine to parse the tournament data returned by the server
+  // Adds tournament data:
+  //   Api.tournament.*: metadata about the entire tournament
+  my.parseTournamentData = function(data) {
+    // Store some initial high-level tournament elements
+    my.tournament.tournamentId = data.tournamentId;
+    my.tournament.tournamentState = data.tournamentState;
+    my.tournament.roundNumber = data.tournamentRoundNumber;
+    my.tournament.type = data.type;
+    my.tournament.nPlayers = data.nPlayers;
+    my.tournament.maxWins = data.maxWins;
+    my.tournament.maxRound = data.maxRound;
+    my.tournament.description = data.description;
+    my.tournament.playerDataArray = data.playerDataArray;
+    my.tournament.gameDataArrayArray = data.gameDataArrayArray;
+    my.tournament.remainCountArray = data.remainCountArray;
+
+    my.tournament.timestamp = data.timestamp;
+
+    // Do some sanity-checking of the data we have
+    if (activity.tournamentId != my.tournament.tournamentId) {
+      return false;
+    }
+
+    my.tournament.creatorId = data.creatorDataArray.creatorId;
+    my.tournament.creatorName = data.creatorDataArray.creatorName;
+    my.tournament.isCreator = data.isCreator;
+
+    if ($.isNumeric(data.currentPlayerIdx)) {
+      my.tournament.isParticipant = true;
+    } else {
+      my.tournament.isParticipant = false;
+    }
+
+    my.tournament.isWatched = data.isWatched;
+
+    return true;
+  };
+
+  // End of Tournament-related methods
+  ////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////
   // Forum-related methods

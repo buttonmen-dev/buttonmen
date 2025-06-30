@@ -193,6 +193,12 @@ class BMInterface {
         return $interface;
     }
 
+    public function tournament() {
+        $interface = $this->cast('BMInterfaceTournament');
+        $interface->parent = $this;
+        return $interface;
+    }
+
     // methods
 
     /**
@@ -339,6 +345,115 @@ class BMInterface {
     }
 
     /**
+     * Load a brief summary of a game, including players, buttons, score, and status
+     */
+    protected function load_game_summary($gameId) {
+        try {
+            $this->set_message('Game summary retrieved successfully.');
+
+            $query = <<<'NOWDOC'
+                SELECT v.game_id,
+                        g.status_id,
+                        s.name as status,
+                        v.n_target_wins,
+                        v.position,
+                        v.player_id,
+                        v.player_name,
+                        v.button_id,
+                        v.button_name,
+                        v.n_rounds_won,
+                        v.n_rounds_drawn,
+                        v.n_rounds_won >= v.n_target_wins AS is_winner,
+                        v.is_on_vacation
+                 FROM game_player_view AS v
+                 LEFT JOIN game AS g
+                 ON g.id = v.game_id
+                 LEFT JOIN game_status AS s
+                 ON g.status_id = s.id
+                 WHERE v.game_id = :game_id
+                 ORDER BY v.position
+NOWDOC;
+
+            $parameters = array(':game_id' => $gameId);
+            $columnReturnTypes = array(
+                'game_id' => 'int',
+                'status_id' => 'int',
+                'status' => 'str',
+                'n_target_wins' => 'int',
+                'position' => 'int',
+                'player_id' => 'int',
+                'player_name' => 'str',
+                'button_id' => 'int',
+                'button_name' => 'str',
+                'n_rounds_won' => 'int',
+                'n_rounds_drawn' => 'int',
+                'is_winner' => 'bool',
+                'is_on_vacation' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+
+            return self::read_game_summary_from_db_results($rows);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_game_summary: ' .
+                $e->getMessage()
+            );
+            $this->set_message("Internal error while loading game summary.");
+            return NULL;
+        }
+    }
+
+    /**
+     * Read game summary from DB results
+     *
+     * @param int $playerId
+     * @param array $rows
+     * @return array
+     */
+    protected function read_game_summary_from_db_results($rows) {
+        $button_0 = '';
+        $name_0 = '';
+        $is_on_vacation_0 = FALSE;
+        $nwins_0 = 0;
+        $button_1 = '';
+        $name_1 = '';
+        $is_on_vacation_1 = FALSE;
+        $nwins_1 = 0;
+        $winner = '';
+
+        foreach ($rows as $row) {
+            if (0 === $row['position']) {
+                $button_0 = $row['button_name'];
+                $name_0 = $row['player_name'];
+                $nwins_0 = $row['n_rounds_won'];
+                $is_on_vacation_0 = $row['is_on_vacation'];
+            } else {
+                $button_1 = $row['button_name'];
+                $name_1 = $row['player_name'];
+                $nwins_1 = $row['n_rounds_won'];
+                $is_on_vacation_1 = $row['is_on_vacation'];
+            }
+
+            if ($row['is_winner']) {
+                $winner = $row['player_name'];
+            }
+        }
+
+        return array(
+            'gameId' => $rows[0]['game_id'],
+            'statusId' => $rows[0]['status_id'],
+            'status' => $rows[0]['status'],
+            'n_target_wins' => $rows[0]['n_target_wins'],
+            'buttonArray' => array($button_0, $button_1),
+            'playerArray' => array($name_0, $name_1),
+            'isOnVacationArray' => array($is_on_vacation_0, $is_on_vacation_1),
+            'nWinsArray' => array($nwins_0, $nwins_1),
+            'ndraws' => $rows[0]['n_rounds_drawn'],
+            'winner' => $winner
+        );
+    }
+
+    /**
      * Load game from database
      *
      * @param int $gameId
@@ -437,6 +552,8 @@ class BMInterface {
             'player_last_action_timestamp' => 'int_or_null',
             'position' => 'int_or_null',
             'previous_game_id' => 'int_or_null',
+            'tournament_id' => 'int_or_null',
+            'tournament_round_number' => 'int_or_null',
             'turn_number_in_round' => 'int',
             'was_game_dismissed' => 'bool',
         );
@@ -493,12 +610,14 @@ class BMInterface {
     protected function load_game_attributes($game, $row) {
         $game->creatorId = $row['creator_id'];
         $game->gameState = $row['game_state'];
-        $game->maxWins   = $row['n_target_wins'];
+        $game->maxWins = $row['n_target_wins'];
         $game->turnNumberInRound = $row['turn_number_in_round'];
         $game->nRecentPasses = $row['n_recent_passes'];
         $game->description = $row['description'];
         $game->previousGameId = $row['previous_game_id'];
         $this->timestamp = $row['last_action_timestamp'];
+        $game->tournamentId = $row['tournament_id'];
+        $game->tournamentRoundNumber = $row['tournament_round_number'];
     }
 
     /**
@@ -1016,6 +1135,8 @@ class BMInterface {
             $this->game_chat()->save_chat_log($game);
 
             self::$conn->commit();
+
+            $this->update_containing_tournament($game);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_game: ' .
@@ -1149,9 +1270,10 @@ class BMInterface {
                  '    turn_number_in_round = :turn_number_in_round,'.
         //:n_recent_draws
                  '    n_recent_passes = :n_recent_passes,'.
-                 '    current_player_id = :current_player_id '.
+                 '    current_player_id = :current_player_id, '.
         //:last_winner_id
-        //:tournament_id
+                 '    tournament_id = :tournament_id, '.
+                 '    tournament_round_number = :tournament_round_number '.
         //:description
         //:chat
                  'WHERE id = :game_id;';
@@ -1161,6 +1283,8 @@ class BMInterface {
                             ':turn_number_in_round' => $game->turnNumberInRound,
                             ':n_recent_passes' => $game->nRecentPasses,
                             ':current_player_id' => $this->get_currentPlayerId($game),
+                            ':tournament_id' => $game->tournamentId,
+                            ':tournament_round_number' => $game->tournamentRoundNumber,
                             ':game_id' => $game->gameId);
         self::$db->update($query, $parameters);
     }
@@ -1623,6 +1747,23 @@ class BMInterface {
                  'AND game_id = :game_id;';
         $parameters = array(':game_id' => $game->gameId);
         self::$db->update($query, $parameters);
+    }
+
+    /**
+     * If a game is part of a tournament, update that tournament if necessary
+     *
+     * @param BMGame $game
+     */
+    protected function update_containing_tournament(BMGame $game) {
+        if (is_null($game->tournamentId)) {
+            return;
+        }
+
+        if ($game->gameState < BMGameState::END_GAME) {
+            return;
+        }
+
+        $this->tournament()->advance_tournament($game->tournamentId);
     }
 
     /**
@@ -2555,6 +2696,33 @@ class BMInterface {
     }
 
     /**
+     * Get button name corresponding to a button ID
+     *
+     * @param int $buttonId
+     * @return string
+     */
+    protected function get_button_name_from_id($buttonId) {
+        try {
+            if (empty($buttonId)) {
+                return('');
+            }
+
+            $query = 'SELECT name FROM button '.
+                     'WHERE id = :id';
+            $parameters = array(':id' => $buttonId);
+            return self::$db->select_single_value($query, $parameters, 'str');
+        } catch (BMExceptionDatabase $e) {
+            return('');
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_button_name_from_id: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Button name get failed.');
+        }
+    }
+
+    /**
      * Get button set ID corresponding to a button set name
      *
      * @param string $name
@@ -2604,6 +2772,205 @@ class BMInterface {
         }
 
         return $restrictions;
+    }
+
+   /**
+     * Get all tournaments relevant to a certain player from the database
+     *
+     * @param int $playerId
+     * @return array
+     */
+    public function get_all_tournaments($playerId) {
+        try {
+            $this->set_message('All tournament details retrieved successfully.');
+
+            // NOWDOC used here because of the complexity of the query
+            // and to allow the query to be more easily copy/pasted into a
+            // SQL client
+            $query = <<<'NOWDOC'
+                SELECT * FROM (
+                  SELECT t.id AS tournament_id,
+                  t.start_time,
+                  t.tournament_state,
+                  t.round_number,
+                  t.n_players,
+                  (
+                      SELECT COUNT(*) FROM tournament_player_map
+                      WHERE tournament_id = t.id
+                  ) AS n_players_joined,
+                  t.n_target_wins,
+                  t.tournament_type,
+                  p.name_ingame AS creator_name,
+                  t.description,
+                  s.name AS status,
+                  (t.creator_id = :player_id_check_creator) AS is_creator,
+                  (
+                    EXISTS (
+                      SELECT * FROM tournament_player_map
+                      WHERE player_id = :player_id_check_joined
+                      AND tournament_id = t.id
+                    )
+                  ) AS has_joined,
+                  (
+                    EXISTS (
+                      SELECT * FROM tournament_player_watch_map
+                      WHERE player_id = :player_id_check_watched
+                      AND tournament_id = t.id
+                    )
+                  ) AS is_watched
+                  FROM tournament AS t
+                  LEFT JOIN tournament_status AS s
+                  ON t.status_id = s.id
+                  LEFT JOIN player AS p
+                  ON p.id = t.creator_id
+                  LEFT JOIN tournament_player_map AS m
+                  ON m.tournament_id = t.id
+                  AND m.player_id = :player_id_map_info
+                ) AS innerTable
+                WHERE is_watched OR
+                      status = 'OPEN'
+                ORDER BY tournament_id DESC
+NOWDOC;
+
+            $parameters = array(':player_id_check_creator' => $playerId,
+                                ':player_id_check_joined' => $playerId,
+                                ':player_id_check_watched' => $playerId,
+                                ':player_id_map_info' => $playerId);
+            $columnReturnTypes = array(
+                'tournament_id' => 'int',
+                'description' => 'str',
+                'n_target_wins' => 'int',
+                'tournament_state' => 'int',
+                'status' => 'str',
+                'round_number' => 'int',
+                'tournament_type' => 'str',
+                'creator_name' => 'str',
+                'start_time' => 'int',
+                'n_players' => 'int',
+                'n_players_joined' => 'int',
+                'is_creator' => 'bool',
+                'has_joined' => 'bool',
+                'is_watched' => 'bool',
+            );
+            $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+
+            return self::read_tournament_list_from_db_results($rows);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_all_tournaments: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Tournament detail get failed.');
+            return NULL;
+        }
+    }
+
+    /**
+     * Read tournament list from DB results
+     *
+     * @param array $rows
+     * @return array
+     */
+    protected function read_tournament_list_from_db_results($rows) {
+        // Initialize the arrays
+        $tournamentIdArray = array();
+        $tournamentDescriptionArray = array();
+        $nTargetWinsArray = array();
+        $tournamentStateArray = array();
+        $statusArray = array();
+        $roundNumberArray = array();
+        $tournamentTypeArray = array();
+        $creatorNameArray = array();
+        $startTimeArray = array();
+        $nPlayersArray = array();
+        $nPlayersJoinedArray = array();
+        $isCreatorArray = array();
+        $hasJoinedArray = array();
+        $isWatchedArray = array();
+
+        foreach ($rows as $row) {
+            $tournamentIdArray[]     = $row['tournament_id'];
+            $tournamentDescriptionArray[] = $row['description'];
+            $nTargetWinsArray[]      = $row['n_target_wins'];
+            $tournamentStateArray[]  = BMTournamentState::as_string($row['tournament_state']);
+            $statusArray[]           = $row['status'];
+            $roundNumberArray[]      = $row['round_number'];
+            $tournamentTypeArray[]   = $row['tournament_type'];
+            $creatorNameArray[]      = $row['creator_name'];
+            $startTimeArray[]        = $row['start_time'];
+            $nPlayersArray[]         = $row['n_players'];
+            $nPlayersJoinedArray[]   = $row['n_players_joined'];
+            $isCreatorArray[]        = $row['is_creator'];
+            $hasJoinedArray[]        = $row['has_joined'];
+            $isWatchedArray[]        = $row['is_watched'];
+        }
+
+        $result = array('tournamentIdArray'     => $tournamentIdArray,
+                        'tournamentDescriptionArray' => $tournamentDescriptionArray,
+                        'nTargetWinsArray'      => $nTargetWinsArray,
+                        'tournamentStateArray'  => $tournamentStateArray,
+                        'statusArray'           => $statusArray,
+                        'roundNumberArray'      => $roundNumberArray,
+                        'tournamentTypeArray'   => $tournamentTypeArray,
+                        'creatorNameArray'      => $creatorNameArray,
+                        'startTimeArray'        => $startTimeArray,
+                        'nPlayersArray'         => $nPlayersArray,
+                        'nPlayersJoinedArray'   => $nPlayersJoinedArray,
+                        'isCreatorArray'        => $isCreatorArray,
+                        'hasJoinedArray'        => $hasJoinedArray,
+                        'isWatchedArray'        => $isWatchedArray);
+
+        return($result);
+    }
+
+    /**
+     * Load API game data for a certain tournament from the perspective of a certain player
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @return array
+     */
+    public function load_api_tournament_data($playerId, $tournamentId) {
+        $tournament = $this->tournament()->load_tournament($tournamentId);
+        if ($tournament) {
+            $currentPlayerIdx = array_search($playerId, $tournament->playerIdArray);
+
+            $data = $tournament->getJsonData();
+            $data['currentPlayerIdx'] = $currentPlayerIdx;
+
+            if (!empty($tournament->playerIdArray)) {
+                foreach ($tournament->playerIdArray as $tournamentPlayerIdx => $tournamentPlayerId) {
+                    $data['playerDataArray'][$tournamentPlayerIdx]['playerId'] = $tournamentPlayerId;
+                    $data['playerDataArray'][$tournamentPlayerIdx]['playerName'] =
+                        $this->get_player_name_from_id($tournamentPlayerId);
+                    $buttonId = $tournament->buttonIdArrayArray[$tournamentPlayerId][0];
+                    $data['playerDataArray'][$tournamentPlayerIdx]['buttonName'] =
+                        $this->get_button_name_from_id($buttonId);
+                }
+            }
+
+            $data['gameDataArrayArray'] = [];
+
+            if (!empty($tournament->gameIdArrayArray)) {
+                foreach ($tournament->gameIdArrayArray as $tournamentRoundIdx => $gameIdArray) {
+                    foreach ($gameIdArray as $gameIdx => $gameId) {
+                        $data['gameDataArrayArray'][$tournamentRoundIdx][$gameIdx] =
+                            $this->load_game_summary($gameId);
+                    }
+                }
+            }
+
+            $data['timestamp'] = $this->timestamp;
+
+            $data['creatorDataArray']['creatorName'] =
+                $this->get_player_name_from_id($data['creatorDataArray']['creatorId']);
+
+            $data['isCreator'] = ($data['creatorDataArray']['creatorId'] === $playerId);
+            $data['isWatched'] = $this->tournament()->is_tournament_watched($playerId, $tournamentId);
+
+            return $data;
+        }
+        return NULL;
     }
 
     /**
