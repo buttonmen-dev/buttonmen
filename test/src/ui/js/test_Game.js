@@ -2957,7 +2957,7 @@ test("test_Game.chatPrivacyHeader", function(assert) {
   Game.getCurrentGame(function() {
     var chatheader = Game.chatPrivacyHeader();
     var html = chatheader.html();
-    assert.ok(html.match('you=public'), "Chat header contains setting for player's own chat privacy.");
+    assert.ok(html.match('you=private'), "Chat header contains setting for player's own chat privacy.");
     start();
   });
 });

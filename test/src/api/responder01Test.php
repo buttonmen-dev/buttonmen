@@ -1253,49 +1253,65 @@ class responder01Test extends responderTestFramework {
         $expData['gameChatLogCount'] = 3;
 
 
-        // now load the game and check its state
+        // now load the game and check its state,
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 
         // now load the game as a non-player, and verify that chat
-        // text from the current game is shown, but chat from a
-        // previous game is not shown
+        // text is not shown for either the current game or the
+        // previous game
         $expData['gameChatEditable'] = FALSE;
         $expData['currentPlayerIdx'] = FALSE;
         $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
         $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
         $expData['dieBackgroundType'] = 'symmetric';
         $expData['gameChatLogCount'] = 2;
-        $savedChat = array_splice($expData['gameChatLog'], 2, 1);
+        $expData['gameChatLog'] = array(
+            array('timestamp' => 0, 'player' => '', 'message' => 'The chat for this game is private'),
+            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $secondGameId . '][i]'),
+        );
         $_SESSION = $this->mock_test_user_login('responder002');
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
 
-        // now enable chat privacy, and verify that the non-player
-        // now can't see current game chat either
+        // now disable chat privacy for one player, and verify that
+        // nothing has changed for the non-player
         $this->verify_api_setChatVisibility(
-            'Set game chat to private',
-            $gameId, TRUE);
-        $expData['playerDataArray'][0]['isChatPrivate'] = TRUE;
+            'Set game chat preference to public (but game chat is not visible to non-participants because your opponent is requesting private chat)',
+            $gameId, FALSE);
+        $expData['playerDataArray'][0]['isChatPrivate'] = FALSE;
+        $_SESSION = $this->mock_test_user_login('responder002');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        // now disable chat privacy for the second player, and verify that
+        // the non-player can now see current game chat, but still cannot
+        // see previous game chat (i.e. the older continuation message)
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_setChatVisibility(
+            'Set game chat to public',
+            $gameId, FALSE);
+
+        $expData['playerDataArray'][1]['isChatPrivate'] = FALSE;
         $expData['gameChatLogCount'] = 2;
-        array_splice($expData['gameChatLog'], 0, 1);
-        array_unshift($expData['gameChatLog'], array('timestamp' => 0, 'player' => '', 'message' => 'The chat for this game is private'));
+        $expData['gameChatLog'] = array(
+            array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'),
+            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $secondGameId . '][i]'),
+        );
         $_SESSION = $this->mock_test_user_login('responder002');
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
         $_SESSION = $this->mock_test_user_login('responder003');
 
-        // make sure things still look right for a player after chat has been set to private
+        // make sure things still look right for a player after chat has been set to public
         $expData['gameChatEditable'] = 'TIMESTAMP';
         $expData['currentPlayerIdx'] = 0;
         $expData['playerDataArray'][0]['playerColor'] = '#dd99dd';
         $expData['playerDataArray'][1]['playerColor'] = '#ddffdd';
         $expData['dieBackgroundType'] = 'realistic';
         $expData['gameChatLogCount'] = 3;
-        $continuedMsg = $expData['gameChatLog'][1]['message'];
         $expData['gameChatLog'] = array(
             array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'Who will win?  The suspense is killing me!'),
-            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $continuedMsg),
-            $savedChat[0],
+            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $secondGameId . '][i]'),
+            array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $oldGameId . '][i]'),
         );
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
@@ -1378,6 +1394,19 @@ class responder01Test extends responderTestFramework {
         $expData['gameChatLogCount'] = 3;
 
         // load the game and check its state
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+        // now set chat to public for both players
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_setChatVisibility(
+            'Set game chat preference to public (but game chat is not visible to non-participants because your opponent is requesting private chat)',
+            $gameId, FALSE);
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_api_setChatVisibility(
+            'Set game chat to public',
+            $gameId, FALSE);
+        $expData['playerDataArray'][0]['isChatPrivate'] = FALSE;
+        $expData['playerDataArray'][1]['isChatPrivate'] = FALSE;
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
 

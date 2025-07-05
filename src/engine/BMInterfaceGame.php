@@ -70,13 +70,15 @@ class BMInterfaceGame extends BMInterface {
                 $hasAcceptedGame = ($playerId === $currentPlayerId) ||
                                    $autoAccept ||
                                    $this->retrieve_player_autoaccept($playerId);
+                $isChatPrivate = TRUE;
 
                 $this->add_player_to_new_game(
                     $gameId,
                     $playerId,
                     $buttonIdArray[$position],
                     $position,
-                    $hasAcceptedGame
+                    $hasAcceptedGame,
+                    $isChatPrivate
                 );
             }
             $this->set_random_button_flags($gameId, $buttonNameArray);
@@ -185,17 +187,18 @@ class BMInterfaceGame extends BMInterface {
      * @param int $position
      * @param bool $hasAccepted
      */
-    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted) {
+    protected function add_player_to_new_game($gameId, $playerId, $buttonId, $position, $hasAccepted, $isChatPrivate) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
-                 '(game_id, player_id, button_id, position, has_player_accepted) '.
+                 '(game_id, player_id, button_id, position, has_player_accepted, is_chat_private) '.
                  'VALUES '.
-                 '(:game_id, :player_id, :button_id, :position, :has_player_accepted)';
+                 '(:game_id, :player_id, :button_id, :position, :has_player_accepted, :is_chat_private)';
         $parameters = array(':game_id'   => $gameId,
                            ':player_id' => $playerId,
                            ':button_id' => $buttonId,
                            ':position'  => $position,
-                           ':has_player_accepted' => $hasAccepted);
+                           ':has_player_accepted' => $hasAccepted,
+                           ':is_chat_private' => $isChatPrivate);
         self::$db->update($query, $parameters);
     }
 
