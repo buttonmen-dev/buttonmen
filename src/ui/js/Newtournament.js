@@ -193,7 +193,7 @@ Newtournament.createRoundSelectRow = function() {
     Newtournament.activity.nRounds = '3';
   }
   var selectRow = Newtournament.getSelectRow(
-    'Each game has',
+    'Each game is played until one player has won',
     'n_rounds',
     {
       '1': '1 round',

@@ -719,6 +719,11 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         }
 
+        if (BMTournamentState::CANCELLED == $tournament->tournamentState) {
+            $this->set_message('The tournament was cancelled.');
+            return NULL;
+        }
+
         if ($tournament->tournamentState > BMTournamentState::JOIN_TOURNAMENT) {
             $this->set_message('The tournament has already started.');
             return NULL;
@@ -888,6 +893,11 @@ class BMInterfaceTournament extends BMInterface {
             return NULL;
         }
 
+        if (BMTournamentState::CANCELLED == $tournament->tournamentState) {
+            $this->set_message('The tournament was cancelled.');
+            return NULL;
+        }
+
         if ($tournament->tournamentState > BMTournamentState::JOIN_TOURNAMENT) {
             $this->set_message('The tournament has already started.');
             return NULL;
@@ -964,6 +974,11 @@ class BMInterfaceTournament extends BMInterface {
     protected function validate_leave_tournament($userId, $tournamentId, $tournament) {
         if (is_null($tournament)) {
             $this->set_message("Tournament $tournamentId does not exist");
+            return NULL;
+        }
+
+        if (BMTournamentState::CANCELLED == $tournament->tournamentState) {
+            $this->set_message('The tournament was cancelled.');
             return NULL;
         }
 
@@ -1071,6 +1086,11 @@ class BMInterfaceTournament extends BMInterface {
     protected function validate_cancel_tournament($userId, $tournamentId, $tournament) {
         if (is_null($tournament)) {
             $this->set_message("Tournament $tournamentId does not exist");
+            return NULL;
+        }
+
+        if (BMTournamentState::CANCELLED == $tournament->tournamentState) {
+            $this->set_message('The tournament has already been cancelled.');
             return NULL;
         }
 

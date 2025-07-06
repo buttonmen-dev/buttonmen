@@ -322,9 +322,15 @@ Tournament.pageAddTournamentInfo = function () {
   infoDiv.append(nPlayersPar);
 
   var nRoundsPar = $('<p>', {
-    'text': 'Number of rounds: ' + Api.tournament.maxRound,
+    'text': 'Number of tournament rounds: ' + Api.tournament.maxRound,
   });
   infoDiv.append(nRoundsPar);
+
+  var winPar = $('<p>', {
+    'text': 'Each game is played until one player has won: ' +
+            Api.tournament.maxWins + ' rounds',
+  });
+  infoDiv.append(winPar);
 };
 
 Tournament.friendlyTournamentType = function(tournamentType) {
@@ -517,6 +523,13 @@ Tournament.formUpdateTournament = function (
   type, successText, e, buttonNameArray
 ) {
   e.preventDefault();
+
+  var doTournamentCancel = Env.window.confirm(
+    'Are you SURE you want to cancel this tournament?'
+  );
+  if (('cancel' === type) && !doTournamentCancel) {
+    return;
+  }
 
   var requiresButtonChoice = ('join' === type) || ('changeButton' === type);
   var hasButtonChoice =
