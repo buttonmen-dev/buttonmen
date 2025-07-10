@@ -753,7 +753,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'playerName' => $username1,
                     'playerColor' => '#dd99dd',
                     'isOnVacation' => false,
-                    'isChatPrivate' => false,
+                    'isChatPrivate' => true,
                 ),
                 array(
                     'playerId' => $playerId2,
@@ -774,7 +774,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
                     'playerName' => $username2,
                     'playerColor' => '#ddffdd',
                     'isOnVacation' => false,
-                    'isChatPrivate' => false,
+                    'isChatPrivate' => true,
                 ),
             ),
             'creatorDataArray' => array(
@@ -1233,6 +1233,8 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
      * things which should be different when a non-participant views a game.
      * Don't actually bother to return the game data, since the
      * test shouldn't need to use it for anything.
+     *
+     * Note: currently only handles the case in which the game has no chat.
      */
     protected function verify_api_loadGameData_as_nonparticipant($expData, $gameId, $logEntryLimit) {
         $oldCurrentPlayerIdx = $expData['currentPlayerIdx'];
@@ -1242,12 +1244,16 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $expData['currentPlayerIdx'] = FALSE;
         $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
         $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+        $expData['gameChatLog'] = array(array('timestamp' => 0, 'player' => '', 'message' => 'The chat for this game is private'));
+        $expData['gameChatLogCount'] = 1;
 
         $this->verify_api_loadGameData($expData, $gameId, $logEntryLimit);
 
         $expData['currentPlayerIdx'] = $oldCurrentPlayerIdx;
         $expData['playerDataArray'][0]['playerColor'] = $oldPlayerZeroColor;
         $expData['playerDataArray'][1]['playerColor'] = $oldPlayerOneColor;
+        $expData['gameChatLog'] = array();
+        $expData['gameChatLogCount'] = 0;
     }
 
     /**
