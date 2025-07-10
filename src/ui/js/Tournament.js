@@ -328,7 +328,8 @@ Tournament.pageAddTournamentInfo = function () {
 
   var winPar = $('<p>', {
     'text': 'Each game is played until one player has won: ' +
-            Api.tournament.maxWins + ' rounds',
+            Api.tournament.maxWins + ' round' +
+            ((Api.tournament.maxWins > 1) ? 's' : ''),
   });
   infoDiv.append(winPar);
 };
@@ -524,11 +525,13 @@ Tournament.formUpdateTournament = function (
 ) {
   e.preventDefault();
 
-  var doTournamentCancel = Env.window.confirm(
-    'Are you SURE you want to cancel this tournament?'
-  );
-  if (('cancel' === type) && !doTournamentCancel) {
-    return;
+  if ('cancel' === type) {
+    var doTournamentCancel = Env.window.confirm(
+      'Are you SURE you want to cancel this tournament?'
+    );
+    if (!doTournamentCancel) {
+      return;
+    }
   }
 
   var requiresButtonChoice = ('join' === type) || ('changeButton' === type);
