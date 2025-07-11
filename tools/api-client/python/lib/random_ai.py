@@ -151,6 +151,8 @@ UNUSED_DURING_AUTOPLAY_KEYS = [
   'gameId',
   'maxWins',
   'previousGameId',
+  'tournamentId',
+  'tournamentRoundNumber',
 
   # keys within playerDataArray
   'playerColor',
@@ -1933,7 +1935,7 @@ class LoggingBMClient():
     game_data_after_failure = game_data_entries[-1]
     if game_data_before_failure != game_data_after_failure:
       self.bug("game data was inconsistent before vs after a submitTurn call which returned a failure")
-    
+
 
   def next_game_action(self):
     state = self.loaded_data['gameState']
