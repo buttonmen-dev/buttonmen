@@ -592,8 +592,19 @@ def run_scp_command(local_path, remote_path, public_ipv4):
     raise ValueError(f"SCP-based command failed with exit code: {retcode}")
 
 def configure_container_setup_certbot(public_ipv4):
-  cmdargs = 'sudo /usr/local/bin/apache_setup_certbot'
+  cmdargs = 'sudo /usr/local/bin/apache_setup_certbot new_cert'
   run_ssh_command(cmdargs, public_ipv4)
+
+def configure_container_wait_for_mysqld(public_ipv4):
+  cmdargs = f"sudo /etc/init.d/mysql status"
+  while True:
+    try:
+      run_ssh_command(cmdargs, public_ipv4)
+      print("mysqld is running")
+      return
+    except ValueError:
+      print("...waiting for mysqld")
+      time.sleep(1)
 
 def configure_container_load_database(git_info, public_ipv4):
   load_database_path = git_info['config'].get('load_database_path', None)
@@ -614,6 +625,7 @@ def configure_container_post_install(git_info, public_ipv4):
   use_remote_database = git_info['config']['use_remote_database']
   configure_container_setup_certbot(public_ipv4)
   if not use_remote_database:
+    configure_container_wait_for_mysqld(public_ipv4)
     configure_container_load_database(git_info, public_ipv4)
     configure_container_set_site_type(git_info, public_ipv4)
 
