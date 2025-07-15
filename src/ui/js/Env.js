@@ -335,6 +335,14 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'closingHtml': '</a>',
       'escapeParameter': true,
     },
+    'tourn': {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml': '<a class="chatTournLink" ' +
+                       'href="tournament.html?tournament=###">Tournament ',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
     'wiki': {
       'isAtomic': true,
       'isLink': true,
@@ -522,7 +530,7 @@ Env.escapeRegexp = function(str) {
 
 // Utility function to link to a profile page given a player name
 Env.buildProfileLink = function(playerName, textOnly) {
-  if ((typeof(playerName) === 'undefined') || (playerName === null)) {
+  if (typeof(playerName) === 'undefined') {
     return '–';
   }
 
@@ -549,7 +557,7 @@ Env.buildVacationImage = function(size) {
 
 // Utility function to link to a button page given a button name
 Env.buildButtonLink = function(buttonName, recipe, textOnly) {
-  if ((typeof(buttonName) === 'undefined') || (buttonName === null)) {
+  if (typeof(buttonName) === 'undefined') {
     return '–';
   }
 

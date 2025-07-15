@@ -16,6 +16,7 @@ CREATE TABLE game (
     current_player_id  SMALLINT UNSIGNED,
     last_winner_id     SMALLINT UNSIGNED,
     tournament_id      SMALLINT UNSIGNED,
+    tournament_round_number SMALLINT UNSIGNED,
     description        VARCHAR(255) NOT NULL,
     chat               TEXT,
     previous_game_id   MEDIUMINT UNSIGNED,
@@ -239,15 +240,4 @@ CREATE TABLE open_game_possible_buttons (
 CREATE TABLE open_game_possible_buttonsets (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     set_id             SMALLINT UNSIGNED NOT NULL
-);
-
-CREATE TABLE tournament (
-    id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    status_id          TINYINT UNSIGNED NOT NULL,
-    current_round      TINYINT UNSIGNED DEFAULT 1,
-    n_players          TINYINT UNSIGNED NOT NULL,
-    n_target_wins      TINYINT UNSIGNED NOT NULL,
-    is_double_elim     BOOLEAN NOT NULL,
-    creator_id         SMALLINT UNSIGNED NOT NULL,
-    description        VARCHAR(255) NOT NULL
 );

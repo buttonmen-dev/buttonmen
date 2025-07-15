@@ -14,8 +14,6 @@ DELETE FROM open_game_possible_buttons;
 
 DELETE FROM open_game_possible_buttonsets;
 
-DELETE FROM tournament;
-
 DELETE FROM game_status;
 INSERT INTO game_status (name) VALUES
 ('OPEN'),

@@ -132,9 +132,10 @@ class TestBMClient(unittest.TestCase):
       'activePlayerIdx', 'creatorDataArray', 'currentPlayerIdx', 'description',
       'dieBackgroundType', 'gameActionLog', 'gameActionLogCount',
       'gameChatEditable', 'gameChatLog', 'gameChatLogCount',
-      'gameId', 'gameSkillsInfo',
-      'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
-      'previousGameId', 'roundNumber', 'timestamp', 'validAttackTypeArray'
+      'gameId', 'gameSkillsInfo', 'gameState', 'maxWins',
+      'playerDataArray', 'playerWithInitiativeIdx', 'previousGameId',
+      'roundNumber', 'timestamp', 'tournamentId', 'tournamentRoundNumber',
+      'validAttackTypeArray'
     ]
     self.obj.username = 'responder001'
     r = self.obj.load_game_data(101)

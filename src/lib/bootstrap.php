@@ -75,6 +75,26 @@ if (!function_exists('bm_skill_rand')) {
     }
 }
 
+if (!function_exists('bm_shuffle')) {
+    /**
+     * Default behaviour of the random shuffler, when not tweaked for unit testing
+     *
+     * @param array $valueArray
+     * @return null
+     */
+    function bm_shuffle(&$valueArray) {
+        $nItem = count($valueArray);
+        $arrayCopy = $valueArray;
+        $valueArray = array();
+        
+        for ($loopIdx = 0; $loopIdx < $nItem; $loopIdx++) {
+            $itemIdx = bm_rand(0, count($arrayCopy) - 1);
+            $valueArray[] = $arrayCopy[$itemIdx];
+            array_splice($arrayCopy, $itemIdx, 1);
+        }
+    }
+}
+
 
 // Register autoloader
 spl_autoload_register('buttonweavers_autoload');

@@ -10,6 +10,8 @@
  *
  * @property      int   $gameId                  Game ID number in the database
  * @property      int   $creatorId               Player ID of the player who created the game
+ * @property      int   $tournamentId            Tournament ID number in the database
+ * @property      int   $tournamentRoundNumber   Current tournament round number
  * @property      array $playerArray             Array of BMPlayer objects
  * @property-read int   $nPlayers                Number of players in the game
  * @property-read int   $roundNumber;            Current round number
@@ -81,6 +83,20 @@ class BMGame {
      * Player ID of the player who created the game
      */
     protected $creatorId;
+
+    /**
+     * Tournament ID number in the database
+     *
+     * @var NULL|int
+     */
+    protected $tournamentId;
+
+    /**
+     * Current tournament round number
+     *
+     * @var NULL|int
+     */
+    protected $tournamentRoundNumber;
 
     /**
      * Array of BMPlayer objects
@@ -324,13 +340,13 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::start_game
+     * Perform the logic required at BMGameState::START_GAME
      */
     protected function do_next_step_start_game() {
     }
 
     /**
-     * Update game state from BMGameState::start_game if necessary
+     * Update game state from BMGameState::START_GAME if necessary
      */
     protected function update_game_state_start_game() {
         $this->reset_play_state();
@@ -371,7 +387,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::apply_handicaps
+     * Perform the logic required at BMGameState::APPLY_HANDICAPS
      */
     protected function do_next_step_apply_handicaps() {
         // ignore for the moment
@@ -381,7 +397,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::apply_handicaps if necessary
+     * Update game state from BMGameState::APPLY_HANDICAPS if necessary
      */
     protected function update_game_state_apply_handicaps() {
         if (!isset($this->maxWins)) {
@@ -404,13 +420,13 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::choose_join_game
+     * Perform the logic required at BMGameState::CHOOSE_JOIN_GAME
      */
     protected function do_next_step_choose_join_game() {
     }
 
     /**
-     * Update game state from BMGameState::choose_join_game if necessary
+     * Update game state from BMGameState::CHOOSE_JOIN_GAME if necessary
      */
     protected function update_game_state_choose_join_game() {
         $allPlayersHaveAccepted = TRUE;
@@ -426,7 +442,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::specify_recipes
+     * Perform the logic required at BMGameState::SPECIFY_RECIPES
      */
     protected function do_next_step_specify_recipes() {
         if (isset($this->playerArray)) {
@@ -445,7 +461,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::specify_recipes if necessary
+     * Update game state from BMGameState::SPECIFY_RECIPES if necessary
      */
     protected function update_game_state_specify_recipes() {
         foreach ($this->playerArray as $player) {
@@ -478,7 +494,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::load_dice_into_buttons
+     * Perform the logic required at BMGameState::LOAD_DICE_INTO_BUTTONS
      */
     protected function do_next_step_load_dice_into_buttons() {
         // james: this is currently carried out either by manually setting
@@ -486,7 +502,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::load_dice_into_buttons if necessary
+     * Update game state from BMGameState::LOAD_DICE_INTO_BUTTONS if necessary
      */
     protected function update_game_state_load_dice_into_buttons() {
         foreach ($this->playerArray as $player) {
@@ -505,7 +521,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::add_available_dice_to_game
+     * Perform the logic required at BMGameState::ADD_AVAILABLE_DICE_TO_GAME
      */
     protected function do_next_step_add_available_dice_to_game() {
         foreach ($this->playerArray as $player) {
@@ -631,7 +647,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::add_available_dice_to_game if necessary
+     * Update game state from BMGameState::ADD_AVAILABLE_DICE_TO_GAME if necessary
      */
     protected function update_game_state_add_available_dice_to_game() {
         $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
@@ -643,13 +659,13 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::choose_auxiliary_dice
+     * Perform the logic required at BMGameState::CHOOSE_AUXILIARY_DICE
      */
     protected function do_next_step_choose_auxiliary_dice() {
     }
 
     /**
-     * Update game state from BMGameState::choose_auxiliary_dice if necessary
+     * Update game state from BMGameState::CHOOSE_AUXILIARY_DICE if necessary
      */
     protected function update_game_state_choose_auxiliary_dice() {
         // if all decisions on auxiliary dice have been made
@@ -732,7 +748,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::choose_reserve_dice
+     * Perform the logic required at BMGameState::CHOOSE_RESERVE_DICE
      */
     protected function do_next_step_choose_reserve_dice() {
         $this->setAllToNotWaiting();
@@ -752,7 +768,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::choose_reserve_dice if necessary
+     * Update game state from BMGameState::CHOOSE_RESERVE_DICE if necessary
      */
     protected function update_game_state_choose_reserve_dice() {
         // if all decisions on reserve dice have been made
@@ -860,7 +876,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::specify_dice
+     * Perform the logic required at BMGameState::SPECIFY_DICE
      */
     protected function do_next_step_specify_dice() {
         $this->setAllToNotWaiting();
@@ -1016,7 +1032,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::specify_dice if necessary
+     * Update game state from BMGameState::SPECIFY_DICE if necessary
      */
     protected function update_game_state_specify_dice() {
         if (!$this->isWaitingOnAnyAction()) {
@@ -1029,7 +1045,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::determine_initiative
+     * Perform the logic required at BMGameState::DETERMINE_INITIATIVE
      */
     protected function do_next_step_determine_initiative() {
         $response =
@@ -1093,7 +1109,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::determine_initiative if necessary
+     * Update game state from BMGameState::DETERMINE_INITIATIVE if necessary
      */
     protected function update_game_state_determine_initiative() {
         if (isset($this->playerWithInitiativeIdx)) {
@@ -1102,7 +1118,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::react_to_initiative
+     * Perform the logic required at BMGameState::REACT_TO_INITIATIVE
      */
     protected function do_next_step_react_to_initiative() {
         foreach ($this->playerArray as $playerIdx => $player) {
@@ -1149,7 +1165,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::react_to_initiative if necessary
+     * Update game state from BMGameState::REACT_TO_INITIATIVE if necessary
      */
     protected function update_game_state_react_to_initiative() {
         // if everyone is out of actions, reactivate chance dice
@@ -1168,7 +1184,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::start_round
+     * Perform the logic required at BMGameState::START_ROUND
      */
     protected function do_next_step_start_round() {
         if (!isset($this->playerWithInitiativeIdx)) {
@@ -1182,7 +1198,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::start_round if necessary
+     * Update game state from BMGameState::START_ROUND if necessary
      */
     protected function update_game_state_start_round() {
         if (isset($this->activePlayerIdx)) {
@@ -1207,7 +1223,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::start_turn
+     * Perform the logic required at BMGameState::START_TURN
      */
     protected function do_next_step_start_turn() {
         $this->firingAmount = NULL;
@@ -1241,7 +1257,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::start_turn if necessary
+     * Update game state from BMGameState::START_TURN if necessary
      *
      * @param array $args
      */
@@ -1459,7 +1475,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::adjust_fire_dice
+     * Perform the logic required at BMGameState::ADJUST_FIRE_DICE
      */
     protected function do_next_step_adjust_fire_dice() {
         if ($this->playerArray[$this->attack['attackerPlayerIdx']]->waitingOnAction) {
@@ -1608,7 +1624,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::adjust_fire_dice if necessary
+     * Update game state from BMGameState::ADJUST_FIRE_DICE if necessary
      */
     protected function update_game_state_adjust_fire_dice() {
         if ($this->isWaitingOnAnyAction()) {
@@ -1825,7 +1841,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::commit_attack
+     * Perform the logic required at BMGameState::COMMIT_ATTACK
      */
     protected function do_next_step_commit_attack() {
         // display dice
@@ -1893,7 +1909,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::commit_attack if necessary
+     * Update game state from BMGameState::COMMIT_ATTACK if necessary
      */
     protected function update_game_state_commit_attack() {
         if (isset($this->attack) &&
@@ -1913,7 +1929,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::choose_turbo_swing
+     * Perform the logic required at BMGameState::CHOOSE_TURBO_SWING
      */
     protected function do_next_step_choose_turbo_swing() {
         if ($this->attack['attackType'] == 'Trip') {
@@ -2037,7 +2053,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::choose_turbo_swing if necessary
+     * Update game state from BMGameState::CHOOSE_TURBO_SWING if necessary
      */
     protected function update_game_state_choose_turbo_swing() {
         if (!$this->isWaitingOnAnyAction()) {
@@ -2051,7 +2067,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::end_turn
+     * Perform the logic required at BMGameState::END_TURN
      */
     protected function do_next_step_end_turn() {
         $this->perform_end_of_turn_die_actions();
@@ -2095,7 +2111,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::end_turn if necessary
+     * Update game state from BMGameState::END_TURN if necessary
      */
     protected function update_game_state_end_turn() {
         $nDice = array_map('count', $this->getBMPlayerProps('activeDieArray'));
@@ -2112,7 +2128,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::end_round
+     * Perform the logic required at BMGameState::END_ROUND
      */
     protected function do_next_step_end_round() {
         // stop degenerate games from running forever
@@ -2191,7 +2207,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::end_round if necessary
+     * Update game state from BMGameState::END_ROUND if necessary
      */
     protected function update_game_state_end_round() {
         if (isset($this->activePlayerIdx)) {
@@ -2208,7 +2224,7 @@ class BMGame {
     }
 
     /**
-     * Perform the logic required at BMGameState::end_game
+     * Perform the logic required at BMGameState::END_GAME
      */
     protected function do_next_step_end_game() {
         $this->reset_play_state();
@@ -2227,7 +2243,7 @@ class BMGame {
     }
 
     /**
-     * Update game state from BMGameState::end_game if necessary
+     * Update game state from BMGameState::END_GAME if necessary
      */
     protected function update_game_state_end_game() {
     }
@@ -3038,6 +3054,8 @@ class BMGame {
 
         $this->nPlayers = count($playerIdArray);
         $this->gameId = $gameID;
+        $this->tournamentId = NULL;
+        $this->tournamentRoundNumber = NULL;
 
         $playerArray = array_fill(0, $this->nPlayers, NULL);
         foreach ($playerArray as $playerIdx => &$player) {
@@ -3287,7 +3305,7 @@ class BMGame {
             return;
         }
 
-        if (property_exists('BMGame', $property)) {
+        if (property_exists($this, $property)) {
             $this->$property = $value;
             return;
         }
@@ -3359,6 +3377,54 @@ class BMGame {
             );
         }
         $this->gameId = $value;
+    }
+
+    /**
+     * Allow setting the tournament ID
+     *
+     * @param NULL|int $value
+     */
+    protected function set__tournamentId($value) {
+        if (is_null($value)) {
+            $this->tournamentId = NULL;
+            return;
+        }
+
+        if (FALSE ===
+            filter_var(
+                $value,
+                FILTER_VALIDATE_INT,
+                array("options"=> array("min_range"=>0))
+            )) {
+            throw new InvalidArgumentException(
+                'Invalid tournament ID.'
+            );
+        }
+        $this->tournamentId = $value;
+    }
+
+    /**
+     * Allow setting the tournament round number
+     *
+     * @param NULL|int $value
+     */
+    protected function set__tournamentRoundNumber($value) {
+        if (is_null($value)) {
+            $this->tournamentRoundNumber = NULL;
+            return;
+        }
+
+        if (FALSE ===
+            filter_var(
+                $value,
+                FILTER_VALIDATE_INT,
+                array("options"=> array("min_range"=>0))
+            )) {
+            throw new InvalidArgumentException(
+                'Invalid tournament round number.'
+            );
+        }
+        $this->tournamentRoundNumber = $value;
     }
 
     /**
@@ -3653,6 +3719,8 @@ class BMGame {
 
         $dataArray = array(
             'gameId'                     => $this->gameId,
+            'tournamentId'               => $this->tournamentId,
+            'tournamentRoundNumber'      => $this->tournamentRoundNumber,
             'gameState'                  => BMGameState::as_string($this->gameState),
             'activePlayerIdx'            => $this->activePlayerIdx,
             'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
