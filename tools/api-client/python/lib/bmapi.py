@@ -267,3 +267,60 @@ class BMClient():
     if dieIdx is not None:
       args['dieIdx'] = dieIdx
     return self._make_request(args)
+
+  ### Tournament methods
+
+  def load_tournaments(self):
+    args = {
+      'type': 'loadTournaments',
+    }
+    return self._make_request(args)
+
+  def load_tournament_data(self, tourn_id):
+    args = {
+      'type': 'loadTournamentData',
+      'tournament': tourn_id,
+    }
+    return self._make_request(args)
+
+  def create_tournament(self, tournament_type, n_player, max_wins=3, description=None):
+    args = {
+      'type': 'createTournament',
+      'tournamentType': tournament_type,
+      'nPlayer': n_player,
+      'maxWins': max_wins,
+    }
+    if description:
+      args['description'] = description
+    return self._make_request(args)
+
+  def update_tournament(self, tourn_id, action, button_names=None):
+    args = {
+      'type': 'updateTournament',
+      'tournamentId': tourn_id,
+      'action': action,
+    }
+    if button_names:
+      args['buttonNames'] = button_names
+    return self._make_request(args)
+
+  def dismiss_tournament(self, tourn_id):
+    args = {
+      'type': 'dismissTournament',
+      'tournamentId': tourn_id,
+    }
+    return self._make_request(args)
+
+  def follow_tournament(self, tourn_id):
+    args = {
+      'type': 'followTournament',
+      'tournamentId': tourn_id,
+    }
+    return self._make_request(args)
+
+  def unfollow_tournament(self, tourn_id):
+    args = {
+      'type': 'unfollowTournament',
+      'tournamentId': tourn_id,
+    }
+    return self._make_request(args)

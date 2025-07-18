@@ -325,6 +325,7 @@ Login.addMainNavbar = function() {
     'Monitor': Env.ui_root + 'index.html?mode=monitor',
     'Create game': 'create_game.html',
     'Open games': 'open_games.html',
+    'Tournaments': 'tournaments.html',
     'Preferences': 'prefs.html',
     'Profile': Env.buildProfileLink(Login.player, true),
     'History': 'history.html',

@@ -289,7 +289,7 @@ class responder00Test extends responderTestFramework {
                                        array('responder004', 'Av`is')),
             'maxWins' => '3',
         );
-        $this->verify_api_failure($args, 'Game create failed because a button name was not valid.');
+        $this->verify_api_failure($args, 'The first button needs to be set.');
 
         // Successfully create a game with all players and buttons specified
         $retval = $this->verify_api_createGame(
