@@ -318,15 +318,36 @@ TournamentOverview.addDismissCol = function(tournamentRow, tournamentInfo) {
   dismissTd.css('white-space', 'nowrap');
   tournamentRow.append(dismissTd);
 
-  var dismissLink = $('<a>', {
-    'text': 'Dismiss',
-    'href': '#',
-    'data-tournamentId': tournamentInfo.tournamentId,
-  });
-  dismissLink.click(TournamentOverview.formDismissTournament);
-  dismissTd.append('[')
-           .append(dismissLink)
-           .append(']');
+  var apiInfo = $.grep(
+    Api.tournaments.tournaments,
+    function(e){ return e.tournamentId === tournamentInfo.tournamentId; }
+  );
+  var hasJoinedTournament = false;
+  if (apiInfo.length > 0) {
+    hasJoinedTournament = apiInfo[0].hasJoined;
+  }
+
+  if (hasJoinedTournament) {
+    var dismissLink = $('<a>', {
+      'text': 'Dismiss',
+      'href': '#',
+      'data-tournamentId': tournamentInfo.tournamentId,
+    });
+    dismissLink.click(TournamentOverview.formDismissTournament);
+    dismissTd.append('[')
+             .append(dismissLink)
+             .append(']');
+  } else {
+    var unfollowLink = $('<a>', {
+      'text': 'Unfollow',
+      'href': '#',
+      'data-tournamentId': tournamentInfo.tournamentId,
+    });
+    unfollowLink.click(TournamentOverview.formUnfollowTournament);
+    dismissTd.append('[')
+             .append(unfollowLink)
+             .append(']');
+  }
 };
 
 TournamentOverview.formDismissTournament = function(e) {
