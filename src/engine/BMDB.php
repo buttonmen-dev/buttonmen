@@ -90,6 +90,20 @@ class BMDB {
     }
 
     /**
+     * Execute a query which performs a database update and then returns whether any rows have changed
+     *
+     * @param $conn
+     * @param string $query
+     * @param array $parameters
+     * @return boolean
+     */
+    public function update_and_report_if_changed($query, $parameters) {
+        $statement = self::$conn->prepare($query);
+        $statement->execute($parameters);
+        return $statement->rowCount() > 0;
+    }
+
+    /**
      * Cast a value fetched from a DB to the specified return type
      *
      * @param $conn
@@ -135,6 +149,6 @@ class BMDB {
             }
             return NULL;
         }
-        throw BMExceptionDatabase("Unknown column return type " . $returnType);
+        throw new BMExceptionDatabase("Unknown column return type " . $returnType);
     }
 }
