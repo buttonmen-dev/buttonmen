@@ -207,6 +207,8 @@ class PHPBMClientOutputWriter():
     self.dirname = dirname
     self.log = []
     self.num_load_game_data = 0
+    self.player_username = 'responder003'
+    self.opponent_username = 'responder004'
 
   def find_games(self):
     games = []
@@ -247,13 +249,13 @@ class PHPBMClientOutputWriter():
      */
     public function test_interface_game_%s() {
 
-        // responder003 is the POV player, so if you need to fake
+        // %s is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
-        // return to responder003 as soon as you've done so
+        // return to %s as soon as you've done so
         $this->game_number = %d;
-        $_SESSION = $this->mock_test_user_login('responder003');
+        $_SESSION = $this->mock_test_user_login('%s');
 
-""" % (entry['id'], n))
+""" % (entry['id'], self.player_username, self.player_username, n, self.player_username))
 
   def _write_entry_type_finish(self, entry):
     self.f.write("""    }
@@ -332,8 +334,8 @@ class PHPBMClientOutputWriter():
   def _write_entry_type_initialGameData(self, entry):
     data = self.apply_known_changes_to_game_data(entry['data'])
     self.f.write("""
-        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', %(maxWins)s, '%(gameState)s');
-""" % data)
+        $expData = $this->generate_init_expected_data_array($gameId, '%s', '%s', %s, '%s');
+""" % (self.player_username, self.opponent_username, data['maxWins'], data['gameState']))
     self._write_php_json_diff(data, {})
     self.olddata = data
 
@@ -766,15 +768,40 @@ class LoggingBMClient():
     if client == self.opponent_client:
       self.log.append({
         'type': 'login',
-        'user': 'responder004',
+        'user': self.opponent_client.username,
       })
 
   def _add_php_post_action_block(self, client):
     if client == self.opponent_client:
       self.log.append({
         'type': 'login',
-        'user': 'responder003',
+        'user': self.player_client.username,
       })
+
+  # We're  using arbitrary player clients at this point, so we don't
+  # want to record any game data we load in the log, because that
+  # data's perspective is wrong for replay.
+  #
+  # Instead, load the data now, use it to gather player names, and
+  # then throw it away.  The caller needs to load data again and
+  # actually record it, after this.
+  def _load_game_data_then_import_player_clients(self, client_list):
+    retval = self.player_client.load_game_data(self.game_id)
+    if not (retval and retval.status == 'ok'):
+      self.bug("_load_game_data_then_import_player_clients(%s) unexpectedly failed: %s" % (
+        self.game_id,
+        retval and retval.message or "NULL"))
+    player_name = retval.data['playerDataArray'][0]['playerName']
+    opponent_name = retval.data['playerDataArray'][1]['playerName']
+    player_client = None
+    opponent_client = None
+    for client in client_list:
+      if client.username == player_name: player_client = client
+      if client.username == opponent_name: opponent_client = client
+    assert player_client is not None, "Could not find client in provided list matching player: %s" % player_name
+    assert opponent_client is not None, "Could not find client in provided list matching opponent: %s" % opponent_name
+    self.player_client = player_client
+    self.opponent_client = opponent_client
 
   def _list_all_idx_combos(self, list_len, combo_len):
     return [x for x in itertools.combinations(range(list_len), combo_len)]
@@ -1935,21 +1962,26 @@ class LoggingBMClient():
     game_data_after_failure = game_data_entries[-1]
     if game_data_before_failure != game_data_after_failure:
       self.bug("game data was inconsistent before vs after a submitTurn call which returned a failure")
-
+    
 
   def next_game_action(self):
-    state = self.loaded_data['gameState']
-    while state not in [ 'END_GAME', 'CANCELLED', ]:
-      if state == 'START_TURN': self._game_action_start_turn()
-      elif state == 'SPECIFY_DICE': self._game_action_specify_dice()
-      elif state == 'REACT_TO_INITIATIVE': self._game_action_react_to_initiative()
-      elif state == 'CHOOSE_RESERVE_DICE': self._game_action_choose_reserve_dice()
-      elif state == 'CHOOSE_AUXILIARY_DICE': self._game_action_choose_auxiliary_dice()
-      elif state == 'ADJUST_FIRE_DICE': self._game_action_adjust_fire_dice()
-      else:
-        self.bug("LoggingBMClient.next_game_action() has no action for state %s" % state)
-      state = self.loaded_data['gameState']
+    while self.is_game_state_active():
+      self.handle_active_game_state()
     return True
+
+  def is_game_state_active(self):
+    return self.loaded_data['gameState'] not in [ 'END_GAME', 'CANCELLED', ]
+
+  def handle_active_game_state(self):
+    state = self.loaded_data['gameState']
+    if state == 'START_TURN': self._game_action_start_turn()
+    elif state == 'SPECIFY_DICE': self._game_action_specify_dice()
+    elif state == 'REACT_TO_INITIATIVE': self._game_action_react_to_initiative()
+    elif state == 'CHOOSE_RESERVE_DICE': self._game_action_choose_reserve_dice()
+    elif state == 'CHOOSE_AUXILIARY_DICE': self._game_action_choose_auxiliary_dice()
+    elif state == 'ADJUST_FIRE_DICE': self._game_action_adjust_fire_dice()
+    else:
+      self.bug("LoggingBMClient.handle_active_game_state() has no action for state %s" % state)
 
   def log_test_game(self, n, button1, button2, use_prev_game=False):
     self.reset_internal_state()
@@ -1957,6 +1989,21 @@ class LoggingBMClient():
     self.record_create_game(button1, button2, use_prev_game=use_prev_game)
     if self.game_id and not self.reject_created_game():
       self.next_game_action()
+    self.finish_game_log()
+    return self.game_id
+
+  def initialize_precreated_game(self, n, game_id, client_list):
+    self.game_id = game_id
+    self.start_game_log(n)
+    self._load_game_data_then_import_player_clients(client_list)
+    self.record_load_game_data()
+
+  # Return game ID if the game is finished (similar to log_test_game()), False if it's still active
+  def progress_game_towards_completion(self):
+    if self.is_game_state_active():
+      self.handle_active_game_state()
+    if self.is_game_state_active():
+      return False
     self.finish_game_log()
     return self.game_id
 

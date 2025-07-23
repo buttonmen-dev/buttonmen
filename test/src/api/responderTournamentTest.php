@@ -10,7 +10,6 @@ class responderTournamentTest extends responderTestFramework {
 
     /**
      * @depends responder00Test::test_request_savePlayerInfo
-     * @group fulltest_deps
      *
      * This test invokes several tournament API methods
      */
