@@ -53,7 +53,7 @@ class responder00Test extends responderTestFramework {
 
                 $this->assertEquals(
                     $real_new['message'],
-                    "User " . $username . " created successfully.  A verification code has been e-mailed to " . $username . "@example.com.  Follow the link in that message to start beating people up! (Note: If you don't see the email shortly, be sure to check your spam folder.)");
+                    "User " . $username . " created successfully.  A verification code has been e-mailed to " . $username . "@example.com.  Follow the link in that message to start beating people up! Note: If you don't see the email shortly, send us a message at help@buttonweavers.com and we'll verify your account manually.");
                 $this->assertTrue(is_numeric($real_new['data']['playerId']));
                 $this->assertEquals($real_new['data']['userName'], $username);
 
