@@ -1,0 +1,30 @@
+#!/opt/conda/envs/python27/bin/python
+##### test_log_tournament
+# Play a single tournament and log the output to pck
+
+import os
+import sys
+sys.path.append('lib')
+
+CONFIGPATH = "%s/share/buttonmen/.bmrc" % os.getenv('HOME')
+
+import bmapi
+import random_tournament
+import time
+
+########################################################################
+# Initial setup
+if len(sys.argv) != 1:
+  raise ValueError("Usage: test_log_tournament")
+
+client_list = []
+for i in range(3, 36):
+  client_list.append(bmapi.BMClient(CONFIGPATH, 'localr%d' % i))
+for client in client_list:
+  if not client.login():
+    raise ValueError("Could not login as %s" % client.username)
+
+print "Starting tournament"
+c = random_tournament.LoggingBMClient(client_list)
+for i in range(1, 1001):
+  c.log_test_tournament(i)

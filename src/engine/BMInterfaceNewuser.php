@@ -197,8 +197,8 @@ class BMInterfaceNewuser {
             $this->message = 'User ' . $username . ' created successfully.  ' .
                              'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
                              'Follow the link in that message to start beating people up! ' .
-                             '(Note: If you don\'t see the email shortly, be sure to check ' .
-                             'your spam folder.)';
+                             'Note: If you don\'t see the email shortly, send us a message at ' .
+                             'help@buttonweavers.com and we\'ll verify your account manually.';
 
             return $result;
         } catch (Exception $e) {
