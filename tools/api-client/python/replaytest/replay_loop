@@ -88,6 +88,9 @@ between the actions it has been configured to take:
     '--skip-init', '-s', action='store_true',
     help="skip initial batch of novel games, so the first action is replaying a batch")
   parser.add_argument(
+    '--play-tournaments', '-t', action='store_true',
+    help="play tournaments using test_log_tournament rather than games using test_log_games (note: tournament mode has incomplete support for other replay_loop arguments)")
+  parser.add_argument(
     '--num-games', '-n', type=int, default=100,
     help="number of novel games to play in each batch (default 100)")
   parser.add_argument(
@@ -250,6 +253,19 @@ def recreate_buttonmen_databases():
   os.system('sudo /usr/local/bin/create_buttonmen_databases')
   os.system('cat ~/example_players.sql | sudo mysql')
 
+def test_new_tournaments():
+  # Restart MySQL and apache, then reset primary and test databases
+  restart_mysqld()
+  restart_apache()
+  recreate_buttonmen_databases()
+
+  os.chdir(HOMEBMDIR)
+  retval = os.system('./test_log_tournament')
+  if retval != 0:
+    sys.exit(1)
+
+  # TODO: support replay/archive mode for tournaments
+
 # Actually play novel games if that's correct for the arguments we're using
 # Fail if any exceptions are received
 def generate_new_games(timestamp):
@@ -318,6 +334,11 @@ while True:
   if skip_init_new_games:
     print "Skipping new games the first time"
     skip_init_new_games = False
+  elif ARGS.play_tournaments:
+    log("Testing new tournaments")
+    test_new_tournaments()
+    # tournaments don't currently support any sort of replay
+    continue
   else:
     log("Testing new games")
     timestamp = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
