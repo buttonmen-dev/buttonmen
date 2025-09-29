@@ -168,7 +168,8 @@ Tournament.pageAddTournamentHeader = function() {
 
   if (Api.tournament.description) {
     Tournament.page.append($('<div>', {
-      'text': Api.tournament.description,
+      'id': 'tournament_desc',
+      'html': Env.applyBbCodeToHtml(Api.tournament.description),
       'class': 'gameDescDisplay',
     }));
   }
@@ -347,9 +348,18 @@ Tournament.pageAddWinnerInfo = function () {
   var winnerDiv = $('<div>');
   Tournament.page.append(winnerDiv);
 
-  var winnerIdx = Api.tournament.remainCountArray.findIndex(
-    function(x) {return (x > 0);}
+  var winnerIdx;
+  var isWinnerFound = Api.tournament.remainCountArray.some(
+    function(item, idx) {
+      winnerIdx = idx;
+      return item > 0;
+    }
   );
+
+  if (!isWinnerFound) {
+    return;
+  }
+
   var winnerPar = $('<p>', {
     'class': 'winner_name',
     'text': 'Winner: ' + Api.tournament.playerDataArray[winnerIdx].playerName

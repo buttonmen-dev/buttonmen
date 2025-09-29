@@ -443,9 +443,12 @@ Overview.addScoreCol = function(gameRow, gameInfo) {
 
 Overview.addDescCol = function(gameRow, description) {
   var descText = '';
-  if (typeof(description) == 'string') {
-    descText = description.substring(0, 30) +
-               ((description.length > 30) ? '...' : '');
+  if (typeof(description) === 'string') {
+    var descriptionNoMarkup =
+          Env.applyBbCodeToHtml(description).replace(/<[^>]+>/g, '');
+
+    descText = descriptionNoMarkup.substring(0, 30) +
+               ((descriptionNoMarkup.length > 30) ? '...' : '');
   }
   gameRow.append($('<td>', {
     'class': 'gameDescDisplay',

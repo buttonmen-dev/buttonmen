@@ -211,7 +211,7 @@ class responderTournamentTest extends responderTestFramework {
         $gameOneExpData = $this->generate_init_expected_data_array($gameOneId, 'responder004', 'responder005', 1, 'SPECIFY_DICE');
         $gameOneExpData['tournamentId'] = $tournamentId;
         $gameOneExpData['tournamentRoundNumber'] = 1;
-        $gameOneExpData['description'] = 'Round 1';
+        $gameOneExpData['description'] = 'Tournament Round 1';
         $gameOneExpData['currentPlayerIdx'] = FALSE;
         $gameOneExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
         $gameOneExpData['gameActionLog'][0]['message'] = 'Game created automatically';
@@ -243,7 +243,7 @@ class responderTournamentTest extends responderTestFramework {
         $gameTwoExpData['gameSkillsInfo'] = $this->get_skill_info(array('Poison'));
         $gameTwoExpData['tournamentId'] = $tournamentId;
         $gameTwoExpData['tournamentRoundNumber'] = 1;
-        $gameTwoExpData['description'] = 'Round 1';
+        $gameTwoExpData['description'] = 'Tournament Round 1';
         $gameTwoExpData['activePlayerIdx'] = 0;
         $gameTwoExpData['playerWithInitiativeIdx'] = 0;
         $gameTwoExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
@@ -363,7 +363,7 @@ class responderTournamentTest extends responderTestFramework {
         $gameThreeExpData['gameSkillsInfo'] = $this->get_skill_info(array('Poison'));
         $gameThreeExpData['tournamentId'] = $tournamentId;
         $gameThreeExpData['tournamentRoundNumber'] = 2;
-        $gameThreeExpData['description'] = 'Round 2';
+        $gameThreeExpData['description'] = 'Tournament Round 2';
         $gameThreeExpData['activePlayerIdx'] = 1;
         $gameThreeExpData['playerWithInitiativeIdx'] = 1;
         $gameThreeExpData['currentPlayerIdx'] = 1;

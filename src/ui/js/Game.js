@@ -1836,7 +1836,7 @@ Game.pageAddGameHeader = function(action_desc) {
 
   if (Api.game.description) {
     Game.page.append($('<div>', {
-      'text': Api.game.description,
+      'html': Env.applyBbCodeToHtml(Api.game.description),
       'class': 'gameDescDisplay',
     }));
   }
