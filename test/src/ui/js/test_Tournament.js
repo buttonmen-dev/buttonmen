@@ -153,17 +153,15 @@ test("test_Tournament.getCurrentTournament", function(assert) {
 });
 
 test("test_Tournament.showStatePage", function(assert) {
-//  stop();
-//  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
-//  Tournament.getCurrentTournament(function() {
-//    Tournament.showStatePage();
-//    var htmlout = Tournament.page.html();
-//    assert.ok(htmlout.length > 0,
-//      "The created page should have nonzero contents");
-//    assert.ok(htmlout.match('vacation16.png'),
-//      "The game UI contains a vacation icon when the API data reports that one player is on vacation");
-//    start();
-//  });
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Tournament.showStatePage();
+    var htmlout = Tournament.page.html();
+    assert.ok(htmlout.length > 0,
+          "The created page should have nonzero contents");
+    start();
+  });
 });
 
 test("test_Tournament.showTournamentContents", function(assert) {
@@ -171,7 +169,27 @@ test("test_Tournament.showTournamentContents", function(assert) {
 });
 
 test("test_Tournament.pageAddTournamentHeader", function(assert) {
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Api.tournament.description = 'header';
+    Tournament.showStatePage();
+    Tournament.pageAddTournamentHeader();
+    var htmlout = Tournament.page.html();
+    assert.ok(htmlout.length > 0,
+          "The created page should have nonzero contents");
+    // now test the header contents
+    //console.log(Api.tournament);
+    //console.log(htmlout);
 
+
+    var item = document.getElementById('tournament_desc');
+    assert.equal(item.nodeName, "DIV",
+          "#tournament_desc is a div after redrawTournamentPageSuccess() is called");
+    assert.equal($(item).html(), 'header', 'Header text should be correct');
+
+    start();
+  });
 });
 
 test("test_Tournament.pageAddDismissTournamentLink", function(assert) {

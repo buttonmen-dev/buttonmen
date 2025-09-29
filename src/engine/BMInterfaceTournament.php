@@ -503,9 +503,10 @@ class BMInterfaceTournament extends BMInterface {
                 array($gameData['buttonId1'], $gameData['buttonId2'])
             );
 
-            $description = 'Round ' . $gameData['roundNumber'];
-            if ('' != $tournament->description) {
-                $description = $tournament->description . ' ' . $description;
+            $roundDescription = 'Tournament Round ' . $gameData['roundNumber'];
+            $tournDescription = $this->truncate_tournament_description($tournament->description);
+            if ('' != $tournDescription) {
+                $roundDescription = $tournDescription . ', ' . $roundDescription;
             }
 
             $interfaceResponse = $this->game()->create_game_from_button_ids(
@@ -513,7 +514,7 @@ class BMInterfaceTournament extends BMInterface {
                 array($gameData['buttonId1'], $gameData['buttonId2']),
                 $buttonNames,
                 $tournament->gameMaxWins,
-                $description,
+                $roundDescription,
                 NULL,
                 0, // needs to be non-null, but also a non-player ID
                 TRUE,
@@ -529,6 +530,33 @@ class BMInterfaceTournament extends BMInterface {
                 $tournament->gameIdArrayArray = $gameIdArrayArray;
             }
         }
+    }
+
+    /**
+     * Truncate a tournament description so that the tournament round number can be appended
+     * without exceeding the max length of the field in the database.
+     *
+     * This also aggressively removes BBCode markup if there is the possibility of
+     * breaking BBCode through truncation.
+     *
+     * @param string $description
+     */
+    protected function truncate_tournament_description($description) {
+        if (strlen($description) > 230) {
+            $removedText = substr($description, 230);
+            if (strpos($removedText, ']') !== FALSE) {
+                // strip out all potential BBCode
+                $description = preg_replace(
+                    '#\[([^\]]+?)(=[^\]]+?)?\](.+?)\[/\1\]#',
+                    '$3',
+                    $description
+                );
+            }
+
+            $description = substr($description, 0, 230) . '...';
+        }
+
+        return($description);
     }
 
     /**
