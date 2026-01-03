@@ -47,7 +47,7 @@ $RANDOMBM_SKILL_ARRAY = array(
 );
 $RANDOMBM_SKILL = array_flip($RANDOMBM_SKILL_ARRAY);
 
-class responderTestFramework extends PHPUnit_Framework_TestCase {
+class responderTestFramework extends PHPUnit\Framework\TestCase {
 
     /**
      * @var spec         ApiSpec object which will be used as a helper
@@ -63,7 +63,12 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp() {
+    protected function setUp(): void {
+
+        // start all tests with dummy user logged out
+        global $dummyUserLoggedIn;
+        $dummyUserLoggedIn = FALSE;
+
 
         // setup the test interface
         require_once __DIR__.'/../database/mysql.test.inc.php';
@@ -97,7 +102,7 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown() {
+    protected function tearDown(): void {
 
         // By default, tests use normal randomization, so always
         // reset overrides and empty the queue between tests

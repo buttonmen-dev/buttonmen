@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagHasJustTurboedTest extends PHPUnit_Framework_TestCase {
+class BMFlagHasJustTurboedTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlagHasJustTurboed::__construct

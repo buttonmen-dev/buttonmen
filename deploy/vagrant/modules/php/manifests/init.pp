@@ -4,17 +4,17 @@ class php::base {
   package {
     "php": ensure => installed;
     "libapache2-mod-php": ensure => installed;
-    "php7.0-mbstring": ensure => installed;
+    "php8.3-mbstring": ensure => installed;
   }
 
   file {
-    "/etc/php/7.0/apache2/conf.d/buttonmen.ini":
+    "/etc/php/8.3/apache2/conf.d/buttonmen.ini":
       ensure => file,
       content => template("php/buttonmen.ini.erb"),
       notify => Service["apache2"],
       require => Package["libapache2-mod-php"];
 
-    "/etc/php/7.0/deploy-includes":
+    "/etc/php/8.3/deploy-includes":
       ensure => directory,
       require => Package["libapache2-mod-php"];
   }
@@ -46,19 +46,19 @@ class php::type::circleci {
       unless => "/usr/bin/pear config-get auto_discover | /bin/grep -q 1";
 
     "php_wget_install_phpmd":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpmd.phar http://static.phpmd.org/php/latest/phpmd.phar",
-      creates => "/etc/php/7.0/deploy-includes/phpmd.phar",
-      require => File["/etc/php/7.0/deploy-includes"];
+      command => "/usr/bin/wget --no-verbose -O /etc/php/8.3/deploy-includes/phpmd.phar http://static.phpmd.org/php/latest/phpmd.phar",
+      creates => "/etc/php/8.3/deploy-includes/phpmd.phar",
+      require => File["/etc/php/8.3/deploy-includes"];
 
     "php_wget_install_phpcpd":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpcpd.phar https://phar.phpunit.de/phpcpd.phar",
-      creates => "/etc/php/7.0/deploy-includes/phpcpd.phar",
-      require => File["/etc/php/7.0/deploy-includes"];
+      command => "/usr/bin/wget --no-verbose -O /etc/php/8.3/deploy-includes/phpcpd.phar https://phar.phpunit.de/phpcpd.phar",
+      creates => "/etc/php/8.3/deploy-includes/phpcpd.phar",
+      require => File["/etc/php/8.3/deploy-includes"];
 
     "php_wget_install_phpcb":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpcb.phar https://github.com/bytepark/php-phar-qatools/blob/master/phpcb.phar",
-      creates => "/etc/php/7.0/deploy-includes/phpcb.phar",
-      require => File["/etc/php/7.0/deploy-includes"];
+      command => "/usr/bin/wget --no-verbose -O /etc/php/8.3/deploy-includes/phpcb.phar https://github.com/bytepark/php-phar-qatools/blob/master/phpcb.phar",
+      creates => "/etc/php/8.3/deploy-includes/phpcb.phar",
+      require => File["/etc/php/8.3/deploy-includes"];
 
     "php_pear_discover_phpdoc":
       command => "/usr/bin/pear channel-discover pear.phpdoc.org",
@@ -66,7 +66,7 @@ class php::type::circleci {
       unless => "/usr/bin/pear list-channels | /bin/grep pear.phpdoc.org";
 
     "php_pear_install_phpcs":
-      command => "/usr/bin/wget --no-verbose -O /etc/php/7.0/deploy-includes/phpcs.phar https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar",
+      command => "/usr/bin/wget --no-verbose -O /etc/php/8.3/deploy-includes/phpcs.phar https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar",
       require => Exec["php_pear_set_auto_discover"],
       creates => "/usr/bin/phpcs";
 

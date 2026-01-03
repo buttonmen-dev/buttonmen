@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 ##### A utility to verify that all code files use Unix-style newlines
 
 import os
@@ -40,11 +40,11 @@ def find_files(dirname):
     elif os.path.isfile(itempath):
       files.append(itempath)
     else:
-      raise ValueError, "%s is neither a directory nor a file" % itempath
+      raise ValueError("%s is neither a directory nor a file" % itempath)
   return files
 
 def file_has_unix_endings(filepath):
-  f = open(filepath, 'U')
+  f = open(filepath)
   f.readlines()
   if f.newlines == '\n':
     return True
@@ -55,7 +55,7 @@ for filepath in find_files('.'):
   if not file_has_unix_endings(filepath):
     badfiles.append(filepath)
 if len(badfiles) > 0:
-  print "Some files lack Unix-style line termination: %s" % badfiles
+  print("Some files lack Unix-style line termination: %s" % badfiles)
   sys.exit(1)
-print "OK"
+print("OK")
 sys.exit(0)

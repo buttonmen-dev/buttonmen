@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagTwinTest extends PHPUnit_Framework_TestCase {
+class BMFlagTwinTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlagTwin::__construct

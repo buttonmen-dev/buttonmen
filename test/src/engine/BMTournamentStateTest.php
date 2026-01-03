@@ -1,6 +1,6 @@
 <?php
 
-class BMTournamentStateTest extends PHPUnit_Framework_TestCase {
+class BMTournamentStateTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @coversNothing

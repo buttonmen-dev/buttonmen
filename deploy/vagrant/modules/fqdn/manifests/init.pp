@@ -11,6 +11,6 @@ class fqdn::base {
     "/usr/local/etc/bmsite_fqdn":
       ensure => file,
       content => template("fqdn/bmsite_fqdn.erb"),
-      mode => 444;
+      mode => "444";
   }
 }

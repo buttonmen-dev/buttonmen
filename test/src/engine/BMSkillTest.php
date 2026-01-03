@@ -1,6 +1,6 @@
 <?php
 
-class BMSkillTest extends PHPUnit_Framework_TestCase {
+class BMSkillTest extends PHPUnit\Framework\TestCase {
 
     /**
      * BMSkill doesn't use any native objects, so no setup is required

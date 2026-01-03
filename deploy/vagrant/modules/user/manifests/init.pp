@@ -1,4 +1,4 @@
-class user::buttonmen-devs {
+class user::buttonmen_devs {
   group {
     "admin": ensure => present;
   }
@@ -55,7 +55,7 @@ class user::username::chaos {
       owner => "chaos",
       group => "chaos",
       content => template("user/chaos_install_rcfiles.erb"),
-      mode => 0544,
+      mode => "0544",
       require => User["chaos"];
   }
 }

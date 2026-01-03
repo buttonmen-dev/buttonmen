@@ -1,6 +1,6 @@
 <?php
 
-class BMInterfaceHelpTest extends PHPUnit_Framework_TestCase {
+class BMInterfaceHelpTest extends PHPUnit\Framework\TestCase {
 
   public function test() {
   }

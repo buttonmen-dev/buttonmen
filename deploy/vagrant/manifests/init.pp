@@ -19,35 +19,19 @@ node default {
 
   $puppet_timestamp = generate('/bin/date', '+%s')
 
-  case "$operatingsystemrelease" {
-    "14.04", "16.04": {
-      $puppet_apache_sitesdir = "sites-enabled"
-    }
-    default: {
-      $puppet_apache_sitesdir = "conf.d"
-    }
-  }
-
   # Generic node configuration
   include "apt::client"
   include "ntp::client"
   include "postfix::base"
   include "syslog::base"
-  include "user::buttonmen-devs"
-  include "sudo::buttonmen-devs"
+  include "user::buttonmen_devs"
+  include "sudo::buttonmen_devs"
   include "fqdn::base"
 
   # Node configuration needed for the buttonmen server
   include "apache::server::vagrant"
   include "php::base"
   include "mysql::server"  
-  include "buttonmen::python-api-client"
+  include "buttonmen::python_api_client"
   include "buttonmen::server"
-
-  # location-specific configuration
-  case "${ec2_services_partition}" {
-    "aws": {
-      include "cloudwatch::buttonmen-site"
-    }
-  }
 }
