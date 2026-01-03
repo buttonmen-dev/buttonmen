@@ -1,6 +1,6 @@
 <?php
 
-class BMBtnSkillTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillTest extends PHPUnit\Framework\TestCase {
     /**
      * @var BMBtnSkill
      */

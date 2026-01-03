@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagHasJustMorphedTest extends PHPUnit_Framework_TestCase {
+class BMFlagHasJustMorphedTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string
