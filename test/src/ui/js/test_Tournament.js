@@ -172,21 +172,20 @@ test("test_Tournament.pageAddTournamentHeader", function(assert) {
   stop();
   BMTestUtils.TournamentType = 'default';
   Tournament.getCurrentTournament(function() {
-    Api.tournament.description = 'header';
+    Api.tournament.description = 'description';
     Tournament.showStatePage();
     Tournament.pageAddTournamentHeader();
     var htmlout = Tournament.page.html();
     assert.ok(htmlout.length > 0,
           "The created page should have nonzero contents");
-    // now test the header contents
-    //console.log(Api.tournament);
-    //console.log(htmlout);
 
+    var tournHeader = $('#tournament_id');
+    var tournDesc = $('#tournament_desc');
+    var tournInfo = $('#tournament_info');
 
-    var item = document.getElementById('tournament_desc');
-    assert.equal(item.nodeName, "DIV",
-          "#tournament_desc is a div after redrawTournamentPageSuccess() is called");
-    assert.equal($(item).html(), 'header', 'Header text should be correct');
+    assert.ok(tournHeader.is('div'), 'Tournament header should be a div');
+    assert.ok(tournDesc.is('div'),   'Tournament description should be a div');
+    assert.ok(tournInfo.is('div'),   'Tournament info should be a div');
 
     start();
   });
@@ -214,6 +213,43 @@ test("test_Tournament.pageAddFollowTournamentLink", function(assert) {
 
 test("test_Tournament.formFollowTournament", function(assert) {
 
+});
+
+test("test_Tournament.pageAddTournamentDescription", function(assert) {
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Api.tournament.description =
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]4567890...';
+    Tournament.showStatePage();
+    Tournament.pageAddTournamentDescription();
+
+    var tournDesc = $('#tournament_desc');
+
+    var convertedDescription =
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '4567890...';
+
+    assert.equal(
+      tournDesc.html(),
+      convertedDescription,
+      'Description text should be correct'
+    );
+
+    start();
+  });
 });
 
 test("test_Tournament.pageAddTournamentInfo", function(assert) {

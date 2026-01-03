@@ -166,14 +166,7 @@ Tournament.pageAddTournamentHeader = function() {
 //    bgcolor = Tournament.color.opponent;
 //  }
 
-  if (Api.tournament.description) {
-    Tournament.page.append($('<div>', {
-      'id': 'tournament_desc',
-      'html': Env.applyBbCodeToHtml(Api.tournament.description),
-      'class': 'gameDescDisplay',
-    }));
-  }
-
+  Tournament.pageAddTournamentDescription();
   Tournament.page.append($('<br>'));
 
   Tournament.pageAddTournamentInfo();
@@ -307,8 +300,23 @@ Tournament.formFollowTournament = function(e) {
     Tournament.showLoggedInPage);
 };
 
+Tournament.pageAddTournamentDescription = function () {
+  if (Api.tournament.description) {
+    Tournament.page.append($('<div>', {
+      'id': 'tournament_desc',
+      'html': Env.applyBbCodeToHtml(Api.tournament.description),
+      'class': 'gameDescDisplay',
+    }));
+  }
+};
+
 Tournament.pageAddTournamentInfo = function () {
-  var infoDiv = $('<div>');
+  var infoDiv = $(
+    '<div>',
+    {
+      'id': 'tournament_info',
+    }
+  );
   Tournament.page.append(infoDiv);
 
   var tournamentTypePar = $('<p>', {
@@ -350,9 +358,9 @@ Tournament.pageAddWinnerInfo = function () {
 
   var winnerIdx;
   var isWinnerFound = Api.tournament.remainCountArray.some(
-    function(item, idx) {
+    function(remainCount, idx) {
       winnerIdx = idx;
-      return item > 0;
+      return remainCount > 0;
     }
   );
 
