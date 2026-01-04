@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 ubuntu:16.04
+FROM --platform=linux/amd64 ubuntu:24.04
 RUN mkdir /buttonmen
 WORKDIR /buttonmen
 COPY . .

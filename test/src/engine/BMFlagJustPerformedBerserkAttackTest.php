@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagJustPerformedBerserkAttackTest extends PHPUnit_Framework_TestCase {
+class BMFlagJustPerformedBerserkAttackTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlagJustPerformedBerserkAttack::__construct

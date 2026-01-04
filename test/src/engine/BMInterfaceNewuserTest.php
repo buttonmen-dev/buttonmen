@@ -1,6 +1,6 @@
 <?php
 
-class BMInterfaceNewuserTest extends PHPUnit_Framework_TestCase {
+class BMInterfaceNewuserTest extends PHPUnit\Framework\TestCase {
 
   // At the moment, BMInterfaceTest covers both functions for
   // authenticated users and functions for new users

@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagIrrelevantForInitiativeTest extends PHPUnit_Framework_TestCase {
+class BMFlagIrrelevantForInitiativeTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string

@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagAddAuxiliaryTest extends PHPUnit_Framework_TestCase {
+class BMFlagAddAuxiliaryTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string

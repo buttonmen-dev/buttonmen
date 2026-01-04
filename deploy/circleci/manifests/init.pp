@@ -9,8 +9,6 @@ node default {
   $buttonmen_site_type = "production"
   $puppet_timestamp = generate('/bin/date', '+%s')
 
-  $puppet_apache_sitesdir = "sites-enabled"
-
   # Generic node configuration
   include "apt::client"
   include "ntp::client"
@@ -21,7 +19,7 @@ node default {
   include "apache::server::circleci"
   include "php::type::circleci"
   include "mysql::server"  
-  include "buttonmen::python-api-client"
+  include "buttonmen::python_api_client"
   include "buttonmen::server"
   include "javascript::type::circleci"
 }

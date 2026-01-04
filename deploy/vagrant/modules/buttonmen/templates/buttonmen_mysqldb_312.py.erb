@@ -1,0 +1,25 @@
+# Connect to buttonmen database using MySQLdb
+# Connect functionality should be identical to mysql_root_cli, but
+# for use in python scripts, e.g. database update utilities
+
+HOSTNAME = "<%= @database_fqdn %>"
+CONF_FILE = "/usr/local/etc/buttonmen_db.cnf"
+DBNAME = "buttonmen"
+DEFAULT_USER = "root"
+
+import MySQLdb
+import os
+
+def connect_buttonmen_database():
+  if os.path.exists(CONF_FILE):
+    conn = MySQLdb.connect( 
+      db=DBNAME,
+      host=HOSTNAME,
+      read_default_file=CONF_FILE
+    )
+  else:
+    conn = MySQLdb.connect( 
+      db=DBNAME,
+      user=DEFAULT_USER
+    )
+  return conn

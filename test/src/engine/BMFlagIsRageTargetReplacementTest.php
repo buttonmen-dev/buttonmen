@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagIsRageTargetReplacementTest extends PHPUnit_Framework_TestCase {
+class BMFlagIsRageTargetReplacementTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string
