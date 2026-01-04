@@ -444,8 +444,7 @@ Overview.addScoreCol = function(gameRow, gameInfo) {
 Overview.addDescCol = function(gameRow, description) {
   var descText = '';
   if (typeof(description) === 'string') {
-    var descriptionNoMarkup =
-          Env.applyBbCodeToHtml(description).replace(/<[^>]+>/g, '');
+    var descriptionNoMarkup = Env.removeBbCodeFromHtml(description);
 
     descText = descriptionNoMarkup.substring(0, 30) +
                ((descriptionNoMarkup.length > 30) ? '...' : '');
