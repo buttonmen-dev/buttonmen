@@ -284,8 +284,7 @@ TournamentOverview.addTypeCol = function(tournamentRow, tournamentInfo) {
 TournamentOverview.addDescCol = function(tournamentRow, description) {
   var descText = '';
   if (typeof(description) === 'string') {
-    var descriptionNoMarkup =
-          Env.applyBbCodeToHtml(description).replace(/<[^>]+>/g, '');
+    var descriptionNoMarkup = Env.removeBbCodeFromHtml(description);
 
     descText = descriptionNoMarkup.substring(0, 30) +
                ((descriptionNoMarkup.length > 30) ? '...' : '');
