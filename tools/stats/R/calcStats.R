@@ -1,3 +1,28 @@
+# Import mandatory dependencies at the top, so we can fail fast if
+# they are not available
+box::use(
+  DBI,
+  RMySQL,
+  xtable,
+  data.table,
+  Matrix,
+  jsonlite,
+  dplyr,
+  condformat
+)
+
+# These were imported as libraries in the initial code, but don't
+# appear to me to be needed:
+# * colorRamps
+
+# The %>% operator is imported from dplyr, and needs to be invoked
+# under that exact name with no namespace, for reasons described
+# in the first comment by "greg" in
+#   https://forum.posit.co/t/magrittr-inside-a-package/2033
+# (That thread is about magrittr, but dplyr implements the same
+# operator, and clearly has the same issue.)
+`%>%` <- dplyr$`%>%`
+
 save_dir <- function() {
   # Choose target file save directory
   if (('unix' == .Platform$OS.type) && ('X11' == .Platform$GUI)) {
@@ -12,12 +37,10 @@ save_dir <- function() {
 }
 
 connectToDatabase <- function() {
-  library(RMySQL)
-
   if (('unix' == .Platform$OS.type) && ('RStudio' == .Platform$GUI)) {
     # Connect to database via socket on a Mac running MAMP
-    db <- dbConnect(
-      MySQL(),
+    db <- RMySQL$dbConnect(
+      RMySQL$MySQL(),
       user = 'stats',
       password = '',
       dbname = 'buttonmen-stats',
@@ -26,12 +49,11 @@ connectToDatabase <- function() {
     )
   } else {
     # Otherwise connect via TCP/IP
-    db <- dbConnect(
-      MySQL(),
-      user = 'stats',
-      password = '',
-      dbname = 'buttonmen-stats',
-      host = '127.0.0.1'
+    db <- RMySQL$dbConnect(
+      RMySQL$MySQL(),
+      user = 'root',
+      dbname = 'buttonmen',
+      unix.sock = "/var/run/mysqld/mysqld.sock"
     )
   }
 
@@ -41,7 +63,7 @@ connectToDatabase <- function() {
 queryButtonNames <- function(db) {
   # Submit query database for button names and IDs
   suppressWarnings(
-    button.name.df <- dbGetQuery(
+    button.name.df <- DBI$dbGetQuery(
       db,
       '
         SELECT
@@ -64,7 +86,7 @@ queryButtonNames <- function(db) {
 queryPlayerNames <- function(db) {
   # Submit query database for player names and IDs
   suppressWarnings(
-    player.name.df <- dbGetQuery(
+    player.name.df <- DBI$dbGetQuery(
       db,
       '
       SELECT
@@ -82,7 +104,7 @@ queryPlayerNames <- function(db) {
 queryButtonStats <- function(db) {
   # Submit query for button vs button data, ignoring mirror matches
   suppressWarnings(
-    data.df <- dbGetQuery(
+    data.df <- DBI$dbGetQuery(
       db,
       '
         SELECT
@@ -158,8 +180,7 @@ calcSingleButtonStats <- function(data.df) {
   button.summary.df.sorted$button_id <- NULL
 
   # Create HTML table of button stats
-  library(xtable)
-  stats.table <- xtable(
+  stats.table <- xtable$xtable(
     button.summary.df.sorted,
     display = c('s', 's', 's', 's', 'f', 'd'),
     caption = paste0('Button stats generated on ', as.character(as.Date(max(data.df$last_action_time))))
@@ -180,11 +201,9 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   )
 
   # Create matchup frequency matrix of games played
-  library(data.table)
-  library(Matrix)
-  dt <- data.table(games.played.df, key = c('first_button_id', 'second_button_id'))
-  freq.dt <- dt[, .N, by = key(dt)]
-  freq.matrix <- as.matrix(with(freq.dt, sparseMatrix(i = first_button_id, j = second_button_id, x = N, dims = c(max.button, max.button))))
+  dt <- data.table$data.table(games.played.df, key = c('first_button_id', 'second_button_id'))
+  freq.dt <- dt[, .N, by = eval(data.table$key(dt))]
+  freq.matrix <- as.matrix(with(freq.dt, Matrix$sparseMatrix(i = first_button_id, j = second_button_id, x = N, dims = c(max.button, max.button))))
   
   freq.matrix.df <- as.data.frame(freq.matrix, row.names = button.names.df$button_name)
   colnames(freq.matrix.df) <- button.names.df$button_name
@@ -206,7 +225,6 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   log.freq.matrix.limited[log.freq.matrix.limited > upper.limit] <- upper.limit
 
   # Create colour palette
-  library(colorRamps)
   color.palette <- colorRampPalette(c('grey', 'red'))
 
   # Generate graphical representation of matchup matrix
@@ -247,14 +265,11 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
     loser_button_name = data.df$button_name[!data.df$did_win]
   )
 
-  library(data.table)
-  library(Matrix)
-
   # Populate a button matchup frequency matrix
-  dt <- data.table(game.winner.df, key = c('winner_button_id', 'loser_button_id'))
-  freq.dt <- dt[, .N, by = key(dt)]
+  dt <- data.table$data.table(game.winner.df, key = c('winner_button_id', 'loser_button_id'))
+  freq.dt <- dt[, .N, by = eval(data.table$key(dt))]
   max_button_id <- max(button.names.df$alt_button_id)
-  freq.matrix <- as.matrix(with(freq.dt, sparseMatrix(i = winner_button_id, j = loser_button_id, x = N, dims = c(max_button_id, max_button_id))))
+  freq.matrix <- as.matrix(with(freq.dt, Matrix$sparseMatrix(i = winner_button_id, j = loser_button_id, x = N, dims = c(max_button_id, max_button_id))))
 
   # Calculate the total number of games played for each matchup
   n.games.matrix <- freq.matrix + t(freq.matrix)
@@ -282,7 +297,6 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
   )
 
   # Save data as CSV and JSON object
-  library(jsonlite)
   win.percentage.df.short <- win.percentage.df
   colnames(win.percentage.df.short) <- c('b1', 'b2', 'wp', 'ng')
   
@@ -294,34 +308,31 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
     sep = ','
   )
   
-  df.json <- toJSON(win.percentage.df.short, pretty = TRUE, digits = 2)
+  df.json <- jsonlite$toJSON(win.percentage.df.short, pretty = TRUE, digits = 2)
   writeLines(df.json, paste0(save_dir(), 'win_percentage_stats.json'))
 
   # Remove empty rows
   win.percentage.df <- win.percentage.df[!is.na(win.percentage.df$win.percentage),]
   names(win.percentage.df) <- c('Button Name', 'Opponent Button Name', 'Win %', '# games played')
 
-  library(dplyr)
   
   # Create HTML table of button matchup stats
   if (is.colour) {
-    library(condformat)
     output.colour <- pmin(4, floor(win.percentage.df$'Win %'/20))
     # use a special colour for fewer than 5 matchups
     output.colour[win.percentage.df$'# games played' < 5] <- 5
     
-    out.table <- condformat(win.percentage.df) %>% 
-      rule_fill_discrete(contains('Win %'), 
+    out.table <- condformat$condformat(win.percentage.df) %>% 
+      condformat$rule_fill_discrete(contains('Win %'), 
                          expression = output.colour, 
                          colours = c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc', '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')) %>%
-      theme_caption(paste0('Button stats generated on ',
+      condformat$theme_caption(paste0('Button stats generated on ',
                            as.character(as.Date(max(data.df$last_action_time))),
                            ', only contains played matchups'))
-    out.html <- condformat2html(out.table)
+    out.html <- condformat$condformat2html(out.table)
     return(out.html)
   } else {
-    library(xtable)
-    stats.table <- xtable(
+    stats.table <- xtable$xtable(
       win.percentage.df,
       display = c('s', 's', 's', 'f', 'd'),
       caption = paste0(
@@ -344,14 +355,11 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALS
     loser_player_name = data.df$player_name[!data.df$did_win]
   )
 
-  library(data.table)
-  library(Matrix)
-
   # Populate a player matchup frequency matrix
-  dt <- data.table(game.winner.df, key = c('winner_player_id', 'loser_player_id'))
-  freq.dt <- dt[, .N, by = key(dt)]
+  dt <- data.table$data.table(game.winner.df, key = c('winner_player_id', 'loser_player_id'))
+  freq.dt <- dt[, .N, by = eval(data.table$key(dt))]
   max_player_id <- max(player.names.df$player_id)
-  freq.matrix <- as.matrix(with(freq.dt, sparseMatrix(i = winner_player_id, j = loser_player_id, x = N, dims = c(max_player_id, max_player_id))))
+  freq.matrix <- as.matrix(with(freq.dt, Matrix$sparseMatrix(i = winner_player_id, j = loser_player_id, x = N, dims = c(max_player_id, max_player_id))))
 
   # Calculate the total number of games played for each matchup
   n.games.matrix <- freq.matrix + t(freq.matrix)
@@ -370,10 +378,9 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALS
   )
 
   # Save data as JSON object
-  # library(jsonlite)
   # win.percentage.df.short <- win.percentage.df
   # colnames(win.percentage.df.short) <- c('b1', 'b2', 'wp', 'ng')
-  # df.json <- toJSON(win.percentage.df.short, pretty = TRUE, digits = 2)
+  # df.json <- jsonlite$toJSON(win.percentage.df.short, pretty = TRUE, digits = 2)
   # writeLines(df.json, paste0(save_dir(), 'win_percentage_stats.json'))
 
   # Remove empty rows
@@ -385,27 +392,23 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALS
   win.percentage.sorted.df$win.percentage <- round(win.percentage.sorted.df$win.percentage, 2)
   names(win.percentage.sorted.df) <- c('Player Name', 'Opponent Name', 'Win %', '# games played')
   
-  library(dplyr)
-  
   # Create HTML table of button matchup stats
   if (is.colour) {
-    library(condformat)
     output.colour <- pmin(4, floor(win.percentage.sorted.df$'Win %'/20))
     # use a special colour for fewer than 5 matchups
     output.colour[win.percentage.sorted.df$'# games played' < 5] <- 5
     
-    out.table <- condformat(win.percentage.sorted.df) %>% 
-      rule_fill_discrete(contains('Win %'), 
+    out.table <- condformat$condformat(win.percentage.sorted.df) %>% 
+      condformat$rule_fill_discrete(contains('Win %'), 
                          expression = output.colour, 
                          colours = c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc', '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')) %>%
-      theme_caption(paste0('Player stats generated on ',
+      condformat$theme_caption(paste0('Player stats generated on ',
                            as.character(as.Date(max(data.df$last_action_time))),
                            ', only contains played matchups'))
-    out.html <- condformat2html(out.table)
+    out.html <- condformat$condformat2html(out.table)
     return(out.html)
   } else {
-    library(xtable)
-    stats.table <- xtable(
+    stats.table <- xtable$xtable(
       win.percentage.sorted.df,
       display = c('s', 's', 's', 'f', 'd'),
       caption = paste0(
@@ -434,7 +437,7 @@ runAll <- function() {
   button.names.df <- queryButtonNames(db)
   player.names.df <- queryPlayerNames(db)
   data.df <- queryButtonStats(db)
-  dbDisconnect(db)
+  RMySQL$dbDisconnect(db)
 
   data.df$alt_button_id <- button.names.df$alt_button_id[match(data.df$button_id, button.names.df$button_id)]
 
@@ -444,4 +447,4 @@ runAll <- function() {
   generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, FALSE), 'button_matchup_stats.html')
 }
 
-# runAll()
+runAll()
