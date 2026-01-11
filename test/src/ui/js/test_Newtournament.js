@@ -26,7 +26,7 @@ module("Newtournament", {
     delete Api.player;
     delete Newtournament.page;
     delete Newtournament.form;
-//    delete Newtournament.justCreatedGame;
+    delete Newtournament.justCreatedTournament;
 
     Login.pageModule = null;
     Newtournament.activity = {};
