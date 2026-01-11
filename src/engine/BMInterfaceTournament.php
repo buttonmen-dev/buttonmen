@@ -504,7 +504,10 @@ class BMInterfaceTournament extends BMInterface {
             );
 
             $roundDescription = 'Tournament Round ' . $gameData['roundNumber'];
-            $tournDescription = $this->truncate_tournament_description($tournament->description);
+            $tournDescription = $this->truncate_tournament_description(
+                $tournament->description,
+                $roundDescription
+            );
             if ('' != $tournDescription) {
                 $roundDescription = $tournDescription . ', ' . $roundDescription;
             }
@@ -541,22 +544,74 @@ class BMInterfaceTournament extends BMInterface {
      *
      * @param string $description
      */
-    protected function truncate_tournament_description($description) {
-        if (strlen($description) > 230) {
-            $removedText = substr($description, 230);
-            if (strpos($removedText, ']') !== FALSE) {
-                // strip out all potential BBCode
-                $description = preg_replace(
-                    '#\[([^\]]+?)(=[^\]]+?)?\](.+?)\[/\1\]#',
-                    '$3',
-                    $description
-                );
-            }
+    protected function truncate_tournament_description(
+        $tournDescription,
+        $roundDescription
+    ) {
+        // check if appending ", " followed by the tournament round description
+        // would cause the auto-generated game description to exceed the maximum
+        // length allowed for the tournament description
+        if (strlen($tournDescription) + 2 + strlen($roundDescription) >
+            ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH) {
 
-            $description = substr($description, 0, 230) . '...';
+            // try to strip out non-essential BBCode first
+            $strippedDescription = $this->strip_nonessential_bbcode($tournDescription);
+        } else {
+            $strippedDescription = $tournDescription;
         }
 
-        return($description);
+        if (strlen($strippedDescription) + 2 + strlen($roundDescription) >
+            ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH) {
+            // truncate the tournament description so that there is space for
+            // "..., " followed by the tournament round description
+            $truncDescription = substr(
+                $strippedDescription,
+                0,
+                ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH - 5 - strlen($roundDescription)
+            ) . '...';
+        } else {
+            $truncDescription = $strippedDescription;
+        }
+
+        return($truncDescription);
+    }
+
+    /**
+     * Strip non-essential BBCode from a string
+     *
+     * @param string $text
+     * @return string
+     */
+    protected function strip_nonessential_bbcode($text) {
+        $tags = array(
+            'b',
+            'i',
+            'u',
+            's',
+            'code',
+            'quote',
+            'forum'
+        );
+
+        // this regular expression is
+        //   \[                match opening square bracket
+        //   \/?               match optional forward slash
+        //   (?:               non-capturing group 1 start
+        //     tag1|tag2|...   match one of the tags
+        //   )                 non-capturing group 1 end
+        //   (?:               non-capturing group 2 start
+        //     =               match a literal equal character
+        //     [^=\]]+?        match at least one character that is not equals or
+        //                     close square bracket, as few times as possible
+        //   )?                non-capturing group 2 end, this group is optional
+        //   \]                match closing square bracket
+        $strippedText = preg_replace(
+            '#\[\/?(?:' . implode('|', $tags) . ')(?:=[^=\]]+?)?\]#',
+            '',
+            $text
+        );
+
+        return $strippedText;
     }
 
     /**
