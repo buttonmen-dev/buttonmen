@@ -186,6 +186,16 @@ def get_remote_database_password(git_info):
     return git_info['config']['remote_database_admin_pw']
   return None
 
+def get_email_relay_host(git_info):
+  if git_info['config'].get('email_relay_host', None):
+    return git_info['config']['email_relay_host']
+  return 'NORELAY'
+
+def get_email_relay_sasl_creds(git_info):
+  if git_info['config'].get('email_relay_sasl_creds', None):
+    return git_info['config']['email_relay_sasl_creds']
+  return 'NOCREDS'
+
 def find_docker_image_with_tag(tag):
   return get_subprocess_output(['docker', 'images', tag, '--format', '{{.ID}}']).strip()
 
@@ -194,6 +204,8 @@ def customize_vagrant(git_info):
   bmsite_fqdn = buttonmen_site_fqdn(git_info)
   database_fqdn = get_database_fqdn(git_info)
   remote_database_password = get_remote_database_password(git_info)
+  email_relay_host = get_email_relay_host(git_info)
+  email_relay_sasl_creds = get_email_relay_sasl_creds(git_info)
   site_type = (git_info['site_type'] in ['replay', 'local']) and 'development' or git_info['site_type']
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_DATABASE_FQDN/{database_fqdn}/", './deploy/vagrant/manifests/init.pp']
@@ -210,6 +222,18 @@ def customize_vagrant(git_info):
 
   cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_BUTTONMEN_SITE_TYPE/{site_type}/", './deploy/vagrant/manifests/init.pp']
   print(f"About to install {site_type} as vagrant buttonmen_site_type: {cmdargs}")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_EMAIL_RELAY_HOST/{email_relay_host}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install vagrant email_relay_host...")
+  retcode = subprocess.call(cmdargs)
+  if retcode != 0:
+    raise ValueError(f"Replacement failed: {retcode}")
+
+  cmdargs = ['sed', '-i', '-e', f"s/REPLACE_WITH_EMAIL_RELAY_SASL_CREDS/{email_relay_sasl_creds}/", './deploy/vagrant/manifests/init.pp']
+  print(f"About to install vagrant email_relay_sasl_creds...")
   retcode = subprocess.call(cmdargs)
   if retcode != 0:
     raise ValueError(f"Replacement failed: {retcode}")
