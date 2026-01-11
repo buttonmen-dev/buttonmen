@@ -601,12 +601,14 @@ class BMInterfaceTournament extends BMInterface {
         //   )                 non-capturing group 1 end
         //   (?:               non-capturing group 2 start
         //     =               match a literal equal character
-        //     [^=\]]+?        match at least one character that is not equals or
+        //     [^]]+?          match at least one character that is not
         //                     close square bracket, as few times as possible
+        //                     (note that the closing bracket doesn't need to
+        //                      be escaped directly after the ^ in the character group)
         //   )?                non-capturing group 2 end, this group is optional
         //   \]                match closing square bracket
         $strippedText = preg_replace(
-            '#\[\/?(?:' . implode('|', $tags) . ')(?:=[^=\]]+?)?\]#',
+            '#\[\/?(?:' . implode('|', $tags) . ')(?:=[^]]+?)?\]#',
             '',
             $text
         );
