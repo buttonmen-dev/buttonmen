@@ -553,7 +553,6 @@ class BMInterfaceTournament extends BMInterface {
         // length allowed for the tournament description
         if (strlen($tournDescription) + 2 + strlen($roundDescription) >
             ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH) {
-
             // try to strip out non-essential BBCode first
             $strippedDescription = $this->strip_nonessential_bbcode($tournDescription);
         } else {
@@ -601,7 +600,7 @@ class BMInterfaceTournament extends BMInterface {
         //   )                 non-capturing group 1 end
         //   (?:               non-capturing group 2 start
         //     =               match a literal equal character
-        //     [^]]+?          match at least one character that is not
+        //     [^]]+?          match at least one character that is not a
         //                     close square bracket, as few times as possible
         //                     (note that the closing bracket doesn't need to
         //                      be escaped directly after the ^ in the character group)
