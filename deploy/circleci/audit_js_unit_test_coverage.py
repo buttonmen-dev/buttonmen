@@ -31,8 +31,8 @@ def find_test_files():
   return testpairs
 
 def check_test_file_functions(modname, srcpath, testpath):
-  function_name_re = re.compile('^(%s\.\S+) = function\(' % modname)
-  test_name_re = re.compile('^(test|asyncTest)\("test_([^"]+)"')
+  function_name_re = re.compile('^(%s.[^ \t\n\r\f\v]+) = function[(]' % modname)
+  test_name_re = re.compile('^(test|asyncTest)[(]"test_([^"]+)"')
 
   # Populate the list of functions we expect will be tested
   functions_missing = ['%s_is_loaded' % modname, ]
@@ -82,15 +82,15 @@ def check_index_file_inclusions(testpairs):
         % (JSTESTINDEX, file_included, includes_missing[file_included]))
 
 testpairs = find_test_files()
-print "Looking for JavaScript unit tests to match Button Men spec: %s" % testpairs
+print("Looking for JavaScript unit tests to match Button Men spec: %s" % testpairs)
 for [modname, srcpath, testpath] in testpairs:
   check_test_file_functions(modname, srcpath, testpath)
 check_index_file_inclusions(testpairs)
 
 if len(errors) > 0:
-  print "JavaScript code coverage problems were found:"
+  print("JavaScript code coverage problems were found:")
   for errtext in errors:
-    print "  " + errtext
+    print("  " + errtext)
   sys.exit(1)
-print "OK"
+print("OK")
 sys.exit(0)

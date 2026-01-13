@@ -1,6 +1,6 @@
 <?php
 
-class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
+class BMSkillWarriorTest extends PHPUnit\Framework\TestCase {
     /**
      * @var BMSkillWarrior
      */
@@ -10,7 +10,7 @@ class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->object = new BMSkillWarrior;
     }
@@ -19,7 +19,7 @@ class BMSkillWarriorTest extends PHPUnit_Framework_TestCase {
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
+    protected function tearDown() : void
     {
     }
 

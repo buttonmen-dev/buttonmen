@@ -1,4 +1,4 @@
-class sudo::buttonmen-devs {
+class sudo::buttonmen_devs {
 
   package {
     "sudo": ensure => installed;
@@ -7,7 +7,7 @@ class sudo::buttonmen-devs {
   file {
     "/etc/sudoers.d/99-buttonmen-dev":
       ensure => file,
-      mode => 0440,
+      mode => "0440",
       content => "%admin ALL=(ALL) NOPASSWD:ALL\n",
       require => Package["sudo"];
   }

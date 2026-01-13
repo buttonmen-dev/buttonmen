@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagHasJustGrownOrShrunkTest extends PHPUnit_Framework_TestCase {
+class BMFlagHasJustGrownOrShrunkTest extends PHPUnit\Framework\TestCase {
 
     /**
      * Currently, all tests are in BMFlagHasJustGrownTest and BMFlagHasJustShrunkTest

@@ -2085,13 +2085,16 @@ class BMGame {
         foreach ($this->get__attackerAllDieArray() as $die) {
             $preRerollDieInfo[] = $die->get_action_log_data();
 
-            $hasRerolled |= $die->run_hooks(
+            $hookResult = $die->run_hooks(
                 __FUNCTION__,
                 array(
                     'die' => $die,
                     'attackType' => $this->attack['attackType']
                 )
             );
+            if ($hookResult) {
+                $hasRerolled = TRUE;
+            }
 
             $postRerollDieInfo[] = $die->get_action_log_data();
 

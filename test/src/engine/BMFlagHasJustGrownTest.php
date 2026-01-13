@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagHasJustGrownTest extends PHPUnit_Framework_TestCase {
+class BMFlagHasJustGrownTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlagHasJustGrownOrShrunk::__construct

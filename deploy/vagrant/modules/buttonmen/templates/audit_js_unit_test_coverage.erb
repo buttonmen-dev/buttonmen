@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 ##### A utility to verify code coverage of javascript unit tests
 
 JSMODDIR = '/buttonmen/src/ui/js'
@@ -28,8 +28,8 @@ def find_test_files():
   return testpairs
 
 def check_test_file_functions(modname, srcpath, testpath):
-  function_name_re = re.compile('^(%s\.\S+) = function\(' % modname)
-  test_name_re = re.compile('^(test|asyncTest)\("test_([^"]+)"')
+  function_name_re = re.compile('^(%s.[^ \t\n\r\f\v]+) = function[(]' % modname)
+  test_name_re = re.compile('^(test|asyncTest)[(]"test_([^"]+)"')
 
   # Populate the list of functions we expect will be tested
   functions_missing = ['%s_is_loaded' % modname, ]
@@ -83,8 +83,8 @@ for [modname, srcpath, testpath] in testpairs:
 check_file_inclusions(testpairs)
 
 if len(errors) > 0:
-  print "JavaScript code coverage problems were found:"
+  print("JavaScript code coverage problems were found:")
   for errtext in errors:
-    print "  " + errtext
+    print("  " + errtext)
   sys.exit(1)
 sys.exit(0)

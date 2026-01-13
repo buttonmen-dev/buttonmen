@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagIsAttackTargetTest extends PHPUnit_Framework_TestCase {
+class BMFlagIsAttackTargetTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string

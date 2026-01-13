@@ -1,6 +1,6 @@
 <?php
 
-class BMBtnSkillSojasGuardiansTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillSojasGuardiansTest extends PHPUnit\Framework\TestCase {
 
     // this is to satisfy the PHPUnit audit
     public function testDummy()

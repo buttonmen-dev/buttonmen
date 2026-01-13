@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagValueRelevantToScoreTest extends PHPUnit_Framework_TestCase {
+class BMFlagValueRelevantToScoreTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string
