@@ -504,12 +504,12 @@ class BMInterfaceTournament extends BMInterface {
             );
 
             $roundDescription = 'Tournament Round ' . $gameData['roundNumber'];
-            $tournDescription = $this->truncate_tournament_description(
-                $tournament->description,
-                $roundDescription
-            );
-            if ('' != $tournDescription) {
-                $roundDescription = $tournDescription . ', ' . $roundDescription;
+            $tournDescription = $tournament->description;
+
+            if ('' == trim($tournDescription)) {
+                $tournDescription = $roundDescription;
+            } else {
+                $tournDescription = $tournDescription . ' • ' . $roundDescription;
             }
 
             $interfaceResponse = $this->game()->create_game_from_button_ids(
@@ -517,7 +517,7 @@ class BMInterfaceTournament extends BMInterface {
                 array($gameData['buttonId1'], $gameData['buttonId2']),
                 $buttonNames,
                 $tournament->gameMaxWins,
-                $roundDescription,
+                $tournDescription,
                 NULL,
                 0, // needs to be non-null, but also a non-player ID
                 TRUE,
@@ -533,86 +533,6 @@ class BMInterfaceTournament extends BMInterface {
                 $tournament->gameIdArrayArray = $gameIdArrayArray;
             }
         }
-    }
-
-    /**
-     * Truncate a tournament description so that the tournament round number can be appended
-     * without exceeding the max length of the field in the database.
-     *
-     * This also aggressively removes BBCode markup if there is the possibility of
-     * breaking BBCode through truncation.
-     *
-     * @param string $description
-     */
-    protected function truncate_tournament_description(
-        $tournDescription,
-        $roundDescription
-    ) {
-        // check if appending ", " followed by the tournament round description
-        // would cause the auto-generated game description to exceed the maximum
-        // length allowed for the tournament description
-        if (strlen($tournDescription) + 2 + strlen($roundDescription) >
-            ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH) {
-            // try to strip out non-essential BBCode first
-            $strippedDescription = $this->strip_nonessential_bbcode($tournDescription);
-        } else {
-            $strippedDescription = $tournDescription;
-        }
-
-        if (strlen($strippedDescription) + 2 + strlen($roundDescription) >
-            ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH) {
-            // truncate the tournament description so that there is space for
-            // "..., " followed by the tournament round description
-            $truncDescription = substr(
-                $strippedDescription,
-                0,
-                ApiSpec::TOURNAMENT_DESCRIPTION_MAX_LENGTH - 5 - strlen($roundDescription)
-            ) . '...';
-        } else {
-            $truncDescription = $strippedDescription;
-        }
-
-        return($truncDescription);
-    }
-
-    /**
-     * Strip non-essential BBCode from a string
-     *
-     * @param string $text
-     * @return string
-     */
-    protected function strip_nonessential_bbcode($text) {
-        $tags = array(
-            'b',
-            'i',
-            'u',
-            's',
-            'code',
-            'quote',
-            'forum'
-        );
-
-        // this regular expression is
-        //   \[                match opening square bracket
-        //   \/?               match optional forward slash
-        //   (?:               non-capturing group 1 start
-        //     tag1|tag2|...   match one of the tags
-        //   )                 non-capturing group 1 end
-        //   (?:               non-capturing group 2 start
-        //     =               match a literal equal character
-        //     [^]]+?          match at least one character that is not a
-        //                     close square bracket, as few times as possible
-        //                     (note that the closing bracket doesn't need to
-        //                      be escaped directly after the ^ in the character group)
-        //   )?                non-capturing group 2 end, this group is optional
-        //   \]                match closing square bracket
-        $strippedText = preg_replace(
-            '#\[\/?(?:' . implode('|', $tags) . ')(?:=[^]]+?)?\]#',
-            '',
-            $text
-        );
-
-        return $strippedText;
     }
 
     /**
