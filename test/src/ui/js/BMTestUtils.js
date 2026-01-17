@@ -46,10 +46,13 @@ BMTestUtils.getAllElements = function() {
     'Loader':         JSON.stringify(Loader, null, "  "),
     'Login':          JSON.stringify(Login, null, "  "),
     'Newgame':        JSON.stringify(Newgame, null, "  "),
+    'Newtournament':  JSON.stringify(Newtournament, null, "  "),
     'Newuser':        JSON.stringify(Newuser, null, "  "),
     'OpenGames':      JSON.stringify(OpenGames, null, "  "),
     'Overview':       JSON.stringify(Overview, null, "  "),
     'Profile':        JSON.stringify(Profile, null, "  "),
+    'Tournament':     JSON.stringify(Tournament, null, "  "),
+    'TournamentOverview': JSON.stringify(TournamentOverview, null, "  "),
     'UserPrefs':      JSON.stringify(UserPrefs, null, "  "),
     'Verify':         JSON.stringify(Verify, null, "  "),
   };
@@ -132,6 +135,14 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'NOGAME') { return '10000000'; }
 };
 
+// For each tournament reported by responderTest which we use in UI
+// tests, set a friendly name for tracking purposes.  These values
+// need to be kept in sync with responderTest in order for anything
+// good to happen.
+BMTestUtils.testTournamentId = function(tournamentDesc) {
+  if (tournamentDesc == 'default') { return '1'; }
+};
+
 // We don't currently usually test reading the URL bar contents, because
 // that's hard to do within QUnit, but rather override those contents
 // with hardcoded values that we want to test.
@@ -141,6 +152,10 @@ BMTestUtils.overrideGetParameterByName = function() {
   Env.getParameterByName = function(name) {
     if (name == 'game') {
       return BMTestUtils.testGameId(BMTestUtils.GameType);
+    }
+
+    if (name == 'tournament') {
+      return BMTestUtils.testTournamentId(BMTestUtils.TournamentType);
     }
 
     // always return the userid associated with tester1 in the fake data

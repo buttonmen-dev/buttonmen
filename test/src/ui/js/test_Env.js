@@ -272,6 +272,12 @@ test("test_Env.applyBbCodeToHtml", function(assert) {
   assert.ok(holder.find('.chatItalic').length == 1, '[i] tag should be converted to HTML');
 });
 
+test("test_Env.removeBbCodeFromHtml", function(assert) {
+  var rawHtml = '<b>HTML</b><br/>[i]BB Code[/i]';
+  var newHtml = Env.removeBbCodeFromHtml(rawHtml);
+  assert.equal(newHtml, '<b>HTML</b><br/>BB Code', 'Stripped-down HTML should be correct');
+});
+
 test("test_Env.escapeRegexp", function(assert) {
   var rawText = 'example.com';
   var escapedPattern = Env.escapeRegexp(rawText);
@@ -339,7 +345,7 @@ test("test_Env.toggleSpoiler", function(assert) {
   var spoiler = $('<span>', { 'class': 'chatSpoiler' });
   var eventTriggerSpan = {'target': {'tagName': 'span'}};
   var eventTriggerAnchor = {'target': {'tagName': 'a'}};
-  
+
   Env.toggleSpoiler.call(spoiler, eventTriggerSpan);
   assert.ok(spoiler.hasClass('chatExposedSpoiler'),
     'Spoiler should be styled as revealed');
