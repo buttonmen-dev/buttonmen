@@ -4,13 +4,10 @@ module("TournamentOverview", {
 
     BMTestUtils.setupFakeLogin();
 
-    // Override Env.getParameterByName to set the game
-    BMTestUtils.overrideGetParameterByName();
-
     // Create the tournament_page div so functions have something to modify
-    if (document.getElementById('tournamentoverview_page') == null) {
+    if (document.getElementById('tournament_overview_page') == null) {
       $('body').append($('<div>', {'id': 'env_message', }));
-      $('body').append($('<div>', {'id': 'tournamentoverview_page', }));
+      $('body').append($('<div>', {'id': 'tournament_overview_page', }));
     }
 //
 //    // set colors for use in game, since tests don't always traverse showStatePage()
@@ -19,7 +16,7 @@ module("TournamentOverview", {
 //      'opponent': '#ddffdd',
 //    };
 
-    Login.pageModule = { 'bodyDivId': 'tournamentoverview_page' };
+    Login.pageModule = { 'bodyDivId': 'tournament_overview_page' };
   },
   'teardown': function(assert) {
 
@@ -29,10 +26,6 @@ module("TournamentOverview", {
       "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
-
-    // Revert cookies
-    Env.setCookieNoImages(false);
-    Env.setCookieCompactMode(false);
 
     // JavaScript variables
     delete Api.new_tournaments;
@@ -44,13 +37,10 @@ module("TournamentOverview", {
     TournamentOverview.activity = {};
 
     // Page elements
-    $('#tournamentoverview_page').remove();
-
-    BMTestUtils.restoreGetParameterByName();
+    $('#tournament_overview_page').remove();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
-    BMTestUtils.restoreGetParameterByName();
 
     // Fail if any other elements were added or removed
     BMTestUtils.TournamentOverviewPost = BMTestUtils.getAllElements();
@@ -65,33 +55,38 @@ test("test_TournamentOverview_is_loaded", function(assert) {
   assert.ok(TournamentOverview, "The TournamentOverview namespace exists");
 });
 
-//// The purpose of this test is to demonstrate that the flow of
-//// TournamentOverview.showLoggedInPage() is correct for a showXPage function, namely
-//// that it calls an API getter with a showStatePage function as a
-//// callback.
-////
-//// Accomplish this by mocking the invoked functions
+// The purpose of this test is to demonstrate that the flow of
+// TournamentOverview.showLoggedInPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_TournamentOverview.showLoggedInPage", function(assert) {
-////  expect(5);
-////  var cached_getCurrentTournament = Tournament.getCurrentTournament;
-////  var cached_showStatePage = Tournament.showStatePage;
-////  var getCurrentTournamentCalled = false;
-////  Tournament.showStatePage = function() {
-////    assert.ok(getCurrentTournamentCalled, "Tournament.getCurrentTournament is called before Tournament.showStatePage");
-////  };
-////  Tournament.getCurrentTournament = function(callback) {
-////    getCurrentTournamentCalled = true;
-////    assert.equal(callback, Tournament.showStatePage,
-////      "Tournament.getCurrentTournament is called with Tournament.showStatePage as an argument");
-////    callback();
-////  };
-////
-////  Tournament.showLoggedInPage();
-////  var item = document.getElementById('tournament_page');
-////  assert.equal(item.nodeName, "DIV",
-////        "#tournament_page is a div after showLoggedInPage() is called");
-////  Tournament.getCurrentTournament = cached_getCurrentTournament;
-////  Tournament.showStatePage = cached_showStatePage;
+  expect(5);
+  var cached_getOverview = TournamentOverview.getOverview;
+  var cached_showStatePage = TournamentOverview.showStatePage;
+  var getOverviewCalled = false;
+  TournamentOverview.showPage = function() {
+    assert.ok(
+      getOverviewCalled,
+      "TournamentOverview.getOverview is called before TournamentOverview.showStatePage"
+    );
+  };
+  TournamentOverview.getOverview = function(callback) {
+    getOverviewCalled = true;
+    assert.equal(callback, TournamentOverview.showPage,
+      "TournamentOverview.getOverview is called with TournamentOverview.showPage as an argument");
+    callback();
+  };
+
+  TournamentOverview.showLoggedInPage();
+  var item = document.getElementById('tournament_overview_page');
+  console.log(document);
+  assert.equal(item.nodeName, "DIV",
+        "#tournament_overview_page is a div after showLoggedInPage() is called");
+
+  TournamentOverview.getOverview = cached_getOverview;
+  TournamentOverview.showPage = cached_showStatePage;
 });
 
 //// Use stop()/start() because the AJAX-using operation needs to
