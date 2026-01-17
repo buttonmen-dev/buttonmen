@@ -28,7 +28,7 @@ module("TournamentOverview", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
-    delete Api.new_tournaments;
+    delete Api.tournaments;
 //    delete TournamentOverview.tournament;
     delete TournamentOverview.page;
     delete TournamentOverview.form;
@@ -89,80 +89,12 @@ test("test_TournamentOverview.showLoggedInPage", function(assert) {
   TournamentOverview.showPage = cached_showStatePage;
 });
 
-//// Use stop()/start() because the AJAX-using operation needs to
-//// finish before its results can be tested
-//test("test_Tournament.redrawTournamentPageSuccess", function(assert) {
-////  $.ajaxSetup({ async: false });
-////  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
-////  Tournament.redrawTournamentPageSuccess();
-////  var item = document.getElementById('tournament_page');
-////  assert.equal(item.nodeName, "DIV",
-////        "#tournament_page is a div after redrawTournamentPageSuccess() is called");
-////  assert.deepEqual(Tournament.activity, {},
-////        "Tournament.activity is cleared by redrawTournamentPageSuccess()");
-////  $.ajaxSetup({ async: true });
-//});
-//
-//// Use stop()/start() because the AJAX-using operation needs to
-//// finish before its results can be tested
-//test("test_Tournament.redrawTournamentPageFailure", function(assert) {
-////  $.ajaxSetup({ async: false });
-////  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
-////  Tournament.activity.chat = "Some chat text";
-////  Tournament.redrawGamePageFailure();
-////  var item = document.getElementById('tournament_page');
-////  assert.equal(item.nodeName, "DIV",
-////        "#tournament_page is a div after redrawGamePageFailure() is called");
-////  assert.equal(Tournament.activity.chat, "Some chat text",
-////        "Tournament.activity.chat is retained by redrawTournamentPageSuccess()");
-////  $.ajaxSetup({ async: true });
-//});
-//
-//// N.B. Almost all of these tests should use stop(), set a test
-//// game type, and invoke Tournament.getCurrentTournament(), because that's the
-//// way to get the dummy responder data which all the other functions
-//// need.  Then run tests against the function itself, and end with
-//// start().  So the typical format will be:
-////
-//// test("test_Tournament.someFunction", function(assert) {
-////   stop();
-////   BMTestUtils.GameType = '<sometype>';
-////   Tournament.getCurrentTournament(function() {
-////     <setup any additional prereqs for someFunction>
-////     Tournament.someFunction();
-////     <run tests against state changes made by someFunction>
-////     start();
-////   });
-//// });
-//
-//test("test_Tournament.getCurrentTournament", function(assert) {
-////  stop();
-////  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
-////  var gameId = BMTestUtils.testGameId(BMTestUtils.GameType);
-////  Tournament.getCurrentTournament(function() {
-////    assert.equal(Tournament.tournament, gameId, "Set expected game number");
-////    assert.equal(Api.tournament.load_status, 'ok', 'Successfully loaded game data');
-////    assert.equal(Api.tournament.gameId, Tournament.tournament, 'Parsed correct game number from API');
-////    start();
-////  });
-//});
-//
-//test("test_Tournament.showStatePage", function(assert) {
-////  stop();
-////  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
-////  Tournament.getCurrentTournament(function() {
-////    Tournament.showStatePage();
-////    var htmlout = Tournament.page.html();
-////    assert.ok(htmlout.length > 0,
-////      "The created page should have nonzero contents");
-////    assert.ok(htmlout.match('vacation16.png'),
-////      "The game UI contains a vacation icon when the API data reports that one player is on vacation");
-////    start();
-////  });
-//});
-
 test("test_TournamentOverview.getOverview", function(assert) {
-
+  stop();
+  TournamentOverview.getOverview(function() {
+    assert.ok(Api.tournaments, "tournaments are parsed from server");
+    start();
+  });
 });
 
 test("test_TournamentOverview.showPage", function(assert) {
