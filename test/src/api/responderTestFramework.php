@@ -1511,6 +1511,33 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         $this->cache_json_api_output('setChatVisibility', $fakeGameNumber, $retval);
     }
 
+
+    protected function verify_api_loadTournaments($expData) {
+        $args = array(
+            'type' => 'loadTournaments',
+        );
+        $retval = $this->verify_api_success($args);
+
+        $fullData = $retval['data'];
+
+        // Now restrict the data to include only the information for Tournament 1,
+        // since this is the tournament that will be generated with an empty database.
+        //
+        // This slicing makes the test code less fragile when testing with an AMP stack
+        // since the database need not be deleted each time the tests run.
+        $tournamentIdx = array_search(1, $fullData['tournamentIdArray'], TRUE);
+        $this->assertEquals(FALSE, is_bool($tournamentIdx), 'Tournament 1 should exist');
+
+        $slicedData = array();
+        foreach ($fullData as $key => $value) {
+            $slicedData[$key] = array($value[$tournamentIdx]);
+        }
+
+        $this->assertEquals($expData, $slicedData);
+
+        $this->cache_json_api_output('loadTournaments', 'noargs', $retval);
+    }
+
     /*
      * verify_api_loadTournamentData() - helper routine which calls the API
      * loadTournamentData method, makes standard assertions about its

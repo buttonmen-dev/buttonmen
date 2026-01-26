@@ -18,5 +18,4 @@ class BMInterfaceTournamentTest extends BMInterfaceTestAbstract {
     ) {
 
     }
-
 }

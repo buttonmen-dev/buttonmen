@@ -396,6 +396,26 @@ class responderTournamentTest extends responderTestFramework {
         $this->game_number = 100003;
         $gameThreeRetval = $this->verify_api_loadGameData($gameThreeExpData, $gameThreeId, 10);
 
+        // Cache all tournaments data before the tournament is complete
+        $allTournamentsData =
+            array(
+                'tournamentIdArray' => array(1),
+                'tournamentDescriptionArray' => array(''),
+                'nTargetWinsArray' => array(1),
+                'tournamentStateArray' => array('PLAY_GAMES'),
+                'statusArray' => array('ACTIVE'),
+                'roundNumberArray' => array(2),
+                'tournamentTypeArray' => array('Single Elimination'),
+                'creatorNameArray' => array('responder003'),
+                'startTimeArray' => array(2026),
+                'nPlayersArray' => array(4),
+                'nPlayersJoinedArray' => array(4),
+                'isCreatorArray' => array(TRUE),
+                'hasJoinedArray' => array(TRUE),
+                'isWatchedArray' => array(TRUE)
+            );
+        $this->verify_api_loadTournaments($allTournamentsData);
+
         // Take a turn in game 3, completing it
         $this->verify_api_submitTurn(
             array(3),

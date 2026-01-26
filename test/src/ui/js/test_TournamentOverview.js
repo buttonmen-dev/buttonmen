@@ -33,6 +33,7 @@ module("TournamentOverview", {
     delete TournamentOverview.page;
     delete TournamentOverview.form;
 
+//    Api.automatedApiCall = false;
     Login.pageModule = null;
     TournamentOverview.activity = {};
 
@@ -81,7 +82,6 @@ test("test_TournamentOverview.showLoggedInPage", function(assert) {
 
   TournamentOverview.showLoggedInPage();
   var item = document.getElementById('tournament_overview_page');
-  console.log(document);
   assert.equal(item.nodeName, "DIV",
         "#tournament_overview_page is a div after showLoggedInPage() is called");
 
@@ -98,7 +98,14 @@ test("test_TournamentOverview.getOverview", function(assert) {
 });
 
 test("test_TournamentOverview.showPage", function(assert) {
-
+  stop();
+  TournamentOverview.getOverview(function() {
+    TournamentOverview.showPage();
+    var htmlout = TournamentOverview.page.html();
+    assert.ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
 });
 
 test("test_TournamentOverview.pageAddNewtournamentLink", function(assert) {
