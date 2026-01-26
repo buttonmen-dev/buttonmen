@@ -65,7 +65,7 @@ test("test_TournamentOverview_is_loaded", function(assert) {
 test("test_TournamentOverview.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getOverview = TournamentOverview.getOverview;
-  var cached_showStatePage = TournamentOverview.showStatePage;
+  var cached_showPage = TournamentOverview.showPage;
   var getOverviewCalled = false;
   TournamentOverview.showPage = function() {
     assert.ok(
@@ -86,7 +86,7 @@ test("test_TournamentOverview.showLoggedInPage", function(assert) {
         "#tournament_overview_page is a div after showLoggedInPage() is called");
 
   TournamentOverview.getOverview = cached_getOverview;
-  TournamentOverview.showPage = cached_showStatePage;
+  TournamentOverview.showPage = cached_showPage;
 });
 
 test("test_TournamentOverview.getOverview", function(assert) {
