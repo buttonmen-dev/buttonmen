@@ -270,12 +270,24 @@ test("test_Env.applyBbCodeToHtml", function(assert) {
   holder.append(Env.applyBbCodeToHtml(rawHtml));
   assert.ok(holder.find('b').length == 1, '<b> tag *should* be allowed unmolested');
   assert.ok(holder.find('.chatItalic').length == 1, '[i] tag should be converted to HTML');
+
+  rawHtml = '[u]aaaa[/u]cc\ndd[u]bbbb[/u]';
+  var newHtml = Env.applyBbCodeToHtml(rawHtml);
+  assert.equal(
+    newHtml,
+    '<span class="chatUnderlined">aaaa</span>cc<br>dd<span class="chatUnderlined">bbbb</span>',
+    'New HTML should be correct'
+  );
 });
 
 test("test_Env.removeBbCodeFromHtml", function(assert) {
   var rawHtml = '<b>HTML</b><br/>[i]BB Code[/i]';
   var newHtml = Env.removeBbCodeFromHtml(rawHtml);
   assert.equal(newHtml, '<b>HTML</b><br/>BB Code', 'Stripped-down HTML should be correct');
+
+  rawHtml = '[u]aaaa[/u]cc\ndd[u]bbbb[/u]';
+  newHtml = Env.removeBbCodeFromHtml(rawHtml);
+  assert.equal(newHtml, 'aaaacc ddbbbb', 'Stripped-down HTML should be correct');
 });
 
 test("test_Env.escapeRegexp", function(assert) {
