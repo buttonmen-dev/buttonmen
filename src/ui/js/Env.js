@@ -399,6 +399,8 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
 
   var tagName;
 
+  htmlToParse = htmlToParse.replace('\n', '<br>');
+
   while (htmlToParse) {
     var currentPattern = allStartTagsPattern;
     if (tagStack.length !== 0) {
@@ -586,6 +588,8 @@ Env.removeBbCodeFromHtml = function(htmlToParse) {
   });
 
   var tagName;
+
+  htmlToParse = htmlToParse.replace('\n', ' ');
 
   while (htmlToParse) {
     var currentPattern = allStartTagsPattern;
