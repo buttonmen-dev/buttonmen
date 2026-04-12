@@ -87,6 +87,16 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'changeTournamentDesc' => array(
+            'mandatory' => array(
+                'tournamentId' => 'number',
+                'description' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::TOURNAMENT_DESCRIPTION_MAX_LENGTH,
+                ),
+            ),
+            'permitted' => array(),
+        ),
         // countPendingGames returns:
         //   count: int,
         'countPendingGames' => array(

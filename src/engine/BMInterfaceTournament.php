@@ -430,6 +430,57 @@ class BMInterfaceTournament extends BMInterface {
     }
 
     /**
+     * Set tournament description in database
+     *
+     * @param type $tournamentId
+     * @param type $tournamentDesc
+     */
+    protected function set_tournament_description($tournamentId, $tournamentDesc) {
+        try {
+            $query = 'UPDATE tournament ' .
+                     'SET description = :description ' .
+                     'WHERE id = :id';
+            $parameters = array(
+                ':description' => $tournamentDesc,
+                ':id' => $tournamentId
+            );
+
+            self::$db->update($query, $parameters);
+
+            return $tournamentId;
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Cannot set tournament description because the tournament ID was not valid');
+            return NULL;
+        } catch (Exception $e) {
+            $this->set_message('Tournament description set failed: ' . $e->getMessage());
+            error_log(
+                'Caught exception in BMInterface::set_tournament_description: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    protected function is_tournament_creator($playerId, $tournamentId) {
+        if (($playerId <= 0) || ($tournamentId <= 0)) {
+            return FALSE;
+        }
+
+        $query = 'SELECT t.creator_id ' .
+                 'FROM tournament AS t ' .
+                 'WHERE t.id = :tournament_id;';
+        $parameters = array(
+            ':tournament_id' => $tournamentId,
+        );
+        $columnReturnTypes = array(
+            'creator_id' => 'int',
+        );
+        $rows = self::$db->select_rows($query, $parameters, $columnReturnTypes);
+        $row = $rows[0];
+        return ($row['creator_id'] === $playerId);
+    }
+
+    /**
      * Check whether a player is in a tournament
      *
      * @param int $playerId
@@ -447,7 +498,7 @@ class BMInterfaceTournament extends BMInterface {
                 'AND t.tournament_id = :tournament_id;';
         $parameters = array(
             ':player_id' => $playerId,
-            ':tournament_id' => $tournamentId
+            ':tournament_id' => $tournamentId,
         );
         $columnReturnTypes = array(
             'player_id' => 'int',
@@ -611,6 +662,19 @@ class BMInterfaceTournament extends BMInterface {
         }
 
         return $status;
+    }
+
+    /**
+     * Check whether a tournament is open to join
+     *
+     * @param int $tournamentId
+     * @return bool
+     */
+    protected function is_tournament_open($tournamentId) {
+        $tournament = $this->load_tournament($tournamentId);
+        $tournamentState = $tournament->tournamentState;
+
+        return ($tournamentState <= BMTournamentState::JOIN_TOURNAMENT);
     }
 
     /**
@@ -1251,6 +1315,47 @@ class BMInterfaceTournament extends BMInterface {
                 $e->getMessage()
             );
             $this->set_message('Internal error while dismissing a tournament');
+            return NULL;
+        }
+    }
+
+    /**
+     * Change tournament description
+     *
+     * This changes the tournament description.
+     *
+     * It is only accessible to the tournament creator before the tournament has started.
+     *
+     * @param int $playerId
+     * @param int $tournamentId
+     * @param string $tournamentDesc
+     * @return bool|null
+     */
+    public function change_tournament_desc($playerId, $tournamentId, $tournamentDesc) {
+        try {
+            if (!$this->is_tournament_creator($playerId, $tournamentId)) {
+                $this->set_message('Only tournament creators can change the description');
+                return NULL;
+            }
+
+            if (!$this->is_tournament_open($tournamentId)) {
+                $this->set_message("Tournament $tournamentId has already started");
+                return NULL;
+            }
+
+            $this->set_tournament_description($tournamentId, $tournamentDesc);
+
+            $this->set_message('Tournament description saved');
+            return TRUE;
+        } catch (BMExceptionDatabase $e) {
+            $this->set_message('Cannot change tournament description because tournament ID was not valid');
+            return NULL;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::change_tournament_desc: ' .
+                $e->getMessage()
+            );
+            $this->set_message('Internal error while changing a tournament description');
             return NULL;
         }
     }

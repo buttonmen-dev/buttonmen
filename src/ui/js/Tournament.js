@@ -159,12 +159,6 @@ Tournament.pageAddTournamentHeader = function() {
       'id': 'tournament_id',
       'html': tournamentTitle,
     }));
-//  var bgcolor = '#ffffff';
-//  if (Api.tournament.player.waitingOnAction) {
-//    bgcolor = Tournament.color.player;
-//  } else if (Api.tournament.opponent.waitingOnAction) {
-//    bgcolor = Tournament.color.opponent;
-//  }
 
   Tournament.pageAddTournamentDescription();
   Tournament.page.append($('<br>'));
@@ -308,6 +302,43 @@ Tournament.pageAddTournamentDescription = function () {
       'class': 'gameDescDisplay',
     }));
   }
+
+  if (
+    (Api.tournament.tournamentState ===
+      Tournament.TOURN_STATE_JOIN_TOURNAMENT) &&
+    Api.tournament.isCreator
+  ) {
+
+    var inputBox = $(
+      '<input type="text" id="tournament_desc_input" value="' +
+      Api.tournament.description +
+      '" />'
+    );
+    inputBox.hide();
+    Tournament.page.append(inputBox);
+    Tournament.page.append('<br>');
+
+    // add edit link
+    var editLink = $('<a>', {
+      'text': '[Edit Tournament Description]',
+      'id': 'editLink',
+      'href': '#',
+      'data-tournamentId': Api.tournament.tournamentId,
+    });
+    editLink.click(Tournament.formEditTournDesc);
+    Tournament.page.append(editLink);
+  }
+
+  // add submit link
+  var submitLink = $('<a>', {
+    'text': '[Save Tournament Description]',
+    'id': 'submitLink',
+    'href': '#',
+    'data-tournamentId': Api.tournament.tournamentId,
+  });
+  submitLink.click(Tournament.formSubmitTournDesc);
+  submitLink.hide();
+  Tournament.page.append('<br>').append(submitLink);
 };
 
 Tournament.pageAddTournamentInfo = function () {
@@ -484,6 +515,47 @@ Tournament.pageAddActions = function () {
       actionDiv.append(cancelLink);
     }
   }
+};
+
+Tournament.formEditTournDesc = function () {
+  $('#tournament_desc').hide();
+  $('#tournament_desc_input').show();
+  $('#editLink').hide();
+  $('#submitLink').show();
+};
+
+Tournament.formSubmitTournDesc = function() {
+  var args =
+    {
+      type: 'changeTournamentDesc',
+      tournamentId: Api.tournament.tournamentId,
+      description: $('#tournament_desc_input').val(),
+    };
+
+  // N.B. We default to reverting to the original description
+  // on failure.
+  // Therefore, it's fine to pass the form post the same function
+  // (showLoggedInPage) for both success and failure conditions.
+  Api.apiFormPost(
+    args,
+    {
+      'ok': {
+        'type': 'function',
+        'msgfunc': Tournament.setChangeTournamentDescSuccessMessage,
+      },
+      'notok': { 'type': 'server', },
+    },
+    '#submitLink',
+    Tournament.showLoggedInPage,
+    Tournament.showLoggedInPage
+  );
+};
+
+Tournament.setChangeTournamentDescSuccessMessage = function () {
+  Env.message = {
+    'type': 'success',
+    'text': 'Tournament description saved',
+  };
 };
 
 Tournament.formChooseButton = function () {
