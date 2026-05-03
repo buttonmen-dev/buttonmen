@@ -1797,4 +1797,16 @@ class responderTestFramework extends PHPUnit_Framework_TestCase {
         return $retval;
     }
 
+    protected function verify_api_changeTournamentDesc() {
+    // james: incomplete
+    //   need to do API call of changeTournamentDesc to change tournament description
+    //   and then cache output from a call to
+    //     1.json
+    //   for
+    //     DummyApiResponder->get_interface_response_changeTournamentDesc()
+    //   via
+    //     cache_json_api_output()
+
+    }
+
 }

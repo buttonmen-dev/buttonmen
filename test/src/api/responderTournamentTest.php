@@ -67,6 +67,11 @@ class responderTournamentTest extends responderTestFramework {
         );
         $retval = $this->verify_api_loadTournamentData($expData, $tournamentId);
 
+        // james: incomplete
+        //   need to call
+        //     $this->verify_api_changeTournamentDesc(...)
+        //   to change the description
+
         // data from the perspective of a non-participant
         $_SESSION = $this->mock_test_user_login('responder004');
         $expData['isCreator'] = FALSE;

@@ -231,6 +231,13 @@ class DummyApiResponder {
         );
     }
 
+    protected function get_interface_response_changeTournamentDesc($args) {
+        return $this->load_json_data_from_file(
+            'changeTournamentDesc',
+            $args['tournamentId'] . '.json'
+        );
+    }
+
     protected function get_interface_response_loadTournamentData($args) {
         return $this->load_json_data_from_file(
             'loadTournamentData',
