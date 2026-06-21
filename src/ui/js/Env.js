@@ -399,7 +399,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
 
   var tagName;
 
-  htmlToParse = htmlToParse.replace('\n', '<br>');
+  htmlToParse = htmlToParse.replace(/\n/g, '<br>');
 
   while (htmlToParse) {
     var currentPattern = allStartTagsPattern;
@@ -415,28 +415,35 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     // should be greedy, so that nested tags work right
     // (E.g., in '...blah[/quote] blah [/quote] blah', we want the first .*
     // to end at the first [/quote], not the second)
-    currentPattern = '^(.*?)(?:' + currentPattern + ')(.*)$';
+    //
+    // Note that we are using [\\s\\S] instead of . so that we get
+    // multiline matching, see
+    //   https://simonwillison.net/2004/Sep/20/newlines/
+    // and
+    //   https://stackoverflow.com/questions/1979884/
+    //     how-to-use-javascript-regex-over-multiple-lines#16119722
+    currentPattern = '^([\\s\\S]*?)(?:' + currentPattern + ')([\\s\\S]*)$';
     // case-insensitive, multi-line
     var regExp = new RegExp(currentPattern, 'im');
 
-    var match = htmlToParse.match(regExp);
-    if (match) {
-      var stuffBeforeTag = match[1];
+    var matchStr = htmlToParse.match(regExp);
+    if (matchStr) {
+      var stuffBeforeTag = matchStr[1];
       // javascript apparently believes that capture groups that don't
       // match anything are just important as those that do. So we need
       // to do some acrobatics to find the ones we actually care about.
       // (match[0] is the whole matched string; match[1] is the stuff before
       // the tag. So we start with match[2].)
       tagName = '';
-      for (var i = 2; i < match.length; i++) {
-        tagName = match[i];
+      for (var i = 2; i < matchStr.length; i++) {
+        tagName = matchStr[i];
         if (tagName) {
           break;
         }
       }
       tagName = tagName.toLowerCase();
-      var tagParameter = match[i + 1] || '';
-      var stuffAfterTag = match[match.length - 1];
+      var tagParameter = matchStr[i + 1] || '';
+      var stuffAfterTag = matchStr[matchStr.length - 1];
 
       outputHtml += stuffBeforeTag;
       if (tagName.substring(0, 1) === '/') {
@@ -589,7 +596,7 @@ Env.removeBbCodeFromHtml = function(htmlToParse) {
 
   var tagName;
 
-  htmlToParse = htmlToParse.replace('\n', ' ');
+  htmlToParse = htmlToParse.replace(/\n/g, ' ');
 
   while (htmlToParse) {
     var currentPattern = allStartTagsPattern;
@@ -605,27 +612,35 @@ Env.removeBbCodeFromHtml = function(htmlToParse) {
     // should be greedy, so that nested tags work right
     // (E.g., in '...blah[/quote] blah [/quote] blah', we want the first .*
     // to end at the first [/quote], not the second)
-    currentPattern = '^(.*?)(?:' + currentPattern + ')(.*)$';
+    //
+    // Note that we are using [\\s\\S] instead of . so that we get
+    // multiline matching, see
+    //   https://simonwillison.net/2004/Sep/20/newlines/
+    // and
+    //   https://stackoverflow.com/questions/1979884/
+    //     how-to-use-javascript-regex-over-multiple-lines#16119722
+    currentPattern = '([\\s\\S]*?)(?:' + currentPattern + ')([\\s\\S]*)';
+
     // case-insensitive, multi-line
     var regExp = new RegExp(currentPattern, 'im');
+    var matchStr = htmlToParse.match(regExp);
 
-    var match = htmlToParse.match(regExp);
-    if (match) {
-      var stuffBeforeTag = match[1];
+    if (matchStr) {
+      var stuffBeforeTag = matchStr[1];
       // javascript apparently believes that capture groups that don't
       // match anything are just important as those that do. So we need
       // to do some acrobatics to find the ones we actually care about.
       // (match[0] is the whole matched string; match[1] is the stuff before
       // the tag. So we start with match[2].)
       tagName = '';
-      for (var i = 2; i < match.length; i++) {
-        tagName = match[i];
+      for (var i = 2; i < matchStr.length; i++) {
+        tagName = matchStr[i];
         if (tagName) {
           break;
         }
       }
       tagName = tagName.toLowerCase();
-      var stuffAfterTag = match[match.length - 1];
+      var stuffAfterTag = matchStr[matchStr.length - 1];
 
       outputHtml += stuffBeforeTag;
       if (tagName.substring(0, 1) === '/') {
