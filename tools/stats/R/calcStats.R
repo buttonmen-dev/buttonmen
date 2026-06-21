@@ -444,7 +444,7 @@ runAll <- function() {
   generateHtmlFile(calcSingleButtonStats(data.df), 'button_stats.html')
   calcButtonMatchupsPlayed(data.df, button.names.df)
   generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, TRUE), 'player_matchup_stats.html')
-  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, FALSE), 'button_matchup_stats.html')
+  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, TRUE), 'button_matchup_stats.html')
 }
 
 runAll()
