@@ -11,7 +11,7 @@ class buttonmen::server {
   file {
 
     # Install a .htaccess file containing buttonmen variables
-    "/etc/apache2/${puppet_apache_sitesdir}/buttonmen":
+    "/etc/apache2/sites-enabled/buttonmen":
       ensure => file,
       content => template("buttonmen/apache.conf.erb"),
       notify => Service["apache2"],
@@ -20,75 +20,75 @@ class buttonmen::server {
     "/usr/local/bin/create_buttonmen_databases":
       ensure => file,
       content => template("buttonmen/create_databases.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/create_rds_database":
       ensure => file,
       content => template("buttonmen/create_rds_database.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/backup_buttonmen_database":
       ensure => file,
       content => template("buttonmen/backup_database.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/sync_buttonmen_web_files":
       ensure => file,
       content => template("buttonmen/sync_web_files.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/set_buttonmen_config":
       ensure => file,
       content => template("buttonmen/set_config.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/test_buttonmen_config":
       ensure => file,
       content => template("buttonmen/test_config.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/branch_database_rebuild_test":
       ensure => file,
       content => template("buttonmen/branch_database_rebuild_test.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/mysql_root_cli":
       ensure => file,
       content => template("buttonmen/mysql_root_cli.erb"),
-      mode => 0544;
+      mode => "0544";
 
     "/usr/local/bin/send_hello_world_email":
       ensure => file,
       content => template("buttonmen/send_hello_world_email.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/run_buttonmen_tests":
       ensure => file,
       content => template("buttonmen/run_buttonmen_tests.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/run_buttonmen_python_tests":
       ensure => file,
       content => template("buttonmen/run_buttonmen_python_tests.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/bin/audit_js_unit_test_coverage":
       ensure => file,
       content => template("buttonmen/audit_js_unit_test_coverage.erb"),
-      mode => 0555;
+      mode => "0555";
 
     "/usr/local/etc/buttonmen_phpunit.php":
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
 
-    "/usr/local/lib/python2.7/dist-packages/buttonmen_mysqldb.py":
+    "/usr/local/lib/python3.12/dist-packages/buttonmen_mysqldb.py":
       ensure => file,
-      content => template("buttonmen/buttonmen_mysqldb_27.py.erb");
+      content => template("buttonmen/buttonmen_mysqldb_312.py.erb");
 
     "/srv/backup":
       ensure => directory,
       group => "adm",
-      mode => 0750;
+      mode => "0750";
   }
 
   exec {
@@ -125,7 +125,7 @@ class buttonmen::server {
         "/usr/local/etc/buttonmen_db.cnf":
           ensure => file,
           content => template("buttonmen/buttonmen_db.cnf.erb"),
-          mode => 0400;
+          mode => "0400";
       }
     }
   }
@@ -143,7 +143,7 @@ class buttonmen::server {
   }
 }
 
-class buttonmen::python-api-client {
+class buttonmen::python_api_client {
 
   $buttonmen_pyclient_miniconda_version = "py310_22.11.1-1"
 

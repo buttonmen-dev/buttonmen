@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagDizzyTest extends PHPUnit_Framework_TestCase {
+class BMFlagDizzyTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMFlag::create_from_string

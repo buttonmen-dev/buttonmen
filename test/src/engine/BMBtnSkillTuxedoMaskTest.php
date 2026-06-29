@@ -1,6 +1,6 @@
 <?php
 
-class BMBtnSkillTuxedoMaskTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillTuxedoMaskTest extends PHPUnit\Framework\TestCase {
 
     // this is to satisfy the PHPUnit audit
     public function testDummy()

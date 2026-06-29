@@ -10,7 +10,7 @@ class syslog::base {
   file {
     "/usr/lib/rsyslog/rsyslog-rotate":
       ensure => file,
-      mode => 555,
+      mode => "0555",
       content => template("syslog/rsyslog_rotate.erb"),
       require => Package["rsyslog"];
   }

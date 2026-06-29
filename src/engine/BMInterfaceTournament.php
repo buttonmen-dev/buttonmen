@@ -632,7 +632,7 @@ class BMInterfaceTournament extends BMInterface {
      * @param array $buttonNameArray
      * @return bool|null
      */
-    public function act_on_tournament($userId, $tournamentId, $action, $buttonNameArray = NULL) {
+    public function act_on_tournament($userId, $tournamentId, $action, $buttonNameArray = array()) {
         switch ($action) {
             case 'join':
                 return $this->join_tournament($userId, $tournamentId, $buttonNameArray);
