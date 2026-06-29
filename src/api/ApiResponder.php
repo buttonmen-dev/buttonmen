@@ -843,7 +843,7 @@ class ApiResponder {
         if (array_key_exists('buttonNames', $args)) {
             $button_name_array = $args['buttonNames'];
         } else {
-            $button_name_array = NULL;
+            $button_name_array = array();
         }
 
         return $interface->tournament()->act_on_tournament(

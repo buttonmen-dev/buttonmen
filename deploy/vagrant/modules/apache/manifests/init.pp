@@ -15,10 +15,10 @@ class apache::server {
   }
 
   # Use mod_pagespeed to handle caching/refreshing of pages
-  include "apache::server::feature::mod-pagespeed"
+  include "apache::server::feature::mod_pagespeed"
 
   # Monitor the error log
-  include "apache::server::feature::monitor-logs"
+  include "apache::server::feature::monitor_logs"
 
   # Install letsencrypt
   include "apache::server::feature::letsencrypt"
@@ -48,7 +48,7 @@ class apache::server::circleci {
   include "apache::server::vagrant"
 }
 
-class apache::server::feature::monitor-logs {
+class apache::server::feature::monitor_logs {
 
   # Install the logtail package
   package {
@@ -59,13 +59,13 @@ class apache::server::feature::monitor-logs {
     # Setup a directory for logtail2 to use for its offset files
     "/var/spool/logtail":
       ensure => directory,
-      mode => 0755;
+      mode => "0755";
 
     # Install a script to use for monitoring logs
     "/usr/local/sbin/monitor_apache_logs":
       ensure => file,
       content => template("apache/monitor_apache_logs.erb"),
-      mode => 0555;
+      mode => "0555";
   }
 
   # Run the log-monitoring script from a nightly cron job
@@ -84,10 +84,10 @@ class apache::server::feature::monitor-logs {
   }
 }
 
-class apache::server::feature::mod-pagespeed {
+class apache::server::feature::mod_pagespeed {
   exec {
     "apache_mod_pagespeed_pkg_download":
-      command => "/usr/bin/wget --no-verbose -O /usr/local/src/mod-pagespeed-stable_current.deb https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_${architecture}.deb",
+      command => "/usr/bin/wget --no-verbose -O /usr/local/src/mod-pagespeed-stable_current.deb https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_${facts['os']['architecture']}.deb",
       creates => "/usr/local/src/mod-pagespeed-stable_current.deb";
 
     "apache_mod_pagespeed_pkg_install":
@@ -101,7 +101,7 @@ class apache::server::feature::mod-pagespeed {
     "/etc/apache2/mods-available/pagespeed.conf":
       ensure => file,
       content => template("apache/mod_pagespeed.conf.erb"),
-      mode => 0444,
+      mode => "0444",
       notify => Service["apache2"];
   }
 }
@@ -113,13 +113,13 @@ class apache::server::feature::letsencrypt {
 
   # Install the certbot package
   package {
-    "python-certbot-apache": ensure => installed;
+    "python3-certbot-apache": ensure => installed;
   }
 
   file {
     "/usr/local/bin/apache_setup_certbot":
       ensure => file,
       content => template("apache/setup_certbot.erb"),
-      mode => 0555;
+      mode => "0555";
   }
 }
