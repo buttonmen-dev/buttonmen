@@ -262,7 +262,12 @@ Env.prepareRawTextForDisplay = function(rawText) {
   return html;
 };
 
-Env.applyBbCodeToHtml = function(htmlToParse) {
+// creates dicts of replacements that are used by
+//   Env.applyBbCodeToHtml      (doRemove is false)
+// and
+//   Env.removeBbCodeFromHtml   (doRemove is true)
+// so that markup mappings are all defined in the one place
+Env.bbCodeReplacements = function(doRemove) {
   // This is all rather more complicated than one might expect, but any attempt
   // to parse BB code using simple regular expressions rather than tokenization
   // is in the same family as parsing HTML with regular expressions, which
@@ -378,6 +383,23 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'openingHtml': '[',
     },
   };
+
+  if (doRemove) {
+    var key;
+    for (key in replacements) {
+      if (replacements[key].isAtomic) {
+        replacements[key] = { 'isAtomic': true };
+      } else {
+        replacements[key] = {};
+      }
+    }
+  }
+
+  return replacements;
+};
+
+Env.applyBbCodeToHtml = function(htmlToParse) {
+  var replacements = Env.bbCodeReplacements(false);
 
   var outputHtml = '';
   var tagStack = [];
@@ -534,47 +556,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
 };
 
 Env.removeBbCodeFromHtml = function(htmlToParse) {
-  // This is all rather more complicated than one might expect, but any attempt
-  // to parse BB code using simple regular expressions rather than tokenization
-  // is in the same family as parsing HTML with regular expressions, which
-  // summons Zalgo.
-  // (See: http://stackoverflow.com/
-  //   questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags)
-
-  var replacements = {
-    'b': {},
-    'i': {},
-    'u': {},
-    's': {},
-    'code': {},
-    'spoiler': {},
-    'quote': {},
-    'game': {
-      'isAtomic': true,
-    },
-    'player': {
-      'isAtomic': true,
-    },
-    'button': {
-      'isAtomic': true,
-    },
-    'set': {
-      'isAtomic': true,
-    },
-    'tourn': {
-      'isAtomic': true,
-    },
-    'wiki': {
-      'isAtomic': true,
-    },
-    'issue': {
-      'isAtomic': true,
-    },
-    'forum': {},
-    '[': {
-      'isAtomic': true,
-    },
-  };
+  var replacements = Env.bbCodeReplacements(true);
 
   var outputHtml = '';
   var tagStack = [];

@@ -264,6 +264,50 @@ test("test_Env.prepareRawTextForDisplay", function(assert) {
   assert.ok(holder.find('br').length == 1, 'Newline should become <br> tag');
 });
 
+test("test_Env.bbCodeReplacements", function(assert) {
+  var replacementsApply = Env.bbCodeReplacements(false);
+  assert.ok(replacementsApply.hasOwnProperty('u'), 'replacementsApply should have a u property');
+  assert.deepEqual(
+    replacementsApply.u,
+    {
+      'openingHtml': '<span class="chatUnderlined">',
+      'closingHtml': '</span>',
+    },
+    'u BBCode replacement should be correct'
+  );
+
+  assert.ok(replacementsApply.hasOwnProperty('forum'), 'replacementsApply should have an issue property');
+  assert.deepEqual(
+    replacementsApply.issue,
+    {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml':
+          '<a class="chatIssueLink" ' +
+          'href="https://github.com/buttonmen-dev/buttonmen/issues/###">' +
+          'Issue ',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
+    'issue BBCode replacement should be correct'
+  );
+
+  var replacementsRemove = Env.bbCodeReplacements(true);
+  assert.ok(replacementsRemove.hasOwnProperty('u'), 'replacementsRemove should have a u property');
+  assert.deepEqual(
+    replacementsRemove.u,
+    {},
+    'u BBCode removal should be correct'
+  );
+
+  assert.ok(replacementsApply.hasOwnProperty('issue'), 'replacementsRemove should have an issue property');
+  assert.deepEqual(
+    replacementsRemove.issue,
+    { 'isAtomic': true, },
+    'issue BBCode removal should be correct'
+  );
+});
+
 test("test_Env.applyBbCodeToHtml", function(assert) {
   var rawHtml = '<b>HTML</b><br/>[i]BB Code[/i]';
   var holder = $('<div>');
