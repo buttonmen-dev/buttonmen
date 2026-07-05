@@ -1,6 +1,6 @@
 <?php
 
-class BMBtnSkillGordoTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillGordoTest extends PHPUnit\Framework\TestCase {
 
     /**
      * @covers BMBtnSkillGordo::are_unique_swing_values_valid

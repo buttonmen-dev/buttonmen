@@ -16,7 +16,7 @@ class postfix::base {
       "/etc/postfix/sasl_passwd":
         ensure => file,
         content => template("postfix/sasl_passwd.erb"),
-        mode => 0400,
+        mode => "0400",
         require => Package["postfix"];
     }
 

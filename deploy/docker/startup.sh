@@ -5,7 +5,7 @@ set -e
 set -x
 
 # System services
-/etc/init.d/rsyslog start
+/usr/sbin/rsyslogd
 /etc/init.d/cron start
 /etc/init.d/ssh start
 /etc/init.d/postfix start
@@ -45,7 +45,17 @@ ln -s ${APACHE_LOG_DIR} /var/log/apache2
 if [ ! -e "${MNT_DIR}/letsencrypt" ]; then
   mkdir ${MNT_DIR}/letsencrypt
 fi
-mv /etc/letsencrypt/* ${MNT_DIR}/letsencrypt/
+## Move every object from /etc/letsencrypt to the remotely-mounted directory,
+## removing older versions.
+## * This should be safe to do as long as there's no default version
+##   of the actual cert files that were obtained from the letsencrypt
+##   service, which there shouldn't be.
+for SRC_OBJ in $(ls /etc/letsencrypt); do
+  if [ -e "${MNT_DIR}/letsencrypt/${SRC_OBJ}" ]; then
+    rm -r ${MNT_DIR}/letsencrypt/${SRC_OBJ}
+  fi
+  mv /etc/letsencrypt/${SRC_OBJ} ${MNT_DIR}/letsencrypt/
+done
 rmdir /etc/letsencrypt
 ln -s ${MNT_DIR}/letsencrypt /etc/letsencrypt
 

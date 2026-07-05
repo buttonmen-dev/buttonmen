@@ -1,6 +1,6 @@
 <?php
 
-class BMBtnSkillArtificialReenableTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillArtificialReenableTest extends PHPUnit\Framework\TestCase {
 
     // this is to satisfy the PHPUnit audit
     public function testDummy()

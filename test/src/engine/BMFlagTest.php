@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagTest extends PHPUnit_Framework_TestCase {
+class BMFlagTest extends PHPUnit\Framework\TestCase {
     /**
      * @var BMFlag
      */

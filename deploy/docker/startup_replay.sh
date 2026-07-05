@@ -5,7 +5,7 @@ set -e
 set -x
 
 # System services
-/etc/init.d/rsyslog start
+/usr/sbin/rsyslogd
 /etc/init.d/cron start
 /etc/init.d/ssh start
 /etc/init.d/postfix start

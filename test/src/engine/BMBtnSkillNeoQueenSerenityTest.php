@@ -1,6 +1,6 @@
 <?php
 
-class BMBtnSkillNeoQueenSerenityTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillNeoQueenSerenityTest extends PHPUnit\Framework\TestCase {
 
     // this is to satisfy the PHPUnit audit
     public function testDummy()
