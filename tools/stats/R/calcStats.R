@@ -8,6 +8,7 @@ box::use(
   Matrix,
   jsonlite,
   dplyr,
+  htmltools,
   condformat
 )
 
@@ -321,15 +322,39 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
     output.colour <- pmin(4, floor(win.percentage.df$'Win %'/20))
     # use a special colour for fewer than 5 matchups
     output.colour[win.percentage.df$'# games played' < 5] <- 5
-    
-    out.table <- condformat$condformat(win.percentage.df) %>% 
-      condformat$rule_fill_discrete(contains('Win %'), 
-                         expression = output.colour, 
-                         colours = c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc', '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')) %>%
-      condformat$theme_caption(paste0('Button stats generated on ',
-                           as.character(as.Date(max(data.df$last_action_time))),
-                           ', only contains played matchups'))
-    out.html <- condformat$condformat2html(out.table)
+
+    colour.map <- c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc',
+                    '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')
+    bg <- colour.map[as.character(output.colour)]
+
+    caption <- paste0('Button stats generated on ',
+                      as.character(as.Date(max(data.df$last_action_time))),
+                      ', only contains played matchups')
+
+    col.names <- names(win.percentage.df)
+    header <- paste0(
+      '<thead><tr>',
+      paste0('<th>', col.names, '</th>', collapse = ''),
+      '</tr></thead>'
+    )
+
+    rows <- vapply(seq_len(nrow(win.percentage.df)), function(i) {
+      row <- win.percentage.df[i, ]
+      cells <- c(
+        paste0('<td>', htmltools$htmlEscape(as.character(row[[1]])), '</td>'),
+        paste0('<td>', htmltools$htmlEscape(as.character(row[[2]])), '</td>'),
+        paste0('<td style="background-color:', bg[i], '">', row[[3]], '</td>'),
+        paste0('<td>', row[[4]], '</td>')
+      )
+      paste0('<tr>', paste(cells, collapse = ''), '</tr>')
+    }, character(1))
+
+    out.html <- paste0(
+      '<table border="1"><caption>', htmltools$htmlEscape(caption), '</caption>',
+      header,
+      '<tbody>', paste(rows, collapse = ''), '</tbody>',
+      '</table>'
+    )
     return(out.html)
   } else {
     stats.table <- xtable$xtable(
@@ -444,7 +469,7 @@ runAll <- function() {
   generateHtmlFile(calcSingleButtonStats(data.df), 'button_stats.html')
   calcButtonMatchupsPlayed(data.df, button.names.df)
   generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, TRUE), 'player_matchup_stats.html')
-  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, FALSE), 'button_matchup_stats.html')
+  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, TRUE), 'button_matchup_stats.html')
 }
 
 runAll()
