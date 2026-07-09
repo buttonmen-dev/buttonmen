@@ -10,10 +10,6 @@ box::use(
   htmltools
 )
 
-# These were imported as libraries in the initial code, but don't
-# appear to me to be needed:
-# * colorRamps
-
 save_dir <- function() {
   # Choose target file save directory
   if (('unix' == .Platform$OS.type) && ('X11' == .Platform$GUI)) {
@@ -93,7 +89,7 @@ queryPlayerNames <- function(db) {
 }
 
 queryButtonStats <- function(db) {
-  # Submit query for button vs button data, ignoring mirror matches
+  # Submit query for button vs button data; mirror matches are flagged but not filtered here
   suppressWarnings(
     data.df <- DBI$dbGetQuery(
       db,
@@ -185,16 +181,12 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   ngame <- nrow(data.df) / 2
   max.button <- max(button.names.df$alt_button_id)
 
-  # Create data frame with button involved in each game
-  games.played.df <- data.frame(
-    first_button_id = data.df$alt_button_id[2*(1:ngame) - 1],
-    second_button_id = data.df$alt_button_id[2*(1:ngame)]
-  )
-
   # Create matchup frequency matrix of games played
-  dt <- data.table$data.table(games.played.df, key = c('first_button_id', 'second_button_id'))
-  freq.dt <- dt[, .N, by = eval(data.table$key(dt))]
-  freq.matrix <- as.matrix(with(freq.dt, Matrix$sparseMatrix(i = first_button_id, j = second_button_id, x = N, dims = c(max.button, max.button))))
+  freq.matrix <- buildFrequencyMatrix(
+    data.df$alt_button_id[2*(1:ngame) - 1],
+    data.df$alt_button_id[2*(1:ngame)],
+    max.button
+  )
   
   freq.matrix.df <- as.data.frame(freq.matrix, row.names = button.names.df$button_name)
   colnames(freq.matrix.df) <- button.names.df$button_name
@@ -244,13 +236,13 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   dev.off()
 }
 
-buildFrequencyMatrix <- function(winner_ids, loser_ids, n) {
-  dt <- data.table$data.table(winner_id = winner_ids, loser_id = loser_ids,
-                               key = c('winner_id', 'loser_id'))
+buildFrequencyMatrix <- function(row_ids, col_ids, n) {
+  dt <- data.table$data.table(row_id = row_ids, col_id = col_ids,
+                               key = c('row_id', 'col_id'))
   freq.dt <- dt[, .N, by = eval(data.table$key(dt))]
   as.matrix(Matrix$sparseMatrix(
-    i = freq.dt$winner_id,
-    j = freq.dt$loser_id,
+    i = freq.dt$row_id,
+    j = freq.dt$col_id,
     x = freq.dt$N,
     dims = c(n, n)
   ))
@@ -303,12 +295,11 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df) {
   diag(n.games.matrix) <- diag(n.games.matrix) / 2
 
   # Create a data frame with unplayed matchups
-  n.games.df <- data.frame(
-    button1 = rep(button.names.df$button_name, each = nrow(button.names.df)),
-    button2 = button.names.df$button_name,
-    n.games = as.vector(n.games.matrix)
+  zero.idx <- which(n.games.matrix == 0, arr.ind = TRUE)
+  unplayed.df <- data.frame(
+    button1 = button.names.df$button_name[zero.idx[, 1]],
+    button2 = button.names.df$button_name[zero.idx[, 2]]
   )
-  unplayed.df <- n.games.df[0 == n.games.df$n.games, 1:2]
   write.csv(unplayed.df, file = 'unplayed_button_matchups.csv', row.names = FALSE)
   
   # Calculate the win percentage for each matchup
@@ -324,19 +315,18 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df) {
   )
 
   # Save data as CSV and JSON object
-  win.percentage.df.short <- win.percentage.df
-  colnames(win.percentage.df.short) <- c('b1', 'b2', 'wp', 'ng')
-  
   write.table(
-    win.percentage.df.short, 
-    file = 'win_percentage_stats.csv', 
-    col.names = c('button_1', 'button_2', 'win_percentage', 'number_of_games'), 
+    setNames(win.percentage.df, c('b1', 'b2', 'wp', 'ng')),
+    file = 'win_percentage_stats.csv',
+    col.names = c('button_1', 'button_2', 'win_percentage', 'number_of_games'),
     row.names = FALSE,
     sep = ','
   )
-  
-  df.json <- jsonlite$toJSON(win.percentage.df.short, pretty = TRUE, digits = 2)
-  writeLines(df.json, paste0(save_dir(), 'win_percentage_stats.json'))
+
+  writeLines(
+    jsonlite$toJSON(setNames(win.percentage.df, c('b1', 'b2', 'wp', 'ng')), pretty = TRUE, digits = 2),
+    paste0(save_dir(), 'win_percentage_stats.json')
+  )
 
   # Remove empty rows
   win.percentage.df <- win.percentage.df[!is.na(win.percentage.df$win.percentage),]
