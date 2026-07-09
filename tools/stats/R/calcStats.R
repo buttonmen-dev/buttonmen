@@ -7,21 +7,12 @@ box::use(
   data.table,
   Matrix,
   jsonlite,
-  dplyr,
   htmltools
 )
 
 # These were imported as libraries in the initial code, but don't
 # appear to me to be needed:
 # * colorRamps
-
-# The %>% operator is imported from dplyr, and needs to be invoked
-# under that exact name with no namespace, for reasons described
-# in the first comment by "greg" in
-#   https://forum.posit.co/t/magrittr-inside-a-package/2033
-# (That thread is about magrittr, but dplyr implements the same
-# operator, and clearly has the same issue.)
-`%>%` <- dplyr$`%>%`
 
 save_dir <- function() {
   # Choose target file save directory
@@ -256,7 +247,34 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   dev.off()
 }
 
-calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALSE) {
+buildColouredHtmlTable <- function(df, bg, caption) {
+  col.names <- names(df)
+  header <- paste0(
+    '<thead><tr>',
+    paste0('<th>', col.names, '</th>', collapse = ''),
+    '</tr></thead>'
+  )
+
+  rows <- vapply(seq_len(nrow(df)), function(i) {
+    row <- df[i, ]
+    cells <- c(
+      paste0('<td>', htmltools$htmlEscape(as.character(row[[1]])), '</td>'),
+      paste0('<td>', htmltools$htmlEscape(as.character(row[[2]])), '</td>'),
+      paste0('<td style="background-color:', bg[i], '">', row[[3]], '</td>'),
+      paste0('<td>', row[[4]], '</td>')
+    )
+    paste0('<tr>', paste(cells, collapse = ''), '</tr>')
+  }, character(1))
+
+  paste0(
+    '<table border="1"><caption>', htmltools$htmlEscape(caption), '</caption>',
+    header,
+    '<tbody>', paste(rows, collapse = ''), '</tbody>',
+    '</table>'
+  )
+}
+
+calcButtonMatchupWinStats <- function(data.df, button.names.df) {
   # Create matchup matrix with win/loss info
   game.winner.df <- data.frame(
     winner_button_id = data.df$alt_button_id[data.df$did_win],
@@ -273,7 +291,7 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
 
   # Calculate the total number of games played for each matchup
   n.games.matrix <- freq.matrix + t(freq.matrix)
-  n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] <- n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] / 2
+  diag(n.games.matrix) <- diag(n.games.matrix) / 2
 
   # Create a data frame with unplayed matchups
   n.games.df <- data.frame(
@@ -317,60 +335,22 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
 
   
   # Create HTML table of button matchup stats
-  if (is.colour) {
-    output.colour <- pmin(4, floor(win.percentage.df$'Win %'/20))
-    # use a special colour for fewer than 5 matchups
-    output.colour[win.percentage.df$'# games played' < 5] <- 5
+  output.colour <- pmin(4, floor(win.percentage.df$'Win %'/20))
+  # use a special colour for fewer than 5 matchups
+  output.colour[win.percentage.df$'# games played' < 5] <- 5
 
-    colour.map <- c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc',
-                    '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')
-    bg <- colour.map[as.character(output.colour)]
+  colour.map <- c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc',
+                  '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')
+  bg <- colour.map[as.character(output.colour)]
 
-    caption <- paste0('Button stats generated on ',
-                      as.character(as.Date(max(data.df$last_action_time))),
-                      ', only contains played matchups')
+  caption <- paste0('Button stats generated on ',
+                    as.character(as.Date(max(data.df$last_action_time))),
+                    ', only contains played matchups')
 
-    col.names <- names(win.percentage.df)
-    header <- paste0(
-      '<thead><tr>',
-      paste0('<th>', col.names, '</th>', collapse = ''),
-      '</tr></thead>'
-    )
-
-    rows <- vapply(seq_len(nrow(win.percentage.df)), function(i) {
-      row <- win.percentage.df[i, ]
-      cells <- c(
-        paste0('<td>', htmltools$htmlEscape(as.character(row[[1]])), '</td>'),
-        paste0('<td>', htmltools$htmlEscape(as.character(row[[2]])), '</td>'),
-        paste0('<td style="background-color:', bg[i], '">', row[[3]], '</td>'),
-        paste0('<td>', row[[4]], '</td>')
-      )
-      paste0('<tr>', paste(cells, collapse = ''), '</tr>')
-    }, character(1))
-
-    out.html <- paste0(
-      '<table border="1"><caption>', htmltools$htmlEscape(caption), '</caption>',
-      header,
-      '<tbody>', paste(rows, collapse = ''), '</tbody>',
-      '</table>'
-    )
-    return(out.html)
-  } else {
-    stats.table <- xtable$xtable(
-      win.percentage.df,
-      display = c('s', 's', 's', 'f', 'd'),
-      caption = paste0(
-        'Button stats generated on ',
-        as.character(as.Date(max(data.df$last_action_time))),
-        ', only contains played matchups'
-      )
-    )
-  }
-
-  return(stats.table)
+  return(buildColouredHtmlTable(win.percentage.df, bg, caption))
 }
 
-calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALSE) {
+calcPlayerMatchupWinStats <- function(data.df, player.names.df) {
   # Create matchup matrix with win/loss info
   game.winner.df <- data.frame(
     winner_player_id = data.df$player_id[data.df$did_win],
@@ -387,7 +367,7 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALS
 
   # Calculate the total number of games played for each matchup
   n.games.matrix <- freq.matrix + t(freq.matrix)
-  n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] <- n.games.matrix[row(n.games.matrix) == col(n.games.matrix)] / 2
+  diag(n.games.matrix) <- diag(n.games.matrix) / 2
 
   # Calculate the win percentage for each matchup
   win.percentage.matrix <- 100 * freq.matrix / n.games.matrix
@@ -417,67 +397,29 @@ calcPlayerMatchupWinStats <- function(data.df, player.names.df, is.colour = FALS
   names(win.percentage.sorted.df) <- c('Player Name', 'Opponent Name', 'Win %', '# games played')
   
   # Create HTML table of player matchup stats
-  if (is.colour) {
-    output.colour <- pmin(4, floor(win.percentage.sorted.df$'Win %'/20))
-    # use a special colour for fewer than 5 matchups
-    output.colour[win.percentage.sorted.df$'# games played' < 5] <- 5
+  output.colour <- pmin(4, floor(win.percentage.sorted.df$'Win %'/20))
+  # use a special colour for fewer than 5 matchups
+  output.colour[win.percentage.sorted.df$'# games played' < 5] <- 5
 
-    colour.map <- c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc',
-                    '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')
-    bg <- colour.map[as.character(output.colour)]
+  colour.map <- c('0' = '#ff8888', '1' = '#ffcccc', '2' = '#ffffcc',
+                  '3' = '#ccffcc', '4' = '#88ff88', '5' = '#8888ff')
+  bg <- colour.map[as.character(output.colour)]
 
-    caption <- paste0('Player stats generated on ',
-                      as.character(as.Date(max(data.df$last_action_time))),
-                      ', only contains played matchups')
+  caption <- paste0('Player stats generated on ',
+                    as.character(as.Date(max(data.df$last_action_time))),
+                    ', only contains played matchups')
 
-    col.names <- names(win.percentage.sorted.df)
-    header <- paste0(
-      '<thead><tr>',
-      paste0('<th>', col.names, '</th>', collapse = ''),
-      '</tr></thead>'
-    )
-
-    rows <- vapply(seq_len(nrow(win.percentage.sorted.df)), function(i) {
-      row <- win.percentage.sorted.df[i, ]
-      cells <- c(
-        paste0('<td>', htmltools$htmlEscape(as.character(row[[1]])), '</td>'),
-        paste0('<td>', htmltools$htmlEscape(as.character(row[[2]])), '</td>'),
-        paste0('<td style="background-color:', bg[i], '">', row[[3]], '</td>'),
-        paste0('<td>', row[[4]], '</td>')
-      )
-      paste0('<tr>', paste(cells, collapse = ''), '</tr>')
-    }, character(1))
-
-    out.html <- paste0(
-      '<table border="1"><caption>', htmltools$htmlEscape(caption), '</caption>',
-      header,
-      '<tbody>', paste(rows, collapse = ''), '</tbody>',
-      '</table>'
-    )
-    return(out.html)
-  } else {
-    stats.table <- xtable$xtable(
-      win.percentage.sorted.df,
-      display = c('s', 's', 's', 'f', 'd'),
-      caption = paste0(
-        'Player stats generated on ',
-        as.character(as.Date(max(data.df$last_action_time))),
-        ', only contains played matchups'
-      )
-    )
-
-    return(stats.table)
-  }
+  return(buildColouredHtmlTable(win.percentage.sorted.df, bg, caption))
 }
 
 generateHtmlFile <- function(html.table, fname) {
   # Save HTML table to file
-  print(
-    html.table,
-    type = 'html',
-    include.rownames = FALSE,
-    file = paste0(save_dir(), fname)
-  )
+  path <- paste0(save_dir(), fname)
+  if (is.character(html.table)) {
+    writeLines(html.table, path)
+  } else {
+    print(html.table, type = 'html', include.rownames = FALSE, file = path)
+  }
 }
 
 runAll <- function() {
@@ -491,8 +433,8 @@ runAll <- function() {
 
   generateHtmlFile(calcSingleButtonStats(data.df), 'button_stats.html')
   calcButtonMatchupsPlayed(data.df, button.names.df)
-  generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df, TRUE), 'player_matchup_stats.html')
-  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df, TRUE), 'button_matchup_stats.html')
+  generateHtmlFile(calcPlayerMatchupWinStats(data.df, player.names.df), 'player_matchup_stats.html')
+  generateHtmlFile(calcButtonMatchupWinStats(data.df, button.names.df), 'button_matchup_stats.html')
 }
 
 runAll()
