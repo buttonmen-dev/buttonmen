@@ -262,7 +262,12 @@ Env.prepareRawTextForDisplay = function(rawText) {
   return html;
 };
 
-Env.applyBbCodeToHtml = function(htmlToParse) {
+// creates dicts of replacements that are used by
+//   Env.applyBbCodeToHtml      (doRemove is false)
+// and
+//   Env.removeBbCodeFromHtml   (doRemove is true)
+// so that markup mappings are all defined in the one place
+Env.bbCodeReplacements = function(doRemove) {
   // This is all rather more complicated than one might expect, but any attempt
   // to parse BB code using simple regular expressions rather than tokenization
   // is in the same family as parsing HTML with regular expressions, which
@@ -379,6 +384,23 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     },
   };
 
+  if (doRemove) {
+    var key;
+    for (key in replacements) {
+      if (replacements[key].isAtomic) {
+        replacements[key] = { 'isAtomic': true };
+      } else {
+        replacements[key] = {};
+      }
+    }
+  }
+
+  return replacements;
+};
+
+Env.applyBbCodeToHtml = function(htmlToParse) {
+  var replacements = Env.bbCodeReplacements(false);
+
   var outputHtml = '';
   var tagStack = [];
 
@@ -399,6 +421,8 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
 
   var tagName;
 
+  htmlToParse = htmlToParse.replace(/\n/g, '<br>');
+
   while (htmlToParse) {
     var currentPattern = allStartTagsPattern;
     if (tagStack.length !== 0) {
@@ -413,28 +437,35 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     // should be greedy, so that nested tags work right
     // (E.g., in '...blah[/quote] blah [/quote] blah', we want the first .*
     // to end at the first [/quote], not the second)
-    currentPattern = '^(.*?)(?:' + currentPattern + ')(.*)$';
+    //
+    // Note that we are using [\\s\\S] instead of . so that we get
+    // multiline matching, see
+    //   https://simonwillison.net/2004/Sep/20/newlines/
+    // and
+    //   https://stackoverflow.com/questions/1979884/
+    //     how-to-use-javascript-regex-over-multiple-lines#16119722
+    currentPattern = '^([\\s\\S]*?)(?:' + currentPattern + ')([\\s\\S]*)$';
     // case-insensitive, multi-line
     var regExp = new RegExp(currentPattern, 'im');
 
-    var match = htmlToParse.match(regExp);
-    if (match) {
-      var stuffBeforeTag = match[1];
+    var matchStr = htmlToParse.match(regExp);
+    if (matchStr) {
+      var stuffBeforeTag = matchStr[1];
       // javascript apparently believes that capture groups that don't
       // match anything are just important as those that do. So we need
       // to do some acrobatics to find the ones we actually care about.
       // (match[0] is the whole matched string; match[1] is the stuff before
       // the tag. So we start with match[2].)
       tagName = '';
-      for (var i = 2; i < match.length; i++) {
-        tagName = match[i];
+      for (var i = 2; i < matchStr.length; i++) {
+        tagName = matchStr[i];
         if (tagName) {
           break;
         }
       }
       tagName = tagName.toLowerCase();
-      var tagParameter = match[i + 1] || '';
-      var stuffAfterTag = match[match.length - 1];
+      var tagParameter = matchStr[i + 1] || '';
+      var stuffAfterTag = matchStr[matchStr.length - 1];
 
       outputHtml += stuffBeforeTag;
       if (tagName.substring(0, 1) === '/') {
@@ -520,6 +551,100 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
   // (We turn the event off first so we're not binding it multiple times.)
   $(document).off('click', '.chatSpoiler')
     .on('click', '.chatSpoiler', Env.toggleSpoiler);
+
+  return outputHtml;
+};
+
+Env.removeBbCodeFromHtml = function(htmlToParse) {
+  var replacements = Env.bbCodeReplacements(true);
+
+  var outputHtml = '';
+  var tagStack = [];
+
+  // We want to build a pattern that we can use to identify any single
+  // BB code start tag
+  var allStartTagsPattern = '';
+  $.each(replacements, function(tagName) {
+    if (allStartTagsPattern !== '') {
+      allStartTagsPattern += '|';
+    }
+    // Matches, e.g., '[ b ]' or '[game = "123"]'
+    // The (?:... part means that we want parentheses around the whole
+    // thing (so we we can OR it together with other ones), but we don't
+    // want to capture the value of the whole thing as a group
+    allStartTagsPattern +=
+      '(?:\\[(' + Env.escapeRegexp(tagName) + ')(?:=([^\\]]*?))?])';
+  });
+
+  var tagName;
+
+  htmlToParse = htmlToParse.replace(/\n/g, ' ');
+
+  while (htmlToParse) {
+    var currentPattern = allStartTagsPattern;
+    if (tagStack.length !== 0) {
+      // The tag that was most recently opened
+      tagName = tagStack[tagStack.length - 1];
+      // Matches '[/i]' et al.
+      // (so that we can spot the end of the current tag as well)
+      currentPattern +=
+        '|(?:\\[(/' + Env.escapeRegexp(tagName) + ')])';
+    }
+    // The first group should be non-greedy (hence the ?), and the last one
+    // should be greedy, so that nested tags work right
+    // (E.g., in '...blah[/quote] blah [/quote] blah', we want the first .*
+    // to end at the first [/quote], not the second)
+    //
+    // Note that we are using [\\s\\S] instead of . so that we get
+    // multiline matching, see
+    //   https://simonwillison.net/2004/Sep/20/newlines/
+    // and
+    //   https://stackoverflow.com/questions/1979884/
+    //     how-to-use-javascript-regex-over-multiple-lines#16119722
+    currentPattern = '([\\s\\S]*?)(?:' + currentPattern + ')([\\s\\S]*)';
+
+    // case-insensitive, multi-line
+    var regExp = new RegExp(currentPattern, 'im');
+    var matchStr = htmlToParse.match(regExp);
+
+    if (matchStr) {
+      var stuffBeforeTag = matchStr[1];
+      // javascript apparently believes that capture groups that don't
+      // match anything are just important as those that do. So we need
+      // to do some acrobatics to find the ones we actually care about.
+      // (match[0] is the whole matched string; match[1] is the stuff before
+      // the tag. So we start with match[2].)
+      tagName = '';
+      for (var i = 2; i < matchStr.length; i++) {
+        tagName = matchStr[i];
+        if (tagName) {
+          break;
+        }
+      }
+      tagName = tagName.toLowerCase();
+      var stuffAfterTag = matchStr[matchStr.length - 1];
+
+      outputHtml += stuffBeforeTag;
+      if (tagName.substring(0, 1) === '/') {
+        // If we've found our closing tag, we can finish the current tag and
+        // pop it off the stack
+        tagName = tagStack.pop();
+      } else {
+        if (!replacements[tagName].isAtomic) {
+          // If there's a closing tag coming along later, push this tag
+          // on the stack so we'll know we're waiting on it
+          tagStack.push(tagName);
+        }
+      }
+
+      htmlToParse = stuffAfterTag;
+    } else {
+      // If we don't find any more BB code tags that we're interested in,
+      // then we must have reached the end
+      outputHtml += htmlToParse;
+      htmlToParse = '';
+    }
+  }
 
   return outputHtml;
 };

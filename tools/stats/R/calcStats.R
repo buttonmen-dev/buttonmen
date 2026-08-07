@@ -209,13 +209,13 @@ calcButtonMatchupsPlayed <- function(data.df, button.names.df) {
   colnames(freq.matrix.df) <- button.names.df$button_name
   # Note that the col.names = NA is necessary to force an extra blank column name for the column of row names
   write.table(
-    freq.matrix.df, 
+    freq.matrix.df,
     file = 'matchup_frequency.csv',
     col.names = NA,
-    sep = ',', 
+    sep = ',',
     quote = FALSE
   )
-  
+
   freq.matrix[0 == freq.matrix] <- NA
 
   # Take log of frequency matrix and increase dynamic range
@@ -283,7 +283,7 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
   )
   unplayed.df <- n.games.df[0 == n.games.df$n.games, 1:2]
   write.csv(unplayed.df, file = 'unplayed_button_matchups.csv', row.names = FALSE)
-  
+
   # Calculate the win percentage for each matchup
   win.percentage.matrix <- round(100 * freq.matrix / n.games.matrix, 2)
   win.percentage.matrix[row(win.percentage.matrix) == col(win.percentage.matrix)] <- NA
@@ -299,11 +299,11 @@ calcButtonMatchupWinStats <- function(data.df, button.names.df, is.colour = FALS
   # Save data as CSV and JSON object
   win.percentage.df.short <- win.percentage.df
   colnames(win.percentage.df.short) <- c('b1', 'b2', 'wp', 'ng')
-  
+
   write.table(
-    win.percentage.df.short, 
-    file = 'win_percentage_stats.csv', 
-    col.names = c('button_1', 'button_2', 'win_percentage', 'number_of_games'), 
+    win.percentage.df.short,
+    file = 'win_percentage_stats.csv',
+    col.names = c('button_1', 'button_2', 'win_percentage', 'number_of_games'),
     row.names = FALSE,
     sep = ','
   )

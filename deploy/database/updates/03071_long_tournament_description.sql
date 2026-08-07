@@ -1,0 +1,1 @@
+ALTER TABLE game MODIFY description VARCHAR(305) NOT NULL;

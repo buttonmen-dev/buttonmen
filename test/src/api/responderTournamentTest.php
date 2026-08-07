@@ -211,7 +211,7 @@ class responderTournamentTest extends responderTestFramework {
         $gameOneExpData = $this->generate_init_expected_data_array($gameOneId, 'responder004', 'responder005', 1, 'SPECIFY_DICE');
         $gameOneExpData['tournamentId'] = $tournamentId;
         $gameOneExpData['tournamentRoundNumber'] = 1;
-        $gameOneExpData['description'] = 'Round 1';
+        $gameOneExpData['description'] = 'Tournament Round 1';
         $gameOneExpData['currentPlayerIdx'] = FALSE;
         $gameOneExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
         $gameOneExpData['gameActionLog'][0]['message'] = 'Game created automatically';
@@ -243,7 +243,7 @@ class responderTournamentTest extends responderTestFramework {
         $gameTwoExpData['gameSkillsInfo'] = $this->get_skill_info(array('Poison'));
         $gameTwoExpData['tournamentId'] = $tournamentId;
         $gameTwoExpData['tournamentRoundNumber'] = 1;
-        $gameTwoExpData['description'] = 'Round 1';
+        $gameTwoExpData['description'] = 'Tournament Round 1';
         $gameTwoExpData['activePlayerIdx'] = 0;
         $gameTwoExpData['playerWithInitiativeIdx'] = 0;
         $gameTwoExpData['creatorDataArray'] = array('creatorId' => 0, 'creatorName' => '');
@@ -363,7 +363,7 @@ class responderTournamentTest extends responderTestFramework {
         $gameThreeExpData['gameSkillsInfo'] = $this->get_skill_info(array('Poison'));
         $gameThreeExpData['tournamentId'] = $tournamentId;
         $gameThreeExpData['tournamentRoundNumber'] = 2;
-        $gameThreeExpData['description'] = 'Round 2';
+        $gameThreeExpData['description'] = 'Tournament Round 2';
         $gameThreeExpData['activePlayerIdx'] = 1;
         $gameThreeExpData['playerWithInitiativeIdx'] = 1;
         $gameThreeExpData['currentPlayerIdx'] = 1;
@@ -395,6 +395,26 @@ class responderTournamentTest extends responderTestFramework {
         $gameThreeExpData['playerDataArray'][1]['playerColor'] = '#dd99dd';
         $this->game_number = 100003;
         $gameThreeRetval = $this->verify_api_loadGameData($gameThreeExpData, $gameThreeId, 10);
+
+        // Cache all tournaments data before the tournament is complete
+        $allTournamentsData =
+            array(
+                'tournamentIdArray' => array(1),
+                'tournamentDescriptionArray' => array(''),
+                'nTargetWinsArray' => array(1),
+                'tournamentStateArray' => array('PLAY_GAMES'),
+                'statusArray' => array('ACTIVE'),
+                'roundNumberArray' => array(2),
+                'tournamentTypeArray' => array('Single Elimination'),
+                'creatorNameArray' => array('responder003'),
+                'startTimeArray' => array(2026),
+                'nPlayersArray' => array(4),
+                'nPlayersJoinedArray' => array(4),
+                'isCreatorArray' => array(TRUE),
+                'hasJoinedArray' => array(TRUE),
+                'isWatchedArray' => array(TRUE)
+            );
+        $this->verify_api_loadTournaments($allTournamentsData);
 
         // Take a turn in game 3, completing it
         $this->verify_api_submitTurn(

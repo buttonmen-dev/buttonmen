@@ -264,12 +264,74 @@ test("test_Env.prepareRawTextForDisplay", function(assert) {
   assert.ok(holder.find('br').length == 1, 'Newline should become <br> tag');
 });
 
+test("test_Env.bbCodeReplacements", function(assert) {
+  var replacementsApply = Env.bbCodeReplacements(false);
+  assert.ok(replacementsApply.hasOwnProperty('u'), 'replacementsApply should have a u property');
+  assert.deepEqual(
+    replacementsApply.u,
+    {
+      'openingHtml': '<span class="chatUnderlined">',
+      'closingHtml': '</span>',
+    },
+    'u BBCode replacement should be correct'
+  );
+
+  assert.ok(replacementsApply.hasOwnProperty('forum'), 'replacementsApply should have an issue property');
+  assert.deepEqual(
+    replacementsApply.issue,
+    {
+      'isAtomic': true,
+      'isLink': true,
+      'openingHtml':
+          '<a class="chatIssueLink" ' +
+          'href="https://github.com/buttonmen-dev/buttonmen/issues/###">' +
+          'Issue ',
+      'closingHtml': '</a>',
+      'escapeParameter': true,
+    },
+    'issue BBCode replacement should be correct'
+  );
+
+  var replacementsRemove = Env.bbCodeReplacements(true);
+  assert.ok(replacementsRemove.hasOwnProperty('u'), 'replacementsRemove should have a u property');
+  assert.deepEqual(
+    replacementsRemove.u,
+    {},
+    'u BBCode removal should be correct'
+  );
+
+  assert.ok(replacementsApply.hasOwnProperty('issue'), 'replacementsRemove should have an issue property');
+  assert.deepEqual(
+    replacementsRemove.issue,
+    { 'isAtomic': true, },
+    'issue BBCode removal should be correct'
+  );
+});
+
 test("test_Env.applyBbCodeToHtml", function(assert) {
   var rawHtml = '<b>HTML</b><br/>[i]BB Code[/i]';
   var holder = $('<div>');
   holder.append(Env.applyBbCodeToHtml(rawHtml));
   assert.ok(holder.find('b').length == 1, '<b> tag *should* be allowed unmolested');
   assert.ok(holder.find('.chatItalic').length == 1, '[i] tag should be converted to HTML');
+
+  rawHtml = '[u]aaaa[/u]cc\ndd[u]bbbb[/u]\nHello';
+  var newHtml = Env.applyBbCodeToHtml(rawHtml);
+  assert.equal(
+    newHtml,
+    '<span class="chatUnderlined">aaaa</span>cc<br>dd<span class="chatUnderlined">bbbb</span><br>Hello',
+    'New HTML should be correct'
+  );
+});
+
+test("test_Env.removeBbCodeFromHtml", function(assert) {
+  var rawHtml = '<b>HTML</b><br/>[i]BB Code[/i]';
+  var newHtml = Env.removeBbCodeFromHtml(rawHtml);
+  assert.equal(newHtml, '<b>HTML</b><br/>BB Code', 'Stripped-down HTML should be correct');
+
+  rawHtml = '[u]aaaa[/u]cc\ndd[u]bbbb[/u]\nHello';
+  newHtml = Env.removeBbCodeFromHtml(rawHtml);
+  assert.equal(newHtml, 'aaaacc ddbbbb Hello', 'Stripped-down HTML should be correct');
 });
 
 test("test_Env.escapeRegexp", function(assert) {
@@ -339,7 +401,7 @@ test("test_Env.toggleSpoiler", function(assert) {
   var spoiler = $('<span>', { 'class': 'chatSpoiler' });
   var eventTriggerSpan = {'target': {'tagName': 'span'}};
   var eventTriggerAnchor = {'target': {'tagName': 'a'}};
-  
+
   Env.toggleSpoiler.call(spoiler, eventTriggerSpan);
   assert.ok(spoiler.hasClass('chatExposedSpoiler'),
     'Spoiler should be styled as revealed');
