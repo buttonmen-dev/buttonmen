@@ -899,6 +899,25 @@ class ApiResponder {
         return $retval;
     }
 
+    /**
+     * Interface redirect for changeTournamentDesc
+     *
+     * @param type $interface
+     * @param type $args
+     * @return type
+     */
+    protected function get_interface_response_changeTournamentDesc($interface, $args) {
+        $retval = $interface->tournament()->change_tournament_desc(
+            $this->session_user_id(),
+            $args['tournamentId'],
+            $args['description']
+        );
+        if (isset($retval)) {
+            $interface->player()->update_last_action_time($this->session_user_id());
+        }
+        return $retval;
+    }
+
     // End of tournament-related methods
     ////////////////////////////////////////////////////////////
 

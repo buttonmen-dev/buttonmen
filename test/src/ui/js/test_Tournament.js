@@ -153,17 +153,15 @@ test("test_Tournament.getCurrentTournament", function(assert) {
 });
 
 test("test_Tournament.showStatePage", function(assert) {
-//  stop();
-//  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
-//  Tournament.getCurrentTournament(function() {
-//    Tournament.showStatePage();
-//    var htmlout = Tournament.page.html();
-//    assert.ok(htmlout.length > 0,
-//      "The created page should have nonzero contents");
-//    assert.ok(htmlout.match('vacation16.png'),
-//      "The game UI contains a vacation icon when the API data reports that one player is on vacation");
-//    start();
-//  });
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Tournament.showStatePage();
+    var htmlout = Tournament.page.html();
+    assert.ok(htmlout.length > 0,
+          "The created page should have nonzero contents");
+    start();
+  });
 });
 
 test("test_Tournament.showTournamentContents", function(assert) {
@@ -171,7 +169,26 @@ test("test_Tournament.showTournamentContents", function(assert) {
 });
 
 test("test_Tournament.pageAddTournamentHeader", function(assert) {
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Api.tournament.description = 'description';
+    Tournament.showStatePage();
+    Tournament.pageAddTournamentHeader();
+    var htmlout = Tournament.page.html();
+    assert.ok(htmlout.length > 0,
+          "The created page should have nonzero contents");
 
+    var tournHeader = $('#tournament_id');
+    var tournDesc = $('#tournament_desc');
+    var tournInfo = $('#tournament_info');
+
+    assert.ok(tournHeader.is('div'), 'Tournament header should be a div');
+    assert.ok(tournDesc.is('div'),   'Tournament description should be a div');
+    assert.ok(tournInfo.is('div'),   'Tournament info should be a div');
+
+    start();
+  });
 });
 
 test("test_Tournament.pageAddDismissTournamentLink", function(assert) {
@@ -198,6 +215,43 @@ test("test_Tournament.formFollowTournament", function(assert) {
 
 });
 
+test("test_Tournament.pageAddTournamentDescription", function(assert) {
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Api.tournament.description =
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]456789012345678901234567890' +
+      '[forum=1,6]text[/forum]4567890...';
+    Tournament.showStatePage();
+    Tournament.pageAddTournamentDescription();
+
+    var tournDesc = $('#tournament_desc');
+
+    var convertedDescription =
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '456789012345678901234567890' +
+      '<a class=\"chatForumLink\" href=\"forum.html#!threadId=1&amp;postId=6\">text</a>' +
+      '4567890...';
+
+    assert.equal(
+      tournDesc.html(),
+      convertedDescription,
+      'Description text should be correct'
+    );
+
+    start();
+  });
+});
+
 test("test_Tournament.pageAddTournamentInfo", function(assert) {
 
 });
@@ -208,6 +262,87 @@ test("test_Tournament.friendlyTournamentType", function(assert) {
 
 test("test_Tournament.pageAddActions", function(assert) {
 
+});
+
+test("test_Tournament.formEditTournDesc", function(assert) {
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    // test the page seen by the creator while people are still joining
+    Api.tournament.description = 'Initial description';
+    Api.tournament.isCreator = true;
+    Api.tournament.tournamentState = Tournament.TOURN_STATE_JOIN_TOURNAMENT;
+    Tournament.showStatePage();
+    assert.ok($('#tournament_desc').is(':visible'), 'Tournament description should be visible');
+    assert.equal($('#tournament_desc').text(), 'Initial description', 'Initial tournament description should be correct');
+    assert.ok(!($('#tournament_desc_input').is(':visible')), 'Input box should not be visible');
+    assert.ok($('#editLink').is(':visible'), 'Edit link should be visible');
+    assert.ok(!($('#submitLink').is(':visible')), 'Submit link should not be visible');
+
+    Tournament.formEditTournDesc();
+    assert.ok(!($('#tournament_desc').is(':visible')), 'Tournament description should not be visible');
+    assert.ok($('#tournament_desc_input').is(':visible'), 'Input box should be visible');
+    assert.ok(!($('#editLink').is(':visible')), 'Edit link should not be visible');
+    assert.ok($('#submitLink').is(':visible'), 'Submit link should be visible');
+
+    // test the page seen by players that are not the creator while people are still joining
+    Api.tournament.isCreator = false;
+    Tournament.showStatePage();
+    assert.ok($('#tournament_desc').is(':visible'), 'Tournament description should be visible');
+    assert.equal($('#tournament_desc').text(), 'Initial description', 'Initial tournament description should be correct');
+    assert.ok(!($('#tournament_desc_input').is(':visible')), 'Input box should not be visible');
+    assert.ok(!($('#editLink').is(':visible')), 'Edit link should only be visible for the creator');
+    assert.ok(!($('#submitLink').is(':visible')), 'Submit link should not be visible');
+
+    // test the page seen by the creator when the tournament has started
+    Api.tournament.isCreator = true;
+    Api.tournament.tournamentState = Tournament.TOURN_STATE_START_ROUND;
+    Tournament.showStatePage();
+    assert.ok($('#tournament_desc').is(':visible'), 'Tournament description should be visible');
+    assert.equal($('#tournament_desc').text(), 'Initial description', 'Initial tournament description should be correct');
+    assert.ok(!($('#tournament_desc_input').is(':visible')), 'Input box should not be visible');
+    assert.ok(!($('#editLink').is(':visible')), 'Edit link should only be visible for the creator');
+    assert.ok(!($('#submitLink').is(':visible')), 'Submit link should not be visible');
+
+    // test the page seen by players that are not the creator when the tournament has started
+    Api.tournament.isCreator = false;
+    Tournament.showStatePage();
+    assert.ok($('#tournament_desc').is(':visible'), 'Tournament description should be visible');
+    assert.equal($('#tournament_desc').text(), 'Initial description', 'Initial tournament description should be correct');
+    assert.ok(!($('#tournament_desc_input').is(':visible')), 'Input box should not be visible');
+    assert.ok(!($('#editLink').is(':visible')), 'Edit link should only be visible for the creator');
+    assert.ok(!($('#submitLink').is(':visible')), 'Submit link should not be visible');
+
+    start();
+  });
+});
+
+test("test_Tournament.formSubmitTournDesc", function(assert) {
+  stop();
+  BMTestUtils.TournamentType = 'default';
+  Tournament.getCurrentTournament(function() {
+    Api.tournament.description = 'Initial description';
+    Api.tournament.isCreator = true;
+    Api.tournament.tournamentState = Tournament.TOURN_STATE_JOIN_TOURNAMENT;
+    Tournament.showStatePage();
+    Tournament.formEditTournDesc();
+    assert.ok($('#tournament_desc_input').is(':visible'), 'Input box should be visible');
+
+    $('#tournament_desc_input').val('New description');
+
+    Tournament.formSubmitTournDesc();
+    Login.arrangePage(Tournament.page, Tournament.form, '#submitLink');
+    $.ajaxSetup({ async: false });
+    $('#submitLink').trigger('click');
+    assert.deepEqual(
+      Env.message,
+      {"type": "success", "text": "Tournament description saved"},
+      "Tournament description save action succeeded when expected arguments were set"
+    );
+    assert.equal($('#tournament_desc').text(), 'New description', 'New description should be correct');
+    $.ajaxSetup({ async: true });
+    start();
+  });
 });
 
 test("test_Tournament.formCancelTournament", function(assert) {

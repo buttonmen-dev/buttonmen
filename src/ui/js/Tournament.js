@@ -159,20 +159,8 @@ Tournament.pageAddTournamentHeader = function() {
       'id': 'tournament_id',
       'html': tournamentTitle,
     }));
-//  var bgcolor = '#ffffff';
-//  if (Api.tournament.player.waitingOnAction) {
-//    bgcolor = Tournament.color.player;
-//  } else if (Api.tournament.opponent.waitingOnAction) {
-//    bgcolor = Tournament.color.opponent;
-//  }
 
-  if (Api.tournament.description) {
-    Tournament.page.append($('<div>', {
-      'text': Api.tournament.description,
-      'class': 'gameDescDisplay',
-    }));
-  }
-
+  Tournament.pageAddTournamentDescription();
   Tournament.page.append($('<br>'));
 
   Tournament.pageAddTournamentInfo();
@@ -306,8 +294,60 @@ Tournament.formFollowTournament = function(e) {
     Tournament.showLoggedInPage);
 };
 
+Tournament.pageAddTournamentDescription = function () {
+  if (Api.tournament.description) {
+    Tournament.page.append($('<div>', {
+      'id': 'tournament_desc',
+      'html': Env.applyBbCodeToHtml(Api.tournament.description),
+      'class': 'gameDescDisplay',
+    }));
+  }
+
+  if (
+    (Api.tournament.tournamentState ===
+      Tournament.TOURN_STATE_JOIN_TOURNAMENT) &&
+    Api.tournament.isCreator
+  ) {
+
+    var inputBox = $(
+      '<input type="text" id="tournament_desc_input" value="' +
+      Api.tournament.description +
+      '" />'
+    );
+    inputBox.hide();
+    Tournament.page.append(inputBox);
+    Tournament.page.append('<br>');
+
+    // add edit link
+    var editLink = $('<a>', {
+      'text': '[Edit Tournament Description]',
+      'id': 'editLink',
+      'href': '#',
+      'data-tournamentId': Api.tournament.tournamentId,
+    });
+    editLink.click(Tournament.formEditTournDesc);
+    Tournament.page.append(editLink);
+  }
+
+  // add submit link
+  var submitLink = $('<a>', {
+    'text': '[Save Tournament Description]',
+    'id': 'submitLink',
+    'href': '#',
+    'data-tournamentId': Api.tournament.tournamentId,
+  });
+  submitLink.click(Tournament.formSubmitTournDesc);
+  submitLink.hide();
+  Tournament.page.append('<br>').append(submitLink);
+};
+
 Tournament.pageAddTournamentInfo = function () {
-  var infoDiv = $('<div>');
+  var infoDiv = $(
+    '<div>',
+    {
+      'id': 'tournament_info',
+    }
+  );
   Tournament.page.append(infoDiv);
 
   var tournamentTypePar = $('<p>', {
@@ -347,9 +387,18 @@ Tournament.pageAddWinnerInfo = function () {
   var winnerDiv = $('<div>');
   Tournament.page.append(winnerDiv);
 
-  var winnerIdx = Api.tournament.remainCountArray.findIndex(
-    function(x) {return (x > 0);}
+  var winnerIdx;
+  var isWinnerFound = Api.tournament.remainCountArray.some(
+    function(remainCount, idx) {
+      winnerIdx = idx;
+      return remainCount > 0;
+    }
   );
+
+  if (!isWinnerFound) {
+    return;
+  }
+
   var winnerPar = $('<p>', {
     'class': 'winner_name',
     'text': 'Winner: ' + Api.tournament.playerDataArray[winnerIdx].playerName
@@ -466,6 +515,47 @@ Tournament.pageAddActions = function () {
       actionDiv.append(cancelLink);
     }
   }
+};
+
+Tournament.formEditTournDesc = function () {
+  $('#tournament_desc').hide();
+  $('#tournament_desc_input').show();
+  $('#editLink').hide();
+  $('#submitLink').show();
+};
+
+Tournament.formSubmitTournDesc = function() {
+  var args =
+    {
+      type: 'changeTournamentDesc',
+      tournamentId: Api.tournament.tournamentId,
+      description: $('#tournament_desc_input').val(),
+    };
+
+  // N.B. We default to reverting to the original description
+  // on failure.
+  // Therefore, it's fine to pass the form post the same function
+  // (showLoggedInPage) for both success and failure conditions.
+  Api.apiFormPost(
+    args,
+    {
+      'ok': {
+        'type': 'function',
+        'msgfunc': Tournament.setChangeTournamentDescSuccessMessage,
+      },
+      'notok': { 'type': 'server', },
+    },
+    '#submitLink',
+    Tournament.showLoggedInPage,
+    Tournament.showLoggedInPage
+  );
+};
+
+Tournament.setChangeTournamentDescSuccessMessage = function () {
+  Env.message = {
+    'type': 'success',
+    'text': 'Tournament description saved',
+  };
 };
 
 Tournament.formChooseButton = function () {
