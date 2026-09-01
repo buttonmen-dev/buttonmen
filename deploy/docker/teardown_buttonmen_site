@@ -20,74 +20,23 @@
 import json
 import os
 import re
-import subprocess
 import sys
 
+from buttonmen_deployment_utils import (
+  add_ecs_config,
+  connect_boto_clients,
+  docker_reponame,
+  get_subprocess_output,
+  get_working_directory_info,
+)
+
 BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
-
-def get_subprocess_output(cmdargs):
-  return subprocess.check_output(cmdargs).decode()
-
-REPO_MATCH = re.compile('^origin\\s+(git@github.com:|https://github.com/)([\\w-]+)/buttonmen.git \\(fetch\\)$')
-def get_working_directory_info():
-  git_info = {
-    'reponame': None,
-    'branch': None,
-  }
-
-  # Find repo name using git remote
-  output = get_subprocess_output(['git', 'remote', '-v'])
-  for line in output.split('\n'):
-    match = REPO_MATCH.match(line)
-    if not match: continue
-    git_info['reponame'] = match.group(2)
-  if git_info['reponame']:
-    print(f"Detected buttonmen repo: {git_info['reponame']}")
-  else:
-    raise ValueError(f"Could not detect repo name from git remote: {output}")
-
-  # Find branch name using git branch
-  output = get_subprocess_output(['git', 'branch'])
-  for line in output.split('\n'):
-    if not line.startswith('* '): continue
-    words = line.split()
-    assert len(words) == 2, f"Found unexpected output line {line} in git branch output: {output}"
-    git_info['branch'] = words[1]
-  if git_info['branch']:
-    print(f"Detected git branch: {git_info['branch']}")
-  else:
-    raise ValueError(f"Could not detect branch name from git branch: {output}")
-
-  return git_info
 
 def validate_vars(git_info, args):
   # This reponame should only be used for staging and prod, which we don't want to be allowed to tear down
   if git_info['reponame'] == 'buttonmen-dev':
     raise ValueError(f"Repo is {git_info['reponame']}, refusing to teardown non-dev branch")
 
-def add_ecs_config(git_info, args):
-  if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
-  file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
-  target_config = {}
-  key = args['deploy_replay_site'] and 'replay' or 'development'
-  git_info['site_type'] = key
-  git_info['config'] = file_config.get(key, {})
-  if key == 'development' and not 'backup_database_path' in git_info['config']:
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} is missing 'backup_database_path' parameter for download database backups before container delete")
-
-def connect_boto_clients():
-  import boto3
-  return {
-    'ec2': boto3.client('ec2'),
-    'ecr': boto3.client('ecr'),
-    'ecs': boto3.client('ecs'),
-  }
-
-# docker repos must have lowercase names
-def docker_reponame(git_info):
-  prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
-  return f"{prefix}-{git_info['reponame']}/{git_info['branch']}".lower()
 
 def teardown_ecr_repo(git_info, ecr_client):
   reponame = docker_reponame(git_info)
@@ -224,10 +173,10 @@ def configure_container_pre_teardown(git_info, public_ipv4):
    configure_container_backup_database(git_info, public_ipv4)
 
 def teardown(args):
-  git_info = get_working_directory_info()
+  git_info = get_working_directory_info("site")
   validate_vars(git_info, args)
   add_ecs_config(git_info, args)
-  clients = connect_boto_clients()
+  clients = connect_boto_clients(git_info, ['ec2', 'ecr', 'ecs'])
   ecs_info = get_active_ecs_service_info(git_info, clients['ecs'])
   if ecs_info['eni']:
     public_ipv4 = get_site_public_ipv4(ecs_info['eni'], clients['ec2'])
@@ -238,6 +187,11 @@ def teardown(args):
 def parse_args(argv):
   return {
     'deploy_replay_site': '-p' in argv,
+
+    # args which aren't relevant for teardown
+    'deploy_local_site': False,
+    'use_elastic_ip_for_dev': False,
+    'use_remote_database_for_dev': False,
   }
 
 args = parse_args(sys.argv[1:])

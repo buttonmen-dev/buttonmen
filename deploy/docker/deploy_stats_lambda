@@ -1,0 +1,88 @@
+##### deploy_stats_lambda
+# Deploy a lambda which runs stats for a remote buttonmen database
+#
+# The caller is responsible for:
+# * invoking this script using a python with boto3 available
+# * passing correct environment variables for boto3 to authenticate
+#   to the desired region (e.g. an AWS_PROFILE + ~/.aws/config,
+#   or all needed envvars, or whatever)
+# * having docker running locally and the "docker" CLI in the $PATH
+# * copying deploy/docker/buttonmen_ecs_config.json to
+#   ~/.aws/buttonmen_ecs_config.json and populating the fields with
+#   network configuration from the AWS account hosting buttonmen sites
+
+# Current status: this script as written:
+# * builds a docker image containing a python "hello world" lambda handler
+# * pushes that image to ECR
+# * if the resulting ECR URI is used to populate a lambda, with
+#   default settings, it works - executing the lambda leads to the
+#   smoke test output
+#
+# It doesn't yet actually create the lambda, and it doesn't yet
+# actually access a BM database, run the stats script, or output
+# stats to a webserver.
+
+import sys
+
+from buttonmen_deployment_utils import (
+  add_ecs_config,
+  build_docker_image,
+  buttonmen_site_fqdn,
+  cleanup_working_directory,
+  connect_boto_clients,
+  customize_vagrant,
+  get_subprocess_output,
+  get_working_directory_info,
+  push_docker_image_to_ecr,
+)
+
+
+def validate_vars(git_info, args):
+  if not git_info['is_clean']:
+    if args['allow_unclean_repo_deployment']:
+      print("Working directory is unclean, but deploying anyway based on CLI flags")
+    else:
+      raise ValueError("Working directory is not clean - refusing to deploy")
+
+  if git_info['reponame'] == 'buttonmen-dev':
+    if git_info['branch'] not in ['staging', 'production']:
+      raise ValueError(f"Repo is {git_info['reponame']}, but branch {git_info['branch']} is not a known staging or prod branch - refusing to deploy")
+
+
+def deploy(args):
+  git_info = get_working_directory_info("stats")
+  validate_vars(git_info, args)
+  add_ecs_config(git_info, args)
+  clients = connect_boto_clients(git_info, ['ecr'])
+  customize_vagrant(git_info, use_email_config=False)
+  image_id = build_docker_image(git_info)
+  repo_uri = push_docker_image_to_ecr(git_info, image_id, clients['ecr'])
+  cleanup_working_directory()
+
+def usage(exit_code=0):
+  print("""usage: deploy_stats_lambda <flags>
+
+Supported flags:
+ -h: show this usage text
+
+ -u: allow deployment from an unclean git working directory
+""")
+  sys.exit(exit_code)
+
+def parse_args(argv):
+  if '-h' in argv:
+    usage()
+  if not all([flag in ['-u', ] for flag in argv]):
+    usage(1)
+  return {
+    'allow_unclean_repo_deployment': '-u' in argv,
+
+    # args which only have one valid/relevant setting for stats lambda
+    'deploy_local_site': False,
+    'deploy_replay_site': False,
+    'use_elastic_ip_for_dev': False,
+    'use_remote_database_for_dev': True,
+  }
+
+args = parse_args(sys.argv[1:])
+deploy(args)
