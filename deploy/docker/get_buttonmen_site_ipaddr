@@ -23,58 +23,17 @@ import re
 import subprocess
 import sys
 
+from buttonmen_deployment_utils import (
+  add_ecs_config,
+  connect_boto_clients,
+  get_working_directory_info,
+)
+
 BUTTONMEN_ECS_CONFIG_FILE = f"{os.environ['HOME']}/.aws/buttonmen_ecs_config.json"
-
-def get_subprocess_output(cmdargs):
-  return subprocess.check_output(cmdargs).decode()
-
-REPO_MATCH = re.compile('^origin\\s+(git@github.com:|https://github.com/)([\\w-]+)/buttonmen.git \\(fetch\\)$')
-def get_working_directory_info():
-  git_info = {
-    'reponame': None,
-    'branch': None,
-  }
-
-  # Find repo name using git remote
-  output = get_subprocess_output(['git', 'remote', '-v'])
-  for line in output.split('\n'):
-    match = REPO_MATCH.match(line)
-    if not match: continue
-    git_info['reponame'] = match.group(2)
-  if not git_info['reponame']:
-    raise ValueError(f"Could not detect repo name from git remote: {output}")
-
-  # Find branch name using git branch
-  output = get_subprocess_output(['git', 'branch'])
-  for line in output.split('\n'):
-    if not line.startswith('* '): continue
-    words = line.split()
-    assert len(words) == 2, f"Found unexpected output line {line} in git branch output: {output}"
-    git_info['branch'] = words[1]
-  if not git_info['branch']:
-    raise ValueError(f"Could not detect branch name from git branch: {output}")
-
-  return git_info
 
 def validate_vars(git_info, args):
   return True
 
-def add_ecs_config(git_info, args):
-  if not os.path.exists(BUTTONMEN_ECS_CONFIG_FILE):
-    raise ValueError(f"ECS config file {BUTTONMEN_ECS_CONFIG_FILE} does not exist - make a copy of deploy/docker/buttonmen_ecs_config.json and populate it")
-  file_config = json.load(open(BUTTONMEN_ECS_CONFIG_FILE))
-  target_config = {}
-  key = args['deploy_replay_site'] and 'replay' or 'development'
-  git_info['site_type'] = key
-  git_info['config'] = file_config.get(key, {})
-
-def connect_boto_clients():
-  import boto3
-  return {
-    'ec2': boto3.client('ec2'),
-    'ecr': boto3.client('ecr'),
-    'ecs': boto3.client('ecs'),
-  }
 
 def ecs_task_family_name(git_info):
   prefix = (git_info['site_type'] == 'replay') and 'replay' or 'buttonmen'
@@ -139,10 +98,10 @@ def get_site_public_ipv4(eni_id, ec2_client):
   return public_ipv4
 
 def print_ip_address(args):
-  git_info = get_working_directory_info()
+  git_info = get_working_directory_info("site")
   validate_vars(git_info, args)
   add_ecs_config(git_info, args)
-  clients = connect_boto_clients()
+  clients = connect_boto_clients(git_info, ['ec2', 'ecs'])
   ecs_info = get_active_ecs_service_info(git_info, clients['ecs'])
   if ecs_info['eni']:
     public_ipv4 = get_site_public_ipv4(ecs_info['eni'], clients['ec2'])
@@ -151,6 +110,11 @@ def print_ip_address(args):
 def parse_args(argv):
   return {
     'deploy_replay_site': '-p' in argv,
+
+    # args which aren't relevant for ipaddr getter
+    'deploy_local_site': False,
+    'use_elastic_ip_for_dev': False,
+    'use_remote_database_for_dev': False,
   }
 
 args = parse_args(sys.argv[1:])

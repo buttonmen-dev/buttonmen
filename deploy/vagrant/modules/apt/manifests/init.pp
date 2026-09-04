@@ -28,3 +28,17 @@ class apt::client {
       content => template("apt/10periodic.erb");
   }
 }
+
+class apt::client::stats {
+  exec {
+    "apt_client_update":
+      command => "/usr/bin/apt-get update";
+  }
+
+  # Only bring in the packages the stats lambda, which is short-lived
+  # and won't be accessed via SSH, actually needs.
+  # * These are primarily packages needed by puppet itself.
+  package {
+    "wget": ensure => installed;
+  }
+}
