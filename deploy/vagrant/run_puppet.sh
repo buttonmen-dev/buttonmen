@@ -1,8 +1,13 @@
 #!/bin/sh
 ##### Apply the puppet configuration and ensure it succeeds
 
+MANIFEST=$1
+if [ "${MANIFEST}" = "" ]; then
+  MANIFEST="init.pp"
+fi
+
 # Run puppet
-puppet apply --detailed-exitcodes --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/vagrant/manifests/init.pp
+puppet apply --detailed-exitcodes --modulepath=/buttonmen/deploy/vagrant/modules /buttonmen/deploy/vagrant/manifests/${MANIFEST}
 
 # Check the exit code.
 # (See https://www.puppet.com/docs/puppet/8/man/apply.html)

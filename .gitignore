@@ -1,0 +1,2 @@
+# python cache used by docker container deployment module
+deploy/docker/__pycache__
